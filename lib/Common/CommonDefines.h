@@ -107,7 +107,6 @@
 // dep: TIME_ZONE_INFORMATION, DaylightTimeHelper, Windows.Globalization
 #define ENABLE_GLOBALIZATION
 // dep: IDebugDocumentContext
-#define ENABLE_SCRIPT_DEBUGGING
 // dep: IActiveScriptProfilerCallback, IActiveScriptProfilerHeapEnum
 #define ENABLE_SCRIPT_PROFILING
 #ifndef __clang__
@@ -117,6 +116,8 @@
 
 #define ENABLE_CUSTOM_ENTROPY
 #endif
+
+#define ENABLE_SCRIPT_DEBUGGING
 
 // GC features
 
