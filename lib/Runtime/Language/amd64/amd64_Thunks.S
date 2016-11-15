@@ -125,11 +125,11 @@ NESTED_END _ZN2Js18DynamicProfileInfo29EnsureDynamicProfileInfoThunkEPNS_16Recyc
 //============================================================================================================
 
 // Js::JavascriptMethod ScriptContext::ProfileModeDeferredParse(ScriptFunction *function)
-extrn ?ProfileModeDeferredParse@ScriptContext@Js@@SAP6APEAXPEAVRecyclableObject@2@UCallInfo@2@ZZPEAPEAVScriptFunction@2@@Z : PROC
+// extrn C_FUNC(_ZN2Js13ScriptContext31ProfileModeDeferredParsingThunkEPNS_16RecyclableObjectENS_8CallInfoEz)
 
 // Var ScriptContext::ProfileModeDeferredParsingThunk(RecyclableObject* function, CallInfo callInfo, ...)
-align 16
-?ProfileModeDeferredParsingThunk@ScriptContext@Js@@SAPEAXPEAVRecyclableObject@2@UCallInfo@2@ZZ PROC FRAME
+.balign 16
+NESTED_ENTRY _ZN2Js13ScriptContext31ProfileModeDeferredParsingThunkEPNS_16RecyclableObjectENS_8CallInfoEz, _TEXT, NoHandler
         // save volatile registers
         mov qword ptr [rsp + 8h],  rcx
         mov qword ptr [rsp + 10h], rdx
@@ -158,7 +158,7 @@ align 16
         mov r9,  qword ptr [rsp + 20h]
 
         rex_jmp_reg rax
-?ProfileModeDeferredParsingThunk@ScriptContext@Js@@SAPEAXPEAVRecyclableObject@2@UCallInfo@2@ZZ ENDP
+NESTED_END _ZN2Js13ScriptContext31ProfileModeDeferredParsingThunkEPNS_16RecyclableObjectENS_8CallInfoEz, _TEXT
 
 //============================================================================================================
 
@@ -172,7 +172,7 @@ extrn ?ProfileModeDeferredDeserialize@ScriptContext@Js@@SAP6APEAXPEAVRecyclableO
 
 // Var ScriptContext::ProfileModeDeferredDeserializeThunk(RecyclableObject* function, CallInfo callInfo, ...)
 align 16
-?ProfileModeDeferredDeserializeThunk@ScriptContext@Js@@SAPEAXPEAVRecyclableObject@2@UCallInfo@2@ZZ PROC FRAME
+C_FUNC(?ProfileModeDeferredDeserializeThunk@ScriptContext@Js@@SAPEAXPEAVRecyclableObject@2@UCallInfo@2@ZZ) PROC FRAME
         // save volatile registers
         mov qword ptr [rsp + 8h],  rcx
         mov qword ptr [rsp + 10h], rdx
@@ -200,7 +200,7 @@ align 16
         mov r9,  qword ptr [rsp + 20h]
 
         rex_jmp_reg rax
-?ProfileModeDeferredDeserializeThunk@ScriptContext@Js@@SAPEAXPEAVRecyclableObject@2@UCallInfo@2@ZZ ENDP
+C_FUNC(?ProfileModeDeferredDeserializeThunk@ScriptContext@Js@@SAPEAXPEAVRecyclableObject@2@UCallInfo@2@ZZ) ENDP
 
 #endif // ENABLE_SCRIPT_PROFILING
 

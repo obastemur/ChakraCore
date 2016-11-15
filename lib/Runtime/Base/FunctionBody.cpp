@@ -856,11 +856,11 @@ namespace Js
         }
 #endif
 
-        PHASE_PRINT_TRACE(Js::RedeferralPhase, this, _u("Redeferring function %d.%d: %s\n"), 
+        PHASE_PRINT_TRACE(Js::RedeferralPhase, this, _u("Redeferring function %d.%d: %s\n"),
                           GetSourceContextId(), GetLocalFunctionId(),
                           GetDisplayName() ? GetDisplayName() : _u("Anonymous function)"));
 
-        ParseableFunctionInfo * parseableFunctionInfo = 
+        ParseableFunctionInfo * parseableFunctionInfo =
             Js::ParseableFunctionInfo::NewDeferredFunctionFromFunctionBody(this);
         FunctionInfo * functionInfo = this->GetFunctionInfo();
 
@@ -1394,7 +1394,7 @@ namespace Js
         CopyDeferParseField(m_cbLength);
 
         this->CopyNestedArray(other);
-#undef CopyDeferParseField 
+#undef CopyDeferParseField
    }
 
     void ParseableFunctionInfo::Copy(FunctionBody* other)
@@ -1617,7 +1617,7 @@ namespace Js
             flags);
     }
 
-    ParseableFunctionInfo * 
+    ParseableFunctionInfo *
     ParseableFunctionInfo::NewDeferredFunctionFromFunctionBody(FunctionBody * functionBody)
     {
         ScriptContext * scriptContext = functionBody->GetScriptContext();
@@ -3470,11 +3470,11 @@ namespace Js
     {
 #ifdef ENABLE_SCRIPT_PROFILING
         Assert(m_scriptContext->CurrentThunk == ProfileEntryThunk || m_scriptContext->CurrentThunk == DefaultEntryThunk);
-        Assert(this->GetOriginalEntryPoint_Unchecked() == DefaultDeferredParsingThunk || 
+        Assert(this->GetOriginalEntryPoint_Unchecked() == DefaultDeferredParsingThunk ||
                this->GetOriginalEntryPoint_Unchecked() == ProfileDeferredParsingThunk ||
-               this->GetOriginalEntryPoint_Unchecked() == DefaultDeferredDeserializeThunk || 
+               this->GetOriginalEntryPoint_Unchecked() == DefaultDeferredDeserializeThunk ||
                this->GetOriginalEntryPoint_Unchecked() == ProfileDeferredDeserializeThunk ||
-               this->GetOriginalEntryPoint_Unchecked() == DefaultEntryThunk || 
+               this->GetOriginalEntryPoint_Unchecked() == DefaultEntryThunk ||
                this->GetOriginalEntryPoint_Unchecked() == ProfileEntryThunk);
 #else
         Assert(m_scriptContext->CurrentThunk == DefaultEntryThunk);
@@ -4587,7 +4587,7 @@ namespace Js
         this->GetPropertyIdOnRegSlotsContainer()->SetFormalArgs(formalArgs);
     }
 
-#ifdef ENABLE_SCRIPT_PROFILING
+#if defined(ENABLE_SCRIPT_PROFILING)// || defined(ENABLE_SCRIPT_DEBUGGING)
     HRESULT FunctionBody::RegisterFunction(BOOL fChangeMode, BOOL fOnlyCurrent)
     {
         if (!this->IsFunctionParsed())
@@ -4595,7 +4595,9 @@ namespace Js
             return S_OK;
         }
 
-        HRESULT hr = this->ReportFunctionCompiled();
+        HRESULT hr = S_OK;
+#if defined(ENABLE_SCRIPT_PROFILING)
+        hr = this->ReportFunctionCompiled();
         if (FAILED(hr))
         {
             return hr;
@@ -4605,6 +4607,7 @@ namespace Js
         {
             this->SetEntryToProfileMode();
         }
+#endif
 
         if (!fOnlyCurrent)
         {
@@ -4625,7 +4628,9 @@ namespace Js
         }
         return hr;
     }
+#endif
 
+#if defined(ENABLE_SCRIPT_PROFILING)
     HRESULT FunctionBody::ReportScriptCompiled()
     {
         AssertMsg(m_scriptContext != nullptr, "Script Context is null when reporting function information");

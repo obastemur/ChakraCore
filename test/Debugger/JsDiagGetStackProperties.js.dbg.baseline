@@ -78,13 +78,6 @@
       "Symbol.iterator": "function <large string>"
     },
     "[Return value]": "string 123",
-    "functionCallsReturn": {
-      "[innerFunc1 returned]": "number 1",
-      "[innerFunc2 returned]": "string 2",
-      "[innerFunc3 returned]": {
-        "#__proto__": "Number 0"
-      }
-    },
     "locals": {
       "innerFunc1": {
         "#__proto__": "function <large string>",

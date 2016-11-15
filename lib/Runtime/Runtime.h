@@ -351,47 +351,6 @@ class SourceContextInfo;
 
 #if defined(ENABLE_SCRIPT_DEBUGGING) && defined(_WIN32)
 #include "activdbg100.h"
-#else
-
-interface IEnumDebugCodeContexts : IUnknown
-{
-    // HRESULT Next(
-    //          ULONG celt,
-    //          IDebugCodeContext **pscc,
-    //          ULONG *pceltFetched);
-    //
-    // HRESULT Skip(
-    //          ULONG celt);
-    //
-    // HRESULT Reset();
-    //
-    // HRESULT Clone(
-    //          IEnumDebugCodeContexts **ppescc);
-};
-
-interface IDebugDocumentInfo : IUnknown
-{
-    HRESULT GetName(
-            char* /*DOCUMENTNAMETYPE*/ dnt,
-            BSTR *pbstrName);
-
-    HRESULT GetDocumentClassId(
-            CLSID *pclsidDocument);
-};
-
-interface IDebugDocument : IDebugDocumentInfo
-{
-};
-
-interface IDebugDocumentContext : IUnknown
-{
-    HRESULT GetDocument(
-            IDebugDocument **ppsd);
-
-    HRESULT EnumCodeContexts(
-            IEnumDebugCodeContexts **ppescc);
-};
-
 #endif
 
 #ifndef NTDDI_WIN10

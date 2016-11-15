@@ -572,7 +572,7 @@ namespace Js
      protected:
 #if PDATA_ENABLED
         XDataAllocation * xdataInfo;
-#endif     
+#endif
 #endif // ENABLE_NATIVE_CODEGEN
 
         CodeGenWorkItem * workItem;
@@ -692,8 +692,15 @@ namespace Js
         JitTransferData* GetJitTransferData() { return this->jitTransferData; }
         JitTransferData* EnsureJitTransferData(Recycler* recycler);
 #if PDATA_ENABLED
-        XDataAllocation* GetXDataInfo() { return this->xdataInfo; }
-        void SetXDataInfo(XDataAllocation* xdataInfo) { this->xdataInfo = xdataInfo; }
+        XDataAllocation* GetXDataInfo()
+        {
+            return this->xdataInfo;
+        }
+
+        void SetXDataInfo(XDataAllocation* xdataInfo)
+        {
+            this->xdataInfo = xdataInfo;
+        }
 #endif
 
 #ifdef FIELD_ACCESS_STATS
@@ -1576,7 +1583,7 @@ namespace Js
         Assert(GetFunctionInfo()->GetFunctionProxy() == this);
         return GetFunctionInfo()->IsAsync();
     }
-        
+
     inline bool FunctionProxy::IsDeferred() const
     {
         Assert(GetFunctionInfo());
@@ -1729,7 +1736,7 @@ namespace Js
         Assert(!IsDeferredDeserializeFunction());
         return (ParseableFunctionInfo*)this;
     }
-    
+
     inline DeferDeserializeFunctionInfo* FunctionProxy::GetDeferDeserializeFunctionInfo() const
     {
         Assert(IsDeferredDeserializeFunction());
@@ -3044,16 +3051,16 @@ namespace Js
         uint GetForInLoopDepth() const { return this->GetCountField(CounterFields::ForInLoopDepth); }
         uint SetForInLoopDepth(uint count) { return this->SetCountField(CounterFields::ForInLoopDepth, count); }
 
-        bool AllocProfiledForInLoopCount(ProfileId* profileId) 
+        bool AllocProfiledForInLoopCount(ProfileId* profileId)
         {
-            ProfileId profiledForInLoopCount = this->GetProfiledForInLoopCount(); 
-            if (profiledForInLoopCount != Constants::NoProfileId) 
-            { 
-                *profileId = profiledForInLoopCount; 
-                this->IncreaseCountField(CounterFields::ProfiledForInLoopCount); 
-                return true; 
-            } 
-            return false; 
+            ProfileId profiledForInLoopCount = this->GetProfiledForInLoopCount();
+            if (profiledForInLoopCount != Constants::NoProfileId)
+            {
+                *profileId = profiledForInLoopCount;
+                this->IncreaseCountField(CounterFields::ProfiledForInLoopCount);
+                return true;
+            }
+            return false;
         }
         ProfileId GetProfiledForInLoopCount() const { return (ProfileId)this->GetCountField(CounterFields::ProfiledForInLoopCount); }
         void SetProfiledForInLoopCount(ProfileId count) { this->SetCountField(CounterFields::ProfiledForInLoopCount, count); }
@@ -3333,7 +3340,7 @@ namespace Js
         ForInCache * GetForInCacheArray();
         void CleanUpForInCache(bool isShutdown);
 
-        void AllocateInlineCache();        
+        void AllocateInlineCache();
         InlineCache * GetInlineCache(uint index);
         bool CanFunctionObjectHaveInlineCaches();
         void** GetInlineCaches();
@@ -3344,8 +3351,8 @@ namespace Js
         IsInstInlineCache * GetIsInstInlineCache(uint index);
         PolymorphicInlineCache * GetPolymorphicInlineCache(uint index);
         PolymorphicInlineCache * CreateNewPolymorphicInlineCache(uint index, PropertyId propertyId, InlineCache * inlineCache);
-        PolymorphicInlineCache * CreateBiggerPolymorphicInlineCache(uint index, PropertyId propertyId);        
-    private:        
+        PolymorphicInlineCache * CreateBiggerPolymorphicInlineCache(uint index, PropertyId propertyId);
+    private:
 
         void ResetInlineCaches();
         PolymorphicInlineCache * CreatePolymorphicInlineCache(uint index, uint16 size);
@@ -3523,8 +3530,11 @@ namespace Js
         void GetSourceLineFromStartOffset_TTD(const uint startOffset, ULONG* line, LONG* col);
 #endif
 
-#ifdef ENABLE_SCRIPT_PROFILING
+#if defined(ENABLE_SCRIPT_PROFILING) || defined(ENABLE_SCRIPT_DEBUGGING)
         HRESULT RegisterFunction(BOOL fChangeMode, BOOL fOnlyCurrent = FALSE);
+#endif
+
+#if defined(ENABLE_SCRIPT_PROFILING)
         HRESULT ReportScriptCompiled();
         HRESULT ReportFunctionCompiled();
         void SetEntryToProfileMode();

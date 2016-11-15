@@ -46,9 +46,8 @@ struct XDataAllocation : public SecondaryAllocation
 //
 // pdata
 // -------
-// XDataAllocator also manages the pdata entries for a the page segment range. It allocates the table of pdata entries
-// on the heap to do that.
-//
+// XDataAllocator also manages the pdata entries for a the page segment range.
+// It allocates the table of pdata entries on the heap to do that.
 class XDataAllocator sealed : public SecondaryAllocator
 {
 // -------- Private members ---------/

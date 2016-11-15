@@ -296,7 +296,7 @@ namespace Js
 #endif
     }
 
-#ifdef ENABLE_SCRIPT_PROFILING
+#if defined(ENABLE_SCRIPT_PROFILING) //|| defined(ENABLE_SCRIPT_DEBUGGING)
     Var CrossSite::ProfileThunk(RecyclableObject* callable, CallInfo callInfo, ...)
     {
         JavascriptFunction* function = JavascriptFunction::FromVar(callable);
@@ -319,11 +319,13 @@ namespace Js
             char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 #endif
             entryPoint = ScriptFunction::FromVar(function)->GetEntryPointInfo()->jsMethod;
+//#if defined(ENABLE_SCRIPT_PROFILING)
             if (funcInfo->IsDeferred() && scriptContext->IsProfiling())
             {
                 // if the current entrypoint is deferred parse we need to update it appropriately for the profiler mode.
                 entryPoint = Js::ScriptContext::GetProfileModeThunk(entryPoint);
             }
+//#endif
             OUTPUT_TRACE(Js::ScriptProfilerPhase, _u("CrossSite::ProfileThunk FunctionNumber : %s, Entrypoint : 0x%08X\n"), funcInfo->GetFunctionProxy()->GetDebugNumberSet(debugStringBuffer), entryPoint);
         }
         else

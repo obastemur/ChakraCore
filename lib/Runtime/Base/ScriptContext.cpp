@@ -3125,11 +3125,12 @@ namespace Js
             return hr;
         }
 
+#if defined(ENABLE_SCRIPT_PROFILING)
         if (attach)
         {
             this->RegisterDebugThunk();
         }
-
+#endif
 
 #if ENABLE_PROFILE_INFO
 #if DBG_DUMP || defined(DYNAMIC_PROFILE_STORAGE) || defined(RUNTIME_DATA_COLLECTION)
@@ -3148,7 +3149,7 @@ namespace Js
     {
         if (this->IsExceptionWrapperForBuiltInsEnabled())
         {
-#ifdef ENABLE_SCRIPT_PROFILING
+#if defined(ENABLE_SCRIPT_PROFILING)
             this->CurrentThunk = ProfileEntryThunk;
             this->CurrentCrossSiteThunk = CrossSite::ProfileThunk;
 #if ENABLE_NATIVE_CODEGEN
@@ -3159,11 +3160,10 @@ namespace Js
             // are created with entry point set to the ProfileThunk.
             this->javascriptLibrary->SetProfileMode(true);
             this->javascriptLibrary->SetDispatchProfile(true, DispatchProfileInvoke);
+
             if (!calledDuringAttach)
             {
-#ifdef ENABLE_SCRIPT_PROFILING
                 m_fTraceDomCall = TRUE; // This flag is always needed in DebugMode to wrap external functions with DebugProfileThunk
-#endif
                 // Update the function objects currently present in there.
                 this->SetFunctionInRecyclerToProfileMode(true/*enumerateNonUserFunctionsOnly*/);
             }
@@ -3356,7 +3356,7 @@ namespace Js
         scriptFunction->ChangeEntryPoint(pBody->GetDefaultFunctionEntryPointInfo(), newEntryPoint);
     }
 
-#ifdef ENABLE_SCRIPT_PROFILING
+#if defined(ENABLE_SCRIPT_PROFILING)
     void ScriptContext::RecyclerEnumClassEnumeratorCallback(void *address, size_t size)
     {
         // TODO: we are assuming its function because for now we are enumerating only on functions
@@ -3658,6 +3658,7 @@ namespace Js
         if (!this->IsScriptContextInDebugMode()) // If we already in debug mode, we would have done below changes already.
         {
             this->GetDebugContext()->SetDebuggerMode(Js::DebuggerMode::Debugging);
+#ifdef ENABLE_SCRIPT_PROFILING
             if (this->IsScriptContextInDebugMode())
             {
                 // Note: for this we need final IsInDebugMode and NativeCodeGen initialized,
@@ -3669,6 +3670,7 @@ namespace Js
                 //       as we need the thunk registered before FunctionInfo's for built-ins, that may throw, are created.
                 //       Need to verify. If that's the case, one way would be to enumerate and fix all external/winRT thunks here.
             }
+#endif
         }
     }
 
@@ -3683,12 +3685,7 @@ namespace Js
 
         JavascriptFunction* function = JavascriptFunction::FromVar(callable);
         ScriptContext* scriptContext = function->GetScriptContext();
-        PROFILER_TOKEN scriptId = -1;
-        PROFILER_TOKEN functionId = -1;
         bool functionEnterEventSent = false;
-
-        const bool isProfilingUserCode = scriptContext->GetThreadContext()->IsProfilingUserCode();
-        const bool isUserCode = !function->IsLibraryCode();
         char16 *pwszExtractedFunctionName = NULL;
         const char16 *pwszFunctionName = NULL;
         HRESULT hrOfEnterEvent = S_OK;
@@ -3696,6 +3693,12 @@ namespace Js
         // We can come here when profiling is not on
         // e.g. User starts profiling, we update all thinks and then stop profiling - we don't update thunk
         // So we still get this call
+#if defined(ENABLE_SCRIPT_PROFILING)
+        PROFILER_TOKEN scriptId = -1;
+        PROFILER_TOKEN functionId = -1;
+        const bool isProfilingUserCode = scriptContext->GetThreadContext()->IsProfilingUserCode();
+        const bool isUserCode = !function->IsLibraryCode();
+
         const bool fProfile = (isUserCode || isProfilingUserCode) // Only report user code or entry library code
             && scriptContext->GetProfileInfo(function, scriptId, functionId);
 
@@ -3720,7 +3723,7 @@ namespace Js
                 }
                 AssertMsg(pBody == NULL || pBody->GetProfileSession() == pBody->GetScriptContext()->GetProfileSession(), "Function info wasn't reported for this profile session");
             }
-#endif
+#endif // DEBUG
 
             if (functionId == -1)
             {
@@ -3769,6 +3772,7 @@ namespace Js
 
             scriptContext->GetThreadContext()->SetIsProfilingUserCode(isUserCode); // Update IsProfilingUserCode state
         }
+#endif // ENABLE_SCRIPT_PROFILING
 
         Var aReturn = NULL;
         JavascriptMethod origEntryPoint = function->GetFunctionInfo()->GetOriginalEntryPoint();
@@ -3834,6 +3838,7 @@ namespace Js
         }
         __finally
         {
+#if defined(ENABLE_SCRIPT_PROFILING)
             if (fProfile)
             {
                 if (hrOfEnterEvent != ACTIVPROF_E_PROFILER_ABSENT)
@@ -3858,6 +3863,7 @@ namespace Js
 
                 scriptContext->GetThreadContext()->SetIsProfilingUserCode(isProfilingUserCode); // Restore IsProfilingUserCode state
             }
+#endif
 
             if (scriptContext->IsScriptContextInDebugMode())
             {
@@ -3871,7 +3877,7 @@ namespace Js
 #endif // defined(ENABLE_SCRIPT_DEBUGGING) || defined(ENABLE_SCRIPT_PROFILING)
     }
 
-#ifdef ENABLE_SCRIPT_PROFILING
+#if defined(ENABLE_SCRIPT_DEBUGGING) || defined(ENABLE_SCRIPT_PROFILING)
     // Part of ProfileModeThunk which is called in debug mode (debug or debug & profile).
     Var ScriptContext::ProfileModeThunk_DebugModeWrapper(JavascriptFunction* function, ScriptContext* scriptContext, JavascriptMethod entryPoint, Arguments& args)
     {
@@ -3883,7 +3889,9 @@ namespace Js
 
         return aReturn;
     }
+#endif
 
+#ifdef ENABLE_SCRIPT_PROFILING
     HRESULT ScriptContext::OnScriptCompiled(PROFILER_TOKEN scriptId, PROFILER_SCRIPT_TYPE type, IUnknown *pIDebugDocumentContext)
     {
         // TODO : can we do a delay send of these events or can we send an event before doing all this stuff that could calculate overhead?
@@ -3991,7 +3999,7 @@ namespace Js
 
     HRESULT ScriptContext::RegisterLibraryFunction(const char16 *pwszObjectName, const char16 *pwszFunctionName, Js::PropertyId functionPropertyId, JavascriptMethod entryPoint)
     {
-#ifdef ENABLE_SCRIPT_PROFILING
+#if defined(ENABLE_SCRIPT_PROFILING)// || defined(ENABLE_SCRIPT_DEBUGGING)
 #if DEBUG
         const char16 *pwszObjectNameFromProperty = const_cast<char16 *>(GetPropertyName(functionPropertyId)->GetBuffer());
         if (GetPropertyName(functionPropertyId)->IsSymbol())
@@ -4052,7 +4060,9 @@ namespace Js
             // throws, this must always be in a function that handles OOM
             m_pBuiltinFunctionIdMap->Add(entryPoint, functionPropertyId);
         }
+#endif // ENABLE_SCRIPT_PROFILING || ENABLE_SCRIPT_DEBUGGING
 
+#ifdef ENABLE_SCRIPT_PROFILING
         // Use name with "Object." if its not a global function
         if (pwszObjectName != NULL)
         {
@@ -4064,7 +4074,7 @@ namespace Js
         }
 #else
         return S_OK;
-#endif // ENABLE_SCRIPT_PROFILING
+#endif // ENABLE_SCRIPT_DEBUGGING
     }
 
     void ScriptContext::BindReference(void * addr)
