@@ -110,11 +110,14 @@
 // dep: IActiveScriptProfilerCallback, IActiveScriptProfilerHeapEnum
 #define ENABLE_SCRIPT_PROFILING
 #ifndef __clang__
-// xplat-todo: change DISABLE_SEH to ENABLE_SEH and move here
+#define ENABLE_SEH 1
 #define ENABLE_SIMDJS
 #endif
 
 #define ENABLE_CUSTOM_ENTROPY
+#else
+#define __try
+#define __finally
 #endif
 
 #define ENABLE_SCRIPT_DEBUGGING
@@ -586,10 +589,6 @@
 #define PDATA_ENABLED 0
 #define ALLOC_XDATA (false)
 #endif
-#endif
-
-#ifndef _WIN32
-#define DISABLE_SEH 1
 #endif
 
 //----------------------------------------------------------------------------------------------------
