@@ -23,6 +23,7 @@ target_include_directories (
 #
 if(CMAKE_SYSTEM_NAME STREQUAL Linux)
   set(LINKER_START_GROUP
+    -fPIC
     -Wl,--start-group
     -Wl,--whole-archive
     )

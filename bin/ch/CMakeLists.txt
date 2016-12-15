@@ -34,7 +34,7 @@ target_include_directories (ch
 
 if(STATIC_LIBRARY)
   if(CMAKE_SYSTEM_NAME STREQUAL Linux)
-    set(LINKER_START_GROUP -Wl,--start-group)
+    set(LINKER_START_GROUP -pie -Wl,--start-group)
     set(LINKER_END_GROUP -Wl,--end-group -static-libstdc++)
   elseif(CMAKE_SYSTEM_NAME STREQUAL Darwin)
     set(LINKER_START_GROUP -Wl,-force_load,)

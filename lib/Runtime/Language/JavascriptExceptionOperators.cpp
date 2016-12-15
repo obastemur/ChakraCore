@@ -78,7 +78,7 @@ namespace Js
                                                     size_t         argsSize,
                                                     int            hasBailedOutOffset,
                                                     ScriptContext *scriptContext)
-    {
+    {printf("JavascriptExceptionOperators::OP_TryCatch\n");
         void *continuation = nullptr;
         JavascriptExceptionObject *exception = nullptr;
 
@@ -92,14 +92,15 @@ namespace Js
         catch (const Js::JavascriptException& err)
         {
             exception = err.GetAndClear();
+            printf("A\n");
         }
 
         if (exception)
-        {
+        {            printf("B\n");
             exception = exception->CloneIfStaticExceptionObject(scriptContext);
             bool hasBailedOut = *(bool*)((char*)frame + hasBailedOutOffset); // stack offsets are negative
             if (hasBailedOut)
-            {
+            {            printf("C\n");
                 // If we have bailed out, this exception is coming from the interpreter. It should not have been caught;
                 // it so happens that this catch was on the stack and caught the exception.
                 // Re-throw!
@@ -119,7 +120,7 @@ namespace Js
                                                       size_t         spillSize,
                                                       size_t         argsSize,
                                                       ScriptContext *scriptContext)
-    {
+    {printf("JavascriptExceptionOperators::OP_TryFinally\n");
         void                      *tryContinuation     = nullptr;
         void                      *finallyContinuation = nullptr;
         JavascriptExceptionObject *exception           = nullptr;
@@ -133,22 +134,23 @@ namespace Js
         catch (const Js::JavascriptException& err)
         {
             exception = err.GetAndClear();
+                        printf("D\n");
         }
 
         if (exception)
-        {
+        {            printf("E %p %p %lu %lu\n", finallyAddr, frame, spillSize, argsSize);
             // Clone static exception object early in case finally block overwrites it
             exception = exception->CloneIfStaticExceptionObject(scriptContext);
         }
 
         finallyContinuation = amd64_CallWithFakeFrame(finallyAddr, frame, spillSize, argsSize);
         if (finallyContinuation)
-        {
+        {             printf("F\n");
             return finallyContinuation;
         }
 
         if (exception)
-        {
+        {            printf("G\n");
             JavascriptExceptionOperators::DoThrow(exception, scriptContext);
         }
 
