@@ -7,6 +7,7 @@
 
 // expected fvisibility=default
 .global C_FUNC(amd64_CallWithFakeFrame)
+.global C_FUNC(amd64_CallWithFakeFrameASM)
 .global C_FUNC(amd64_ReturnFromCallWithFakeFrame)
         // r8       = arg0.
         // rcx      = args size.
@@ -14,7 +15,7 @@
         // rsi      = original frame pointer.
         // rdi      = target.
 .balign 16
-NESTED_ENTRY amd64_CallWithFakeFrame, _TEXT, NoHandler
+NESTED_ENTRY amd64_CallWithFakeFrameASM, _TEXT, NoHandler
         // xplat-todo: need to have an equivalent function to __chkstk that we can
         // call here to verify that we have enough stack space
 
@@ -58,6 +59,15 @@ NESTED_ENTRY amd64_CallWithFakeFrame, _TEXT, NoHandler
 
         // rcx = args size.
         // rdx = spill size.
+NESTED_END amd64_CallWithFakeFrameASM, _TEXT
+
+.balign 16
+NESTED_ENTRY amd64_CallWithFakeFrame, _TEXT, NoHandler
+        sub	rsp, 40
+        .cfi_def_cfa_offset 48
+        call	C_FUNC(amd64_CallWithFakeFrameASM)
+        add	rsp, 40
+        ret
 NESTED_END amd64_CallWithFakeFrame, _TEXT
 
 .balign 16
