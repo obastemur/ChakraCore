@@ -64,11 +64,10 @@ void
 AutoSystemInfo::Initialize()
 {
     Assert(!initialized);
-#ifndef _WIN32
+
     PAL_InitializeDLL();
     majorVersion = CHAKRA_CORE_MAJOR_VERSION;
     minorVersion = CHAKRA_CORE_MINOR_VERSION;
-#endif
 
     processHandle = GetCurrentProcess();
     GetSystemInfo(this);
