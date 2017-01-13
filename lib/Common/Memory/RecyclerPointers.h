@@ -495,18 +495,6 @@ struct _QuickSortImpl
         ::qsort_s(arr, count, sizeof(T), comparer, context);
     }
 };
-#ifdef RECYCLER_WRITE_BARRIER
-template <>
-struct _QuickSortImpl<_write_barrier_policy>
-{
-    template<class T, class Comparer>
-    static void Sort(T* arr, size_t count, const Comparer& comparer, void* context)
-    {
-        // Use custom implementation if policy needs write barrier
-        JsUtil::QuickSort<T, Comparer>::Sort(arr, arr + count - 1, comparer, context);
-    }
-};
-#endif
 
 template<class T, class PolicyType = T, class Allocator = Recycler, class Comparer>
 void qsort_s(T* arr, size_t count, const Comparer& comparer, void* context)
@@ -515,15 +503,8 @@ void qsort_s(T* arr, size_t count, const Comparer& comparer, void* context)
     typedef typename AllocatorWriteBarrierPolicy<Allocator, ItemPolicy>::Policy Policy;
     _QuickSortImpl<Policy>::Sort(arr, count, comparer, context);
 }
-template<class T, class Comparer>
-void qsort_s(WriteBarrierPtr<T>* _Base, size_t _NumOfElements, size_t _SizeOfElements,
-             const Comparer& comparer, void* _Context)
-{
-    CompileAssert(false); // Disallow this. Use an overload above.
-}
 
 // Disallow memcpy, memmove of WriteBarrierPtr
-
 template <typename T>
 void *  __cdecl memmove(_Out_writes_bytes_all_opt_(_Size) WriteBarrierPtr<T> * _Dst, _In_reads_bytes_opt_(_Size) const void * _Src, _In_ size_t _Size)
 {

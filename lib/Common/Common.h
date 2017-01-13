@@ -100,7 +100,6 @@ template<> struct IntMath<int64> { using Type = Int64Math; };
 
 // Data Structures 2
 
-#include "DataStructures/QuickSort.h"
 #include "DataStructures/StringBuilder.h"
 #include "DataStructures/WeakReferenceDictionary.h"
 #include "DataStructures/LeafValueDictionary.h"
