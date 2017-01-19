@@ -525,7 +525,6 @@ namespace Js
     #endif
 
     #if ENABLE_DEBUG_CONFIG_OPTIONS && !DISABLE_JIT
-        bool dontEnforceLimitsForSimpleJitAfterOrFullJitAfter = false;
         if((IsEnabled(MinInterpretCountFlag) || IsEnabled(MaxInterpretCountFlag)) &&
             !(IsEnabled(SimpleJitAfterFlag) || IsEnabled(FullJitAfterFlag)))
         {
@@ -539,11 +538,11 @@ namespace Js
                 else
                 {
                     FullJitAfter = MinInterpretCount;
-                    dontEnforceLimitsForSimpleJitAfterOrFullJitAfter = true;
                 }
             }
             else
             {
+                bool dontEnforceLimitsForSimpleJitAfterOrFullJitAfter = false;
                 Enable(SimpleJitAfterFlag);
                 if(IsEnabled(MaxInterpretCountFlag))
                 {

@@ -25,11 +25,12 @@ static BOOL FGetStringFromLibrary(HMODULE hlib, int istring, __out_ecount(cchMax
     int cch;
     int cstring;
     DWORD cbRes;
-    int itable = ((WORD)istring >> 4) + 1;
-    istring &= 0x0F;
     BOOL fRet = FALSE;
 
 #ifdef ENABLE_GLOBALIZATION
+    int itable = ((WORD)istring >> 4) + 1;
+    istring &= 0x0F;
+
     psz[0] = '\0';
 
     if (NULL == hlib)
