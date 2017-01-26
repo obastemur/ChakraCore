@@ -28,11 +28,16 @@ endif()
 set(lib_target "${lib_target}"
   -Wl,-undefined,error
   ${LINKER_START_GROUP}
-  Chakra.Common.Core
-  Chakra.Pal
-  Chakra.Jsrt
+  ChakraCoreStatic
   ${LINKER_END_GROUP}
   ${CC_LTO_ENABLED}
   )
+
+if(CC_TARGET_OS_OSX)
+  set(lib_target "${lib_target}"
+    "-framework CoreFoundation"
+    "-framework Security"
+    )
+endif()
 
 target_link_libraries (GCStress ${lib_target})

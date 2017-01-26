@@ -56,9 +56,7 @@ if(STATIC_LIBRARY)
   set(lib_target "${lib_target}"
     -Wl,-undefined,error
     ${LINKER_START_GROUP}
-    Chakra.Pal
-    Chakra.Common.Core
-    Chakra.Jsrt
+    ChakraCoreStatic
     ${LINKER_END_GROUP}
     dl
     ${ICULIB}
