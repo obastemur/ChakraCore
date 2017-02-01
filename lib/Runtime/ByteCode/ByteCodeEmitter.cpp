@@ -3845,7 +3845,7 @@ void ByteCodeGenerator::StartEmitFunction(ParseNode *pnodeFnc)
         {
             for (Scope *scope = this->currentScope; scope; scope = scope->GetEnclosingScope())
             {
-                if (scope->GetScopeType() != ScopeType_FunctionBody && 
+                if (scope->GetScopeType() != ScopeType_FunctionBody &&
                     scope->GetScopeType() != ScopeType_Global &&
                     scope->GetScopeType() != ScopeType_GlobalEvalBlock &&
                     scope->GetMustInstantiate())
@@ -9602,6 +9602,9 @@ void EmitForInOrForOf(ParseNode *loopNode, ByteCodeGenerator *byteCodeGenerator,
 
     byteCodeGenerator->Writer()->ExitLoop(loopId);
 
+    ParseNode *pnodeTry = byteCodeGenerator->GetParser()->CreateNode(knopTryFinally);
+    byteCodeGenerator->StartStatement(pnodeTry);
+
     EmitCatchAndFinallyBlocks(catchLabel,
         finallyLabel,
         loopNode->location,
@@ -9611,6 +9614,8 @@ void EmitForInOrForOf(ParseNode *loopNode, ByteCodeGenerator *byteCodeGenerator,
         regOffset,
         byteCodeGenerator,
         funcInfo);
+
+    byteCodeGenerator->EndStatement(pnodeTry);
 
     if (!byteCodeGenerator->IsES6ForLoopSemanticsEnabled())
     {
