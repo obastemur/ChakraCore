@@ -34,7 +34,6 @@ if(CC_TARGET_OS_ANDROID OR CC_TARGET_OS_LINUX)
   set(LINKER_END_GROUP
     -Wl,--no-whole-archive
     -Wl,--end-group
-    -static-libstdc++
     )
 elseif(CC_TARGET_OS_OSX)
   set(LINKER_START_GROUP -Wl,-force_load,)

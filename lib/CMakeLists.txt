@@ -35,6 +35,7 @@ add_library (ChakraCoreStatic STATIC
 )
 
 if(CC_TARGET_OS_OSX)
+  add_compile_options(-std=c++11)
   target_link_libraries(ChakraCoreStatic
     "-framework CoreFoundation"
     "-framework Security"
