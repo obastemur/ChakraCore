@@ -100,7 +100,7 @@ Lowerer::Lower()
     }
 
     this->LowerRange(m_func->m_headInstr, m_func->m_tailInstr, defaultDoFastPath, loopFastPath);
-
+static long qqq = 0;
 #if DBG && GLOBAL_ENABLE_WRITE_BARRIER
     // TODO: (leish)(swb) implement for arm
 #if defined(_M_IX86) || defined(_M_AMD64)
@@ -109,14 +109,15 @@ Lowerer::Lower()
         // find out all write barrier setting instr, call Recycler::WBSetBit for verification purpose
         // should do this in LowererMD::GenerateWriteBarrier, however, can't insert call instruction there
         FOREACH_INSTR_EDITING(instr, instrNext, m_func->m_headInstr)
-            if (instr->m_src1 && instr->m_src1->IsAddrOpnd())
+            if (qqq++ < 9170 && instr->m_src1 && instr->m_src1->IsAddrOpnd())
             {
                 IR::AddrOpnd* addrOpnd = instr->m_src1->AsAddrOpnd();
                 if (addrOpnd->GetAddrOpndKind() == IR::AddrOpndKindWriteBarrierCardTable)
                 {
-                    auto& leaInstr = instr->m_prev->m_prev->m_prev;
-                    auto& movInstr = instr->m_prev->m_prev;
                     auto& shrInstr = instr->m_prev;
+                    auto& movInstr = shrInstr->m_prev;
+                    auto& leaInstr = movInstr->m_prev;
+
                     Assert(leaInstr->m_opcode == Js::OpCode::LEA);
                     Assert(movInstr->m_opcode == Js::OpCode::MOV);
                     Assert(shrInstr->m_opcode == Js::OpCode::SHR);
@@ -6638,7 +6639,7 @@ Lowerer::GenerateScriptFunctionInit(IR::RegOpnd * regOpnd, IR::Opnd * vtableAddr
     IR::Opnd * typeOpnd = IR::RegOpnd::New(TyMachPtr, func);
     InsertMove(typeOpnd, IR::IndirOpnd::New(functionProxyOpnd->AsRegOpnd(), Js::FunctionProxy::GetOffsetOfDeferredPrototypeType(),
         TyMachPtr, func), insertBeforeInstr);
-    
+
     IR::LabelInstr * labelHelper = IR::LabelInstr::New(Js::OpCode::Label, func, true);
     InsertTestBranch(typeOpnd, typeOpnd, Js::OpCode::BrEq_A, labelHelper, insertBeforeInstr);
     IR::LabelInstr * labelDone = IR::LabelInstr::New(Js::OpCode::Label, func, false);
@@ -6651,7 +6652,7 @@ Lowerer::GenerateScriptFunctionInit(IR::RegOpnd * regOpnd, IR::Opnd * vtableAddr
     insertBeforeInstr->InsertBefore(callHelperInstr);
     m_lowererMD.LowerCall(callHelperInstr, 0);
     insertBeforeInstr->InsertBefore(labelDone);
-    
+
     GenerateMemInit(regOpnd, 0, vtableAddressOpnd, insertBeforeInstr, isZeroed);
     GenerateMemInit(regOpnd, Js::ScriptFunction::GetOffsetOfType(), typeOpnd, insertBeforeInstr, isZeroed);
     GenerateMemInitNull(regOpnd, Js::ScriptFunction::GetOffsetOfAuxSlots(), insertBeforeInstr, isZeroed);
@@ -6659,7 +6660,7 @@ Lowerer::GenerateScriptFunctionInit(IR::RegOpnd * regOpnd, IR::Opnd * vtableAddr
     GenerateMemInit(regOpnd, Js::ScriptFunction::GetOffsetOfConstructorCache(),
     LoadLibraryValueOpnd(insertBeforeInstr, LibraryValue::ValueConstructorCacheDefaultInstance),
         insertBeforeInstr, isZeroed);
-    
+
     GenerateMemInit(regOpnd, Js::ScriptFunction::GetOffsetOfFunctionInfo(), functionInfoOpnd, insertBeforeInstr, isZeroed);
     GenerateMemInit(regOpnd, Js::ScriptFunction::GetOffsetOfEnvironment(), envOpnd, insertBeforeInstr, isZeroed);
     GenerateMemInitNull(regOpnd, Js::ScriptFunction::GetOffsetOfCachedScopeObj(), insertBeforeInstr, isZeroed);
@@ -18366,7 +18367,7 @@ void Lowerer::GenerateTruncWithCheck(IR::Instr* instr)
         {
             m_lowererMD.LoadFloatHelperArgument(instr, instr->GetSrc1());
         }
-        else 
+        else
         {
             m_lowererMD.LoadDoubleHelperArgument(instr, instr->GetSrc1());
         }
@@ -21433,7 +21434,7 @@ Lowerer::TryGenerateFastBrOrCmTypeOf(IR::Instr *instr, IR::Instr **prev, bool is
             return true;
         }
     }
-    
+
     if (instrSrc1 && instrSrc1->GetStackSym()->IsSingleDef() && instrSrc2 && instrSrc2->GetStackSym()->IsSingleDef() &&
         instrSrc1->GetStackSym()->GetInstrDef()->m_opcode == Js::OpCode::Typeof &&
         instrSrc2->GetStackSym()->GetInstrDef()->m_opcode == Js::OpCode::Typeof)
@@ -21683,7 +21684,7 @@ Lowerer::GenerateFastCmTypeOf(IR::Instr *compare, IR::RegOpnd *object, IR::IntCo
     IR::LabelInstr *helper= IR::LabelInstr::New(Js::OpCode::Label, m_func, true);
     IR::RegOpnd    *dst      = compare->GetDst()->IsRegOpnd() ? compare->GetDst()->AsRegOpnd() : nullptr;
     IR::RegOpnd    *typeRegOpnd  = IR::RegOpnd::New(TyMachReg, m_func);
-    
+
     Assert(dst);
 
     if (dst->IsEqual(object))
@@ -23195,7 +23196,7 @@ Lowerer::LowerDivI4Common(IR::Instr * instr)
             {
                 InsertCompareBranch(src2, IR::IntConstOpnd::NewFromType(-1, src2->GetType(), m_func), Js::OpCode::BrNeq_A, divLabel, divLabel);
             }
-            
+
             if (overflowReg3)
             {
                 GenerateThrow( IR::IntConstOpnd::NewFromType(SCODE_CODE(VBSERR_Overflow), TyInt32, m_func), divLabel);
