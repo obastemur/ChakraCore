@@ -376,7 +376,7 @@ LowererMDArch::LoadHeapArguments(IR::Instr *instrArgs)
             // s2 = actual argument count (without counting "this")
             instr = this->lowererMD->LoadInputParamCount(instrArgs, -1);
             IR::Opnd * opndInputParamCount = instr->GetDst();
-            
+
             this->LoadHelperArgument(instrArgs, opndInputParamCount);
 
             // s1 = current function
@@ -466,6 +466,40 @@ LowererMDArch::LoadNewScObjFirstArg(IR::Instr * instr, IR::Opnd * dst, ushort ex
     return argInstr;
 }
 
+inline static RegNum GetRegFromArgPosition(const bool isFloatArg, const uint16 argPosition)
+{
+    RegNum reg = RegNOREG;
+
+    if (!isFloatArg && argPosition <= IntArgRegsCount)
+    {
+        switch (argPosition)
+        {
+#define REG_INT_ARG(Index, Name)    \
+case ((Index) + 1):         \
+reg = Reg ## Name;      \
+break;
+#include "RegList.h"
+            default:
+                Assume(UNREACHED);
+        }
+    }
+    else if (isFloatArg && argPosition <= XmmArgRegsCount)
+    {
+        switch (argPosition)
+        {
+#define REG_XMM_ARG(Index, Name)    \
+case ((Index) + 1):         \
+reg = Reg ## Name;      \
+break;
+#include "RegList.h"
+            default:
+                Assume(UNREACHED);
+        }
+    }
+
+    return reg;
+}
+
 int32
 LowererMDArch::LowerCallArgs(IR::Instr *callInstr, ushort callFlags, Js::ArgSlot extraParams, IR::IntConstOpnd **callInfoOpndRef /* = nullptr */)
 {
@@ -479,6 +513,10 @@ LowererMDArch::LowerCallArgs(IR::Instr *callInstr, ushort callFlags, Js::ArgSlot
     IR::Instr * argInstr = callInstr;
     IR::Instr * cfgInsertLoc = callInstr->GetPrevRealInstr();
     IR::Opnd *src2 = argInstr->UnlinkSrc2();
+#ifndef _WIN32
+    this->xplatCallArgs.StartRecording();
+#endif
+
     while (src2->IsSymOpnd())
     {
         IR::SymOpnd *   argLinkOpnd = src2->AsSymOpnd();
@@ -523,7 +561,9 @@ LowererMDArch::LowerCallArgs(IR::Instr *callInstr, ushort callFlags, Js::ArgSlot
         callInstr->InsertBefore(argInstr);
         argCount++;
     }
-
+#ifndef _WIN32
+    this->xplatCallArgs.StopRecording();
+#endif
 
     IR::RegOpnd *       argLinkOpnd = src2->AsRegOpnd();
     StackSym *          argLinkSym  = argLinkOpnd->m_sym->AsStackSym();
@@ -957,23 +997,39 @@ LowererMDArch::LowerCall(IR::Instr * callInstr, uint32 argCount)
     // Manually home args
     if (shouldHomeParams)
     {
-        static const RegNum s_argRegs[IntArgRegsCount] = {
-    #define REG_INT_ARG(Index, Name)  Reg ## Name,
-    #include "RegList.h"
-        };
-
         const int callArgCount = this->helperCallArgsCount + static_cast<int>(argCount);
-        const int argRegs = min(callArgCount, static_cast<int>(IntArgRegsCount));
-        for (int i = argRegs - 1; i >= 0; i--)
+        const int xpTopPos = this->xplatCallArgs.GetTopPosition();
+
+        int floatCount = this->xplatCallArgs.floatCount;
+        int argRes = min(callArgCount, static_cast<int>(XmmArgRegsCount));
+        int intCount = max(0, min(argRes - floatCount, static_cast<int>(IntArgRegsCount)));
+        int argRegs = intCount + floatCount;
+        
+        for (int i = argRegs > xpTopPos ? argRegs : xpTopPos; i > 0 && argRegs > 0; i--, argRegs--)
         {
-            StackSym * sym = this->m_func->m_symTable->GetArgSlotSym(static_cast<uint16>(i + 1));
+            StackSym * sym = this->m_func->m_symTable->GetArgSlotSym(static_cast<uint16>(i));
+
+            IRType type = TyMachReg;
+            bool isFloatArg = false;
+            if (i <= xpTopPos)
+            {
+                type = this->xplatCallArgs.args[i];
+                isFloatArg = this->xplatCallArgs.IsFloat(i);
+            }
+            
+            RegNum reg = GetRegFromArgPosition(isFloatArg, i);
+
+            IR::RegOpnd *regOpnd = IR::RegOpnd::New(nullptr, reg, type, this->m_func);
+            regOpnd->m_isCallArg = true;
+
             Lowerer::InsertMove(
-                IR::SymOpnd::New(sym, TyMachReg, this->m_func),
-                IR::RegOpnd::New(nullptr, s_argRegs[i], TyMachReg, this->m_func),
+                IR::SymOpnd::New(sym, type, this->m_func),
+                regOpnd,
                 callInstr, false);
         }
     }
-#endif
+    this->xplatCallArgs.Reset();
+#endif // !_WIN32
 
     //
     // load the address into a register because we cannot directly access 64 bit constants
@@ -1036,35 +1092,14 @@ LowererMDArch::GetArgSlotOpnd(uint16 index, StackSym * argSym, bool isHelper /*=
 
     IRType type = argSym ? argSym->GetType() : TyMachReg;
     const bool isFloatArg = IRType_IsFloat(type) || IRType_IsSimd128(type);
-    RegNum reg = RegNOREG;
-
-    if (!isFloatArg && argPosition <= IntArgRegsCount)
+    RegNum reg = GetRegFromArgPosition(isFloatArg, argPosition);
+#ifndef _WIN32
+    if (reg != RegNOREG && this->xplatCallArgs.IsRecording())
     {
-        switch (argPosition)
-        {
-#define REG_INT_ARG(Index, Name)    \
-        case ((Index) + 1):         \
-            reg = Reg ## Name;      \
-            break;
-#include "RegList.h"
-        default:
-            Assume(UNREACHED);
-        }
+        this->xplatCallArgs.Add(isFloatArg, argPosition);
     }
-    else if (isFloatArg && argPosition <= XmmArgRegsCount)
-    {
-        switch (argPosition)
-        {
-#define REG_XMM_ARG(Index, Name)    \
-        case ((Index) + 1):         \
-            reg = Reg ## Name;      \
-            break;
-#include "RegList.h"
-        default:
-            Assume(UNREACHED);
-        }
-    }
-
+#endif
+    
     if (reg != RegNOREG)
     {
         IR::RegOpnd *regOpnd = IR::RegOpnd::New(argSym, reg, type, m_func);

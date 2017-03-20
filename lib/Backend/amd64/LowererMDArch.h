@@ -29,7 +29,61 @@ private:
     int                 helperCallArgsCount;
     IR::Opnd *          helperCallArgs[MaxArgumentsToHelper];
 
+#ifndef _WIN32
+    class XPlatRegArgList
+    {
+        bool isRecording;
+        int lastPosition;
+    public:
+        XPlatRegArgList():isRecording(false) { Reset(); }
+        inline void Reset() { floatCount = 0; intCount = 0; lastPosition = 0;}
 
+        inline void StartRecording() { Assert(!isRecording); Reset(); isRecording = true; }
+        
+        void StopRecording()
+        {
+            Assert(isRecording);
+            isRecording = false;
+            for (int i = lastPosition - GetArgsCount(); i >= 0; i--) args[i] = TyMachPtr;
+        }
+        
+        inline bool IsRecording() { return isRecording; }
+
+        inline int  GetArgsCount() { return intCount + floatCount; }
+        
+        inline int  GetTopPosition() { return lastPosition; }
+        
+        inline bool IsFloat(uint16 position) { return args[position] == TyFloat64; }
+        
+        inline void Add(bool isFloat, uint16 regPosition)
+        {
+            Assert(isRecording && regPosition != 0);
+            
+            if (isFloat)
+            {
+                Assert(regPosition <= XmmArgRegsCount);
+                args[regPosition] = TyFloat64;
+                floatCount++;
+            }
+            else
+            {
+                Assert(regPosition <= IntArgRegsCount);
+                args[regPosition] = TyMachPtr;
+                intCount++;
+            }
+            
+            if (regPosition > lastPosition)
+            {
+                lastPosition = regPosition;
+            }
+        }
+        
+        IRType args [XmmArgRegsCount + 1];
+        int    floatCount;
+        int    intCount;
+    };
+    XPlatRegArgList     xplatCallArgs;
+#endif
 public:
 
     LowererMDArch(Func* function):
