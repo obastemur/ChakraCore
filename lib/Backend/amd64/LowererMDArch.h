@@ -29,11 +29,17 @@ private:
     int                 helperCallArgsCount;
     IR::Opnd *          helperCallArgs[MaxArgumentsToHelper];
 
-
+#ifndef _WIN32
+    int                 preparedArgListCount;
+    IRType preparedArgList[XmmArgRegsCount];
+#endif
 public:
 
     LowererMDArch(Func* function):
         m_func(function)
+#ifndef _WIN32
+        ,preparedArgListCount(0)
+#endif
     { }
 
     void                Init(LowererMD * lowererMD);

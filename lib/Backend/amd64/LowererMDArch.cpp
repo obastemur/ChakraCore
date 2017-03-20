@@ -376,7 +376,7 @@ LowererMDArch::LoadHeapArguments(IR::Instr *instrArgs)
             // s2 = actual argument count (without counting "this")
             instr = this->lowererMD->LoadInputParamCount(instrArgs, -1);
             IR::Opnd * opndInputParamCount = instr->GetDst();
-            
+
             this->LoadHelperArgument(instrArgs, opndInputParamCount);
 
             // s1 = current function
@@ -466,6 +466,40 @@ LowererMDArch::LoadNewScObjFirstArg(IR::Instr * instr, IR::Opnd * dst, ushort ex
     return argInstr;
 }
 
+inline static RegNum GetRegFromArgPosition(const bool isFloatArg, const uint16 argPosition)
+{
+    RegNum reg = RegNOREG;
+
+    if (!isFloatArg && argPosition <= IntArgRegsCount)
+    {
+        switch (argPosition)
+        {
+#define REG_INT_ARG(Index, Name)    \
+case ((Index) + 1):         \
+reg = Reg ## Name;      \
+break;
+#include "RegList.h"
+            default:
+                Assume(UNREACHED);
+        }
+    }
+    else if (isFloatArg && argPosition <= XmmArgRegsCount)
+    {
+        switch (argPosition)
+        {
+#define REG_XMM_ARG(Index, Name)    \
+case ((Index) + 1):         \
+reg = Reg ## Name;      \
+break;
+#include "RegList.h"
+            default:
+                Assume(UNREACHED);
+        }
+    }
+
+    return reg;
+}
+
 int32
 LowererMDArch::LowerCallArgs(IR::Instr *callInstr, ushort callFlags, Js::ArgSlot extraParams, IR::IntConstOpnd **callInfoOpndRef /* = nullptr */)
 {
@@ -479,6 +513,10 @@ LowererMDArch::LowerCallArgs(IR::Instr *callInstr, ushort callFlags, Js::ArgSlot
     IR::Instr * argInstr = callInstr;
     IR::Instr * cfgInsertLoc = callInstr->GetPrevRealInstr();
     IR::Opnd *src2 = argInstr->UnlinkSrc2();
+#ifndef _WIN32
+    this->preparedArgListCount = 0;
+#endif
+
     while (src2->IsSymOpnd())
     {
         IR::SymOpnd *   argLinkOpnd = src2->AsSymOpnd();
@@ -506,6 +544,14 @@ LowererMDArch::LowerCallArgs(IR::Instr *callInstr, ushort callFlags, Js::ArgSlot
         }
 
         IR::Opnd *      dstOpnd     = this->GetArgSlotOpnd(index, argLinkSym);
+
+#ifndef _WIN32
+        if (index <= XmmArgRegsCount + 1)
+        {
+            Assert(this->preparedArgListCount < XmmArgRegsCount);
+            preparedArgList[preparedArgListCount++] = argLinkSym->GetType();
+        }
+#endif
 
         argInstr->ReplaceDst(dstOpnd);
 
@@ -957,23 +1003,59 @@ LowererMDArch::LowerCall(IR::Instr * callInstr, uint32 argCount)
     // Manually home args
     if (shouldHomeParams)
     {
-        static const RegNum s_argRegs[IntArgRegsCount] = {
-    #define REG_INT_ARG(Index, Name)  Reg ## Name,
-    #include "RegList.h"
-        };
-
         const int callArgCount = this->helperCallArgsCount + static_cast<int>(argCount);
-        const int argRegs = min(callArgCount, static_cast<int>(IntArgRegsCount));
-        for (int i = argRegs - 1; i >= 0; i--)
+        this->preparedArgListCount = min(this->preparedArgListCount, static_cast<int>(XmmArgRegsCount));
+
+        int floatCount = 0, intCount = 0;
+
+        for (int i = this->preparedArgListCount - 1; i >= 0; i--)
         {
-            StackSym * sym = this->m_func->m_symTable->GetArgSlotSym(static_cast<uint16>(i + 1));
+            IRType type = this->preparedArgList[i];
+            if (IRType_IsFloat(type) || IRType_IsSimd128(type))
+            {
+                floatCount++;
+            }
+        }
+
+        int argRes = min(callArgCount, static_cast<int>(XmmArgRegsCount));
+        intCount = max(0, min(argRes - floatCount, static_cast<int>(IntArgRegsCount)));
+        int argRegs = intCount + floatCount;
+
+        for (int i = argRegs; i > 0; i--)
+        {
+            StackSym * sym = this->m_func->m_symTable->GetArgSlotSym(static_cast<uint16>(i));
+            IRType type;
+            RegNum reg;
+            bool isFloatArg = false;
+            if (i <= this->preparedArgListCount)
+            {
+                type = this->preparedArgList[this->preparedArgListCount - i];
+                isFloatArg = IRType_IsFloat(type) || IRType_IsSimd128(type);
+            }
+
+            if (!isFloatArg)
+            {
+                Assert(intCount);
+                type = TyMachReg;
+                reg = GetRegFromArgPosition(false, intCount--);
+            }
+            else
+            {
+                Assert(floatCount);
+                reg = GetRegFromArgPosition(true, floatCount--);
+            }
+
+            Assert(reg != RegNOREG);
+
             Lowerer::InsertMove(
-                IR::SymOpnd::New(sym, TyMachReg, this->m_func),
-                IR::RegOpnd::New(nullptr, s_argRegs[i], TyMachReg, this->m_func),
+                IR::SymOpnd::New(sym, type, this->m_func),
+                IR::RegOpnd::New(nullptr, reg, type, this->m_func),
                 callInstr, false);
         }
+
     }
-#endif
+    this->preparedArgListCount = 0;
+#endif // !_WIN32
 
     //
     // load the address into a register because we cannot directly access 64 bit constants
@@ -1036,34 +1118,7 @@ LowererMDArch::GetArgSlotOpnd(uint16 index, StackSym * argSym, bool isHelper /*=
 
     IRType type = argSym ? argSym->GetType() : TyMachReg;
     const bool isFloatArg = IRType_IsFloat(type) || IRType_IsSimd128(type);
-    RegNum reg = RegNOREG;
-
-    if (!isFloatArg && argPosition <= IntArgRegsCount)
-    {
-        switch (argPosition)
-        {
-#define REG_INT_ARG(Index, Name)    \
-        case ((Index) + 1):         \
-            reg = Reg ## Name;      \
-            break;
-#include "RegList.h"
-        default:
-            Assume(UNREACHED);
-        }
-    }
-    else if (isFloatArg && argPosition <= XmmArgRegsCount)
-    {
-        switch (argPosition)
-        {
-#define REG_XMM_ARG(Index, Name)    \
-        case ((Index) + 1):         \
-            reg = Reg ## Name;      \
-            break;
-#include "RegList.h"
-        default:
-            Assume(UNREACHED);
-        }
-    }
+    RegNum reg = GetRegFromArgPosition(isFloatArg, argPosition);
 
     if (reg != RegNOREG)
     {
