@@ -112,10 +112,10 @@ namespace Js
         }
 #if DBG && ENABLE_NATIVE_CODEGEN
         // the lock for work item queue should not be locked while accessing AuxPtrs in background thread
-        auto jobProcessorCS = this->GetScriptContext()->GetThreadContext()->GetJobProcessor()->GetCriticalSection();
-        Assert(!jobProcessorCS || !jobProcessorCS->IsLocked());
+      //  auto jobProcessorCS = this->GetScriptContext()->GetThreadContext()->GetJobProcessor()->GetCriticalSection();
+      //  Assert(!jobProcessorCS || !jobProcessorCS->IsLocked());
 #endif
-        AutoCriticalSection autoCS(&GlobalLock);
+    //    AutoCriticalSection autoCS(&GlobalLock);
         return AuxPtrsT::GetAuxPtr(this, e);
     }
 
@@ -6257,7 +6257,7 @@ namespace Js
         this->SetConstTable(nullptr);
         this->byteCodeBlock = nullptr;
 
-        // Also, remove the function body from the source info to prevent any further processing 
+        // Also, remove the function body from the source info to prevent any further processing
         // of the function such as attempts to set breakpoints.
         if (GetIsFuncRegistered())
         {

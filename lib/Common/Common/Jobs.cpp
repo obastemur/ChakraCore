@@ -1073,11 +1073,11 @@ namespace JsUtil
                 Assert(numJobs != 0);
                 --numJobs;
                 threadData->currentJob = job;
-                criticalSection.Leave();
+                //criticalSection.Leave();
 
                 const bool succeeded = Process(job, threadData);
 
-                criticalSection.Enter();
+                //criticalSection.Enter();
                 threadData->currentJob = 0;
                 JobManager *const manager = job->Manager();
                 JobProcessed(manager, job, succeeded); // the job may be deleted during this and should not be used afterwards
