@@ -11,8 +11,8 @@ public:
     static bool Initialize();
     static bool Uninitialize();
 
-    static bool IsEnabled() { return enabled; }
-    static bool DoCollectInfo() { return collectInfo; }
+    static bool IsEnabled() {LOGMEIN("DynamicProfileStorage.h] 13\n"); return enabled; }
+    static bool DoCollectInfo() {LOGMEIN("DynamicProfileStorage.h] 14\n"); return collectInfo; }
 
     template <typename Fn>
     static Js::SourceDynamicProfileManager * Load(__in_z char16 const * filename, Fn loadFn);
@@ -52,10 +52,10 @@ private:
     static DWORD const FileFormatVersion;
 #ifdef _WIN32
     typedef DWORD TimeType;
-    static inline TimeType GetCreationTime() { return _time32(NULL); }
+    static inline TimeType GetCreationTime() {LOGMEIN("DynamicProfileStorage.h] 54\n"); return _time32(NULL); }
 #else
     typedef time_t TimeType;
-    static inline TimeType GetCreationTime() { return time(NULL); }
+    static inline TimeType GetCreationTime() {LOGMEIN("DynamicProfileStorage.h] 57\n"); return time(NULL); }
 #endif
     static TimeType creationTime;
     static int32 lastOffset;
@@ -88,24 +88,24 @@ private:
 template <class Fn>
 Js::SourceDynamicProfileManager *
 DynamicProfileStorage::Load(char16 const * filename, Fn loadFn)
-{
+{LOGMEIN("DynamicProfileStorage.h] 90\n");
     Assert(DynamicProfileStorage::IsEnabled());
     AutoCriticalSection autocs(&cs);
     if (useCacheDir && AcquireLock())
-    {
+    {LOGMEIN("DynamicProfileStorage.h] 94\n");
         LoadCacheCatalog(); // refresh the cache catalog
     }
     StorageInfo * info;
     if (!infoMap.TryGetReference(filename, &info))
-    {
+    {LOGMEIN("DynamicProfileStorage.h] 99\n");
         if (useCacheDir)
-        {
+        {LOGMEIN("DynamicProfileStorage.h] 101\n");
             ReleaseLock();
         }
 #if !DBG || !defined(_M_AMD64)
         char16 const * messageType = GetMessageType();
         if (messageType)
-        {
+        {LOGMEIN("DynamicProfileStorage.h] 107\n");
             Output::Print(_u("%s: DynamicProfileStorage: Dynamic Profile Data not found for '%s'\n"), messageType, filename);
             Output::Flush();
         }
@@ -114,16 +114,16 @@ DynamicProfileStorage::Load(char16 const * filename, Fn loadFn)
     }
     char const * record;
     if (info->isFileStorage)
-    {
+    {LOGMEIN("DynamicProfileStorage.h] 116\n");
         Assert(useCacheDir);
         Assert(locked);
         record = info->ReadRecord();
         ReleaseLock();
         if (record == nullptr)
-        {
+        {LOGMEIN("DynamicProfileStorage.h] 122\n");
 #if DBG_DUMP
             if (DynamicProfileStorage::DoTrace())
-            {
+            {LOGMEIN("DynamicProfileStorage.h] 125\n");
                 Output::Print(_u("TRACE: DynamicProfileStorage: Faile to load from cache dir for '%s'"), filename);
                 Output::Flush();
             }
@@ -137,23 +137,23 @@ DynamicProfileStorage::Load(char16 const * filename, Fn loadFn)
     }
     Js::SourceDynamicProfileManager * sourceDynamicProfileManager = loadFn(GetRecordBuffer(record), GetRecordSize(record));
     if (info->isFileStorage)
-    {
+    {LOGMEIN("DynamicProfileStorage.h] 139\n");
         // The data is backed by a file, we can delete the memory
         Assert(useCacheDir);
         DeleteRecord(record);
     }
 #if DBG_DUMP
     if (DynamicProfileStorage::DoTrace() && sourceDynamicProfileManager)
-    {
+    {LOGMEIN("DynamicProfileStorage.h] 146\n");
         Output::Print(_u("TRACE: DynamicProfileStorage: Dynamic Profile Data Loaded: '%s'\n"), filename);
     }
 #endif
 
     if (sourceDynamicProfileManager == nullptr)
-    {
+    {LOGMEIN("DynamicProfileStorage.h] 152\n");
         char16 const * messageType = GetMessageType();
         if (messageType)
-        {
+        {LOGMEIN("DynamicProfileStorage.h] 155\n");
             Output::Print(_u("%s: DynamicProfileStorage: Dynamic Profile Data corrupted: '%s'\n"), messageType, filename);
             Output::Flush();
         }

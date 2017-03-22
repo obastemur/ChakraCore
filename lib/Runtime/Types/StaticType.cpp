@@ -8,13 +8,13 @@ namespace Js
 {
     StaticType *
     StaticType::New(ScriptContext* scriptContext, TypeId typeId, RecyclableObject* prototype, JavascriptMethod entryPoint)
-    {
+    {LOGMEIN("StaticType.cpp] 10\n");
         return RecyclerNew(scriptContext->GetRecycler(), StaticType, scriptContext, typeId, prototype, entryPoint);
     }
 
     bool
     StaticType::Is(TypeId typeId)
-    {
+    {LOGMEIN("StaticType.cpp] 16\n");
         return typeId <= TypeIds_LastStaticType;
     }
 
@@ -24,7 +24,7 @@ namespace Js
         ScriptContext *scriptContext = GetScriptContext();
 
         switch(GetTypeId())
-        {
+        {LOGMEIN("StaticType.cpp] 26\n");
         case TypeIds_Undefined:
             valueStr = GetLibrary()->GetUndefinedDisplayString();
             break;
@@ -57,9 +57,9 @@ namespace Js
     }
 
     BOOL RecyclableObject::GetDiagTypeString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {LOGMEIN("StaticType.cpp] 59\n");
         switch(GetTypeId())
-        {
+        {LOGMEIN("StaticType.cpp] 61\n");
         case TypeIds_Undefined:
             stringBuilder->AppendCppLiteral(_u("Undefined"));
             break;

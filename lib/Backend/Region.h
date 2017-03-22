@@ -21,32 +21,32 @@ public:
                start(NULL), end(NULL),
                writeThroughSymbolsSet(nullptr),
                ehBailoutData(nullptr), bailoutReturnThunkLabel(nullptr), returnThunkEmitted(false),
-               exceptionObjectSym(nullptr) {}
+               exceptionObjectSym(nullptr) {LOGMEIN("Region.h] 23\n");}
     static Region * New(RegionType, Region *, Func *);
 
 public:
-    inline RegionType GetType() const                   { return this->type; }
-    inline void SetType(RegionType type)                { this->type = type; }
+    inline RegionType GetType() const                   {LOGMEIN("Region.h] 27\n"); return this->type; }
+    inline void SetType(RegionType type)                {LOGMEIN("Region.h] 28\n"); this->type = type; }
 
-    inline Region * GetParent() const                   { return this->parent; }
-    inline void SetParent(Region* parent)               { this->parent = parent; }
+    inline Region * GetParent() const                   {LOGMEIN("Region.h] 30\n"); return this->parent; }
+    inline void SetParent(Region* parent)               {LOGMEIN("Region.h] 31\n"); this->parent = parent; }
 
-    inline Region * GetMatchingTryRegion() const        { return this->matchingTryRegion; }
-    inline void SetMatchingTryRegion(Region* tryRegion) { this->matchingTryRegion = tryRegion; }
+    inline Region * GetMatchingTryRegion() const        {LOGMEIN("Region.h] 33\n"); return this->matchingTryRegion; }
+    inline void SetMatchingTryRegion(Region* tryRegion) {LOGMEIN("Region.h] 34\n"); this->matchingTryRegion = tryRegion; }
 
-    inline Region * GetMatchingCatchRegion() const      { return this->matchingCatchRegion; }
-    inline void SetMatchingCatchRegion(Region* catchRegion) { this->matchingCatchRegion = catchRegion; }
+    inline Region * GetMatchingCatchRegion() const      {LOGMEIN("Region.h] 36\n"); return this->matchingCatchRegion; }
+    inline void SetMatchingCatchRegion(Region* catchRegion) {LOGMEIN("Region.h] 37\n"); this->matchingCatchRegion = catchRegion; }
 
-    inline Region * GetMatchingFinallyRegion() const    { return this->matchingFinallyRegion; }
-    inline void SetMatchingFinallyRegion(Region* finallyRegion) { this->matchingFinallyRegion = finallyRegion; }
+    inline Region * GetMatchingFinallyRegion() const    {LOGMEIN("Region.h] 39\n"); return this->matchingFinallyRegion; }
+    inline void SetMatchingFinallyRegion(Region* finallyRegion) {LOGMEIN("Region.h] 40\n"); this->matchingFinallyRegion = finallyRegion; }
 
-    inline IR::Instr * GetStart() const                 { return this->start; }
-    inline void SetStart(IR::Instr * instr)             { this->start = instr; }
-    inline IR::Instr * GetEnd() const                   { return this->end; }
-    inline void SetEnd(IR::Instr * instr)               { this->end = instr; }
-    inline IR::LabelInstr * GetBailoutReturnThunkLabel() const { return this->bailoutReturnThunkLabel; }
-    inline StackSym * GetExceptionObjectSym() const     { return this->exceptionObjectSym; }
-    inline void SetExceptionObjectSym(StackSym * sym)   { this->exceptionObjectSym = sym; }
+    inline IR::Instr * GetStart() const                 {LOGMEIN("Region.h] 42\n"); return this->start; }
+    inline void SetStart(IR::Instr * instr)             {LOGMEIN("Region.h] 43\n"); this->start = instr; }
+    inline IR::Instr * GetEnd() const                   {LOGMEIN("Region.h] 44\n"); return this->end; }
+    inline void SetEnd(IR::Instr * instr)               {LOGMEIN("Region.h] 45\n"); this->end = instr; }
+    inline IR::LabelInstr * GetBailoutReturnThunkLabel() const {LOGMEIN("Region.h] 46\n"); return this->bailoutReturnThunkLabel; }
+    inline StackSym * GetExceptionObjectSym() const     {LOGMEIN("Region.h] 47\n"); return this->exceptionObjectSym; }
+    inline void SetExceptionObjectSym(StackSym * sym)   {LOGMEIN("Region.h] 48\n"); this->exceptionObjectSym = sym; }
     void   AllocateEHBailoutData(Func * func, IR::Instr * tryInstr);
     Region * GetSelfOrFirstTryAncestor();
 

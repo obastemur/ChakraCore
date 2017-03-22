@@ -13,10 +13,10 @@ namespace PlatformAgnostic
     SystemInfo::PlatformData SystemInfo::data;
 
     SystemInfo::PlatformData::PlatformData()
-    {
+    {LOGMEIN("SystemInfo.cpp] 15\n");
         struct sysinfo systemInfo;
         if (sysinfo(&systemInfo) == -1)
-        {
+        {LOGMEIN("SystemInfo.cpp] 18\n");
             totalRam = 0;
         }
         else
@@ -26,10 +26,10 @@ namespace PlatformAgnostic
     }
 
     bool SystemInfo::GetMaxVirtualMemory(size_t *totalAS)
-    {
+    {LOGMEIN("SystemInfo.cpp] 28\n");
         struct rlimit limit;
         if (getrlimit(RLIMIT_AS, &limit) != 0)
-        {
+        {LOGMEIN("SystemInfo.cpp] 31\n");
             return false;
         }
         *totalAS = limit.rlim_cur;

@@ -11,6 +11,6 @@ namespace Js
         JavascriptEnumerator(scriptContext),
         arrayObject(arrayObject),
         flags(flags)
-    {
+    {LOGMEIN("JavascriptArrayIndexEnumeratorBase.cpp] 13\n");
     }
 }

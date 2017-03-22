@@ -10,7 +10,7 @@ namespace Js
 #if ENABLE_TTD
 #define DEFINE_TTD_MARSHAL_OBJECT_TO_SCRIPT_CONTEXT(T) \
     virtual void MarshalCrossSite_TTDInflate() \
-    { \
+    {LOGMEIN("DynamicObject.h] 12\n"); \
         AssertMsg(VirtualTableInfo<T>::HasVirtualTable(this), "Derived class need to define marshal"); \
         VirtualTableInfo<Js::CrossSiteObject<T>>::SetVirtualTable(this); \
     }
@@ -22,7 +22,7 @@ namespace Js
 #define DEFINE_MARSHAL_OBJECT_TO_SCRIPT_CONTEXT(T) \
     friend class Js::CrossSiteObject<T>; \
     virtual void MarshalToScriptContext(Js::ScriptContext * scriptContext) \
-    { \
+    {LOGMEIN("DynamicObject.h] 24\n"); \
         Assert(this->GetScriptContext() != scriptContext); \
         AssertMsg(VirtualTableInfo<T>::HasVirtualTable(this), "Derived class need to define marshal to script context"); \
         VirtualTableInfo<Js::CrossSiteObject<T>>::SetVirtualTable(this); \
@@ -30,7 +30,7 @@ namespace Js
     DEFINE_TTD_MARSHAL_OBJECT_TO_SCRIPT_CONTEXT(T)
 #else
 #define DEFINE_MARSHAL_OBJECT_TO_SCRIPT_CONTEXT(T)  \
-        virtual void MarshalToScriptContext(Js::ScriptContext * scriptContext)  {Assert(FALSE);}
+        virtual void MarshalToScriptContext(Js::ScriptContext * scriptContext)  {LOGMEIN("DynamicObject.h] 32\n");Assert(FALSE);}
 #endif
 
 #if DBG
@@ -158,7 +158,7 @@ namespace Js
 
     public:
         bool HasNonEmptyObjectArray() const;
-        DynamicType * GetDynamicType() const { return (DynamicType *)this->GetType(); }
+        DynamicType * GetDynamicType() const {LOGMEIN("DynamicObject.h] 160\n"); return (DynamicType *)this->GetType(); }
 
         // Check if a typeId is of any array type (JavascriptArray or ES5Array).
         static bool IsAnyArrayTypeId(TypeId typeId);
@@ -167,29 +167,29 @@ namespace Js
         static bool IsAnyArray(const Var aValue);
 
         bool UsesObjectArrayOrFlagsAsFlags() const
-        {
+        {LOGMEIN("DynamicObject.h] 169\n");
             return !!(arrayFlags & DynamicObjectFlags::ObjectArrayFlagsTag);
         }
 
         ArrayObject* GetObjectArray() const
-        {
+        {LOGMEIN("DynamicObject.h] 174\n");
             return HasObjectArray() ? GetObjectArrayOrFlagsAsArray() : nullptr;
         }
 
         bool HasObjectArray() const
-        {
+        {LOGMEIN("DynamicObject.h] 179\n");
             // Only JavascriptArray uses the objectArrayOrFlags as flags.
             Assert(DynamicObject::IsAnyArray((Var)this) || !UsesObjectArrayOrFlagsAsFlags() || IsObjectHeaderInlinedTypeHandler());
             return ((objectArray != nullptr) && !UsesObjectArrayOrFlagsAsFlags() && !IsObjectHeaderInlinedTypeHandler());
         }
 
         ArrayObject* GetObjectArrayUnchecked() const
-        {
+        {LOGMEIN("DynamicObject.h] 186\n");
             return HasObjectArrayUnchecked() ? GetObjectArrayOrFlagsAsArray() : nullptr;
         }
 
         bool HasObjectArrayUnchecked() const
-        {
+        {LOGMEIN("DynamicObject.h] 191\n");
             return ((objectArray != nullptr) && !UsesObjectArrayOrFlagsAsFlags() && !IsObjectHeaderInlinedTypeHandlerUnchecked());
         }
 
@@ -215,7 +215,7 @@ namespace Js
         bool GetIsExtensible() const;
         bool GetHasNoEnumerableProperties();
         bool SetHasNoEnumerableProperties(bool value);
-        virtual bool HasReadOnlyPropertiesInvisibleToTypeHandler() { return false; }
+        virtual bool HasReadOnlyPropertiesInvisibleToTypeHandler() {LOGMEIN("DynamicObject.h] 217\n"); return false; }
 
         void InitSlots(DynamicObject* instance);
         virtual int GetPropertyCount() override;
@@ -274,7 +274,7 @@ namespace Js
         virtual void AddToPrototype(ScriptContext * requestContext) override;
         virtual void SetPrototype(RecyclableObject* newPrototype) override;
 
-        virtual BOOL IsCrossSiteObject() const { return FALSE; }
+        virtual BOOL IsCrossSiteObject() const {LOGMEIN("DynamicObject.h] 276\n"); return FALSE; }
 
         virtual DynamicType* DuplicateType();
         static bool IsTypeHandlerCompatibleForObjectHeaderInlining(DynamicTypeHandler * oldTypeHandler, DynamicTypeHandler * newTypeHandler);
@@ -313,7 +313,7 @@ namespace Js
         static DynamicObject * BoxStackInstance(DynamicObject * instance);
     private:
         ArrayObject* EnsureObjectArray();
-        ArrayObject* GetObjectArrayOrFlagsAsArray() const { return objectArray; }
+        ArrayObject* GetObjectArrayOrFlagsAsArray() const {LOGMEIN("DynamicObject.h] 315\n"); return objectArray; }
 
         template <PropertyId propertyId>
         BOOL ToPrimitiveImpl(Var* result, ScriptContext * requestContext);

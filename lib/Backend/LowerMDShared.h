@@ -33,7 +33,7 @@ public:
         floatTmpMap(nullptr),
         bvFloatTmpInits(nullptr),
         m_simd128OpCodesMap(nullptr)
-    {
+    {LOGMEIN("LowerMDShared.h] 35\n");
     }
 
     friend class LowererMDArch;
@@ -77,7 +77,7 @@ public:
             void            FinalLower();
 #ifdef _M_X64
             void            FlipHelperCallArgsOrder()
-            {
+            {LOGMEIN("LowerMDShared.h] 79\n");
                 lowererMDArch.FlipHelperCallArgsOrder();
             }
 #endif
@@ -249,7 +249,7 @@ public:
             StackSym *      GetImplicitParamSlotSym(Js::ArgSlot argSlot);
      static StackSym *      GetImplicitParamSlotSym(Js::ArgSlot argSlot, Func * func);
 
-            Lowerer*        GetLowerer() { return m_lowerer; }
+            Lowerer*        GetLowerer() {LOGMEIN("LowerMDShared.h] 251\n"); return m_lowerer; }
 
             bool            GenerateFastIsInst(IR::Instr * instr);
             void            GenerateIsJsObjectTest(IR::RegOpnd* instanceReg, IR::Instr* insertInstr, IR::LabelInstr* labelHelper);
@@ -280,26 +280,26 @@ public:
             IR::Instr *         LowerInt64Assign(IR::Instr * instr);
      static IR::BranchInstr *   LowerFloatCondBranch(IR::BranchInstr *instrBranch, bool ignoreNan = false);
 
-     static Js::OpCode          GetLoadOp(IRType type) { return LowererMDArch::GetAssignOp(type); }
-     static Js::OpCode          GetStoreOp(IRType type) { return LowererMDArch::GetAssignOp(type); }
-     static RegNum              GetRegStackPointer() { return LowererMDArch::GetRegStackPointer(); }
-     static RegNum              GetRegArgI4(int32 argNum) { return LowererMDArch::GetRegArgI4(argNum); }
-     static RegNum              GetRegArgR8(int32 argNum) { return LowererMDArch::GetRegArgR8(argNum); }
-     static RegNum              GetRegReturn(IRType type) { return LowererMDArch::GetRegReturn(type); }
+     static Js::OpCode          GetLoadOp(IRType type) {LOGMEIN("LowerMDShared.h] 282\n"); return LowererMDArch::GetAssignOp(type); }
+     static Js::OpCode          GetStoreOp(IRType type) {LOGMEIN("LowerMDShared.h] 283\n"); return LowererMDArch::GetAssignOp(type); }
+     static RegNum              GetRegStackPointer() {LOGMEIN("LowerMDShared.h] 284\n"); return LowererMDArch::GetRegStackPointer(); }
+     static RegNum              GetRegArgI4(int32 argNum) {LOGMEIN("LowerMDShared.h] 285\n"); return LowererMDArch::GetRegArgI4(argNum); }
+     static RegNum              GetRegArgR8(int32 argNum) {LOGMEIN("LowerMDShared.h] 286\n"); return LowererMDArch::GetRegArgR8(argNum); }
+     static RegNum              GetRegReturn(IRType type) {LOGMEIN("LowerMDShared.h] 287\n"); return LowererMDArch::GetRegReturn(type); }
 
             //All the following functions delegate to lowererMDArch
             IR::Instr *         LowerCallIDynamic(IR::Instr * callInstr, IR::Instr* saveThis, IR::Opnd* argsLengthOpnd, ushort callFlags, IR::Instr * insertBeforeInstrForCFG = nullptr)
-            {
+            {LOGMEIN("LowerMDShared.h] 291\n");
                 return this->lowererMDArch.LowerCallIDynamic(callInstr, saveThis, argsLengthOpnd, callFlags, insertBeforeInstrForCFG);
             }
 
-            IR::Instr *         LoadDynamicArgument(IR::Instr * instr, uint argNumber = 1) { return this->lowererMDArch.LoadDynamicArgument(instr, argNumber);}
-            IR::Opnd*           GenerateArgOutForStackArgs(IR::Instr* callInstr, IR::Instr* stackArgsInstr) { return lowererMDArch.GenerateArgOutForStackArgs(callInstr, stackArgsInstr);}
-     static RegNum              GetRegFramePointer() { return LowererMDArch::GetRegFramePointer(); }
-     static BYTE                GetDefaultIndirScale() { return LowererMDArch::GetDefaultIndirScale(); }
-            IR::Instr *         LoadDynamicArgumentUsingLength(IR::Instr *instr) { return this->lowererMDArch.LoadDynamicArgumentUsingLength(instr); }
-            void                GenerateFunctionObjectTest(IR::Instr * callInstr, IR::RegOpnd  *functionObjOpnd, bool isHelper, IR::LabelInstr* afterCallLabel = nullptr) { this->lowererMDArch.GenerateFunctionObjectTest(callInstr, functionObjOpnd, isHelper, afterCallLabel); }
-            int32               LowerCallArgs(IR::Instr *callInstr, ushort callFlags, ushort extraArgsCount = 1 /* for function object */) { return this->lowererMDArch.LowerCallArgs(callInstr, callFlags, extraArgsCount); }
+            IR::Instr *         LoadDynamicArgument(IR::Instr * instr, uint argNumber = 1) {LOGMEIN("LowerMDShared.h] 295\n"); return this->lowererMDArch.LoadDynamicArgument(instr, argNumber);}
+            IR::Opnd*           GenerateArgOutForStackArgs(IR::Instr* callInstr, IR::Instr* stackArgsInstr) {LOGMEIN("LowerMDShared.h] 296\n"); return lowererMDArch.GenerateArgOutForStackArgs(callInstr, stackArgsInstr);}
+     static RegNum              GetRegFramePointer() {LOGMEIN("LowerMDShared.h] 297\n"); return LowererMDArch::GetRegFramePointer(); }
+     static BYTE                GetDefaultIndirScale() {LOGMEIN("LowerMDShared.h] 298\n"); return LowererMDArch::GetDefaultIndirScale(); }
+            IR::Instr *         LoadDynamicArgumentUsingLength(IR::Instr *instr) {LOGMEIN("LowerMDShared.h] 299\n"); return this->lowererMDArch.LoadDynamicArgumentUsingLength(instr); }
+            void                GenerateFunctionObjectTest(IR::Instr * callInstr, IR::RegOpnd  *functionObjOpnd, bool isHelper, IR::LabelInstr* afterCallLabel = nullptr) {LOGMEIN("LowerMDShared.h] 300\n"); this->lowererMDArch.GenerateFunctionObjectTest(callInstr, functionObjOpnd, isHelper, afterCallLabel); }
+            int32               LowerCallArgs(IR::Instr *callInstr, ushort callFlags, ushort extraArgsCount = 1 /* for function object */) {LOGMEIN("LowerMDShared.h] 301\n"); return this->lowererMDArch.LowerCallArgs(callInstr, callFlags, extraArgsCount); }
 
             static void GenerateLoadTaggedType(IR::Instr * instrLdSt, IR::RegOpnd * opndType, IR::RegOpnd * opndTaggedType);
             static void GenerateLoadPolymorphicInlineCacheSlot(IR::Instr * instrLdSt, IR::RegOpnd * opndInlineCache, IR::RegOpnd * opndType, uint polymorphicInlineCacheSize);
@@ -321,7 +321,7 @@ public:
             IR::Instr *         LowerDivI4AndBailOnReminder(IR::Instr * instr, IR::LabelInstr * bailOutLabel);
 
             void                LowerInlineSpreadArgOutLoop(IR::Instr *callInstr, IR::RegOpnd *indexOpnd, IR::RegOpnd *arrayElementsStartOpnd)
-            {
+            {LOGMEIN("LowerMDShared.h] 323\n");
                 this->lowererMDArch.LowerInlineSpreadArgOutLoop(callInstr, indexOpnd, arrayElementsStartOpnd);
             }
 

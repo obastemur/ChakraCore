@@ -17,7 +17,7 @@ public:
 inline bool
 ExternalLowerer::TryGenerateFastExternalEqTest(IR::Opnd * src1, IR::Opnd * src2, IR::Instr * instrBranch,
     IR::LabelInstr * labelHelper, IR::LabelInstr * labelBooleanCmp, Lowerer * lowerer, bool isStrictBr)
-{
+{LOGMEIN("ExternalLowerer.h] 19\n");
     return false;
 }
 #endif

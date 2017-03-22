@@ -24,7 +24,7 @@ namespace Js
 {
 bool
 Amd64StackFrame::InitializeByFrameId(void * frame, ScriptContext* scriptContext)
-{
+{LOGMEIN("StackFrame.SystemV.cpp] 26\n");
     this->frame = (void **)frame;
 
     this->stackCheckCodeHeight =
@@ -37,7 +37,7 @@ Amd64StackFrame::InitializeByFrameId(void * frame, ScriptContext* scriptContext)
 
 bool
 Amd64StackFrame::InitializeByReturnAddress(void * returnAddress, ScriptContext* scriptContext)
-{
+{LOGMEIN("StackFrame.SystemV.cpp] 39\n");
     void ** framePtr;
     __asm
     {
@@ -51,9 +51,9 @@ Amd64StackFrame::InitializeByReturnAddress(void * returnAddress, ScriptContext* 
         : stackCheckCodeHeightNotThreadBound;
 
     while (Next())
-    {
+    {LOGMEIN("StackFrame.SystemV.cpp] 53\n");
         if (this->codeAddr == returnAddress)
-        {
+        {LOGMEIN("StackFrame.SystemV.cpp] 55\n");
             return true;
         }
     }
@@ -62,7 +62,7 @@ Amd64StackFrame::InitializeByReturnAddress(void * returnAddress, ScriptContext* 
 
 bool
 Amd64StackFrame::Next()
-{
+{LOGMEIN("StackFrame.SystemV.cpp] 64\n");
     this->addressOfCodeAddr = this->GetAddressOfReturnAddress();
     this->codeAddr = this->GetReturnAddress();
     this->frame = (void **)this->frame[0];
@@ -71,18 +71,18 @@ Amd64StackFrame::Next()
 
 bool
 Amd64StackFrame::SkipToFrame(void * frameAddress)
-{
+{LOGMEIN("StackFrame.SystemV.cpp] 73\n");
     this->frame = (void **)frameAddress;
     return Next();
 }
 
 bool
 Amd64StackFrame::IsInStackCheckCode(void *entry, void *codeAddr, size_t stackCheckCodeHeight)
-{
+{LOGMEIN("StackFrame.SystemV.cpp] 80\n");
     return ((size_t(codeAddr) - size_t(entry)) <= stackCheckCodeHeight);
 }
 
 // Dummy constructor since we don't need to manager the contexts here
-Amd64ContextsManager::Amd64ContextsManager() {}
+Amd64ContextsManager::Amd64ContextsManager() {LOGMEIN("StackFrame.SystemV.cpp] 85\n");}
 };
 

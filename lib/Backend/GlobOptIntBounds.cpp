@@ -8,9 +8,9 @@
 
 #define TRACE_PHASE_VERBOSE(phase, indent, ...) \
     if(PHASE_VERBOSE_TRACE(phase, this->func)) \
-    { \
+    {LOGMEIN("GlobOptIntBounds.cpp] 10\n"); \
         for(int i = 0; i < static_cast<int>(indent); ++i) \
-        { \
+        {LOGMEIN("GlobOptIntBounds.cpp] 12\n"); \
             Output::Print(_u("    ")); \
         } \
         Output::Print(__VA_ARGS__); \
@@ -28,7 +28,7 @@ void GlobOpt::AddSubConstantInfo::Set(
     Value *const srcValue,
     const bool srcValueIsLikelyConstant,
     const int32 offset)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 30\n");
     Assert(srcSym);
     Assert(!srcSym->IsTypeSpec());
     Assert(srcValue);
@@ -45,7 +45,7 @@ void GlobOpt::ArrayLowerBoundCheckHoistInfo::SetCompatibleBoundCheck(
     StackSym *const indexSym,
     const int offset,
     const ValueNumber indexValueNumber)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 47\n");
     Assert(!Loop());
     Assert(compatibleBoundCheckBlock);
     Assert(indexSym);
@@ -62,7 +62,7 @@ void GlobOpt::ArrayLowerBoundCheckHoistInfo::SetLoop(
     ::Loop *const loop,
     const int indexConstantValue,
     const bool isLoopCountBasedBound)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 64\n");
     Assert(!CompatibleBoundCheckBlock());
     Assert(loop);
 
@@ -82,7 +82,7 @@ void GlobOpt::ArrayLowerBoundCheckHoistInfo::SetLoop(
     Value *const indexValue,
     const IntConstantBounds &indexConstantBounds,
     const bool isLoopCountBasedBound)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 84\n");
     Assert(!CompatibleBoundCheckBlock());
     Assert(loop);
     Assert(indexSym);
@@ -100,7 +100,7 @@ void GlobOpt::ArrayLowerBoundCheckHoistInfo::SetLoop(
 }
 
 void GlobOpt::ArrayLowerBoundCheckHoistInfo::SetLoopCount(::LoopCount *const loopCount, const int maxMagnitudeChange)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 102\n");
     Assert(Loop());
     Assert(loopCount);
     Assert(maxMagnitudeChange != 0);
@@ -112,7 +112,7 @@ void GlobOpt::ArrayLowerBoundCheckHoistInfo::SetLoopCount(::LoopCount *const loo
 void GlobOpt::ArrayUpperBoundCheckHoistInfo::SetCompatibleBoundCheck(
     BasicBlock *const compatibleBoundCheckBlock,
     const int indexConstantValue)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 114\n");
     Assert(!Loop());
     Assert(compatibleBoundCheckBlock);
 
@@ -128,7 +128,7 @@ void GlobOpt::ArrayUpperBoundCheckHoistInfo::SetLoop(
     Value *const headSegmentLengthValue,
     const IntConstantBounds &headSegmentLengthConstantBounds,
     const bool isLoopCountBasedBound)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 130\n");
     Assert(!CompatibleBoundCheckBlock());
     Assert(loop);
     Assert(headSegmentLengthValue);
@@ -148,7 +148,7 @@ void GlobOpt::ArrayUpperBoundCheckHoistInfo::SetLoop(
     Value *const headSegmentLengthValue,
     const IntConstantBounds &headSegmentLengthConstantBounds,
     const bool isLoopCountBasedBound)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 150\n");
     Assert(headSegmentLengthValue);
 
     SetLoop(loop, indexSym, offset, indexValue, indexConstantBounds, isLoopCountBasedBound);
@@ -157,25 +157,25 @@ void GlobOpt::ArrayUpperBoundCheckHoistInfo::SetLoop(
 }
 
 bool ValueInfo::HasIntConstantValue(const bool includeLikelyInt) const
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 159\n");
     int32 constantValue;
     return TryGetIntConstantValue(&constantValue, includeLikelyInt);
 }
 
 bool ValueInfo::TryGetIntConstantValue(int32 *const intValueRef, const bool includeLikelyInt) const
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 165\n");
     Assert(intValueRef);
 
     if(!(includeLikelyInt ? IsLikelyInt() : IsInt()))
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 169\n");
         return false;
     }
 
     switch(structureKind)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 174\n");
         case ValueStructureKind::IntConstant:
             if(!includeLikelyInt || IsInt())
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 177\n");
                 *intValueRef = AsIntConstant()->IntValue();
                 return true;
             }
@@ -186,10 +186,10 @@ bool ValueInfo::TryGetIntConstantValue(int32 *const intValueRef, const bool incl
             break;
 
         case ValueStructureKind::IntBounded:
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 188\n");
             const IntConstantBounds bounds(AsIntBounded()->Bounds()->ConstantBounds());
             if(bounds.IsConstant())
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 191\n");
                 *intValueRef = bounds.LowerBound();
                 return true;
             }
@@ -200,19 +200,19 @@ bool ValueInfo::TryGetIntConstantValue(int32 *const intValueRef, const bool incl
 }
 
 bool ValueInfo::TryGetIntConstantLowerBound(int32 *const intConstantBoundRef, const bool includeLikelyInt) const
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 202\n");
     Assert(intConstantBoundRef);
 
     if(!(includeLikelyInt ? IsLikelyInt() : IsInt()))
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 206\n");
         return false;
     }
 
     switch(structureKind)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 211\n");
         case ValueStructureKind::IntConstant:
             if(!includeLikelyInt || IsInt())
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 214\n");
                 *intConstantBoundRef = AsIntConstant()->IntValue();
                 return true;
             }
@@ -220,7 +220,7 @@ bool ValueInfo::TryGetIntConstantLowerBound(int32 *const intConstantBoundRef, co
 
         case ValueStructureKind::IntRange:
             if(!includeLikelyInt || IsInt())
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 222\n");
                 *intConstantBoundRef = AsIntRange()->LowerBound();
                 return true;
             }
@@ -236,19 +236,19 @@ bool ValueInfo::TryGetIntConstantLowerBound(int32 *const intConstantBoundRef, co
 }
 
 bool ValueInfo::TryGetIntConstantUpperBound(int32 *const intConstantBoundRef, const bool includeLikelyInt) const
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 238\n");
     Assert(intConstantBoundRef);
 
     if(!(includeLikelyInt ? IsLikelyInt() : IsInt()))
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 242\n");
         return false;
     }
 
     switch(structureKind)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 247\n");
         case ValueStructureKind::IntConstant:
             if(!includeLikelyInt || IsInt())
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 250\n");
                 *intConstantBoundRef = AsIntConstant()->IntValue();
                 return true;
             }
@@ -256,7 +256,7 @@ bool ValueInfo::TryGetIntConstantUpperBound(int32 *const intConstantBoundRef, co
 
         case ValueStructureKind::IntRange:
             if(!includeLikelyInt || IsInt())
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 258\n");
                 *intConstantBoundRef = AsIntRange()->UpperBound();
                 return true;
             }
@@ -272,19 +272,19 @@ bool ValueInfo::TryGetIntConstantUpperBound(int32 *const intConstantBoundRef, co
 }
 
 bool ValueInfo::TryGetIntConstantBounds(IntConstantBounds *const intConstantBoundsRef, const bool includeLikelyInt) const
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 274\n");
     Assert(intConstantBoundsRef);
 
     if(!(includeLikelyInt ? IsLikelyInt() : IsInt()))
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 278\n");
         return false;
     }
 
     switch(structureKind)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 283\n");
         case ValueStructureKind::IntConstant:
             if(!includeLikelyInt || IsInt())
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 286\n");
                 const int32 intValue = AsIntConstant()->IntValue();
                 *intConstantBoundsRef = IntConstantBounds(intValue, intValue);
                 return true;
@@ -293,7 +293,7 @@ bool ValueInfo::TryGetIntConstantBounds(IntConstantBounds *const intConstantBoun
 
         case ValueStructureKind::IntRange:
             if(!includeLikelyInt || IsInt())
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 295\n");
                 *intConstantBoundsRef = *AsIntRange();
                 return true;
             }
@@ -312,14 +312,14 @@ bool ValueInfo::TryGetIntConstantBounds(IntConstantBounds *const intConstantBoun
 }
 
 bool ValueInfo::WasNegativeZeroPreventedByBailout() const
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 314\n");
     if(!IsInt())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 316\n");
         return false;
     }
 
     switch(structureKind)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 321\n");
         case ValueStructureKind::IntRange:
             return AsIntRange()->WasNegativeZeroPreventedByBailout();
 
@@ -336,7 +336,7 @@ bool ValueInfo::IsEqualTo(
     const Value *const src2Value,
     const int32 min2,
     const int32 max2)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 338\n");
     const bool result =
         IsEqualTo_NoConverse(src1Value, min1, max1, src2Value, min2, max2) ||
         IsEqualTo_NoConverse(src2Value, min2, max2, src1Value, min1, max1);
@@ -352,7 +352,7 @@ bool ValueInfo::IsNotEqualTo(
     const Value *const src2Value,
     const int32 min2,
     const int32 max2)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 354\n");
     const bool result =
         IsNotEqualTo_NoConverse(src1Value, min1, max1, src2Value, min2, max2) ||
         IsNotEqualTo_NoConverse(src2Value, min2, max2, src1Value, min1, max1);
@@ -368,7 +368,7 @@ bool ValueInfo::IsEqualTo_NoConverse(
     const Value *const src2Value,
     const int32 min2,
     const int32 max2)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 370\n");
     return
         IsGreaterThanOrEqualTo(src1Value, min1, max1, src2Value, min2, max2) &&
         IsLessThanOrEqualTo(src1Value, min1, max1, src2Value, min2, max2);
@@ -381,7 +381,7 @@ bool ValueInfo::IsNotEqualTo_NoConverse(
     const Value *const src2Value,
     const int32 min2,
     const int32 max2)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 383\n");
     return
         IsGreaterThan(src1Value, min1, max1, src2Value, min2, max2) ||
         IsLessThan(src1Value, min1, max1, src2Value, min2, max2);
@@ -394,7 +394,7 @@ bool ValueInfo::IsGreaterThanOrEqualTo(
     const Value *const src2Value,
     const int32 min2,
     const int32 max2)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 396\n");
     return IsGreaterThanOrEqualTo(src1Value, min1, max1, src2Value, min2, max2, 0);
 }
 
@@ -405,7 +405,7 @@ bool ValueInfo::IsGreaterThan(
     const Value *const src2Value,
     const int32 min2,
     const int32 max2)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 407\n");
     return IsGreaterThanOrEqualTo(src1Value, min1, max1, src2Value, min2, max2, 1);
 }
 
@@ -416,7 +416,7 @@ bool ValueInfo::IsLessThanOrEqualTo(
     const Value *const src2Value,
     const int32 min2,
     const int32 max2)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 418\n");
     return IsLessThanOrEqualTo(src1Value, min1, max1, src2Value, min2, max2, 0);
 }
 
@@ -427,7 +427,7 @@ bool ValueInfo::IsLessThan(
     const Value *const src2Value,
     const int32 min2,
     const int32 max2)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 429\n");
     return IsLessThanOrEqualTo(src1Value, min1, max1, src2Value, min2, max2, -1);
 }
 
@@ -439,7 +439,7 @@ bool ValueInfo::IsGreaterThanOrEqualTo(
     const int32 min2,
     const int32 max2,
     const int src2Offset)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 441\n");
     return
         IsGreaterThanOrEqualTo_NoConverse(src1Value, min1, max1, src2Value, min2, max2, src2Offset) ||
         src2Offset == IntConstMin ||
@@ -454,7 +454,7 @@ bool ValueInfo::IsLessThanOrEqualTo(
     const int32 min2,
     const int32 max2,
     const int src2Offset)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 456\n");
     return
         IsLessThanOrEqualTo_NoConverse(src1Value, min1, max1, src2Value, min2, max2, src2Offset) ||
         (
@@ -471,22 +471,22 @@ bool ValueInfo::IsGreaterThanOrEqualTo_NoConverse(
     const int32 min2,
     const int32 max2,
     const int src2Offset)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 473\n");
     Assert(src1Value || min1 == max1);
     Assert(!src1Value || src1Value->GetValueInfo()->IsLikelyInt());
     Assert(src2Value || min2 == max2);
     Assert(!src2Value || src2Value->GetValueInfo()->IsLikelyInt());
 
     if(src1Value)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 480\n");
         if(src2Value && src1Value->GetValueNumber() == src2Value->GetValueNumber())
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 482\n");
             return src2Offset <= 0;
         }
 
         ValueInfo *const src1ValueInfo = src1Value->GetValueInfo();
         if(src1ValueInfo->structureKind == ValueStructureKind::IntBounded)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 488\n");
             const IntBounds *const bounds = src1ValueInfo->AsIntBounded()->Bounds();
             return
                 src2Value
@@ -505,22 +505,22 @@ bool ValueInfo::IsLessThanOrEqualTo_NoConverse(
     const int32 min2,
     const int32 max2,
     const int src2Offset)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 507\n");
     Assert(src1Value || min1 == max1);
     Assert(!src1Value || src1Value->GetValueInfo()->IsLikelyInt());
     Assert(src2Value || min2 == max2);
     Assert(!src2Value || src2Value->GetValueInfo()->IsLikelyInt());
 
     if(src1Value)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 514\n");
         if(src2Value && src1Value->GetValueNumber() == src2Value->GetValueNumber())
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 516\n");
             return src2Offset >= 0;
         }
 
         ValueInfo *const src1ValueInfo = src1Value->GetValueInfo();
         if(src1ValueInfo->structureKind == ValueStructureKind::IntBounded)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 522\n");
             const IntBounds *const bounds = src1ValueInfo->AsIntBounded()->Bounds();
             return
                 src2Value
@@ -535,21 +535,21 @@ void GlobOpt::UpdateIntBoundsForEqualBranch(
     Value *const src1Value,
     Value *const src2Value,
     const int32 src2ConstantValue)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 537\n");
     Assert(src1Value);
 
     if(!DoPathDependentValues() || (src2Value && src1Value->GetValueNumber() == src2Value->GetValueNumber()))
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 541\n");
         return;
     }
 
 #if DBG
     if(!IsLoopPrePass() && DoAggressiveIntTypeSpec() && DoConstFold())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 547\n");
         IntConstantBounds src1ConstantBounds, src2ConstantBounds;
         AssertVerify(src1Value->GetValueInfo()->TryGetIntConstantBounds(&src1ConstantBounds, true));
         if(src2Value)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 551\n");
             AssertVerify(src2Value->GetValueInfo()->TryGetIntConstantBounds(&src2ConstantBounds, true));
         }
         else
@@ -588,21 +588,21 @@ void GlobOpt::UpdateIntBoundsForNotEqualBranch(
     Value *const src1Value,
     Value *const src2Value,
     const int32 src2ConstantValue)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 590\n");
     Assert(src1Value);
 
     if(!DoPathDependentValues() || (src2Value && src1Value->GetValueNumber() == src2Value->GetValueNumber()))
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 594\n");
         return;
     }
 
 #if DBG
     if(!IsLoopPrePass() && DoAggressiveIntTypeSpec() && DoConstFold())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 600\n");
         IntConstantBounds src1ConstantBounds, src2ConstantBounds;
         AssertVerify(src1Value->GetValueInfo()->TryGetIntConstantBounds(&src1ConstantBounds, true));
         if(src2Value)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 604\n");
             AssertVerify(src2Value->GetValueInfo()->TryGetIntConstantBounds(&src2ConstantBounds, true));
         }
         else
@@ -636,18 +636,18 @@ void GlobOpt::UpdateIntBoundsForNotEqualBranch(
 }
 
 void GlobOpt::UpdateIntBoundsForGreaterThanOrEqualBranch(Value *const src1Value, Value *const src2Value)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 638\n");
     Assert(src1Value);
     Assert(src2Value);
 
     if(!DoPathDependentValues() || src1Value->GetValueNumber() == src2Value->GetValueNumber())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 643\n");
         return;
     }
 
 #if DBG
     if(!IsLoopPrePass() && DoAggressiveIntTypeSpec() && DoConstFold())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 649\n");
         IntConstantBounds src1ConstantBounds, src2ConstantBounds;
         AssertVerify(src1Value->GetValueInfo()->TryGetIntConstantBounds(&src1ConstantBounds, true));
         AssertVerify(src2Value->GetValueInfo()->TryGetIntConstantBounds(&src2ConstantBounds, true));
@@ -676,28 +676,28 @@ void GlobOpt::UpdateIntBoundsForGreaterThanOrEqualBranch(Value *const src1Value,
 }
 
 void GlobOpt::UpdateIntBoundsForGreaterThanBranch(Value *const src1Value, Value *const src2Value)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 678\n");
     return UpdateIntBoundsForLessThanBranch(src2Value, src1Value);
 }
 
 void GlobOpt::UpdateIntBoundsForLessThanOrEqualBranch(Value *const src1Value, Value *const src2Value)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 683\n");
     return UpdateIntBoundsForGreaterThanOrEqualBranch(src2Value, src1Value);
 }
 
 void GlobOpt::UpdateIntBoundsForLessThanBranch(Value *const src1Value, Value *const src2Value)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 688\n");
     Assert(src1Value);
     Assert(src2Value);
 
     if(!DoPathDependentValues() || src1Value->GetValueNumber() == src2Value->GetValueNumber())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 693\n");
         return;
     }
 
 #if DBG
     if(!IsLoopPrePass() && DoAggressiveIntTypeSpec() && DoConstFold())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 699\n");
         IntConstantBounds src1ConstantBounds, src2ConstantBounds;
         AssertVerify(src1Value->GetValueInfo()->TryGetIntConstantBounds(&src1ConstantBounds, true));
         AssertVerify(src2Value->GetValueInfo()->TryGetIntConstantBounds(&src2ConstantBounds, true));
@@ -732,44 +732,44 @@ IntBounds *GlobOpt::GetIntBoundsToUpdate(
     const bool isBoundConstant,
     const bool isSettingUpperBound,
     const bool isExplicit)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 734\n");
     Assert(valueInfo);
     Assert(valueInfo->IsLikelyInt());
 
     if(!DoTrackRelativeIntBounds())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 739\n");
         return nullptr;
     }
 
     if(valueInfo->IsIntBounded())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 744\n");
         const IntBounds *const bounds = valueInfo->AsIntBounded()->Bounds();
         if(bounds->RequiresIntBoundedValueInfo(valueInfo->Type()))
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 747\n");
             return bounds->Clone();
         }
     }
 
     if(valueInfo->IsInt())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 753\n");
         if(constantBounds.IsConstant())
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 755\n");
             // Don't start tracking relative bounds for int constant values, just retain existing relative bounds. Will use
             // IntConstantValueInfo instead.
             return nullptr;
         }
 
         if(isBoundConstant)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 762\n");
             // There are no relative bounds to track
             if(!(isSettingUpperBound && isExplicit))
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 765\n");
                 // We are not setting a constant upper bound that is established explicitly, will use IntRangeValueInfo instead
                 return nullptr;
             }
         }
         else if(!isSettingNewBound)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 771\n");
             // New relative bounds are not being set, will use IntRangeValueInfo instead
             return nullptr;
         }
@@ -785,11 +785,11 @@ ValueInfo *GlobOpt::UpdateIntBoundsForEqual(
     Value *const boundValue,
     const IntConstantBounds &boundConstantBounds,
     const bool isExplicit)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 787\n");
     Assert(value || constantBounds.IsConstant());
     Assert(boundValue || boundConstantBounds.IsConstant());
     if(!value)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 791\n");
         return nullptr;
     }
     Assert(!boundValue || value->GetValueNumber() != boundValue->GetValueNumber());
@@ -798,9 +798,9 @@ ValueInfo *GlobOpt::UpdateIntBoundsForEqual(
     IntBounds *const bounds =
         GetIntBoundsToUpdate(valueInfo, constantBounds, true, boundConstantBounds.IsConstant(), true, isExplicit);
     if(bounds)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 800\n");
         if(boundValue)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 802\n");
             const ValueNumber valueNumber = value->GetValueNumber();
             bounds->SetLowerBound(valueNumber, boundValue, isExplicit);
             bounds->SetUpperBound(valueNumber, boundValue, isExplicit);
@@ -811,14 +811,14 @@ ValueInfo *GlobOpt::UpdateIntBoundsForEqual(
             bounds->SetUpperBound(boundConstantBounds.LowerBound(), isExplicit);
         }
         if(bounds->RequiresIntBoundedValueInfo(valueInfo->Type()))
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 813\n");
             return NewIntBoundedValueInfo(valueInfo, bounds);
         }
         bounds->Delete();
     }
 
     if(!valueInfo->IsInt())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 820\n");
         return nullptr;
     }
 
@@ -833,11 +833,11 @@ ValueInfo *GlobOpt::UpdateIntBoundsForNotEqual(
     Value *const boundValue,
     const IntConstantBounds &boundConstantBounds,
     const bool isExplicit)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 835\n");
     Assert(value || constantBounds.IsConstant());
     Assert(boundValue || boundConstantBounds.IsConstant());
     if(!value)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 839\n");
         return nullptr;
     }
     Assert(!boundValue || value->GetValueNumber() != boundValue->GetValueNumber());
@@ -852,13 +852,13 @@ ValueInfo *GlobOpt::UpdateIntBoundsForNotEqual(
             boundConstantBounds.IsConstant() && boundConstantBounds.LowerBound() == constantBounds.UpperBound(),
             isExplicit);
     if(bounds)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 854\n");
         if(boundValue
                 ? bounds->SetIsNot(boundValue, isExplicit)
                 : bounds->SetIsNot(boundConstantBounds.LowerBound(), isExplicit))
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 858\n");
             if(bounds->RequiresIntBoundedValueInfo(valueInfo->Type()))
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 860\n");
                 return NewIntBoundedValueInfo(valueInfo, bounds);
             }
         }
@@ -871,7 +871,7 @@ ValueInfo *GlobOpt::UpdateIntBoundsForNotEqual(
     }
 
     if(!valueInfo->IsInt() || !boundConstantBounds.IsConstant())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 873\n");
         return nullptr;
     }
     const int32 constantBound = boundConstantBounds.LowerBound();
@@ -879,19 +879,19 @@ ValueInfo *GlobOpt::UpdateIntBoundsForNotEqual(
     // The value is not equal to a constant, so narrow the range if the constant is equal to the value's lower or upper bound
     int32 newMin = constantBounds.LowerBound(), newMax = constantBounds.UpperBound();
     if(constantBound == newMin)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 881\n");
         Assert(newMin <= newMax);
         if(newMin == newMax)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 884\n");
             return nullptr;
         }
         ++newMin;
     }
     else if(constantBound == newMax)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 890\n");
         Assert(newMin <= newMax);
         if(newMin == newMax)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 893\n");
             return nullptr;
         }
         --newMax;
@@ -909,7 +909,7 @@ ValueInfo *GlobOpt::UpdateIntBoundsForGreaterThanOrEqual(
     Value *const boundValue,
     const IntConstantBounds &boundConstantBounds,
     const bool isExplicit)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 911\n");
     return UpdateIntBoundsForGreaterThanOrEqual(value, constantBounds, boundValue, boundConstantBounds, 0, isExplicit);
 }
 
@@ -920,11 +920,11 @@ ValueInfo *GlobOpt::UpdateIntBoundsForGreaterThanOrEqual(
     const IntConstantBounds &boundConstantBounds,
     const int boundOffset,
     const bool isExplicit)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 922\n");
     Assert(value || constantBounds.IsConstant());
     Assert(boundValue || boundConstantBounds.IsConstant());
     if(!value)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 926\n");
         return nullptr;
     }
     Assert(!boundValue || value->GetValueNumber() != boundValue->GetValueNumber());
@@ -933,9 +933,9 @@ ValueInfo *GlobOpt::UpdateIntBoundsForGreaterThanOrEqual(
     IntBounds *const bounds =
         GetIntBoundsToUpdate(valueInfo, constantBounds, true, boundConstantBounds.IsConstant(), false, isExplicit);
     if(bounds)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 935\n");
         if(boundValue)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 937\n");
             bounds->SetLowerBound(value->GetValueNumber(), boundValue, boundOffset, isExplicit);
         }
         else
@@ -943,32 +943,32 @@ ValueInfo *GlobOpt::UpdateIntBoundsForGreaterThanOrEqual(
             bounds->SetLowerBound(boundConstantBounds.LowerBound(), boundOffset);
         }
         if(bounds->RequiresIntBoundedValueInfo(valueInfo->Type()))
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 945\n");
             return NewIntBoundedValueInfo(valueInfo, bounds);
         }
         bounds->Delete();
     }
 
     if(!valueInfo->IsInt())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 952\n");
         return nullptr;
     }
 
     int32 adjustedBoundMin;
     if(boundOffset == 0)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 958\n");
         adjustedBoundMin = boundConstantBounds.LowerBound();
     }
     else if(boundOffset == 1)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 962\n");
         if(boundConstantBounds.LowerBound() + 1 <= boundConstantBounds.LowerBound())
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 964\n");
             return nullptr;
         }
         adjustedBoundMin = boundConstantBounds.LowerBound() + 1;
     }
     else if(Int32Math::Add(boundConstantBounds.LowerBound(), boundOffset, &adjustedBoundMin))
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 970\n");
         return nullptr;
     }
     const int32 newMin = max(constantBounds.LowerBound(), adjustedBoundMin);
@@ -984,7 +984,7 @@ ValueInfo *GlobOpt::UpdateIntBoundsForGreaterThan(
     Value *const boundValue,
     const IntConstantBounds &boundConstantBounds,
     const bool isExplicit)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 986\n");
     return UpdateIntBoundsForGreaterThanOrEqual(value, constantBounds, boundValue, boundConstantBounds, 1, isExplicit);
 }
 
@@ -994,7 +994,7 @@ ValueInfo *GlobOpt::UpdateIntBoundsForLessThanOrEqual(
     Value *const boundValue,
     const IntConstantBounds &boundConstantBounds,
     const bool isExplicit)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 996\n");
     return UpdateIntBoundsForLessThanOrEqual(value, constantBounds, boundValue, boundConstantBounds, 0, isExplicit);
 }
 
@@ -1005,11 +1005,11 @@ ValueInfo *GlobOpt::UpdateIntBoundsForLessThanOrEqual(
     const IntConstantBounds &boundConstantBounds,
     const int boundOffset,
     const bool isExplicit)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 1007\n");
     Assert(value || constantBounds.IsConstant());
     Assert(boundValue || boundConstantBounds.IsConstant());
     if(!value)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 1011\n");
         return nullptr;
     }
     Assert(!boundValue || value->GetValueNumber() != boundValue->GetValueNumber());
@@ -1018,9 +1018,9 @@ ValueInfo *GlobOpt::UpdateIntBoundsForLessThanOrEqual(
     IntBounds *const bounds =
         GetIntBoundsToUpdate(valueInfo, constantBounds, true, boundConstantBounds.IsConstant(), true, isExplicit);
     if(bounds)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 1020\n");
         if(boundValue)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1022\n");
             bounds->SetUpperBound(value->GetValueNumber(), boundValue, boundOffset, isExplicit);
         }
         else
@@ -1028,32 +1028,32 @@ ValueInfo *GlobOpt::UpdateIntBoundsForLessThanOrEqual(
             bounds->SetUpperBound(boundConstantBounds.LowerBound(), boundOffset, isExplicit);
         }
         if(bounds->RequiresIntBoundedValueInfo(valueInfo->Type()))
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1030\n");
             return NewIntBoundedValueInfo(valueInfo, bounds);
         }
         bounds->Delete();
     }
 
     if(!valueInfo->IsInt())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 1037\n");
         return nullptr;
     }
 
     int32 adjustedBoundMax;
     if(boundOffset == 0)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 1043\n");
         adjustedBoundMax = boundConstantBounds.UpperBound();
     }
     else if(boundOffset == -1)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 1047\n");
         if(boundConstantBounds.UpperBound() - 1 >= boundConstantBounds.UpperBound())
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1049\n");
             return nullptr;
         }
         adjustedBoundMax = boundConstantBounds.UpperBound() - 1;
     }
     else if(Int32Math::Add(boundConstantBounds.UpperBound(), boundOffset, &adjustedBoundMax))
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 1055\n");
         return nullptr;
     }
     const int32 newMax = min(constantBounds.UpperBound(), adjustedBoundMax);
@@ -1069,7 +1069,7 @@ ValueInfo *GlobOpt::UpdateIntBoundsForLessThan(
     Value *const boundValue,
     const IntConstantBounds &boundConstantBounds,
     const bool isExplicit)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 1071\n");
     return UpdateIntBoundsForLessThanOrEqual(value, constantBounds, boundValue, boundConstantBounds, -1, isExplicit);
 }
 
@@ -1078,18 +1078,18 @@ void GlobOpt::TrackIntSpecializedAddSubConstant(
     const AddSubConstantInfo *const addSubConstantInfo,
     Value *const dstValue,
     const bool updateSourceBounds)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 1080\n");
     Assert(instr);
     Assert(dstValue);
 
     if(addSubConstantInfo)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 1085\n");
         Assert(addSubConstantInfo->HasInfo());
         Assert(!ignoredIntOverflowForCurrentInstr);
         do
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1089\n");
             if(!IsLoopPrePass() || !DoBoundCheckHoist())
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 1091\n");
                 break;
             }
 
@@ -1102,7 +1102,7 @@ void GlobOpt::TrackIntSpecializedAddSubConstant(
             StackSym *sym = instr->GetDst()->AsRegOpnd()->m_sym;
             bool isPostfixIncDecPattern = false;
             if(addSubConstantInfo->SrcSym() != sym)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 1104\n");
                 // Check for the following patterns.
                 //
                 // This pattern is used for postfix inc/dec operators:
@@ -1118,7 +1118,7 @@ void GlobOpt::TrackIntSpecializedAddSubConstant(
                     prevInstr->GetSrc1()->IsRegOpnd() &&
                     prevInstr->GetSrc1()->AsRegOpnd()->m_sym == sym &&
                     prevInstr->GetDst()->AsRegOpnd()->m_sym == addSubConstantInfo->SrcSym())
-                {
+                {LOGMEIN("GlobOptIntBounds.cpp] 1120\n");
                     // s2 will get a new value number, since Conv_Num cannot transfer in the prepass. For the purposes of
                     // induction variable tracking however, it doesn't matter, so record this case and use s1's value in the
                     // current block.
@@ -1131,12 +1131,12 @@ void GlobOpt::TrackIntSpecializedAddSubConstant(
                     if(nextInstr->m_opcode != Js::OpCode::Ld_A ||
                         !nextInstr->GetSrc1()->IsRegOpnd() ||
                         nextInstr->GetSrc1()->AsRegOpnd()->m_sym != sym)
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 1133\n");
                         break;
                     }
                     sym = addSubConstantInfo->SrcSym();
                     if(nextInstr->GetDst()->AsRegOpnd()->m_sym != sym)
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 1138\n");
                         break;
                     }
 
@@ -1151,7 +1151,7 @@ void GlobOpt::TrackIntSpecializedAddSubConstant(
             // Track induction variable info
             ValueNumber srcValueNumber;
             if(isPostfixIncDecPattern)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 1153\n");
                 Value *const value = FindValue(sym);
                 Assert(value);
                 srcValueNumber = value->GetValueNumber();
@@ -1164,11 +1164,11 @@ void GlobOpt::TrackIntSpecializedAddSubConstant(
             Assert(inductionVariables);
             InductionVariable *inductionVariable;
             if(!inductionVariables->TryGetReference(sym->m_id, &inductionVariable))
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 1166\n");
                 // Only track changes in the current loop's prepass. In subsequent prepasses, the info is only being propagated
                 // for use by the parent loop, so changes in the current loop have already been tracked.
                 if(prePassLoop != currentBlock->loop)
-                {
+                {LOGMEIN("GlobOptIntBounds.cpp] 1170\n");
                     updateInductionVariableValueNumber = false;
                     break;
                 }
@@ -1176,7 +1176,7 @@ void GlobOpt::TrackIntSpecializedAddSubConstant(
                 // Ensure that the sym is live in the landing pad, and that its value has not changed in an unknown way yet
                 Value *const landingPadValue = FindValue(currentBlock->loop->landingPad->globOptData.symToValueMap, sym);
                 if(!landingPadValue || srcValueNumber != landingPadValue->GetValueNumber())
-                {
+                {LOGMEIN("GlobOptIntBounds.cpp] 1178\n");
                     updateInductionVariableValueNumber = false;
                     break;
                 }
@@ -1186,13 +1186,13 @@ void GlobOpt::TrackIntSpecializedAddSubConstant(
             }
 
             if(!inductionVariable->IsChangeDeterminate())
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 1188\n");
                 updateInductionVariableValueNumber = false;
                 break;
             }
 
             if(srcValueNumber != inductionVariable->SymValueNumber())
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 1194\n");
                 // The sym's value has changed since the last time induction variable info was recorded for it. Due to the
                 // unknown change, mark the info as indeterminate.
                 inductionVariable->SetChangeIsIndeterminate();
@@ -1205,18 +1205,18 @@ void GlobOpt::TrackIntSpecializedAddSubConstant(
             // numbers are updated as changes occur, but their change bounds are preserved from the first prepass over the loop.
             inductionVariable->SetSymValueNumber(dstValue->GetValueNumber());
             if(prePassLoop != currentBlock->loop)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 1207\n");
                 break;
             }
 
             if(!inductionVariable->Add(addSubConstantInfo->Offset()))
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 1212\n");
                 updateInductionVariableValueNumber = false;
             }
         } while(false);
 
         if(updateSourceBounds && addSubConstantInfo->Offset() != IntConstMin)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1218\n");
             // Track bounds for add or sub with a constant. For instance, consider (b = a + 2). The value of 'b' should track
             // that it is equal to (the value of 'a') + 2. That part has been done above. Similarly, the value of 'a' should
             // also track that it is equal to (the value of 'b') - 2.
@@ -1234,7 +1234,7 @@ void GlobOpt::TrackIntSpecializedAddSubConstant(
                     true,
                     true);
             if(bounds)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 1236\n");
                 const ValueNumber valueNumber = value->GetValueNumber();
                 const int32 dstOffset = -addSubConstantInfo->Offset();
                 bounds->SetLowerBound(valueNumber, dstValue, dstOffset, true);
@@ -1246,7 +1246,7 @@ void GlobOpt::TrackIntSpecializedAddSubConstant(
     }
 
     if(!updateInductionVariableValueNumber)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 1248\n");
         return;
     }
 
@@ -1273,7 +1273,7 @@ void GlobOpt::CloneBoundCheckHoistBlockData(
     GlobOptBlockData *const toData,
     BasicBlock *const fromBlock,
     GlobOptBlockData *const fromData)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 1275\n");
     Assert(DoBoundCheckHoist());
     Assert(toBlock);
     Assert(toData);
@@ -1286,11 +1286,11 @@ void GlobOpt::CloneBoundCheckHoistBlockData(
     toData->availableIntBoundChecks = fromData->availableIntBoundChecks->Clone();
 
     if(toBlock->isLoopHeader)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 1288\n");
         Assert(fromBlock == toBlock->loop->landingPad);
 
         if(prePassLoop == toBlock->loop)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1292\n");
             // When the current prepass loop is the current loop, the loop header's induction variable set needs to start off
             // empty to track changes in the current loop
             toData->inductionVariables = JitAnew(alloc, InductionVariableSet, alloc);
@@ -1298,7 +1298,7 @@ void GlobOpt::CloneBoundCheckHoistBlockData(
         }
 
         if(!IsLoopPrePass())
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1300\n");
             return;
         }
 
@@ -1311,7 +1311,7 @@ void GlobOpt::CloneBoundCheckHoistBlockData(
     }
 
     if(!toBlock->loop || !IsLoopPrePass())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 1313\n");
         return;
     }
 
@@ -1326,7 +1326,7 @@ void GlobOpt::MergeBoundCheckHoistBlockData(
     GlobOptBlockData *const toData,
     BasicBlock *const fromBlock,
     GlobOptBlockData *const fromData)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 1328\n");
     Assert(DoBoundCheckHoist());
     Assert(toBlock);
     Assert(toData);
@@ -1337,25 +1337,25 @@ void GlobOpt::MergeBoundCheckHoistBlockData(
     Assert(toData->availableIntBoundChecks);
 
     for(auto it = toData->availableIntBoundChecks->GetIteratorWithRemovalSupport(); it.IsValid(); it.MoveNext())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 1339\n");
         const IntBoundCheck &toDataIntBoundCheck = it.CurrentValue();
         const IntBoundCheck *fromDataIntBoundCheck;
         if(!fromData->availableIntBoundChecks->TryGetReference(
                 toDataIntBoundCheck.CompatibilityId(),
                 &fromDataIntBoundCheck) ||
             fromDataIntBoundCheck->Instr() != toDataIntBoundCheck.Instr())
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1346\n");
             it.RemoveCurrent();
         }
     }
 
     InductionVariableSet *mergeInductionVariablesInto;
     if(toBlock->isLoopHeader)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 1353\n");
         Assert(fromBlock->loop == toBlock->loop); // The flow is such that you cannot have back-edges from an inner loop
 
         if(IsLoopPrePass())
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1357\n");
             // Collect info for the parent loop. Any changes to induction variables in this inner loop need to be expanded in
             // the same direction for the parent loop, so merge expanded info from back-edges. Info about induction variables
             // that changed before the loop but not inside the loop, can be kept intact because the landing pad dominates the
@@ -1366,13 +1366,13 @@ void GlobOpt::MergeBoundCheckHoistBlockData(
 
             InductionVariableSet *const mergedInductionVariables = toData->inductionVariables;
             for(auto it = fromData->inductionVariables->GetIterator(); it.IsValid(); it.MoveNext())
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 1368\n");
                 InductionVariable backEdgeInductionVariable = it.CurrentValue();
                 backEdgeInductionVariable.ExpandInnerLoopChange();
                 StackSym *const sym = backEdgeInductionVariable.Sym();
                 InductionVariable *mergedInductionVariable;
                 if(mergedInductionVariables->TryGetReference(sym->m_id, &mergedInductionVariable))
-                {
+                {LOGMEIN("GlobOptIntBounds.cpp] 1374\n");
                     mergedInductionVariable->Merge(backEdgeInductionVariable);
                     continue;
                 }
@@ -1382,13 +1382,13 @@ void GlobOpt::MergeBoundCheckHoistBlockData(
                 Value *const parentLandingPadValue =
                     FindValue(currentBlock->loop->parent->landingPad->globOptData.symToValueMap, sym);
                 if(!parentLandingPadValue)
-                {
+                {LOGMEIN("GlobOptIntBounds.cpp] 1384\n");
                     continue;
                 }
                 Value *const landingPadValue = FindValue(currentBlock->loop->landingPad->globOptData.symToValueMap, sym);
                 Assert(landingPadValue);
                 if(landingPadValue->GetValueNumber() == parentLandingPadValue->GetValueNumber())
-                {
+                {LOGMEIN("GlobOptIntBounds.cpp] 1390\n");
                     mergedInductionVariables->Add(backEdgeInductionVariable);
                 }
             }
@@ -1400,14 +1400,14 @@ void GlobOpt::MergeBoundCheckHoistBlockData(
         Assert(fromData->inductionVariables);
         InductionVariableSet *&loopInductionVariables = toBlock->loop->inductionVariables;
         if(!loopInductionVariables)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1402\n");
             loopInductionVariables = fromData->inductionVariables->Clone();
             return;
         }
         mergeInductionVariablesInto = loopInductionVariables;
     }
     else if(toBlock->loop && IsLoopPrePass())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 1409\n");
         Assert(fromBlock->loop);
         Assert(toBlock->loop->IsDescendentOrSelf(fromBlock->loop));
         mergeInductionVariablesInto = toData->inductionVariables;
@@ -1424,17 +1424,17 @@ void GlobOpt::MergeBoundCheckHoistBlockData(
     Assert(mergedInductionVariables);
 
     for(auto it = mergedInductionVariables->GetIterator(); it.IsValid(); it.MoveNext())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 1426\n");
         InductionVariable &mergedInductionVariable = it.CurrentValueReference();
         if(!mergedInductionVariable.IsChangeDeterminate())
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1429\n");
             continue;
         }
 
         StackSym *const sym = mergedInductionVariable.Sym();
         const InductionVariable *fromDataInductionVariable;
         if(fromDataInductionVariables->TryGetReference(sym->m_id, &fromDataInductionVariable))
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1436\n");
             mergedInductionVariable.Merge(*fromDataInductionVariable);
             continue;
         }
@@ -1443,10 +1443,10 @@ void GlobOpt::MergeBoundCheckHoistBlockData(
         // where the sym is not already marked as an induction variable.
         Value *const fromDataValue = FindValue(fromData->symToValueMap, sym);
         if(fromDataValue)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1445\n");
             Value *const landingPadValue = FindValue(toBlock->loop->landingPad->globOptData.symToValueMap, sym);
             if(landingPadValue && fromDataValue->GetValueNumber() == landingPadValue->GetValueNumber())
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 1448\n");
                 mergedInductionVariable.Merge(InductionVariable(sym, ZeroValueNumber, 0));
                 continue;
             }
@@ -1455,11 +1455,11 @@ void GlobOpt::MergeBoundCheckHoistBlockData(
     }
 
     for(auto it = fromDataInductionVariables->GetIterator(); it.IsValid(); it.MoveNext())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 1457\n");
         const InductionVariable &fromDataInductionVariable = it.CurrentValue();
         StackSym *const sym = fromDataInductionVariable.Sym();
         if(mergedInductionVariables->ContainsKey(sym->m_id))
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1461\n");
             continue;
         }
 
@@ -1468,16 +1468,16 @@ void GlobOpt::MergeBoundCheckHoistBlockData(
         bool indeterminate = true;
         Value *const toDataValue = FindValue(toData->symToValueMap, sym);
         if(toDataValue)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1470\n");
             Value *const landingPadValue = FindValue(toBlock->loop->landingPad->globOptData.symToValueMap, sym);
             if(landingPadValue && toDataValue->GetValueNumber() == landingPadValue->GetValueNumber())
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 1473\n");
                 indeterminate = false;
             }
         }
         InductionVariable mergedInductionVariable(sym, ZeroValueNumber, 0);
         if(indeterminate)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1479\n");
             mergedInductionVariable.SetChangeIsIndeterminate();
         }
         else
@@ -1489,7 +1489,7 @@ void GlobOpt::MergeBoundCheckHoistBlockData(
 }
 
 void GlobOpt::DetectUnknownChangesToInductionVariables(GlobOptBlockData *const blockData)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 1491\n");
     Assert(DoBoundCheckHoist());
     Assert(IsLoopPrePass());
     Assert(blockData);
@@ -1499,23 +1499,23 @@ void GlobOpt::DetectUnknownChangesToInductionVariables(GlobOptBlockData *const b
     // in the set though, for merging purposes.
     GlobHashTable *const symToValueMap = blockData->symToValueMap;
     for(auto it = blockData->inductionVariables->GetIterator(); it.IsValid(); it.MoveNext())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 1501\n");
         InductionVariable &inductionVariable = it.CurrentValueReference();
         if(!inductionVariable.IsChangeDeterminate())
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1504\n");
             continue;
         }
 
         Value *const value = FindValue(symToValueMap, inductionVariable.Sym());
         if(!value || value->GetValueNumber() != inductionVariable.SymValueNumber())
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1510\n");
             inductionVariable.SetChangeIsIndeterminate();
         }
     }
 }
 
 void GlobOpt::SetInductionVariableValueNumbers(GlobOptBlockData *const blockData)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 1517\n");
     Assert(DoBoundCheckHoist());
     Assert(IsLoopPrePass());
     Assert(blockData == &this->blockData);
@@ -1524,16 +1524,16 @@ void GlobOpt::SetInductionVariableValueNumbers(GlobOptBlockData *const blockData
     // Now that all values have been merged, update value numbers in the induction variable info.
     GlobHashTable *const symToValueMap = blockData->symToValueMap;
     for(auto it = blockData->inductionVariables->GetIterator(); it.IsValid(); it.MoveNext())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 1526\n");
         InductionVariable &inductionVariable = it.CurrentValueReference();
         if(!inductionVariable.IsChangeDeterminate())
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1529\n");
             continue;
         }
 
         Value *const value = FindValue(symToValueMap, inductionVariable.Sym());
         if(value)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1535\n");
             inductionVariable.SetSymValueNumber(value->GetValueNumber());
         }
         else
@@ -1544,7 +1544,7 @@ void GlobOpt::SetInductionVariableValueNumbers(GlobOptBlockData *const blockData
 }
 
 void GlobOpt::FinalizeInductionVariables(Loop *const loop, GlobOptBlockData *const headerData)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 1546\n");
     Assert(DoBoundCheckHoist());
     Assert(!IsLoopPrePass());
     Assert(loop);
@@ -1558,21 +1558,21 @@ void GlobOpt::FinalizeInductionVariables(Loop *const loop, GlobOptBlockData *con
     GlobOptBlockData &landingPadBlockData = loop->landingPad->globOptData;
     GlobHashTable *const landingPadSymToValueMap = landingPadBlockData.symToValueMap;
     for(auto it = loop->inductionVariables->GetIterator(); it.IsValid(); it.MoveNext())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 1560\n");
         InductionVariable &inductionVariable = it.CurrentValueReference();
         if(!inductionVariable.IsChangeDeterminate())
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1563\n");
             continue;
         }
         if(!inductionVariable.IsChangeUnidirectional())
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1567\n");
             inductionVariable.SetChangeIsIndeterminate();
             continue;
         }
 
         StackSym *const sym = inductionVariable.Sym();
         if(!IsInt32TypeSpecialized(sym, headerData))
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1574\n");
             inductionVariable.SetChangeIsIndeterminate();
             continue;
         }
@@ -1580,7 +1580,7 @@ void GlobOpt::FinalizeInductionVariables(Loop *const loop, GlobOptBlockData *con
 
         Value *const value = FindValue(symToValueMap, sym);
         if(!value)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1582\n");
             inductionVariable.SetChangeIsIndeterminate();
             continue;
         }
@@ -1594,17 +1594,17 @@ void GlobOpt::FinalizeInductionVariables(Loop *const loop, GlobOptBlockData *con
         // For an induction variable i, update the value of i inside the loop to indicate that it is bounded by the value of i
         // just before the loop.
         if(inductionVariable.ChangeBounds().LowerBound() >= 0)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1596\n");
             ValueInfo *const newValueInfo =
                 UpdateIntBoundsForGreaterThanOrEqual(value, constantBounds, landingPadValue, landingPadConstantBounds, true);
             ChangeValueInfo(nullptr, value, newValueInfo);
             if(inductionVariable.ChangeBounds().UpperBound() == 0)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 1601\n");
                 AssertVerify(newValueInfo->TryGetIntConstantBounds(&constantBounds, true));
             }
         }
         if(inductionVariable.ChangeBounds().UpperBound() <= 0)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1606\n");
             ValueInfo *const newValueInfo =
                 UpdateIntBoundsForLessThanOrEqual(value, constantBounds, landingPadValue, landingPadConstantBounds, true);
             ChangeValueInfo(nullptr, value, newValueInfo);
@@ -1619,7 +1619,7 @@ bool GlobOpt::DetermineSymBoundOffsetOrValueRelativeToLandingPad(
     const IntBounds *const bounds,
     GlobHashTable *const landingPadSymToValueMap,
     int *const boundOffsetOrValueRef)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 1621\n");
     Assert(sym);
     Assert(!sym->IsTypeSpec());
     Assert(valueInfo);
@@ -1629,7 +1629,7 @@ bool GlobOpt::DetermineSymBoundOffsetOrValueRelativeToLandingPad(
 
     int constantValue;
     if(valueInfo->TryGetIntConstantValue(&constantValue))
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 1631\n");
         // The sym's constant value is the constant bound value, so just return that. This is possible in loops such as
         // for(; i === 1; ++i){...}, where 'i' is an induction variable but has a constant value inside the loop, or in blocks
         // inside the loop such as if(i === 1){...}
@@ -1642,7 +1642,7 @@ bool GlobOpt::DetermineSymBoundOffsetOrValueRelativeToLandingPad(
     Assert(landingPadValue->GetValueInfo()->IsInt());
     int landingPadConstantValue;
     if(landingPadValue->GetValueInfo()->TryGetIntConstantValue(&landingPadConstantValue))
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 1644\n");
         // The sym's bound already takes the landing pad constant value into consideration, unless the landing pad value was
         // updated to have a more aggressive range (and hence, now a constant value) as part of hoisting a bound check or some
         // other hoisting operation. The sym's bound also takes into consideration the change to the sym so far inside the loop,
@@ -1650,7 +1650,7 @@ bool GlobOpt::DetermineSymBoundOffsetOrValueRelativeToLandingPad(
 
         int constantBound;
         if(bounds)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1652\n");
             constantBound = landingPadValueIsLowerBound ? bounds->ConstantLowerBound() : bounds->ConstantUpperBound();
         }
         else
@@ -1662,7 +1662,7 @@ bool GlobOpt::DetermineSymBoundOffsetOrValueRelativeToLandingPad(
         }
 
         if(landingPadValueIsLowerBound ? landingPadConstantValue > constantBound : landingPadConstantValue < constantBound)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1664\n");
             // The landing pad value became a constant value as part of a hoisting operation. The landing pad constant value is
             // a more aggressive bound, so use that instead, and take into consideration the change to the sym so far inside the
             // loop, using the relative bound to the landing pad value.
@@ -1690,7 +1690,7 @@ bool GlobOpt::DetermineSymBoundOffsetOrValueRelativeToLandingPad(
 }
 
 void GlobOpt::DetermineDominatingLoopCountableBlock(Loop *const loop, BasicBlock *const headerBlock)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 1692\n");
     Assert(DoLoopCountBasedBoundCheckHoist());
     Assert(!IsLoopPrePass());
     Assert(loop);
@@ -1702,15 +1702,15 @@ void GlobOpt::DetermineDominatingLoopCountableBlock(Loop *const loop, BasicBlock
     // header exit the loop, allowing a loop count to be established and used from the unique in-loop successor block.
     Assert(!loop->dominatingLoopCountableBlock);
     FOREACH_SUCCESSOR_BLOCK(successor, headerBlock)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 1704\n");
         if(successor->loop != loop)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1706\n");
             Assert(!successor->loop || successor->loop->IsDescendentOrSelf(loop->parent));
             continue;
         }
 
         if(loop->dominatingLoopCountableBlock)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1712\n");
             // Found a second successor inside the loop
             loop->dominatingLoopCountableBlock = nullptr;
             break;
@@ -1721,7 +1721,7 @@ void GlobOpt::DetermineDominatingLoopCountableBlock(Loop *const loop, BasicBlock
 }
 
 void GlobOpt::DetermineLoopCount(Loop *const loop)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 1723\n");
     Assert(DoLoopCountBasedBoundCheckHoist());
     Assert(loop);
 
@@ -1730,10 +1730,10 @@ void GlobOpt::DetermineLoopCount(Loop *const loop)
     const InductionVariableSet *const inductionVariables = loop->inductionVariables;
     Assert(inductionVariables);
     for(auto inductionVariablesIterator = inductionVariables->GetIterator(); inductionVariablesIterator.IsValid(); inductionVariablesIterator.MoveNext())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 1732\n");
         InductionVariable &inductionVariable = inductionVariablesIterator.CurrentValueReference();
         if(!inductionVariable.IsChangeDeterminate())
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1735\n");
             continue;
         }
 
@@ -1741,9 +1741,9 @@ void GlobOpt::DetermineLoopCount(Loop *const loop)
         Assert(inductionVariable.IsChangeUnidirectional());
         int minMagnitudeChange = inductionVariable.ChangeBounds().LowerBound();
         if(minMagnitudeChange >= 0)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1743\n");
             if(minMagnitudeChange == 0 || minMagnitudeChange == IntConstMax)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 1745\n");
                 continue;
             }
         }
@@ -1752,14 +1752,14 @@ void GlobOpt::DetermineLoopCount(Loop *const loop)
             minMagnitudeChange = inductionVariable.ChangeBounds().UpperBound();
             Assert(minMagnitudeChange <= 0);
             if(minMagnitudeChange == 0 || minMagnitudeChange == IntConstMin)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 1754\n");
                 continue;
             }
         }
 
         StackSym *const inductionVariableVarSym = inductionVariable.Sym();
         if(!IsInt32TypeSpecialized(inductionVariableVarSym, &blockData))
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1761\n");
             inductionVariable.SetChangeIsIndeterminate();
             continue;
         }
@@ -1767,7 +1767,7 @@ void GlobOpt::DetermineLoopCount(Loop *const loop)
 
         Value *const inductionVariableValue = FindValue(inductionVariableVarSym);
         if(!inductionVariableValue)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1769\n");
             inductionVariable.SetChangeIsIndeterminate();
             continue;
         }
@@ -1782,7 +1782,7 @@ void GlobOpt::DetermineLoopCount(Loop *const loop)
         {
             bool foundBound = false;
             if(inductionVariableBounds)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 1784\n");
                 // Look for a relative bound
                 for(auto it =
                         (
@@ -1792,37 +1792,37 @@ void GlobOpt::DetermineLoopCount(Loop *const loop)
                         ).GetIterator();
                     it.IsValid();
                     it.MoveNext())
-                {
+                {LOGMEIN("GlobOptIntBounds.cpp] 1794\n");
                     const ValueRelativeOffset &bound = it.CurrentValue();
 
                     StackSym *currentBoundBaseVarSym = bound.BaseSym();
 
                     if(!currentBoundBaseVarSym || !IsInt32TypeSpecialized(currentBoundBaseVarSym, &landingPadBlockData))
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 1800\n");
                         continue;
                     }
 
                     Value *const boundBaseValue = FindValue(currentBoundBaseVarSym);
                     const ValueNumber boundBaseValueNumber = bound.BaseValueNumber();
                     if(!boundBaseValue || boundBaseValue->GetValueNumber() != boundBaseValueNumber)
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 1807\n");
                         continue;
                     }
 
                     Value *const landingPadBoundBaseValue = FindValue(landingPadSymToValueMap, currentBoundBaseVarSym);
                     if(!landingPadBoundBaseValue || landingPadBoundBaseValue->GetValueNumber() != boundBaseValueNumber)
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 1813\n");
                         continue;
                     }
 
                     if (foundBound)
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 1818\n");
                         // We used to pick the first usable bound we saw in this list, but the list contains both
                         // the loop counter's bound *and* relative bounds of the primary bound. These secondary bounds
                         // are not guaranteed to be correct, so if the bound we found on a previous iteration is itself
                         // a bound for the current bound, then choose the current bound.
                         if (!boundBaseValue->GetValueInfo()->IsIntBounded())
-                        {
+                        {LOGMEIN("GlobOptIntBounds.cpp] 1824\n");
                             continue;
                         }
                         // currentBoundBaseVarSym has relative bounds of its own. If we find the saved boundBaseVarSym
@@ -1838,17 +1838,17 @@ void GlobOpt::DetermineLoopCount(Loop *const loop)
                                      ).GetIterator();
                              it2.IsValid();
                              it2.MoveNext())
-                        {
+                        {LOGMEIN("GlobOptIntBounds.cpp] 1840\n");
                             const ValueRelativeOffset &bound2 = it2.CurrentValue();
                             if (bound2.BaseSym() == boundBaseVarSym)
-                            {
+                            {LOGMEIN("GlobOptIntBounds.cpp] 1843\n");
                                 // boundBaseVarSym is a secondary bound. Use currentBoundBaseVarSym instead.
                                 foundSecondaryBound = true;
                                 break;
                             }
                         }
                         if (!foundSecondaryBound)
-                        {
+                        {LOGMEIN("GlobOptIntBounds.cpp] 1850\n");
                             // boundBaseVarSym is not a relative bound of currentBoundBaseVarSym, so continue
                             // to use boundBaseVarSym.
                             continue;
@@ -1862,16 +1862,16 @@ void GlobOpt::DetermineLoopCount(Loop *const loop)
             }
 
             if(!foundBound)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 1864\n");
                 // No useful relative bound found; look for a constant bound. Exclude large constant bounds established implicitly by
                 // <, <=, >, and >=. For example, for a loop condition (i < n), if 'n' is not invariant and hence can't be used,
                 // 'i' will still have a constant upper bound of (int32 max - 1) that should be excluded as it's too large. Any
                 // other constant bounds must have been established explicitly by the loop condition, and are safe to use.
                 boundBaseVarSym = nullptr;
                 if(minMagnitudeChange >= 0)
-                {
+                {LOGMEIN("GlobOptIntBounds.cpp] 1871\n");
                     if(inductionVariableBounds)
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 1873\n");
                         boundOffset = inductionVariableBounds->ConstantUpperBound();
                     }
                     else
@@ -1879,14 +1879,14 @@ void GlobOpt::DetermineLoopCount(Loop *const loop)
                         AssertVerify(inductionVariableValueInfo->TryGetIntConstantUpperBound(&boundOffset));
                     }
                     if(boundOffset >= IntConstMax - 1)
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 1881\n");
                         continue;
                     }
                 }
                 else
                 {
                     if(inductionVariableBounds)
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 1888\n");
                         boundOffset = inductionVariableBounds->ConstantLowerBound();
                     }
                     else
@@ -1894,7 +1894,7 @@ void GlobOpt::DetermineLoopCount(Loop *const loop)
                         AssertVerify(inductionVariableValueInfo->TryGetIntConstantLowerBound(&boundOffset));
                     }
                     if(boundOffset <= IntConstMin + 1)
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 1896\n");
                         continue;
                     }
                 }
@@ -1911,7 +1911,7 @@ void GlobOpt::DetermineLoopCount(Loop *const loop)
                 inductionVariableBounds,
                 landingPadSymToValueMap,
                 &inductionVariableOffset))
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1913\n");
             // The bound value is constant
             inductionVariableSymToAdd = nullptr;
         }
@@ -1925,7 +1925,7 @@ void GlobOpt::DetermineLoopCount(Loop *const loop)
         // Int operands are required
         StackSym *boundBaseSym;
         if(boundBaseVarSym)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1927\n");
             boundBaseSym = boundBaseVarSym->IsVar() ? boundBaseVarSym->GetInt32EquivSym(nullptr) : boundBaseVarSym;
             Assert(boundBaseSym);
             Assert(boundBaseSym->GetType() == TyInt32 || boundBaseSym->GetType() == TyUint32);
@@ -1953,7 +1953,7 @@ void GlobOpt::DetermineLoopCount(Loop *const loop)
         StackSym *leftSym, *rightSym;
         int leftOffset, rightOffset;
         if(minMagnitudeChange >= 0)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1955\n");
             leftSym = boundBaseSym;
             leftOffset = boundOffset;
             rightSym = inductionVariableSymToAdd;
@@ -1971,19 +1971,19 @@ void GlobOpt::DetermineLoopCount(Loop *const loop)
         // Determine the combined offset, and save the info necessary to generate the loop count
         int offset;
         if(Int32Math::Sub(leftOffset, rightOffset, &offset))
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1973\n");
             continue;
         }
         void *const loopCountBuffer = JitAnewArray(this->func->GetTopFunc()->m_fg->alloc, byte, sizeof(LoopCount));
         if(!rightSym)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 1978\n");
             if(!leftSym)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 1980\n");
                 loop->loopCount = new(loopCountBuffer) LoopCount(offset / minMagnitudeChange);
                 break;
             }
             if(offset == 0 && minMagnitudeChange == 1)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 1985\n");
                 loop->loopCount = new(loopCountBuffer) LoopCount(leftSym);
                 break;
             }
@@ -1994,7 +1994,7 @@ void GlobOpt::DetermineLoopCount(Loop *const loop)
 }
 
 void GlobOpt::GenerateLoopCount(Loop *const loop, LoopCount *const loopCount)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 1996\n");
     Assert(DoLoopCountBasedBoundCheckHoist());
     Assert(loop);
     Assert(loopCount);
@@ -2017,7 +2017,7 @@ void GlobOpt::GenerateLoopCount(Loop *const loop, LoopCount *const loopCount)
     StackSym *const rightSym = loopCount->RightSym();
     StackSym *intermediateValueSym;
     if(rightSym)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 2019\n");
         IR::BailOutInstr *const instr = IR::BailOutInstr::New(Js::OpCode::Sub_I4, bailOutKind, bailOutInfo, func);
 
         instr->SetSrc2(IR::RegOpnd::New(rightSym, rightSym->GetType(), func));
@@ -2025,13 +2025,13 @@ void GlobOpt::GenerateLoopCount(Loop *const loop, LoopCount *const loopCount)
 
         StackSym *const leftSym = loopCount->LeftSym();
         if(leftSym)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2027\n");
             // intermediateValue = left - right
             instr->SetSrc1(IR::RegOpnd::New(leftSym, leftSym->GetType(), func));
             instr->GetSrc1()->SetIsJITOptimizedReg(true);
         }
         else if(offset)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2033\n");
             // intermediateValue = offset - right
             instr->SetSrc1(offset);
             offset = nullptr;
@@ -2059,21 +2059,21 @@ void GlobOpt::GenerateLoopCount(Loop *const loop, LoopCount *const loopCount)
 
     // intermediateValue += offset
     if(offset)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 2061\n");
         IR::BailOutInstr *const instr = IR::BailOutInstr::New(Js::OpCode::Add_I4, bailOutKind, bailOutInfo, func);
 
         instr->SetSrc1(IR::RegOpnd::New(intermediateValueSym, intermediateValueSym->GetType(), func));
         instr->GetSrc1()->SetIsJITOptimizedReg(true);
 
         if(offset->GetValue() < 0 && offset->GetValue() != IntConstMin)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2068\n");
             instr->m_opcode = Js::OpCode::Sub_I4;
             offset->SetValue(-offset->GetValue());
         }
         instr->SetSrc2(offset);
 
         if(intermediateValueSym == loopCount->LeftSym())
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2075\n");
             intermediateValueSym = StackSym::New(TyInt32, func);
         }
         instr->SetDst(IR::RegOpnd::New(intermediateValueSym, intermediateValueSym->GetType(), func));
@@ -2086,7 +2086,7 @@ void GlobOpt::GenerateLoopCount(Loop *const loop, LoopCount *const loopCount)
     // intermediateValue /= minMagnitudeChange
     const int minMagnitudeChange = loopCount->MinMagnitudeChange();
     if(minMagnitudeChange != 1)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 2088\n");
         IR::Instr *const instr = IR::Instr::New(Js::OpCode::Div_I4, func);
 
         instr->SetSrc1(IR::RegOpnd::New(intermediateValueSym, intermediateValueSym->GetType(), func));
@@ -2096,7 +2096,7 @@ void GlobOpt::GenerateLoopCount(Loop *const loop, LoopCount *const loopCount)
         instr->SetSrc2(IR::IntConstOpnd::New(minMagnitudeChange, TyInt32, func, true));
 
         if(intermediateValueSym == loopCount->LeftSym())
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2098\n");
             intermediateValueSym = StackSym::New(TyInt32, func);
         }
         instr->SetDst(IR::RegOpnd::New(intermediateValueSym, intermediateValueSym->GetType(), func));
@@ -2115,12 +2115,12 @@ void GlobOpt::GenerateLoopCount(Loop *const loop, LoopCount *const loopCount)
 }
 
 void GlobOpt::GenerateLoopCountPlusOne(Loop *const loop, LoopCount *const loopCount)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 2117\n");
     Assert(loop);
     Assert(loopCount);
     Assert(loopCount == loop->loopCount);
     if (loopCount->HasGeneratedLoopCountSym())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 2122\n");
         return;
     }
     if (!loopCount->HasBeenGenerated())
@@ -2130,7 +2130,7 @@ void GlobOpt::GenerateLoopCountPlusOne(Loop *const loop, LoopCount *const loopCo
     Assert(loopCount->HasBeenGenerated());
     // If this is null then the loop count is a constant and there is nothing more to do here
     if (loopCount->LoopCountMinusOneSym())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 2132\n");
         // Prepare the landing pad for bailouts and instruction insertion
         BailOutInfo *const bailOutInfo = loop->bailOutInfo;
         Assert(bailOutInfo);
@@ -2159,7 +2159,7 @@ void GlobOpt::GenerateSecondaryInductionVariableBound(
     const LoopCount *const loopCount,
     const int maxMagnitudeChange,
     StackSym *const boundSym)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 2161\n");
     Assert(loop);
     Assert(inductionVariableSym);
     Assert(inductionVariableSym->GetType() == TyInt32 || inductionVariableSym->GetType() == TyUint32);
@@ -2185,7 +2185,7 @@ void GlobOpt::GenerateSecondaryInductionVariableBound(
     // intermediateValue = loopCount * maxMagnitudeChange
     StackSym *intermediateValueSym;
     if(maxMagnitudeChange == 1 || maxMagnitudeChange == -1)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 2187\n");
         intermediateValueSym = loopCount->LoopCountMinusOneSym();
     }
     else
@@ -2207,7 +2207,7 @@ void GlobOpt::GenerateSecondaryInductionVariableBound(
     }
 
     // bound = intermediateValue + inductionVariable
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 2209\n");
         IR::BailOutInstr *const instr = IR::BailOutInstr::New(Js::OpCode::Add_I4, bailOutKind, bailOutInfo, func);
 
         instr->SetSrc1(IR::RegOpnd::New(intermediateValueSym, intermediateValueSym->GetType(), func));
@@ -2217,7 +2217,7 @@ void GlobOpt::GenerateSecondaryInductionVariableBound(
         instr->GetSrc2()->SetIsJITOptimizedReg(true);
 
         if(maxMagnitudeChange == -1)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2219\n");
             // bound = inductionVariable - intermediateValue[loopCount]
             instr->m_opcode = Js::OpCode::Sub_I4;
             instr->SwapOpnds();
@@ -2246,7 +2246,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
     Loop *const headSegmentLengthInvariantLoop,
     bool &failedToUpdateCompatibleLowerBoundCheck,
     bool &failedToUpdateCompatibleUpperBoundCheck)
-{
+{LOGMEIN("GlobOptIntBounds.cpp] 2248\n");
     Assert(DoBoundCheckHoist());
     Assert(needLowerBoundCheck || needUpperBoundCheck);
     Assert(!lowerHoistInfo.HasAnyInfo());
@@ -2259,7 +2259,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
 
     Loop *const currentLoop = currentBlock->loop;
     if(!indexValue)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 2261\n");
         Assert(!needLowerBoundCheck);
         Assert(needUpperBoundCheck);
         Assert(indexConstantBounds.IsConstant());
@@ -2277,7 +2277,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
         if(blockData.availableIntBoundChecks->TryGetReference(
                 IntBoundCheckCompatibilityId(ZeroValueNumber, headSegmentLengthValue->GetValueNumber()),
                 &compatibleBoundCheck))
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2279\n");
             // We need:
             //     index < headSegmentLength
             // Normalize the offset such that:
@@ -2285,7 +2285,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
             // Where (compatibleBoundCheckOffset = -1 - index), and -1 is to simulate < instead of <=.
             const int compatibleBoundCheckOffset = -1 - indexConstantValue;
             if(compatibleBoundCheck->SetBoundOffset(compatibleBoundCheckOffset))
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 2287\n");
                 TRACE_PHASE_VERBOSE(
                     Js::Phase::BoundCheckHoistPhase,
                     3,
@@ -2302,22 +2302,22 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
         Loop *invariantLoop;
         Value *landingPadHeadSegmentLengthValue = nullptr;
         if(headSegmentLengthInvariantLoop)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2304\n");
             invariantLoop = headSegmentLengthInvariantLoop;
             landingPadHeadSegmentLengthValue =
                 FindValue(invariantLoop->landingPad->globOptData.symToValueMap, headSegmentLengthSym);
         }
         else if(currentLoop)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2310\n");
             invariantLoop = nullptr;
             for(Loop *loop = currentLoop; loop; loop = loop->parent)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 2313\n");
                 GlobOptBlockData &landingPadBlockData = loop->landingPad->globOptData;
                 GlobHashTable *const landingPadSymToValueMap = landingPadBlockData.symToValueMap;
 
                 Value *const value = FindValue(landingPadSymToValueMap, headSegmentLengthSym);
                 if(!value)
-                {
+                {LOGMEIN("GlobOptIntBounds.cpp] 2319\n");
                     break;
                 }
 
@@ -2325,7 +2325,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                 landingPadHeadSegmentLengthValue = value;
             }
             if(!invariantLoop)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 2327\n");
                 TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 3, _u("Not found\n"));
                 return;
             }
@@ -2349,7 +2349,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                 ->TryGetIntConstantBounds(&landingPadHeadSegmentLengthConstantBounds));
 
         if(isJsArray)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2351\n");
             // index >= headSegmentLength is currently not possible for JS arrays (except when index == int32 max, which is
             // covered above).
             Assert(
@@ -2369,7 +2369,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                 landingPadHeadSegmentLengthValue,
                 landingPadHeadSegmentLengthConstantBounds.LowerBound(),
                 landingPadHeadSegmentLengthConstantBounds.UpperBound()))
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2371\n");
             // index >= headSegmentLength in the landing pad, can't use the index sym. This is possible for typed arrays through
             // conditions on array.length in user code.
             TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 2, _u("Index >= head segment length\n"));
@@ -2407,9 +2407,9 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
             blockData.availableIntBoundChecks->TryGetReference(
                 IntBoundCheckCompatibilityId(ZeroValueNumber, indexValue->GetValueNumber()),
                 &lowerBoundCheck))
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2409\n");
             if(lowerBoundCheck->SetBoundOffset(0))
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 2411\n");
                 foundLowerBoundCheck = true;
                 lowerHoistBlockIndexValueNumber = indexValue->GetValueNumber();
                 lowerBoundOffset = 0;
@@ -2429,9 +2429,9 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
             blockData.availableIntBoundChecks->TryGetReference(
                 IntBoundCheckCompatibilityId(indexValue->GetValueNumber(), headSegmentLengthValue->GetValueNumber()),
                 &upperBoundCheck))
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2431\n");
             if(upperBoundCheck->SetBoundOffset(-1)) // -1 is to simulate < instead of <=
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 2433\n");
                 foundUpperBoundCheck = true;
                 upperHoistBlockIndexValueNumber = indexValue->GetValueNumber();
                 upperBoundOffset = 0;
@@ -2444,33 +2444,33 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
         }
 
         if(indexBounds)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2446\n");
             searchingLower = searchingLower && indexBounds->RelativeLowerBounds().Count() != 0;
             searchingUpper = searchingUpper && indexBounds->RelativeUpperBounds().Count() != 0;
             if(searchingLower || searchingUpper)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 2450\n");
                 for(auto it = blockData.availableIntBoundChecks->GetIterator(); it.IsValid(); it.MoveNext())
-                {
+                {LOGMEIN("GlobOptIntBounds.cpp] 2452\n");
                     const IntBoundCheck &boundCheck = it.CurrentValue();
 
                     if(searchingLower && boundCheck.LeftValueNumber() == ZeroValueNumber)
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 2456\n");
                         lowerHoistBlockIndexValueNumber = boundCheck.RightValueNumber();
                         const ValueRelativeOffset *bound;
                         if(indexBounds->RelativeLowerBounds().TryGetReference(lowerHoistBlockIndexValueNumber, &bound))
-                        {
+                        {LOGMEIN("GlobOptIntBounds.cpp] 2460\n");
                             // We need:
                             //     0 <= boundBase + boundOffset
                             const int offset = bound->Offset();
                             if(boundCheck.SetBoundOffset(offset))
-                            {
+                            {LOGMEIN("GlobOptIntBounds.cpp] 2465\n");
                                 foundLowerBoundCheck = true;
                                 lowerBoundCheck = &boundCheck;
                                 lowerBoundOffset = offset;
 
                                 searchingLower = false;
                                 if(!searchingUpper)
-                                {
+                                {LOGMEIN("GlobOptIntBounds.cpp] 2472\n");
                                     break;
                                 }
                             }
@@ -2482,11 +2482,11 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                     }
 
                     if(searchingUpper && boundCheck.RightValueNumber() == headSegmentLengthValue->GetValueNumber())
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 2484\n");
                         upperHoistBlockIndexValueNumber = boundCheck.LeftValueNumber();
                         const ValueRelativeOffset *bound;
                         if(indexBounds->RelativeUpperBounds().TryGetReference(upperHoistBlockIndexValueNumber, &bound))
-                        {
+                        {LOGMEIN("GlobOptIntBounds.cpp] 2488\n");
                             // We need:
                             //     boundBase + boundOffset < headSegmentLength
                             // Normalize the offset such that:
@@ -2494,14 +2494,14 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                             // Where (compatibleBoundCheckOffset = -1 - boundOffset), and -1 is to simulate < instead of <=.
                             const int offset = -1 - bound->Offset();
                             if(boundCheck.SetBoundOffset(offset))
-                            {
+                            {LOGMEIN("GlobOptIntBounds.cpp] 2496\n");
                                 foundUpperBoundCheck = true;
                                 upperBoundCheck = &boundCheck;
                                 upperBoundOffset = bound->Offset();
 
                                 searchingUpper = false;
                                 if(!searchingLower)
-                                {
+                                {LOGMEIN("GlobOptIntBounds.cpp] 2503\n");
                                     break;
                                 }
                             }
@@ -2516,7 +2516,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
         }
 
         if(foundLowerBoundCheck)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2518\n");
             // A bound check takes the form src1 <= src2 + dst
             Assert(lowerBoundCheck->Instr()->GetSrc2());
             Assert(
@@ -2524,7 +2524,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                 lowerBoundCheck->Instr()->GetSrc2()->AsRegOpnd()->m_sym->GetType() == TyUint32);
             StackSym *boundCheckIndexSym = lowerBoundCheck->Instr()->GetSrc2()->AsRegOpnd()->m_sym;
             if(boundCheckIndexSym->IsTypeSpec())
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 2526\n");
                 boundCheckIndexSym = boundCheckIndexSym->GetVarEquivSym(nullptr);
                 Assert(boundCheckIndexSym);
             }
@@ -2545,13 +2545,13 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
             Assert(!searchingLower);
             needLowerBoundCheck = false;
             if(!needUpperBoundCheck)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 2547\n");
                 return;
             }
         }
 
         if(foundUpperBoundCheck)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2553\n");
             // A bound check takes the form src1 <= src2 + dst
             Assert(upperBoundCheck->Instr()->GetSrc1());
             Assert(
@@ -2559,7 +2559,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                 upperBoundCheck->Instr()->GetSrc1()->AsRegOpnd()->m_sym->GetType() == TyUint32);
             StackSym *boundCheckIndexSym = upperBoundCheck->Instr()->GetSrc1()->AsRegOpnd()->m_sym;
             if(boundCheckIndexSym->IsTypeSpec())
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 2561\n");
                 boundCheckIndexSym = boundCheckIndexSym->GetVarEquivSym(nullptr);
                 Assert(boundCheckIndexSym);
             }
@@ -2580,7 +2580,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
             Assert(!searchingUpper);
             needUpperBoundCheck = false;
             if(!needLowerBoundCheck)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 2582\n");
                 return;
             }
         }
@@ -2591,7 +2591,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
     }
 
     if(!currentLoop)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 2593\n");
         return;
     }
 
@@ -2600,7 +2600,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
     TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 2, _u("Looking for invariant index or index bounded by itself\n"));
     bool searchingLower = needLowerBoundCheck, searchingUpper = needUpperBoundCheck;
     for(Loop *loop = currentLoop; loop; loop = loop->parent)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 2602\n");
         GlobOptBlockData &landingPadBlockData = loop->landingPad->globOptData;
         GlobHashTable *const landingPadSymToValueMap = landingPadBlockData.symToValueMap;
         TRACE_PHASE_VERBOSE(
@@ -2612,7 +2612,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
 
         Value *const landingPadIndexValue = FindValue(landingPadSymToValueMap, indexSym);
         if(!landingPadIndexValue)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2614\n");
             break;
         }
 
@@ -2621,29 +2621,29 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
             landingPadIndexValue->GetValueInfo()->TryGetIntConstantBounds(&landingPadIndexConstantBounds, true);
         int lowerOffset = 0, upperOffset = 0;
         if(indexValue->GetValueNumber() == landingPadIndexValue->GetValueNumber())
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2623\n");
             Assert(landingPadIndexValueIsLikelyInt);
             TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 4, _u("Index is invariant\n"));
         }
         else
         {
             if(!landingPadIndexValueIsLikelyInt)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 2630\n");
                 break;
             }
 
             if(searchingLower)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 2635\n");
                 if(lowerHoistInfo.Loop() && indexValue->GetValueNumber() == lowerHoistInfo.IndexValueNumber())
-                {
+                {LOGMEIN("GlobOptIntBounds.cpp] 2637\n");
                     // Prefer using the invariant sym
                     needLowerBoundCheck = searchingLower = false;
                     if(!needUpperBoundCheck)
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 2641\n");
                         return;
                     }
                     if(!searchingUpper)
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 2645\n");
                         break;
                     }
                 }
@@ -2651,10 +2651,10 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                 {
                     bool foundBound = false;
                     if(indexBounds)
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 2653\n");
                         const ValueRelativeOffset *bound;
                         if(indexBounds->RelativeLowerBounds().TryGetReference(landingPadIndexValue->GetValueNumber(), &bound))
-                        {
+                        {LOGMEIN("GlobOptIntBounds.cpp] 2656\n");
                             foundBound = true;
                             lowerOffset = bound->Offset();
                             TRACE_PHASE_VERBOSE(
@@ -2665,11 +2665,11 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                         }
                     }
                     if(!foundBound)
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 2667\n");
                         TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 4, _u("Lower bound was not found\n"));
                         searchingLower = false;
                         if(!searchingUpper)
-                        {
+                        {LOGMEIN("GlobOptIntBounds.cpp] 2671\n");
                             break;
                         }
                     }
@@ -2677,17 +2677,17 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
             }
 
             if(searchingUpper)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 2679\n");
                 if(upperHoistInfo.Loop() && indexValue->GetValueNumber() == upperHoistInfo.IndexValueNumber())
-                {
+                {LOGMEIN("GlobOptIntBounds.cpp] 2681\n");
                     // Prefer using the invariant sym
                     needUpperBoundCheck = searchingUpper = false;
                     if(!needLowerBoundCheck)
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 2685\n");
                         return;
                     }
                     if(!searchingLower)
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 2689\n");
                         break;
                     }
                 }
@@ -2695,10 +2695,10 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                 {
                     bool foundBound = false;
                     if(indexBounds)
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 2697\n");
                         const ValueRelativeOffset *bound;
                         if(indexBounds->RelativeUpperBounds().TryGetReference(landingPadIndexValue->GetValueNumber(), &bound))
-                        {
+                        {LOGMEIN("GlobOptIntBounds.cpp] 2700\n");
                             foundBound = true;
                             upperOffset = bound->Offset();
                             TRACE_PHASE_VERBOSE(
@@ -2709,11 +2709,11 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                         }
                     }
                     if(!foundBound)
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 2711\n");
                         TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 4, _u("Upper bound was not found\n"));
                         searchingUpper = false;
                         if(!searchingLower)
-                        {
+                        {LOGMEIN("GlobOptIntBounds.cpp] 2715\n");
                             break;
                         }
                     }
@@ -2722,7 +2722,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
         }
 
         if(searchingLower)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2724\n");
             if(ValueInfo::IsLessThan(
                     landingPadIndexValue,
                     landingPadIndexConstantBounds.LowerBound(),
@@ -2730,12 +2730,12 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                     nullptr,
                     0,
                     0))
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 2732\n");
                 // index < 0 in the landing pad; can't use the index sym
                 TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 5, _u("Index < 0\n"));
                 searchingLower = false;
                 if(!searchingUpper)
-                {
+                {LOGMEIN("GlobOptIntBounds.cpp] 2737\n");
                     break;
                 }
             }
@@ -2751,18 +2751,18 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
         }
 
         if(!searchingUpper)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2753\n");
             continue;
         }
 
         // Check if the head segment length sym is available in the landing pad
         Value *const landingPadHeadSegmentLengthValue = FindValue(landingPadSymToValueMap, headSegmentLengthSym);
         if(!landingPadHeadSegmentLengthValue)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2760\n");
             TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 5, _u("Head segment length is not invariant\n"));
             searchingUpper = false;
             if(!searchingLower)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 2764\n");
                 break;
             }
             continue;
@@ -2780,12 +2780,12 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                 landingPadHeadSegmentLengthValue,
                 landingPadHeadSegmentLengthConstantBounds.LowerBound(),
                 landingPadHeadSegmentLengthConstantBounds.UpperBound()))
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2782\n");
             // index >= headSegmentLength in the landing pad; can't use the index sym
             TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 5, _u("Index >= head segment length\n"));
             searchingUpper = false;
             if(!searchingLower)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 2787\n");
                 break;
             }
             continue;
@@ -2809,18 +2809,18 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
     }
 
     if(needLowerBoundCheck && lowerHoistInfo.Loop())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 2811\n");
         needLowerBoundCheck = false;
         if(!needUpperBoundCheck)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2814\n");
             return;
         }
     }
     if(needUpperBoundCheck && upperHoistInfo.Loop())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 2819\n");
         needUpperBoundCheck = false;
         if(!needLowerBoundCheck)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2822\n");
             return;
         }
     }
@@ -2830,7 +2830,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
     searchingLower = needLowerBoundCheck;
     searchingUpper = needUpperBoundCheck;
     for(Loop *loop = currentLoop; loop; loop = loop->parent)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 2832\n");
         GlobOptBlockData &landingPadBlockData = loop->landingPad->globOptData;
         GlobHashTable *const landingPadSymToValueMap = landingPadBlockData.symToValueMap;
         TRACE_PHASE_VERBOSE(
@@ -2843,11 +2843,11 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
         Value *landingPadHeadSegmentLengthValue = nullptr;
         IntConstantBounds landingPadHeadSegmentLengthConstantBounds;
         if(searchingUpper)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2845\n");
             // Check if the head segment length sym is available in the landing pad
             landingPadHeadSegmentLengthValue = FindValue(landingPadSymToValueMap, headSegmentLengthSym);
             if(landingPadHeadSegmentLengthValue)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 2849\n");
                 AssertVerify(
                     landingPadHeadSegmentLengthValue
                         ->GetValueInfo()
@@ -2858,7 +2858,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                 TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 4, _u("Head segment length is not invariant\n"));
                 searchingUpper = false;
                 if(!searchingLower)
-                {
+                {LOGMEIN("GlobOptIntBounds.cpp] 2860\n");
                     break;
                 }
             }
@@ -2866,12 +2866,12 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
 
         // Look for a relative bound
         if(indexBounds)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2868\n");
             for(int j = 0; j < 2; ++j)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 2870\n");
                 const bool searchingRelativeLowerBounds = j == 0;
                 if(!(searchingRelativeLowerBounds ? searchingLower : searchingUpper))
-                {
+                {LOGMEIN("GlobOptIntBounds.cpp] 2873\n");
                     continue;
                 }
 
@@ -2883,12 +2883,12 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                         ).GetIterator();
                     it.IsValid();
                     it.MoveNext())
-                {
+                {LOGMEIN("GlobOptIntBounds.cpp] 2885\n");
                     const ValueRelativeOffset &indexBound = it.CurrentValue();
 
                     StackSym *const indexBoundBaseSym = indexBound.BaseSym();
                     if(!indexBoundBaseSym)
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 2890\n");
                         continue;
                     }
                     TRACE_PHASE_VERBOSE(
@@ -2900,7 +2900,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                         indexBound.Offset());
 
                     if(!indexBound.WasEstablishedExplicitly())
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 2902\n");
                         // Don't use a bound that was not established explicitly, as it may be too aggressive. For instance, an
                         // index sym used in an array will obtain an upper bound of the array's head segment length - 1. That
                         // bound is not established explicitly because the bound assertion is not enforced by the source code.
@@ -2915,7 +2915,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                     Value *const landingPadIndexBoundBaseValue = FindValue(landingPadSymToValueMap, indexBoundBaseSym);
                     if(!landingPadIndexBoundBaseValue ||
                         landingPadIndexBoundBaseValue->GetValueNumber() != indexBound.BaseValueNumber())
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 2917\n");
                         TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 5, _u("Bound is not invariant\n"));
                         continue;
                     }
@@ -2928,7 +2928,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
 
                     int offset = indexBound.Offset();
                     if(searchingRelativeLowerBounds)
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 2930\n");
                         if(offset == IntConstMin ||
                             ValueInfo::IsLessThan(
                                 landingPadIndexBoundBaseValue,
@@ -2937,7 +2937,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                                 nullptr,
                                 -offset,
                                 -offset))
-                        {
+                        {LOGMEIN("GlobOptIntBounds.cpp] 2939\n");
                             // indexBoundBase + indexBoundOffset < 0; can't use this bound
                             TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 5, _u("Bound < 0\n"));
                             continue;
@@ -2960,7 +2960,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                             landingPadIndexBoundBaseConstantBounds.LowerBound(),
                             landingPadIndexBoundBaseConstantBounds.UpperBound(),
                             offset))
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 2962\n");
                         // indexBoundBase + indexBoundOffset >= headSegmentLength; can't use this bound
                         TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 5, _u("Bound >= head segment length\n"));
                         continue;
@@ -2987,17 +2987,17 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
         }
 
         if(searchingLower && lowerHoistInfo.Loop() != loop)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2989\n");
             TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 4, _u("Lower bound was not found\n"));
             searchingLower = false;
             if(!searchingUpper)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 2993\n");
                 break;
             }
         }
 
         if(searchingUpper && upperHoistInfo.Loop() != loop)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 2999\n");
             // No useful relative bound found; look for a constant bound if the index is an induction variable. Exclude constant
             // bounds of non-induction variables because those bounds may have been established through means other than a loop
             // exit condition, such as math or bitwise operations. Exclude constant bounds established implicitly by <,
@@ -3009,9 +3009,9 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                 currentLoop->inductionVariables &&
                 currentLoop->inductionVariables->TryGetReference(indexSym->m_id, &indexInductionVariable) &&
                 indexInductionVariable->IsChangeDeterminate())
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 3011\n");
                 if(!(indexBounds && indexBounds->WasConstantUpperBoundEstablishedExplicitly()))
-                {
+                {LOGMEIN("GlobOptIntBounds.cpp] 3013\n");
                     TRACE_PHASE_VERBOSE(
                         Js::Phase::BoundCheckHoistPhase,
                         4,
@@ -3030,7 +3030,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                     if(blockData.availableIntBoundChecks->TryGetReference(
                             IntBoundCheckCompatibilityId(ZeroValueNumber, headSegmentLengthValue->GetValueNumber()),
                             &boundCheck))
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 3032\n");
                         // We need:
                         //     indexConstantBound < headSegmentLength
                         // Normalize the offset such that:
@@ -3038,7 +3038,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                         // Where (compatibleBoundCheckOffset = -1 - indexConstantBound), and -1 is to simulate < instead of <=.
                         const int compatibleBoundCheckOffset = -1 - indexConstantBound;
                         if(boundCheck->SetBoundOffset(compatibleBoundCheckOffset))
-                        {
+                        {LOGMEIN("GlobOptIntBounds.cpp] 3040\n");
                             TRACE_PHASE_VERBOSE(
                                 Js::Phase::BoundCheckHoistPhase,
                                 5,
@@ -3048,11 +3048,11 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
 
                             needUpperBoundCheck = searchingUpper = false;
                             if(!needLowerBoundCheck)
-                            {
+                            {LOGMEIN("GlobOptIntBounds.cpp] 3050\n");
                                 return;
                             }
                             if(!searchingLower)
-                            {
+                            {LOGMEIN("GlobOptIntBounds.cpp] 3054\n");
                                 break;
                             }
                         }
@@ -3063,7 +3063,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                     }
 
                     if(searchingUpper)
-                    {
+                    {LOGMEIN("GlobOptIntBounds.cpp] 3065\n");
                         TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 5, _u("Not found\n"));
                         upperHoistInfo.SetLoop(
                             loop,
@@ -3074,7 +3074,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                 }
             }
             else if(!upperHoistInfo.Loop())
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 3076\n");
                 TRACE_PHASE_VERBOSE(
                     Js::Phase::BoundCheckHoistPhase,
                     4,
@@ -3082,11 +3082,11 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
             }
 
             if(searchingUpper && upperHoistInfo.Loop() != loop)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 3084\n");
                 TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 4, _u("Upper bound was not found\n"));
                 searchingUpper = false;
                 if(!searchingLower)
-                {
+                {LOGMEIN("GlobOptIntBounds.cpp] 3088\n");
                     break;
                 }
             }
@@ -3094,18 +3094,18 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
     }
 
     if(needLowerBoundCheck && lowerHoistInfo.Loop())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 3096\n");
         needLowerBoundCheck = false;
         if(!needUpperBoundCheck)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 3099\n");
             return;
         }
     }
     if(needUpperBoundCheck && upperHoistInfo.Loop())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 3104\n");
         needUpperBoundCheck = false;
         if(!needLowerBoundCheck)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 3107\n");
             return;
         }
     }
@@ -3121,7 +3121,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
 
     LoopCount *const loopCount = currentLoop->loopCount;
     if(!loopCount)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 3123\n");
         TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 3, _u("Loop was not counted\n"));
         return;
     }
@@ -3130,7 +3130,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
     if(!currentLoop->inductionVariables ||
         !currentLoop->inductionVariables->TryGetReference(indexSym->m_id, &indexInductionVariable) ||
         !indexInductionVariable->IsChangeDeterminate())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 3132\n");
         TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 3, _u("Index is not an induction variable\n"));
         return;
     }
@@ -3143,14 +3143,14 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
     Value *landingPadHeadSegmentLengthValue;
     IntConstantBounds landingPadHeadSegmentLengthConstantBounds;
     if(maxMagnitudeChange > 0)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 3145\n");
         TRACE_PHASE_VERBOSE(
             Js::Phase::BoundCheckHoistPhase,
             3,
             _u("Index's maximum-magnitude change per iteration is %d\n"),
             maxMagnitudeChange);
         if(!needUpperBoundCheck || maxMagnitudeChange > InductionVariable::ChangeMagnitudeLimitForLoopCountBasedHoisting)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 3152\n");
             TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 4, _u("Change magnitude is too large\n"));
             return;
         }
@@ -3159,7 +3159,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
         landingPadHeadSegmentLengthValue = FindValue(landingPadSymToValueMap, headSegmentLengthSym);
         Assert(!headSegmentLengthInvariantLoop || landingPadHeadSegmentLengthValue);
         if(!landingPadHeadSegmentLengthValue)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 3161\n");
             TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 3, _u("Head segment length is not invariant\n"));
             return;
         }
@@ -3178,7 +3178,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
             _u("Index's maximum-magnitude change per iteration is %d\n"),
             maxMagnitudeChange);
         if(!needLowerBoundCheck || maxMagnitudeChange < -InductionVariable::ChangeMagnitudeLimitForLoopCountBasedHoisting)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 3180\n");
             TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 4, _u("Change magnitude is too large\n"));
             return;
         }
@@ -3196,7 +3196,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
             indexBounds,
             currentLoop->landingPad->globOptData.symToValueMap,
             &indexOffset))
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 3198\n");
         // The bound value is constant
         indexSymToAdd = nullptr;
     }
@@ -3218,9 +3218,9 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
     IntConstantBounds indexLoopCountBasedBoundBaseConstantBounds;
     bool generateLoopCountBasedIndexBound;
     if(!loopCount->HasBeenGenerated() || loopCount->LoopCountMinusOneSym())
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 3220\n");
         if(loopCount->HasBeenGenerated())
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 3222\n");
             TRACE_PHASE_VERBOSE(
                 Js::Phase::BoundCheckHoistPhase,
                 3,
@@ -3236,15 +3236,15 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
 
         // Check if there is already a loop count based bound sym for the index. If not, generate it.
         do
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 3238\n");
             const SymID indexSymId = indexSym->m_id;
             SymIdToStackSymMap *&loopCountBasedBoundBaseSyms = currentLoop->loopCountBasedBoundBaseSyms;
             if(!loopCountBasedBoundBaseSyms)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 3242\n");
                 loopCountBasedBoundBaseSyms = JitAnew(alloc, SymIdToStackSymMap, alloc);
             }
             else if(loopCountBasedBoundBaseSyms->TryGetValue(indexSymId, &indexLoopCountBasedBoundBaseSym))
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 3246\n");
                 TRACE_PHASE_VERBOSE(
                     Js::Phase::BoundCheckHoistPhase,
                     3,
@@ -3279,13 +3279,13 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
         TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 3, _u("Loop count is constant, folding\n"));
         if(Int32Math::Mul(loopCount->LoopCountMinusOneConstantValue(), maxMagnitudeChange, &offset) ||
             Int32Math::Add(offset, indexOffset, &offset))
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 3281\n");
             TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 4, _u("Folding failed\n"));
             return;
         }
 
         if(!indexSymToAdd)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 3287\n");
             // The loop count based bound is constant
             const int loopCountBasedConstantBound = offset;
             TRACE_PHASE_VERBOSE(
@@ -3295,9 +3295,9 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                 loopCountBasedConstantBound);
 
             if(maxMagnitudeChange < 0)
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 3297\n");
                 if(loopCountBasedConstantBound < 0)
-                {
+                {LOGMEIN("GlobOptIntBounds.cpp] 3299\n");
                     // Can't use this bound
                     TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 4, _u("Bound < 0\n"));
                     return;
@@ -3325,7 +3325,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
             if(blockData.availableIntBoundChecks->TryGetReference(
                     IntBoundCheckCompatibilityId(ZeroValueNumber, headSegmentLengthValue->GetValueNumber()),
                     &boundCheck))
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 3327\n");
                 // We need:
                 //     loopCountBasedConstantBound < headSegmentLength
                 // Normalize the offset such that:
@@ -3333,7 +3333,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                 // Where (compatibleBoundCheckOffset = -1 - loopCountBasedConstantBound), and -1 is to simulate < instead of <=.
                 const int compatibleBoundCheckOffset = -1 - loopCountBasedConstantBound;
                 if(boundCheck->SetBoundOffset(compatibleBoundCheckOffset, true))
-                {
+                {LOGMEIN("GlobOptIntBounds.cpp] 3335\n");
                     TRACE_PHASE_VERBOSE(
                         Js::Phase::BoundCheckHoistPhase,
                         4,
@@ -3369,7 +3369,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
     }
 
     if(maxMagnitudeChange >= 0)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 3371\n");
         // We need:
         //     indexLoopCountBasedBoundBase + indexOffset < headSegmentLength
         // Normalize the offset such that:
@@ -3379,9 +3379,9 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
     }
 
     if(!generateLoopCountBasedIndexBound)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 3381\n");
         if(maxMagnitudeChange < 0)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 3383\n");
             if(offset != IntConstMax &&
                 ValueInfo::IsGreaterThanOrEqualTo(
                     nullptr,
@@ -3391,7 +3391,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                     indexLoopCountBasedBoundBaseConstantBounds.LowerBound(),
                     indexLoopCountBasedBoundBaseConstantBounds.UpperBound(),
                     offset + 1)) // + 1 to simulate > instead of >=
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 3393\n");
                 // loopCountBasedBound < 0, can't use this bound
                 TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 4, _u("Bound < 0\n"));
                 return;
@@ -3406,7 +3406,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                 landingPadHeadSegmentLengthConstantBounds.LowerBound(),
                 landingPadHeadSegmentLengthConstantBounds.UpperBound(),
                 offset))
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 3408\n");
             // loopCountBasedBound >= headSegmentLength, can't use this bound
             TRACE_PHASE_VERBOSE(Js::Phase::BoundCheckHoistPhase, 4, _u("Bound >= head segment length\n"));
             return;
@@ -3425,16 +3425,16 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
                             indexLoopCountBasedBoundBaseValueNumber,
                             headSegmentLengthValue->GetValueNumber()),
                 &boundCheck))
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 3427\n");
             if(boundCheck->SetBoundOffset(offset, true))
-            {
+            {LOGMEIN("GlobOptIntBounds.cpp] 3429\n");
                 TRACE_PHASE_VERBOSE(
                     Js::Phase::BoundCheckHoistPhase,
                     4,
                     _u("Found in block %u\n"),
                     boundCheck->Block()->GetBlockNum());
                 if(maxMagnitudeChange < 0)
-                {
+                {LOGMEIN("GlobOptIntBounds.cpp] 3436\n");
                     lowerHoistInfo.SetCompatibleBoundCheck(
                         boundCheck->Block(),
                         indexLoopCountBasedBoundBaseSym,
@@ -3457,7 +3457,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
     }
 
     if(maxMagnitudeChange < 0)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 3459\n");
         lowerHoistInfo.SetLoop(
             currentLoop,
             indexLoopCountBasedBoundBaseSym,
@@ -3466,7 +3466,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
             indexLoopCountBasedBoundBaseConstantBounds,
             true);
         if(generateLoopCountBasedIndexBound)
-        {
+        {LOGMEIN("GlobOptIntBounds.cpp] 3468\n");
             lowerHoistInfo.SetLoopCount(loopCount, maxMagnitudeChange);
         }
         return;
@@ -3482,7 +3482,7 @@ void GlobOpt::DetermineArrayBoundCheckHoistability(
         landingPadHeadSegmentLengthConstantBounds,
         true);
     if(generateLoopCountBasedIndexBound)
-    {
+    {LOGMEIN("GlobOptIntBounds.cpp] 3484\n");
         upperHoistInfo.SetLoopCount(loopCount, maxMagnitudeChange);
     }
 }

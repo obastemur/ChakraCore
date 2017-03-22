@@ -12,7 +12,7 @@ BackwardPass::BackwardPass(Func * func, GlobOpt * globOpt, Js::Phase tag)
     preOpBailOutInstrToProcess(nullptr),
     considerSymAsRealUseInNoImplicitCallUses(nullptr),
     isCollectionPass(false), currentRegion(nullptr)
-{
+{LOGMEIN("BackwardPass.cpp] 14\n");
     // Those are the only two phase dead store will be used currently
     Assert(tag == Js::BackwardPhase || tag == Js::DeadStorePhase);
 
@@ -29,15 +29,15 @@ BackwardPass::BackwardPass(Func * func, GlobOpt * globOpt, Js::Phase tag)
 
 void
 BackwardPass::DoSetDead(IR::Opnd * opnd, bool isDead) const
-{
+{LOGMEIN("BackwardPass.cpp] 31\n");
     // Note: Dead bit on the Opnd records flow-based liveness.
     // This is distinct from isLastUse, which records lexical last-ness.
     if (isDead && this->tag == Js::BackwardPhase && !this->IsPrePass())
-    {
+    {LOGMEIN("BackwardPass.cpp] 35\n");
         opnd->SetIsDead();
     }
     else if (this->tag == Js::DeadStorePhase)
-    {
+    {LOGMEIN("BackwardPass.cpp] 39\n");
         // Set or reset in DeadStorePhase.
         // CSE could make previous dead operand not the last use, so reset it.
         opnd->SetIsDead(isDead);
@@ -46,20 +46,20 @@ BackwardPass::DoSetDead(IR::Opnd * opnd, bool isDead) const
 
 bool
 BackwardPass::DoByteCodeUpwardExposedUsed() const
-{
+{LOGMEIN("BackwardPass.cpp] 48\n");
     return (this->tag == Js::DeadStorePhase && this->func->hasBailout) ||
         (this->func->HasTry() && this->func->DoOptimizeTryCatch() && this->tag == Js::BackwardPhase);
 }
 
 bool
 BackwardPass::DoFieldHoistCandidates() const
-{
+{LOGMEIN("BackwardPass.cpp] 55\n");
     return DoFieldHoistCandidates(this->currentBlock->loop);
 }
 
 bool
 BackwardPass::DoFieldHoistCandidates(Loop * loop) const
-{
+{LOGMEIN("BackwardPass.cpp] 61\n");
     // We only need to do one pass to generate this data
     return this->tag == Js::BackwardPhase
         && !this->IsPrePass() && loop && GlobOpt::DoFieldHoisting(loop);
@@ -67,7 +67,7 @@ BackwardPass::DoFieldHoistCandidates(Loop * loop) const
 
 bool
 BackwardPass::DoMarkTempNumbers() const
-{
+{LOGMEIN("BackwardPass.cpp] 69\n");
 #if FLOATVAR
     return false;
 #else
@@ -79,7 +79,7 @@ BackwardPass::DoMarkTempNumbers() const
 
 bool
 BackwardPass::DoMarkTempObjects() const
-{
+{LOGMEIN("BackwardPass.cpp] 81\n");
     // only mark temp object on the backward store phase
     return (tag == Js::BackwardPhase) && !PHASE_OFF(Js::MarkTempPhase, this->func) &&
         !PHASE_OFF(Js::MarkTempObjectPhase, this->func) && func->DoGlobOpt() && func->GetHasTempObjectProducingInstr() &&
@@ -94,14 +94,14 @@ BackwardPass::DoMarkTempObjects() const
 
 bool
 BackwardPass::DoMarkTempNumbersOnTempObjects() const
-{
+{LOGMEIN("BackwardPass.cpp] 96\n");
     return !PHASE_OFF(Js::MarkTempNumberOnTempObjectPhase, this->func) && DoMarkTempNumbers() && this->func->GetHasMarkTempObjects();
 }
 
 #if DBG
 bool
 BackwardPass::DoMarkTempObjectVerify() const
-{
+{LOGMEIN("BackwardPass.cpp] 103\n");
     // only mark temp object on the backward store phase
     return (tag == Js::DeadStorePhase) && !PHASE_OFF(Js::MarkTempPhase, this->func) &&
         !PHASE_OFF(Js::MarkTempObjectPhase, this->func) && func->DoGlobOpt() && func->GetHasTempObjectProducingInstr();
@@ -111,7 +111,7 @@ BackwardPass::DoMarkTempObjectVerify() const
 // static
 bool
 BackwardPass::DoDeadStore(Func* func)
-{
+{LOGMEIN("BackwardPass.cpp] 113\n");
     return
         !PHASE_OFF(Js::DeadStorePhase, func) &&
         (!func->HasTry() || func->DoOptimizeTryCatch());
@@ -119,7 +119,7 @@ BackwardPass::DoDeadStore(Func* func)
 
 bool
 BackwardPass::DoDeadStore() const
-{
+{LOGMEIN("BackwardPass.cpp] 121\n");
     return
         this->tag == Js::DeadStorePhase &&
         DoDeadStore(this->func);
@@ -127,7 +127,7 @@ BackwardPass::DoDeadStore() const
 
 bool
 BackwardPass::DoDeadStoreSlots() const
-{
+{LOGMEIN("BackwardPass.cpp] 129\n");
     // only dead store fields if glob opt is on to generate the trackable fields bitvector
     return (tag == Js::DeadStorePhase && this->func->DoGlobOpt()
         && (!this->func->HasTry()));
@@ -137,7 +137,7 @@ BackwardPass::DoDeadStoreSlots() const
 // static
 bool
 BackwardPass::DoDeadStore(Func* func, StackSym* sym)
-{
+{LOGMEIN("BackwardPass.cpp] 139\n");
     // Dead store is disabled under debugger for non-temp local vars.
     return
         DoDeadStore(func) &&
@@ -147,7 +147,7 @@ BackwardPass::DoDeadStore(Func* func, StackSym* sym)
 
 bool
 BackwardPass::DoTrackNegativeZero() const
-{
+{LOGMEIN("BackwardPass.cpp] 149\n");
     return
         !PHASE_OFF(Js::TrackIntUsagePhase, func) &&
         !PHASE_OFF(Js::TrackNegativeZeroPhase, func) &&
@@ -159,7 +159,7 @@ BackwardPass::DoTrackNegativeZero() const
 
 bool
 BackwardPass::DoTrackBitOpsOrNumber() const
-{
+{LOGMEIN("BackwardPass.cpp] 161\n");
 #if _WIN64
     return
         !PHASE_OFF1(Js::TypedArrayVirtualPhase) &&
@@ -175,7 +175,7 @@ BackwardPass::DoTrackBitOpsOrNumber() const
 
 bool
 BackwardPass::DoTrackIntOverflow() const
-{
+{LOGMEIN("BackwardPass.cpp] 177\n");
     return
         !PHASE_OFF(Js::TrackIntUsagePhase, func) &&
         !PHASE_OFF(Js::TrackIntOverflowPhase, func) &&
@@ -188,7 +188,7 @@ BackwardPass::DoTrackIntOverflow() const
 
 bool
 BackwardPass::DoTrackCompoundedIntOverflow() const
-{
+{LOGMEIN("BackwardPass.cpp] 190\n");
     return
         !PHASE_OFF(Js::TrackCompoundedIntOverflowPhase, func) &&
         DoTrackIntOverflow() &&
@@ -197,7 +197,7 @@ BackwardPass::DoTrackCompoundedIntOverflow() const
 
 bool
 BackwardPass::DoTrackNon32BitOverflow() const
-{
+{LOGMEIN("BackwardPass.cpp] 199\n");
     // enabled only for IA
 #if defined(_M_IX86) || defined(_M_X64)
     return true;
@@ -208,9 +208,9 @@ BackwardPass::DoTrackNon32BitOverflow() const
 
 void
 BackwardPass::CleanupBackwardPassInfoInFlowGraph()
-{
+{LOGMEIN("BackwardPass.cpp] 210\n");
     if (!this->func->m_fg->hasBackwardPassInfo)
-    {
+    {LOGMEIN("BackwardPass.cpp] 212\n");
         // No information to clean up
         return;
     }
@@ -218,7 +218,7 @@ BackwardPass::CleanupBackwardPassInfoInFlowGraph()
     // The backward pass temp arena has already been deleted, we can just reset the data
 
     FOREACH_BLOCK_IN_FUNC_DEAD_OR_ALIVE(block, this->func)
-    {
+    {LOGMEIN("BackwardPass.cpp] 220\n");
         block->upwardExposedUses = nullptr;
         block->upwardExposedFields = nullptr;
         block->typesNeedingKnownObjectLayout = nullptr;
@@ -245,7 +245,7 @@ BackwardPass::CleanupBackwardPassInfoInFlowGraph()
         block->couldRemoveNegZeroBailoutForDef = nullptr;
 
         if (block->loop != nullptr)
-        {
+        {LOGMEIN("BackwardPass.cpp] 247\n");
             block->loop->hasDeadStoreCollectionPass = false;
             block->loop->hasDeadStorePrepass = false;
         }
@@ -260,16 +260,16 @@ BackwardPass::CleanupBackwardPassInfoInFlowGraph()
 */
 void
 BackwardPass::InsertArgInsForFormals()
-{
+{LOGMEIN("BackwardPass.cpp] 262\n");
     if (func->IsStackArgsEnabled() && !func->GetJITFunctionBody()->HasImplicitArgIns())
-    {
+    {LOGMEIN("BackwardPass.cpp] 264\n");
         IR::Instr * insertAfterInstr = func->m_headInstr->m_next;
         AssertMsg(insertAfterInstr->IsLabelInstr(), "First Instr of the first block should always have a label");
 
         Js::ArgSlot paramsCount = insertAfterInstr->m_func->GetJITFunctionBody()->GetInParamsCount() - 1;
         IR::Instr *     argInInstr = nullptr;
         for (Js::ArgSlot argumentIndex = 1; argumentIndex <= paramsCount; argumentIndex++)
-        {
+        {LOGMEIN("BackwardPass.cpp] 271\n");
             IR::SymOpnd *   srcOpnd;
             StackSym *      symSrc = StackSym::NewParamSlotSym(argumentIndex + 1, func);
             StackSym *      symDst = StackSym::New(func);
@@ -288,7 +288,7 @@ BackwardPass::InsertArgInsForFormals()
         }
 
         if (PHASE_VERBOSE_TRACE1(Js::StackArgFormalsOptPhase) && paramsCount > 0)
-        {
+        {LOGMEIN("BackwardPass.cpp] 290\n");
             Output::Print(_u("StackArgFormals : %s (%d) :Inserting ArgIn_A for LdSlot (formals) in the start of Deadstore pass. \n"), func->GetJITFunctionBody()->GetDisplayName(), func->GetFunctionNumber());
             Output::Flush();
         }
@@ -297,14 +297,14 @@ BackwardPass::InsertArgInsForFormals()
 
 void
 BackwardPass::MarkScopeObjSymUseForStackArgOpt()
-{
+{LOGMEIN("BackwardPass.cpp] 299\n");
     IR::Instr * instr = this->currentInstr;
     if (tag == Js::DeadStorePhase)
-    {
+    {LOGMEIN("BackwardPass.cpp] 302\n");
         if (instr->DoStackArgsOpt(this->func) && instr->m_func->GetScopeObjSym() != nullptr)
-        {
+        {LOGMEIN("BackwardPass.cpp] 304\n");
             if (this->currentBlock->byteCodeUpwardExposedUsed == nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 306\n");
                 this->currentBlock->byteCodeUpwardExposedUsed = JitAnew(this->tempAlloc, BVSparse<JitArenaAllocator>, this->tempAlloc);
             }
             this->currentBlock->byteCodeUpwardExposedUsed->Set(instr->m_func->GetScopeObjSym()->m_id);
@@ -314,31 +314,31 @@ BackwardPass::MarkScopeObjSymUseForStackArgOpt()
 
 void
 BackwardPass::ProcessBailOnStackArgsOutOfActualsRange()
-{
+{LOGMEIN("BackwardPass.cpp] 316\n");
     IR::Instr * instr = this->currentInstr;
 
     if (tag == Js::DeadStorePhase && 
         (instr->m_opcode == Js::OpCode::LdElemI_A || instr->m_opcode == Js::OpCode::TypeofElem) && 
         instr->HasBailOutInfo() && !IsPrePass())
-    {
+    {LOGMEIN("BackwardPass.cpp] 322\n");
         if (instr->DoStackArgsOpt(this->func))
-        {
+        {LOGMEIN("BackwardPass.cpp] 324\n");
             AssertMsg(instr->GetBailOutKind() & IR::BailOnStackArgsOutOfActualsRange, "Stack args bail out is not set when the optimization is turned on? ");
             if (instr->GetBailOutKind() & ~IR::BailOnStackArgsOutOfActualsRange)
-            {
+            {LOGMEIN("BackwardPass.cpp] 327\n");
                 Assert(instr->GetBailOutKind() == (IR::BailOnStackArgsOutOfActualsRange | IR::BailOutOnImplicitCallsPreOp));
                 //We are sure at this point, that we will not have any implicit calls as we wouldn't have done this optimization in the first place.
                 instr->SetBailOutKind(IR::BailOnStackArgsOutOfActualsRange);
             }
         }
         else if (instr->GetBailOutKind() & IR::BailOnStackArgsOutOfActualsRange)
-        {
+        {LOGMEIN("BackwardPass.cpp] 334\n");
             //If we don't decide to do StackArgs, then remove the bail out at this point.
             //We would have optimistically set the bailout in the forward pass, and by the end of forward pass - we
             //turned off stack args for some reason. So we are removing it in the deadstore pass.
             IR::BailOutKind bailOutKind = instr->GetBailOutKind() & ~IR::BailOnStackArgsOutOfActualsRange;
             if (bailOutKind == IR::BailOutInvalid)
-            {
+            {LOGMEIN("BackwardPass.cpp] 340\n");
                 instr->ClearBailOutInfo();
             }
             else
@@ -351,16 +351,16 @@ BackwardPass::ProcessBailOnStackArgsOutOfActualsRange()
 
 void
 BackwardPass::Optimize()
-{
+{LOGMEIN("BackwardPass.cpp] 353\n");
     if (tag == Js::BackwardPhase && PHASE_OFF(tag, this->func))
-    {
+    {LOGMEIN("BackwardPass.cpp] 355\n");
         return;
     }
 
     if (tag == Js::DeadStorePhase)
-    {
+    {LOGMEIN("BackwardPass.cpp] 360\n");
         if (!this->func->DoLoopFastPaths() || !this->func->DoFastPaths())
-        {
+        {LOGMEIN("BackwardPass.cpp] 362\n");
             //arguments[] access is similar to array fast path hence disable when array fastpath is disabled.
             //loopFastPath is always true except explicitly disabled
             //defaultDoFastPath can be false when we the source code size is huge
@@ -375,7 +375,7 @@ BackwardPass::Optimize()
     this->tempAlloc = &localAlloc;
 #if DBG_DUMP
     if (this->IsTraceEnabled())
-    {
+    {LOGMEIN("BackwardPass.cpp] 377\n");
         this->func->DumpHeader();
     }
 #endif
@@ -411,39 +411,39 @@ BackwardPass::Optimize()
     numberTempRepresentativePropertySym = &localNumberTempRepresentativePropertySym;
 
     FOREACH_BLOCK_BACKWARD_IN_FUNC_DEAD_OR_ALIVE(block, this->func)
-    {
+    {LOGMEIN("BackwardPass.cpp] 413\n");
         this->OptBlock(block);
     }
     NEXT_BLOCK_BACKWARD_IN_FUNC_DEAD_OR_ALIVE;
 
     if (this->tag == Js::DeadStorePhase && !PHASE_OFF(Js::MemOpPhase, this->func))
-    {
+    {LOGMEIN("BackwardPass.cpp] 419\n");
         this->RemoveEmptyLoops();
     }
     this->func->m_fg->hasBackwardPassInfo = true;
 
     if(DoTrackCompoundedIntOverflow())
-    {
+    {LOGMEIN("BackwardPass.cpp] 425\n");
         // Tracking int overflow makes use of a scratch field in stack syms, which needs to be cleared
         func->m_symTable->ClearStackSymScratch();
     }
 
 #if DBG_DUMP
     if (PHASE_STATS(this->tag, this->func))
-    {
+    {LOGMEIN("BackwardPass.cpp] 432\n");
         this->func->DumpHeader();
         Output::Print(this->tag == Js::BackwardPhase? _u("Backward Phase Stats:\n") : _u("Deadstore Phase Stats:\n"));
         if (this->DoDeadStore())
-        {
+        {LOGMEIN("BackwardPass.cpp] 436\n");
             Output::Print(_u("  Deadstore              : %3d\n"), this->numDeadStore);
         }
         if (this->DoMarkTempNumbers())
-        {
+        {LOGMEIN("BackwardPass.cpp] 440\n");
             Output::Print(_u("  Temp Number            : %3d\n"), this->numMarkTempNumber);
             Output::Print(_u("  Transferred Temp Number: %3d\n"), this->numMarkTempNumberTransferred);
         }
         if (this->DoMarkTempObjects())
-        {
+        {LOGMEIN("BackwardPass.cpp] 445\n");
             Output::Print(_u("  Temp Object            : %3d\n"), this->numMarkTempObject);
         }
     }
@@ -452,7 +452,7 @@ BackwardPass::Optimize()
 
 void
 BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
-{
+{LOGMEIN("BackwardPass.cpp] 454\n");
     // Can't reuse the bv in the current block, because its successor can be itself.
 
     TempNumberTracker * tempNumberTracker = nullptr;
@@ -484,7 +484,7 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
     Assert(!block->isDead || block->GetSuccList()->Empty());
 
     if (this->DoByteCodeUpwardExposedUsed())
-    {
+    {LOGMEIN("BackwardPass.cpp] 486\n");
         byteCodeUpwardExposedUsed = JitAnew(this->tempAlloc, BVSparse<JitArenaAllocator>, this->tempAlloc);
 #if DBG
         byteCodeRestoreSyms = JitAnewArrayZ(this->tempAlloc, StackSym *, byteCodeLocalsCount);
@@ -493,40 +493,40 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
 
 #if DBG
     if (!IsCollectionPass() && this->DoMarkTempObjectVerify())
-    {
+    {LOGMEIN("BackwardPass.cpp] 495\n");
         tempObjectVerifyTracker = JitAnew(this->tempAlloc, TempObjectVerifyTracker, this->tempAlloc, block->loop != nullptr);
     }
 #endif
 
     if (!block->isDead)
-    {
+    {LOGMEIN("BackwardPass.cpp] 501\n");
         bool keepUpwardExposed = (this->tag == Js::BackwardPhase);
         JitArenaAllocator *upwardExposedArena = nullptr;
         if(!IsCollectionPass())
-        {
+        {LOGMEIN("BackwardPass.cpp] 505\n");
             upwardExposedArena = keepUpwardExposed ? this->globOpt->alloc : this->tempAlloc;
             upwardExposedUses = JitAnew(upwardExposedArena, BVSparse<JitArenaAllocator>, upwardExposedArena);
             upwardExposedFields = JitAnew(upwardExposedArena, BVSparse<JitArenaAllocator>, upwardExposedArena);
 
             if (this->tag == Js::DeadStorePhase)
-            {
+            {LOGMEIN("BackwardPass.cpp] 511\n");
                 typesNeedingKnownObjectLayout = JitAnew(this->tempAlloc, BVSparse<JitArenaAllocator>, this->tempAlloc);
             }
 
             if (this->DoFieldHoistCandidates())
-            {
+            {LOGMEIN("BackwardPass.cpp] 516\n");
                 fieldHoistCandidates = JitAnew(this->tempAlloc, BVSparse<JitArenaAllocator>, this->tempAlloc);
             }
             if (this->DoDeadStoreSlots())
-            {
+            {LOGMEIN("BackwardPass.cpp] 520\n");
                 slotDeadStoreCandidates = JitAnew(this->tempAlloc, BVSparse<JitArenaAllocator>, this->tempAlloc);
             }
             if (this->DoMarkTempNumbers())
-            {
+            {LOGMEIN("BackwardPass.cpp] 524\n");
                 tempNumberTracker = JitAnew(this->tempAlloc, TempNumberTracker, this->tempAlloc,  block->loop != nullptr);
             }
             if (this->DoMarkTempObjects())
-            {
+            {LOGMEIN("BackwardPass.cpp] 528\n");
                 tempObjectTracker = JitAnew(this->tempAlloc, TempObjectTracker, this->tempAlloc, block->loop != nullptr);
             }
 
@@ -536,7 +536,7 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
             noImplicitCallJsArrayHeadSegmentSymUses = JitAnew(this->tempAlloc, BVSparse<JitArenaAllocator>, this->tempAlloc);
             noImplicitCallArrayLengthSymUses = JitAnew(this->tempAlloc, BVSparse<JitArenaAllocator>, this->tempAlloc);
             if (this->tag == Js::BackwardPhase)
-            {
+            {LOGMEIN("BackwardPass.cpp] 538\n");
                 cloneStrCandidates = JitAnew(this->globOpt->alloc, BVSparse<JitArenaAllocator>, this->globOpt->alloc);
             }
             else
@@ -547,14 +547,14 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
 
         bool firstSucc = true;
         FOREACH_SUCCESSOR_BLOCK(blockSucc, block)
-        {
+        {LOGMEIN("BackwardPass.cpp] 549\n");
 #if defined(DBG_DUMP) || defined(ENABLE_DEBUG_CONFIG_OPTIONS)
 
             char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 #endif
             // save the byteCodeUpwardExposedUsed from deleting for the block right after the memop loop
             if (this->tag == Js::DeadStorePhase && !this->IsPrePass() && globOpt->HasMemOp(block->loop) && blockSucc->loop != block->loop)
-            {
+            {LOGMEIN("BackwardPass.cpp] 556\n");
                 Assert(block->loop->memOpInfo->inductionVariablesUsedAfterLoop == nullptr);
                 block->loop->memOpInfo->inductionVariablesUsedAfterLoop = JitAnew(this->tempAlloc, BVSparse<JitArenaAllocator>, this->tempAlloc);
                 block->loop->memOpInfo->inductionVariablesUsedAfterLoop->Or(blockSucc->byteCodeUpwardExposedUsed);
@@ -563,22 +563,22 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
 
             bool deleteData = false;
             if (!blockSucc->isLoopHeader && blockSucc->backwardPassCurrentLoop == this->currentPrePassLoop)
-            {
+            {LOGMEIN("BackwardPass.cpp] 565\n");
                 Assert(blockSucc->GetDataUseCount() != 0);
                 deleteData = (blockSucc->DecrementDataUseCount() == 0);
             }
 
             Assert((byteCodeUpwardExposedUsed == nullptr) == !this->DoByteCodeUpwardExposedUsed());
             if (byteCodeUpwardExposedUsed && blockSucc->byteCodeUpwardExposedUsed)
-            {
+            {LOGMEIN("BackwardPass.cpp] 572\n");
                 byteCodeUpwardExposedUsed->Or(blockSucc->byteCodeUpwardExposedUsed);
                 if (this->tag == Js::DeadStorePhase)
-                {
+                {LOGMEIN("BackwardPass.cpp] 575\n");
 #if DBG
                     for (uint i = 0; i < byteCodeLocalsCount; i++)
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 578\n");
                         if (byteCodeRestoreSyms[i] == nullptr)
-                        {
+                        {LOGMEIN("BackwardPass.cpp] 580\n");
                             byteCodeRestoreSyms[i] = blockSucc->byteCodeRestoreSyms[i];
                         }
                         else
@@ -589,7 +589,7 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
                     }
 #endif
                     if (deleteData)
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 591\n");
                         // byteCodeUpwardExposedUsed is required to populate the writeThroughSymbolsSet for the try region. So, don't delete it in the backwards pass.
                         JitAdelete(this->tempAlloc, blockSucc->byteCodeUpwardExposedUsed);
                         blockSucc->byteCodeUpwardExposedUsed = nullptr;
@@ -597,7 +597,7 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
                 }
 #if DBG
                 if (deleteData)
-                {
+                {LOGMEIN("BackwardPass.cpp] 599\n");
                     JitAdeleteArray(this->tempAlloc, byteCodeLocalsCount, blockSucc->byteCodeRestoreSyms);
                     blockSucc->byteCodeRestoreSyms = nullptr;
                 }
@@ -611,7 +611,7 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
             }
 
             if(IsCollectionPass())
-            {
+            {LOGMEIN("BackwardPass.cpp] 613\n");
                 continue;
             }
 
@@ -638,7 +638,7 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
                 || (blockSucc->isLoopHeader && (this->IsPrePass() || blockSucc->loop->IsDescendentOrSelf(block->loop)))
                 || !this->DoMarkTempObjectVerify());
             if (blockSucc->upwardExposedUses != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 640\n");
                 upwardExposedUses->Or(blockSucc->upwardExposedUses);
 
                 if (deleteData && (!keepUpwardExposed
@@ -650,7 +650,7 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
             }
 
             if (blockSucc->upwardExposedFields != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 652\n");
                 upwardExposedFields->Or(blockSucc->upwardExposedFields);
 
                 if (deleteData && (!keepUpwardExposed
@@ -662,58 +662,58 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
             }
 
             if (blockSucc->typesNeedingKnownObjectLayout != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 664\n");
                 typesNeedingKnownObjectLayout->Or(blockSucc->typesNeedingKnownObjectLayout);
                 if (deleteData)
-                {
+                {LOGMEIN("BackwardPass.cpp] 667\n");
                     JitAdelete(this->tempAlloc, blockSucc->typesNeedingKnownObjectLayout);
                     blockSucc->typesNeedingKnownObjectLayout = nullptr;
                 }
             }
 
             if (fieldHoistCandidates && blockSucc->fieldHoistCandidates != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 674\n");
                 fieldHoistCandidates->Or(blockSucc->fieldHoistCandidates);
                 if (deleteData)
-                {
+                {LOGMEIN("BackwardPass.cpp] 677\n");
                     JitAdelete(this->tempAlloc, blockSucc->fieldHoistCandidates);
                     blockSucc->fieldHoistCandidates = nullptr;
                 }
             }
             if (blockSucc->slotDeadStoreCandidates != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 683\n");
                 slotDeadStoreCandidates->And(blockSucc->slotDeadStoreCandidates);
                 if (deleteData)
-                {
+                {LOGMEIN("BackwardPass.cpp] 686\n");
                     JitAdelete(this->tempAlloc, blockSucc->slotDeadStoreCandidates);
                     blockSucc->slotDeadStoreCandidates = nullptr;
                 }
             }
             if (blockSucc->tempNumberTracker != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 692\n");
                 Assert((blockSucc->loop != nullptr) == blockSucc->tempNumberTracker->HasTempTransferDependencies());
                 tempNumberTracker->MergeData(blockSucc->tempNumberTracker, deleteData);
                 if (deleteData)
-                {
+                {LOGMEIN("BackwardPass.cpp] 696\n");
                     blockSucc->tempNumberTracker = nullptr;
                 }
             }
             if (blockSucc->tempObjectTracker != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 701\n");
                 Assert((blockSucc->loop != nullptr) == blockSucc->tempObjectTracker->HasTempTransferDependencies());
                 tempObjectTracker->MergeData(blockSucc->tempObjectTracker, deleteData);
                 if (deleteData)
-                {
+                {LOGMEIN("BackwardPass.cpp] 705\n");
                     blockSucc->tempObjectTracker = nullptr;
                 }
             }
 #if DBG
             if (blockSucc->tempObjectVerifyTracker != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 711\n");
                 Assert((blockSucc->loop != nullptr) == blockSucc->tempObjectVerifyTracker->HasTempTransferDependencies());
                 tempObjectVerifyTracker->MergeData(blockSucc->tempObjectVerifyTracker, deleteData);
                 if (deleteData)
-                {
+                {LOGMEIN("BackwardPass.cpp] 715\n");
                     blockSucc->tempObjectVerifyTracker = nullptr;
                 }
             }
@@ -725,11 +725,11 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
                               block->GetBlockNum(), blockSucc->GetBlockNum());
 
             auto fixupFrom = [block, blockSucc, this](Bucket<AddPropertyCacheBucket> &bucket)
-            {
+            {LOGMEIN("BackwardPass.cpp] 727\n");
                 AddPropertyCacheBucket *fromData = &bucket.element;
                 if (fromData->GetInitialType() == nullptr ||
                     fromData->GetFinalType() == fromData->GetInitialType())
-                {
+                {LOGMEIN("BackwardPass.cpp] 731\n");
                     return;
                 }
 
@@ -737,11 +737,11 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
             };
 
             auto fixupTo = [blockSucc, this](Bucket<AddPropertyCacheBucket> &bucket)
-            {
+            {LOGMEIN("BackwardPass.cpp] 739\n");
                 AddPropertyCacheBucket *toData = &bucket.element;
                 if (toData->GetInitialType() == nullptr ||
                     toData->GetFinalType() == toData->GetInitialType())
-                {
+                {LOGMEIN("BackwardPass.cpp] 743\n");
                     return;
                 }
 
@@ -749,21 +749,21 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
             };
 
             if (blockSucc->stackSymToFinalType != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 751\n");
 #if DBG_DUMP
                 if (PHASE_TRACE(Js::ObjTypeSpecStorePhase, this->func))
-                {
+                {LOGMEIN("BackwardPass.cpp] 754\n");
                     blockSucc->stackSymToFinalType->Dump();
                 }
 #endif
                 if (firstSucc)
-                {
+                {LOGMEIN("BackwardPass.cpp] 759\n");
                     stackSymToFinalType = blockSucc->stackSymToFinalType->Copy();
                 }
                 else if (stackSymToFinalType != nullptr)
-                {
+                {LOGMEIN("BackwardPass.cpp] 763\n");
                     if (this->IsPrePass())
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 765\n");
                         stackSymToFinalType->And(blockSucc->stackSymToFinalType);
                     }
                     else
@@ -775,14 +775,14 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
                 else if (!this->IsPrePass())
                 {
                     FOREACH_HASHTABLE_ENTRY(AddPropertyCacheBucket, bucket, blockSucc->stackSymToFinalType)
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 777\n");
                         fixupTo(bucket);
                     }
                     NEXT_HASHTABLE_ENTRY;
                 }
 
                 if (deleteData)
-                {
+                {LOGMEIN("BackwardPass.cpp] 784\n");
                     blockSucc->stackSymToFinalType->Delete();
                     blockSucc->stackSymToFinalType = nullptr;
                 }
@@ -791,11 +791,11 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
             {
                 PHASE_PRINT_TRACE(Js::ObjTypeSpecStorePhase, this->func, _u("null\n"));
                 if (stackSymToFinalType)
-                {
+                {LOGMEIN("BackwardPass.cpp] 793\n");
                     if (!this->IsPrePass())
                     {
                         FOREACH_HASHTABLE_ENTRY(AddPropertyCacheBucket, bucket, stackSymToFinalType)
-                        {
+                        {LOGMEIN("BackwardPass.cpp] 797\n");
                             fixupFrom(bucket);
                         }
                         NEXT_HASHTABLE_ENTRY;
@@ -806,20 +806,20 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
                 }
             }
             if (tag == Js::BackwardPhase)
-            {
+            {LOGMEIN("BackwardPass.cpp] 808\n");
                 if (blockSucc->cloneStrCandidates != nullptr)
-                {
+                {LOGMEIN("BackwardPass.cpp] 810\n");
                     Assert(cloneStrCandidates != nullptr);
                     cloneStrCandidates->Or(blockSucc->cloneStrCandidates);
                     if (deleteData)
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 814\n");
                         JitAdelete(this->globOpt->alloc, blockSucc->cloneStrCandidates);
                         blockSucc->cloneStrCandidates = nullptr;
                     }
                 }
 #if DBG_DUMP
                 if (PHASE_VERBOSE_TRACE(Js::TraceObjTypeSpecWriteGuardsPhase, this->func))
-                {
+                {LOGMEIN("BackwardPass.cpp] 821\n");
                     char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                     Output::Print(_u("ObjTypeSpec: top function %s (%s), function %s (%s), write guard symbols on edge %d => %d: "),
                         this->func->GetTopFunc()->GetJITFunctionBody()->GetDisplayName(),
@@ -830,16 +830,16 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
                 }
 #endif
                 if (blockSucc->stackSymToWriteGuardsMap != nullptr)
-                {
+                {LOGMEIN("BackwardPass.cpp] 832\n");
 #if DBG_DUMP
                     if (PHASE_VERBOSE_TRACE(Js::TraceObjTypeSpecWriteGuardsPhase, this->func))
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 835\n");
                         Output::Print(_u("\n"));
                         blockSucc->stackSymToWriteGuardsMap->Dump();
                     }
 #endif
                     if (stackSymToWriteGuardsMap == nullptr)
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 841\n");
                         stackSymToWriteGuardsMap = blockSucc->stackSymToWriteGuardsMap->Copy();
                     }
                     else
@@ -849,7 +849,7 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
                     }
 
                     if (deleteData)
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 851\n");
                         blockSucc->stackSymToWriteGuardsMap->Delete();
                         blockSucc->stackSymToWriteGuardsMap = nullptr;
                     }
@@ -858,7 +858,7 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
                 {
 #if DBG_DUMP
                     if (PHASE_VERBOSE_TRACE(Js::TraceObjTypeSpecWriteGuardsPhase, this->func))
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 860\n");
                         Output::Print(_u("null\n"));
                     }
 #endif
@@ -868,7 +868,7 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
             {
 #if DBG_DUMP
                 if (PHASE_VERBOSE_TRACE(Js::TraceObjTypeSpecTypeGuardsPhase, this->func))
-                {
+                {LOGMEIN("BackwardPass.cpp] 870\n");
                     char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                     Output::Print(_u("ObjTypeSpec: top function %s (%s), function %s (%s), guarded property operations on edge %d => %d: \n"),
                         this->func->GetTopFunc()->GetJITFunctionBody()->GetDisplayName(),
@@ -879,16 +879,16 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
                 }
 #endif
                 if (blockSucc->stackSymToGuardedProperties != nullptr)
-                {
+                {LOGMEIN("BackwardPass.cpp] 881\n");
 #if DBG_DUMP
                     if (PHASE_VERBOSE_TRACE(Js::TraceObjTypeSpecTypeGuardsPhase, this->func))
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 884\n");
                         blockSucc->stackSymToGuardedProperties->Dump();
                         Output::Print(_u("\n"));
                     }
 #endif
                     if (stackSymToGuardedProperties == nullptr)
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 890\n");
                         stackSymToGuardedProperties = blockSucc->stackSymToGuardedProperties->Copy();
                     }
                     else
@@ -898,7 +898,7 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
                     }
 
                     if (deleteData)
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 900\n");
                         blockSucc->stackSymToGuardedProperties->Delete();
                         blockSucc->stackSymToGuardedProperties = nullptr;
                     }
@@ -907,17 +907,17 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
                 {
 #if DBG_DUMP
                     if (PHASE_VERBOSE_TRACE(Js::TraceObjTypeSpecTypeGuardsPhase, this->func))
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 909\n");
                         Output::Print(_u("null\n"));
                     }
 #endif
                 }
 
                 if (blockSucc->couldRemoveNegZeroBailoutForDef != nullptr)
-                {
+                {LOGMEIN("BackwardPass.cpp] 916\n");
                     couldRemoveNegZeroBailoutForDef->And(blockSucc->couldRemoveNegZeroBailoutForDef);
                     if (deleteData)
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 919\n");
                         JitAdelete(this->tempAlloc, blockSucc->couldRemoveNegZeroBailoutForDef);
                         blockSucc->couldRemoveNegZeroBailoutForDef = nullptr;
                     }
@@ -925,46 +925,46 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
             }
 
             if (blockSucc->noImplicitCallUses != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 927\n");
                 noImplicitCallUses->Or(blockSucc->noImplicitCallUses);
                 if (deleteData)
-                {
+                {LOGMEIN("BackwardPass.cpp] 930\n");
                     JitAdelete(this->tempAlloc, blockSucc->noImplicitCallUses);
                     blockSucc->noImplicitCallUses = nullptr;
                 }
             }
             if (blockSucc->noImplicitCallNoMissingValuesUses != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 936\n");
                 noImplicitCallNoMissingValuesUses->Or(blockSucc->noImplicitCallNoMissingValuesUses);
                 if (deleteData)
-                {
+                {LOGMEIN("BackwardPass.cpp] 939\n");
                     JitAdelete(this->tempAlloc, blockSucc->noImplicitCallNoMissingValuesUses);
                     blockSucc->noImplicitCallNoMissingValuesUses = nullptr;
                 }
             }
             if (blockSucc->noImplicitCallNativeArrayUses != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 945\n");
                 noImplicitCallNativeArrayUses->Or(blockSucc->noImplicitCallNativeArrayUses);
                 if (deleteData)
-                {
+                {LOGMEIN("BackwardPass.cpp] 948\n");
                     JitAdelete(this->tempAlloc, blockSucc->noImplicitCallNativeArrayUses);
                     blockSucc->noImplicitCallNativeArrayUses = nullptr;
                 }
             }
             if (blockSucc->noImplicitCallJsArrayHeadSegmentSymUses != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 954\n");
                 noImplicitCallJsArrayHeadSegmentSymUses->Or(blockSucc->noImplicitCallJsArrayHeadSegmentSymUses);
                 if (deleteData)
-                {
+                {LOGMEIN("BackwardPass.cpp] 957\n");
                     JitAdelete(this->tempAlloc, blockSucc->noImplicitCallJsArrayHeadSegmentSymUses);
                     blockSucc->noImplicitCallJsArrayHeadSegmentSymUses = nullptr;
                 }
             }
             if (blockSucc->noImplicitCallArrayLengthSymUses != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 963\n");
                 noImplicitCallArrayLengthSymUses->Or(blockSucc->noImplicitCallArrayLengthSymUses);
                 if (deleteData)
-                {
+                {LOGMEIN("BackwardPass.cpp] 966\n");
                     JitAdelete(this->tempAlloc, blockSucc->noImplicitCallArrayLengthSymUses);
                     blockSucc->noImplicitCallArrayLengthSymUses = nullptr;
                 }
@@ -977,12 +977,12 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
 #if DBG_DUMP
         char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
         if (PHASE_TRACE(Js::ObjTypeSpecStorePhase, this->func))
-        {
+        {LOGMEIN("BackwardPass.cpp] 979\n");
             Output::Print(_u("ObjTypeSpecStore: func %s, block %d: "),
                           this->func->GetDebugNumberSet(debugStringBuffer),
                           block->GetBlockNum());
             if (stackSymToFinalType)
-            {
+            {LOGMEIN("BackwardPass.cpp] 984\n");
                 stackSymToFinalType->Dump();
             }
             else
@@ -992,11 +992,11 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
         }
 
         if (PHASE_TRACE(Js::TraceObjTypeSpecTypeGuardsPhase, this->func))
-        {
+        {LOGMEIN("BackwardPass.cpp] 994\n");
             Output::Print(_u("ObjTypeSpec: func %s, block %d, guarded properties:\n"),
                 this->func->GetDebugNumberSet(debugStringBuffer), block->GetBlockNum());
             if (stackSymToGuardedProperties)
-            {
+            {LOGMEIN("BackwardPass.cpp] 998\n");
                 stackSymToGuardedProperties->Dump();
                 Output::Print(_u("\n"));
             }
@@ -1007,11 +1007,11 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
         }
 
         if (PHASE_TRACE(Js::TraceObjTypeSpecWriteGuardsPhase, this->func))
-        {
+        {LOGMEIN("BackwardPass.cpp] 1009\n");
             Output::Print(_u("ObjTypeSpec: func %s, block %d, write guards: "),
                 this->func->GetDebugNumberSet(debugStringBuffer), block->GetBlockNum());
             if (stackSymToWriteGuardsMap)
-            {
+            {LOGMEIN("BackwardPass.cpp] 1013\n");
                 Output::Print(_u("\n"));
                 stackSymToWriteGuardsMap->Dump();
                 Output::Print(_u("\n"));
@@ -1028,10 +1028,10 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
     if (tempObjectVerifyTracker)
     {
         FOREACH_DEAD_SUCCESSOR_BLOCK(deadBlockSucc, block)
-        {
+        {LOGMEIN("BackwardPass.cpp] 1030\n");
             Assert(deadBlockSucc->tempObjectVerifyTracker || deadBlockSucc->isLoopHeader);
             if (deadBlockSucc->tempObjectVerifyTracker != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 1033\n");
                 Assert((deadBlockSucc->loop != nullptr) == deadBlockSucc->tempObjectVerifyTracker->HasTempTransferDependencies());
                 // Dead block don't effect non temp use,  we only need to carry the removed use bit vector forward
                 // and put all the upward exposed use to the set that we might found out to be mark temp
@@ -1040,12 +1040,12 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
             }
 
             if (!byteCodeUpwardExposedUsed)
-            {
+            {LOGMEIN("BackwardPass.cpp] 1042\n");
                 if (!deadBlockSucc->isLoopHeader && deadBlockSucc->backwardPassCurrentLoop == this->currentPrePassLoop)
-                {
+                {LOGMEIN("BackwardPass.cpp] 1044\n");
                     Assert(deadBlockSucc->GetDataUseCount() != 0);
                     if (deadBlockSucc->DecrementDataUseCount() == 0)
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 1047\n");
                         this->DeleteBlockData(deadBlockSucc);
                     }
                 }
@@ -1058,18 +1058,18 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
     if (byteCodeUpwardExposedUsed)
     {
         FOREACH_DEAD_SUCCESSOR_BLOCK(deadBlockSucc, block)
-        {
+        {LOGMEIN("BackwardPass.cpp] 1060\n");
             Assert(deadBlockSucc->byteCodeUpwardExposedUsed || deadBlockSucc->isLoopHeader);
             if (deadBlockSucc->byteCodeUpwardExposedUsed)
-            {
+            {LOGMEIN("BackwardPass.cpp] 1063\n");
                 byteCodeUpwardExposedUsed->Or(deadBlockSucc->byteCodeUpwardExposedUsed);
                 if (this->tag == Js::DeadStorePhase)
-                {
+                {LOGMEIN("BackwardPass.cpp] 1066\n");
 #if DBG
                     for (uint i = 0; i < byteCodeLocalsCount; i++)
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 1069\n");
                         if (byteCodeRestoreSyms[i] == nullptr)
-                        {
+                        {LOGMEIN("BackwardPass.cpp] 1071\n");
                             byteCodeRestoreSyms[i] = deadBlockSucc->byteCodeRestoreSyms[i];
                         }
                         else
@@ -1083,10 +1083,10 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
             }
 
             if (!deadBlockSucc->isLoopHeader && deadBlockSucc->backwardPassCurrentLoop == this->currentPrePassLoop)
-            {
+            {LOGMEIN("BackwardPass.cpp] 1085\n");
                 Assert(deadBlockSucc->GetDataUseCount() != 0);
                 if (deadBlockSucc->DecrementDataUseCount() == 0)
-                {
+                {LOGMEIN("BackwardPass.cpp] 1088\n");
                     this->DeleteBlockData(deadBlockSucc);
                 }
             }
@@ -1095,13 +1095,13 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
     }
 
     if (block->isLoopHeader)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1097\n");
         this->DeleteBlockData(block);
     }
     else
     {
         if(block->GetDataUseCount() == 0)
-        {
+        {LOGMEIN("BackwardPass.cpp] 1103\n");
             Assert(block->slotDeadStoreCandidates == nullptr);
             Assert(block->tempNumberTracker == nullptr);
             Assert(block->tempObjectTracker == nullptr);
@@ -1142,7 +1142,7 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
             || this->DoMarkTempObjectVerify()
 #endif
             )
-        {
+        {LOGMEIN("BackwardPass.cpp] 1144\n");
             block->SetDataUseCount(block->GetPredList()->Count() + block->GetDeadPredList()->Count());
         }
         else
@@ -1179,17 +1179,17 @@ BackwardPass::MergeSuccBlocksInfo(BasicBlock * block)
 
 ObjTypeGuardBucket
 BackwardPass::MergeGuardedProperties(ObjTypeGuardBucket bucket1, ObjTypeGuardBucket bucket2)
-{
+{LOGMEIN("BackwardPass.cpp] 1181\n");
     BVSparse<JitArenaAllocator> *guardedPropertyOps1 = bucket1.GetGuardedPropertyOps();
     BVSparse<JitArenaAllocator> *guardedPropertyOps2 = bucket2.GetGuardedPropertyOps();
     Assert(guardedPropertyOps1 || guardedPropertyOps2);
 
     BVSparse<JitArenaAllocator> *mergedPropertyOps;
     if (guardedPropertyOps1)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1188\n");
         mergedPropertyOps = guardedPropertyOps1->CopyNew();
         if (guardedPropertyOps2)
-        {
+        {LOGMEIN("BackwardPass.cpp] 1191\n");
             mergedPropertyOps->Or(guardedPropertyOps2);
         }
     }
@@ -1202,7 +1202,7 @@ BackwardPass::MergeGuardedProperties(ObjTypeGuardBucket bucket1, ObjTypeGuardBuc
     bucket.SetGuardedPropertyOps(mergedPropertyOps);
     JITTypeHolder monoGuardType = bucket1.GetMonoGuardType();
     if (monoGuardType != nullptr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1204\n");
         Assert(!bucket2.NeedsMonoCheck() || monoGuardType == bucket2.GetMonoGuardType());
     }
     else
@@ -1216,17 +1216,17 @@ BackwardPass::MergeGuardedProperties(ObjTypeGuardBucket bucket1, ObjTypeGuardBuc
 
 ObjWriteGuardBucket
 BackwardPass::MergeWriteGuards(ObjWriteGuardBucket bucket1, ObjWriteGuardBucket bucket2)
-{
+{LOGMEIN("BackwardPass.cpp] 1218\n");
     BVSparse<JitArenaAllocator> *writeGuards1 = bucket1.GetWriteGuards();
     BVSparse<JitArenaAllocator> *writeGuards2 = bucket2.GetWriteGuards();
     Assert(writeGuards1 || writeGuards2);
 
     BVSparse<JitArenaAllocator> *mergedWriteGuards;
     if (writeGuards1)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1225\n");
         mergedWriteGuards = writeGuards1->CopyNew();
         if (writeGuards2)
-        {
+        {LOGMEIN("BackwardPass.cpp] 1228\n");
             mergedWriteGuards->Or(writeGuards2);
         }
     }
@@ -1242,99 +1242,99 @@ BackwardPass::MergeWriteGuards(ObjWriteGuardBucket bucket1, ObjWriteGuardBucket 
 
 void
 BackwardPass::DeleteBlockData(BasicBlock * block)
-{
+{LOGMEIN("BackwardPass.cpp] 1244\n");
     if (block->slotDeadStoreCandidates != nullptr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1246\n");
         JitAdelete(this->tempAlloc, block->slotDeadStoreCandidates);
         block->slotDeadStoreCandidates = nullptr;
     }
     if (block->tempNumberTracker != nullptr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1251\n");
         JitAdelete(this->tempAlloc, block->tempNumberTracker);
         block->tempNumberTracker = nullptr;
     }
     if (block->tempObjectTracker != nullptr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1256\n");
         JitAdelete(this->tempAlloc, block->tempObjectTracker);
         block->tempObjectTracker = nullptr;
     }
 #if DBG
     if (block->tempObjectVerifyTracker != nullptr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1262\n");
         JitAdelete(this->tempAlloc, block->tempObjectVerifyTracker);
         block->tempObjectVerifyTracker = nullptr;
     }
 #endif
     if (block->stackSymToFinalType != nullptr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1268\n");
         block->stackSymToFinalType->Delete();
         block->stackSymToFinalType = nullptr;
     }
     if (block->stackSymToGuardedProperties != nullptr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1273\n");
         block->stackSymToGuardedProperties->Delete();
         block->stackSymToGuardedProperties = nullptr;
     }
     if (block->stackSymToWriteGuardsMap != nullptr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1278\n");
         block->stackSymToWriteGuardsMap->Delete();
         block->stackSymToWriteGuardsMap = nullptr;
     }
     if (block->cloneStrCandidates != nullptr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1283\n");
         Assert(this->tag == Js::BackwardPhase);
         JitAdelete(this->globOpt->alloc, block->cloneStrCandidates);
         block->cloneStrCandidates = nullptr;
     }
     if (block->noImplicitCallUses != nullptr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1289\n");
         JitAdelete(this->tempAlloc, block->noImplicitCallUses);
         block->noImplicitCallUses = nullptr;
     }
     if (block->noImplicitCallNoMissingValuesUses != nullptr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1294\n");
         JitAdelete(this->tempAlloc, block->noImplicitCallNoMissingValuesUses);
         block->noImplicitCallNoMissingValuesUses = nullptr;
     }
     if (block->noImplicitCallNativeArrayUses != nullptr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1299\n");
         JitAdelete(this->tempAlloc, block->noImplicitCallNativeArrayUses);
         block->noImplicitCallNativeArrayUses = nullptr;
     }
     if (block->noImplicitCallJsArrayHeadSegmentSymUses != nullptr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1304\n");
         JitAdelete(this->tempAlloc, block->noImplicitCallJsArrayHeadSegmentSymUses);
         block->noImplicitCallJsArrayHeadSegmentSymUses = nullptr;
     }
     if (block->noImplicitCallArrayLengthSymUses != nullptr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1309\n");
         JitAdelete(this->tempAlloc, block->noImplicitCallArrayLengthSymUses);
         block->noImplicitCallArrayLengthSymUses = nullptr;
     }
     if (block->upwardExposedUses != nullptr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1314\n");
         JitArenaAllocator *upwardExposedArena = (this->tag == Js::BackwardPhase) ? this->globOpt->alloc : this->tempAlloc;
         JitAdelete(upwardExposedArena, block->upwardExposedUses);
         block->upwardExposedUses = nullptr;
     }
     if (block->upwardExposedFields != nullptr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1320\n");
         JitArenaAllocator *upwardExposedArena = (this->tag == Js::BackwardPhase) ? this->globOpt->alloc : this->tempAlloc;
         JitAdelete(upwardExposedArena, block->upwardExposedFields);
         block->upwardExposedFields = nullptr;
     }
     if (block->typesNeedingKnownObjectLayout != nullptr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1326\n");
         JitAdelete(this->tempAlloc, block->typesNeedingKnownObjectLayout);
         block->typesNeedingKnownObjectLayout = nullptr;
     }
     if (block->fieldHoistCandidates != nullptr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1331\n");
         JitAdelete(this->tempAlloc, block->fieldHoistCandidates);
         block->fieldHoistCandidates = nullptr;
     }
     if (block->byteCodeUpwardExposedUsed != nullptr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1336\n");
         JitAdelete(this->tempAlloc, block->byteCodeUpwardExposedUsed);
         block->byteCodeUpwardExposedUsed = nullptr;
 #if DBG
@@ -1343,7 +1343,7 @@ BackwardPass::DeleteBlockData(BasicBlock * block)
 #endif
     }
     if (block->couldRemoveNegZeroBailoutForDef != nullptr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1345\n");
         JitAdelete(this->tempAlloc, block->couldRemoveNegZeroBailoutForDef);
         block->couldRemoveNegZeroBailoutForDef = nullptr;
     }
@@ -1351,7 +1351,7 @@ BackwardPass::DeleteBlockData(BasicBlock * block)
 
 void
 BackwardPass::ProcessLoopCollectionPass(BasicBlock *const lastBlock)
-{
+{LOGMEIN("BackwardPass.cpp] 1353\n");
     // The collection pass is done before the prepass, to collect and propagate a minimal amount of information into nested
     // loops, for cases where the information is needed to make appropriate decisions on changing other state. For instance,
     // bailouts in nested loops need to be able to see all byte-code uses that are exposed to the bailout so that the
@@ -1420,19 +1420,19 @@ BackwardPass::ProcessLoopCollectionPass(BasicBlock *const lastBlock)
     {
 #if DBG_DUMP
         if(IsTraceEnabled())
-        {
+        {LOGMEIN("BackwardPass.cpp] 1422\n");
             Output::Print(_u("******* COLLECTION PASS 1 START: Loop %u ********\n"), collectionPassLoop->GetLoopTopInstr()->m_id);
         }
 #endif
 
         FOREACH_BLOCK_BACKWARD_IN_RANGE_DEAD_OR_ALIVE(block, lastBlock, nullptr)
-        {
+        {LOGMEIN("BackwardPass.cpp] 1428\n");
             ProcessBlock(block);
 
             if(block->isLoopHeader)
-            {
+            {LOGMEIN("BackwardPass.cpp] 1432\n");
                 if(block->loop == collectionPassLoop)
-                {
+                {LOGMEIN("BackwardPass.cpp] 1434\n");
                     break;
                 }
 
@@ -1443,7 +1443,7 @@ BackwardPass::ProcessLoopCollectionPass(BasicBlock *const lastBlock)
 
 #if DBG_DUMP
         if(IsTraceEnabled())
-        {
+        {LOGMEIN("BackwardPass.cpp] 1445\n");
             Output::Print(_u("******** COLLECTION PASS 1 END: Loop %u *********\n"), collectionPassLoop->GetLoopTopInstr()->m_id);
         }
 #endif
@@ -1451,22 +1451,22 @@ BackwardPass::ProcessLoopCollectionPass(BasicBlock *const lastBlock)
 
     // Second pass, only needs to run if there are any inner loops, to propagate collected information into those loops
     if(firstInnerLoopHeader)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1453\n");
 #if DBG_DUMP
         if(IsTraceEnabled())
-        {
+        {LOGMEIN("BackwardPass.cpp] 1456\n");
             Output::Print(_u("******* COLLECTION PASS 2 START: Loop %u ********\n"), collectionPassLoop->GetLoopTopInstr()->m_id);
         }
 #endif
 
         FOREACH_BLOCK_BACKWARD_IN_RANGE_DEAD_OR_ALIVE(block, lastBlock, firstInnerLoopHeader)
-        {
+        {LOGMEIN("BackwardPass.cpp] 1462\n");
             Loop *const loop = block->loop;
             if(loop && loop != collectionPassLoop && !loop->hasDeadStoreCollectionPass)
-            {
+            {LOGMEIN("BackwardPass.cpp] 1465\n");
                 // About to make a recursive call, so when jitting in the foreground, probe the stack
                 if(!func->IsBackgroundJIT())
-                {
+                {LOGMEIN("BackwardPass.cpp] 1468\n");
                     PROBE_STACK(func->GetScriptContext(), Js::Constants::MinStackDefault);
                 }
                 ProcessLoopCollectionPass(block);
@@ -1483,7 +1483,7 @@ BackwardPass::ProcessLoopCollectionPass(BasicBlock *const lastBlock)
 
 #if DBG_DUMP
         if(IsTraceEnabled())
-        {
+        {LOGMEIN("BackwardPass.cpp] 1485\n");
             Output::Print(_u("******** COLLECTION PASS 2 END: Loop %u *********\n"), collectionPassLoop->GetLoopTopInstr()->m_id);
         }
 #endif
@@ -1494,10 +1494,10 @@ BackwardPass::ProcessLoopCollectionPass(BasicBlock *const lastBlock)
 
 void
 BackwardPass::ProcessLoop(BasicBlock * lastBlock)
-{
+{LOGMEIN("BackwardPass.cpp] 1496\n");
 #if DBG_DUMP
     if (this->IsTraceEnabled())
-    {
+    {LOGMEIN("BackwardPass.cpp] 1499\n");
         Output::Print(_u("******* PREPASS START ********\n"));
     }
 #endif
@@ -1511,18 +1511,18 @@ BackwardPass::ProcessLoop(BasicBlock * lastBlock)
     // this tracking can have the adverse effect of killing fields that should stay live after copy prop. Disabled by default.
     // Left in under a flag, in case we find compiler throughput issues and want to do additional experiments.
     if (PHASE_ON(Js::LiveOutFieldsPhase, this->func))
-    {
+    {LOGMEIN("BackwardPass.cpp] 1513\n");
         if (this->globOpt->DoFieldOpts(loop) || this->globOpt->DoFieldRefOpts(loop))
-        {
+        {LOGMEIN("BackwardPass.cpp] 1515\n");
             // Get the live-out set at the loop bottom.
             // This may not be the only loop exit, but all loop exits either leave the function or pass through here.
             // In the forward pass, we'll use this set to trim the live fields on exit from the loop
             // in order to limit the number of bailout points following the loop.
             BVSparse<JitArenaAllocator> *bv = JitAnew(this->func->m_fg->alloc, BVSparse<JitArenaAllocator>, this->func->m_fg->alloc);
             FOREACH_SUCCESSOR_BLOCK(blockSucc, lastBlock)
-            {
+            {LOGMEIN("BackwardPass.cpp] 1522\n");
                 if (blockSucc->loop != loop)
-                {
+                {LOGMEIN("BackwardPass.cpp] 1524\n");
                     // Would like to assert this, but in strange exprgen cases involving "break LABEL" in nested
                     // loops the loop graph seems to get confused.
                     //Assert(!blockSucc->loop || blockSucc->loop->IsDescendentOrSelf(loop));
@@ -1537,7 +1537,7 @@ BackwardPass::ProcessLoop(BasicBlock * lastBlock)
     }
 
     if(tag == Js::DeadStorePhase && !loop->hasDeadStoreCollectionPass)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1539\n");
         Assert(!IsCollectionPass());
         Assert(!IsPrePass());
         isCollectionPass = true;
@@ -1549,11 +1549,11 @@ BackwardPass::ProcessLoop(BasicBlock * lastBlock)
     this->currentPrePassLoop = loop;
 
     FOREACH_BLOCK_BACKWARD_IN_RANGE_DEAD_OR_ALIVE(block, lastBlock, nullptr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1551\n");
         this->ProcessBlock(block);
 
         if (block->isLoopHeader && block->loop == lastBlock->loop)
-        {
+        {LOGMEIN("BackwardPass.cpp] 1555\n");
             Assert(block->fieldHoistCandidates == nullptr);
             break;
         }
@@ -1567,7 +1567,7 @@ BackwardPass::ProcessLoop(BasicBlock * lastBlock)
 
 #if DBG_DUMP
     if (this->IsTraceEnabled())
-    {
+    {LOGMEIN("BackwardPass.cpp] 1569\n");
         Output::Print(_u("******** PREPASS END *********\n"));
     }
 #endif
@@ -1575,31 +1575,31 @@ BackwardPass::ProcessLoop(BasicBlock * lastBlock)
 
 void
 BackwardPass::OptBlock(BasicBlock * block)
-{
+{LOGMEIN("BackwardPass.cpp] 1577\n");
     this->func->ThrowIfScriptClosed();
 
     if (block->loop && !block->loop->hasDeadStorePrepass)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1581\n");
         ProcessLoop(block);
     }
 
     this->ProcessBlock(block);
 
     if(DoTrackNegativeZero())
-    {
+    {LOGMEIN("BackwardPass.cpp] 1588\n");
         negativeZeroDoesNotMatterBySymId->ClearAll();
     }
     if (DoTrackBitOpsOrNumber())
-    {
+    {LOGMEIN("BackwardPass.cpp] 1592\n");
         symUsedOnlyForBitOpsBySymId->ClearAll();
         symUsedOnlyForNumberBySymId->ClearAll();
     }
 
     if(DoTrackIntOverflow())
-    {
+    {LOGMEIN("BackwardPass.cpp] 1598\n");
         intOverflowDoesNotMatterBySymId->ClearAll();
         if(DoTrackCompoundedIntOverflow())
-        {
+        {LOGMEIN("BackwardPass.cpp] 1601\n");
             intOverflowDoesNotMatterInRangeBySymId->ClearAll();
         }
     }
@@ -1607,17 +1607,17 @@ BackwardPass::OptBlock(BasicBlock * block)
 
 void
 BackwardPass::ProcessBailOutArgObj(BailOutInfo * bailOutInfo, BVSparse<JitArenaAllocator> * byteCodeUpwardExposedUsed)
-{
+{LOGMEIN("BackwardPass.cpp] 1609\n");
     Assert(this->tag != Js::BackwardPhase);
 
     if (this->globOpt->TrackArgumentsObject() && bailOutInfo->capturedValues.argObjSyms)
     {
         FOREACH_BITSET_IN_SPARSEBV(symId, bailOutInfo->capturedValues.argObjSyms)
-        {
+        {LOGMEIN("BackwardPass.cpp] 1615\n");
             if (byteCodeUpwardExposedUsed->TestAndClear(symId))
-            {
+            {LOGMEIN("BackwardPass.cpp] 1617\n");
                 if (bailOutInfo->usedCapturedValues.argObjSyms == nullptr)
-                {
+                {LOGMEIN("BackwardPass.cpp] 1619\n");
                     bailOutInfo->usedCapturedValues.argObjSyms = JitAnew(this->func->m_alloc,
                         BVSparse<JitArenaAllocator>, this->func->m_alloc);
                 }
@@ -1627,20 +1627,20 @@ BackwardPass::ProcessBailOutArgObj(BailOutInfo * bailOutInfo, BVSparse<JitArenaA
         NEXT_BITSET_IN_SPARSEBV;
     }
     if (bailOutInfo->usedCapturedValues.argObjSyms)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1629\n");
         byteCodeUpwardExposedUsed->Minus(bailOutInfo->usedCapturedValues.argObjSyms);
     }
 }
 
 void
 BackwardPass::ProcessBailOutConstants(BailOutInfo * bailOutInfo, BVSparse<JitArenaAllocator> * byteCodeUpwardExposedUsed, BVSparse<JitArenaAllocator>* bailoutReferencedArgSymsBv)
-{
+{LOGMEIN("BackwardPass.cpp] 1636\n");
     Assert(this->tag != Js::BackwardPhase);
 
     // Remove constants that we are already going to restore
     SListBase<ConstantStackSymValue> * usedConstantValues = &bailOutInfo->usedCapturedValues.constantValues;
     FOREACH_SLISTBASE_ENTRY(ConstantStackSymValue, value, usedConstantValues)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1642\n");
         byteCodeUpwardExposedUsed->Clear(value.Key()->m_id);
         bailoutReferencedArgSymsBv->Clear(value.Key()->m_id);
     }
@@ -1648,14 +1648,14 @@ BackwardPass::ProcessBailOutConstants(BailOutInfo * bailOutInfo, BVSparse<JitAre
 
     // Find other constants that we need to restore
     FOREACH_SLISTBASE_ENTRY_EDITING(ConstantStackSymValue, value, &bailOutInfo->capturedValues.constantValues, iter)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1650\n");
         if (byteCodeUpwardExposedUsed->TestAndClear(value.Key()->m_id) || bailoutReferencedArgSymsBv->TestAndClear(value.Key()->m_id))
-        {
+        {LOGMEIN("BackwardPass.cpp] 1652\n");
             // Constant need to be restore, move it to the restore list
             iter.MoveCurrentTo(usedConstantValues);
         }
         else if (!this->IsPrePass())
-        {
+        {LOGMEIN("BackwardPass.cpp] 1657\n");
             // Constants don't need to be restored, delete
             iter.RemoveCurrent(this->func->m_alloc);
         }
@@ -1665,14 +1665,14 @@ BackwardPass::ProcessBailOutConstants(BailOutInfo * bailOutInfo, BVSparse<JitAre
 
 void
 BackwardPass::ProcessBailOutCopyProps(BailOutInfo * bailOutInfo, BVSparse<JitArenaAllocator> * byteCodeUpwardExposedUsed, BVSparse<JitArenaAllocator>* bailoutReferencedArgSymsBv)
-{
+{LOGMEIN("BackwardPass.cpp] 1667\n");
     Assert(this->tag != Js::BackwardPhase);
     Assert(!this->func->GetJITFunctionBody()->IsAsmJsMode());
 
     // Remove copy prop that we were already going to restore
     SListBase<CopyPropSyms> * usedCopyPropSyms = &bailOutInfo->usedCapturedValues.copyPropSyms;
     FOREACH_SLISTBASE_ENTRY(CopyPropSyms, copyPropSyms, usedCopyPropSyms)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1674\n");
         byteCodeUpwardExposedUsed->Clear(copyPropSyms.Key()->m_id);
         this->currentBlock->upwardExposedUses->Set(copyPropSyms.Value()->m_id);
     }
@@ -1684,12 +1684,12 @@ BackwardPass::ProcessBailOutCopyProps(BailOutInfo * bailOutInfo, BVSparse<JitAre
 
     // Find other copy prop that we need to restore
     FOREACH_SLISTBASE_ENTRY_EDITING(CopyPropSyms, copyPropSyms, &bailOutInfo->capturedValues.copyPropSyms, iter)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1686\n");
         // Copy prop syms should be vars
         Assert(!copyPropSyms.Key()->IsTypeSpec());
         Assert(!copyPropSyms.Value()->IsTypeSpec());
         if (byteCodeUpwardExposedUsed->TestAndClear(copyPropSyms.Key()->m_id) || bailoutReferencedArgSymsBv->TestAndClear(copyPropSyms.Key()->m_id))
-        {
+        {LOGMEIN("BackwardPass.cpp] 1691\n");
             // This copy-prop sym needs to be restored; add it to the restore list.
 
             /*
@@ -1741,7 +1741,7 @@ BackwardPass::ProcessBailOutCopyProps(BailOutInfo * bailOutInfo, BVSparse<JitAre
                 instr->GetSrc1() &&
                 !instr->GetDst()->IsEqual(instr->GetSrc1()) &&
                 !(instr->GetSrc2() && instr->GetDst()->IsEqual(instr->GetSrc2())))
-            {
+            {LOGMEIN("BackwardPass.cpp] 1743\n");
                 Assert(bailOutInfo->bailOutOffset == instr->GetByteCodeOffset());
 
                 // Need to use the original sym to restore. The original sym is byte-code upwards-exposed, which is why it needs
@@ -1751,7 +1751,7 @@ BackwardPass::ProcessBailOutCopyProps(BailOutInfo * bailOutInfo, BVSparse<JitAre
                 // copy-prop sym to the original sym will not be a dead store.
             }
             else if (block->upwardExposedUses->Test(stackSym->m_id) && !block->upwardExposedUses->Test(copyPropSyms.Value()->m_id))
-            {
+            {LOGMEIN("BackwardPass.cpp] 1753\n");
                 // Don't use the copy prop sym if it is not used and the orig sym still has uses.
                 // No point in extending the lifetime of the copy prop sym unnecessarily.
             }
@@ -1768,24 +1768,24 @@ BackwardPass::ProcessBailOutCopyProps(BailOutInfo * bailOutInfo, BVSparse<JitAre
             StackSym * float64StackSym = nullptr;
             StackSym * simd128StackSym = nullptr;
             if (bailOutInfo->liveLosslessInt32Syms->Test(symId))
-            {
+            {LOGMEIN("BackwardPass.cpp] 1770\n");
                 // Var version of the sym is not live, use the int32 version
                 int32StackSym = stackSym->GetInt32EquivSym(nullptr);
                 Assert(int32StackSym);
             }
             else if(bailOutInfo->liveFloat64Syms->Test(symId))
-            {
+            {LOGMEIN("BackwardPass.cpp] 1776\n");
                 // Var/int32 version of the sym is not live, use the float64 version
                 float64StackSym = stackSym->GetFloat64EquivSym(nullptr);
                 Assert(float64StackSym);
             }
             // SIMD_JS
             else if (bailOutInfo->liveSimd128F4Syms->Test(symId))
-            {
+            {LOGMEIN("BackwardPass.cpp] 1783\n");
                 simd128StackSym = stackSym->GetSimd128F4EquivSym(nullptr);
             }
             else if (bailOutInfo->liveSimd128I4Syms->Test(symId))
-            {
+            {LOGMEIN("BackwardPass.cpp] 1787\n");
                 simd128StackSym = stackSym->GetSimd128I4EquivSym(nullptr);
             }
             else
@@ -1795,19 +1795,19 @@ BackwardPass::ProcessBailOutCopyProps(BailOutInfo * bailOutInfo, BVSparse<JitAre
 
             // We did not end up using the copy prop sym. Let's make sure the use of the original sym by the bailout is captured.
             if (stackSym != copyPropSyms.Value() && stackSym->HasArgSlotNum())
-            {
+            {LOGMEIN("BackwardPass.cpp] 1797\n");
                 bailoutReferencedArgSymsBv->Set(stackSym->m_id);
             }
 
             if (int32StackSym != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 1802\n");
                 Assert(float64StackSym == nullptr);
                 usedCopyPropSyms->PrependNode(allocator, copyPropSyms.Key(), int32StackSym);
                 iter.RemoveCurrent(allocator);
                 upwardExposedUses->Set(int32StackSym->m_id);
             }
             else if (float64StackSym != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 1809\n");
                 // This float-specialized sym is going to be used to restore the corresponding byte-code register. Need to
                 // ensure that the float value can be precisely coerced back to the original Var value by requiring that it is
                 // specialized using BailOutNumberOnly.
@@ -1819,7 +1819,7 @@ BackwardPass::ProcessBailOutCopyProps(BailOutInfo * bailOutInfo, BVSparse<JitAre
             }
             // SIMD_JS
             else if (simd128StackSym != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 1821\n");
                 usedCopyPropSyms->PrependNode(allocator, copyPropSyms.Key(), simd128StackSym);
                 iter.RemoveCurrent(allocator);
                 upwardExposedUses->Set(simd128StackSym->m_id);
@@ -1832,7 +1832,7 @@ BackwardPass::ProcessBailOutCopyProps(BailOutInfo * bailOutInfo, BVSparse<JitAre
             }
         }
         else if (!this->IsPrePass())
-        {
+        {LOGMEIN("BackwardPass.cpp] 1834\n");
             // Copy prop sym doesn't need to be restored, delete.
             iter.RemoveCurrent(allocator);
         }
@@ -1842,15 +1842,15 @@ BackwardPass::ProcessBailOutCopyProps(BailOutInfo * bailOutInfo, BVSparse<JitAre
 
 bool
 BackwardPass::ProcessBailOutInfo(IR::Instr * instr)
-{
+{LOGMEIN("BackwardPass.cpp] 1844\n");
     if (this->tag == Js::BackwardPhase)
-    {
+    {LOGMEIN("BackwardPass.cpp] 1846\n");
         // We don't need to fill in the bailout instruction in backward pass
         Assert(this->func->hasBailout || !instr->HasBailOutInfo());
         Assert(!instr->HasBailOutInfo() || instr->GetBailOutInfo()->byteCodeUpwardExposedUsed == nullptr || (this->func->HasTry() && this->func->DoOptimizeTryCatch()));
 
         if (instr->IsByteCodeUsesInstr())
-        {
+        {LOGMEIN("BackwardPass.cpp] 1852\n");
             // FGPeeps inserts bytecodeuses instrs with srcs.  We need to look at them to set the proper
             // UpwardExposedUsed info and keep the defs alive.
             // The inliner inserts bytecodeuses instrs withs dsts, but we don't want to look at them for upwardExposedUsed
@@ -1861,7 +1861,7 @@ BackwardPass::ProcessBailOutInfo(IR::Instr * instr)
             IR::ByteCodeUsesInstr *byteCodeUsesInstr = instr->AsByteCodeUsesInstr();
             const BVSparse<JitArenaAllocator> * byteCodeUpwardExposedUsed = byteCodeUsesInstr->GetByteCodeUpwardExposedUsed();
             if (byteCodeUpwardExposedUsed != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 1863\n");
                 this->currentBlock->upwardExposedUses->Or(byteCodeUpwardExposedUsed);
             }
             return true;
@@ -1870,15 +1870,15 @@ BackwardPass::ProcessBailOutInfo(IR::Instr * instr)
     }
 
     if (instr->IsByteCodeUsesInstr())
-    {
+    {LOGMEIN("BackwardPass.cpp] 1872\n");
         Assert(instr->m_opcode == Js::OpCode::ByteCodeUses);
 #if DBG
         if (this->DoMarkTempObjectVerify() && (this->currentBlock->isDead || !this->func->hasBailout))
-        {
+        {LOGMEIN("BackwardPass.cpp] 1876\n");
             if (IsCollectionPass())
-            {
+            {LOGMEIN("BackwardPass.cpp] 1878\n");
                 if (!this->func->hasBailout)
-                {
+                {LOGMEIN("BackwardPass.cpp] 1880\n");
                     // Prevent byte code uses from being remove on collection pass for mark temp object verify
                     // if we don't have any bailout
                     return true;
@@ -1892,20 +1892,20 @@ BackwardPass::ProcessBailOutInfo(IR::Instr * instr)
 #endif
 
         if (this->func->hasBailout)
-        {
+        {LOGMEIN("BackwardPass.cpp] 1894\n");
             Assert(this->DoByteCodeUpwardExposedUsed());
 
             // Just collect the byte code uses, and remove the instruction
             // We are going backward, process the dst first and then the src
             IR::Opnd * dst = instr->GetDst();
             if (dst)
-            {
+            {LOGMEIN("BackwardPass.cpp] 1901\n");
                 IR::RegOpnd * dstRegOpnd = dst->AsRegOpnd();
                 StackSym * dstStackSym = dstRegOpnd->m_sym->AsStackSym();
                 Assert(!dstRegOpnd->GetIsJITOptimizedReg());
                 Assert(dstStackSym->GetByteCodeRegSlot() != Js::Constants::NoRegister);
                 if (dstStackSym->GetType() != TyVar)
-                {
+                {LOGMEIN("BackwardPass.cpp] 1907\n");
                     dstStackSym = dstStackSym->GetVarEquivSym(nullptr);
                 }
 
@@ -1913,12 +1913,12 @@ BackwardPass::ProcessBailOutInfo(IR::Instr * instr)
                 // Otherwise, symbols in the write-through set of the first try ancestor shouldn't be cleared.
                 if (!this->currentRegion ||
                     !this->CheckWriteThroughSymInRegion(this->currentRegion, dstStackSym))
-                {
+                {LOGMEIN("BackwardPass.cpp] 1915\n");
                     this->currentBlock->byteCodeUpwardExposedUsed->Clear(dstStackSym->m_id);
 #if DBG
                     // We can only track first level function stack syms right now
                     if (dstStackSym->GetByteCodeFunc() == this->func)
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 1920\n");
                         this->currentBlock->byteCodeRestoreSyms[dstStackSym->GetByteCodeRegSlot()] = nullptr;
                     }
 #endif
@@ -1927,20 +1927,20 @@ BackwardPass::ProcessBailOutInfo(IR::Instr * instr)
 
             IR::ByteCodeUsesInstr *byteCodeUsesInstr = instr->AsByteCodeUsesInstr();
             if (byteCodeUsesInstr->GetByteCodeUpwardExposedUsed() != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 1929\n");
                 this->currentBlock->byteCodeUpwardExposedUsed->Or(byteCodeUsesInstr->GetByteCodeUpwardExposedUsed());
 #if DBG
                 FOREACH_BITSET_IN_SPARSEBV(symId, byteCodeUsesInstr->GetByteCodeUpwardExposedUsed())
-                {
+                {LOGMEIN("BackwardPass.cpp] 1933\n");
                     StackSym * stackSym = this->func->m_symTable->FindStackSym(symId);
                     Assert(!stackSym->IsTypeSpec());
                     // We can only track first level function stack syms right now
                     if (stackSym->GetByteCodeFunc() == this->func)
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 1938\n");
                         Js::RegSlot byteCodeRegSlot = stackSym->GetByteCodeRegSlot();
                         Assert(byteCodeRegSlot != Js::Constants::NoRegister);
                         if (this->currentBlock->byteCodeRestoreSyms[byteCodeRegSlot] != stackSym)
-                        {
+                        {LOGMEIN("BackwardPass.cpp] 1942\n");
                             AssertMsg(this->currentBlock->byteCodeRestoreSyms[byteCodeRegSlot] == nullptr,
                                 "Can't have two active lifetime for the same byte code register");
                             this->currentBlock->byteCodeRestoreSyms[byteCodeRegSlot] = stackSym;
@@ -1952,7 +1952,7 @@ BackwardPass::ProcessBailOutInfo(IR::Instr * instr)
             }
 
             if(IsCollectionPass())
-            {
+            {LOGMEIN("BackwardPass.cpp] 1954\n");
                 return true;
             }
 
@@ -1960,12 +1960,12 @@ BackwardPass::ProcessBailOutInfo(IR::Instr * instr)
 
             PropertySym *propertySymUse = byteCodeUsesInstr->propertySymUse;
             if (propertySymUse && !this->currentBlock->isDead)
-            {
+            {LOGMEIN("BackwardPass.cpp] 1962\n");
                 this->currentBlock->upwardExposedFields->Set(propertySymUse->m_id);
             }
 
             if (this->IsPrePass())
-            {
+            {LOGMEIN("BackwardPass.cpp] 1967\n");
                 // Don't remove the instruction yet if we are in the prepass
                 // But tell the caller we don't need to process the instruction any more
                 return true;
@@ -1977,12 +1977,12 @@ BackwardPass::ProcessBailOutInfo(IR::Instr * instr)
     }
 
     if(IsCollectionPass())
-    {
+    {LOGMEIN("BackwardPass.cpp] 1979\n");
         return false;
     }
 
     if (instr->HasBailOutInfo())
-    {
+    {LOGMEIN("BackwardPass.cpp] 1984\n");
         Assert(this->func->hasBailout);
         Assert(this->DoByteCodeUpwardExposedUsed());
 
@@ -1990,10 +1990,10 @@ BackwardPass::ProcessBailOutInfo(IR::Instr * instr)
 
         // Only process the bailout info if this is the main bailout point (instead of shared)
         if (bailOutInfo->bailOutInstr == instr)
-        {
+        {LOGMEIN("BackwardPass.cpp] 1992\n");
             if(instr->GetByteCodeOffset() == Js::Constants::NoByteCodeOffset ||
                 bailOutInfo->bailOutOffset > instr->GetByteCodeOffset())
-            {
+            {LOGMEIN("BackwardPass.cpp] 1995\n");
                 // Currently, we only have post-op bailout with BailOutOnImplicitCalls
                 // or JIT inserted operation (which no byte code offsets).
                 // If there are other bailouts that we want to bailout after the operation,
@@ -2025,14 +2025,14 @@ BackwardPass::ProcessBailOutInfo(IR::Instr * instr)
 
 bool
 BackwardPass::IsImplicitCallBailOutCurrentlyNeeded(IR::Instr * instr, bool mayNeedImplicitCallBailOut, bool hasLiveFields)
-{
+{LOGMEIN("BackwardPass.cpp] 2027\n");
     return this->globOpt->IsImplicitCallBailOutCurrentlyNeeded(
         instr, nullptr, nullptr, this->currentBlock, hasLiveFields, mayNeedImplicitCallBailOut, false);
 }
 
 void
 BackwardPass::DeadStoreTypeCheckBailOut(IR::Instr * instr)
-{
+{LOGMEIN("BackwardPass.cpp] 2034\n");
     // Good news: There are cases where the forward pass installs BailOutFailedTypeCheck, but the dead store pass
     // discovers that the checked type is dead.
     // Bad news: We may still need implicit call bailout, and it's up to the dead store pass to figure this out.
@@ -2043,13 +2043,13 @@ BackwardPass::DeadStoreTypeCheckBailOut(IR::Instr * instr)
     Assert(this->tag == Js::DeadStorePhase);
 
     if (this->IsPrePass() || !instr->HasBailOutInfo())
-    {
+    {LOGMEIN("BackwardPass.cpp] 2045\n");
         return;
     }
 
     IR::BailOutKind oldBailOutKind = instr->GetBailOutKind();
     if (!IR::IsTypeCheckBailOutKind(oldBailOutKind))
-    {
+    {LOGMEIN("BackwardPass.cpp] 2051\n");
         return;
     }
 
@@ -2063,7 +2063,7 @@ BackwardPass::DeadStoreTypeCheckBailOut(IR::Instr * instr)
     bool isTypeCheckProtected = false;
     IR::BailOutKind bailOutKind;
     if (GlobOpt::NeedsTypeCheckBailOut(instr, propertySymOpnd, propertySymOpnd == instr->GetDst(), &isTypeCheckProtected, &bailOutKind))
-    {
+    {LOGMEIN("BackwardPass.cpp] 2065\n");
         // If we installed a failed type check bailout in the forward pass, but we are now discovering that the checked
         // type is dead, we may still need a bailout on failed fixed field type check. These type checks are required
         // regardless of whether the checked type is dead.  Hence, the bailout kind may change here.
@@ -2073,10 +2073,10 @@ BackwardPass::DeadStoreTypeCheckBailOut(IR::Instr * instr)
         return;
     }
     else if (isTypeCheckProtected)
-    {
+    {LOGMEIN("BackwardPass.cpp] 2075\n");
         instr->ClearBailOutInfo();
         if (preOpBailOutInstrToProcess == instr)
-        {
+        {LOGMEIN("BackwardPass.cpp] 2078\n");
             preOpBailOutInstrToProcess = nullptr;
         }
         return;
@@ -2088,13 +2088,13 @@ BackwardPass::DeadStoreTypeCheckBailOut(IR::Instr * instr)
     // the type check to remain in the loop), and now it turns out we don't need the type checked, we can simply turn this into
     // a NOP and remove the bailout.
     if (instr->m_opcode == Js::OpCode::CheckObjType)
-    {
+    {LOGMEIN("BackwardPass.cpp] 2090\n");
         Assert(instr->GetDst() == nullptr && instr->GetSrc1() != nullptr && instr->GetSrc2() == nullptr);
         instr->m_opcode = Js::OpCode::Nop;
         instr->FreeSrc1();
         instr->ClearBailOutInfo();
         if (this->preOpBailOutInstrToProcess == instr)
-        {
+        {LOGMEIN("BackwardPass.cpp] 2096\n");
             this->preOpBailOutInstrToProcess = nullptr;
         }
         return;
@@ -2104,10 +2104,10 @@ BackwardPass::DeadStoreTypeCheckBailOut(IR::Instr * instr)
     // Consider: are we in the loop landing pad? If so, no bailout, since implicit calls will be checked at
     // the end of the block.
     if (this->currentBlock->IsLandingPad())
-    {
+    {LOGMEIN("BackwardPass.cpp] 2106\n");
         // We're in the landing pad.
         if (preOpBailOutInstrToProcess == instr)
-        {
+        {LOGMEIN("BackwardPass.cpp] 2109\n");
             preOpBailOutInstrToProcess = nullptr;
         }
         instr->UnlinkBailOutInfo();
@@ -2117,7 +2117,7 @@ BackwardPass::DeadStoreTypeCheckBailOut(IR::Instr * instr)
     // If bailOutKind is equivTypeCheck then leave alone the bailout
     if (bailOutKind == IR::BailOutFailedEquivalentTypeCheck ||
         bailOutKind == IR::BailOutFailedEquivalentFixedFieldTypeCheck)
-    {
+    {LOGMEIN("BackwardPass.cpp] 2119\n");
         return;
     }
 
@@ -2131,17 +2131,17 @@ BackwardPass::DeadStoreTypeCheckBailOut(IR::Instr * instr)
 
 void
 BackwardPass::DeadStoreImplicitCallBailOut(IR::Instr * instr, bool hasLiveFields)
-{
+{LOGMEIN("BackwardPass.cpp] 2133\n");
     Assert(this->tag == Js::DeadStorePhase);
 
     if (this->IsPrePass() || !instr->HasBailOutInfo())
-    {
+    {LOGMEIN("BackwardPass.cpp] 2137\n");
         // Don't do this in the pre-pass, because, for instance, we don't have live-on-back-edge fields yet.
         return;
     }
 
     if (OpCodeAttr::BailOutRec(instr->m_opcode))
-    {
+    {LOGMEIN("BackwardPass.cpp] 2143\n");
         // This is something like OpCode::BailOutOnNotEqual. Assume it needs what it's got.
         return;
     }
@@ -2152,16 +2152,16 @@ BackwardPass::DeadStoreImplicitCallBailOut(IR::Instr * instr, bool hasLiveFields
     IR::BailOutKind kind = instr->GetBailOutKind();
     IR::BailOutKind kindNoBits = kind & ~IR::BailOutKindBits;
     if ((kind & IR::BailOutMarkTempObject) != 0 && kindNoBits != IR::BailOutOnImplicitCallsPreOp)
-    {
+    {LOGMEIN("BackwardPass.cpp] 2154\n");
         Assert(kindNoBits != IR::BailOutOnImplicitCalls);
         if (kindNoBits == IR::BailOutInvalid)
-        {
+        {LOGMEIN("BackwardPass.cpp] 2157\n");
             // We should only have combined with array bits
             Assert((kind & ~IR::BailOutForArrayBits) == IR::BailOutMarkTempObject);
             // Don't need to install if we are not going to do helper calls,
             // or we are in the landingPad since implicit calls are already turned off.
             if ((kind & IR::BailOutOnArrayAccessHelperCall) == 0 && !this->currentBlock->IsLandingPad())
-            {
+            {LOGMEIN("BackwardPass.cpp] 2163\n");
                 kind += IR::BailOutOnImplicitCallsPreOp;
                 instr->SetBailOutKind(kind);
             }
@@ -2172,16 +2172,16 @@ BackwardPass::DeadStoreImplicitCallBailOut(IR::Instr * instr, bool hasLiveFields
     // where we don't necessarily have live/hoisted fields.
     const bool mayNeedBailOnImplicitCall = BailOutInfo::IsBailOutOnImplicitCalls(kind);
     if (!mayNeedBailOnImplicitCall)
-    {
+    {LOGMEIN("BackwardPass.cpp] 2174\n");
         if (kind & IR::BailOutMarkTempObject)
-        {
+        {LOGMEIN("BackwardPass.cpp] 2176\n");
             if (kind == IR::BailOutMarkTempObject)
-            {
+            {LOGMEIN("BackwardPass.cpp] 2178\n");
                 // Landing pad does not need per-instr implicit call bailouts.
                 Assert(this->currentBlock->IsLandingPad());
                 instr->ClearBailOutInfo();
                 if (this->preOpBailOutInstrToProcess == instr)
-                {
+                {LOGMEIN("BackwardPass.cpp] 2183\n");
                     this->preOpBailOutInstrToProcess = nullptr;
                 }
             }
@@ -2199,15 +2199,15 @@ BackwardPass::DeadStoreImplicitCallBailOut(IR::Instr * instr, bool hasLiveFields
     bool needsBailOutOnImplicitCall = this->IsImplicitCallBailOutCurrentlyNeeded(instr, mayNeedBailOnImplicitCall, hasLiveFields);
 
     if(!UpdateImplicitCallBailOutKind(instr, needsBailOutOnImplicitCall))
-    {
+    {LOGMEIN("BackwardPass.cpp] 2201\n");
         instr->ClearBailOutInfo();
         if (preOpBailOutInstrToProcess == instr)
-        {
+        {LOGMEIN("BackwardPass.cpp] 2204\n");
             preOpBailOutInstrToProcess = nullptr;
         }
 #if DBG
         if (this->DoMarkTempObjectVerify())
-        {
+        {LOGMEIN("BackwardPass.cpp] 2209\n");
             this->currentBlock->tempObjectVerifyTracker->NotifyBailOutRemoval(instr, this);
         }
 #endif
@@ -2216,11 +2216,11 @@ BackwardPass::DeadStoreImplicitCallBailOut(IR::Instr * instr, bool hasLiveFields
 
 void
 BackwardPass::ProcessPendingPreOpBailOutInfo(IR::Instr *const currentInstr)
-{
+{LOGMEIN("BackwardPass.cpp] 2218\n");
     Assert(!IsCollectionPass());
 
     if(!preOpBailOutInstrToProcess)
-    {
+    {LOGMEIN("BackwardPass.cpp] 2222\n");
         return;
     }
 
@@ -2228,7 +2228,7 @@ BackwardPass::ProcessPendingPreOpBailOutInfo(IR::Instr *const currentInstr)
     if(prevInstr &&
         prevInstr->IsByteCodeUsesInstr() &&
         prevInstr->AsByteCodeUsesInstr()->GetByteCodeOffset() == preOpBailOutInstrToProcess->GetByteCodeOffset())
-    {
+    {LOGMEIN("BackwardPass.cpp] 2230\n");
         return;
     }
 
@@ -2243,7 +2243,7 @@ BackwardPass::ProcessPendingPreOpBailOutInfo(IR::Instr *const currentInstr)
 
 void
 BackwardPass::ProcessBailOutInfo(IR::Instr * instr, BailOutInfo * bailOutInfo)
-{
+{LOGMEIN("BackwardPass.cpp] 2245\n");
     /*
     When we optimize functions having try-catch, we install a bailout at the starting of the catch block, namely, BailOnException.
     We don't have flow edges from all the possible exception points in the try to the catch block. As a result, this bailout should
@@ -2302,7 +2302,7 @@ BackwardPass::ProcessBailOutInfo(IR::Instr * instr, BailOutInfo * bailOutInfo)
 
     // Make a copy of the byteCodeUpwardExposedUsed so we can remove the constants
     if (!this->IsPrePass())
-    {
+    {LOGMEIN("BackwardPass.cpp] 2304\n");
         // Create the BV of symbols that need to be restored in the BailOutRecord
         byteCodeUpwardExposedUsed = byteCodeUpwardExposedUsed->CopyNew(this->func->m_alloc);
         bailOutInfo->byteCodeUpwardExposedUsed = byteCodeUpwardExposedUsed;
@@ -2320,10 +2320,10 @@ BackwardPass::ProcessBailOutInfo(IR::Instr * instr, BailOutInfo * bailOutInfo)
     //      The third set of syms is represented by the bailoutReferencedArgSymsBv.
     BVSparse<JitArenaAllocator>* bailoutReferencedArgSymsBv = JitAnew(this->tempAlloc, BVSparse<JitArenaAllocator>, this->tempAlloc);
     if (!this->IsPrePass())
-    {
+    {LOGMEIN("BackwardPass.cpp] 2322\n");
         bailOutInfo->IterateArgOutSyms([=](uint, uint, StackSym* sym) {
             if (!sym->IsArgSlotSym())
-            {
+            {LOGMEIN("BackwardPass.cpp] 2325\n");
                 bailoutReferencedArgSymsBv->Set(sym->m_id);
             }
         });
@@ -2333,7 +2333,7 @@ BackwardPass::ProcessBailOutInfo(IR::Instr * instr, BailOutInfo * bailOutInfo)
     this->ProcessBailOutArgObj(bailOutInfo, byteCodeUpwardExposedUsed);
 
     if (instr->m_opcode != Js::OpCode::BailOnException) // see comment at the beginning of this function
-    {
+    {LOGMEIN("BackwardPass.cpp] 2335\n");
         this->ProcessBailOutConstants(bailOutInfo, byteCodeUpwardExposedUsed, bailoutReferencedArgSymsBv);
         this->ProcessBailOutCopyProps(bailOutInfo, byteCodeUpwardExposedUsed, bailoutReferencedArgSymsBv);
     }
@@ -2341,7 +2341,7 @@ BackwardPass::ProcessBailOutInfo(IR::Instr * instr, BailOutInfo * bailOutInfo)
     BVSparse<JitArenaAllocator> * tempBv = JitAnew(this->tempAlloc, BVSparse<JitArenaAllocator>, this->tempAlloc);
 
     if (bailOutInfo->liveVarSyms)
-    {
+    {LOGMEIN("BackwardPass.cpp] 2343\n");
         // Prefer to restore from type-specialized versions of the sym, as that will reduce the need for potentially expensive
         // ToVars that can more easily be eliminated due to being dead stores.
 
@@ -2361,7 +2361,7 @@ BackwardPass::ProcessBailOutInfo(IR::Instr * instr, BailOutInfo * bailOutInfo)
 #endif
 
         if (this->func->IsJitInDebugMode())
-        {
+        {LOGMEIN("BackwardPass.cpp] 2363\n");
             // Add to byteCodeUpwardExposedUsed the non-temp local vars used so far to restore during bail out.
             // The ones that are not used so far will get their values from bytecode when we continue after bail out in interpreter.
             Assert(this->func->m_nonTempLocalVars);
@@ -2369,25 +2369,25 @@ BackwardPass::ProcessBailOutInfo(IR::Instr * instr, BailOutInfo * bailOutInfo)
 
             // Remove syms that are restored in other ways than byteCodeUpwardExposedUsed.
             FOREACH_SLIST_ENTRY(ConstantStackSymValue, value, &bailOutInfo->usedCapturedValues.constantValues)
-            {
+            {LOGMEIN("BackwardPass.cpp] 2371\n");
                 Assert(value.Key()->HasByteCodeRegSlot() || value.Key()->GetInstrDef()->m_opcode == Js::OpCode::BytecodeArgOutCapture);
                 if (value.Key()->HasByteCodeRegSlot())
-                {
+                {LOGMEIN("BackwardPass.cpp] 2374\n");
                     tempBv->Clear(value.Key()->GetByteCodeRegSlot());
                 }
             }
             NEXT_SLIST_ENTRY;
             FOREACH_SLIST_ENTRY(CopyPropSyms, value, &bailOutInfo->usedCapturedValues.copyPropSyms)
-            {
+            {LOGMEIN("BackwardPass.cpp] 2380\n");
                 Assert(value.Key()->HasByteCodeRegSlot() || value.Key()->GetInstrDef()->m_opcode == Js::OpCode::BytecodeArgOutCapture);
                 if (value.Key()->HasByteCodeRegSlot())
-                {
+                {LOGMEIN("BackwardPass.cpp] 2383\n");
                     tempBv->Clear(value.Key()->GetByteCodeRegSlot());
                 }
             }
             NEXT_SLIST_ENTRY;
             if (bailOutInfo->usedCapturedValues.argObjSyms)
-            {
+            {LOGMEIN("BackwardPass.cpp] 2389\n");
                 tempBv->Minus(bailOutInfo->usedCapturedValues.argObjSyms);
             }
 
@@ -2395,12 +2395,12 @@ BackwardPass::ProcessBailOutInfo(IR::Instr * instr, BailOutInfo * bailOutInfo)
         }
 
         if (instr->m_opcode != Js::OpCode::BailOnException) // see comment at the beginning of this function
-        {
+        {LOGMEIN("BackwardPass.cpp] 2397\n");
             // Int32
             tempBv->And(byteCodeUpwardExposedUsed, bailOutInfo->liveLosslessInt32Syms);
             byteCodeUpwardExposedUsed->Minus(tempBv);
             FOREACH_BITSET_IN_SPARSEBV(symId, tempBv)
-            {
+            {LOGMEIN("BackwardPass.cpp] 2402\n");
                 StackSym * stackSym = this->func->m_symTable->FindStackSym(symId);
                 Assert(stackSym->GetType() == TyVar);
                 StackSym * int32StackSym = stackSym->GetInt32EquivSym(nullptr);
@@ -2413,7 +2413,7 @@ BackwardPass::ProcessBailOutInfo(IR::Instr * instr, BailOutInfo * bailOutInfo)
             tempBv->And(byteCodeUpwardExposedUsed, bailOutInfo->liveFloat64Syms);
             byteCodeUpwardExposedUsed->Minus(tempBv);
             FOREACH_BITSET_IN_SPARSEBV(symId, tempBv)
-            {
+            {LOGMEIN("BackwardPass.cpp] 2415\n");
                 StackSym * stackSym = this->func->m_symTable->FindStackSym(symId);
                 Assert(stackSym->GetType() == TyVar);
                 StackSym * float64StackSym = stackSym->GetFloat64EquivSym(nullptr);
@@ -2432,12 +2432,12 @@ BackwardPass::ProcessBailOutInfo(IR::Instr * instr, BailOutInfo * bailOutInfo)
             tempBv->And(byteCodeUpwardExposedUsed);
             byteCodeUpwardExposedUsed->Minus(tempBv);
             FOREACH_BITSET_IN_SPARSEBV(symId, tempBv)
-            {
+            {LOGMEIN("BackwardPass.cpp] 2434\n");
                 StackSym * stackSym = this->func->m_symTable->FindStackSym(symId);
                 Assert(stackSym->GetType() == TyVar);
                 StackSym * simd128Sym = nullptr;
                 if (bailOutInfo->liveSimd128F4Syms->Test(symId))
-                {
+                {LOGMEIN("BackwardPass.cpp] 2439\n");
                     simd128Sym = stackSym->GetSimd128F4EquivSym(nullptr);
                 }
                 else
@@ -2466,7 +2466,7 @@ BackwardPass::ProcessBailOutInfo(IR::Instr * instr, BailOutInfo * bailOutInfo)
     // Set the argout syms as upward exposed here.
     if (instr->m_opcode == Js::OpCode::BailOnNoProfile && instr->m_func->IsInlinee() &&
         instr->m_func->m_hasInlineArgsOpt && instr->m_func->frameInfo->isRecorded)
-    {
+    {LOGMEIN("BackwardPass.cpp] 2468\n");
         instr->m_func->frameInfo->IterateSyms([=](StackSym* argSym)
         {
             this->currentBlock->upwardExposedUses->Set(argSym->m_id);
@@ -2478,10 +2478,10 @@ BackwardPass::ProcessBailOutInfo(IR::Instr * instr, BailOutInfo * bailOutInfo)
     block->upwardExposedUses->Or(bailoutReferencedArgSymsBv);
 
     if (!this->IsPrePass())
-    {
+    {LOGMEIN("BackwardPass.cpp] 2480\n");
         bailOutInfo->IterateArgOutSyms([=](uint index, uint, StackSym* sym) {
             if (sym->IsArgSlotSym() || bailoutReferencedArgSymsBv->Test(sym->m_id))
-            {
+            {LOGMEIN("BackwardPass.cpp] 2483\n");
                 bailOutInfo->argOutSyms[index]->m_isBailOutReferenced = true;
             }
         });
@@ -2489,44 +2489,44 @@ BackwardPass::ProcessBailOutInfo(IR::Instr * instr, BailOutInfo * bailOutInfo)
     JitAdelete(this->tempAlloc, bailoutReferencedArgSymsBv);
 
     if (this->IsPrePass())
-    {
+    {LOGMEIN("BackwardPass.cpp] 2491\n");
         JitAdelete(this->tempAlloc, byteCodeUpwardExposedUsed);
     }
 }
 
 void
 BackwardPass::ProcessBlock(BasicBlock * block)
-{
+{LOGMEIN("BackwardPass.cpp] 2498\n");
     this->currentBlock = block;
     this->MergeSuccBlocksInfo(block);
 #if DBG_DUMP
     if (this->IsTraceEnabled())
-    {
+    {LOGMEIN("BackwardPass.cpp] 2503\n");
         Output::Print(_u("******************************* Before Process Block *******************************n"));
         DumpBlockData(block);
     }
 #endif
     FOREACH_INSTR_BACKWARD_IN_BLOCK_EDITING(instr, instrPrev, block)
-    {
+    {LOGMEIN("BackwardPass.cpp] 2509\n");
 #if DBG_DUMP
         if (!IsCollectionPass() && IsTraceEnabled() && Js::Configuration::Global.flags.Verbose)
-        {
+        {LOGMEIN("BackwardPass.cpp] 2512\n");
             Output::Print(_u(">>>>>>>>>>>>>>>>>>>>>> %s: Instr Start\n"), tag == Js::BackwardPhase? _u("BACKWARD") : _u("DEADSTORE"));
             instr->Dump();
             if (block->upwardExposedUses)
-            {
+            {LOGMEIN("BackwardPass.cpp] 2516\n");
                 Output::SkipToColumn(10);
                 Output::Print(_u("   Exposed Use: "));
                 block->upwardExposedUses->Dump();
             }
             if (block->upwardExposedFields)
-            {
+            {LOGMEIN("BackwardPass.cpp] 2522\n");
                 Output::SkipToColumn(10);
                 Output::Print(_u("Exposed Fields: "));
                 block->upwardExposedFields->Dump();
             }
             if (block->byteCodeUpwardExposedUsed)
-            {
+            {LOGMEIN("BackwardPass.cpp] 2528\n");
                 Output::SkipToColumn(10);
                 Output::Print(_u(" Byte Code Use: "));
                 block->byteCodeUpwardExposedUsed->Dump();
@@ -2540,7 +2540,7 @@ BackwardPass::ProcessBlock(BasicBlock * block)
         
         IR::Instr * insertedInstr = TryChangeInstrForStackArgOpt();
         if (insertedInstr != nullptr)
-        {
+        {LOGMEIN("BackwardPass.cpp] 2542\n");
             instrPrev = insertedInstr;
             continue;
         }
@@ -2549,19 +2549,19 @@ BackwardPass::ProcessBlock(BasicBlock * block)
         ProcessBailOnStackArgsOutOfActualsRange();
         
         if (ProcessNoImplicitCallUses(instr) || this->ProcessBailOutInfo(instr))
-        {
+        {LOGMEIN("BackwardPass.cpp] 2551\n");
             continue;
         }
 
         IR::Instr *instrNext = instr->m_next;
         if (this->TrackNoImplicitCallInlinees(instr))
-        {
+        {LOGMEIN("BackwardPass.cpp] 2557\n");
             instrPrev = instrNext->m_prev;
             continue;
         }
 
         if (CanDeadStoreInstrForScopeObjRemoval() && DeadStoreOrChangeInstrForScopeObjRemoval(&instrPrev))
-        {
+        {LOGMEIN("BackwardPass.cpp] 2563\n");
             continue;
         }
 
@@ -2569,18 +2569,18 @@ BackwardPass::ProcessBlock(BasicBlock * block)
 
         IR::Opnd * opnd = instr->GetDst();
         if (opnd != nullptr)
-        {
+        {LOGMEIN("BackwardPass.cpp] 2571\n");
             bool isRemoved = ReverseCopyProp(instr);
             if (isRemoved)
-            {
+            {LOGMEIN("BackwardPass.cpp] 2574\n");
                 instrPrev = instrNext->m_prev;
                 continue;
             }
             if (instr->m_opcode == Js::OpCode::Conv_Bool)
-            {
+            {LOGMEIN("BackwardPass.cpp] 2579\n");
                 isRemoved = this->FoldCmBool(instr);
                 if (isRemoved)
-                {
+                {LOGMEIN("BackwardPass.cpp] 2582\n");
                     continue;
                 }
             }
@@ -2591,25 +2591,25 @@ BackwardPass::ProcessBlock(BasicBlock * block)
 
             isRemoved = this->ProcessDef(opnd);
             if (isRemoved)
-            {
+            {LOGMEIN("BackwardPass.cpp] 2593\n");
                 continue;
             }
         }
 
         if(!IsCollectionPass())
-        {
+        {LOGMEIN("BackwardPass.cpp] 2599\n");
             this->MarkTempProcessInstr(instr);
             this->ProcessFieldKills(instr);
 
             if (this->DoDeadStoreSlots()
                 && (instr->HasAnyImplicitCalls() || instr->HasBailOutInfo() || instr->UsesAllFields()))
-            {
+            {LOGMEIN("BackwardPass.cpp] 2605\n");
                 // Can't dead-store slots if there can be an implicit-call, an exception, or a bailout
                 block->slotDeadStoreCandidates->ClearAll();
             }
 
             if (this->DoFieldHoistCandidates())
-            {
+            {LOGMEIN("BackwardPass.cpp] 2611\n");
                 this->ProcessFieldHoistKills(instr);
             }
 
@@ -2621,36 +2621,36 @@ BackwardPass::ProcessBlock(BasicBlock * block)
 
         opnd = instr->GetSrc1();
         if (opnd != nullptr)
-        {
+        {LOGMEIN("BackwardPass.cpp] 2623\n");
             this->ProcessUse(opnd);
 
             opnd = instr->GetSrc2();
             if (opnd != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 2628\n");
                 this->ProcessUse(opnd);
             }
         }
 
         if(IsCollectionPass())
-        {
+        {LOGMEIN("BackwardPass.cpp] 2634\n");
             continue;
         }
 
         if (this->tag == Js::DeadStorePhase)
-        {
+        {LOGMEIN("BackwardPass.cpp] 2639\n");
             switch(instr->m_opcode)
-            {
+            {LOGMEIN("BackwardPass.cpp] 2641\n");
                 case Js::OpCode::LdSlot:
-                {
+                {LOGMEIN("BackwardPass.cpp] 2643\n");
                     DeadStoreOrChangeInstrForScopeObjRemoval(&instrPrev);
                     break;
                 }
                 case Js::OpCode::InlineArrayPush:
                 case Js::OpCode::InlineArrayPop:
-                {
+                {LOGMEIN("BackwardPass.cpp] 2649\n");
                     IR::Opnd *const thisOpnd = instr->GetSrc1();
                     if(thisOpnd && thisOpnd->IsRegOpnd())
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 2652\n");
                         IR::RegOpnd *const thisRegOpnd = thisOpnd->AsRegOpnd();
                         if(thisRegOpnd->IsArrayRegOpnd())
                         {
@@ -2663,9 +2663,9 @@ BackwardPass::ProcessBlock(BasicBlock * block)
 
             #if !INT32VAR // the following is not valid on 64-bit platforms
                 case Js::OpCode::BoundCheck:
-                {
+                {LOGMEIN("BackwardPass.cpp] 2665\n");
                     if(IsPrePass())
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 2667\n");
                         break;
                     }
 
@@ -2689,14 +2689,14 @@ BackwardPass::ProcessBlock(BasicBlock * block)
                         !instr->GetSrc1()->IsInt32() ||
                         !instr->GetSrc2() ||
                         instr->GetSrc2()->IsIntConstOpnd())
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 2691\n");
                         break;
                     }
                     if(instr->GetDst())
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 2695\n");
                         const int c = instr->GetDst()->AsIntConstOpnd()->GetValue();
                         if(c != 0 && c != -1)
-                        {
+                        {LOGMEIN("BackwardPass.cpp] 2698\n");
                             break;
                         }
                     }
@@ -2710,7 +2710,7 @@ BackwardPass::ProcessBlock(BasicBlock * block)
                         !lowerBoundCheck->GetSrc2() ||
                         !instr->GetSrc1()->AsRegOpnd()->IsEqual(lowerBoundCheck->GetSrc2()) ||
                         lowerBoundCheck->GetDst() && lowerBoundCheck->GetDst()->AsIntConstOpnd()->GetValue() != 0)
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 2712\n");
                         break;
                     }
 
@@ -2728,7 +2728,7 @@ BackwardPass::ProcessBlock(BasicBlock * block)
             DeadStoreImplicitCallBailOut(instr, hasLiveFields);
 
             if (block->stackSymToFinalType != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 2730\n");
                 this->InsertTypeTransitionsAtPotentialKills();
             }
 
@@ -2752,9 +2752,9 @@ BackwardPass::ProcessBlock(BasicBlock * block)
         else
         {
             switch (instr->m_opcode)
-            {
+            {LOGMEIN("BackwardPass.cpp] 2754\n");
                 case Js::OpCode::BailOnNoProfile:
-                {
+                {LOGMEIN("BackwardPass.cpp] 2756\n");
                     this->ProcessBailOnNoProfile(instr, block);
                     // this call could change the last instr of the previous block...  Adjust instrStop.
                     instrStop = block->GetFirstInstr()->m_prev;
@@ -2762,9 +2762,9 @@ BackwardPass::ProcessBlock(BasicBlock * block)
                     continue;
                 }
                 case Js::OpCode::Catch:
-                {
+                {LOGMEIN("BackwardPass.cpp] 2764\n");
                     if (this->func->DoOptimizeTryCatch() && !this->IsPrePass())
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 2766\n");
                         // Execute the "Catch" in the JIT'ed code, and bailout to the next instruction. This way, the bailout will restore the exception object automatically.
                         IR::BailOutInstr* bailOnException = IR::BailOutInstr::New(Js::OpCode::BailOnException, IR::BailOutOnException, instr->m_next, instr->m_func);
                         instr->InsertAfter(bailOnException);
@@ -2786,14 +2786,14 @@ BackwardPass::ProcessBlock(BasicBlock * block)
         }
 
         if (instr->m_opcode == Js::OpCode::InlineeEnd)
-        {
+        {LOGMEIN("BackwardPass.cpp] 2788\n");
             this->ProcessInlineeEnd(instr);
         }
 
         if (instr->IsLabelInstr() && instr->m_next->m_opcode == Js::OpCode::Catch)
-        {
+        {LOGMEIN("BackwardPass.cpp] 2793\n");
             if (!this->currentRegion)
-            {
+            {LOGMEIN("BackwardPass.cpp] 2795\n");
                 Assert(!this->func->DoOptimizeTryCatch() && !(this->func->IsSimpleJit() && this->func->hasBailout));
             }
             else
@@ -2805,9 +2805,9 @@ BackwardPass::ProcessBlock(BasicBlock * block)
                 // We need live-on-back-edge info to accurately set write-through symbols for try-catches in a loop.
                 // Don't set write-through symbols in pre-pass
                 if (!this->IsPrePass() && !matchingTryRegion->writeThroughSymbolsSet)
-                {
+                {LOGMEIN("BackwardPass.cpp] 2807\n");
                     if (this->tag == Js::DeadStorePhase)
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 2809\n");
                         Assert(!this->func->DoGlobOpt());
                     }
                     // FullJit: Write-through symbols info must be populated in the backward pass as
@@ -2824,9 +2824,9 @@ BackwardPass::ProcessBlock(BasicBlock * block)
         }
 #if DBG
         if (instr->m_opcode == Js::OpCode::TryCatch)
-        {
+        {LOGMEIN("BackwardPass.cpp] 2826\n");
             if (!this->IsPrePass() && (this->func->DoOptimizeTryCatch() || (this->func->IsSimpleJit() && this->func->hasBailout)))
-            {
+            {LOGMEIN("BackwardPass.cpp] 2828\n");
                 Assert(instr->m_next->IsLabelInstr() && (instr->m_next->AsLabelInstr()->GetRegion() != nullptr));
                 Region * tryRegion = instr->m_next->AsLabelInstr()->GetRegion();
                 Assert(tryRegion->writeThroughSymbolsSet);
@@ -2837,23 +2837,23 @@ BackwardPass::ProcessBlock(BasicBlock * block)
 
 #if DBG_DUMP
         if (!IsCollectionPass() && IsTraceEnabled() && Js::Configuration::Global.flags.Verbose)
-        {
+        {LOGMEIN("BackwardPass.cpp] 2839\n");
             Output::Print(_u("-------------------\n"));
             instr->Dump();
             if (block->upwardExposedUses)
-            {
+            {LOGMEIN("BackwardPass.cpp] 2843\n");
                 Output::SkipToColumn(10);
                 Output::Print(_u("   Exposed Use: "));
                 block->upwardExposedUses->Dump();
             }
             if (block->upwardExposedFields)
-            {
+            {LOGMEIN("BackwardPass.cpp] 2849\n");
                 Output::SkipToColumn(10);
                 Output::Print(_u("Exposed Fields: "));
                 block->upwardExposedFields->Dump();
             }
             if (block->byteCodeUpwardExposedUsed)
-            {
+            {LOGMEIN("BackwardPass.cpp] 2855\n");
                 Output::SkipToColumn(10);
                 Output::Print(_u(" Byte Code Use: "));
                 block->byteCodeUpwardExposedUsed->Dump();
@@ -2867,13 +2867,13 @@ BackwardPass::ProcessBlock(BasicBlock * block)
     EndIntOverflowDoesNotMatterRange();
 
     if (this->DoFieldHoistCandidates() && !block->isDead && block->isLoopHeader)
-    {
+    {LOGMEIN("BackwardPass.cpp] 2869\n");
         Assert(block->loop->fieldHoistCandidates == nullptr);
         block->loop->fieldHoistCandidates = block->fieldHoistCandidates->CopyNew(this->func->m_alloc);
     }
 
     if (!this->IsPrePass() && !block->isDead && block->isLoopHeader)
-    {
+    {LOGMEIN("BackwardPass.cpp] 2875\n");
         // Copy the upward exposed use as the live on back edge regs
         block->loop->regAlloc.liveOnBackEdgeSyms = block->upwardExposedUses->CopyNew(this->func->m_alloc);
     }
@@ -2882,7 +2882,7 @@ BackwardPass::ProcessBlock(BasicBlock * block)
 
 #if DBG_DUMP
     if (this->IsTraceEnabled())
-    {
+    {LOGMEIN("BackwardPass.cpp] 2884\n");
         Output::Print(_u("******************************* After Process Block *******************************n"));
         DumpBlockData(block);
     }
@@ -2891,17 +2891,17 @@ BackwardPass::ProcessBlock(BasicBlock * block)
 
 bool 
 BackwardPass::CanDeadStoreInstrForScopeObjRemoval(Sym *sym) const
-{
+{LOGMEIN("BackwardPass.cpp] 2893\n");
     if (tag == Js::DeadStorePhase && this->currentInstr->m_func->IsStackArgsEnabled())
-    {
+    {LOGMEIN("BackwardPass.cpp] 2895\n");
         Func * currFunc = this->currentInstr->m_func;
         bool doScopeObjCreation = currFunc->GetJITFunctionBody()->GetDoScopeObjectCreation();
         switch (this->currentInstr->m_opcode)
-        {
+        {LOGMEIN("BackwardPass.cpp] 2899\n");
             case Js::OpCode::InitCachedScope:
-            {
+            {LOGMEIN("BackwardPass.cpp] 2901\n");
                 if(!doScopeObjCreation && this->currentInstr->GetDst()->IsScopeObjOpnd(currFunc))
-                {
+                {LOGMEIN("BackwardPass.cpp] 2903\n");
                     /*
                     *   We don't really dead store this instruction. We just want the source sym of this instruction
                     *   to NOT be tracked as USED by this instruction.
@@ -2912,27 +2912,27 @@ BackwardPass::CanDeadStoreInstrForScopeObjRemoval(Sym *sym) const
                 break;
             }
             case Js::OpCode::LdSlot:
-            {
+            {LOGMEIN("BackwardPass.cpp] 2914\n");
                 if (sym && IsFormalParamSym(currFunc, sym))
-                {
+                {LOGMEIN("BackwardPass.cpp] 2916\n");
                     return true;
                 }
                 break;
             }
             case Js::OpCode::CommitScope:
             case Js::OpCode::GetCachedFunc:
-            {
+            {LOGMEIN("BackwardPass.cpp] 2923\n");
                 return !doScopeObjCreation && this->currentInstr->GetSrc1()->IsScopeObjOpnd(currFunc);
             }
             case Js::OpCode::BrFncCachedScopeEq:
             case Js::OpCode::BrFncCachedScopeNeq:
-            {
+            {LOGMEIN("BackwardPass.cpp] 2928\n");
                 return !doScopeObjCreation && this->currentInstr->GetSrc2()->IsScopeObjOpnd(currFunc);
             }
             case Js::OpCode::CallHelper:
-            {
+            {LOGMEIN("BackwardPass.cpp] 2932\n");
                 if (!doScopeObjCreation && this->currentInstr->GetSrc1()->AsHelperCallOpnd()->m_fnHelper == IR::JnHelperMethod::HelperOP_InitCachedFuncs)
-                {
+                {LOGMEIN("BackwardPass.cpp] 2934\n");
                     IR::RegOpnd * scopeObjOpnd = this->currentInstr->GetSrc2()->GetStackSym()->GetInstrDef()->GetSrc1()->AsRegOpnd();
                     return scopeObjOpnd->IsScopeObjOpnd(currFunc);
                 }
@@ -2948,28 +2948,28 @@ BackwardPass::CanDeadStoreInstrForScopeObjRemoval(Sym *sym) const
 */
 bool
 BackwardPass::DeadStoreOrChangeInstrForScopeObjRemoval(IR::Instr ** pInstrPrev)
-{
+{LOGMEIN("BackwardPass.cpp] 2950\n");
     IR::Instr * instr = this->currentInstr;
     Func * currFunc = instr->m_func;
 
     if (this->tag == Js::DeadStorePhase && instr->m_func->IsStackArgsEnabled() && !IsPrePass())
-    {
+    {LOGMEIN("BackwardPass.cpp] 2955\n");
         switch (instr->m_opcode)
-        {
+        {LOGMEIN("BackwardPass.cpp] 2957\n");
             /*
             *   This LdSlot loads the formal from the formals array. We replace this a Ld_A <ArgInSym>.
             *   ArgInSym is inserted at the beginning of the function during the start of the deadstore pass- for the top func.
             *   In case of inlinee, it will be from the source sym of the ArgOut Instruction to the inlinee.
             */
             case Js::OpCode::LdSlot:
-            {
+            {LOGMEIN("BackwardPass.cpp] 2964\n");
                 IR::Opnd * src1 = instr->GetSrc1();
                 if (src1 && src1->IsSymOpnd())
-                {
+                {LOGMEIN("BackwardPass.cpp] 2967\n");
                     Sym * sym = src1->AsSymOpnd()->m_sym;
                     Assert(sym);
                     if (IsFormalParamSym(currFunc, sym))
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 2971\n");
                         AssertMsg(!currFunc->GetJITFunctionBody()->HasImplicitArgIns(), "We don't have mappings between named formals and arguments object here");
 
                         instr->m_opcode = Js::OpCode::Ld_A;
@@ -2983,7 +2983,7 @@ BackwardPass::DeadStoreOrChangeInstrForScopeObjRemoval(IR::Instr ** pInstrPrev)
                         this->ProcessSymUse(paramStackSym, true, true);
 
                         if (PHASE_VERBOSE_TRACE1(Js::StackArgFormalsOptPhase))
-                        {
+                        {LOGMEIN("BackwardPass.cpp] 2985\n");
                             Output::Print(_u("StackArgFormals : %s (%d) :Replacing LdSlot with Ld_A in Deadstore pass. \n"), instr->m_func->GetJITFunctionBody()->GetDisplayName(), instr->m_func->GetFunctionNumber());
                             Output::Flush();
                         }
@@ -2992,9 +2992,9 @@ BackwardPass::DeadStoreOrChangeInstrForScopeObjRemoval(IR::Instr ** pInstrPrev)
                 break;
             }
             case Js::OpCode::CommitScope:
-            {
+            {LOGMEIN("BackwardPass.cpp] 2994\n");
                 if (instr->GetSrc1()->IsScopeObjOpnd(currFunc))
-                {
+                {LOGMEIN("BackwardPass.cpp] 2996\n");
                     instr->Remove();
                     return true;
                 }
@@ -3002,30 +3002,30 @@ BackwardPass::DeadStoreOrChangeInstrForScopeObjRemoval(IR::Instr ** pInstrPrev)
             }
             case Js::OpCode::BrFncCachedScopeEq:
             case Js::OpCode::BrFncCachedScopeNeq:
-            {
+            {LOGMEIN("BackwardPass.cpp] 3004\n");
                 if (instr->GetSrc2()->IsScopeObjOpnd(currFunc))
-                {
+                {LOGMEIN("BackwardPass.cpp] 3006\n");
                     instr->Remove();
                     return true;
                 }
                 break;
             }
             case Js::OpCode::CallHelper:
-            {
+            {LOGMEIN("BackwardPass.cpp] 3013\n");
                 //Remove the CALL and all its Argout instrs.
                 if (instr->GetSrc1()->AsHelperCallOpnd()->m_fnHelper == IR::JnHelperMethod::HelperOP_InitCachedFuncs)
-                {
+                {LOGMEIN("BackwardPass.cpp] 3016\n");
                     IR::RegOpnd * scopeObjOpnd = instr->GetSrc2()->GetStackSym()->GetInstrDef()->GetSrc1()->AsRegOpnd();
                     if (scopeObjOpnd->IsScopeObjOpnd(currFunc))
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 3019\n");
                         IR::Instr * instrDef = instr;
                         IR::Instr * nextInstr = instr->m_next;
 
                         while (instrDef != nullptr)
-                        {
+                        {LOGMEIN("BackwardPass.cpp] 3024\n");
                             IR::Instr * instrToDelete = instrDef;
                             if (instrDef->GetSrc2() != nullptr)
-                            {
+                            {LOGMEIN("BackwardPass.cpp] 3027\n");
                                 instrDef = instrDef->GetSrc2()->GetStackSym()->GetInstrDef();
                                 Assert(instrDef->m_opcode == Js::OpCode::ArgOut_A);
                             }
@@ -3043,13 +3043,13 @@ BackwardPass::DeadStoreOrChangeInstrForScopeObjRemoval(IR::Instr ** pInstrPrev)
                 break;
             }
             case Js::OpCode::GetCachedFunc:
-            {
+            {LOGMEIN("BackwardPass.cpp] 3045\n");
                 // <dst> = GetCachedFunc <scopeObject>, <functionNum>
                 // is converted to 
                 // <dst> = NewScFunc <functionNum>, <env: FrameDisplay>
 
                 if (instr->GetSrc1()->IsScopeObjOpnd(currFunc))
-                {
+                {LOGMEIN("BackwardPass.cpp] 3051\n");
                     instr->m_opcode = Js::OpCode::NewScFunc;
                     IR::Opnd * intConstOpnd = instr->UnlinkSrc2();
 
@@ -3065,14 +3065,14 @@ BackwardPass::DeadStoreOrChangeInstrForScopeObjRemoval(IR::Instr ** pInstrPrev)
 
 IR::Instr *
 BackwardPass::TryChangeInstrForStackArgOpt()
-{
+{LOGMEIN("BackwardPass.cpp] 3067\n");
     IR::Instr * instr = this->currentInstr;
     if (tag == Js::DeadStorePhase && instr->DoStackArgsOpt(this->func))
-    {
+    {LOGMEIN("BackwardPass.cpp] 3070\n");
         switch (instr->m_opcode)
-        {
+        {LOGMEIN("BackwardPass.cpp] 3072\n");
             case Js::OpCode::TypeofElem:
-            {
+            {LOGMEIN("BackwardPass.cpp] 3074\n");
                 /*
                     Before:
                         dst = TypeOfElem arguments[i] <(BailOnStackArgsOutOfActualsRange)>
@@ -3109,7 +3109,7 @@ BackwardPass::TryChangeInstrForStackArgOpt()
     */
 
     if (tag == Js::BackwardPhase && instr->m_func->GetScopeObjSym() != nullptr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 3111\n");
         this->currentBlock->upwardExposedUses->Set(instr->m_func->GetScopeObjSym()->m_id);
     }
 
@@ -3118,15 +3118,15 @@ BackwardPass::TryChangeInstrForStackArgOpt()
 
 void
 BackwardPass::TraceDeadStoreOfInstrsForScopeObjectRemoval()
-{
+{LOGMEIN("BackwardPass.cpp] 3120\n");
     IR::Instr * instr = this->currentInstr;
 
     if (instr->m_func->IsStackArgsEnabled())
-    {
+    {LOGMEIN("BackwardPass.cpp] 3124\n");
         if ((instr->m_opcode == Js::OpCode::InitCachedScope || instr->m_opcode == Js::OpCode::NewScopeObject) && !IsPrePass())
-        {
+        {LOGMEIN("BackwardPass.cpp] 3126\n");
             if (PHASE_TRACE1(Js::StackArgFormalsOptPhase))
-            {
+            {LOGMEIN("BackwardPass.cpp] 3128\n");
                 Output::Print(_u("StackArgFormals : %s (%d) :Removing Scope object creation in Deadstore pass. \n"), instr->m_func->GetJITFunctionBody()->GetDisplayName(), instr->m_func->GetFunctionNumber());
                 Output::Flush();
             }
@@ -3136,11 +3136,11 @@ BackwardPass::TraceDeadStoreOfInstrsForScopeObjectRemoval()
 
 bool
 BackwardPass::IsFormalParamSym(Func * func, Sym * sym) const
-{
+{LOGMEIN("BackwardPass.cpp] 3138\n");
     Assert(sym);
     
     if (sym->IsPropertySym())
-    {
+    {LOGMEIN("BackwardPass.cpp] 3142\n");
         //If the sym is a propertySym, then see if the propertyId is within the range of the formals 
         //We can have other properties stored in the scope object other than the formals (following the formals).
         PropertySym * propSym = sym->AsPropertySym();
@@ -3158,38 +3158,38 @@ BackwardPass::IsFormalParamSym(Func * func, Sym * sym) const
 #if DBG_DUMP
 void
 BackwardPass::DumpBlockData(BasicBlock * block)
-{
+{LOGMEIN("BackwardPass.cpp] 3160\n");
     block->DumpHeader();
     if (block->upwardExposedUses) // may be null for dead blocks
-    {
+    {LOGMEIN("BackwardPass.cpp] 3163\n");
         Output::Print(_u("             Exposed Uses: "));
         block->upwardExposedUses->Dump();
     }
 
     if (block->typesNeedingKnownObjectLayout)
-    {
+    {LOGMEIN("BackwardPass.cpp] 3169\n");
         Output::Print(_u("            Needs Known Object Layout: "));
         block->typesNeedingKnownObjectLayout->Dump();
     }
 
     if (this->DoFieldHoistCandidates() && !block->isDead)
-    {
+    {LOGMEIN("BackwardPass.cpp] 3175\n");
         Output::Print(_u("            Exposed Field: "));
         block->fieldHoistCandidates->Dump();
     }
 
     if (block->byteCodeUpwardExposedUsed)
-    {
+    {LOGMEIN("BackwardPass.cpp] 3181\n");
         Output::Print(_u("   Byte Code Exposed Uses: "));
         block->byteCodeUpwardExposedUsed->Dump();
     }
 
     if (!this->IsCollectionPass())
-    {
+    {LOGMEIN("BackwardPass.cpp] 3187\n");
         if (!block->isDead)
-        {
+        {LOGMEIN("BackwardPass.cpp] 3189\n");
             if (this->DoDeadStoreSlots())
-            {
+            {LOGMEIN("BackwardPass.cpp] 3191\n");
                 Output::Print(_u("Slot deadStore candidates: "));
                 block->slotDeadStoreCandidates->Dump();
             }
@@ -3202,7 +3202,7 @@ BackwardPass::DumpBlockData(BasicBlock * block)
 
 bool
 BackwardPass::UpdateImplicitCallBailOutKind(IR::Instr *const instr, bool needsBailOutOnImplicitCall)
-{
+{LOGMEIN("BackwardPass.cpp] 3204\n");
     Assert(instr);
     Assert(instr->HasBailOutInfo());
 
@@ -3210,7 +3210,7 @@ BackwardPass::UpdateImplicitCallBailOutKind(IR::Instr *const instr, bool needsBa
 
     const IR::BailOutKind instrBailOutKind = instr->GetBailOutKind();
     if (instrBailOutKind & IR::BailOutMarkTempObject)
-    {
+    {LOGMEIN("BackwardPass.cpp] 3212\n");
         // Don't remove the implicit call pre op bailout for mark temp object
         // Remove the mark temp object bit, as we don't need it after the dead store pass
         instr->SetBailOutKind(instrBailOutKind & ~IR::BailOutMarkTempObject);
@@ -3219,14 +3219,14 @@ BackwardPass::UpdateImplicitCallBailOutKind(IR::Instr *const instr, bool needsBa
 
     const IR::BailOutKind instrImplicitCallBailOutKind = instrBailOutKind & ~IR::BailOutKindBits;
     if(instrImplicitCallBailOutKind == IR::BailOutOnImplicitCallsPreOp)
-    {
+    {LOGMEIN("BackwardPass.cpp] 3221\n");
         if(needsBailOutOnImplicitCall)
-        {
+        {LOGMEIN("BackwardPass.cpp] 3223\n");
             implicitCallBailOutKind = IR::BailOutOnImplicitCallsPreOp;
         }
     }
     else if(instrImplicitCallBailOutKind != IR::BailOutOnImplicitCalls && instrImplicitCallBailOutKind != IR::BailOutInvalid)
-    {
+    {LOGMEIN("BackwardPass.cpp] 3228\n");
         // This bailout kind (the value of 'instrImplicitCallBailOutKind') must guarantee that implicit calls will not happen.
         // If it doesn't make such a guarantee, it must be possible to merge this bailout kind with an implicit call bailout
         // kind, and therefore should be part of BailOutKindBits.
@@ -3235,13 +3235,13 @@ BackwardPass::UpdateImplicitCallBailOutKind(IR::Instr *const instr, bool needsBa
     }
 
     if(instrImplicitCallBailOutKind == implicitCallBailOutKind)
-    {
+    {LOGMEIN("BackwardPass.cpp] 3237\n");
         return true;
     }
 
     const IR::BailOutKind newBailOutKind = instrBailOutKind - instrImplicitCallBailOutKind + implicitCallBailOutKind;
     if(newBailOutKind == IR::BailOutInvalid)
-    {
+    {LOGMEIN("BackwardPass.cpp] 3243\n");
         return false;
     }
 
@@ -3251,11 +3251,11 @@ BackwardPass::UpdateImplicitCallBailOutKind(IR::Instr *const instr, bool needsBa
 
 bool
 BackwardPass::ProcessNoImplicitCallUses(IR::Instr *const instr)
-{
+{LOGMEIN("BackwardPass.cpp] 3253\n");
     Assert(instr);
 
     if(instr->m_opcode != Js::OpCode::NoImplicitCallUses)
-    {
+    {LOGMEIN("BackwardPass.cpp] 3257\n");
         return false;
     }
     Assert(tag == Js::DeadStorePhase);
@@ -3265,29 +3265,29 @@ BackwardPass::ProcessNoImplicitCallUses(IR::Instr *const instr)
     Assert(!instr->GetSrc2() || instr->GetSrc2()->IsRegOpnd() || instr->GetSrc2()->IsSymOpnd());
 
     if(IsCollectionPass())
-    {
+    {LOGMEIN("BackwardPass.cpp] 3267\n");
         return true;
     }
 
     IR::Opnd *const srcs[] = { instr->GetSrc1(), instr->GetSrc2() };
     for(int i = 0; i < sizeof(srcs) / sizeof(srcs[0]) && srcs[i]; ++i)
-    {
+    {LOGMEIN("BackwardPass.cpp] 3273\n");
         IR::Opnd *const src = srcs[i];
         IR::ArrayRegOpnd *arraySrc = nullptr;
         Sym *sym;
         switch(src->GetKind())
-        {
+        {LOGMEIN("BackwardPass.cpp] 3278\n");
             case IR::OpndKindReg:
-            {
+            {LOGMEIN("BackwardPass.cpp] 3280\n");
                 IR::RegOpnd *const regSrc = src->AsRegOpnd();
                 sym = regSrc->m_sym;
                 if(considerSymAsRealUseInNoImplicitCallUses && considerSymAsRealUseInNoImplicitCallUses == sym)
-                {
+                {LOGMEIN("BackwardPass.cpp] 3284\n");
                     considerSymAsRealUseInNoImplicitCallUses = nullptr;
                     ProcessStackSymUse(sym->AsStackSym(), true);
                 }
                 if(regSrc->IsArrayRegOpnd())
-                {
+                {LOGMEIN("BackwardPass.cpp] 3289\n");
                     arraySrc = regSrc->AsArrayRegOpnd();
                 }
                 break;
@@ -3306,13 +3306,13 @@ BackwardPass::ProcessNoImplicitCallUses(IR::Instr *const instr)
         currentBlock->noImplicitCallUses->Set(sym->m_id);
         const ValueType valueType(src->GetValueType());
         if(valueType.IsArrayOrObjectWithArray())
-        {
+        {LOGMEIN("BackwardPass.cpp] 3308\n");
             if(valueType.HasNoMissingValues())
-            {
+            {LOGMEIN("BackwardPass.cpp] 3310\n");
                 currentBlock->noImplicitCallNoMissingValuesUses->Set(sym->m_id);
             }
             if(!valueType.HasVarElements())
-            {
+            {LOGMEIN("BackwardPass.cpp] 3314\n");
                 currentBlock->noImplicitCallNativeArrayUses->Set(sym->m_id);
             }
             if(arraySrc)
@@ -3323,7 +3323,7 @@ BackwardPass::ProcessNoImplicitCallUses(IR::Instr *const instr)
     }
 
     if(!IsPrePass())
-    {
+    {LOGMEIN("BackwardPass.cpp] 3325\n");
         currentBlock->RemoveInstr(instr);
     }
     return true;
@@ -3331,19 +3331,19 @@ BackwardPass::ProcessNoImplicitCallUses(IR::Instr *const instr)
 
 void
 BackwardPass::ProcessNoImplicitCallDef(IR::Instr *const instr)
-{
+{LOGMEIN("BackwardPass.cpp] 3333\n");
     Assert(tag == Js::DeadStorePhase);
     Assert(instr);
 
     IR::Opnd *const dst = instr->GetDst();
     if(!dst)
-    {
+    {LOGMEIN("BackwardPass.cpp] 3339\n");
         return;
     }
 
     Sym *dstSym;
     switch(dst->GetKind())
-    {
+    {LOGMEIN("BackwardPass.cpp] 3345\n");
         case IR::OpndKindReg:
             dstSym = dst->AsRegOpnd()->m_sym;
             break;
@@ -3351,7 +3351,7 @@ BackwardPass::ProcessNoImplicitCallDef(IR::Instr *const instr)
         case IR::OpndKindSym:
             dstSym = dst->AsSymOpnd()->m_sym;
             if(!dstSym->IsPropertySym())
-            {
+            {LOGMEIN("BackwardPass.cpp] 3353\n");
                 return;
             }
             break;
@@ -3361,7 +3361,7 @@ BackwardPass::ProcessNoImplicitCallDef(IR::Instr *const instr)
     }
 
     if(!currentBlock->noImplicitCallUses->TestAndClear(dstSym->m_id))
-    {
+    {LOGMEIN("BackwardPass.cpp] 3363\n");
         Assert(!currentBlock->noImplicitCallNoMissingValuesUses->Test(dstSym->m_id));
         Assert(!currentBlock->noImplicitCallNativeArrayUses->Test(dstSym->m_id));
         Assert(!currentBlock->noImplicitCallJsArrayHeadSegmentSymUses->Test(dstSym->m_id));
@@ -3376,13 +3376,13 @@ BackwardPass::ProcessNoImplicitCallDef(IR::Instr *const instr)
 
     IR::Opnd *const src = instr->GetSrc1();
     if(!src || instr->GetSrc2())
-    {
+    {LOGMEIN("BackwardPass.cpp] 3378\n");
         return;
     }
     if(dst->IsRegOpnd() && src->IsRegOpnd())
-    {
+    {LOGMEIN("BackwardPass.cpp] 3382\n");
         if(!OpCodeAttr::NonIntTransfer(instr->m_opcode))
-        {
+        {LOGMEIN("BackwardPass.cpp] 3384\n");
             return;
         }
     }
@@ -3398,13 +3398,13 @@ BackwardPass::ProcessNoImplicitCallDef(IR::Instr *const instr)
             (src->IsRegOpnd() && dst->GetValueType().IsArrayOrObjectWithArray())
         ) ||
         !GlobOpt::TransferSrcValue(instr))
-    {
+    {LOGMEIN("BackwardPass.cpp] 3400\n");
         return;
     }
 
     Sym *srcSym;
     switch(src->GetKind())
-    {
+    {LOGMEIN("BackwardPass.cpp] 3406\n");
         case IR::OpndKindReg:
             srcSym = src->AsRegOpnd()->m_sym;
             break;
@@ -3421,19 +3421,19 @@ BackwardPass::ProcessNoImplicitCallDef(IR::Instr *const instr)
 
     currentBlock->noImplicitCallUses->Set(srcSym->m_id);
     if(transferNoMissingValuesUse)
-    {
+    {LOGMEIN("BackwardPass.cpp] 3423\n");
         currentBlock->noImplicitCallNoMissingValuesUses->Set(srcSym->m_id);
     }
     if(transferNativeArrayUse)
-    {
+    {LOGMEIN("BackwardPass.cpp] 3427\n");
         currentBlock->noImplicitCallNativeArrayUses->Set(srcSym->m_id);
     }
     if(transferJsArrayHeadSegmentSymUse)
-    {
+    {LOGMEIN("BackwardPass.cpp] 3431\n");
         currentBlock->noImplicitCallJsArrayHeadSegmentSymUses->Set(srcSym->m_id);
     }
     if(transferArrayLengthSymUse)
-    {
+    {LOGMEIN("BackwardPass.cpp] 3435\n");
         currentBlock->noImplicitCallArrayLengthSymUses->Set(srcSym->m_id);
     }
 }
@@ -3445,7 +3445,7 @@ BackwardPass::FindNoImplicitCallUse(
     StackSym *const sym,
     const F IsCheckedUse,
     IR::Instr * *const noImplicitCallUsesInstrRef)
-{
+{LOGMEIN("BackwardPass.cpp] 3447\n");
     IR::RegOpnd *const opnd = IR::RegOpnd::New(sym, sym->GetType(), instr->m_func);
     IR::Opnd *const use = FindNoImplicitCallUse(instr, opnd, IsCheckedUse, noImplicitCallUsesInstrRef);
     opnd->FreeInternal(instr->m_func);
@@ -3459,7 +3459,7 @@ BackwardPass::FindNoImplicitCallUse(
     IR::Opnd *const opnd,
     const F IsCheckedUse,
     IR::Instr * *const noImplicitCallUsesInstrRef)
-{
+{LOGMEIN("BackwardPass.cpp] 3461\n");
     Assert(instr);
     Assert(instr->m_opcode != Js::OpCode::NoImplicitCallUses);
 
@@ -3470,21 +3470,21 @@ BackwardPass::FindNoImplicitCallUse(
         !prevInstr->IsLabelInstr() &&
         (!prevInstr->IsRealInstr() || prevInstr->IsByteCodeUsesInstr()) &&
         prevInstr->m_opcode != Js::OpCode::NoImplicitCallUses)
-    {
+    {LOGMEIN("BackwardPass.cpp] 3472\n");
         prevInstr = prevInstr->m_prev;
     }
 
     // Find the corresponding use in a NoImplicitCallUses instruction
     for(; prevInstr && prevInstr->m_opcode == Js::OpCode::NoImplicitCallUses; prevInstr = prevInstr->m_prev)
-    {
+    {LOGMEIN("BackwardPass.cpp] 3478\n");
         IR::Opnd *const checkedSrcs[] = { prevInstr->GetSrc1(), prevInstr->GetSrc2() };
         for(int i = 0; i < sizeof(checkedSrcs) / sizeof(checkedSrcs[0]) && checkedSrcs[i]; ++i)
-        {
+        {LOGMEIN("BackwardPass.cpp] 3481\n");
             IR::Opnd *const checkedSrc = checkedSrcs[i];
             if(checkedSrc->IsEqual(opnd) && IsCheckedUse(checkedSrc))
-            {
+            {LOGMEIN("BackwardPass.cpp] 3484\n");
                 if(noImplicitCallUsesInstrRef)
-                {
+                {LOGMEIN("BackwardPass.cpp] 3486\n");
                     *noImplicitCallUsesInstrRef = prevInstr;
                 }
                 return checkedSrc;
@@ -3493,7 +3493,7 @@ BackwardPass::FindNoImplicitCallUse(
     }
 
     if(noImplicitCallUsesInstrRef)
-    {
+    {LOGMEIN("BackwardPass.cpp] 3495\n");
         *noImplicitCallUsesInstrRef = nullptr;
     }
     return nullptr;
@@ -3501,14 +3501,14 @@ BackwardPass::FindNoImplicitCallUse(
 
 void
 BackwardPass::ProcessArrayRegOpndUse(IR::Instr *const instr, IR::ArrayRegOpnd *const arrayRegOpnd)
-{
+{LOGMEIN("BackwardPass.cpp] 3503\n");
     Assert(tag == Js::DeadStorePhase);
     Assert(!IsCollectionPass());
     Assert(instr);
     Assert(arrayRegOpnd);
 
     if(!(arrayRegOpnd->HeadSegmentSym() || arrayRegOpnd->HeadSegmentLengthSym() || arrayRegOpnd->LengthSym()))
-    {
+    {LOGMEIN("BackwardPass.cpp] 3510\n");
         return;
     }
 
@@ -3521,7 +3521,7 @@ BackwardPass::ProcessArrayRegOpndUse(IR::Instr *const instr, IR::ArrayRegOpnd *c
     if(!IsPrePass() &&
         (arrayRegOpnd->HeadSegmentSym() || arrayRegOpnd->HeadSegmentLengthSym()) &&
         (!isJsArray || instr->m_opcode != Js::OpCode::NoImplicitCallUses))
-    {
+    {LOGMEIN("BackwardPass.cpp] 3523\n");
         bool headSegmentIsLoadedButUnused =
             instr->loadedArrayHeadSegment &&
             arrayRegOpnd->HeadSegmentSym() &&
@@ -3531,7 +3531,7 @@ BackwardPass::ProcessArrayRegOpndUse(IR::Instr *const instr, IR::ArrayRegOpnd *c
             arrayRegOpnd->HeadSegmentLengthSym() &&
             !block->upwardExposedUses->Test(arrayRegOpnd->HeadSegmentLengthSym()->m_id);
         if(headSegmentLengthIsLoadedButUnused && instr->extractedUpperBoundCheckWithoutHoisting)
-        {
+        {LOGMEIN("BackwardPass.cpp] 3533\n");
             // Find the upper bound check (index[src1] <= headSegmentLength[src2] + offset[dst])
             IR::Instr *upperBoundCheck = this->globOpt->FindUpperBoundsCheckInstr(instr);
             Assert(upperBoundCheck && upperBoundCheck != instr);
@@ -3551,19 +3551,19 @@ BackwardPass::ProcessArrayRegOpndUse(IR::Instr *const instr, IR::ArrayRegOpnd *c
             headSegmentLengthLoad->m_opcode = Js::OpCode::Nop;
 
             if(isJsArray)
-            {
+            {LOGMEIN("BackwardPass.cpp] 3553\n");
                 // The head segment length is on the head segment, so the bound check now uses the head segment sym
                 headSegmentIsLoadedButUnused = false;
             }
         }
 
         if(headSegmentIsLoadedButUnused || headSegmentLengthIsLoadedButUnused)
-        {
+        {LOGMEIN("BackwardPass.cpp] 3560\n");
             // Check if the head segment / head segment length are being loaded here. If so, remove them and let the fast
             // path load them since it does a better job.
             IR::ArrayRegOpnd *noImplicitCallArrayUse = nullptr;
             if(isJsArray)
-            {
+            {LOGMEIN("BackwardPass.cpp] 3565\n");
                 IR::Opnd *const use =
                     FindNoImplicitCallUse(
                         instr,
@@ -3573,36 +3573,36 @@ BackwardPass::ProcessArrayRegOpndUse(IR::Instr *const instr, IR::ArrayRegOpnd *c
                             const ValueType checkedSrcValueType(checkedSrc->GetValueType());
                             if(!checkedSrcValueType.IsLikelyObject() ||
                                 checkedSrcValueType.GetObjectType() != arrayValueType.GetObjectType())
-                            {
+                            {LOGMEIN("BackwardPass.cpp] 3575\n");
                                 return false;
                             }
 
                             IR::RegOpnd *const checkedRegSrc = checkedSrc->AsRegOpnd();
                             if(!checkedRegSrc->IsArrayRegOpnd())
-                            {
+                            {LOGMEIN("BackwardPass.cpp] 3581\n");
                                 return false;
                             }
 
                             IR::ArrayRegOpnd *const checkedArraySrc = checkedRegSrc->AsArrayRegOpnd();
                             if(headSegmentIsLoadedButUnused &&
                                 checkedArraySrc->HeadSegmentSym() != arrayRegOpnd->HeadSegmentSym())
-                            {
+                            {LOGMEIN("BackwardPass.cpp] 3588\n");
                                 return false;
                             }
                             if(headSegmentLengthIsLoadedButUnused &&
                                 checkedArraySrc->HeadSegmentLengthSym() != arrayRegOpnd->HeadSegmentLengthSym())
-                            {
+                            {LOGMEIN("BackwardPass.cpp] 3593\n");
                                 return false;
                             }
                             return true;
                         });
                 if(use)
-                {
+                {LOGMEIN("BackwardPass.cpp] 3599\n");
                     noImplicitCallArrayUse = use->AsRegOpnd()->AsArrayRegOpnd();
                 }
             }
             else if(headSegmentLengthIsLoadedButUnused)
-            {
+            {LOGMEIN("BackwardPass.cpp] 3604\n");
                 // A typed array's head segment length may be zeroed when the typed array's buffer is transferred to a web
                 // worker, so the head segment length sym use is included in a NoImplicitCallUses instruction. Since there
                 // are no forward uses of the head segment length sym, to allow removing the extracted head segment length
@@ -3619,14 +3619,14 @@ BackwardPass::ProcessArrayRegOpndUse(IR::Instr *const instr, IR::ArrayRegOpnd *c
                         },
                         &noImplicitCallUsesInstr);
                 if(use)
-                {
+                {LOGMEIN("BackwardPass.cpp] 3621\n");
                     Assert(noImplicitCallUsesInstr);
                     Assert(!noImplicitCallUsesInstr->GetDst());
                     Assert(noImplicitCallUsesInstr->GetSrc1());
                     if(use == noImplicitCallUsesInstr->GetSrc1())
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 3626\n");
                         if(noImplicitCallUsesInstr->GetSrc2())
-                        {
+                        {LOGMEIN("BackwardPass.cpp] 3628\n");
                             noImplicitCallUsesInstr->ReplaceSrc1(noImplicitCallUsesInstr->UnlinkSrc2());
                         }
                         else
@@ -3645,22 +3645,22 @@ BackwardPass::ProcessArrayRegOpndUse(IR::Instr *const instr, IR::ArrayRegOpnd *c
 
             if(headSegmentIsLoadedButUnused &&
                 (!isJsArray || !arrayRegOpnd->HeadSegmentLengthSym() || headSegmentLengthIsLoadedButUnused))
-            {
+            {LOGMEIN("BackwardPass.cpp] 3647\n");
                 // For JS arrays, the head segment length load is dependent on the head segment. So, only remove the head
                 // segment load if the head segment length load can also be removed.
                 arrayRegOpnd->RemoveHeadSegmentSym();
                 instr->loadedArrayHeadSegment = false;
                 if(noImplicitCallArrayUse)
-                {
+                {LOGMEIN("BackwardPass.cpp] 3653\n");
                     noImplicitCallArrayUse->RemoveHeadSegmentSym();
                 }
             }
             if(headSegmentLengthIsLoadedButUnused)
-            {
+            {LOGMEIN("BackwardPass.cpp] 3658\n");
                 arrayRegOpnd->RemoveHeadSegmentLengthSym();
                 instr->loadedArrayHeadSegmentLength = false;
                 if(noImplicitCallArrayUse)
-                {
+                {LOGMEIN("BackwardPass.cpp] 3662\n");
                     noImplicitCallArrayUse->RemoveHeadSegmentLengthSym();
                 }
             }
@@ -3668,7 +3668,7 @@ BackwardPass::ProcessArrayRegOpndUse(IR::Instr *const instr, IR::ArrayRegOpnd *c
     }
 
     if(isJsArray && instr->m_opcode != Js::OpCode::NoImplicitCallUses)
-    {
+    {LOGMEIN("BackwardPass.cpp] 3670\n");
         // Only uses in NoImplicitCallUses instructions are counted toward liveness
         return;
     }
@@ -3677,18 +3677,18 @@ BackwardPass::ProcessArrayRegOpndUse(IR::Instr *const instr, IR::ArrayRegOpnd *c
     // on the dependent syms are guaranteed to be valid. Similarly for typed arrays, a head segment length sym use counts toward
     // liveness only in a NoImplicitCallUses instruction.
     if(arrayRegOpnd->HeadSegmentSym())
-    {
+    {LOGMEIN("BackwardPass.cpp] 3679\n");
         ProcessStackSymUse(arrayRegOpnd->HeadSegmentSym(), true);
         if(isJsArray)
-        {
+        {LOGMEIN("BackwardPass.cpp] 3682\n");
             block->noImplicitCallUses->Set(arrayRegOpnd->HeadSegmentSym()->m_id);
             block->noImplicitCallJsArrayHeadSegmentSymUses->Set(arrayRegOpnd->HeadSegmentSym()->m_id);
         }
     }
     if(arrayRegOpnd->HeadSegmentLengthSym())
-    {
+    {LOGMEIN("BackwardPass.cpp] 3688\n");
         if(isJsArray)
-        {
+        {LOGMEIN("BackwardPass.cpp] 3690\n");
             ProcessStackSymUse(arrayRegOpnd->HeadSegmentLengthSym(), true);
             block->noImplicitCallUses->Set(arrayRegOpnd->HeadSegmentLengthSym()->m_id);
             block->noImplicitCallJsArrayHeadSegmentSymUses->Set(arrayRegOpnd->HeadSegmentLengthSym()->m_id);
@@ -3708,7 +3708,7 @@ BackwardPass::ProcessArrayRegOpndUse(IR::Instr *const instr, IR::ArrayRegOpnd *c
                         return checkedSrc->AsRegOpnd()->m_sym == arrayRegOpnd->HeadSegmentLengthSym();
                     });
             if(use)
-            {
+            {LOGMEIN("BackwardPass.cpp] 3710\n");
                 considerSymAsRealUseInNoImplicitCallUses = arrayRegOpnd->HeadSegmentLengthSym();
             }
         }
@@ -3725,19 +3725,19 @@ BackwardPass::ProcessArrayRegOpndUse(IR::Instr *const instr, IR::ArrayRegOpnd *c
 
 void
 BackwardPass::ProcessNewScObject(IR::Instr* instr)
-{
+{LOGMEIN("BackwardPass.cpp] 3727\n");
     if (this->tag != Js::DeadStorePhase || IsCollectionPass())
-    {
+    {LOGMEIN("BackwardPass.cpp] 3729\n");
         return;
     }
 
     if (!instr->IsNewScObjectInstr())
-    {
+    {LOGMEIN("BackwardPass.cpp] 3734\n");
         return;
     }
 
     if (instr->HasBailOutInfo())
-    {
+    {LOGMEIN("BackwardPass.cpp] 3739\n");
         Assert(instr->IsProfiledInstr());
         Assert(instr->GetBailOutKind() == IR::BailOutFailedCtorGuardCheck);
         Assert(instr->GetDst()->IsRegOpnd());
@@ -3746,7 +3746,7 @@ BackwardPass::ProcessNewScObject(IR::Instr* instr)
         StackSym* objSym = instr->GetDst()->AsRegOpnd()->GetStackSym();
 
         if (block->upwardExposedUses->Test(objSym->m_id))
-        {
+        {LOGMEIN("BackwardPass.cpp] 3748\n");
             // If the object created here is used downstream, let's capture any property operations we must protect.
 
             Assert(instr->GetDst()->AsRegOpnd()->GetStackSym()->HasObjectTypeSym());
@@ -3754,23 +3754,23 @@ BackwardPass::ProcessNewScObject(IR::Instr* instr)
             JITTimeConstructorCache* ctorCache = instr->m_func->GetConstructorCache(static_cast<Js::ProfileId>(instr->AsProfiledInstr()->u.profileId));
 
             if (block->stackSymToFinalType != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 3756\n");
                 // NewScObject is the origin of the object pointer. If we have a final type in hand, do the
                 // transition here.
                 AddPropertyCacheBucket *pBucket = block->stackSymToFinalType->Get(objSym->m_id);
                 if (pBucket &&
                     pBucket->GetInitialType() != nullptr &&
                     pBucket->GetFinalType() != pBucket->GetInitialType())
-                {
+                {LOGMEIN("BackwardPass.cpp] 3763\n");
                     Assert(pBucket->GetInitialType() == ctorCache->GetType());
                     if (!this->IsPrePass())
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 3766\n");
                         this->InsertTypeTransition(instr->m_next, objSym, pBucket);
                     }
 #if DBG
                     pBucket->deadStoreUnavailableInitialType = pBucket->GetInitialType();
                     if (pBucket->deadStoreUnavailableFinalType == nullptr)
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 3772\n");
                         pBucket->deadStoreUnavailableFinalType = pBucket->GetFinalType();
                     }
                     pBucket->SetInitialType(nullptr);
@@ -3782,13 +3782,13 @@ BackwardPass::ProcessNewScObject(IR::Instr* instr)
             }
 
             if (block->stackSymToGuardedProperties != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 3784\n");
                 ObjTypeGuardBucket* bucket = block->stackSymToGuardedProperties->Get(objSym->m_id);
                 if (bucket != nullptr)
-                {
+                {LOGMEIN("BackwardPass.cpp] 3787\n");
                     BVSparse<JitArenaAllocator>* guardedPropertyOps = bucket->GetGuardedPropertyOps();
                     if (guardedPropertyOps != nullptr)
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 3790\n");
                         ctorCache->EnsureGuardedPropOps(this->func->m_alloc);
                         ctorCache->AddGuardedPropOps(guardedPropertyOps);
 
@@ -3805,7 +3805,7 @@ BackwardPass::ProcessNewScObject(IR::Instr* instr)
             // the fallback on helper, if the ctor cache ever became invalid.
             instr->ClearBailOutInfo();
             if (preOpBailOutInstrToProcess == instr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 3807\n");
                 preOpBailOutInstrToProcess = nullptr;
             }
 
@@ -3822,19 +3822,19 @@ BackwardPass::ProcessNewScObject(IR::Instr* instr)
 
 void
 BackwardPass::UpdateArrayValueTypes(IR::Instr *const instr, IR::Opnd *origOpnd)
-{
+{LOGMEIN("BackwardPass.cpp] 3824\n");
     Assert(tag == Js::DeadStorePhase);
     Assert(!IsPrePass());
     Assert(instr);
 
     if(!origOpnd)
-    {
+    {LOGMEIN("BackwardPass.cpp] 3830\n");
         return;
     }
 
     IR::Instr *opndOwnerInstr = instr;
     switch(instr->m_opcode)
-    {
+    {LOGMEIN("BackwardPass.cpp] 3836\n");
         case Js::OpCode::StElemC:
         case Js::OpCode::StArrSegElemC:
             // These may not be fixed if we are unsure about the type of the array they're storing to
@@ -3846,13 +3846,13 @@ BackwardPass::UpdateArrayValueTypes(IR::Instr *const instr, IR::Opnd *origOpnd)
     IR::Opnd* opnd = origOpnd;
     IR::ArrayRegOpnd *arrayOpnd;
     switch(opnd->GetKind())
-    {
+    {LOGMEIN("BackwardPass.cpp] 3848\n");
         case IR::OpndKindIndir:
             opnd = opnd->AsIndirOpnd()->GetBaseOpnd();
             // fall-through
 
         case IR::OpndKindReg:
-        {
+        {LOGMEIN("BackwardPass.cpp] 3854\n");
             IR::RegOpnd *const regOpnd = opnd->AsRegOpnd();
             sym = regOpnd->m_sym;
             arrayOpnd = regOpnd->IsArrayRegOpnd() ? regOpnd->AsArrayRegOpnd() : nullptr;
@@ -3862,7 +3862,7 @@ BackwardPass::UpdateArrayValueTypes(IR::Instr *const instr, IR::Opnd *origOpnd)
         case IR::OpndKindSym:
             sym = opnd->AsSymOpnd()->m_sym;
             if(!sym->IsPropertySym())
-            {
+            {LOGMEIN("BackwardPass.cpp] 3864\n");
                 return;
             }
             arrayOpnd = nullptr;
@@ -3874,7 +3874,7 @@ BackwardPass::UpdateArrayValueTypes(IR::Instr *const instr, IR::Opnd *origOpnd)
 
     const ValueType valueType(opnd->GetValueType());
     if(!valueType.IsAnyOptimizedArray())
-    {
+    {LOGMEIN("BackwardPass.cpp] 3876\n");
         return;
     }
 
@@ -3906,7 +3906,7 @@ BackwardPass::UpdateArrayValueTypes(IR::Instr *const instr, IR::Opnd *origOpnd)
         arrayOpnd->LengthSym() &&
         currentBlock->noImplicitCallArrayLengthSymUses->IsEmpty();
     if(!(changeArray || changeNoMissingValues || changeNativeArray || removeHeadSegmentSym || removeHeadSegmentLengthSym))
-    {
+    {LOGMEIN("BackwardPass.cpp] 3908\n");
         return;
     }
 
@@ -3917,9 +3917,9 @@ BackwardPass::UpdateArrayValueTypes(IR::Instr *const instr, IR::Opnd *origOpnd)
     // For source opnds, ensure that a NoImplicitCallUses immediately precedes this instruction. Otherwise, convert the value
     // type to an appropriate version so that the lowerer doesn't incorrectly treat it as it says.
     if(opnd != opndOwnerInstr->GetDst())
-    {
+    {LOGMEIN("BackwardPass.cpp] 3919\n");
         if(isJsArray)
-        {
+        {LOGMEIN("BackwardPass.cpp] 3921\n");
             IR::Opnd *const checkedSrc =
                 FindNoImplicitCallUse(
                     instr,
@@ -3932,7 +3932,7 @@ BackwardPass::UpdateArrayValueTypes(IR::Instr *const instr, IR::Opnd *origOpnd)
                             checkedSrcValueType.GetObjectType() == valueType.GetObjectType();
                     });
             if(checkedSrc)
-            {
+            {LOGMEIN("BackwardPass.cpp] 3934\n");
                 // Implicit calls will be disabled to the point immediately before this instruction
                 changeArray = false;
 
@@ -3940,36 +3940,36 @@ BackwardPass::UpdateArrayValueTypes(IR::Instr *const instr, IR::Opnd *origOpnd)
                 if(changeNativeArray &&
                     !checkedSrcValueType.HasVarElements() &&
                     checkedSrcValueType.HasIntElements() == valueType.HasIntElements())
-                {
+                {LOGMEIN("BackwardPass.cpp] 3942\n");
                     // If necessary, instructions before this will bail out on converting a native array
                     changeNativeArray = false;
                 }
 
                 if(changeNoMissingValues && checkedSrcValueType.HasNoMissingValues())
-                {
+                {LOGMEIN("BackwardPass.cpp] 3948\n");
                     // If necessary, instructions before this will bail out on creating a missing value
                     changeNoMissingValues = false;
                 }
 
                 if((removeHeadSegmentSym || removeHeadSegmentLengthSym || removeLengthSym) && checkedSrc->IsRegOpnd())
-                {
+                {LOGMEIN("BackwardPass.cpp] 3954\n");
                     IR::RegOpnd *const checkedRegSrc = checkedSrc->AsRegOpnd();
                     if(checkedRegSrc->IsArrayRegOpnd())
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 3957\n");
                         IR::ArrayRegOpnd *const checkedArraySrc = checkedSrc->AsRegOpnd()->AsArrayRegOpnd();
                         if(removeHeadSegmentSym && checkedArraySrc->HeadSegmentSym() == arrayOpnd->HeadSegmentSym())
-                        {
+                        {LOGMEIN("BackwardPass.cpp] 3960\n");
                             // If necessary, instructions before this will bail out upon invalidating head segment sym
                             removeHeadSegmentSym = false;
                         }
                         if(removeHeadSegmentLengthSym &&
                             checkedArraySrc->HeadSegmentLengthSym() == arrayOpnd->HeadSegmentLengthSym())
-                        {
+                        {LOGMEIN("BackwardPass.cpp] 3966\n");
                             // If necessary, instructions before this will bail out upon invalidating head segment length sym
                             removeHeadSegmentLengthSym = false;
                         }
                         if(removeLengthSym && checkedArraySrc->LengthSym() == arrayOpnd->LengthSym())
-                        {
+                        {LOGMEIN("BackwardPass.cpp] 3971\n");
                             // If necessary, instructions before this will bail out upon invalidating a length sym
                             removeLengthSym = false;
                         }
@@ -3995,7 +3995,7 @@ BackwardPass::UpdateArrayValueTypes(IR::Instr *const instr, IR::Opnd *origOpnd)
                         return checkedSrc->AsRegOpnd()->m_sym == arrayOpnd->HeadSegmentLengthSym();
                     });
             if(use)
-            {
+            {LOGMEIN("BackwardPass.cpp] 3997\n");
                 // Implicit calls will be disabled to the point immediately before this instruction
                 removeHeadSegmentLengthSym = false;
             }
@@ -4003,12 +4003,12 @@ BackwardPass::UpdateArrayValueTypes(IR::Instr *const instr, IR::Opnd *origOpnd)
     }
 
     if(changeArray || changeNativeArray)
-    {
+    {LOGMEIN("BackwardPass.cpp] 4005\n");
         if(arrayOpnd)
-        {
+        {LOGMEIN("BackwardPass.cpp] 4007\n");
             opnd = arrayOpnd->CopyAsRegOpnd(opndOwnerInstr->m_func);
             if (origOpnd->IsIndirOpnd())
-            {
+            {LOGMEIN("BackwardPass.cpp] 4010\n");
                 origOpnd->AsIndirOpnd()->ReplaceBaseOpnd(opnd->AsRegOpnd());
             }
             else
@@ -4022,21 +4022,21 @@ BackwardPass::UpdateArrayValueTypes(IR::Instr *const instr, IR::Opnd *origOpnd)
     else
     {
         if(changeNoMissingValues)
-        {
+        {LOGMEIN("BackwardPass.cpp] 4024\n");
             opnd->SetValueType(valueType.SetHasNoMissingValues(false));
         }
         if(removeHeadSegmentSym)
-        {
+        {LOGMEIN("BackwardPass.cpp] 4028\n");
             Assert(arrayOpnd);
             arrayOpnd->RemoveHeadSegmentSym();
         }
         if(removeHeadSegmentLengthSym)
-        {
+        {LOGMEIN("BackwardPass.cpp] 4033\n");
             Assert(arrayOpnd);
             arrayOpnd->RemoveHeadSegmentLengthSym();
         }
         if(removeLengthSym)
-        {
+        {LOGMEIN("BackwardPass.cpp] 4038\n");
             Assert(arrayOpnd);
             arrayOpnd->RemoveLengthSym();
         }
@@ -4045,7 +4045,7 @@ BackwardPass::UpdateArrayValueTypes(IR::Instr *const instr, IR::Opnd *origOpnd)
 
 void
 BackwardPass::UpdateArrayBailOutKind(IR::Instr *const instr)
-{
+{LOGMEIN("BackwardPass.cpp] 4047\n");
     Assert(!IsPrePass());
     Assert(instr);
     Assert(instr->HasBailOutInfo());
@@ -4053,14 +4053,14 @@ BackwardPass::UpdateArrayBailOutKind(IR::Instr *const instr)
     if ((instr->m_opcode != Js::OpCode::StElemI_A && instr->m_opcode != Js::OpCode::StElemI_A_Strict &&
         instr->m_opcode != Js::OpCode::Memcopy && instr->m_opcode != Js::OpCode::Memset) ||
         !instr->GetDst()->IsIndirOpnd())
-    {
+    {LOGMEIN("BackwardPass.cpp] 4055\n");
         return;
     }
 
     IR::RegOpnd *const baseOpnd = instr->GetDst()->AsIndirOpnd()->GetBaseOpnd();
     const ValueType baseValueType(baseOpnd->GetValueType());
     if(baseValueType.IsNotArrayOrObjectWithArray())
-    {
+    {LOGMEIN("BackwardPass.cpp] 4062\n");
         return;
     }
 
@@ -4068,7 +4068,7 @@ BackwardPass::UpdateArrayBailOutKind(IR::Instr *const instr)
     if(!baseValueType.IsNotNativeArray() &&
         (!baseValueType.IsLikelyNativeArray() || instr->GetSrc1()->IsVar()) &&
         !currentBlock->noImplicitCallNativeArrayUses->IsEmpty())
-    {
+    {LOGMEIN("BackwardPass.cpp] 4070\n");
         // There is an upwards-exposed use of a native array. Since the array referenced by this instruction can be aliased,
         // this instruction needs to bail out if it converts the native array even if this array specifically is not
         // upwards-exposed.
@@ -4076,9 +4076,9 @@ BackwardPass::UpdateArrayBailOutKind(IR::Instr *const instr)
     }
 
     if(baseOpnd->IsArrayRegOpnd() && baseOpnd->AsArrayRegOpnd()->EliminatedUpperBoundCheck())
-    {
+    {LOGMEIN("BackwardPass.cpp] 4078\n");
         if(instr->extractedUpperBoundCheckWithoutHoisting && !currentBlock->noImplicitCallJsArrayHeadSegmentSymUses->IsEmpty())
-        {
+        {LOGMEIN("BackwardPass.cpp] 4080\n");
             // See comment below regarding head segment invalidation. A failed upper bound check usually means that it will
             // invalidate the head segment length, so change the bailout kind on the upper bound check to have it bail out for
             // the right reason. Even though the store may actually occur in a non-head segment, which would not invalidate the
@@ -4088,7 +4088,7 @@ BackwardPass::UpdateArrayBailOutKind(IR::Instr *const instr)
             Assert(upperBoundCheck && upperBoundCheck != instr);
 
             if(upperBoundCheck->GetBailOutKind() == IR::BailOutOnArrayAccessHelperCall)
-            {
+            {LOGMEIN("BackwardPass.cpp] 4090\n");
                 upperBoundCheck->SetBailOutKind(IR::BailOutOnInvalidatedArrayHeadSegment);
             }
             else
@@ -4100,7 +4100,7 @@ BackwardPass::UpdateArrayBailOutKind(IR::Instr *const instr)
     else
     {
         if(!currentBlock->noImplicitCallJsArrayHeadSegmentSymUses->IsEmpty())
-        {
+        {LOGMEIN("BackwardPass.cpp] 4102\n");
             // There is an upwards-exposed use of a segment sym. Since the head segment syms referenced by this instruction can
             // be aliased, this instruction needs to bail out if it changes the segment syms it references even if the ones it
             // references specifically are not upwards-exposed. This bailout kind also guarantees that this element store will
@@ -4110,7 +4110,7 @@ BackwardPass::UpdateArrayBailOutKind(IR::Instr *const instr)
         else if(
             !currentBlock->noImplicitCallNoMissingValuesUses->IsEmpty() &&
             !(instr->GetBailOutKind() & IR::BailOutOnArrayAccessHelperCall))
-        {
+        {LOGMEIN("BackwardPass.cpp] 4112\n");
             // There is an upwards-exposed use of an array with no missing values. Since the array referenced by this
             // instruction can be aliased, this instruction needs to bail out if it creates a missing value in the array even if
             // this array specifically is not upwards-exposed.
@@ -4118,7 +4118,7 @@ BackwardPass::UpdateArrayBailOutKind(IR::Instr *const instr)
         }
 
         if(!baseValueType.IsNotArray() && !currentBlock->noImplicitCallArrayLengthSymUses->IsEmpty())
-        {
+        {LOGMEIN("BackwardPass.cpp] 4120\n");
             // There is an upwards-exposed use of a length sym. Since the length sym referenced by this instruction can be
             // aliased, this instruction needs to bail out if it changes the length sym it references even if the ones it
             // references specifically are not upwards-exposed.
@@ -4127,7 +4127,7 @@ BackwardPass::UpdateArrayBailOutKind(IR::Instr *const instr)
     }
 
     if(!includeBailOutKinds)
-    {
+    {LOGMEIN("BackwardPass.cpp] 4129\n");
         return;
     }
 
@@ -4137,17 +4137,17 @@ BackwardPass::UpdateArrayBailOutKind(IR::Instr *const instr)
 
 bool
 BackwardPass::ProcessStackSymUse(StackSym * stackSym, BOOLEAN isNonByteCodeUse)
-{
+{LOGMEIN("BackwardPass.cpp] 4139\n");
     BasicBlock * block = this->currentBlock;
 
     if (this->DoByteCodeUpwardExposedUsed())
-    {
+    {LOGMEIN("BackwardPass.cpp] 4143\n");
         if (!isNonByteCodeUse && stackSym->HasByteCodeRegSlot())
-        {
+        {LOGMEIN("BackwardPass.cpp] 4145\n");
             // Always track the sym use on the var sym.
             StackSym * byteCodeUseSym = stackSym;
             if (byteCodeUseSym->IsTypeSpec())
-            {
+            {LOGMEIN("BackwardPass.cpp] 4149\n");
                 // It has to have a var version for byte code regs
                 byteCodeUseSym = byteCodeUseSym->GetVarEquivSym(nullptr);
             }
@@ -4155,10 +4155,10 @@ BackwardPass::ProcessStackSymUse(StackSym * stackSym, BOOLEAN isNonByteCodeUse)
 #if DBG
             // We can only track first level function stack syms right now
             if (byteCodeUseSym->GetByteCodeFunc() == this->func)
-            {
+            {LOGMEIN("BackwardPass.cpp] 4157\n");
                 Js::RegSlot byteCodeRegSlot = byteCodeUseSym->GetByteCodeRegSlot();
                 if (block->byteCodeRestoreSyms[byteCodeRegSlot] != byteCodeUseSym)
-                {
+                {LOGMEIN("BackwardPass.cpp] 4160\n");
                     AssertMsg(block->byteCodeRestoreSyms[byteCodeRegSlot] == nullptr,
                         "Can't have two active lifetime for the same byte code register");
                     block->byteCodeRestoreSyms[byteCodeRegSlot] = byteCodeUseSym;
@@ -4169,18 +4169,18 @@ BackwardPass::ProcessStackSymUse(StackSym * stackSym, BOOLEAN isNonByteCodeUse)
     }
 
     if(IsCollectionPass())
-    {
+    {LOGMEIN("BackwardPass.cpp] 4171\n");
         return true;
     }
 
     if (this->DoMarkTempObjects())
-    {
+    {LOGMEIN("BackwardPass.cpp] 4176\n");
         Assert((block->loop != nullptr) == block->tempObjectTracker->HasTempTransferDependencies());
         block->tempObjectTracker->ProcessUse(stackSym, this);
     }
 #if DBG
     if (this->DoMarkTempObjectVerify())
-    {
+    {LOGMEIN("BackwardPass.cpp] 4182\n");
         Assert((block->loop != nullptr) == block->tempObjectVerifyTracker->HasTempTransferDependencies());
         block->tempObjectVerifyTracker->ProcessUse(stackSym, this);
     }
@@ -4190,40 +4190,40 @@ BackwardPass::ProcessStackSymUse(StackSym * stackSym, BOOLEAN isNonByteCodeUse)
 
 bool
 BackwardPass::ProcessSymUse(Sym * sym, bool isRegOpndUse, BOOLEAN isNonByteCodeUse)
-{
+{LOGMEIN("BackwardPass.cpp] 4192\n");
     BasicBlock * block = this->currentBlock;
     
     if (CanDeadStoreInstrForScopeObjRemoval(sym))   
-    {
+    {LOGMEIN("BackwardPass.cpp] 4196\n");
         return false;
     }
 
     if (sym->IsPropertySym())
-    {
+    {LOGMEIN("BackwardPass.cpp] 4201\n");
         PropertySym * propertySym = sym->AsPropertySym();
         ProcessStackSymUse(propertySym->m_stackSym, isNonByteCodeUse);
 
         if(IsCollectionPass())
-        {
+        {LOGMEIN("BackwardPass.cpp] 4206\n");
             return true;
         }
 
         Assert((block->fieldHoistCandidates != nullptr) == this->DoFieldHoistCandidates());
 
         if (block->fieldHoistCandidates && GlobOpt::TransferSrcValue(this->currentInstr))
-        {
+        {LOGMEIN("BackwardPass.cpp] 4213\n");
             // If the instruction doesn't transfer the src value to dst, it will not be copyprop'd
             // So we can't hoist those.
             block->fieldHoistCandidates->Set(propertySym->m_id);
         }
 
         if (this->DoDeadStoreSlots())
-        {
+        {LOGMEIN("BackwardPass.cpp] 4220\n");
             block->slotDeadStoreCandidates->Clear(propertySym->m_id);
         }
 
         if (tag == Js::BackwardPhase)
-        {
+        {LOGMEIN("BackwardPass.cpp] 4225\n");
             // Backward phase tracks liveness of fields to tell GlobOpt where we may need bailout.
             return this->ProcessPropertySymUse(propertySym);
         }
@@ -4239,7 +4239,7 @@ BackwardPass::ProcessSymUse(Sym * sym, bool isRegOpndUse, BOOLEAN isNonByteCodeU
     bool isUsed = ProcessStackSymUse(stackSym, isNonByteCodeUse);
 
     if (!IsCollectionPass() && isRegOpndUse && this->DoMarkTempNumbers())
-    {
+    {LOGMEIN("BackwardPass.cpp] 4241\n");
         // Collect mark temp number information
         Assert((block->loop != nullptr) == block->tempNumberTracker->HasTempTransferDependencies());
         block->tempNumberTracker->ProcessUse(stackSym, this);
@@ -4250,19 +4250,19 @@ BackwardPass::ProcessSymUse(Sym * sym, bool isRegOpndUse, BOOLEAN isNonByteCodeU
 
 bool
 BackwardPass::MayPropertyBeWrittenTo(Js::PropertyId propertyId)
-{
+{LOGMEIN("BackwardPass.cpp] 4252\n");
     return this->func->anyPropertyMayBeWrittenTo ||
         (this->func->propertiesWrittenTo != nullptr && this->func->propertiesWrittenTo->ContainsKey(propertyId));
 }
 
 void
 BackwardPass::ProcessPropertySymOpndUse(IR::PropertySymOpnd * opnd)
-{
+{LOGMEIN("BackwardPass.cpp] 4259\n");
 
     // If this operand doesn't participate in the type check sequence it's a pass-through.
     // We will not set any bits on the operand and we will ignore them when lowering.
     if (!opnd->IsTypeCheckSeqCandidate())
-    {
+    {LOGMEIN("BackwardPass.cpp] 4264\n");
         return;
     }
 
@@ -4271,7 +4271,7 @@ BackwardPass::ProcessPropertySymOpndUse(IR::PropertySymOpnd * opnd)
 
     BasicBlock * block = this->currentBlock;
     if (this->tag == Js::BackwardPhase)
-    {
+    {LOGMEIN("BackwardPass.cpp] 4273\n");
         // In the backward phase, we have no availability info, and we're trying to see
         // where there are live fields so we can decide where to put bailouts.
 
@@ -4293,18 +4293,18 @@ BackwardPass::ProcessPropertySymOpndUse(IR::PropertySymOpnd * opnd)
 
         // Note that we don't touch upwardExposedUses here.
         if (opnd->IsTypeAvailable())
-        {
+        {LOGMEIN("BackwardPass.cpp] 4295\n");
             opnd->SetTypeDead(!block->upwardExposedFields->TestAndSet(typeSymId));
 
             if (opnd->IsTypeChecked() && opnd->IsObjectHeaderInlined())
-            {
+            {LOGMEIN("BackwardPass.cpp] 4299\n");
                 // The object's type must not change in a way that changes the layout.
                 // If we see a StFld with a type check bailout between here and the type check that guards this
                 // property, we must not dead-store the StFld's type check bailout, even if that operand's type appears
                 // dead, because that object may alias this one.
                 BVSparse<JitArenaAllocator>* bv = block->typesNeedingKnownObjectLayout;
                 if (bv == nullptr)
-                {
+                {LOGMEIN("BackwardPass.cpp] 4306\n");
                     bv = JitAnew(this->tempAlloc, BVSparse<JitArenaAllocator>, this->tempAlloc);
                     block->typesNeedingKnownObjectLayout = bv;
                 }
@@ -4327,14 +4327,14 @@ BackwardPass::ProcessPropertySymOpndUse(IR::PropertySymOpnd * opnd)
 
             BVSparse<JitArenaAllocator>* bv = block->typesNeedingKnownObjectLayout;
             if (bv != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 4329\n");
                 bv->Clear(typeSymId);
             }
         }
 
         bool mayNeedTypeTransition = true;
         if (!opnd->HasTypeMismatch() && func->DoGlobOpt())
-        {
+        {LOGMEIN("BackwardPass.cpp] 4336\n");
             mayNeedTypeTransition = !isStore;
         }
         if (mayNeedTypeTransition &&
@@ -4343,19 +4343,19 @@ BackwardPass::ProcessPropertySymOpndUse(IR::PropertySymOpnd * opnd)
             (opnd->NeedsPrimaryTypeCheck() ||
              opnd->NeedsLocalTypeCheck() ||
              opnd->NeedsLoadFromProtoTypeCheck()))
-        {
+        {LOGMEIN("BackwardPass.cpp] 4345\n");
             // This is a "checked" opnd that nevertheless will have some kind of type check generated for it.
             // (Typical case is a load from prototype with no upstream guard.)
             // If the type check fails, we will call a helper, which will require that the type be correct here.
             // Final type can't be pushed up past this point. Do whatever type transition is required.
             if (block->stackSymToFinalType != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 4351\n");
                 StackSym *baseSym = opnd->GetObjectSym();
                 AddPropertyCacheBucket *pBucket = block->stackSymToFinalType->Get(baseSym->m_id);
                 if (pBucket &&
                     pBucket->GetFinalType() != nullptr &&
                     pBucket->GetFinalType() != pBucket->GetInitialType())
-                {
+                {LOGMEIN("BackwardPass.cpp] 4357\n");
                     this->InsertTypeTransition(this->currentInstr->m_next, baseSym, pBucket);
                     pBucket->SetFinalType(pBucket->GetInitialType());
                 }
@@ -4374,7 +4374,7 @@ BackwardPass::ProcessPropertySymOpndUse(IR::PropertySymOpnd * opnd)
 
 void
 BackwardPass::TrackObjTypeSpecProperties(IR::PropertySymOpnd *opnd, BasicBlock *block)
-{
+{LOGMEIN("BackwardPass.cpp] 4376\n");
     Assert(tag == Js::DeadStorePhase);
     Assert(opnd->IsTypeCheckSeqCandidate());
 
@@ -4382,11 +4382,11 @@ BackwardPass::TrackObjTypeSpecProperties(IR::PropertySymOpnd *opnd, BasicBlock *
     // check and which are protected by an upstream type check, we can push the lists of guarded properties
     // up the flow graph and drop them on the type checks for the corresponding object symbol.
     if (opnd->IsTypeCheckSeqParticipant())
-    {
+    {LOGMEIN("BackwardPass.cpp] 4384\n");
         // Add this operation to the list of guarded operations for this object symbol.
         HashTable<ObjTypeGuardBucket>* stackSymToGuardedProperties = block->stackSymToGuardedProperties;
         if (stackSymToGuardedProperties == nullptr)
-        {
+        {LOGMEIN("BackwardPass.cpp] 4388\n");
             stackSymToGuardedProperties = HashTable<ObjTypeGuardBucket>::New(this->tempAlloc, 8);
             block->stackSymToGuardedProperties = stackSymToGuardedProperties;
         }
@@ -4395,7 +4395,7 @@ BackwardPass::TrackObjTypeSpecProperties(IR::PropertySymOpnd *opnd, BasicBlock *
         ObjTypeGuardBucket* bucket = stackSymToGuardedProperties->FindOrInsertNew(objSym->m_id);
         BVSparse<JitArenaAllocator>* guardedPropertyOps = bucket->GetGuardedPropertyOps();
         if (guardedPropertyOps == nullptr)
-        {
+        {LOGMEIN("BackwardPass.cpp] 4397\n");
             // The bit vectors we push around the flow graph only need to live as long as this phase.
             guardedPropertyOps = JitAnew(this->tempAlloc, BVSparse<JitArenaAllocator>, this->tempAlloc);
             bucket->SetGuardedPropertyOps(guardedPropertyOps);
@@ -4403,12 +4403,12 @@ BackwardPass::TrackObjTypeSpecProperties(IR::PropertySymOpnd *opnd, BasicBlock *
 
 #if DBG
         FOREACH_BITSET_IN_SPARSEBV(propOpId, guardedPropertyOps)
-        {
+        {LOGMEIN("BackwardPass.cpp] 4405\n");
             JITObjTypeSpecFldInfo* existingFldInfo = this->func->GetGlobalObjTypeSpecFldInfo(propOpId);
             Assert(existingFldInfo != nullptr);
 
             if (existingFldInfo->GetPropertyId() != opnd->GetPropertyId())
-            {
+            {LOGMEIN("BackwardPass.cpp] 4410\n");
                 continue;
             }
             // It would be very nice to assert that the info we have for this property matches all properties guarded thus far.
@@ -4423,11 +4423,11 @@ BackwardPass::TrackObjTypeSpecProperties(IR::PropertySymOpnd *opnd, BasicBlock *
             //Assert(existingFldInfo->GetSlotIndex() == opnd->GetSlotIndex());
 
             if (PHASE_TRACE(Js::EquivObjTypeSpecPhase, this->func) && !JITManager::GetJITManager()->IsJITServer())
-            {
+            {LOGMEIN("BackwardPass.cpp] 4425\n");
                 if (existingFldInfo->IsPoly() && opnd->IsPoly() &&
                     (!GlobOpt::AreTypeSetsIdentical(existingFldInfo->GetEquivalentTypeSet(), opnd->GetEquivalentTypeSet()) ||
                     (existingFldInfo->GetSlotIndex() != opnd->GetSlotIndex())))
-                {
+                {LOGMEIN("BackwardPass.cpp] 4429\n");
                     char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
                     Output::Print(_u("EquivObjTypeSpec: top function %s (%s): duplicate property clash on %s(#%d) on operation %u \n"),
@@ -4442,14 +4442,14 @@ BackwardPass::TrackObjTypeSpecProperties(IR::PropertySymOpnd *opnd, BasicBlock *
 
         bucket->AddToGuardedPropertyOps(opnd->GetObjTypeSpecFldId());
         if (opnd->NeedsMonoCheck())
-        {
+        {LOGMEIN("BackwardPass.cpp] 4444\n");
             Assert(opnd->IsMono());
             JITTypeHolder monoGuardType = opnd->IsInitialTypeChecked() ? opnd->GetInitialType() : opnd->GetType();
             bucket->SetMonoGuardType(monoGuardType);
         }
 
         if (opnd->NeedsPrimaryTypeCheck())
-        {
+        {LOGMEIN("BackwardPass.cpp] 4451\n");
             // Grab the guarded properties which match this type check with respect to polymorphism and drop them
             // on the operand. Only equivalent type checks can protect polymorphic properties to avoid a case where
             // we have 1) a cache with type set {t1, t2} and property a, followed by 2) a cache with type t3 and
@@ -4465,12 +4465,12 @@ BackwardPass::TrackObjTypeSpecProperties(IR::PropertySymOpnd *opnd, BasicBlock *
             opnd->EnsureGuardedPropOps(this->func->m_alloc);
             opnd->AddGuardedPropOps(guardedPropertyOps);
             if (this->currentInstr->HasTypeCheckBailOut())
-            {
+            {LOGMEIN("BackwardPass.cpp] 4467\n");
                 // Stop pushing the mono guard type up if it is being checked here.
                 if (bucket->NeedsMonoCheck())
-                {
+                {LOGMEIN("BackwardPass.cpp] 4470\n");
                     if (this->currentInstr->HasEquivalentTypeCheckBailOut())
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 4472\n");
                         // Some instr protected by this one requires a monomorphic type check. (E.g., final type opt,
                         // fixed field not loaded from prototype.) Note the IsTypeAvailable test above: only do this at
                         // the initial type check that protects this path.
@@ -4481,7 +4481,7 @@ BackwardPass::TrackObjTypeSpecProperties(IR::PropertySymOpnd *opnd, BasicBlock *
                 }
                 
                 if (!opnd->IsTypeAvailable())
-                {
+                {LOGMEIN("BackwardPass.cpp] 4483\n");
                     // Stop tracking the guarded properties if there's not another type check upstream.
                     bucket->SetGuardedPropertyOps(nullptr);
                     JitAdelete(this->tempAlloc, guardedPropertyOps);
@@ -4499,7 +4499,7 @@ BackwardPass::TrackObjTypeSpecProperties(IR::PropertySymOpnd *opnd, BasicBlock *
         }
     }
     else if (opnd->NeedsLocalTypeCheck())
-    {
+    {LOGMEIN("BackwardPass.cpp] 4501\n");
         opnd->EnsureGuardedPropOps(this->func->m_alloc);
         opnd->SetGuardedPropOp(opnd->GetObjTypeSpecFldId());
     }
@@ -4507,12 +4507,12 @@ BackwardPass::TrackObjTypeSpecProperties(IR::PropertySymOpnd *opnd, BasicBlock *
 
 void
 BackwardPass::TrackObjTypeSpecWriteGuards(IR::PropertySymOpnd *opnd, BasicBlock *block)
-{
+{LOGMEIN("BackwardPass.cpp] 4509\n");
     // TODO (ObjTypeSpec): Move write guard tracking to the forward pass, by recording on the type value
     // which property IDs have been written since the last type check. This will result in more accurate
     // tracking in cases when object pointer copy prop kicks in.
     if (this->tag == Js::BackwardPhase)
-    {
+    {LOGMEIN("BackwardPass.cpp] 4514\n");
         // If this operation may need a write guard (load from proto or fixed field check) then add its
         // write guard symbol to the map for this object. If it remains live (hasn't been written to)
         // until the type check upstream, it will get recorded there so that the type check can be registered
@@ -4522,9 +4522,9 @@ BackwardPass::TrackObjTypeSpecWriteGuards(IR::PropertySymOpnd *opnd, BasicBlock 
         // poly write guards, and a type check can only protect operations matching with respect to polymorphism (see
         // BackwardPass::TrackObjTypeSpecProperties for details), so for now we only target monomorphic operations.
         if (opnd->IsMono() && opnd->MayNeedWriteGuardProtection())
-        {
+        {LOGMEIN("BackwardPass.cpp] 4524\n");
             if (block->stackSymToWriteGuardsMap == nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 4526\n");
                 block->stackSymToWriteGuardsMap = HashTable<ObjWriteGuardBucket>::New(this->tempAlloc, 8);
             }
 
@@ -4532,7 +4532,7 @@ BackwardPass::TrackObjTypeSpecWriteGuards(IR::PropertySymOpnd *opnd, BasicBlock 
 
             BVSparse<JitArenaAllocator>* writeGuards = bucket->GetWriteGuards();
             if (writeGuards == nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 4534\n");
                 // The bit vectors we push around the flow graph only need to live as long as this phase.
                 writeGuards = JitAnew(this->tempAlloc, BVSparse<JitArenaAllocator>, this->tempAlloc);
                 bucket->SetWriteGuards(writeGuards);
@@ -4548,13 +4548,13 @@ BackwardPass::TrackObjTypeSpecWriteGuards(IR::PropertySymOpnd *opnd, BasicBlock 
         // a type check.  If we ultimately don't need a type check here, we will simply ignore the guards, because
         // an earlier type check will protect them.
         if (!IsPrePass() && opnd->IsMono() && !opnd->IsTypeDead())
-        {
+        {LOGMEIN("BackwardPass.cpp] 4550\n");
             Assert(opnd->GetWriteGuards() == nullptr);
             if (block->stackSymToWriteGuardsMap != nullptr)
-            {
+            {LOGMEIN("BackwardPass.cpp] 4553\n");
                 ObjWriteGuardBucket* bucket = block->stackSymToWriteGuardsMap->Get(opnd->GetObjectSym()->m_id);
                 if (bucket != nullptr)
-                {
+                {LOGMEIN("BackwardPass.cpp] 4556\n");
                     // Get all the write guards associated with this object sym and filter them down to those that
                     // are upward exposed. If we end up emitting a type check for this instruction, we will create
                     // a type property guard registered for all guarded proto properties and we will set the write
@@ -4573,14 +4573,14 @@ BackwardPass::TrackObjTypeSpecWriteGuards(IR::PropertySymOpnd *opnd, BasicBlock 
         // If we know this property has never been written to in this function (either on this object or any
         // of its aliases) we don't need the local type check.
         if (opnd->MayNeedWriteGuardProtection() && !opnd->IsWriteGuardChecked() && !MayPropertyBeWrittenTo(opnd->GetPropertyId()))
-        {
+        {LOGMEIN("BackwardPass.cpp] 4575\n");
             opnd->SetWriteGuardChecked(true);
         }
 
         // If we don't need a primary type check here let's clear the write guards. The primary type check upstream will
         // register the type check for the corresponding properties.
         if (!IsPrePass() && !opnd->NeedsPrimaryTypeCheck())
-        {
+        {LOGMEIN("BackwardPass.cpp] 4582\n");
             opnd->ClearWriteGuards();
         }
     }
@@ -4588,7 +4588,7 @@ BackwardPass::TrackObjTypeSpecWriteGuards(IR::PropertySymOpnd *opnd, BasicBlock 
 
 void
 BackwardPass::TrackAddPropertyTypes(IR::PropertySymOpnd *opnd, BasicBlock *block)
-{
+{LOGMEIN("BackwardPass.cpp] 4590\n");
     // Do the work of objtypespec add-property opt even if it's disabled by PHASE option, so that we have
     // the dataflow info that can be inspected.
 
@@ -4601,14 +4601,14 @@ BackwardPass::TrackAddPropertyTypes(IR::PropertySymOpnd *opnd, BasicBlock *block
     if (typeWithoutProperty == nullptr ||
         typeWithProperty == typeWithoutProperty ||
         (opnd->IsTypeChecked() && !opnd->IsInitialTypeChecked()))
-    {
+    {LOGMEIN("BackwardPass.cpp] 4603\n");
         if (!this->IsPrePass() && block->stackSymToFinalType != nullptr && !this->currentInstr->HasBailOutInfo())
-        {
+        {LOGMEIN("BackwardPass.cpp] 4605\n");
             PropertySym *propertySym = opnd->m_sym->AsPropertySym();
             AddPropertyCacheBucket *pBucket =
                 block->stackSymToFinalType->Get(propertySym->m_stackSym->m_id);
             if (pBucket && pBucket->GetFinalType() != nullptr && pBucket->GetInitialType() != pBucket->GetFinalType())
-            {
+            {LOGMEIN("BackwardPass.cpp] 4610\n");
                 opnd->SetFinalType(pBucket->GetFinalType());
             }
         }
@@ -4630,7 +4630,7 @@ BackwardPass::TrackAddPropertyTypes(IR::PropertySymOpnd *opnd, BasicBlock *block
     // If there's already a final type for this instance, record it on the operand.
     // If not, start tracking it.
     if (block->stackSymToFinalType == nullptr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 4632\n");
         block->stackSymToFinalType = HashTable<AddPropertyCacheBucket>::New(this->tempAlloc, 8);
     }
 
@@ -4644,10 +4644,10 @@ BackwardPass::TrackAddPropertyTypes(IR::PropertySymOpnd *opnd, BasicBlock *block
     JITTypeHolder deadStoreUnavailableFinalType(nullptr);
 #endif
     if (pBucket->GetInitialType() == nullptr || opnd->GetType() != pBucket->GetInitialType())
-    {
+    {LOGMEIN("BackwardPass.cpp] 4646\n");
 #if DBG
         if (opnd->GetType() == pBucket->deadStoreUnavailableInitialType)
-        {
+        {LOGMEIN("BackwardPass.cpp] 4649\n");
             deadStoreUnavailableFinalType = pBucket->deadStoreUnavailableFinalType;
         }
 #endif
@@ -4668,7 +4668,7 @@ BackwardPass::TrackAddPropertyTypes(IR::PropertySymOpnd *opnd, BasicBlock *block
     pBucket->SetInitialType(typeWithoutProperty);
 
     if (!PHASE_OFF(Js::ObjTypeSpecStorePhase, this->func))
-    {
+    {LOGMEIN("BackwardPass.cpp] 4670\n");
 #if DBG
 
         // We may regress in this case:
@@ -4688,11 +4688,11 @@ BackwardPass::TrackAddPropertyTypes(IR::PropertySymOpnd *opnd, BasicBlock *block
         //
         // if the type is dead, we don't care if we have regressed the type, as no one is depending on it to skip type check anyways
         if (!opnd->IsTypeDead())
-        {
+        {LOGMEIN("BackwardPass.cpp] 4690\n");
             // This is the type that would have been propagated if we didn't kill it because the type isn't available
             JITTypeHolder checkFinalType = deadStoreUnavailableFinalType != nullptr ? deadStoreUnavailableFinalType : finalType;
             if (opnd->HasFinalType() && opnd->GetFinalType() != checkFinalType)
-            {
+            {LOGMEIN("BackwardPass.cpp] 4694\n");
                 // Final type discovery must be progressively better (unless we kill it in the deadstore pass
                 // when the type is not available during the forward pass)
                 const JITTypeHandler * oldFinalTypeHandler = opnd->GetFinalType()->GetTypeHandler();
@@ -4708,14 +4708,14 @@ BackwardPass::TrackAddPropertyTypes(IR::PropertySymOpnd *opnd, BasicBlock *block
 #endif
         Assert(opnd->IsBeingAdded());
         if (!this->IsPrePass())
-        {
+        {LOGMEIN("BackwardPass.cpp] 4710\n");
             opnd->SetFinalType(finalType);
         }
         if (!opnd->IsTypeChecked())
-        {
+        {LOGMEIN("BackwardPass.cpp] 4714\n");
             // Transition from initial to final type will only happen at type check points.
             if (opnd->IsTypeAvailable())
-            {
+            {LOGMEIN("BackwardPass.cpp] 4717\n");
                 pBucket->SetFinalType(pBucket->GetInitialType());
             }
         }
@@ -4723,7 +4723,7 @@ BackwardPass::TrackAddPropertyTypes(IR::PropertySymOpnd *opnd, BasicBlock *block
 
 #if DBG_DUMP
     if (PHASE_TRACE(Js::ObjTypeSpecStorePhase, this->func))
-    {
+    {LOGMEIN("BackwardPass.cpp] 4725\n");
         Output::Print(_u("ObjTypeSpecStore: "));
         this->currentInstr->Dump();
         pBucket->Dump();
@@ -4741,11 +4741,11 @@ BackwardPass::TrackAddPropertyTypes(IR::PropertySymOpnd *opnd, BasicBlock *block
     //  o.y =
 
     if (!opnd->IsTypeAvailable())
-    {
+    {LOGMEIN("BackwardPass.cpp] 4743\n");
 #if DBG
         pBucket->deadStoreUnavailableInitialType = pBucket->GetInitialType();
         if (pBucket->deadStoreUnavailableFinalType == nullptr)
-        {
+        {LOGMEIN("BackwardPass.cpp] 4747\n");
             pBucket->deadStoreUnavailableFinalType = pBucket->GetFinalType();
         }
         pBucket->SetInitialType(nullptr);
@@ -4758,7 +4758,7 @@ BackwardPass::TrackAddPropertyTypes(IR::PropertySymOpnd *opnd, BasicBlock *block
 
 void
 BackwardPass::InsertTypeTransition(IR::Instr *instrInsertBefore, int symId, AddPropertyCacheBucket *data)
-{
+{LOGMEIN("BackwardPass.cpp] 4760\n");
     StackSym *objSym = this->func->m_symTable->FindStackSym(symId);
     Assert(objSym);
     this->InsertTypeTransition(instrInsertBefore, objSym, data);
@@ -4766,7 +4766,7 @@ BackwardPass::InsertTypeTransition(IR::Instr *instrInsertBefore, int symId, AddP
 
 void
 BackwardPass::InsertTypeTransition(IR::Instr *instrInsertBefore, StackSym *objSym, AddPropertyCacheBucket *data)
-{
+{LOGMEIN("BackwardPass.cpp] 4768\n");
     IR::RegOpnd *baseOpnd = IR::RegOpnd::New(objSym, TyMachReg, this->func);
     baseOpnd->SetIsJITOptimizedReg(true);
 
@@ -4786,12 +4786,12 @@ BackwardPass::InsertTypeTransition(IR::Instr *instrInsertBefore, StackSym *objSy
 
 void
 BackwardPass::InsertTypeTransitionAfterInstr(IR::Instr *instr, int symId, AddPropertyCacheBucket *data)
-{
+{LOGMEIN("BackwardPass.cpp] 4788\n");
     if (!this->IsPrePass())
-    {
+    {LOGMEIN("BackwardPass.cpp] 4790\n");
         // Transition to the final type if we don't bail out.
         if (instr->EndsBasicBlock())
-        {
+        {LOGMEIN("BackwardPass.cpp] 4793\n");
             // The instr with the bailout is something like a branch that may not fall through.
             // Insert the transitions instead at the beginning of each successor block.
             this->InsertTypeTransitionsAtPriorSuccessors(this->currentBlock, nullptr, symId, data);
@@ -4808,18 +4808,18 @@ BackwardPass::InsertTypeTransitionAfterInstr(IR::Instr *instr, int symId, AddPro
 
 void
 BackwardPass::InsertTypeTransitionAtBlock(BasicBlock *block, int symId, AddPropertyCacheBucket *data)
-{
+{LOGMEIN("BackwardPass.cpp] 4810\n");
     bool inserted = false;
     FOREACH_INSTR_IN_BLOCK(instr, block)
-    {
+    {LOGMEIN("BackwardPass.cpp] 4813\n");
         if (instr->IsRealInstr())
-        {
+        {LOGMEIN("BackwardPass.cpp] 4815\n");
             // Check for pre-existing type transition. There may be more than one AdjustObjType here,
             // so look at them all.
             if (instr->m_opcode == Js::OpCode::AdjustObjType)
-            {
+            {LOGMEIN("BackwardPass.cpp] 4819\n");
                 if (instr->GetSrc1()->AsRegOpnd()->m_sym->m_id == (SymID)symId)
-                {
+                {LOGMEIN("BackwardPass.cpp] 4821\n");
                     // This symbol already has a type transition at this point.
                     // It *must* be doing the same transition we're already trying to do.
                     Assert((intptr_t)instr->GetDst()->AsAddrOpnd()->m_address == data->GetFinalType()->GetAddr() &&
@@ -4838,7 +4838,7 @@ BackwardPass::InsertTypeTransitionAtBlock(BasicBlock *block, int symId, AddPrope
     }
     NEXT_INSTR_IN_BLOCK;
     if (!inserted)
-    {
+    {LOGMEIN("BackwardPass.cpp] 4840\n");
         Assert(block->GetLastInstr()->m_next);
         this->InsertTypeTransition(block->GetLastInstr()->m_next, symId, data);
     }
@@ -4853,9 +4853,9 @@ BackwardPass::InsertTypeTransitionsAtPriorSuccessors(
 {
     // For each successor of block prior to blockSucc, adjust the type.
     FOREACH_SUCCESSOR_BLOCK(blockFix, block)
-    {
+    {LOGMEIN("BackwardPass.cpp] 4855\n");
         if (blockFix == blockSucc)
-        {
+        {LOGMEIN("BackwardPass.cpp] 4857\n");
             return;
         }
 
@@ -4866,12 +4866,12 @@ BackwardPass::InsertTypeTransitionsAtPriorSuccessors(
 
 void
 BackwardPass::InsertTypeTransitionsAtPotentialKills()
-{
+{LOGMEIN("BackwardPass.cpp] 4868\n");
     // Final types can't be pushed up past certain instructions.
     IR::Instr *instr = this->currentInstr;
 
     if (instr->HasBailOutInfo() || instr->m_opcode == Js::OpCode::UpdateNewScObjectCache)
-    {
+    {LOGMEIN("BackwardPass.cpp] 4873\n");
         // Final types can't be pushed up past a bailout point.
         // Insert any transitions called for by the current state of add-property buckets.
         // Also do this for ctor cache updates, to avoid putting a type in the ctor cache that extends past
@@ -4887,21 +4887,21 @@ BackwardPass::InsertTypeTransitionsAtPotentialKills()
         // object-header-inlined to non-object-header-inlined type past it, because the two syms may be aliases.
         IR::PropertySymOpnd *propertySymOpnd = instr->GetPropertySymOpnd();
         if (propertySymOpnd && propertySymOpnd->IsObjectHeaderInlined())
-        {
+        {LOGMEIN("BackwardPass.cpp] 4889\n");
             SymID opndId = propertySymOpnd->m_sym->AsPropertySym()->m_stackSym->m_id;
             this->ForEachAddPropertyCacheBucket([&](int symId, AddPropertyCacheBucket *data)->bool {
                 if ((SymID)symId == opndId)
-                {
+                {LOGMEIN("BackwardPass.cpp] 4893\n");
                     // This is the sym we're tracking. No aliasing to worry about.
                     return false;
                 }
                 if (propertySymOpnd->IsMono() && data->GetInitialType() != propertySymOpnd->GetType())
-                {
+                {LOGMEIN("BackwardPass.cpp] 4898\n");
                     // Type mismatch in a monomorphic case -- no aliasing.
                     return false;
                 }
                 if (this->TransitionUndoesObjectHeaderInlining(data))
-                {
+                {LOGMEIN("BackwardPass.cpp] 4903\n");
                     // We're transitioning from inlined to non-inlined, so we can't push it up any farther.
                     this->InsertTypeTransitionAfterInstr(instr, symId, data);
                 }
@@ -4914,22 +4914,22 @@ BackwardPass::InsertTypeTransitionsAtPotentialKills()
 template<class Fn>
 void
 BackwardPass::ForEachAddPropertyCacheBucket(Fn fn)
-{
+{LOGMEIN("BackwardPass.cpp] 4916\n");
     BasicBlock *block = this->currentBlock;
     if (block->stackSymToFinalType == nullptr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 4919\n");
         return;
     }
 
     FOREACH_HASHTABLE_ENTRY(AddPropertyCacheBucket, bucket, block->stackSymToFinalType)
-    {
+    {LOGMEIN("BackwardPass.cpp] 4924\n");
         AddPropertyCacheBucket *data = &bucket.element;
         if (data->GetInitialType() != nullptr &&
             data->GetInitialType() != data->GetFinalType())
-        {
+        {LOGMEIN("BackwardPass.cpp] 4928\n");
             bool done = fn(bucket.value, data);
             if (done)
-            {
+            {LOGMEIN("BackwardPass.cpp] 4931\n");
                 break;
             }
         }
@@ -4939,21 +4939,21 @@ BackwardPass::ForEachAddPropertyCacheBucket(Fn fn)
 
 bool
 BackwardPass::TransitionUndoesObjectHeaderInlining(AddPropertyCacheBucket *data) const
-{
+{LOGMEIN("BackwardPass.cpp] 4941\n");
     JITTypeHolder type = data->GetInitialType();
     if (type == nullptr || !Js::DynamicType::Is(type->GetTypeId()))
-    {
+    {LOGMEIN("BackwardPass.cpp] 4944\n");
         return false;
     }
 
     if (!type->GetTypeHandler()->IsObjectHeaderInlinedTypeHandler())
-    {
+    {LOGMEIN("BackwardPass.cpp] 4949\n");
         return false;
     }
 
     type = data->GetFinalType();
     if (type == nullptr || !Js::DynamicType::Is(type->GetTypeId()))
-    {
+    {LOGMEIN("BackwardPass.cpp] 4955\n");
         return false;
     }
     return !type->GetTypeHandler()->IsObjectHeaderInlinedTypeHandler();
@@ -4961,7 +4961,7 @@ BackwardPass::TransitionUndoesObjectHeaderInlining(AddPropertyCacheBucket *data)
 
 void
 BackwardPass::CollectCloneStrCandidate(IR::Opnd * opnd)
-{
+{LOGMEIN("BackwardPass.cpp] 4963\n");
     IR::RegOpnd *regOpnd = opnd->AsRegOpnd();
     Assert(regOpnd != nullptr);
     StackSym *sym = regOpnd->m_sym;
@@ -4972,7 +4972,7 @@ BackwardPass::CollectCloneStrCandidate(IR::Opnd * opnd)
         && !this->IsPrePass()
         && !this->IsCollectionPass()
         &&  this->currentBlock->loop)
-    {
+    {LOGMEIN("BackwardPass.cpp] 4974\n");
         Assert(currentBlock->cloneStrCandidates != nullptr);
 
         currentBlock->cloneStrCandidates->Set(sym->m_id);
@@ -4981,7 +4981,7 @@ BackwardPass::CollectCloneStrCandidate(IR::Opnd * opnd)
 
 void
 BackwardPass::InvalidateCloneStrCandidate(IR::Opnd * opnd)
-{
+{LOGMEIN("BackwardPass.cpp] 4983\n");
     IR::RegOpnd *regOpnd = opnd->AsRegOpnd();
     Assert(regOpnd != nullptr);
     StackSym *sym = regOpnd->m_sym;
@@ -4991,27 +4991,27 @@ BackwardPass::InvalidateCloneStrCandidate(IR::Opnd * opnd)
         !this->IsPrePass() &&
         !this->IsCollectionPass() &&
         this->currentBlock->loop)
-    {
+    {LOGMEIN("BackwardPass.cpp] 4993\n");
             currentBlock->cloneStrCandidates->Clear(sym->m_id);
     }
 }
 
 void
 BackwardPass::ProcessUse(IR::Opnd * opnd)
-{
+{LOGMEIN("BackwardPass.cpp] 5000\n");
     switch (opnd->GetKind())
-    {
+    {LOGMEIN("BackwardPass.cpp] 5002\n");
     case IR::OpndKindReg:
-        {
+        {LOGMEIN("BackwardPass.cpp] 5004\n");
             IR::RegOpnd *regOpnd = opnd->AsRegOpnd();
             StackSym *sym = regOpnd->m_sym;
 
             if (!IsCollectionPass())
-            {
+            {LOGMEIN("BackwardPass.cpp] 5009\n");
                 // isTempLastUse is only used for string concat right now, so lets not mark it if it's not a string.
                 // If it's upward exposed, it is not it's last use.
                 if (regOpnd->m_isTempLastUse && (regOpnd->GetValueType().IsNotString() || this->currentBlock->upwardExposedUses->Test(sym->m_id) || sym->m_mayNotBeTempLastUse))
-                {
+                {LOGMEIN("BackwardPass.cpp] 5013\n");
                     regOpnd->m_isTempLastUse = false;
                 }
                 this->CollectCloneStrCandidate(opnd);
@@ -5020,7 +5020,7 @@ BackwardPass::ProcessUse(IR::Opnd * opnd)
             this->DoSetDead(regOpnd, !this->ProcessSymUse(sym, true, regOpnd->GetIsJITOptimizedReg()));
 
             if (IsCollectionPass())
-            {
+            {LOGMEIN("BackwardPass.cpp] 5022\n");
                 break;
             }
 
@@ -5030,12 +5030,12 @@ BackwardPass::ProcessUse(IR::Opnd * opnd)
             }
 
             if (currentInstr->m_opcode == Js::OpCode::BailOnNotArray)
-            {
+            {LOGMEIN("BackwardPass.cpp] 5032\n");
                 Assert(tag == Js::DeadStorePhase);
 
                 const ValueType valueType(regOpnd->GetValueType());
                 if(valueType.IsLikelyArrayOrObjectWithArray())
-                {
+                {LOGMEIN("BackwardPass.cpp] 5037\n");
                     currentBlock->noImplicitCallUses->Clear(sym->m_id);
 
                     // We are being conservative here to always check for missing value
@@ -5044,7 +5044,7 @@ BackwardPass::ProcessUse(IR::Opnd * opnd)
                     if(valueType.HasNoMissingValues() &&
                         !currentBlock->noImplicitCallNoMissingValuesUses->IsEmpty() &&
                         !IsPrePass())
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 5046\n");
                         // There is a use of this sym that requires this array to have no missing values, so this instruction
                         // needs to bail out if the array has missing values.
                         Assert(currentInstr->GetBailOutKind() == IR::BailOutOnNotArray ||
@@ -5059,43 +5059,43 @@ BackwardPass::ProcessUse(IR::Opnd * opnd)
         }
         break;
     case IR::OpndKindSym:
-        {
+        {LOGMEIN("BackwardPass.cpp] 5061\n");
             IR::SymOpnd *symOpnd = opnd->AsSymOpnd();
             Sym * sym = symOpnd->m_sym;
 
             this->DoSetDead(symOpnd, !this->ProcessSymUse(sym, false, opnd->GetIsJITOptimizedReg()));
 
             if (IsCollectionPass())
-            {
+            {LOGMEIN("BackwardPass.cpp] 5068\n");
                 break;
             }
 
             if (sym->IsPropertySym())
-            {
+            {LOGMEIN("BackwardPass.cpp] 5073\n");
                 // TODO: We don't have last use info for property sym
                 // and we don't set the last use of the stacksym inside the property sym
                 if (tag == Js::BackwardPhase)
-                {
+                {LOGMEIN("BackwardPass.cpp] 5077\n");
                     if (opnd->AsSymOpnd()->IsPropertySymOpnd())
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 5079\n");
                         this->globOpt->PreparePropertySymOpndForTypeCheckSeq(symOpnd->AsPropertySymOpnd(), this->currentInstr, this->currentBlock->loop);
                     }
                 }
 
                 if (this->DoMarkTempNumbersOnTempObjects())
-                {
+                {LOGMEIN("BackwardPass.cpp] 5085\n");
                     this->currentBlock->tempNumberTracker->ProcessPropertySymUse(symOpnd, this->currentInstr, this);
                 }
 
                 if (symOpnd->IsPropertySymOpnd())
-                {
+                {LOGMEIN("BackwardPass.cpp] 5090\n");
                     this->ProcessPropertySymOpndUse(symOpnd->AsPropertySymOpnd());
                 }
             }
         }
         break;
     case IR::OpndKindIndir:
-        {
+        {LOGMEIN("BackwardPass.cpp] 5097\n");
             IR::IndirOpnd * indirOpnd = opnd->AsIndirOpnd();
             IR::RegOpnd * baseOpnd = indirOpnd->GetBaseOpnd();
 
@@ -5103,17 +5103,17 @@ BackwardPass::ProcessUse(IR::Opnd * opnd)
 
             IR::RegOpnd * indexOpnd = indirOpnd->GetIndexOpnd();
             if (indexOpnd)
-            {
+            {LOGMEIN("BackwardPass.cpp] 5105\n");
                 this->DoSetDead(indexOpnd, !this->ProcessSymUse(indexOpnd->m_sym, false, indexOpnd->GetIsJITOptimizedReg()));
             }
 
             if(IsCollectionPass())
-            {
+            {LOGMEIN("BackwardPass.cpp] 5110\n");
                 break;
             }
 
             if (this->DoMarkTempNumbersOnTempObjects())
-            {
+            {LOGMEIN("BackwardPass.cpp] 5115\n");
                 this->currentBlock->tempNumberTracker->ProcessIndirUse(indirOpnd, currentInstr, this);
             }
 
@@ -5128,7 +5128,7 @@ BackwardPass::ProcessUse(IR::Opnd * opnd)
 
 bool
 BackwardPass::ProcessPropertySymUse(PropertySym *propertySym)
-{
+{LOGMEIN("BackwardPass.cpp] 5130\n");
     Assert(this->tag == Js::BackwardPhase);
 
     BasicBlock *block = this->currentBlock;
@@ -5136,7 +5136,7 @@ BackwardPass::ProcessPropertySymUse(PropertySym *propertySym)
     bool isLive = !!block->upwardExposedFields->TestAndSet(propertySym->m_id);
 
     if (propertySym->m_propertyEquivSet)
-    {
+    {LOGMEIN("BackwardPass.cpp] 5138\n");
         block->upwardExposedFields->Or(propertySym->m_propertyEquivSet);
     }
 
@@ -5145,28 +5145,28 @@ BackwardPass::ProcessPropertySymUse(PropertySym *propertySym)
 
 void
 BackwardPass::MarkTemp(StackSym * sym)
-{
+{LOGMEIN("BackwardPass.cpp] 5147\n");
     Assert(!IsCollectionPass());
     // Don't care about type specialized syms
     if (!sym->IsVar())
-    {
+    {LOGMEIN("BackwardPass.cpp] 5151\n");
         return;
     }
 
     BasicBlock * block = this->currentBlock;
     if (this->DoMarkTempNumbers())
-    {
+    {LOGMEIN("BackwardPass.cpp] 5157\n");
         Assert((block->loop != nullptr) == block->tempNumberTracker->HasTempTransferDependencies());
         block->tempNumberTracker->MarkTemp(sym, this);
     }
     if (this->DoMarkTempObjects())
-    {
+    {LOGMEIN("BackwardPass.cpp] 5162\n");
         Assert((block->loop != nullptr) == block->tempObjectTracker->HasTempTransferDependencies());
         block->tempObjectTracker->MarkTemp(sym, this);
     }
 #if DBG
     if (this->DoMarkTempObjectVerify())
-    {
+    {LOGMEIN("BackwardPass.cpp] 5168\n");
         Assert((block->loop != nullptr) == block->tempObjectVerifyTracker->HasTempTransferDependencies());
         block->tempObjectVerifyTracker->MarkTemp(sym, this);
     }
@@ -5175,29 +5175,29 @@ BackwardPass::MarkTemp(StackSym * sym)
 
 void
 BackwardPass::MarkTempProcessInstr(IR::Instr * instr)
-{
+{LOGMEIN("BackwardPass.cpp] 5177\n");
     Assert(!IsCollectionPass());
 
     if (this->currentBlock->isDead)
-    {
+    {LOGMEIN("BackwardPass.cpp] 5181\n");
         return;
     }
 
     BasicBlock * block;
     block = this->currentBlock;
     if (this->DoMarkTempNumbers())
-    {
+    {LOGMEIN("BackwardPass.cpp] 5188\n");
         block->tempNumberTracker->ProcessInstr(instr, this);
     }
 
     if (this->DoMarkTempObjects())
-    {
+    {LOGMEIN("BackwardPass.cpp] 5193\n");
         block->tempObjectTracker->ProcessInstr(instr);
     }
 
 #if DBG
     if (this->DoMarkTempObjectVerify())
-    {
+    {LOGMEIN("BackwardPass.cpp] 5199\n");
         block->tempObjectVerifyTracker->ProcessInstr(instr, this);
     }
 #endif
@@ -5206,21 +5206,21 @@ BackwardPass::MarkTempProcessInstr(IR::Instr * instr)
 #if DBG_DUMP
 void
 BackwardPass::DumpMarkTemp()
-{
+{LOGMEIN("BackwardPass.cpp] 5208\n");
     Assert(!IsCollectionPass());
 
     BasicBlock * block = this->currentBlock;
     if (this->DoMarkTempNumbers())
-    {
+    {LOGMEIN("BackwardPass.cpp] 5213\n");
         block->tempNumberTracker->Dump();
     }
     if (this->DoMarkTempObjects())
-    {
+    {LOGMEIN("BackwardPass.cpp] 5217\n");
         block->tempObjectTracker->Dump();
     }
 #if DBG
     if (this->DoMarkTempObjectVerify())
-    {
+    {LOGMEIN("BackwardPass.cpp] 5222\n");
         block->tempObjectVerifyTracker->Dump();
     }
 #endif
@@ -5229,85 +5229,85 @@ BackwardPass::DumpMarkTemp()
 
 void
 BackwardPass::SetSymIsUsedOnlyInNumberIfLastUse(IR::Opnd *const opnd)
-{
+{LOGMEIN("BackwardPass.cpp] 5231\n");
     StackSym *const stackSym = IR::RegOpnd::TryGetStackSym(opnd);
     if (stackSym && !currentBlock->upwardExposedUses->Test(stackSym->m_id))
-    {
+    {LOGMEIN("BackwardPass.cpp] 5234\n");
         symUsedOnlyForNumberBySymId->Set(stackSym->m_id);
     }
 }
 
 void
 BackwardPass::SetSymIsNotUsedOnlyInNumber(IR::Opnd *const opnd)
-{
+{LOGMEIN("BackwardPass.cpp] 5241\n");
     StackSym *const stackSym = IR::RegOpnd::TryGetStackSym(opnd);
     if (stackSym)
-    {
+    {LOGMEIN("BackwardPass.cpp] 5244\n");
         symUsedOnlyForNumberBySymId->Clear(stackSym->m_id);
     }
 }
 
 void
 BackwardPass::SetSymIsUsedOnlyInBitOpsIfLastUse(IR::Opnd *const opnd)
-{
+{LOGMEIN("BackwardPass.cpp] 5251\n");
     StackSym *const stackSym = IR::RegOpnd::TryGetStackSym(opnd);
     if (stackSym && !currentBlock->upwardExposedUses->Test(stackSym->m_id))
-    {
+    {LOGMEIN("BackwardPass.cpp] 5254\n");
         symUsedOnlyForBitOpsBySymId->Set(stackSym->m_id);
     }
 }
 
 void
 BackwardPass::SetSymIsNotUsedOnlyInBitOps(IR::Opnd *const opnd)
-{
+{LOGMEIN("BackwardPass.cpp] 5261\n");
     StackSym *const stackSym = IR::RegOpnd::TryGetStackSym(opnd);
     if (stackSym)
-    {
+    {LOGMEIN("BackwardPass.cpp] 5264\n");
         symUsedOnlyForBitOpsBySymId->Clear(stackSym->m_id);
     }
 }
 
 void
 BackwardPass::TrackBitWiseOrNumberOp(IR::Instr *const instr)
-{
+{LOGMEIN("BackwardPass.cpp] 5271\n");
     Assert(instr);
     const bool trackBitWiseop = DoTrackBitOpsOrNumber();
     const bool trackNumberop = trackBitWiseop;
     const Js::OpCode opcode = instr->m_opcode;
     StackSym *const dstSym = IR::RegOpnd::TryGetStackSym(instr->GetDst());
     if (!trackBitWiseop && !trackNumberop)
-    {
+    {LOGMEIN("BackwardPass.cpp] 5278\n");
         return;
     }
 
     if (!instr->IsRealInstr())
-    {
+    {LOGMEIN("BackwardPass.cpp] 5283\n");
         return;
     }
 
     if (dstSym)
-    {
+    {LOGMEIN("BackwardPass.cpp] 5288\n");
         // For a dst where the def is in this block, transfer the current info into the instruction
         if (trackBitWiseop && symUsedOnlyForBitOpsBySymId->TestAndClear(dstSym->m_id))
-        {
+        {LOGMEIN("BackwardPass.cpp] 5291\n");
             instr->dstIsAlwaysConvertedToInt32 = true;
         }
         if (trackNumberop && symUsedOnlyForNumberBySymId->TestAndClear(dstSym->m_id))
-        {
+        {LOGMEIN("BackwardPass.cpp] 5295\n");
             instr->dstIsAlwaysConvertedToNumber = true;
         }
     }
 
     // If the instruction can cause src values to escape the local scope, the srcs can't be optimized
     if (OpCodeAttr::NonTempNumberSources(opcode))
-    {
+    {LOGMEIN("BackwardPass.cpp] 5302\n");
         if (trackBitWiseop)
-        {
+        {LOGMEIN("BackwardPass.cpp] 5304\n");
             SetSymIsNotUsedOnlyInBitOps(instr->GetSrc1());
             SetSymIsNotUsedOnlyInBitOps(instr->GetSrc2());
         }
         if (trackNumberop)
-        {
+        {LOGMEIN("BackwardPass.cpp] 5309\n");
             SetSymIsNotUsedOnlyInNumber(instr->GetSrc1());
             SetSymIsNotUsedOnlyInNumber(instr->GetSrc2());
         }
@@ -5315,9 +5315,9 @@ BackwardPass::TrackBitWiseOrNumberOp(IR::Instr *const instr)
     }
 
     if (trackBitWiseop)
-    {
+    {LOGMEIN("BackwardPass.cpp] 5317\n");
         switch (opcode)
-        {
+        {LOGMEIN("BackwardPass.cpp] 5319\n");
             // Instructions that can cause src values to escape the local scope have already been excluded
 
         case Js::OpCode::Not_A:
@@ -5345,9 +5345,9 @@ BackwardPass::TrackBitWiseOrNumberOp(IR::Instr *const instr)
     }
 
     if (trackNumberop)
-    {
+    {LOGMEIN("BackwardPass.cpp] 5347\n");
         switch (opcode)
-        {
+        {LOGMEIN("BackwardPass.cpp] 5349\n");
             // Instructions that can cause src values to escape the local scope have already been excluded
 
         case Js::OpCode::Conv_Num:
@@ -5380,19 +5380,19 @@ BackwardPass::TrackBitWiseOrNumberOp(IR::Instr *const instr)
 
 void
 BackwardPass::RemoveNegativeZeroBailout(IR::Instr* instr)
-{
+{LOGMEIN("BackwardPass.cpp] 5382\n");
     Assert(instr->HasBailOutInfo() && (instr->GetBailOutKind() & IR::BailOutOnNegativeZero));
     IR::BailOutKind bailOutKind = instr->GetBailOutKind();
     bailOutKind = bailOutKind & ~IR::BailOutOnNegativeZero;
     if (bailOutKind)
-    {
+    {LOGMEIN("BackwardPass.cpp] 5387\n");
         instr->SetBailOutKind(bailOutKind);
     }
     else
     {
         instr->ClearBailOutInfo();
         if (preOpBailOutInstrToProcess == instr)
-        {
+        {LOGMEIN("BackwardPass.cpp] 5394\n");
             preOpBailOutInstrToProcess = nullptr;
         }
     }
@@ -5400,7 +5400,7 @@ BackwardPass::RemoveNegativeZeroBailout(IR::Instr* instr)
 
 void
 BackwardPass::TrackIntUsage(IR::Instr *const instr)
-{
+{LOGMEIN("BackwardPass.cpp] 5402\n");
     Assert(instr);
 
     const bool trackNegativeZero = DoTrackNegativeZero();
@@ -5409,13 +5409,13 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
     const bool trackNon32BitOverflow = DoTrackNon32BitOverflow();
 
     if(!(trackNegativeZero || trackIntOverflow || trackCompoundedIntOverflow))
-    {
+    {LOGMEIN("BackwardPass.cpp] 5411\n");
         return;
     }
 
     const Js::OpCode opcode = instr->m_opcode;
     if(trackCompoundedIntOverflow && opcode == Js::OpCode::StatementBoundary && instr->AsPragmaInstr()->m_statementIndex == 0)
-    {
+    {LOGMEIN("BackwardPass.cpp] 5417\n");
         // Cannot bail out before the first statement boundary, so the range cannot extend beyond this instruction
         Assert(!instr->ignoreIntOverflowInRange);
         EndIntOverflowDoesNotMatterRange();
@@ -5423,31 +5423,31 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
     }
 
     if(!instr->IsRealInstr())
-    {
+    {LOGMEIN("BackwardPass.cpp] 5425\n");
         return;
     }
 
     StackSym *const dstSym = IR::RegOpnd::TryGetStackSym(instr->GetDst());
     bool ignoreIntOverflowCandidate = false;
     if(dstSym)
-    {
+    {LOGMEIN("BackwardPass.cpp] 5432\n");
         // For a dst where the def is in this block, transfer the current info into the instruction
         if(trackNegativeZero)
-        {
+        {LOGMEIN("BackwardPass.cpp] 5435\n");
             if (negativeZeroDoesNotMatterBySymId->Test(dstSym->m_id))
-            {
+            {LOGMEIN("BackwardPass.cpp] 5437\n");
                 instr->ignoreNegativeZero = true;
             }
 
             if (tag == Js::DeadStorePhase)
-            {
+            {LOGMEIN("BackwardPass.cpp] 5442\n");
                 if (negativeZeroDoesNotMatterBySymId->TestAndClear(dstSym->m_id))
-                {
+                {LOGMEIN("BackwardPass.cpp] 5444\n");
                     if (instr->HasBailOutInfo())
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 5446\n");
                         IR::BailOutKind bailOutKind = instr->GetBailOutKind();
                         if (bailOutKind & IR::BailOutOnNegativeZero)
-                        {
+                        {LOGMEIN("BackwardPass.cpp] 5449\n");
                             RemoveNegativeZeroBailout(instr);
                         }
                     }
@@ -5455,11 +5455,11 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
                 else
                 {
                     if (instr->HasBailOutInfo())
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 5457\n");
                         if (instr->GetBailOutKind() & IR::BailOutOnNegativeZero)
-                        {
+                        {LOGMEIN("BackwardPass.cpp] 5459\n");
                             if (this->currentBlock->couldRemoveNegZeroBailoutForDef->TestAndClear(dstSym->m_id))
-                            {
+                            {LOGMEIN("BackwardPass.cpp] 5461\n");
                                 RemoveNegativeZeroBailout(instr);
                             }
                         }
@@ -5476,10 +5476,10 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
             }
         }
         if(trackIntOverflow)
-        {
+        {LOGMEIN("BackwardPass.cpp] 5478\n");
             ignoreIntOverflowCandidate = !!intOverflowDoesNotMatterBySymId->TestAndClear(dstSym->m_id);
             if(trackCompoundedIntOverflow)
-            {
+            {LOGMEIN("BackwardPass.cpp] 5481\n");
                 instr->ignoreIntOverflowInRange = !!intOverflowDoesNotMatterInRangeBySymId->TestAndClear(dstSym->m_id);
             }
         }
@@ -5487,18 +5487,18 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
 
     // If the instruction can cause src values to escape the local scope, the srcs can't be optimized
     if(OpCodeAttr::NonTempNumberSources(opcode))
-    {
+    {LOGMEIN("BackwardPass.cpp] 5489\n");
         if(trackNegativeZero)
-        {
+        {LOGMEIN("BackwardPass.cpp] 5491\n");
             SetNegativeZeroMatters(instr->GetSrc1());
             SetNegativeZeroMatters(instr->GetSrc2());
         }
         if(trackIntOverflow)
-        {
+        {LOGMEIN("BackwardPass.cpp] 5496\n");
             SetIntOverflowMatters(instr->GetSrc1());
             SetIntOverflowMatters(instr->GetSrc2());
             if(trackCompoundedIntOverflow)
-            {
+            {LOGMEIN("BackwardPass.cpp] 5500\n");
                 instr->ignoreIntOverflowInRange = false;
                 SetIntOverflowMattersInRange(instr->GetSrc1());
                 SetIntOverflowMattersInRange(instr->GetSrc2());
@@ -5511,9 +5511,9 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
     // -0 tracking
 
     if(trackNegativeZero)
-    {
+    {LOGMEIN("BackwardPass.cpp] 5513\n");
         switch(opcode)
-        {
+        {LOGMEIN("BackwardPass.cpp] 5515\n");
             // Instructions that can cause src values to escape the local scope have already been excluded
 
             case Js::OpCode::FromVar:
@@ -5523,7 +5523,7 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
                 Assert(!instr->GetSrc2());
 
                 if(instr->GetDst()->IsInt32())
-                {
+                {LOGMEIN("BackwardPass.cpp] 5525\n");
                     // Conversion to int32 that is either explicit, or has a bailout check ensuring that it's an int value
                     SetNegativeZeroDoesNotMatterIfLastUse(instr->GetSrc1());
                     break;
@@ -5532,14 +5532,14 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
 
             default:
                 if(dstSym && !instr->ignoreNegativeZero)
-                {
+                {LOGMEIN("BackwardPass.cpp] 5534\n");
                     // -0 matters for dst, so -0 also matters for srcs
                     SetNegativeZeroMatters(instr->GetSrc1());
                     SetNegativeZeroMatters(instr->GetSrc2());
                     break;
                 }
                 if(opcode == Js::OpCode::Div_A || opcode == Js::OpCode::Div_I4)
-                {
+                {LOGMEIN("BackwardPass.cpp] 5541\n");
                     // src1 is being divided by src2, so -0 matters for src2
                     SetNegativeZeroDoesNotMatterIfLastUse(instr->GetSrc1());
                     SetNegativeZeroMatters(instr->GetSrc2());
@@ -5580,7 +5580,7 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
                 break;
 
             case Js::OpCode::Add_I4:
-            {
+            {LOGMEIN("BackwardPass.cpp] 5582\n");
                 Assert(dstSym);
                 Assert(instr->GetSrc1());
                 Assert(instr->GetSrc1()->IsRegOpnd() || instr->GetSrc1()->IsIntConstOpnd());
@@ -5590,7 +5590,7 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
                 if (instr->ignoreNegativeZero ||
                     (instr->GetSrc1()->IsIntConstOpnd() && instr->GetSrc1()->AsIntConstOpnd()->GetValue() != 0) ||
                     (instr->GetSrc2()->IsIntConstOpnd() && instr->GetSrc2()->AsIntConstOpnd()->GetValue() != 0))
-                {
+                {LOGMEIN("BackwardPass.cpp] 5592\n");
                     SetNegativeZeroDoesNotMatterIfLastUse(instr->GetSrc1());
                     SetNegativeZeroDoesNotMatterIfLastUse(instr->GetSrc2());
                     break;
@@ -5602,10 +5602,10 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
                 SetNegativeZeroMatters(instr->GetSrc1());
                 SetNegativeZeroMatters(instr->GetSrc2());
                 if (tag == Js::DeadStorePhase)
-                {
+                {LOGMEIN("BackwardPass.cpp] 5604\n");
                     if (instr->GetSrc2()->IsRegOpnd() &&
                         !currentBlock->upwardExposedUses->Test(instr->GetSrc2()->AsRegOpnd()->m_sym->m_id))
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 5607\n");
                         SetCouldRemoveNegZeroBailoutForDefIfLastUse(instr->GetSrc2());
                     }
                     else
@@ -5624,7 +5624,7 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
                 Assert(instr->GetSrc2()->IsRegOpnd() || instr->GetSrc2()->IsAddrOpnd());
 
                 if(instr->ignoreNegativeZero || instr->GetSrc1()->IsAddrOpnd() || instr->GetSrc2()->IsAddrOpnd())
-                {
+                {LOGMEIN("BackwardPass.cpp] 5626\n");
                     // -0 does not matter for dst, or this instruction does not generate -0 since one of the srcs is not -0
                     SetNegativeZeroDoesNotMatterIfLastUse(instr->GetSrc1());
                     SetNegativeZeroDoesNotMatterIfLastUse(instr->GetSrc2());
@@ -5636,7 +5636,7 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
                 break;
 
             case Js::OpCode::Sub_I4:
-            {
+            {LOGMEIN("BackwardPass.cpp] 5638\n");
                 Assert(dstSym);
                 Assert(instr->GetSrc1());
                 Assert(instr->GetSrc1()->IsRegOpnd() || instr->GetSrc1()->IsIntConstOpnd());
@@ -5646,7 +5646,7 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
                 if (instr->ignoreNegativeZero ||
                     (instr->GetSrc1()->IsIntConstOpnd() && instr->GetSrc1()->AsIntConstOpnd()->GetValue() != 0) ||
                     (instr->GetSrc2()->IsIntConstOpnd() && instr->GetSrc2()->AsIntConstOpnd()->GetValue() != 0))
-                {
+                {LOGMEIN("BackwardPass.cpp] 5648\n");
                     SetNegativeZeroDoesNotMatterIfLastUse(instr->GetSrc1());
                     SetNegativeZeroDoesNotMatterIfLastUse(instr->GetSrc2());
                 }
@@ -5670,7 +5670,7 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
                         instr->GetSrc2()->AsAddrOpnd()->IsVar() &&
                         Js::TaggedInt::ToInt32(instr->GetSrc2()->AsAddrOpnd()->m_address) != 0
                     ))
-                {
+                {LOGMEIN("BackwardPass.cpp] 5672\n");
                     // At least one of the following is true:
                     //     - -0 does not matter for dst
                     //     - Src1 is not -0, and so this instruction cannot generate -0
@@ -5686,7 +5686,7 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
                 SetNegativeZeroMatters(instr->GetSrc1());
                 SetNegativeZeroMatters(instr->GetSrc2());
                 if (this->tag == Js::DeadStorePhase)
-                {
+                {LOGMEIN("BackwardPass.cpp] 5688\n");
                     SetCouldRemoveNegZeroBailoutForDefIfLastUse(instr->GetSrc2());
                 }
                 break;
@@ -5740,12 +5740,12 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
     // Int overflow tracking
 
     if(!trackIntOverflow)
-    {
+    {LOGMEIN("BackwardPass.cpp] 5742\n");
         return;
     }
 
     switch(opcode)
-    {
+    {LOGMEIN("BackwardPass.cpp] 5747\n");
         // Instructions that can cause src values to escape the local scope have already been excluded
 
         default:
@@ -5765,7 +5765,7 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
 
         case Js::OpCode::Mul_A:
             if (trackNon32BitOverflow)
-            {
+            {LOGMEIN("BackwardPass.cpp] 5767\n");
                 if (ignoreIntOverflowCandidate)
                     instr->ignoreOverflowBitCount = 53;
             }
@@ -5782,7 +5782,7 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
         case Js::OpCode::Conv_Num:
         case Js::OpCode::ShrU_A:
             if(!ignoreIntOverflowCandidate)
-            {
+            {LOGMEIN("BackwardPass.cpp] 5784\n");
                 // Int overflow matters for dst, so int overflow also matters for srcs
                 SetIntOverflowMatters(instr->GetSrc1());
                 SetIntOverflowMatters(instr->GetSrc2());
@@ -5806,19 +5806,19 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
     }
 
     if(ignoreIntOverflowCandidate)
-    {
+    {LOGMEIN("BackwardPass.cpp] 5808\n");
         instr->ignoreIntOverflow = true;
     }
 
     // Compounded int overflow tracking
 
     if(!trackCompoundedIntOverflow)
-    {
+    {LOGMEIN("BackwardPass.cpp] 5815\n");
         return;
     }
 
     if(instr->GetByteCodeOffset() == Js::Constants::NoByteCodeOffset)
-    {
+    {LOGMEIN("BackwardPass.cpp] 5820\n");
         // The forward pass may need to insert conversions with bailouts before the first instruction in the range. Since this
         // instruction does not have a valid byte code offset for bailout purposes, end the current range now.
         instr->ignoreIntOverflowInRange = false;
@@ -5829,26 +5829,26 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
     }
 
     if(ignoreIntOverflowCandidate)
-    {
+    {LOGMEIN("BackwardPass.cpp] 5831\n");
         instr->ignoreIntOverflowInRange = true;
         if(dstSym)
-        {
+        {LOGMEIN("BackwardPass.cpp] 5834\n");
             dstSym->scratch.globOpt.numCompoundedAddSubUses = 0;
         }
     }
 
     bool lossy = false;
     switch(opcode)
-    {
+    {LOGMEIN("BackwardPass.cpp] 5841\n");
         // Instructions that can cause src values to escape the local scope have already been excluded
 
         case Js::OpCode::Incr_A:
         case Js::OpCode::Decr_A:
         case Js::OpCode::Add_A:
         case Js::OpCode::Sub_A:
-        {
+        {LOGMEIN("BackwardPass.cpp] 5848\n");
             if(!instr->ignoreIntOverflowInRange)
-            {
+            {LOGMEIN("BackwardPass.cpp] 5850\n");
                 // Int overflow matters for dst, so int overflow also matters for srcs
                 SetIntOverflowMattersInRange(instr->GetSrc1());
                 SetIntOverflowMattersInRange(instr->GetSrc2());
@@ -5862,7 +5862,7 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
             Assert(dstSym->scratch.globOpt.numCompoundedAddSubUses <= MaxCompoundedUsesInAddSubForIgnoringIntOverflow);
             const int addSubUses = dstSym->scratch.globOpt.numCompoundedAddSubUses + 1;
             if(addSubUses > MaxCompoundedUsesInAddSubForIgnoringIntOverflow)
-            {
+            {LOGMEIN("BackwardPass.cpp] 5864\n");
                 // There are too many compounded add/sub uses of the srcs. There is a possibility that combined, the number
                 // eventually overflows the 53 bits that 'double' values have to precisely represent ints
                 instr->ignoreIntOverflowInRange = false;
@@ -5879,9 +5879,9 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
         case Js::OpCode::Ld_A:
         case Js::OpCode::Conv_Num:
         case Js::OpCode::ShrU_A:
-        {
+        {LOGMEIN("BackwardPass.cpp] 5881\n");
             if(!instr->ignoreIntOverflowInRange)
-            {
+            {LOGMEIN("BackwardPass.cpp] 5883\n");
                 // Int overflow matters for dst, so int overflow also matters for srcs
                 SetIntOverflowMattersInRange(instr->GetSrc1());
                 SetIntOverflowMattersInRange(instr->GetSrc2());
@@ -5912,12 +5912,12 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
 
         case Js::OpCode::LdSlotArr:
         case Js::OpCode::LdSlot:
-        {
+        {LOGMEIN("BackwardPass.cpp] 5914\n");
             Assert(dstSym);
             Assert(!instr->GetSrc2()); // at the moment, this list contains only unary operations
 
             if(intOverflowCurrentlyMattersInRange)
-            {
+            {LOGMEIN("BackwardPass.cpp] 5919\n");
                 // These instructions will not begin a range, so just return. They don't begin a range because their initial
                 // value may not be available until after the instruction is processed in the forward pass.
                 Assert(!instr->ignoreIntOverflowInRange);
@@ -5939,16 +5939,16 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
                 currentBlock->intOverflowDoesNotMatterRange->SymsRequiredToBeInt()->Test(dstSym->m_id));
             if(instr->ignoreIntOverflowInRange ||
                 currentBlock->intOverflowDoesNotMatterRange->SymsRequiredToBeInt()->Test(dstSym->m_id))
-            {
+            {LOGMEIN("BackwardPass.cpp] 5941\n");
                 candidateSymsRequiredToBeInt->Set(dstSym->m_id);
                 if(currentBlock->intOverflowDoesNotMatterRange->SymsRequiredToBeLossyInt()->Test(dstSym->m_id))
-                {
+                {LOGMEIN("BackwardPass.cpp] 5944\n");
                     candidateSymsRequiredToBeLossyInt->Set(dstSym->m_id);
                 }
             }
 
             if(!instr->ignoreIntOverflowInRange)
-            {
+            {LOGMEIN("BackwardPass.cpp] 5950\n");
                 // These instructions will not end a range, so just return. They may be included in the middle of a range, but
                 // since int overflow matters for the dst, the src does not need to be counted as an input into the range.
                 return;
@@ -5970,9 +5970,9 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
                 !currentBlock->intOverflowDoesNotMatterRange->SymsRequiredToBeLossyInt()->Test(dstSym->m_id) ||
                 (srcIncluded && !srcIncludedAsLossy);
             if(srcIncluded)
-            {
+            {LOGMEIN("BackwardPass.cpp] 5972\n");
                 if(srcIncludedAsLossy && srcNeedsToBeLossless)
-                {
+                {LOGMEIN("BackwardPass.cpp] 5974\n");
                     candidateSymsRequiredToBeLossyInt->Compliment(srcSymId);
                 }
             }
@@ -5980,7 +5980,7 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
             {
                 candidateSymsRequiredToBeInt->Compliment(srcSymId);
                 if(!srcNeedsToBeLossless)
-                {
+                {LOGMEIN("BackwardPass.cpp] 5982\n");
                     candidateSymsRequiredToBeLossyInt->Compliment(srcSymId);
                 }
             }
@@ -5992,11 +5992,11 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
 
         case Js::OpCode::Mul_A:
             if (trackNon32BitOverflow)
-            {
+            {LOGMEIN("BackwardPass.cpp] 5994\n");
                 // MULs will always be at the start of a range. Either included in the range if int32 overflow is ignored, or excluded if int32 overflow matters. Even if int32 can be ignored, MULs can still bailout on 53-bit.
                 // That's why it cannot be in the middle of a range.
                 if (instr->ignoreIntOverflowInRange)
-                {
+                {LOGMEIN("BackwardPass.cpp] 5998\n");
                     AnalysisAssert(dstSym);
                     Assert(dstSym->scratch.globOpt.numCompoundedAddSubUses >= 0);
                     Assert(dstSym->scratch.globOpt.numCompoundedAddSubUses <= MaxCompoundedUsesInAddSubForIgnoringIntOverflow);
@@ -6004,7 +6004,7 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
 
                     // We have the max number of compounded adds/subs. 32-bit overflow cannot be ignored.
                     if (instr->ignoreOverflowBitCount == 32)
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 6006\n");
                         instr->ignoreIntOverflowInRange = false;
                     }
                 }
@@ -6026,13 +6026,13 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
     }
 
     if(!instr->ignoreIntOverflowInRange)
-    {
+    {LOGMEIN("BackwardPass.cpp] 6028\n");
         EndIntOverflowDoesNotMatterRange();
         return;
     }
 
     if(intOverflowCurrentlyMattersInRange)
-    {
+    {LOGMEIN("BackwardPass.cpp] 6034\n");
         // This is the last instruction in a new range of instructions where int overflow does not matter
         intOverflowCurrentlyMattersInRange = false;
         IR::Instr *const boundaryInstr = IR::PragmaInstr::New(Js::OpCode::NoIntOverflowBoundary, 0, instr->m_func);
@@ -6063,28 +6063,28 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
     // Track syms that are inputs into the range based on the current instruction, which was just added to the range. The dst
     // sym is obtaining a new value so it isn't required to be an int at the start of the range, but the srcs are.
     if(dstSym)
-    {
+    {LOGMEIN("BackwardPass.cpp] 6065\n");
         currentBlock->intOverflowDoesNotMatterRange->SymsRequiredToBeInt()->Clear(dstSym->m_id);
         currentBlock->intOverflowDoesNotMatterRange->SymsRequiredToBeLossyInt()->Clear(dstSym->m_id);
     }
     IR::Opnd *const srcs[] = { instr->GetSrc1(), instr->GetSrc2() };
     for(int i = 0; i < sizeof(srcs) / sizeof(srcs[0]) && srcs[i]; ++i)
-    {
+    {LOGMEIN("BackwardPass.cpp] 6071\n");
         StackSym *srcSym = IR::RegOpnd::TryGetStackSym(srcs[i]);
         if(!srcSym)
-        {
+        {LOGMEIN("BackwardPass.cpp] 6074\n");
             continue;
         }
 
         if(currentBlock->intOverflowDoesNotMatterRange->SymsRequiredToBeInt()->TestAndSet(srcSym->m_id))
-        {
+        {LOGMEIN("BackwardPass.cpp] 6079\n");
             if(!lossy)
-            {
+            {LOGMEIN("BackwardPass.cpp] 6081\n");
                 currentBlock->intOverflowDoesNotMatterRange->SymsRequiredToBeLossyInt()->Clear(srcSym->m_id);
             }
         }
         else if(lossy)
-        {
+        {LOGMEIN("BackwardPass.cpp] 6086\n");
             currentBlock->intOverflowDoesNotMatterRange->SymsRequiredToBeLossyInt()->Set(srcSym->m_id);
         }
     }
@@ -6092,7 +6092,7 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
     // If the last instruction included in the range is a MUL, we have to end the range.
     // MULs with ignoreIntOverflow can still bailout on 53-bit overflow, so they cannot be in the middle of a range
     if (trackNon32BitOverflow && instr->m_opcode == Js::OpCode::Mul_A)
-    {
+    {LOGMEIN("BackwardPass.cpp] 6094\n");
         // range would have ended already if int32 overflow matters
         Assert(instr->ignoreIntOverflowInRange && instr->ignoreOverflowBitCount != 32);
         EndIntOverflowDoesNotMatterRange();
@@ -6101,70 +6101,70 @@ BackwardPass::TrackIntUsage(IR::Instr *const instr)
 
 void
 BackwardPass::SetNegativeZeroDoesNotMatterIfLastUse(IR::Opnd *const opnd)
-{
+{LOGMEIN("BackwardPass.cpp] 6103\n");
     StackSym *const stackSym = IR::RegOpnd::TryGetStackSym(opnd);
     if(stackSym && !currentBlock->upwardExposedUses->Test(stackSym->m_id))
-    {
+    {LOGMEIN("BackwardPass.cpp] 6106\n");
         negativeZeroDoesNotMatterBySymId->Set(stackSym->m_id);
     }
 }
 
 void
 BackwardPass::SetNegativeZeroMatters(IR::Opnd *const opnd)
-{
+{LOGMEIN("BackwardPass.cpp] 6113\n");
     StackSym *const stackSym = IR::RegOpnd::TryGetStackSym(opnd);
     if(stackSym)
-    {
+    {LOGMEIN("BackwardPass.cpp] 6116\n");
         negativeZeroDoesNotMatterBySymId->Clear(stackSym->m_id);
     }
 }
 
 void
 BackwardPass::SetCouldRemoveNegZeroBailoutForDefIfLastUse(IR::Opnd *const opnd)
-{
+{LOGMEIN("BackwardPass.cpp] 6123\n");
     StackSym * stackSym = IR::RegOpnd::TryGetStackSym(opnd);
     if (stackSym && !this->currentBlock->upwardExposedUses->Test(stackSym->m_id))
-    {
+    {LOGMEIN("BackwardPass.cpp] 6126\n");
         this->currentBlock->couldRemoveNegZeroBailoutForDef->Set(stackSym->m_id);
     }
 }
 
 void
 BackwardPass::SetIntOverflowDoesNotMatterIfLastUse(IR::Opnd *const opnd)
-{
+{LOGMEIN("BackwardPass.cpp] 6133\n");
     StackSym *const stackSym = IR::RegOpnd::TryGetStackSym(opnd);
     if(stackSym && !currentBlock->upwardExposedUses->Test(stackSym->m_id))
-    {
+    {LOGMEIN("BackwardPass.cpp] 6136\n");
         intOverflowDoesNotMatterBySymId->Set(stackSym->m_id);
     }
 }
 
 void
 BackwardPass::SetIntOverflowMatters(IR::Opnd *const opnd)
-{
+{LOGMEIN("BackwardPass.cpp] 6143\n");
     StackSym *const stackSym = IR::RegOpnd::TryGetStackSym(opnd);
     if(stackSym)
-    {
+    {LOGMEIN("BackwardPass.cpp] 6146\n");
         intOverflowDoesNotMatterBySymId->Clear(stackSym->m_id);
     }
 }
 
 bool
 BackwardPass::SetIntOverflowDoesNotMatterInRangeIfLastUse(IR::Opnd *const opnd, const int addSubUses)
-{
+{LOGMEIN("BackwardPass.cpp] 6153\n");
     StackSym *const stackSym = IR::RegOpnd::TryGetStackSym(opnd);
     return stackSym && SetIntOverflowDoesNotMatterInRangeIfLastUse(stackSym, addSubUses);
 }
 
 bool
 BackwardPass::SetIntOverflowDoesNotMatterInRangeIfLastUse(StackSym *const stackSym, const int addSubUses)
-{
+{LOGMEIN("BackwardPass.cpp] 6160\n");
     Assert(stackSym);
     Assert(addSubUses >= 0);
     Assert(addSubUses <= MaxCompoundedUsesInAddSubForIgnoringIntOverflow);
 
     if(currentBlock->upwardExposedUses->Test(stackSym->m_id))
-    {
+    {LOGMEIN("BackwardPass.cpp] 6166\n");
         return false;
     }
 
@@ -6175,27 +6175,27 @@ BackwardPass::SetIntOverflowDoesNotMatterInRangeIfLastUse(StackSym *const stackS
 
 void
 BackwardPass::SetIntOverflowMattersInRange(IR::Opnd *const opnd)
-{
+{LOGMEIN("BackwardPass.cpp] 6177\n");
     StackSym *const stackSym = IR::RegOpnd::TryGetStackSym(opnd);
     if(stackSym)
-    {
+    {LOGMEIN("BackwardPass.cpp] 6180\n");
         intOverflowDoesNotMatterInRangeBySymId->Clear(stackSym->m_id);
     }
 }
 
 void
 BackwardPass::TransferCompoundedAddSubUsesToSrcs(IR::Instr *const instr, const int addSubUses)
-{
+{LOGMEIN("BackwardPass.cpp] 6187\n");
     Assert(instr);
     Assert(addSubUses >= 0);
     Assert(addSubUses <= MaxCompoundedUsesInAddSubForIgnoringIntOverflow);
 
     IR::Opnd *const srcs[] = { instr->GetSrc1(), instr->GetSrc2() };
     for(int i = 0; i < _countof(srcs) && srcs[i]; ++i)
-    {
+    {LOGMEIN("BackwardPass.cpp] 6194\n");
         StackSym *const srcSym = IR::RegOpnd::TryGetStackSym(srcs[i]);
         if(!srcSym)
-        {
+        {LOGMEIN("BackwardPass.cpp] 6197\n");
             // Int overflow tracking is only done for StackSyms in RegOpnds. Int overflow matters for the src, so it is
             // guaranteed to be in the int range at this point if the instruction is int-specialized.
             continue;
@@ -6205,13 +6205,13 @@ BackwardPass::TransferCompoundedAddSubUsesToSrcs(IR::Instr *const instr, const i
         Assert(srcSym->scratch.globOpt.numCompoundedAddSubUses <= MaxCompoundedUsesInAddSubForIgnoringIntOverflow);
 
         if(SetIntOverflowDoesNotMatterInRangeIfLastUse(srcSym, addSubUses))
-        {
+        {LOGMEIN("BackwardPass.cpp] 6207\n");
             // This is the last use of the src
             continue;
         }
 
         if(intOverflowDoesNotMatterInRangeBySymId->Test(srcSym->m_id))
-        {
+        {LOGMEIN("BackwardPass.cpp] 6213\n");
             // Since a src may be compounded through different chains of add/sub instructions, the greater number must be
             // preserved
             srcSym->scratch.globOpt.numCompoundedAddSubUses =
@@ -6227,16 +6227,16 @@ BackwardPass::TransferCompoundedAddSubUsesToSrcs(IR::Instr *const instr, const i
 
 void
 BackwardPass::EndIntOverflowDoesNotMatterRange()
-{
+{LOGMEIN("BackwardPass.cpp] 6229\n");
     if(intOverflowCurrentlyMattersInRange)
-    {
+    {LOGMEIN("BackwardPass.cpp] 6231\n");
         return;
     }
     intOverflowCurrentlyMattersInRange = true;
 
     if(currentBlock->intOverflowDoesNotMatterRange->FirstInstr()->m_next ==
         currentBlock->intOverflowDoesNotMatterRange->LastInstr())
-    {
+    {LOGMEIN("BackwardPass.cpp] 6238\n");
         // Don't need a range for a single-instruction range
         IntOverflowDoesNotMatterRange *const rangeToDelete = currentBlock->intOverflowDoesNotMatterRange;
         currentBlock->intOverflowDoesNotMatterRange = currentBlock->intOverflowDoesNotMatterRange->Next();
@@ -6257,7 +6257,7 @@ BackwardPass::EndIntOverflowDoesNotMatterRange()
 
 #if DBG_DUMP
         if(PHASE_TRACE(Js::TrackCompoundedIntOverflowPhase, func))
-        {
+        {LOGMEIN("BackwardPass.cpp] 6259\n");
             char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
             Output::Print(
                 _u("TrackCompoundedIntOverflow - Top function: %s (%s), Phase: %s, Block: %u\n"),
@@ -6293,7 +6293,7 @@ BackwardPass::EndIntOverflowDoesNotMatterRange()
 
 void
 BackwardPass::TrackFloatSymEquivalence(IR::Instr *const instr)
-{
+{LOGMEIN("BackwardPass.cpp] 6295\n");
     /*
     This function determines sets of float-specialized syms where any two syms in a set may have the same value number at some
     point in the function. Conversely, if two float-specialized syms are not in the same set, it guarantees that those two syms
@@ -6337,41 +6337,41 @@ BackwardPass::TrackFloatSymEquivalence(IR::Instr *const instr)
     Assert(instr);
 
     if(tag != Js::DeadStorePhase || instr->GetSrc2() || !instr->m_func->hasBailout)
-    {
+    {LOGMEIN("BackwardPass.cpp] 6339\n");
         return;
     }
 
     if(!instr->GetDst() || !instr->GetDst()->IsRegOpnd())
-    {
+    {LOGMEIN("BackwardPass.cpp] 6344\n");
         return;
     }
     const auto dst = instr->GetDst()->AsRegOpnd()->m_sym;
     if(!dst->IsFloat64())
-    {
+    {LOGMEIN("BackwardPass.cpp] 6349\n");
         return;
     }
 
     if(!instr->GetSrc1() || !instr->GetSrc1()->IsRegOpnd())
-    {
+    {LOGMEIN("BackwardPass.cpp] 6354\n");
         return;
     }
     const auto src = instr->GetSrc1()->AsRegOpnd()->m_sym;
 
     if(OpCodeAttr::NonIntTransfer(instr->m_opcode) && (!currentBlock->loop || IsPrePass()))
-    {
+    {LOGMEIN("BackwardPass.cpp] 6360\n");
         Assert(src->IsFloat64()); // dst is specialized, and since this is a float transfer, src must be specialized too
 
         if(dst == src)
-        {
+        {LOGMEIN("BackwardPass.cpp] 6364\n");
             return;
         }
 
         if(!func->m_fg->hasLoop)
-        {
+        {LOGMEIN("BackwardPass.cpp] 6369\n");
             // Special case for functions with no loops, since there can only be in-order dependencies. Just merge the two
             // non-number bailout bits and put the result in the source.
             if(dst->m_requiresBailOnNotNumber)
-            {
+            {LOGMEIN("BackwardPass.cpp] 6373\n");
                 src->m_requiresBailOnNotNumber = true;
             }
             return;
@@ -6382,9 +6382,9 @@ BackwardPass::TrackFloatSymEquivalence(IR::Instr *const instr)
         const bool srcHasEquivalenceClass = floatSymEquivalenceMap->TryGetValue(src->m_id, &srcEquivalenceClass);
 
         if(!dstHasEquivalenceClass)
-        {
+        {LOGMEIN("BackwardPass.cpp] 6384\n");
             if(srcHasEquivalenceClass)
-            {
+            {LOGMEIN("BackwardPass.cpp] 6386\n");
                 // Just add the destination into the source's equivalence class
                 srcEquivalenceClass->Set(dst);
                 floatSymEquivalenceMap->Add(dst->m_id, srcEquivalenceClass);
@@ -6397,7 +6397,7 @@ BackwardPass::TrackFloatSymEquivalence(IR::Instr *const instr)
         }
 
         if(!srcHasEquivalenceClass)
-        {
+        {LOGMEIN("BackwardPass.cpp] 6399\n");
             // Just add the source into the destination's equivalence class
             dstEquivalenceClass->Set(src);
             floatSymEquivalenceMap->Add(src->m_id, dstEquivalenceClass);
@@ -6405,7 +6405,7 @@ BackwardPass::TrackFloatSymEquivalence(IR::Instr *const instr)
         }
 
         if(dstEquivalenceClass == srcEquivalenceClass)
-        {
+        {LOGMEIN("BackwardPass.cpp] 6407\n");
             return;
         }
 
@@ -6418,7 +6418,7 @@ BackwardPass::TrackFloatSymEquivalence(IR::Instr *const instr)
         // equivalence class, and the source's equivalence class is discarded.
         dstEquivalenceClass->Or(srcEquivalenceClass);
         FOREACH_BITSET_IN_SPARSEBV(id, srcEquivalenceClass->Bv())
-        {
+        {LOGMEIN("BackwardPass.cpp] 6420\n");
             floatSymEquivalenceMap->Item(id, dstEquivalenceClass);
         } NEXT_BITSET_IN_SPARSEBV;
         JitAdelete(tempAlloc, srcEquivalenceClass);
@@ -6429,7 +6429,7 @@ BackwardPass::TrackFloatSymEquivalence(IR::Instr *const instr)
     // Not a float transfer, and non-prepass (not necessarily in a loop)
 
     if(!instr->HasBailOutInfo() || instr->GetBailOutKind() != IR::BailOutPrimitiveButString)
-    {
+    {LOGMEIN("BackwardPass.cpp] 6431\n");
         return;
     }
     Assert(instr->m_opcode == Js::OpCode::FromVar);
@@ -6441,34 +6441,34 @@ BackwardPass::TrackFloatSymEquivalence(IR::Instr *const instr)
     FloatSymEquivalenceClass *dstEquivalenceClass;
     if(dst->m_requiresBailOnNotNumber ||
         (floatSymEquivalenceMap->TryGetValue(dst->m_id, &dstEquivalenceClass) && dstEquivalenceClass->RequiresBailOnNotNumber()))
-    {
+    {LOGMEIN("BackwardPass.cpp] 6443\n");
         instr->SetBailOutKind(IR::BailOutNumberOnly);
     }
 }
 
 bool
 BackwardPass::ProcessDef(IR::Opnd * opnd)
-{
+{LOGMEIN("BackwardPass.cpp] 6450\n");
     BOOLEAN isJITOptimizedReg = false;
     Sym * sym;
     if (opnd->IsRegOpnd())
-    {
+    {LOGMEIN("BackwardPass.cpp] 6454\n");
         sym = opnd->AsRegOpnd()->m_sym;
         isJITOptimizedReg = opnd->GetIsJITOptimizedReg();
         if (!IsCollectionPass())
-        {
+        {LOGMEIN("BackwardPass.cpp] 6458\n");
             this->InvalidateCloneStrCandidate(opnd);
         }
     }
     else if (opnd->IsSymOpnd())
-    {
+    {LOGMEIN("BackwardPass.cpp] 6463\n");
         sym = opnd->AsSymOpnd()->m_sym;
         isJITOptimizedReg = opnd->GetIsJITOptimizedReg();
     }
     else
     {
         if (opnd->IsIndirOpnd())
-        {
+        {LOGMEIN("BackwardPass.cpp] 6470\n");
             this->ProcessUse(opnd);
         }
         return false;
@@ -6481,22 +6481,22 @@ BackwardPass::ProcessDef(IR::Opnd * opnd)
     IR::Instr * instr = this->currentInstr;
     Assert(!instr->IsByteCodeUsesInstr());
     if (sym->IsPropertySym())
-    {
+    {LOGMEIN("BackwardPass.cpp] 6483\n");
         if(IsCollectionPass())
-        {
+        {LOGMEIN("BackwardPass.cpp] 6485\n");
             return false;
         }
 
         Assert((block->fieldHoistCandidates != nullptr) == this->DoFieldHoistCandidates());
         if (block->fieldHoistCandidates)
-        {
+        {LOGMEIN("BackwardPass.cpp] 6491\n");
             block->fieldHoistCandidates->Clear(sym->m_id);
         }
         PropertySym *propertySym = sym->AsPropertySym();
         if (this->DoDeadStoreSlots())
-        {
+        {LOGMEIN("BackwardPass.cpp] 6496\n");
             if (propertySym->m_fieldKind == PropertyKindLocalSlots || propertySym->m_fieldKind == PropertyKindSlots)
-            {
+            {LOGMEIN("BackwardPass.cpp] 6498\n");
                 BOOLEAN isPropertySymUsed = !block->slotDeadStoreCandidates->TestAndSet(propertySym->m_id);
                 // we should not do any dead slots in asmjs loop body
                 Assert(!(this->func->GetJITFunctionBody()->IsAsmJsMode() && this->func->IsLoopBody() && !isPropertySymUsed));
@@ -6510,14 +6510,14 @@ BackwardPass::ProcessDef(IR::Opnd * opnd)
 
         ProcessStackSymUse(propertySym->m_stackSym, isJITOptimizedReg);
         if (tag == Js::BackwardPhase)
-        {
+        {LOGMEIN("BackwardPass.cpp] 6512\n");
             if (opnd->AsSymOpnd()->IsPropertySymOpnd())
-            {
+            {LOGMEIN("BackwardPass.cpp] 6514\n");
                 this->globOpt->PreparePropertySymOpndForTypeCheckSeq(opnd->AsPropertySymOpnd(), instr, this->currentBlock->loop);
             }
         }
         if (opnd->AsSymOpnd()->IsPropertySymOpnd())
-        {
+        {LOGMEIN("BackwardPass.cpp] 6519\n");
             this->ProcessPropertySymOpndUse(opnd->AsPropertySymOpnd());
         }
     }
@@ -6526,29 +6526,29 @@ BackwardPass::ProcessDef(IR::Opnd * opnd)
         Assert(!instr->IsByteCodeUsesInstr());
 
         if (this->DoByteCodeUpwardExposedUsed())
-        {
+        {LOGMEIN("BackwardPass.cpp] 6528\n");
             if (sym->AsStackSym()->HasByteCodeRegSlot())
-            {
+            {LOGMEIN("BackwardPass.cpp] 6530\n");
                 StackSym * varSym = sym->AsStackSym();
                 if (varSym->IsTypeSpec())
-                {
+                {LOGMEIN("BackwardPass.cpp] 6533\n");
                     // It has to have a var version for byte code regs
                     varSym = varSym->GetVarEquivSym(nullptr);
                 }
 
                 if (this->currentRegion)
-                {
+                {LOGMEIN("BackwardPass.cpp] 6539\n");
                     keepSymLiveForException = this->CheckWriteThroughSymInRegion(this->currentRegion, sym->AsStackSym());
                     keepVarSymLiveForException = this->CheckWriteThroughSymInRegion(this->currentRegion, varSym);
                 }
 
                 if (!isJITOptimizedReg)
-                {
+                {LOGMEIN("BackwardPass.cpp] 6545\n");
                     if (!DoDeadStore(this->func, sym->AsStackSym()))
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 6547\n");
                         // Don't deadstore the bytecodereg sym, so that we could do write to get the locals inspection
                         if (opnd->IsRegOpnd())
-                        {
+                        {LOGMEIN("BackwardPass.cpp] 6550\n");
                             opnd->AsRegOpnd()->m_dontDeadStore = true;
                         }
                     }
@@ -6563,13 +6563,13 @@ BackwardPass::ProcessDef(IR::Opnd * opnd)
                     //      catch
                     //          = x
                     if (!keepVarSymLiveForException)
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 6565\n");
                         // Always track the sym use on the var sym.
                         block->byteCodeUpwardExposedUsed->Clear(varSym->m_id);
 #if DBG
                         // TODO: We can only track first level function stack syms right now
                         if (varSym->GetByteCodeFunc() == this->func)
-                        {
+                        {LOGMEIN("BackwardPass.cpp] 6571\n");
                             block->byteCodeRestoreSyms[varSym->GetByteCodeRegSlot()] = nullptr;
                         }
 #endif
@@ -6579,13 +6579,13 @@ BackwardPass::ProcessDef(IR::Opnd * opnd)
         }
 
         if(IsCollectionPass())
-        {
+        {LOGMEIN("BackwardPass.cpp] 6581\n");
             return false;
         }
 
         // Don't care about property sym for mark temps
         if (opnd->IsRegOpnd())
-        {
+        {LOGMEIN("BackwardPass.cpp] 6587\n");
             this->MarkTemp(sym->AsStackSym());
         }
 
@@ -6593,18 +6593,18 @@ BackwardPass::ProcessDef(IR::Opnd * opnd)
             instr->m_opcode == Js::OpCode::Ld_A &&
             instr->GetSrc1()->IsRegOpnd() &&
             block->upwardExposedFields->Test(sym->m_id))
-        {
+        {LOGMEIN("BackwardPass.cpp] 6595\n");
             block->upwardExposedFields->Set(instr->GetSrc1()->AsRegOpnd()->m_sym->m_id);
         }
 
         if (!keepSymLiveForException)
-        {
+        {LOGMEIN("BackwardPass.cpp] 6600\n");
             isUsed = block->upwardExposedUses->TestAndClear(sym->m_id);
         }
     }
 
     if (isUsed || !this->DoDeadStore())
-    {
+    {LOGMEIN("BackwardPass.cpp] 6606\n");
         return false;
     }
 
@@ -6621,17 +6621,17 @@ BackwardPass::ProcessDef(IR::Opnd * opnd)
         && instr->m_opcode != Js::OpCode::StRootFldStrict;
 
     if (this->IsPrePass() || hasSideEffects)
-    {
+    {LOGMEIN("BackwardPass.cpp] 6623\n");
         return false;
     }
 
     if (opnd->IsRegOpnd() && opnd->AsRegOpnd()->m_dontDeadStore)
-    {
+    {LOGMEIN("BackwardPass.cpp] 6628\n");
         return false;
     }
 
     if (instr->HasBailOutInfo())
-    {
+    {LOGMEIN("BackwardPass.cpp] 6633\n");
         // A bailout inserted for aggressive or lossy int type specialization causes assumptions to be made on the value of
         // the instruction's destination later on, as though the bailout did not happen. If the value is an int constant and
         // that value is propagated forward, it can cause the bailout instruction to become a dead store and be removed,
@@ -6640,11 +6640,11 @@ BackwardPass::ProcessDef(IR::Opnd * opnd)
         // instructions resulting from aggressive or lossy int type spec are not dead-stored.
         const auto bailOutKind = instr->GetBailOutKind();
         if(bailOutKind & IR::BailOutOnResultConditions)
-        {
+        {LOGMEIN("BackwardPass.cpp] 6642\n");
             return false;
         }
         switch(bailOutKind & ~IR::BailOutKindBits)
-        {
+        {LOGMEIN("BackwardPass.cpp] 6646\n");
             case IR::BailOutIntOnly:
             case IR::BailOutNumberOnly:
             case IR::BailOutExpectingInteger:
@@ -6667,12 +6667,12 @@ BackwardPass::ProcessDef(IR::Opnd * opnd)
 
 bool
 BackwardPass::DeadStoreInstr(IR::Instr *instr)
-{
+{LOGMEIN("BackwardPass.cpp] 6669\n");
     BasicBlock * block = this->currentBlock;
 
 #if DBG_DUMP
     if (this->IsTraceEnabled())
-    {
+    {LOGMEIN("BackwardPass.cpp] 6674\n");
         Output::Print(_u("Deadstore instr: "));
         instr->Dump();
     }
@@ -6681,7 +6681,7 @@ BackwardPass::DeadStoreInstr(IR::Instr *instr)
 
     // Before we remove the dead store, we need to track the byte code uses
     if (this->DoByteCodeUpwardExposedUsed())
-    {
+    {LOGMEIN("BackwardPass.cpp] 6683\n");
 #if DBG
         BVSparse<JitArenaAllocator> tempBv(this->tempAlloc);
         tempBv.Copy(this->currentBlock->byteCodeUpwardExposedUsed);
@@ -6695,16 +6695,16 @@ BackwardPass::DeadStoreInstr(IR::Instr *instr)
         tempBv2.Copy(this->currentBlock->byteCodeUpwardExposedUsed);
         tempBv2.Minus(&tempBv);
         FOREACH_BITSET_IN_SPARSEBV(symId, &tempBv2)
-        {
+        {LOGMEIN("BackwardPass.cpp] 6697\n");
             StackSym * stackSym = this->func->m_symTable->FindStackSym(symId);
             Assert(stackSym->GetType() == TyVar);
             // TODO: We can only track first level function stack syms right now
             if (stackSym->GetByteCodeFunc() == this->func)
-            {
+            {LOGMEIN("BackwardPass.cpp] 6702\n");
                 Js::RegSlot byteCodeRegSlot = stackSym->GetByteCodeRegSlot();
                 Assert(byteCodeRegSlot != Js::Constants::NoRegister);
                 if (this->currentBlock->byteCodeRestoreSyms[byteCodeRegSlot] != stackSym)
-                {
+                {LOGMEIN("BackwardPass.cpp] 6706\n");
                     AssertMsg(this->currentBlock->byteCodeRestoreSyms[byteCodeRegSlot] == nullptr,
                         "Can't have two active lifetime for the same byte code register");
                     this->currentBlock->byteCodeRestoreSyms[byteCodeRegSlot] = stackSym;
@@ -6722,17 +6722,17 @@ BackwardPass::DeadStoreInstr(IR::Instr *instr)
 
 #if DBG
     if (this->DoMarkTempObjectVerify())
-    {
+    {LOGMEIN("BackwardPass.cpp] 6724\n");
         this->currentBlock->tempObjectVerifyTracker->NotifyDeadStore(instr, this);
     }
 #endif
 
     
     if (instr->m_opcode == Js::OpCode::ArgIn_A)
-    {
+    {LOGMEIN("BackwardPass.cpp] 6731\n");
         //Ignore tracking ArgIn for "this", as argInsCount only tracks other params - unless it is a asmjs function(which doesn't have a "this").
         if (instr->GetSrc1()->AsSymOpnd()->m_sym->AsStackSym()->GetParamSlotNum() != 1 || func->GetJITFunctionBody()->IsAsmJsMode())
-        {
+        {LOGMEIN("BackwardPass.cpp] 6734\n");
             Assert(this->func->argInsCount > 0);
             this->func->argInsCount--;
         }
@@ -6746,7 +6746,7 @@ BackwardPass::DeadStoreInstr(IR::Instr *instr)
 
 void
 BackwardPass::ProcessTransfers(IR::Instr * instr)
-{
+{LOGMEIN("BackwardPass.cpp] 6748\n");
     if (this->tag == Js::DeadStorePhase &&
         this->currentBlock->upwardExposedFields &&
         instr->m_opcode == Js::OpCode::Ld_A &&
@@ -6757,12 +6757,12 @@ BackwardPass::ProcessTransfers(IR::Instr * instr)
         instr->GetSrc1()->GetStackSym() &&
         !instr->GetSrc1()->GetStackSym()->IsTypeSpec() &&
         instr->GetSrc1()->GetStackSym()->HasObjectInfo())
-    {
+    {LOGMEIN("BackwardPass.cpp] 6759\n");
         StackSym * dstStackSym = instr->GetDst()->GetStackSym();
         PropertySym * dstPropertySym = dstStackSym->GetObjectInfo()->m_propertySymList;
         BVSparse<JitArenaAllocator> transferFields(this->tempAlloc);
         while (dstPropertySym != nullptr)
-        {
+        {LOGMEIN("BackwardPass.cpp] 6764\n");
             Assert(dstPropertySym->m_stackSym == dstStackSym);
             transferFields.Set(dstPropertySym->m_id);
             dstPropertySym = dstPropertySym->m_nextInStackSymList;
@@ -6773,13 +6773,13 @@ BackwardPass::ProcessTransfers(IR::Instr * instr)
         BVSparse<JitArenaAllocator> equivFields(this->tempAlloc);
 
         while (srcPropertySym != nullptr && !transferFields.IsEmpty())
-        {
+        {LOGMEIN("BackwardPass.cpp] 6775\n");
             Assert(srcPropertySym->m_stackSym == srcStackSym);
             if (srcPropertySym->m_propertyEquivSet)
-            {
+            {LOGMEIN("BackwardPass.cpp] 6778\n");
                 equivFields.And(&transferFields, srcPropertySym->m_propertyEquivSet);
                 if (!equivFields.IsEmpty())
-                {
+                {LOGMEIN("BackwardPass.cpp] 6781\n");
                     transferFields.Minus(&equivFields);
                     this->currentBlock->upwardExposedFields->Set(srcPropertySym->m_id);
                 }
@@ -6791,9 +6791,9 @@ BackwardPass::ProcessTransfers(IR::Instr * instr)
 
 void
 BackwardPass::ProcessFieldKills(IR::Instr * instr)
-{
+{LOGMEIN("BackwardPass.cpp] 6793\n");
     if (this->currentBlock->upwardExposedFields)
-    {
+    {LOGMEIN("BackwardPass.cpp] 6795\n");
         this->globOpt->ProcessFieldKills(instr, this->currentBlock->upwardExposedFields, false);
     }
 
@@ -6804,18 +6804,18 @@ BackwardPass::ProcessFieldKills(IR::Instr * instr)
 template<typename T>
 void
 BackwardPass::ClearBucketsOnFieldKill(IR::Instr *instr, HashTable<T> *table)
-{
+{LOGMEIN("BackwardPass.cpp] 6806\n");
     if (table)
-    {
+    {LOGMEIN("BackwardPass.cpp] 6808\n");
         if (instr->UsesAllFields())
-        {
+        {LOGMEIN("BackwardPass.cpp] 6810\n");
             table->ClearAll();
         }
         else
         {
             IR::Opnd *dst = instr->GetDst();
             if (dst && dst->IsRegOpnd())
-            {
+            {LOGMEIN("BackwardPass.cpp] 6817\n");
                 table->Clear(dst->AsRegOpnd()->m_sym->m_id);
             }
         }
@@ -6824,14 +6824,14 @@ BackwardPass::ClearBucketsOnFieldKill(IR::Instr *instr, HashTable<T> *table)
 
 void
 BackwardPass::ProcessFieldHoistKills(IR::Instr * instr)
-{
+{LOGMEIN("BackwardPass.cpp] 6826\n");
     // The backward pass, we optimistically will not kill on a[] access
     // So that the field hoist candidate will be more then what can be hoisted
     // The root prepass will figure out the exact set of field that is hoisted
     this->globOpt->ProcessFieldKills(instr, this->currentBlock->fieldHoistCandidates, false);
 
     switch (instr->m_opcode)
-    {
+    {LOGMEIN("BackwardPass.cpp] 6833\n");
     case Js::OpCode::BrOnHasProperty:
     case Js::OpCode::BrOnNoProperty:
         // Should not hoist pass these instructions
@@ -6842,9 +6842,9 @@ BackwardPass::ProcessFieldHoistKills(IR::Instr * instr)
 
 bool
 BackwardPass::TrackNoImplicitCallInlinees(IR::Instr *instr)
-{
+{LOGMEIN("BackwardPass.cpp] 6844\n");
     if (this->tag != Js::DeadStorePhase || this->IsPrePass())
-    {
+    {LOGMEIN("BackwardPass.cpp] 6846\n");
         return false;
     }
 
@@ -6857,7 +6857,7 @@ BackwardPass::TrackNoImplicitCallInlinees(IR::Instr *instr)
         || instr->m_opcode == Js::OpCode::LdHeapArgsCached
         || instr->m_opcode == Js::OpCode::LdLetHeapArgsCached
         || instr->m_opcode == Js::OpCode::LdFuncExpr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 6859\n");
         // This func has instrs with bailouts or implicit calls
         Assert(instr->m_opcode != Js::OpCode::InlineeStart);
         instr->m_func->SetHasImplicitCallsOnSelfAndParents();
@@ -6865,9 +6865,9 @@ BackwardPass::TrackNoImplicitCallInlinees(IR::Instr *instr)
     }
 
     if (instr->m_opcode == Js::OpCode::InlineeStart)
-    {
+    {LOGMEIN("BackwardPass.cpp] 6867\n");
         if (!instr->GetSrc1())
-        {
+        {LOGMEIN("BackwardPass.cpp] 6869\n");
             Assert(instr->m_func->m_hasInlineArgsOpt);
             return false;
         }
@@ -6879,19 +6879,19 @@ BackwardPass::TrackNoImplicitCallInlinees(IR::Instr *instr)
 
 bool
 BackwardPass::ProcessInlineeStart(IR::Instr* inlineeStart)
-{
+{LOGMEIN("BackwardPass.cpp] 6881\n");
     inlineeStart->m_func->SetFirstArgOffset(inlineeStart);
 
     IR::Instr* startCallInstr = nullptr;
     bool noImplicitCallsInInlinee = false;
     // Inlinee has no bailouts or implicit calls.  Get rid of the inline overhead.
     auto removeInstr = [&](IR::Instr* argInstr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 6888\n");
         Assert(argInstr->m_opcode == Js::OpCode::InlineeStart || argInstr->m_opcode == Js::OpCode::ArgOut_A || argInstr->m_opcode == Js::OpCode::ArgOut_A_Inline);
         IR::Opnd *opnd = argInstr->GetSrc1();
         StackSym *sym = opnd->GetStackSym();
         if (!opnd->GetIsJITOptimizedReg() && sym && sym->HasByteCodeRegSlot())
-        {
+        {LOGMEIN("BackwardPass.cpp] 6893\n");
             // Replace instrs with bytecodeUses
             IR::ByteCodeUsesInstr *bytecodeUse = IR::ByteCodeUsesInstr::New(argInstr);
             bytecodeUse->Set(opnd);
@@ -6904,7 +6904,7 @@ BackwardPass::ProcessInlineeStart(IR::Instr* inlineeStart)
 
     // If there are no implicit calls - bailouts/throws - we can remove all inlining overhead.
     if (!inlineeStart->m_func->GetHasImplicitCalls())
-    {
+    {LOGMEIN("BackwardPass.cpp] 6906\n");
         noImplicitCallsInInlinee = true;
         inlineeStart->IterateArgInstrs(removeInstr);
 
@@ -6919,7 +6919,7 @@ BackwardPass::ProcessInlineeStart(IR::Instr* inlineeStart)
     }
 
     if (!inlineeStart->m_func->m_hasInlineArgsOpt)
-    {
+    {LOGMEIN("BackwardPass.cpp] 6921\n");
         PHASE_PRINT_TESTTRACE(Js::InlineArgsOptPhase, func, _u("%s[%d]: Skipping inline args optimization: %s[%d] HasCalls: %s 'arguments' access: %s Can do inlinee args opt: %s\n"),
                 func->GetJITFunctionBody()->GetDisplayName(), func->GetJITFunctionBody()->GetFunctionNumber(),
                 inlineeStart->m_func->GetJITFunctionBody()->GetDisplayName(), inlineeStart->m_func->GetJITFunctionBody()->GetFunctionNumber(),
@@ -6930,7 +6930,7 @@ BackwardPass::ProcessInlineeStart(IR::Instr* inlineeStart)
     }
 
     if (!inlineeStart->m_func->frameInfo->isRecorded)
-    {
+    {LOGMEIN("BackwardPass.cpp] 6932\n");
         PHASE_PRINT_TESTTRACE(Js::InlineArgsOptPhase, func, _u("%s[%d]: InlineeEnd not found - usually due to a throw or a BailOnNoProfile (stressed, most likely)\n"),
             func->GetJITFunctionBody()->GetDisplayName(), func->GetJITFunctionBody()->GetFunctionNumber());
         inlineeStart->m_func->DisableCanDoInlineArgOpt();
@@ -6943,7 +6943,7 @@ BackwardPass::ProcessInlineeStart(IR::Instr* inlineeStart)
     {
         if (i == Js::Constants::InlineeMetaArgIndex_ArgumentsObject &&
             inlineeStart->m_func->GetJITFunctionBody()->UsesArgumentsObject())
-        {
+        {LOGMEIN("BackwardPass.cpp] 6945\n");
             Assert(!inlineeStart->m_func->GetHasUnoptimizedArgumentsAcccess());
             // Do not remove arguments object meta arg if there is a reference to arguments object
         }
@@ -6959,7 +6959,7 @@ BackwardPass::ProcessInlineeStart(IR::Instr* inlineeStart)
 
     StackSym *sym = src1->GetStackSym();
     if (!src1->GetIsJITOptimizedReg() && sym && sym->HasByteCodeRegSlot())
-    {
+    {LOGMEIN("BackwardPass.cpp] 6961\n");
         // Replace instrs with bytecodeUses
         IR::ByteCodeUsesInstr *bytecodeUse = IR::ByteCodeUsesInstr::New(inlineeStart);
         bytecodeUse->Set(src1);
@@ -6976,15 +6976,15 @@ BackwardPass::ProcessInlineeStart(IR::Instr* inlineeStart)
 
 void
 BackwardPass::ProcessInlineeEnd(IR::Instr* instr)
-{
+{LOGMEIN("BackwardPass.cpp] 6978\n");
     if (this->IsPrePass())
-    {
+    {LOGMEIN("BackwardPass.cpp] 6980\n");
         return;
     }
     if (this->tag == Js::BackwardPhase)
-    {
+    {LOGMEIN("BackwardPass.cpp] 6984\n");
         if (!GlobOpt::DoInlineArgsOpt(instr->m_func))
-        {
+        {LOGMEIN("BackwardPass.cpp] 6986\n");
             return;
         }
 
@@ -6992,16 +6992,16 @@ BackwardPass::ProcessInlineeEnd(IR::Instr* instr)
         // It ensure they do not get cleared from the copy prop sym map.
         instr->IterateArgInstrs([=](IR::Instr* argInstr){
             if (argInstr->GetSrc1()->IsRegOpnd())
-            {
+            {LOGMEIN("BackwardPass.cpp] 6994\n");
                 this->currentBlock->upwardExposedUses->Set(argInstr->GetSrc1()->AsRegOpnd()->m_sym->m_id);
             }
             return false;
         });
     }
     else if (this->tag == Js::DeadStorePhase)
-    {
+    {LOGMEIN("BackwardPass.cpp] 7001\n");
         if (instr->m_func->m_hasInlineArgsOpt)
-        {
+        {LOGMEIN("BackwardPass.cpp] 7003\n");
             Assert(instr->m_func->frameInfo);
             instr->m_func->frameInfo->IterateSyms([=](StackSym* argSym)
             {
@@ -7013,25 +7013,25 @@ BackwardPass::ProcessInlineeEnd(IR::Instr* instr)
 
 bool
 BackwardPass::ProcessBailOnNoProfile(IR::Instr *instr, BasicBlock *block)
-{
+{LOGMEIN("BackwardPass.cpp] 7015\n");
     Assert(this->tag == Js::BackwardPhase);
     Assert(instr->m_opcode == Js::OpCode::BailOnNoProfile);
     Assert(!instr->HasBailOutInfo());
     AnalysisAssert(block);
 
     if (this->IsPrePass())
-    {
+    {LOGMEIN("BackwardPass.cpp] 7022\n");
         return false;
     }
 
     IR::Instr *curInstr = instr->m_prev;
 
     if (curInstr->IsLabelInstr() && curInstr->AsLabelInstr()->isOpHelper)
-    {
+    {LOGMEIN("BackwardPass.cpp] 7029\n");
         // Already processed
 
         if (this->DoMarkTempObjects())
-        {
+        {LOGMEIN("BackwardPass.cpp] 7033\n");
             block->tempObjectTracker->ProcessBailOnNoProfile(instr);
         }
         return false;
@@ -7039,17 +7039,17 @@ BackwardPass::ProcessBailOnNoProfile(IR::Instr *instr, BasicBlock *block)
 
     // Don't hoist if we see calls with profile data (recursive calls)
     while(!curInstr->StartsBasicBlock())
-    {
+    {LOGMEIN("BackwardPass.cpp] 7041\n");
         // If a function was inlined, it must have had profile info.
         if (curInstr->m_opcode == Js::OpCode::InlineeEnd || curInstr->m_opcode == Js::OpCode::InlineBuiltInEnd || curInstr->m_opcode == Js::OpCode::InlineNonTrackingBuiltInEnd
             || curInstr->m_opcode == Js::OpCode::InlineeStart || curInstr->m_opcode == Js::OpCode::EndCallForPolymorphicInlinee)
-        {
+        {LOGMEIN("BackwardPass.cpp] 7045\n");
             break;
         }
         else if (OpCodeAttr::CallInstr(curInstr->m_opcode))
-        {
+        {LOGMEIN("BackwardPass.cpp] 7049\n");
             if (curInstr->m_prev->m_opcode != Js::OpCode::BailOnNoProfile)
-            {
+            {LOGMEIN("BackwardPass.cpp] 7051\n");
                 break;
             }
         }
@@ -7058,7 +7058,7 @@ BackwardPass::ProcessBailOnNoProfile(IR::Instr *instr, BasicBlock *block)
 
     // Didn't get to the top of the block, delete this BailOnNoProfile.
     if (!curInstr->IsLabelInstr())
-    {
+    {LOGMEIN("BackwardPass.cpp] 7060\n");
         block->RemoveInstr(instr);
         return true;
     }
@@ -7071,7 +7071,7 @@ BackwardPass::ProcessBailOnNoProfile(IR::Instr *instr, BasicBlock *block)
     IR::Instr *curNext = curInstr->GetNextRealInstrOrLabel();
     IR::Instr *instrNope = nullptr;
     if (curNext->m_opcode == Js::OpCode::Ld_A && curNext->GetDst()->IsRegOpnd() && curNext->GetDst()->AsRegOpnd()->m_fgPeepTmp)
-    {
+    {LOGMEIN("BackwardPass.cpp] 7073\n");
         block->RemoveInstr(instr);
         return true;
         /*while (curNext->m_opcode == Js::OpCode::Ld_A && curNext->GetDst()->IsRegOpnd() && curNext->GetDst()->AsRegOpnd()->m_fgPeepTmp)
@@ -7089,10 +7089,10 @@ BackwardPass::ProcessBailOnNoProfile(IR::Instr *instr, BasicBlock *block)
 
     // Move to top of block (but just below any fgpeeptemp lds).
     while(!curInstr->StartsBasicBlock() && curInstr != instrNope)
-    {
+    {LOGMEIN("BackwardPass.cpp] 7091\n");
         // Delete redundant BailOnNoProfile
         if (curInstr->m_opcode == Js::OpCode::BailOnNoProfile)
-        {
+        {LOGMEIN("BackwardPass.cpp] 7094\n");
             Assert(!curInstr->HasBailOutInfo());
             curInstr = curInstr->m_next;
             curInstr->m_prev->Remove();
@@ -7101,7 +7101,7 @@ BackwardPass::ProcessBailOnNoProfile(IR::Instr *instr, BasicBlock *block)
     }
 
     if (instr == block->GetLastInstr())
-    {
+    {LOGMEIN("BackwardPass.cpp] 7103\n");
         block->SetLastInstr(instr->m_prev);
     }
 
@@ -7109,11 +7109,11 @@ BackwardPass::ProcessBailOnNoProfile(IR::Instr *instr, BasicBlock *block)
 
     // Now try to move this up the flowgraph to the predecessor blocks
     FOREACH_PREDECESSOR_BLOCK(pred, block)
-    {
+    {LOGMEIN("BackwardPass.cpp] 7111\n");
         bool hoistBailToPred = true;
 
         if (block->isLoopHeader && pred->loop == block->loop)
-        {
+        {LOGMEIN("BackwardPass.cpp] 7115\n");
             // Skip loop back-edges
             continue;
         }
@@ -7121,32 +7121,32 @@ BackwardPass::ProcessBailOnNoProfile(IR::Instr *instr, BasicBlock *block)
         // If all successors of this predecessor start with a BailOnNoProfile, we should be
         // okay to hoist this bail to the predecessor.
         FOREACH_SUCCESSOR_BLOCK(predSucc, pred)
-        {
+        {LOGMEIN("BackwardPass.cpp] 7123\n");
             if (predSucc == block)
-            {
+            {LOGMEIN("BackwardPass.cpp] 7125\n");
                 continue;
             }
             if (!predSucc->beginsBailOnNoProfile)
-            {
+            {LOGMEIN("BackwardPass.cpp] 7129\n");
                 hoistBailToPred = false;
                 break;
             }
         } NEXT_SUCCESSOR_BLOCK;
 
         if (hoistBailToPred)
-        {
+        {LOGMEIN("BackwardPass.cpp] 7136\n");
             IR::Instr *predInstr = pred->GetLastInstr();
             IR::Instr *instrCopy = instr->Copy();
 
             if (predInstr->EndsBasicBlock())
-            {
+            {LOGMEIN("BackwardPass.cpp] 7141\n");
                 if (predInstr->m_prev->m_opcode == Js::OpCode::BailOnNoProfile)
-                {
+                {LOGMEIN("BackwardPass.cpp] 7143\n");
                     // We already have one, we don't need a second.
                     instrCopy->Free();
                 }
                 else if (!predInstr->AsBranchInstr()->m_isSwitchBr)
-                {
+                {LOGMEIN("BackwardPass.cpp] 7148\n");
                     // Don't put a bailout in the middle of a switch dispatch sequence.
                     // The bytecode offsets are not in order, and it would lead to incorrect
                     // bailout info.
@@ -7157,7 +7157,7 @@ BackwardPass::ProcessBailOnNoProfile(IR::Instr *instr, BasicBlock *block)
             else
             {
                 if (predInstr->m_opcode == Js::OpCode::BailOnNoProfile)
-                {
+                {LOGMEIN("BackwardPass.cpp] 7159\n");
                     // We already have one, we don't need a second.
                     instrCopy->Free();
                 }
@@ -7175,7 +7175,7 @@ BackwardPass::ProcessBailOnNoProfile(IR::Instr *instr, BasicBlock *block)
     // Don't bother keeping the bailout in the first block as there are some issues in restoring the ArgIn bytecode registers on bailout
     // and throw case should be rare enough that it won't matter for perf.
     if (block->GetBlockNum() != 0)
-    {
+    {LOGMEIN("BackwardPass.cpp] 7177\n");
         blockHeadInstr->isOpHelper = true;
 #if DBG
         blockHeadInstr->m_noHelperAssert = true;
@@ -7187,12 +7187,12 @@ BackwardPass::ProcessBailOnNoProfile(IR::Instr *instr, BasicBlock *block)
 
         bool setLastInstr = (curInstr == block->GetLastInstr());
         if (setLastInstr)
-        {
+        {LOGMEIN("BackwardPass.cpp] 7189\n");
             block->SetLastInstr(instr);
         }
 
         if (this->DoMarkTempObjects())
-        {
+        {LOGMEIN("BackwardPass.cpp] 7194\n");
             block->tempObjectTracker->ProcessBailOnNoProfile(instr);
         }
         return false;
@@ -7206,7 +7206,7 @@ BackwardPass::ProcessBailOnNoProfile(IR::Instr *instr, BasicBlock *block)
 
 bool
 BackwardPass::ReverseCopyProp(IR::Instr *instr)
-{
+{LOGMEIN("BackwardPass.cpp] 7208\n");
     // Look for :
     //
     //  t1 = instr
@@ -7218,22 +7218,22 @@ BackwardPass::ReverseCopyProp(IR::Instr *instr)
     //  t2 = instr
     //
     if (PHASE_OFF(Js::ReverseCopyPropPhase, this->func))
-    {
+    {LOGMEIN("BackwardPass.cpp] 7220\n");
         return false;
     }
     if (this->tag != Js::DeadStorePhase || this->IsPrePass() || this->IsCollectionPass())
-    {
+    {LOGMEIN("BackwardPass.cpp] 7224\n");
         return false;
     }
     if (this->func->HasTry())
-    {
+    {LOGMEIN("BackwardPass.cpp] 7228\n");
         // UpwardExposedUsed info can't be relied on
         return false;
     }
 
     // Find t2 = Ld_A t1
     switch (instr->m_opcode)
-    {
+    {LOGMEIN("BackwardPass.cpp] 7235\n");
     case Js::OpCode::Ld_A:
     case Js::OpCode::Ld_I4:
         break;
@@ -7243,15 +7243,15 @@ BackwardPass::ReverseCopyProp(IR::Instr *instr)
     }
 
     if (!instr->GetDst()->IsRegOpnd())
-    {
+    {LOGMEIN("BackwardPass.cpp] 7245\n");
         return false;
     }
     if (!instr->GetSrc1()->IsRegOpnd())
-    {
+    {LOGMEIN("BackwardPass.cpp] 7249\n");
         return false;
     }
     if (instr->HasBailOutInfo())
-    {
+    {LOGMEIN("BackwardPass.cpp] 7253\n");
         return false;
     }
 
@@ -7263,24 +7263,24 @@ BackwardPass::ReverseCopyProp(IR::Instr *instr)
     StackSym *varSym = src->m_sym;
 
     if (varSym->IsTypeSpec())
-    {
+    {LOGMEIN("BackwardPass.cpp] 7265\n");
         varSym = varSym->GetVarEquivSym(this->func);
     }
 
     // SKip ByteCodeUse instr if possible
     //       [bytecodeuse t1]
     if (!instrPrev->GetDst())
-    {
+    {LOGMEIN("BackwardPass.cpp] 7272\n");
         if (instrPrev->m_opcode == Js::OpCode::ByteCodeUses)
-        {
+        {LOGMEIN("BackwardPass.cpp] 7274\n");
             byteCodeUseInstr = instrPrev->AsByteCodeUsesInstr();
             const BVSparse<JitArenaAllocator>* byteCodeUpwardExposedUsed = byteCodeUseInstr->GetByteCodeUpwardExposedUsed();
             if (byteCodeUpwardExposedUsed && byteCodeUpwardExposedUsed->Test(varSym->m_id) && byteCodeUpwardExposedUsed->Count() == 1)
-            {
+            {LOGMEIN("BackwardPass.cpp] 7278\n");
                 instrPrev = byteCodeUseInstr->GetPrevRealInstrOrLabel();
 
                 if (!instrPrev->GetDst())
-                {
+                {LOGMEIN("BackwardPass.cpp] 7282\n");
                     return false;
                 }
             }
@@ -7298,7 +7298,7 @@ BackwardPass::ReverseCopyProp(IR::Instr *instr)
     // The fast-path for these doesn't handle dst == src.
     // REVIEW: I believe the fast-path for LdElemI_A has been fixed... Nope, still broken for "i = A[i]" for prejit
     switch (instrPrev->m_opcode)
-    {
+    {LOGMEIN("BackwardPass.cpp] 7300\n");
     case Js::OpCode::LdElemI_A:
     case Js::OpCode::IsInst:
     case Js::OpCode::ByteCodeUses:
@@ -7308,37 +7308,37 @@ BackwardPass::ReverseCopyProp(IR::Instr *instr)
     // Can't do it if post-op bailout would need result
     // REVIEW: enable for pre-opt bailout?
     if (instrPrev->HasBailOutInfo() && instrPrev->GetByteCodeOffset() != instrPrev->GetBailOutInfo()->bailOutOffset)
-    {
+    {LOGMEIN("BackwardPass.cpp] 7310\n");
         return false;
     }
 
     // Make sure src of Ld_A == dst of instr
     //  t1 = instr
     if (!instrPrev->GetDst()->IsEqual(src))
-    {
+    {LOGMEIN("BackwardPass.cpp] 7317\n");
         return false;
     }
 
     // Make sure t1 isn't used later
     if (this->currentBlock->upwardExposedUses->Test(src->m_sym->m_id))
-    {
+    {LOGMEIN("BackwardPass.cpp] 7323\n");
         return false;
     }
 
     if (this->currentBlock->byteCodeUpwardExposedUsed && this->currentBlock->byteCodeUpwardExposedUsed->Test(varSym->m_id))
-    {
+    {LOGMEIN("BackwardPass.cpp] 7328\n");
         return false;
     }
 
     // Make sure we can dead-store this sym (debugger mode?)
     if (!this->DoDeadStore(this->func, src->m_sym))
-    {
+    {LOGMEIN("BackwardPass.cpp] 7334\n");
         return false;
     }
 
     StackSym *const dstSym = dst->m_sym;
     if(instrPrev->HasBailOutInfo() && dstSym->IsInt32() && dstSym->IsTypeSpec())
-    {
+    {LOGMEIN("BackwardPass.cpp] 7340\n");
         StackSym *const prevDstSym = IR::RegOpnd::TryGetStackSym(instrPrev->GetDst());
         if(instrPrev->GetBailOutKind() & IR::BailOutOnResultConditions &&
             prevDstSym &&
@@ -7356,9 +7356,9 @@ BackwardPass::ReverseCopyProp(IR::Instr *instr)
                 CopyPropSyms,
                 usedCopyPropSym,
                 &instrPrev->GetBailOutInfo()->usedCapturedValues.copyPropSyms)
-            {
+            {LOGMEIN("BackwardPass.cpp] 7358\n");
                 if(dstSym == usedCopyPropSym.Value())
-                {
+                {LOGMEIN("BackwardPass.cpp] 7360\n");
                     return false;
                 }
             } NEXT_SLISTBASE_ENTRY;
@@ -7366,16 +7366,16 @@ BackwardPass::ReverseCopyProp(IR::Instr *instr)
     }
 
     if (byteCodeUseInstr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 7368\n");
         if (this->currentBlock->byteCodeUpwardExposedUsed && instrPrev->GetDst()->AsRegOpnd()->GetIsJITOptimizedReg() && varSym->HasByteCodeRegSlot())
-        {
+        {LOGMEIN("BackwardPass.cpp] 7370\n");
             if(varSym->HasByteCodeRegSlot())
-            {
+            {LOGMEIN("BackwardPass.cpp] 7372\n");
                 this->currentBlock->byteCodeUpwardExposedUsed->Set(varSym->m_id);
             }
 
             if (src->IsEqual(dst) && instrPrev->GetDst()->GetIsJITOptimizedReg())
-            {
+            {LOGMEIN("BackwardPass.cpp] 7377\n");
                 //      s2(s1).i32     =  FromVar        s1.var      #0000  Bailout: #0000 (BailOutIntOnly)
                 //                        ByteCodeUses   s1
                 //      s2(s1).i32     =  Ld_A           s2(s1).i32
@@ -7389,13 +7389,13 @@ BackwardPass::ReverseCopyProp(IR::Instr *instr)
         byteCodeUseInstr->Remove();
     }
     else if (instrPrev->GetDst()->AsRegOpnd()->GetIsJITOptimizedReg() && !src->GetIsJITOptimizedReg() && varSym->HasByteCodeRegSlot())
-    {
+    {LOGMEIN("BackwardPass.cpp] 7391\n");
         this->currentBlock->byteCodeUpwardExposedUsed->Set(varSym->m_id);
     }
 
 #if DBG
     if (this->DoMarkTempObjectVerify())
-    {
+    {LOGMEIN("BackwardPass.cpp] 7397\n");
         this->currentBlock->tempObjectVerifyTracker->NotifyReverseCopyProp(instrPrev);
     }
 #endif
@@ -7410,15 +7410,15 @@ BackwardPass::ReverseCopyProp(IR::Instr *instr)
 
 bool
 BackwardPass::FoldCmBool(IR::Instr *instr)
-{
+{LOGMEIN("BackwardPass.cpp] 7412\n");
     Assert(instr->m_opcode == Js::OpCode::Conv_Bool);
 
     if (this->tag != Js::DeadStorePhase || this->IsPrePass() || this->IsCollectionPass())
-    {
+    {LOGMEIN("BackwardPass.cpp] 7416\n");
         return false;
     }
     if (this->func->HasTry())
-    {
+    {LOGMEIN("BackwardPass.cpp] 7420\n");
         // UpwardExposedUsed info can't be relied on
         return false;
     }
@@ -7428,7 +7428,7 @@ BackwardPass::FoldCmBool(IR::Instr *instr)
     Assert(intOpnd->m_sym->IsInt32());
 
     if (!intOpnd->m_sym->IsSingleDef())
-    {
+    {LOGMEIN("BackwardPass.cpp] 7430\n");
         return false;
     }
 
@@ -7436,19 +7436,19 @@ BackwardPass::FoldCmBool(IR::Instr *instr)
 
     // Should be a Cm instr...
     if (!cmInstr->GetSrc2())
-    {
+    {LOGMEIN("BackwardPass.cpp] 7438\n");
         return false;
     }
 
     IR::Instr *instrPrev = instr->GetPrevRealInstrOrLabel();
 
     if (instrPrev != cmInstr)
-    {
+    {LOGMEIN("BackwardPass.cpp] 7445\n");
         return false;
     }
 
     switch (cmInstr->m_opcode)
-    {
+    {LOGMEIN("BackwardPass.cpp] 7450\n");
     case Js::OpCode::CmEq_A:
     case Js::OpCode::CmGe_A:
     case Js::OpCode::CmUnGe_A:
@@ -7480,7 +7480,7 @@ BackwardPass::FoldCmBool(IR::Instr *instr)
     IR::RegOpnd *varDst = instr->GetDst()->AsRegOpnd();
 
     if (this->currentBlock->upwardExposedUses->Test(intOpnd->m_sym->m_id) || !this->currentBlock->upwardExposedUses->Test(varDst->m_sym->m_id))
-    {
+    {LOGMEIN("BackwardPass.cpp] 7482\n");
         return false;
     }
 
@@ -7495,16 +7495,16 @@ BackwardPass::FoldCmBool(IR::Instr *instr)
 
 void
 BackwardPass::SetWriteThroughSymbolsSetForRegion(BasicBlock * catchBlock, Region * tryRegion)
-{
+{LOGMEIN("BackwardPass.cpp] 7497\n");
     tryRegion->writeThroughSymbolsSet = JitAnew(this->func->m_alloc, BVSparse<JitArenaAllocator>, this->func->m_alloc);
 
     if (this->DoByteCodeUpwardExposedUsed())
-    {
+    {LOGMEIN("BackwardPass.cpp] 7501\n");
         Assert(catchBlock->byteCodeUpwardExposedUsed);
         if (!catchBlock->byteCodeUpwardExposedUsed->IsEmpty())
         {
             FOREACH_BITSET_IN_SPARSEBV(id, catchBlock->byteCodeUpwardExposedUsed)
-            {
+            {LOGMEIN("BackwardPass.cpp] 7506\n");
                 tryRegion->writeThroughSymbolsSet->Set(id);
             }
             NEXT_BITSET_IN_SPARSEBV
@@ -7527,11 +7527,11 @@ BackwardPass::SetWriteThroughSymbolsSetForRegion(BasicBlock * catchBlock, Region
         // catch(){}
         // = x
         if (tryRegion->GetParent()->GetType() == RegionTypeTry)
-        {
+        {LOGMEIN("BackwardPass.cpp] 7529\n");
             Region * parentTry = tryRegion->GetParent();
             Assert(parentTry->writeThroughSymbolsSet);
             FOREACH_BITSET_IN_SPARSEBV(id, parentTry->writeThroughSymbolsSet)
-            {
+            {LOGMEIN("BackwardPass.cpp] 7533\n");
                 Assert(tryRegion->writeThroughSymbolsSet->Test(id));
             }
             NEXT_BITSET_IN_SPARSEBV
@@ -7547,9 +7547,9 @@ BackwardPass::SetWriteThroughSymbolsSetForRegion(BasicBlock * catchBlock, Region
 
 bool
 BackwardPass::CheckWriteThroughSymInRegion(Region* region, StackSym* sym)
-{
+{LOGMEIN("BackwardPass.cpp] 7549\n");
     if (region->GetType() == RegionTypeRoot || region->GetType() == RegionTypeFinally)
-    {
+    {LOGMEIN("BackwardPass.cpp] 7551\n");
         return false;
     }
 
@@ -7557,7 +7557,7 @@ BackwardPass::CheckWriteThroughSymInRegion(Region* region, StackSym* sym)
     // otherwise (current = catch region) look in the first try ancestor's write-through set
     Region * selfOrFirstTryAncestor = region->GetSelfOrFirstTryAncestor();
     if (!selfOrFirstTryAncestor)
-    {
+    {LOGMEIN("BackwardPass.cpp] 7559\n");
         return false;
     }
     Assert(selfOrFirstTryAncestor->GetType() == RegionTypeTry);
@@ -7566,35 +7566,35 @@ BackwardPass::CheckWriteThroughSymInRegion(Region* region, StackSym* sym)
 
 bool
 BackwardPass::DoDeadStoreLdStForMemop(IR::Instr *instr)
-{
+{LOGMEIN("BackwardPass.cpp] 7568\n");
     Assert(this->tag == Js::DeadStorePhase && this->currentBlock->loop != nullptr);
 
     Loop *loop = this->currentBlock->loop;
 
     if (globOpt->HasMemOp(loop))
-    {
+    {LOGMEIN("BackwardPass.cpp] 7574\n");
         if (instr->m_opcode == Js::OpCode::StElemI_A && instr->GetDst()->IsIndirOpnd())
-        {
+        {LOGMEIN("BackwardPass.cpp] 7576\n");
             SymID base = this->globOpt->GetVarSymID(instr->GetDst()->AsIndirOpnd()->GetBaseOpnd()->GetStackSym());
             SymID index = this->globOpt->GetVarSymID(instr->GetDst()->AsIndirOpnd()->GetIndexOpnd()->GetStackSym());
 
             FOREACH_MEMOP_CANDIDATES(candidate, loop)
-            {
+            {LOGMEIN("BackwardPass.cpp] 7581\n");
                 if (base == candidate->base && index == candidate->index)
-                {
+                {LOGMEIN("BackwardPass.cpp] 7583\n");
                     return true;
                 }
             } NEXT_MEMOP_CANDIDATE
         }
         else if (instr->m_opcode == Js::OpCode::LdElemI_A &&  instr->GetSrc1()->IsIndirOpnd())
-        {
+        {LOGMEIN("BackwardPass.cpp] 7589\n");
             SymID base = this->globOpt->GetVarSymID(instr->GetSrc1()->AsIndirOpnd()->GetBaseOpnd()->GetStackSym());
             SymID index = this->globOpt->GetVarSymID(instr->GetSrc1()->AsIndirOpnd()->GetIndexOpnd()->GetStackSym());
 
             FOREACH_MEMCOPY_CANDIDATES(candidate, loop)
-            {
+            {LOGMEIN("BackwardPass.cpp] 7594\n");
                 if (base == candidate->ldBase && index == candidate->index)
-                {
+                {LOGMEIN("BackwardPass.cpp] 7596\n");
                     return true;
                 }
             } NEXT_MEMCOPY_CANDIDATE
@@ -7605,12 +7605,12 @@ BackwardPass::DoDeadStoreLdStForMemop(IR::Instr *instr)
 
 void
 BackwardPass::RestoreInductionVariableValuesAfterMemOp(Loop *loop)
-{
+{LOGMEIN("BackwardPass.cpp] 7607\n");
     const auto RestoreInductionVariable = [&](SymID symId, Loop::InductionVariableChangeInfo inductionVariableChangeInfo, Loop *loop)
-    {
+    {LOGMEIN("BackwardPass.cpp] 7609\n");
         Js::OpCode opCode = Js::OpCode::Add_I4;
         if (!inductionVariableChangeInfo.isIncremental)
-        {
+        {LOGMEIN("BackwardPass.cpp] 7612\n");
             opCode = Js::OpCode::Sub_I4;
         }
         Func *localFunc = loop->GetFunc();
@@ -7622,11 +7622,11 @@ BackwardPass::RestoreInductionVariableValuesAfterMemOp(Loop *loop)
     };
 
     for (auto it = loop->memOpInfo->inductionVariableChangeInfoMap->GetIterator(); it.IsValid(); it.MoveNext())
-    {
+    {LOGMEIN("BackwardPass.cpp] 7624\n");
         Loop::InductionVariableChangeInfo iv = it.CurrentValue();
         SymID sym = it.CurrentKey();
         if (iv.unroll != Js::Constants::InvalidLoopUnrollFactor)
-        {
+        {LOGMEIN("BackwardPass.cpp] 7628\n");
             // if the variable is being used after the loop restore it
             if (loop->memOpInfo->inductionVariablesUsedAfterLoop->Test(sym))
             {
@@ -7638,11 +7638,11 @@ BackwardPass::RestoreInductionVariableValuesAfterMemOp(Loop *loop)
 
 bool
 BackwardPass::IsEmptyLoopAfterMemOp(Loop *loop)
-{
+{LOGMEIN("BackwardPass.cpp] 7640\n");
     if (globOpt->HasMemOp(loop))
-    {
+    {LOGMEIN("BackwardPass.cpp] 7642\n");
         const auto IsInductionVariableUse = [&](IR::Opnd *opnd) -> bool
-        {
+        {LOGMEIN("BackwardPass.cpp] 7644\n");
             Loop::InductionVariableChangeInfo  inductionVariableChangeInfo = { 0, 0 };
             return (opnd &&
                 opnd->GetStackSym() &&
@@ -7658,16 +7658,16 @@ BackwardPass::IsEmptyLoopAfterMemOp(Loop *loop)
         {
 
             FOREACH_INSTR_IN_BLOCK_EDITING(instr, instrPrev, bblock)
-            {
+            {LOGMEIN("BackwardPass.cpp] 7660\n");
                 if (instr->IsLabelInstr() || !instr->IsRealInstr() || instr->m_opcode == Js::OpCode::IncrLoopBodyCount || instr->m_opcode == Js::OpCode::StLoopBodyCount
                     || (instr->IsBranchInstr() && instr->AsBranchInstr()->IsUnconditional()))
-                {
+                {LOGMEIN("BackwardPass.cpp] 7663\n");
                     continue;
                 }
                 else
                 {
                     switch (instr->m_opcode)
-                    {
+                    {LOGMEIN("BackwardPass.cpp] 7669\n");
                     case Js::OpCode::Nop:
                         break;
                     case Js::OpCode::Ld_I4:
@@ -7675,11 +7675,11 @@ BackwardPass::IsEmptyLoopAfterMemOp(Loop *loop)
                     case Js::OpCode::Sub_I4:
 
                         if (!IsInductionVariableUse(instr->GetDst()))
-                        {
+                        {LOGMEIN("BackwardPass.cpp] 7677\n");
                             Assert(instr->GetDst());
                             if (instr->GetDst()->GetStackSym()
                                 && loop->memOpInfo->inductionVariablesUsedAfterLoop->Test(globOpt->GetVarSymID(instr->GetDst()->GetStackSym())))
-                            {
+                            {LOGMEIN("BackwardPass.cpp] 7681\n");
                                 // We have use after the loop for a variable defined inside the loop. So the loop can't be removed.
                                 return false;
                             }
@@ -7688,15 +7688,15 @@ BackwardPass::IsEmptyLoopAfterMemOp(Loop *loop)
                     case Js::OpCode::Decr_A:
                     case Js::OpCode::Incr_A:
                         if (!IsInductionVariableUse(instr->GetSrc1()))
-                        {
+                        {LOGMEIN("BackwardPass.cpp] 7690\n");
                             return false;
                         }
                         break;
                     default:
                         if (instr->IsBranchInstr())
-                        {
+                        {LOGMEIN("BackwardPass.cpp] 7696\n");
                             if (IsInductionVariableUse(instr->GetSrc1()) || IsInductionVariableUse(instr->GetSrc2()))
-                            {
+                            {LOGMEIN("BackwardPass.cpp] 7698\n");
                                 break;
                             }
                         }
@@ -7717,50 +7717,50 @@ BackwardPass::IsEmptyLoopAfterMemOp(Loop *loop)
 
 void
 BackwardPass::RemoveEmptyLoops()
-{
+{LOGMEIN("BackwardPass.cpp] 7719\n");
     if (PHASE_OFF(Js::MemOpPhase, this->func))
-    {
+    {LOGMEIN("BackwardPass.cpp] 7721\n");
         return;
 
     }
     const auto DeleteMemOpInfo = [&](Loop *loop)
-    {
+    {LOGMEIN("BackwardPass.cpp] 7726\n");
         JitArenaAllocator *alloc = this->func->GetTopFunc()->m_fg->alloc;
 
         if (!loop->memOpInfo)
-        {
+        {LOGMEIN("BackwardPass.cpp] 7730\n");
             return;
         }
 
         if (loop->memOpInfo->candidates)
-        {
+        {LOGMEIN("BackwardPass.cpp] 7735\n");
             loop->memOpInfo->candidates->Clear();
             JitAdelete(alloc, loop->memOpInfo->candidates);
         }
 
         if (loop->memOpInfo->inductionVariableChangeInfoMap)
-        {
+        {LOGMEIN("BackwardPass.cpp] 7741\n");
             loop->memOpInfo->inductionVariableChangeInfoMap->Clear();
             JitAdelete(alloc, loop->memOpInfo->inductionVariableChangeInfoMap);
         }
 
         if (loop->memOpInfo->inductionVariableOpndPerUnrollMap)
-        {
+        {LOGMEIN("BackwardPass.cpp] 7747\n");
             loop->memOpInfo->inductionVariableOpndPerUnrollMap->Clear();
             JitAdelete(alloc, loop->memOpInfo->inductionVariableOpndPerUnrollMap);
         }
 
         if (loop->memOpInfo->inductionVariablesUsedAfterLoop)
-        {
+        {LOGMEIN("BackwardPass.cpp] 7753\n");
             JitAdelete(this->tempAlloc, loop->memOpInfo->inductionVariablesUsedAfterLoop);
         }
         JitAdelete(alloc, loop->memOpInfo);
     };
 
     FOREACH_LOOP_IN_FUNC_EDITING(loop, this->func)
-    {
+    {LOGMEIN("BackwardPass.cpp] 7760\n");
         if (IsEmptyLoopAfterMemOp(loop))
-        {
+        {LOGMEIN("BackwardPass.cpp] 7762\n");
             RestoreInductionVariableValuesAfterMemOp(loop);
             RemoveEmptyLoopAfterMemOp(loop);
         }
@@ -7773,7 +7773,7 @@ BackwardPass::RemoveEmptyLoops()
 
 void
 BackwardPass::RemoveEmptyLoopAfterMemOp(Loop *loop)
-{
+{LOGMEIN("BackwardPass.cpp] 7775\n");
     BasicBlock *head = loop->GetHeadBlock();
     BasicBlock *tail = head->next;
     BasicBlock *landingPad = loop->landingPad;
@@ -7785,7 +7785,7 @@ BackwardPass::RemoveEmptyLoopAfterMemOp(Loop *loop)
     SListBaseCounted<FlowEdge *>::Iterator  iter(succList);
     iter.Next();
     if (iter.Data()->GetSucc() == tail)
-    {
+    {LOGMEIN("BackwardPass.cpp] 7787\n");
         iter.Next();
         outerBlock = iter.Data()->GetSucc();
     }
@@ -7805,7 +7805,7 @@ BackwardPass::RemoveEmptyLoopAfterMemOp(Loop *loop)
     this->func->m_fg->RemoveBlock(head, nullptr);
 
     if (head != tail)
-    {
+    {LOGMEIN("BackwardPass.cpp] 7807\n");
         this->func->m_fg->RemoveBlock(tail, nullptr);
     }
 }
@@ -7813,7 +7813,7 @@ BackwardPass::RemoveEmptyLoopAfterMemOp(Loop *loop)
 #if DBG_DUMP
 bool
 BackwardPass::IsTraceEnabled() const
-{
+{LOGMEIN("BackwardPass.cpp] 7815\n");
     return
         Js::Configuration::Global.flags.Trace.IsEnabled(tag, this->func->GetSourceContextId(), this->func->GetLocalFunctionId()) &&
         (PHASE_TRACE(Js::SimpleJitPhase, func) || !func->IsSimpleJit());

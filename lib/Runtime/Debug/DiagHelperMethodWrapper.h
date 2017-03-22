@@ -45,15 +45,15 @@ namespace Js
     //   needed in case of library call and not needed in case of helper.
     template <bool doCheckParentInterpreterFrame, typename Fn>
     Var HelperOrLibraryMethodWrapper(ScriptContext* scriptContext, Fn fn)
-    {
+    {LOGMEIN("DiagHelperMethodWrapper.h] 47\n");
         Assert(scriptContext);
         JavascriptExceptionObject* exceptionObject = nullptr;
         try
-        {
+        {LOGMEIN("DiagHelperMethodWrapper.h] 51\n");
             return fn();
         }
         catch (const JavascriptException& err)
-        {
+        {LOGMEIN("DiagHelperMethodWrapper.h] 55\n");
             exceptionObject = err.GetAndClear();
         }
 

@@ -125,7 +125,7 @@ protected:
         canStoreTemp(false),
         isDiagHelperCallOpnd(false),
         isPropertySymOpnd(false)
-    {
+    {LOGMEIN("Opnd.h] 127\n");
 #if DBG
         isFakeDst = false;
         isDeleted = false;
@@ -139,7 +139,7 @@ protected:
         m_inUse(false),
         m_isValueTypeFixed(false),
         canStoreTemp(oldOpnd.canStoreTemp)
-    {
+    {LOGMEIN("Opnd.h] 141\n");
 #if DBG
         isFakeDst = false;
         isDeleted = false;
@@ -196,62 +196,62 @@ public:
 
     bool                IsEqual(Opnd *opnd);
     void                Free(Func * func);
-    bool                IsInUse() const { return m_inUse; }
+    bool                IsInUse() const {LOGMEIN("Opnd.h] 198\n"); return m_inUse; }
     Opnd *              Use(Func * func);
     void                UnUse();
-    IRType              GetType() const { return this->m_type; }
-    void                SetType(IRType type) { this->m_type = type; }
-    bool                IsSigned() const { return IRType_IsSignedInt(this->m_type); }
-    bool                IsUnsigned() const { return IRType_IsUnsignedInt(this->m_type); }
-    int                 GetSize() const { return TySize[this->m_type]; }
-    bool                IsInt64() const { return IRType_IsInt64(this->m_type); }
-    bool                IsInt32() const { return this->m_type == TyInt32; }
-    bool                IsUInt32() const { return this->m_type == TyUint32; }
-    bool                IsFloat32() const { return this->m_type == TyFloat32; }
-    bool                IsFloat64() const { return this->m_type == TyFloat64; }
-    bool                IsFloat() const { return this->IsFloat32() || this->IsFloat64(); }
-    bool                IsSimd128() const { return IRType_IsSimd128(this->m_type);  }
-    bool                IsSimd128F4()  const { return this->m_type == TySimd128F4;  }
-    bool                IsSimd128I4()  const { return this->m_type == TySimd128I4;  }
-    bool                IsSimd128I8()  const { return this->m_type == TySimd128I8;  }
-    bool                IsSimd128I16() const { return this->m_type == TySimd128I16; }
-    bool                IsSimd128U4()  const { return this->m_type == TySimd128U4;  }
-    bool                IsSimd128U8()  const { return this->m_type == TySimd128U8;  }
-    bool                IsSimd128U16() const { return this->m_type == TySimd128U16; }
-    bool                IsSimd128B4()  const { return this->m_type == TySimd128B4;  }
-    bool                IsSimd128B8()  const { return this->m_type == TySimd128B8;  }
-    bool                IsSimd128B16() const { return this->m_type == TySimd128B16; }
-    bool                IsSimd128D2()  const { return this->m_type == TySimd128D2;  }
-    bool                IsVar() const { return this->m_type == TyVar; }
+    IRType              GetType() const {LOGMEIN("Opnd.h] 201\n"); return this->m_type; }
+    void                SetType(IRType type) {LOGMEIN("Opnd.h] 202\n"); this->m_type = type; }
+    bool                IsSigned() const {LOGMEIN("Opnd.h] 203\n"); return IRType_IsSignedInt(this->m_type); }
+    bool                IsUnsigned() const {LOGMEIN("Opnd.h] 204\n"); return IRType_IsUnsignedInt(this->m_type); }
+    int                 GetSize() const {LOGMEIN("Opnd.h] 205\n"); return TySize[this->m_type]; }
+    bool                IsInt64() const {LOGMEIN("Opnd.h] 206\n"); return IRType_IsInt64(this->m_type); }
+    bool                IsInt32() const {LOGMEIN("Opnd.h] 207\n"); return this->m_type == TyInt32; }
+    bool                IsUInt32() const {LOGMEIN("Opnd.h] 208\n"); return this->m_type == TyUint32; }
+    bool                IsFloat32() const {LOGMEIN("Opnd.h] 209\n"); return this->m_type == TyFloat32; }
+    bool                IsFloat64() const {LOGMEIN("Opnd.h] 210\n"); return this->m_type == TyFloat64; }
+    bool                IsFloat() const {LOGMEIN("Opnd.h] 211\n"); return this->IsFloat32() || this->IsFloat64(); }
+    bool                IsSimd128() const {LOGMEIN("Opnd.h] 212\n"); return IRType_IsSimd128(this->m_type);  }
+    bool                IsSimd128F4()  const {LOGMEIN("Opnd.h] 213\n"); return this->m_type == TySimd128F4;  }
+    bool                IsSimd128I4()  const {LOGMEIN("Opnd.h] 214\n"); return this->m_type == TySimd128I4;  }
+    bool                IsSimd128I8()  const {LOGMEIN("Opnd.h] 215\n"); return this->m_type == TySimd128I8;  }
+    bool                IsSimd128I16() const {LOGMEIN("Opnd.h] 216\n"); return this->m_type == TySimd128I16; }
+    bool                IsSimd128U4()  const {LOGMEIN("Opnd.h] 217\n"); return this->m_type == TySimd128U4;  }
+    bool                IsSimd128U8()  const {LOGMEIN("Opnd.h] 218\n"); return this->m_type == TySimd128U8;  }
+    bool                IsSimd128U16() const {LOGMEIN("Opnd.h] 219\n"); return this->m_type == TySimd128U16; }
+    bool                IsSimd128B4()  const {LOGMEIN("Opnd.h] 220\n"); return this->m_type == TySimd128B4;  }
+    bool                IsSimd128B8()  const {LOGMEIN("Opnd.h] 221\n"); return this->m_type == TySimd128B8;  }
+    bool                IsSimd128B16() const {LOGMEIN("Opnd.h] 222\n"); return this->m_type == TySimd128B16; }
+    bool                IsSimd128D2()  const {LOGMEIN("Opnd.h] 223\n"); return this->m_type == TySimd128D2;  }
+    bool                IsVar() const {LOGMEIN("Opnd.h] 224\n"); return this->m_type == TyVar; }
     bool                IsTaggedInt() const;
     bool                IsTaggedValue() const;
     bool                IsNotNumber() const;
     bool                IsNotInt() const;
     bool                IsNotTaggedValue() const;
     bool                IsWriteBarrierTriggerableValue();
-    void                SetIsDead(const bool isDead = true)   { this->m_isDead = isDead; }
-    bool                GetIsDead()   { return this->m_isDead; }
+    void                SetIsDead(const bool isDead = true)   {LOGMEIN("Opnd.h] 231\n"); this->m_isDead = isDead; }
+    bool                GetIsDead()   {LOGMEIN("Opnd.h] 232\n"); return this->m_isDead; }
     int64               GetImmediateValue(Func * func);
 #if TARGET_32 && !defined(_M_IX86)
     // Helper for 32bits systems without int64 const operand support
     int32               GetImmediateValueAsInt32(Func * func);
 #endif
     BailoutConstantValue GetConstValue();
-    bool                GetIsJITOptimizedReg() const { return m_isJITOptimizedReg; }
-    void                SetIsJITOptimizedReg(bool value) { Assert(!value || !this->IsIndirOpnd()); m_isJITOptimizedReg = value; }
+    bool                GetIsJITOptimizedReg() const {LOGMEIN("Opnd.h] 239\n"); return m_isJITOptimizedReg; }
+    void                SetIsJITOptimizedReg(bool value) {LOGMEIN("Opnd.h] 240\n"); Assert(!value || !this->IsIndirOpnd()); m_isJITOptimizedReg = value; }
 
-    ValueType           GetValueType() const { return m_valueType; }
+    ValueType           GetValueType() const {LOGMEIN("Opnd.h] 242\n"); return m_valueType; }
     void                SetValueType(const ValueType valueType);
     ValueType           FindProfiledValueType();
     bool                IsScopeObjOpnd(Func * func);
 #if DBG_DUMP || defined(ENABLE_IR_VIEWER)
-    virtual void        DummyFunction() {} // Note needed for the VS debugger to disambiguate the different classes.
+    virtual void        DummyFunction() {LOGMEIN("Opnd.h] 247\n");} // Note needed for the VS debugger to disambiguate the different classes.
     void                DumpValueType();
     static void         DumpValueType(const ValueType valueType);
 #endif
 
-    bool                IsValueTypeFixed() const { return m_isValueTypeFixed; }
-    void                SetValueTypeFixed() { m_isValueTypeFixed = true; }
+    bool                IsValueTypeFixed() const {LOGMEIN("Opnd.h] 252\n"); return m_isValueTypeFixed; }
+    void                SetValueTypeFixed() {LOGMEIN("Opnd.h] 253\n"); m_isValueTypeFixed = true; }
     IR::RegOpnd *       FindRegUse(IR::RegOpnd *regOpnd);
     bool                IsArgumentsObject();
 
@@ -274,8 +274,8 @@ public:
     void                Dump();
 #endif
 
-    bool                CanStoreTemp() const { return canStoreTemp; }
-    void                SetCanStoreTemp() { Assert(this->IsSymOpnd() || this->IsIndirOpnd()); canStoreTemp = true; }
+    bool                CanStoreTemp() const {LOGMEIN("Opnd.h] 276\n"); return canStoreTemp; }
+    void                SetCanStoreTemp() {LOGMEIN("Opnd.h] 277\n"); Assert(this->IsSymOpnd() || this->IsIndirOpnd()); canStoreTemp = true; }
 protected:
     ValueType           m_valueType;
     IRType              m_type;
@@ -337,17 +337,17 @@ public:
                                                 // constants not controllable by the user.
 
     IntConstType GetValue()
-    {
+    {LOGMEIN("Opnd.h] 339\n");
         return m_value;
     }
 
     void IncrValue(IntConstType by)
-    {
+    {LOGMEIN("Opnd.h] 344\n");
         SetValue(m_value + by);
     }
 
     void DecrValue(IntConstType by)
-    {
+    {LOGMEIN("Opnd.h] 349\n");
         SetValue(m_value - by);
     }
 
@@ -450,7 +450,7 @@ public:
     bool                    IsEqualInternal(Opnd *opnd);
     void                    FreeInternal(Func * func);
     bool                    IsDiagHelperCallOpnd() const
-    {
+    {LOGMEIN("Opnd.h] 452\n");
         Assert(this->DbgIsDiagHelperCallOpnd() == isDiagHelperCallOpnd);
         return isDiagHelperCallOpnd;
     }
@@ -459,7 +459,7 @@ public:
 
 #if DBG
 private:
-    virtual bool DbgIsDiagHelperCallOpnd() const { return false; }
+    virtual bool DbgIsDiagHelperCallOpnd() const {LOGMEIN("Opnd.h] 461\n"); return false; }
 #endif
 };
 
@@ -508,7 +508,7 @@ public:
     bool                    IsEqualInternal(Opnd *opnd);
     void                    FreeInternal(Func * func);
     bool                    IsPropertySymOpnd() const
-    {
+    {LOGMEIN("Opnd.h] 510\n");
         Assert(this->DbgIsPropertySymOpnd() == this->isPropertySymOpnd);
         return isPropertySymOpnd;
     }
@@ -518,7 +518,7 @@ public:
 
 private:
 #if DBG
-    virtual bool            DbgIsPropertySymOpnd() const { return false; }
+    virtual bool            DbgIsPropertySymOpnd() const {LOGMEIN("Opnd.h] 520\n"); return false; }
 #endif
 
 private:
@@ -526,12 +526,12 @@ private:
 
 public:
     ValueType GetPropertyOwnerValueType() const
-    {
+    {LOGMEIN("Opnd.h] 528\n");
         return propertyOwnerValueType;
     }
 
     void SetPropertyOwnerValueType(const ValueType valueType)
-    {
+    {LOGMEIN("Opnd.h] 533\n");
         propertyOwnerValueType = valueType;
     }
 
@@ -541,8 +541,8 @@ public:
 class PropertySymOpnd sealed : public SymOpnd
 {
 protected:
-    PropertySymOpnd() : SymOpnd() {}
-    PropertySymOpnd(SymOpnd* symOpnd) : SymOpnd(*symOpnd) {}
+    PropertySymOpnd() : SymOpnd() {LOGMEIN("Opnd.h] 543\n");}
+    PropertySymOpnd(SymOpnd* symOpnd) : SymOpnd(*symOpnd) {LOGMEIN("Opnd.h] 544\n");}
 
 public:
     static PropertySymOpnd * New(PropertySym *propertySym, uint inlineCacheIndex, IRType type, Func *func);
@@ -608,32 +608,32 @@ public:
     };
 
 public:
-    StackSym * GetObjectSym() const { return this->m_sym->AsPropertySym()->m_stackSym; };
-    bool HasObjectTypeSym() const { return this->m_sym->AsPropertySym()->HasObjectTypeSym(); };
-    StackSym * GetObjectTypeSym() const { return this->m_sym->AsPropertySym()->GetObjectTypeSym(); };
-    PropertySym* GetPropertySym() const { return this->m_sym->AsPropertySym(); }
+    StackSym * GetObjectSym() const {LOGMEIN("Opnd.h] 610\n"); return this->m_sym->AsPropertySym()->m_stackSym; };
+    bool HasObjectTypeSym() const {LOGMEIN("Opnd.h] 611\n"); return this->m_sym->AsPropertySym()->HasObjectTypeSym(); };
+    StackSym * GetObjectTypeSym() const {LOGMEIN("Opnd.h] 612\n"); return this->m_sym->AsPropertySym()->GetObjectTypeSym(); };
+    PropertySym* GetPropertySym() const {LOGMEIN("Opnd.h] 613\n"); return this->m_sym->AsPropertySym(); }
 
     void TryDisableRuntimePolymorphicCache()
-    {
+    {LOGMEIN("Opnd.h] 616\n");
         if (this->m_runtimePolymorphicInlineCache && (this->m_polyCacheUtil < PolymorphicInlineCacheUtilizationThreshold))
-        {
+        {LOGMEIN("Opnd.h] 618\n");
             this->m_runtimePolymorphicInlineCache = nullptr;
         }
     }
 
     bool HasObjTypeSpecFldInfo() const
-    {
+    {LOGMEIN("Opnd.h] 624\n");
         return this->objTypeSpecFldInfo != nullptr;
     }
 
     void SetObjTypeSpecFldInfo(JITObjTypeSpecFldInfo *const objTypeSpecFldInfo)
-    {
+    {LOGMEIN("Opnd.h] 629\n");
         this->objTypeSpecFldInfo = objTypeSpecFldInfo;
 
         // The following information may change in a flow-based manner, and an ObjTypeSpecFldInfo is shared among several
         // PropertySymOpnds, so copy the information to the opnd
         if(!objTypeSpecFldInfo)
-        {
+        {LOGMEIN("Opnd.h] 635\n");
             usesAuxSlot = false;
             slotIndex = 0;
             return;
@@ -643,355 +643,355 @@ public:
     }
 
     void TryResetObjTypeSpecFldInfo()
-    {
+    {LOGMEIN("Opnd.h] 645\n");
         if (this->ShouldResetObjTypeSpecFldInfo())
-        {
+        {LOGMEIN("Opnd.h] 647\n");
             SetObjTypeSpecFldInfo(nullptr);
         }
     }
 
     bool ShouldResetObjTypeSpecFldInfo()
-    {
+    {LOGMEIN("Opnd.h] 653\n");
         // If an objTypeSpecFldInfo was created just for the purpose of polymorphic inlining but didn't get used for the same (for some reason or the other), and the polymorphic cache it was created from, wasn't equivalent,
         // we should null out this info on the propertySymOpnd so that assumptions downstream around equivalent object type spec still hold.
         if (HasObjTypeSpecFldInfo() && IsPoly() && (DoesntHaveEquivalence() || !IsLoadedFromProto()))
-        {
+        {LOGMEIN("Opnd.h] 657\n");
             return true;
         }
         return false;
     }
 
     JITObjTypeSpecFldInfo* GetObjTypeSpecInfo() const
-    {
+    {LOGMEIN("Opnd.h] 664\n");
         return this->objTypeSpecFldInfo;
     }
 
     uint GetObjTypeSpecFldId() const
-    {
+    {LOGMEIN("Opnd.h] 669\n");
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetObjTypeSpecFldId();
     }
 
     bool IsMono() const
-    {
+    {LOGMEIN("Opnd.h] 675\n");
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->IsMono();
     }
 
     bool IsPoly() const
-    {
+    {LOGMEIN("Opnd.h] 680\n");
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->IsPoly();
     }
 
     bool HasEquivalentTypeSet() const
-    {
+    {LOGMEIN("Opnd.h] 685\n");
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->HasEquivalentTypeSet();
     }
 
     bool DoesntHaveEquivalence() const
-    {
+    {LOGMEIN("Opnd.h] 690\n");
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->DoesntHaveEquivalence();
     }
 
     bool UsesAuxSlot() const
-    {
+    {LOGMEIN("Opnd.h] 695\n");
         return usesAuxSlot && HasObjTypeSpecFldInfo();
     }
 
     void SetUsesAuxSlot(bool value)
-    {
+    {LOGMEIN("Opnd.h] 700\n");
         Assert(HasObjTypeSpecFldInfo());
         usesAuxSlot = value;
     }
 
     bool IsLoadedFromProto() const
-    {
+    {LOGMEIN("Opnd.h] 706\n");
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->IsLoadedFromProto();
     }
 
     bool UsesAccessor() const
-    {
+    {LOGMEIN("Opnd.h] 711\n");
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->UsesAccessor();
     }
 
     bool HasFixedValue() const
-    {
+    {LOGMEIN("Opnd.h] 716\n");
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->HasFixedValue();
     }
 
     bool UsesFixedValue() const
-    {
+    {LOGMEIN("Opnd.h] 721\n");
         return this->usesFixedValue;
     }
 
     void SetUsesFixedValue(bool value)
-    {
+    {LOGMEIN("Opnd.h] 726\n");
         this->usesFixedValue = value;
     }
 
     bool MustDoMonoCheck() const
-    {
+    {LOGMEIN("Opnd.h] 731\n");
         return this->monoGuardType != nullptr;
     }
 
     JITTypeHolder GetMonoGuardType() const
-    {
+    {LOGMEIN("Opnd.h] 736\n");
         return this->monoGuardType;
     }
 
     void SetMonoGuardType(JITTypeHolder type)
-    {
+    {LOGMEIN("Opnd.h] 741\n");
         this->monoGuardType = type;
     }
 
     bool NeedsMonoCheck() const
-    {
+    {LOGMEIN("Opnd.h] 746\n");
         Assert(HasObjTypeSpecFldInfo());
         return this->IsBeingAdded() || (this->HasFixedValue() && !this->IsLoadedFromProto());
     }
 
     bool IsBeingStored() const
-    {
+    {LOGMEIN("Opnd.h] 752\n");
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->IsBeingStored();
     }
 
     void SetIsBeingStored(bool value)
-    {
+    {LOGMEIN("Opnd.h] 757\n");
         Assert(HasObjTypeSpecFldInfo());
         this->objTypeSpecFldInfo->SetIsBeingStored(value);
     }
 
     bool IsBeingAdded() const
-    {
+    {LOGMEIN("Opnd.h] 763\n");
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->IsBeingAdded();
     }
 
     bool IsRootObjectNonConfigurableField() const
-    {
+    {LOGMEIN("Opnd.h] 768\n");
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->IsRootObjectNonConfigurableField();
     }
 
     bool IsRootObjectNonConfigurableFieldLoad() const
-    {
+    {LOGMEIN("Opnd.h] 773\n");
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->IsRootObjectNonConfigurableFieldLoad();
     }
 
     uint16 GetSlotIndex() const
-    {
+    {LOGMEIN("Opnd.h] 778\n");
         Assert(HasObjTypeSpecFldInfo());
         return slotIndex;
     }
 
     void SetSlotIndex(uint16 index)
-    {
+    {LOGMEIN("Opnd.h] 784\n");
         Assert(HasObjTypeSpecFldInfo());
         slotIndex = index;
     }
 
     uint16 GetCheckedTypeSetIndex() const
-    {
+    {LOGMEIN("Opnd.h] 790\n");
         Assert(HasEquivalentTypeSet());
         return checkedTypeSetIndex;
     }
 
     void SetCheckedTypeSetIndex(uint16 index)
-    {
+    {LOGMEIN("Opnd.h] 796\n");
         Assert(HasEquivalentTypeSet());
         checkedTypeSetIndex = index;
     }
 
     Js::PropertyId GetPropertyId() const
-    {
+    {LOGMEIN("Opnd.h] 802\n");
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetPropertyId();
     }
 
     intptr_t GetProtoObject() const
-    {
+    {LOGMEIN("Opnd.h] 808\n");
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetProtoObject();
     }
 
     JITTimeFixedField * GetFixedFunction() const
-    {
+    {LOGMEIN("Opnd.h] 814\n");
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetFixedFieldIfAvailableAsFixedFunction();
     }
 
     JITTimeFixedField * GetFixedFunction(uint i) const
-    {
+    {LOGMEIN("Opnd.h] 820\n");
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetFixedFieldIfAvailableAsFixedFunction(i);
     }
 
     intptr_t GetFieldValueAsFixedData() const
-    {
+    {LOGMEIN("Opnd.h] 826\n");
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetFieldValueAsFixedDataIfAvailable();
     }
 
     intptr_t GetFieldValue(uint i) const
-    {
+    {LOGMEIN("Opnd.h] 832\n");
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetFieldValue(i);
     }
 
     JITTimeFixedField * GetFixedFieldInfoArray()
-    {
+    {LOGMEIN("Opnd.h] 838\n");
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetFixedFieldInfoArray();
     }
 
     uint16 GetFixedFieldCount()
-    {
+    {LOGMEIN("Opnd.h] 844\n");
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetFixedFieldCount();
     }
 
     JITTimeConstructorCache * GetCtorCache() const
-    {
+    {LOGMEIN("Opnd.h] 850\n");
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetCtorCache();
     }
 
     intptr_t GetPropertyGuardValueAddr() const
-    {
+    {LOGMEIN("Opnd.h] 856\n");
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetPropertyGuardValueAddr();
     }
 
     bool IsTypeCheckSeqCandidate() const
-    {
+    {LOGMEIN("Opnd.h] 862\n");
         Assert(IsObjTypeSpecCandidate() || !this->isTypeCheckSeqCandidate);
         return this->isTypeCheckSeqCandidate;
     }
 
     void SetTypeCheckSeqCandidate(bool value)
-    {
+    {LOGMEIN("Opnd.h] 868\n");
         Assert(IsObjTypeSpecCandidate() || !value);
         this->isTypeCheckSeqCandidate = value;
     }
 
     bool IsTypeCheckOnly() const
-    {
+    {LOGMEIN("Opnd.h] 874\n");
         return this->isTypeCheckOnly;
     }
 
     void SetTypeCheckOnly(bool value)
-    {
+    {LOGMEIN("Opnd.h] 879\n");
         this->isTypeCheckOnly = value;
     }
 
     bool IsTypeAvailable() const
-    {
+    {LOGMEIN("Opnd.h] 884\n");
         return this->typeAvailable;
     }
 
     void SetTypeAvailable(bool value)
-    {
+    {LOGMEIN("Opnd.h] 889\n");
         Assert(IsTypeCheckSeqCandidate());
         this->typeAvailable = value;
     }
 
     bool IsTypeDead() const
-    {
+    {LOGMEIN("Opnd.h] 895\n");
         return this->typeDead;
     }
 
     void SetTypeDead(bool value)
-    {
+    {LOGMEIN("Opnd.h] 900\n");
         Assert(IsTypeCheckSeqCandidate());
         this->typeDead = value;
     }
 
     void SetTypeDeadIfTypeCheckSeqCandidate(bool value)
-    {
+    {LOGMEIN("Opnd.h] 906\n");
         if (IsTypeCheckSeqCandidate())
-        {
+        {LOGMEIN("Opnd.h] 908\n");
             this->typeDead = value;
         }
     }
 
     bool IsTypeChecked() const
-    {
+    {LOGMEIN("Opnd.h] 914\n");
         return this->typeChecked;
     }
 
     void SetTypeChecked(bool value)
-    {
+    {LOGMEIN("Opnd.h] 919\n");
         Assert(IsTypeCheckSeqCandidate());
         this->typeChecked = value;
     }
 
     bool IsInitialTypeChecked() const
-    {
+    {LOGMEIN("Opnd.h] 925\n");
         return this->initialTypeChecked;
     }
 
     void SetInitialTypeChecked(bool value)
-    {
+    {LOGMEIN("Opnd.h] 930\n");
         Assert(IsTypeCheckSeqCandidate());
         this->initialTypeChecked = value;
     }
 
     bool HasTypeMismatch() const
-    {
+    {LOGMEIN("Opnd.h] 936\n");
         return this->typeMismatch;
     }
 
     void SetTypeMismatch(bool value)
-    {
+    {LOGMEIN("Opnd.h] 941\n");
         Assert(IsTypeCheckSeqCandidate());
         this->typeMismatch = value;
     }
 
     bool IsWriteGuardChecked() const
-    {
+    {LOGMEIN("Opnd.h] 947\n");
         return this->writeGuardChecked;
     }
 
     void SetWriteGuardChecked(bool value)
-    {
+    {LOGMEIN("Opnd.h] 952\n");
         Assert(IsTypeCheckSeqCandidate());
         this->writeGuardChecked = value;
     }
 
     uint16 GetObjTypeSpecFlags() const
-    {
+    {LOGMEIN("Opnd.h] 958\n");
         return this->objTypeSpecFlags;
     }
 
     void ClearObjTypeSpecFlags()
-    {
+    {LOGMEIN("Opnd.h] 963\n");
         this->objTypeSpecFlags = 0;
     }
 
     uint16 GetTypeCheckSeqFlags() const
-    {
+    {LOGMEIN("Opnd.h] 968\n");
         return this->typeCheckSeqFlags;
     }
 
     void ClearTypeCheckSeqFlags()
-    {
+    {LOGMEIN("Opnd.h] 973\n");
         this->typeCheckSeqFlags = 0;
     }
 
     bool MayNeedTypeCheckProtection() const
-    {
+    {LOGMEIN("Opnd.h] 978\n");
         return IsObjTypeSpecCandidate() && (IsTypeCheckSeqCandidate() || UsesFixedValue());
     }
 
     bool MayNeedWriteGuardProtection() const
-    {
+    {LOGMEIN("Opnd.h] 983\n");
         return IsLoadedFromProto() || UsesFixedValue();
     }
 
     bool IsTypeCheckProtected() const
-    {
+    {LOGMEIN("Opnd.h] 988\n");
         return IsTypeCheckSeqCandidate() && IsTypeChecked();
     }
 
     bool NeedsPrimaryTypeCheck() const
-    {
+    {LOGMEIN("Opnd.h] 993\n");
         // Only indicate that we need a primary type check, i.e. the type isn't yet available but will be needed downstream.
         // Type checks and bailouts may still be needed in other places (e.g. loads from proto, fixed field checks, or
         // property adds), if a primary type check cannot protect them.
@@ -1001,7 +1001,7 @@ public:
     }
 
     bool NeedsLocalTypeCheck() const
-    {
+    {LOGMEIN("Opnd.h] 1003\n");
         Assert(MayNeedTypeCheckProtection());
         Assert(TypeCheckSeqBitsSetOnlyIfCandidate());
         // Indicate whether this operation needs a type check for its own sake, since the type is dead and no downstream
@@ -1011,7 +1011,7 @@ public:
     }
 
     bool NeedsWriteGuardTypeCheck() const
-    {
+    {LOGMEIN("Opnd.h] 1013\n");
         Assert(MayNeedTypeCheckProtection());
         Assert(TypeCheckSeqBitsSetOnlyIfCandidate());
         // Type has been checked but property might have been written to since then.
@@ -1019,7 +1019,7 @@ public:
     }
 
     bool NeedsLoadFromProtoTypeCheck() const
-    {
+    {LOGMEIN("Opnd.h] 1021\n");
         Assert(MayNeedTypeCheckProtection());
         Assert(TypeCheckSeqBitsSetOnlyIfCandidate());
         // Proto cache, where type has been checked but property might have been written to since then.
@@ -1027,7 +1027,7 @@ public:
     }
 
     bool NeedsAddPropertyTypeCheck() const
-    {
+    {LOGMEIN("Opnd.h] 1029\n");
         Assert(MayNeedTypeCheckProtection());
         Assert(TypeCheckSeqBitsSetOnlyIfCandidate());
         // A property cannot become read-only without an explicit or implicit call (at least Object.defineProperty is needed), so if this
@@ -1036,27 +1036,27 @@ public:
     }
 
     bool NeedsCheckFixedFieldTypeCheck() const
-    {
+    {LOGMEIN("Opnd.h] 1038\n");
         Assert(MayNeedTypeCheckProtection());
         Assert(TypeCheckSeqBitsSetOnlyIfCandidate());
         return !IsTypeCheckOnly() && !NeedsPrimaryTypeCheck() && UsesFixedValue() && (!IsTypeChecked() || NeedsWriteGuardTypeCheck());
     }
 
     bool NeedsTypeCheck() const
-    {
+    {LOGMEIN("Opnd.h] 1045\n");
         return NeedsPrimaryTypeCheck() || NeedsLocalTypeCheck() ||
             NeedsLoadFromProtoTypeCheck() || NeedsAddPropertyTypeCheck() || NeedsCheckFixedFieldTypeCheck();
     }
 
     bool NeedsTypeCheckAndBailOut() const
-    {
+    {LOGMEIN("Opnd.h] 1051\n");
         return NeedsPrimaryTypeCheck() || (PHASE_ON1(Js::ObjTypeSpecIsolatedFldOpsWithBailOutPhase) && NeedsLocalTypeCheck()) || NeedsCheckFixedFieldTypeCheck();
     }
 
     // Is the instruction involving this operand optimized with a direct slot load or store? In other words, is it guarded
     // by a type check, either as part of the type check sequence, or explicitly on this instruction.
     bool IsObjTypeSpecOptimized() const
-    {
+    {LOGMEIN("Opnd.h] 1058\n");
         return MayNeedTypeCheckProtection() && (NeedsTypeCheckAndBailOut() || IsTypeCheckProtected());
     }
 
@@ -1065,7 +1065,7 @@ public:
     // type check may still end up with implicit call bailout.  However, if we are type check protected we will never
     // fall back on live cache.  Similarly, for fixed method checks.
     bool MayHaveImplicitCall() const
-    {
+    {LOGMEIN("Opnd.h] 1067\n");
         return !IsRootObjectNonConfigurableFieldLoad() && !UsesFixedValue() && (!IsTypeCheckSeqCandidate() || !IsTypeCheckProtected());
     }
 
@@ -1073,7 +1073,7 @@ public:
     // in that an instruction such as CheckFixedFld may require a type check even if it is not part of a type check
     // sequence. In this case IsObjTypeSpecOptimized() == true, but IsTypeCheckSeqParticipant() == false.
     bool IsTypeCheckSeqParticipant() const
-    {
+    {LOGMEIN("Opnd.h] 1075\n");
         Assert(IsTypeCheckSeqCandidate());
         return NeedsPrimaryTypeCheck() || IsTypeCheckProtected();
     }
@@ -1081,128 +1081,128 @@ public:
     bool HasFinalType() const;
 
     JITTypeHolder GetFinalType() const
-    {
+    {LOGMEIN("Opnd.h] 1083\n");
         return this->finalType;
     }
 
     void SetFinalType(JITTypeHolder type)
-    {
+    {LOGMEIN("Opnd.h] 1088\n");
         Assert(type != nullptr);
         this->finalType = type;
     }
 
     void ClearFinalType()
-    {
+    {LOGMEIN("Opnd.h] 1094\n");
         this->finalType = JITTypeHolder(nullptr);
     }
 
     BVSparse<JitArenaAllocator>* GetGuardedPropOps()
-    {
+    {LOGMEIN("Opnd.h] 1099\n");
         return this->guardedPropOps;
     }
 
     void EnsureGuardedPropOps(JitArenaAllocator* allocator)
-    {
+    {LOGMEIN("Opnd.h] 1104\n");
         if (this->guardedPropOps == nullptr)
-        {
+        {LOGMEIN("Opnd.h] 1106\n");
             this->guardedPropOps = JitAnew(allocator, BVSparse<JitArenaAllocator>, allocator);
         }
     }
 
     void SetGuardedPropOp(uint propOpId)
-    {
+    {LOGMEIN("Opnd.h] 1112\n");
         Assert(this->guardedPropOps != nullptr);
         this->guardedPropOps->Set(propOpId);
     }
 
     void AddGuardedPropOps(const BVSparse<JitArenaAllocator>* propOps)
-    {
+    {LOGMEIN("Opnd.h] 1118\n");
         Assert(this->guardedPropOps != nullptr);
         this->guardedPropOps->Or(propOps);
     }
 
     BVSparse<JitArenaAllocator>* GetWriteGuards()
-    {
+    {LOGMEIN("Opnd.h] 1124\n");
         return this->writeGuards;
     }
 
     void SetWriteGuards(BVSparse<JitArenaAllocator>* value)
-    {
+    {LOGMEIN("Opnd.h] 1129\n");
         Assert(this->writeGuards == nullptr);
         this->writeGuards = value;
     }
 
     void ClearWriteGuards()
-    {
+    {LOGMEIN("Opnd.h] 1135\n");
         this->writeGuards = nullptr;
     }
 
 #if DBG
     bool TypeCheckSeqBitsSetOnlyIfCandidate() const
-    {
+    {LOGMEIN("Opnd.h] 1141\n");
         return IsTypeCheckSeqCandidate() || (!IsTypeAvailable() && !IsTypeChecked() && !IsWriteGuardChecked() && !IsTypeDead());
     }
 #endif
 
     bool IsObjTypeSpecCandidate() const
-    {
+    {LOGMEIN("Opnd.h] 1147\n");
         return HasObjTypeSpecFldInfo();
     }
 
     bool IsMonoObjTypeSpecCandidate() const
-    {
+    {LOGMEIN("Opnd.h] 1152\n");
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->IsMonoObjTypeSpecCandidate();
     }
 
     bool IsPolyObjTypeSpecCandidate() const
-    {
+    {LOGMEIN("Opnd.h] 1157\n");
         return HasObjTypeSpecFldInfo() && this->objTypeSpecFldInfo->IsPolyObjTypeSpecCandidate();
     }
 
     Js::TypeId GetTypeId() const
-    {
+    {LOGMEIN("Opnd.h] 1162\n");
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetTypeId();
     }
 
     Js::TypeId GetTypeId(uint i) const
-    {
+    {LOGMEIN("Opnd.h] 1168\n");
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetTypeId(i);
     }
 
     JITTypeHolder GetType() const
-    {
+    {LOGMEIN("Opnd.h] 1174\n");
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetType();
     }
 
     JITTypeHolder GetType(uint i) const
-    {
+    {LOGMEIN("Opnd.h] 1180\n");
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetType(i);
     }
 
     bool HasInitialType() const
-    {
+    {LOGMEIN("Opnd.h] 1186\n");
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->HasInitialType();
     }
 
     JITTypeHolder GetInitialType() const
-    {
+    {LOGMEIN("Opnd.h] 1192\n");
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetInitialType();
     }
 
     Js::EquivalentTypeSet * GetEquivalentTypeSet() const
-    {
+    {LOGMEIN("Opnd.h] 1198\n");
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetEquivalentTypeSet();
     }
 
     JITTypeHolder GetFirstEquivalentType() const
-    {
+    {LOGMEIN("Opnd.h] 1204\n");
         Assert(HasObjTypeSpecFldInfo());
         return this->objTypeSpecFldInfo->GetFirstEquivalentType();
     }
@@ -1213,7 +1213,7 @@ public:
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
     const char16* GetCacheLayoutString() const
-    {
+    {LOGMEIN("Opnd.h] 1215\n");
         return HasObjTypeSpecFldInfo() ? this->objTypeSpecFldInfo->GetCacheLayoutString() : _u("empty");
     }
 #endif
@@ -1241,7 +1241,7 @@ public:
 
 public:
     bool                    IsArrayRegOpnd() const
-    {
+    {LOGMEIN("Opnd.h] 1243\n");
         Assert(m_isArrayRegOpnd == DbgIsArrayRegOpnd());
         Assert(!m_isArrayRegOpnd || m_valueType.IsAnyOptimizedArray());
         return m_isArrayRegOpnd;
@@ -1263,10 +1263,10 @@ public:
     bool                    IsSameRegUntyped(Opnd *opnd);
 
 #if DBG
-    void FreezeSymValue() { m_symValueFrozen = true; }
-    bool IsSymValueFrozen() const { return m_symValueFrozen; }
+    void FreezeSymValue() {LOGMEIN("Opnd.h] 1265\n"); m_symValueFrozen = true; }
+    bool IsSymValueFrozen() const {LOGMEIN("Opnd.h] 1266\n"); return m_symValueFrozen; }
 
-    virtual bool DbgIsArrayRegOpnd() const { return false; }
+    virtual bool DbgIsArrayRegOpnd() const {LOGMEIN("Opnd.h] 1268\n"); return false; }
 #endif
 
 private:
@@ -1315,48 +1315,48 @@ public:
 
 public:
 #if DBG
-    virtual bool DbgIsArrayRegOpnd() const { return true; }
+    virtual bool DbgIsArrayRegOpnd() const {LOGMEIN("Opnd.h] 1317\n"); return true; }
 #endif
     StackSym *HeadSegmentSym() const
-    {
+    {LOGMEIN("Opnd.h] 1320\n");
         return headSegmentSym;
     }
 
     void RemoveHeadSegmentSym()
-    {
+    {LOGMEIN("Opnd.h] 1325\n");
         headSegmentSym = nullptr;
     }
 
     StackSym *HeadSegmentLengthSym() const
-    {
+    {LOGMEIN("Opnd.h] 1330\n");
         return headSegmentLengthSym;
     }
 
     void RemoveHeadSegmentLengthSym()
-    {
+    {LOGMEIN("Opnd.h] 1335\n");
         headSegmentLengthSym = nullptr;
     }
 
     StackSym *LengthSym() const
-    {
+    {LOGMEIN("Opnd.h] 1340\n");
         // For typed arrays, the head segment length is the same as the array length
         Assert(!(m_valueType.IsLikelyTypedArray() && !m_valueType.IsOptimizedTypedArray()));
         return m_valueType.IsLikelyTypedArray() ? HeadSegmentLengthSym() : lengthSym;
     }
 
     void RemoveLengthSym()
-    {
+    {LOGMEIN("Opnd.h] 1347\n");
         Assert(m_valueType.IsArray());
         lengthSym = nullptr;
     }
 
     bool EliminatedLowerBoundCheck() const
-    {
+    {LOGMEIN("Opnd.h] 1353\n");
         return eliminatedLowerBoundCheck;
     }
 
     bool EliminatedUpperBoundCheck() const
-    {
+    {LOGMEIN("Opnd.h] 1358\n");
         return eliminatedUpperBoundCheck;
     }
 
@@ -1401,10 +1401,10 @@ public:
     bool                    IsEqualInternal(Opnd *opnd);
     void                    FreeInternal(Func * func);
 
-    bool                    IsDynamic() const { return addrOpndKind > AddrOpndKindConstantVar; }
-    bool                    IsVar() const { return addrOpndKind == AddrOpndKindDynamicVar || addrOpndKind == AddrOpndKindConstantVar; }
+    bool                    IsDynamic() const {LOGMEIN("Opnd.h] 1403\n"); return addrOpndKind > AddrOpndKindConstantVar; }
+    bool                    IsVar() const {LOGMEIN("Opnd.h] 1404\n"); return addrOpndKind == AddrOpndKindDynamicVar || addrOpndKind == AddrOpndKindConstantVar; }
     void                    SetEncodedValue(Js::Var address, AddrOpndKind addrOpndKind);
-    AddrOpndKind            GetAddrOpndKind() const { return addrOpndKind; }
+    AddrOpndKind            GetAddrOpndKind() const {LOGMEIN("Opnd.h] 1406\n"); return addrOpndKind; }
     void                    SetAddress(Js::Var address, AddrOpndKind addrOpndKind);
 public:
 
@@ -1587,7 +1587,7 @@ private:
 
 public:
     AutoReuseOpnd() : opnd(nullptr), wasInUse(true)
-    {
+    {LOGMEIN("Opnd.h] 1589\n");
     }
 
     AutoReuseOpnd(Opnd *const opnd, Func *const func, const bool autoDelete = true) : opnd(nullptr)
@@ -1596,12 +1596,12 @@ public:
     }
 
     void Initialize(Opnd *const opnd, Func *const func, const bool autoDelete = true)
-    {
+    {LOGMEIN("Opnd.h] 1598\n");
         Assert(!this->opnd);
         Assert(func);
 
         if(!opnd)
-        {
+        {LOGMEIN("Opnd.h] 1603\n");
             // Simulate the default constructor
             wasInUse = true;
             return;
@@ -1610,7 +1610,7 @@ public:
         this->opnd = opnd;
         wasInUse = opnd->IsInUse();
         if(wasInUse)
-        {
+        {LOGMEIN("Opnd.h] 1612\n");
             return;
         }
         this->func = func;
@@ -1625,13 +1625,13 @@ public:
     }
 
     ~AutoReuseOpnd()
-    {
+    {LOGMEIN("Opnd.h] 1627\n");
         if(wasInUse)
-        {
+        {LOGMEIN("Opnd.h] 1629\n");
             return;
         }
         if(autoDelete)
-        {
+        {LOGMEIN("Opnd.h] 1633\n");
             opnd->Free(func);
         }
         else

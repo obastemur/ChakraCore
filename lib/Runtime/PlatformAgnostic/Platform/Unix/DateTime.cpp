@@ -17,7 +17,7 @@ namespace PlatformAgnostic
 namespace DateTime
 {
     const WCHAR *Utility::GetStandardName(size_t *nameLength, const DateTime::YMD *ymd)
-    {
+    {LOGMEIN("DateTime.cpp] 19\n");
         AssertMsg(ymd != NULL, "xplat needs DateTime::YMD is defined for this call");
         double tv = Js::DateUtilities::TvFromDate(ymd->year, ymd->mon, ymd->mday, ymd->time);
         int64_t absoluteTime = tv / 1000;
@@ -41,13 +41,13 @@ namespace DateTime
     }
 
     const WCHAR *Utility::GetDaylightName(size_t *nameLength, const DateTime::YMD *ymd)
-    {
+    {LOGMEIN("DateTime.cpp] 43\n");
         // xplat only gets the actual zone name for the given date
         return GetStandardName(nameLength, ymd);
     }
 
     static time_t IsDST(double tv, int *offset)
-    {
+    {LOGMEIN("DateTime.cpp] 49\n");
         CFTimeZoneRef timeZone = CFTimeZoneCopySystem();
         int64_t absoluteTime = tv / 1000;
         absoluteTime -= kCFAbsoluteTimeIntervalSince1970;
@@ -59,7 +59,7 @@ namespace DateTime
     }
 
     static void YMDLocalToUtc(double localtv, YMD *utc)
-    {
+    {LOGMEIN("DateTime.cpp] 61\n");
         int mOffset = 0;
         bool isDST = IsDST(localtv, &mOffset);
         localtv -= DateTimeTicks_PerSecond * mOffset;
@@ -68,7 +68,7 @@ namespace DateTime
 
     static void YMDUtcToLocal(double utctv, YMD *local,
                           int &bias, int &offset, bool &isDaylightSavings)
-    {
+    {LOGMEIN("DateTime.cpp] 70\n");
         int mOffset = 0;
         bool isDST = IsDST(utctv, &mOffset);
         utctv += DateTimeTicks_PerSecond * mOffset;
@@ -81,7 +81,7 @@ namespace DateTime
     // DaylightTimeHelper ******
     double DaylightTimeHelper::UtcToLocal(double utcTime, int &bias,
                                           int &offset, bool &isDaylightSavings)
-    {
+    {LOGMEIN("DateTime.cpp] 83\n");
         YMD local;
         YMDUtcToLocal(utcTime, &local, bias, offset, isDaylightSavings);
 
@@ -89,7 +89,7 @@ namespace DateTime
     }
 
     double DaylightTimeHelper::LocalToUtc(double localTime)
-    {
+    {LOGMEIN("DateTime.cpp] 91\n");
         YMD utc;
         YMDLocalToUtc(localTime, &utc);
 

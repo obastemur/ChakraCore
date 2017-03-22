@@ -20,8 +20,8 @@ namespace Js
         };
         struct EncoderRelocLabel
         {
-            EncoderRelocLabel() :labelSeen( false ), relocList( nullptr ){}
-            EncoderRelocLabel(BYTE* _pc) :labelSeen( true ), pc(_pc), relocList( nullptr ){}
+            EncoderRelocLabel() :labelSeen( false ), relocList( nullptr ){LOGMEIN("AsmJsEncoder.h] 22\n");}
+            EncoderRelocLabel(BYTE* _pc) :labelSeen( true ), pc(_pc), relocList( nullptr ){LOGMEIN("AsmJsEncoder.h] 23\n");}
             bool labelSeen : 1;
             BYTE* pc;
             EncoderReloc* relocList;
@@ -45,25 +45,25 @@ namespace Js
         void* mTemplateData;
     public:
         void* Encode( FunctionBody* functionBody );
-        void* GetTemplateData() { return mTemplateData; }
-        inline PageAllocator* GetPageAllocator() const{return mPageAllocator;}
-        inline void SetPageAllocator( PageAllocator* val ){mPageAllocator = val;}
-        inline InProcCodeGenAllocators* GetCodeGenAllocator() const{return mForegroundAllocators;}
-        inline void SetCodeGenAllocator( InProcCodeGenAllocators* val ){mForegroundAllocators = val;}
-        FunctionBody* GetFunctionBody() { return mFunctionBody; }
+        void* GetTemplateData() {LOGMEIN("AsmJsEncoder.h] 47\n"); return mTemplateData; }
+        inline PageAllocator* GetPageAllocator() const{LOGMEIN("AsmJsEncoder.h] 48\n");return mPageAllocator;}
+        inline void SetPageAllocator( PageAllocator* val ){LOGMEIN("AsmJsEncoder.h] 49\n");mPageAllocator = val;}
+        inline InProcCodeGenAllocators* GetCodeGenAllocator() const{LOGMEIN("AsmJsEncoder.h] 50\n");return mForegroundAllocators;}
+        inline void SetCodeGenAllocator( InProcCodeGenAllocators* val ){LOGMEIN("AsmJsEncoder.h] 51\n");mForegroundAllocators = val;}
+        FunctionBody* GetFunctionBody() {LOGMEIN("AsmJsEncoder.h] 52\n"); return mFunctionBody; }
 
     private:
         void ApplyRelocs();
         void AddReloc( const int labelOffset, BYTE* patchAddr );
         uint32 GetEncodeBufferSize(FunctionBody* functionBody);
-        AsmJsFunctionInfo* GetAsmJsFunctionInfo(){ return mFunctionBody->GetAsmJsFunctionInfo(); }
-        AsmJsFunctionInfo* GetAsmJsFunctionInfoWithLock() { return mFunctionBody->GetAsmJsFunctionInfoWithLock(); }
+        AsmJsFunctionInfo* GetAsmJsFunctionInfo(){LOGMEIN("AsmJsEncoder.h] 58\n"); return mFunctionBody->GetAsmJsFunctionInfo(); }
+        AsmJsFunctionInfo* GetAsmJsFunctionInfoWithLock() {LOGMEIN("AsmJsEncoder.h] 59\n"); return mFunctionBody->GetAsmJsFunctionInfoWithLock(); }
         bool ReadOp();
         template<LayoutSize T> void ReadOpTemplate( OpCodeAsmJs op );
 
         template<typename T> int GetOffset() const;
 
-        template<typename T> int CalculateOffset(int stackLocation) { return stackLocation*sizeof(T)+GetOffset<T>(); }
+        template<typename T> int CalculateOffset(int stackLocation) {LOGMEIN("AsmJsEncoder.h] 65\n"); return stackLocation*sizeof(T)+GetOffset<T>(); }
 
 
         void OP_Label( const unaligned OpLayoutEmpty* playout );

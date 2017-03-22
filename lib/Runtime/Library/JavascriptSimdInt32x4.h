@@ -43,10 +43,10 @@ namespace Js
         }
 
         static const char16* GetTypeName();
-        inline SIMDValue GetValue() { return value; }
+        inline SIMDValue GetValue() {LOGMEIN("JavascriptSimdInt32x4.h] 45\n"); return value; }
 
         virtual RecyclableObject * CloneToScriptContext(ScriptContext* requestContext) override;
-        static size_t GetOffsetOfValue() { return offsetof(JavascriptSIMDInt32x4, value); }
+        static size_t GetOffsetOfValue() {LOGMEIN("JavascriptSimdInt32x4.h] 48\n"); return offsetof(JavascriptSIMDInt32x4, value); }
 
         Var  Copy(ScriptContext* requestContext);
 

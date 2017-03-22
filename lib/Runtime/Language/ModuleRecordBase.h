@@ -14,11 +14,11 @@ namespace Js
     {
         ModuleNameRecord(const ModuleNameRecord& other)
             :module(other.module), bindingName(other.bindingName)
-        {}
+        {LOGMEIN("ModuleRecordBase.h] 16\n");}
         ModuleNameRecord(ModuleRecordBase* module, PropertyId bindingName) 
             :module(module), bindingName(bindingName) 
-        {}
-        ModuleNameRecord() {}
+        {LOGMEIN("ModuleRecordBase.h] 19\n");}
+        ModuleNameRecord() {LOGMEIN("ModuleRecordBase.h] 20\n");}
         Field(ModuleRecordBase*) module;
         Field(PropertyId) bindingName;
     };
@@ -31,12 +31,12 @@ namespace Js
         static const uint32 ModuleMagicNumber;
         ModuleRecordBase(JavascriptLibrary* library) :
             namespaceObject(nullptr), wasEvaluated(false),
-            javascriptLibrary(library),  magicNumber(ModuleMagicNumber){};
-        bool WasEvaluated() { return wasEvaluated; }
-        void SetWasEvaluated() { Assert(!wasEvaluated); wasEvaluated = true; }
-        JavascriptLibrary* GetRealm() { return javascriptLibrary; }  // TODO: do we need to provide this method ?
-        virtual ModuleNamespace* GetNamespace() { return namespaceObject; }
-        virtual void SetNamespace(ModuleNamespace* moduleNamespace) { namespaceObject = moduleNamespace; }
+            javascriptLibrary(library),  magicNumber(ModuleMagicNumber){LOGMEIN("ModuleRecordBase.h] 33\n");};
+        bool WasEvaluated() {LOGMEIN("ModuleRecordBase.h] 34\n"); return wasEvaluated; }
+        void SetWasEvaluated() {LOGMEIN("ModuleRecordBase.h] 35\n"); Assert(!wasEvaluated); wasEvaluated = true; }
+        JavascriptLibrary* GetRealm() {LOGMEIN("ModuleRecordBase.h] 36\n"); return javascriptLibrary; }  // TODO: do we need to provide this method ?
+        virtual ModuleNamespace* GetNamespace() {LOGMEIN("ModuleRecordBase.h] 37\n"); return namespaceObject; }
+        virtual void SetNamespace(ModuleNamespace* moduleNamespace) {LOGMEIN("ModuleRecordBase.h] 38\n"); namespaceObject = moduleNamespace; }
 
         virtual ExportedNames* GetExportedNames(ExportModuleRecordList* exportStarSet) = 0;
         // return false when "ambiguous".
@@ -44,7 +44,7 @@ namespace Js
         virtual bool ResolveExport(PropertyId exportName, ResolveSet* resolveSet, ExportModuleRecordList* exportStarSet, ModuleNameRecord** exportRecord) = 0;
         virtual void ModuleDeclarationInstantiation() = 0;
         virtual Var ModuleEvaluation() = 0;
-        virtual bool IsSourceTextModuleRecord() { return false; }
+        virtual bool IsSourceTextModuleRecord() {LOGMEIN("ModuleRecordBase.h] 46\n"); return false; }
 
     protected:
         Field(uint32) magicNumber;

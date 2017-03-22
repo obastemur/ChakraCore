@@ -82,7 +82,7 @@ namespace Js
 
         static const int numberLinesPrependedToAnonymousFunction = 1;
 
-        static DWORD GetFunctionInfoOffset() { return offsetof(JavascriptFunction, functionInfo); }
+        static DWORD GetFunctionInfoOffset() {LOGMEIN("JavascriptFunction.h] 84\n"); return offsetof(JavascriptFunction, functionInfo); }
 
         static Var NewInstance(RecyclableObject* function, CallInfo callInfo, ...);
         static Var NewInstanceRestrictedMode(RecyclableObject* function, CallInfo callInfo, ...);
@@ -139,7 +139,7 @@ namespace Js
             CompileAssert(offsetof(JavascriptFunction, functionInfo) <= UCHAR_MAX);
             return offsetof(JavascriptFunction, functionInfo);
         }
-        static uint32 GetOffsetOfConstructorCache() { return offsetof(JavascriptFunction, constructorCache); };
+        static uint32 GetOffsetOfConstructorCache() {LOGMEIN("JavascriptFunction.h] 141\n"); return offsetof(JavascriptFunction, constructorCache); };
 
         static JavascriptString* GetNativeFunctionDisplayString(ScriptContext *scriptContext, JavascriptString *name);
         static JavascriptString* GetLibraryCodeDisplayString(ScriptContext* scriptContext, PCWSTR displayName);
@@ -149,8 +149,8 @@ namespace Js
         template <class StringHelper, class String, class ScriptContext>
         static String GetLibraryCodeDisplayStringCommon(ScriptContext* scriptContext, PCWSTR displayName);
 
-        FunctionInfo * GetFunctionInfo() const { return functionInfo; }
-        void SetFunctionInfo(FunctionInfo *info) { functionInfo = info; }
+        FunctionInfo * GetFunctionInfo() const {LOGMEIN("JavascriptFunction.h] 151\n"); return functionInfo; }
+        void SetFunctionInfo(FunctionInfo *info) {LOGMEIN("JavascriptFunction.h] 152\n"); functionInfo = info; }
         FunctionProxy * GetFunctionProxy() const;
         ParseableFunctionInfo * GetParseableFunctionInfo() const;
         DeferDeserializeFunctionInfo * GetDeferDeserializeFunctionInfo() const;
@@ -162,16 +162,16 @@ namespace Js
         bool IsLibraryCode() const;
 
         BOOL IsScriptFunction() const;
-        virtual Var GetSourceString() const { return nullptr; }
+        virtual Var GetSourceString() const {LOGMEIN("JavascriptFunction.h] 164\n"); return nullptr; }
         virtual Var EnsureSourceString();
-        virtual BOOL IsExternalFunction() { return FALSE; }
-        virtual BOOL IsWinRTFunction() { return FALSE; }
+        virtual BOOL IsExternalFunction() {LOGMEIN("JavascriptFunction.h] 166\n"); return FALSE; }
+        virtual BOOL IsWinRTFunction() {LOGMEIN("JavascriptFunction.h] 167\n"); return FALSE; }
         BOOL IsStrictMode() const;
         BOOL IsLambda() const;
         virtual inline BOOL IsConstructor() const;
         bool HasRestrictedProperties() const;
 
-        ConstructorCache* GetConstructorCache() { Assert(this->constructorCache != nullptr); return this->constructorCache; }
+        ConstructorCache* GetConstructorCache() {LOGMEIN("JavascriptFunction.h] 173\n"); Assert(this->constructorCache != nullptr); return this->constructorCache; }
         ConstructorCache* EnsureValidConstructorCache();
 
         void ResetConstructorCacheToDefault();
@@ -204,8 +204,8 @@ namespace Js
         static BOOL HasInstance(Var funcPrototype, Var instance, ScriptContext* scriptContext, IsInstInlineCache* inlineCache, JavascriptFunction* function);
 
         // This will be overridden for the BoundFunction
-        virtual bool IsBoundFunction() const { return false; }
-        virtual bool IsGeneratorFunction() const { return false; }
+        virtual bool IsBoundFunction() const {LOGMEIN("JavascriptFunction.h] 206\n"); return false; }
+        virtual bool IsGeneratorFunction() const {LOGMEIN("JavascriptFunction.h] 207\n"); return false; }
 
         void SetEntryPoint(JavascriptMethod method);
 #if DBG
@@ -235,7 +235,7 @@ namespace Js
             BYTE dstReg = 0;
             uint instrSizeInByte = 0;
             uint64 bufferValue = 0;
-            InstructionData() :isLoad(0), isFloat32(0), isFloat64(0), isSimd(0), isInvalidInstr(0){}
+            InstructionData() :isLoad(0), isFloat32(0), isFloat64(0), isSimd(0), isInvalidInstr(0){LOGMEIN("JavascriptFunction.h] 237\n");}
         };
         struct RexByteValue
         {
@@ -245,7 +245,7 @@ namespace Js
             bool isW : 1;
             bool isB : 1;
             uint rexValue;
-            RexByteValue() :isR(0), isX(0), isW(0), isB(0), rexValue(0){}
+            RexByteValue() :isR(0), isX(0), isW(0), isB(0), rexValue(0){LOGMEIN("JavascriptFunction.h] 247\n");}
         };
         static InstructionData CheckValidInstr(BYTE* &pc, PEXCEPTION_POINTERS exceptionInfo);
     };
@@ -256,7 +256,7 @@ namespace Js
     //
     template <class StringHelper, class String, class ScriptContext>
     String JavascriptFunction::GetNativeFunctionDisplayStringCommon(ScriptContext* scriptContext, String name)
-    {
+    {LOGMEIN("JavascriptFunction.h] 258\n");
         auto library = scriptContext->GetLibrary();
         String sourceString;
         sourceString = library->CreateStringFromCppLiteral(JS_DISPLAY_STRING_FUNCTION_HEADER); //_u("function ")
@@ -267,10 +267,10 @@ namespace Js
 
     template <class StringHelper, class String, class ScriptContext>
     String JavascriptFunction::GetLibraryCodeDisplayStringCommon(ScriptContext* scriptContext, PCWSTR displayName)
-    {
+    {LOGMEIN("JavascriptFunction.h] 269\n");
         String sourceString;
         if(wcscmp(displayName, Js::Constants::AnonymousFunction) == 0)
-        {
+        {LOGMEIN("JavascriptFunction.h] 272\n");
             sourceString = scriptContext->GetLibrary()->GetFunctionDisplayString();
         }
         else

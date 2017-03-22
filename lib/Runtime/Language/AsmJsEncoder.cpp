@@ -19,17 +19,17 @@
 
 namespace Js
 {
-    template<> int AsmJsEncoder::GetOffset<int>() const{return mIntOffset;}
-    template<> int AsmJsEncoder::GetOffset<Var>() const{return AsmJsJitTemplate::Globals::StackVarCount * sizeof( Var );}
-    template<> int AsmJsEncoder::GetOffset<double>() const{ return mDoubleOffset; }
-    template<> int AsmJsEncoder::GetOffset<float>() const{ return mFloatOffset; }
-    template<> int AsmJsEncoder::GetOffset<AsmJsSIMDValue>() const{ return mSimdOffset; }
+    template<> int AsmJsEncoder::GetOffset<int>() const{LOGMEIN("AsmJsEncoder.cpp] 21\n");return mIntOffset;}
+    template<> int AsmJsEncoder::GetOffset<Var>() const{LOGMEIN("AsmJsEncoder.cpp] 22\n");return AsmJsJitTemplate::Globals::StackVarCount * sizeof( Var );}
+    template<> int AsmJsEncoder::GetOffset<double>() const{LOGMEIN("AsmJsEncoder.cpp] 23\n"); return mDoubleOffset; }
+    template<> int AsmJsEncoder::GetOffset<float>() const{LOGMEIN("AsmJsEncoder.cpp] 24\n"); return mFloatOffset; }
+    template<> int AsmJsEncoder::GetOffset<AsmJsSIMDValue>() const{LOGMEIN("AsmJsEncoder.cpp] 25\n"); return mSimdOffset; }
 
     template<>
     void AsmJsEncoder::ReadOpTemplate<Js::SmallLayout>( OpCodeAsmJs op )
-    {
+    {LOGMEIN("AsmJsEncoder.cpp] 29\n");
         switch( op )
-        {
+        {LOGMEIN("AsmJsEncoder.cpp] 31\n");
 #define DEF2(x, op, func) PROCESS_ENCODE_##x(op, func)
 #define DEF3(x, op, func, y) PROCESS_ENCODE_##x(op, func, y)
 #define DEF2_WMS(x, op, func) PROCESS_ENCODE_##x##_COMMON(op, func, _Small)
@@ -55,9 +55,9 @@ namespace Js
 
     template<>
     void AsmJsEncoder::ReadOpTemplate<Js::MediumLayout>( OpCodeAsmJs op )
-    {
+    {LOGMEIN("AsmJsEncoder.cpp] 57\n");
         switch( op )
-        {
+        {LOGMEIN("AsmJsEncoder.cpp] 59\n");
 #define DEF2_WMS(x, op, func) PROCESS_ENCODE_##x##_COMMON(op, func, _Medium)
 #define DEF3_WMS(x, op, func, y) PROCESS_ENCODE_##x##_COMMON(op, func, y, _Medium)
 #define DEF4_WMS(x, op, func, y, t) PROCESS_ENCODE_##x##_COMMON(op, func, y, _Medium, t)
@@ -79,9 +79,9 @@ namespace Js
 
     template<>
     void AsmJsEncoder::ReadOpTemplate<Js::LargeLayout>( OpCodeAsmJs op )
-    {
+    {LOGMEIN("AsmJsEncoder.cpp] 81\n");
         switch( op )
-        {
+        {LOGMEIN("AsmJsEncoder.cpp] 83\n");
 #define DEF2_WMS(x, op, func) PROCESS_ENCODE_##x##_COMMON(op, func, _Large)
 #define DEF3_WMS(x, op, func, y) PROCESS_ENCODE_##x##_COMMON(op, func, y, _Large)
 #define DEF4_WMS(x, op, func, y, t) PROCESS_ENCODE_##x##_COMMON(op, func, y, _Large, t)
@@ -102,7 +102,7 @@ namespace Js
     }
 
     bool AsmJsEncoder::ReadOp()
-    {
+    {LOGMEIN("AsmJsEncoder.cpp] 104\n");
 #if DBG_DUMP
         int bytecodeoffset = mReader.GetCurrentOffset();
 #endif
@@ -111,13 +111,13 @@ namespace Js
         ip = mReader.GetIP();
 #if DBG_DUMP
         if (PHASE_TRACE(Js::AsmjsEncoderPhase, mFunctionBody))
-        {
+        {LOGMEIN("AsmJsEncoder.cpp] 113\n");
             Output::Print(_u("%d.%d:Encoding "),
                            this->mFunctionBody->GetSourceContextId(),
                            this->mFunctionBody->GetLocalFunctionId());
             AsmJsByteCodeDumper::DumpOp( op, layoutSize, mReader, mFunctionBody );
             if( ip != mReader.GetIP() )
-            {
+            {LOGMEIN("AsmJsEncoder.cpp] 119\n");
                 mReader.SetIP( ip );
             }
             Output::Print(_u("  at offset 0x%X (buffer size = 0x%X)\n"),
@@ -126,13 +126,13 @@ namespace Js
         }
 #endif
         if( op == OpCodeAsmJs::EndOfBlock )
-        {
+        {LOGMEIN("AsmJsEncoder.cpp] 128\n");
             Assert(mReader.GetCurrentOffset() == mFunctionBody->GetByteCode()->GetLength());
             // last bytecode
             return false;
         }
         switch( layoutSize )
-        {
+        {LOGMEIN("AsmJsEncoder.cpp] 134\n");
         case Js::SmallLayout:
             ReadOpTemplate<Js::SmallLayout>( op );
             break;
@@ -148,7 +148,7 @@ namespace Js
         return true;
     }
     uint32 AsmJsEncoder::GetEncodeBufferSize(FunctionBody* functionBody)
-    {
+    {LOGMEIN("AsmJsEncoder.cpp] 150\n");
         // TODO: Make a good heuristic; this is completely arbitrary. As we emit each bytecode we can calculate the max instruction size.
         return UInt32Math::Add(
             UInt32Math::Mul(functionBody->GetByteCodeCount(), 30),
@@ -157,7 +157,7 @@ namespace Js
     }
 
     void* AsmJsEncoder::Encode( FunctionBody* functionBody )
-    {
+    {LOGMEIN("AsmJsEncoder.cpp] 159\n");
         Assert( functionBody );
         mFunctionBody = functionBody;
 #if DBG_DUMP
@@ -184,7 +184,7 @@ namespace Js
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
         if( PHASE_TRACE( Js::AsmjsEncoderPhase, mFunctionBody ) )
-        {
+        {LOGMEIN("AsmJsEncoder.cpp] 186\n");
             Output::Print( _u("\n\n") );
             functionBody->DumpFullFunctionName();
             Output::Print( _u("\n StackSize = %d , Offsets: Var = %d, Int = %d, Double = %d\n"), mFunctionBody->GetAsmJsFunctionInfo()->GetTotalSizeinBytes(), GetOffset<Var>(), GetOffset<int>(), GetOffset<double>() );
@@ -192,7 +192,7 @@ namespace Js
 #endif
 
         AsmJsJitTemplate::FunctionEntry::ApplyTemplate( this, mPc );
-        while( ReadOp() ){}
+        while( ReadOp() ){LOGMEIN("AsmJsEncoder.cpp] 194\n");}
         AsmJsJitTemplate::FunctionExit::ApplyTemplate( this, mPc );
 
         AsmJsJitTemplate::FreeTemplateData( mTemplateData );
@@ -203,7 +203,7 @@ namespace Js
 
         ptrdiff_t codeSize = mPc - mEncodeBuffer;
         if( codeSize > 0 )
-        {
+        {LOGMEIN("AsmJsEncoder.cpp] 205\n");
             Assert( ::Math::FitsInDWord( codeSize ) );
 
             BYTE *buffer;
@@ -211,12 +211,12 @@ namespace Js
             functionBody->GetAsmJsFunctionInfo()->mTJBeginAddress = buffer;
 
             if (buffer == nullptr)
-            {
+            {LOGMEIN("AsmJsEncoder.cpp] 213\n");
                 Js::Throw::OutOfMemory();
             }
 
             if (!GetCodeGenAllocator()->emitBufferManager.CommitBuffer(allocation, buffer, codeSize, mEncodeBuffer))
-            {
+            {LOGMEIN("AsmJsEncoder.cpp] 218\n");
                 Js::Throw::OutOfMemory();
             }
 
@@ -251,10 +251,10 @@ namespace Js
 
 
     void Js::AsmJsEncoder::AddReloc( const int labelOffset, BYTE* patchAddr )
-    {
+    {LOGMEIN("AsmJsEncoder.cpp] 253\n");
         EncoderRelocLabel* label = nullptr;
         if( mRelocLabelMap->TryGetReference( labelOffset, &label ) )
-        {
+        {LOGMEIN("AsmJsEncoder.cpp] 256\n");
             EncoderReloc::New( label, patchAddr, mPc, mLocalAlloc );
         }
         else
@@ -266,14 +266,14 @@ namespace Js
     }
 
     void AsmJsEncoder::ApplyRelocs()
-    {
+    {LOGMEIN("AsmJsEncoder.cpp] 268\n");
         const int size = mRelocLabelMap->Count();
         for (int i = 0; i < size ; i++)
-        {
+        {LOGMEIN("AsmJsEncoder.cpp] 271\n");
             EncoderRelocLabel* label = mRelocLabelMap->GetReferenceAt( i );
 #if DBG_DUMP
             if( !label->labelSeen )
-            {
+            {LOGMEIN("AsmJsEncoder.cpp] 275\n");
                 Output::Print( _u("Label expected at bytecode offset 0x%x\n"), mRelocLabelMap->GetKeyAt( i ) );
                 Output::Flush();
             }
@@ -284,7 +284,7 @@ namespace Js
             ptrdiff_t offset1 = label->pc - mEncodeBuffer;
             this->GetAsmJsFunctionInfo()->mbyteCodeTJMap->AddNew(mRelocLabelMap->GetKeyAt(i), offset1);
             while( reloc )
-            {
+            {LOGMEIN("AsmJsEncoder.cpp] 286\n");
                 ptrdiff_t offset = label->pc - reloc->pc;
                 *(ptrdiff_t*)reloc->patchAddr = offset;
                 reloc = reloc->next;
@@ -293,7 +293,7 @@ namespace Js
     }
 
     void AsmJsEncoder::EncoderReloc::New( EncoderRelocLabel* label, BYTE* _patchAddr, BYTE* _pc, ArenaAllocator* allocator )
-    {
+    {LOGMEIN("AsmJsEncoder.cpp] 295\n");
         AsmJsEncoder::EncoderReloc* reloc = AnewStruct( allocator, AsmJsEncoder::EncoderReloc );
         reloc->next = label->relocList;
         label->relocList = reloc;

@@ -25,17 +25,17 @@ namespace Js
 #define TYPEOF_ERROR_HANDLER_CATCH(scriptContext, var) \
     } \
     catch (const JavascriptException& err) \
-    { \
+    {LOGMEIN("JavascriptOperators.h] 27\n"); \
         JavascriptExceptionObject* exceptionObject = err.GetAndClear(); \
         Js::Var errorObject = exceptionObject->GetThrownObject(nullptr); \
         if (errorObject != nullptr && Js::JavascriptError::Is(errorObject)) \
-        { \
+        {LOGMEIN("JavascriptOperators.h] 31\n"); \
             HRESULT hr = Js::JavascriptError::GetRuntimeError(Js::RecyclableObject::FromVar(errorObject), nullptr); \
             if (JavascriptError::GetErrorNumberFromResourceID(JSERR_Property_CannotGet_NullOrUndefined) == (int32)hr \
                 || JavascriptError::GetErrorNumberFromResourceID(JSERR_UseBeforeDeclaration) == (int32)hr) \
-            { \
+            {LOGMEIN("JavascriptOperators.h] 35\n"); \
                 if (scriptContext->IsScriptContextInDebugMode()) \
-                { \
+                {LOGMEIN("JavascriptOperators.h] 37\n"); \
                     JavascriptExceptionOperators::ThrowExceptionObject(exceptionObject, scriptContext, true); \
                 } \
                 else \
@@ -49,12 +49,12 @@ namespace Js
 #define TYPEOF_ERROR_HANDLER_THROW(scriptContext, var) \
     } \
     if (scriptContext->IsUndeclBlockVar(var)) \
-    { \
+    {LOGMEIN("JavascriptOperators.h] 51\n"); \
         JavascriptError::ThrowReferenceError(scriptContext, JSERR_UseBeforeDeclaration); \
     }
 
 #define BEGIN_TYPEOF_ERROR_HANDLER(scriptContext)  \
-    try { \
+    try {LOGMEIN("JavascriptOperators.h] 56\n"); \
     Js::JavascriptExceptionOperators::AutoCatchHandlerExists autoCatchHandlerExists(scriptContext); \
     class AutoCleanup \
     { \
@@ -62,16 +62,16 @@ namespace Js
         ScriptContext *const scriptContext; \
     public: \
         AutoCleanup(ScriptContext *const scriptContext) : scriptContext(scriptContext) \
-        { \
+        {LOGMEIN("JavascriptOperators.h] 64\n"); \
             if (scriptContext->IsScriptContextInDebugMode()) \
-            { \
+            {LOGMEIN("JavascriptOperators.h] 66\n"); \
                 scriptContext->GetDebugContext()->GetProbeContainer()->SetThrowIsInternal(true); \
             } \
         } \
         ~AutoCleanup() \
-        { \
+        {LOGMEIN("JavascriptOperators.h] 71\n"); \
             if (scriptContext->IsScriptContextInDebugMode()) \
-            { \
+            {LOGMEIN("JavascriptOperators.h] 73\n"); \
                 scriptContext->GetDebugContext()->GetProbeContainer()->SetThrowIsInternal(false); \
             } \
         } \

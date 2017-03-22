@@ -30,16 +30,16 @@ namespace Js {
         bool allowResizingPolymorphicInlineCache;
 
         void Set(RecyclableObject* instance, PropertyIndex propertyIndex, PropertyAttributes attributes, InlineCacheFlags flags)
-        {
+        {LOGMEIN("RecyclableObject.h] 32\n");
             m_instance = instance;
             m_propertyIndex = propertyIndex;
             m_attributes = attributes;
             this->flags = flags;
         }
 
-        void SetInfoFlag(CacheInfoFlag newFlag)  { cacheInfoFlag = (CacheInfoFlag)(cacheInfoFlag | newFlag); }
-        void ClearInfoFlag(CacheInfoFlag newFlag)  { cacheInfoFlag = (CacheInfoFlag)(cacheInfoFlag & ~newFlag); }
-        BOOL IsInfoFlagSet(CacheInfoFlag checkFlag) const { return (cacheInfoFlag & checkFlag) == checkFlag; }
+        void SetInfoFlag(CacheInfoFlag newFlag)  {LOGMEIN("RecyclableObject.h] 39\n"); cacheInfoFlag = (CacheInfoFlag)(cacheInfoFlag | newFlag); }
+        void ClearInfoFlag(CacheInfoFlag newFlag)  {LOGMEIN("RecyclableObject.h] 40\n"); cacheInfoFlag = (CacheInfoFlag)(cacheInfoFlag & ~newFlag); }
+        BOOL IsInfoFlagSet(CacheInfoFlag checkFlag) const {LOGMEIN("RecyclableObject.h] 41\n"); return (cacheInfoFlag & checkFlag) == checkFlag; }
 
     public:
         PropertyValueInfo()
@@ -47,24 +47,24 @@ namespace Js {
             cacheInfoFlag(CacheInfoFlag::defaultInfoFlags), inlineCache(NULL), polymorphicInlineCache(NULL), functionBody(NULL),
             inlineCacheIndex(Constants::NoInlineCacheIndex),
             allowResizingPolymorphicInlineCache(true)
-        {
+        {LOGMEIN("RecyclableObject.h] 49\n");
         }
 
-        RecyclableObject* GetInstance() const       { return m_instance; }
-        PropertyIndex GetPropertyIndex() const      { return m_propertyIndex; }
-        bool IsWritable() const                     { return (m_attributes & PropertyWritable) != 0; }
-        bool IsEnumerable() const                   { return (m_attributes & PropertyEnumerable) != 0; }
-        bool IsNoCache() const                      { return m_instance && m_propertyIndex == Constants::NoSlot; }
-        void AddFlags(InlineCacheFlags newFlag)     { flags = (InlineCacheFlags)(flags | newFlag); }
-        InlineCacheFlags GetFlags() const           { return flags; }
-        PropertyAttributes GetAttributes() const    { return m_attributes; }
+        RecyclableObject* GetInstance() const       {LOGMEIN("RecyclableObject.h] 52\n"); return m_instance; }
+        PropertyIndex GetPropertyIndex() const      {LOGMEIN("RecyclableObject.h] 53\n"); return m_propertyIndex; }
+        bool IsWritable() const                     {LOGMEIN("RecyclableObject.h] 54\n"); return (m_attributes & PropertyWritable) != 0; }
+        bool IsEnumerable() const                   {LOGMEIN("RecyclableObject.h] 55\n"); return (m_attributes & PropertyEnumerable) != 0; }
+        bool IsNoCache() const                      {LOGMEIN("RecyclableObject.h] 56\n"); return m_instance && m_propertyIndex == Constants::NoSlot; }
+        void AddFlags(InlineCacheFlags newFlag)     {LOGMEIN("RecyclableObject.h] 57\n"); flags = (InlineCacheFlags)(flags | newFlag); }
+        InlineCacheFlags GetFlags() const           {LOGMEIN("RecyclableObject.h] 58\n"); return flags; }
+        PropertyAttributes GetAttributes() const    {LOGMEIN("RecyclableObject.h] 59\n"); return m_attributes; }
 
         // Set property index and IsWritable cache info
         static void Set(PropertyValueInfo* info, RecyclableObject* instance, PropertyIndex propertyIndex, PropertyAttributes attributes = PropertyWritable,
             InlineCacheFlags flags = InlineCacheNoFlags)
-        {
+        {LOGMEIN("RecyclableObject.h] 64\n");
             if (info)
-            {
+            {LOGMEIN("RecyclableObject.h] 66\n");
                 info->Set(instance, propertyIndex, attributes, flags);
             }
         }
@@ -75,27 +75,27 @@ namespace Js {
         static void ClearCacheInfo(PropertyValueInfo* info);
 
         inline InlineCache * GetInlineCache() const
-        {
+        {LOGMEIN("RecyclableObject.h] 77\n");
             return this->inlineCache;
         }
 
         inline PolymorphicInlineCache * GetPolymorphicInlineCache() const
-        {
+        {LOGMEIN("RecyclableObject.h] 82\n");
             return this->polymorphicInlineCache;
         }
 
         inline FunctionBody * GetFunctionBody() const
-        {
+        {LOGMEIN("RecyclableObject.h] 87\n");
             return this->functionBody;
         }
 
         inline uint GetInlineCacheIndex() const
-        {
+        {LOGMEIN("RecyclableObject.h] 92\n");
             return this->inlineCacheIndex;
         }
 
         bool AllowResizingPolymorphicInlineCache() const
-        {
+        {LOGMEIN("RecyclableObject.h] 97\n");
             return allowResizingPolymorphicInlineCache;
         }
 
@@ -106,33 +106,33 @@ namespace Js {
         }
 
         static void DisablePrototypeCache(PropertyValueInfo* info, RecyclableObject* instance)
-        {
+        {LOGMEIN("RecyclableObject.h] 108\n");
             if (info)
-            {
+            {LOGMEIN("RecyclableObject.h] 110\n");
                 info->SetInfoFlag(disablePrototypeCacheFlag);
             }
         }
 
         static bool PrototypeCacheDisabled(const PropertyValueInfo* info)
-        {
+        {LOGMEIN("RecyclableObject.h] 116\n");
             return (info != NULL) && !!info->IsInfoFlagSet(disablePrototypeCacheFlag);
         }
 
         static void DisableStoreFieldCache(PropertyValueInfo* info)
-        {
+        {LOGMEIN("RecyclableObject.h] 121\n");
             if (info)
-            {
+            {LOGMEIN("RecyclableObject.h] 123\n");
                 info->ClearInfoFlag(enableStoreFieldCacheFlag);
             }
         }
 
         static bool IsStoreFieldCacheEnabled(const PropertyValueInfo* info)
-        {
+        {LOGMEIN("RecyclableObject.h] 129\n");
             return (info != NULL) && !!info->IsInfoFlagSet(enableStoreFieldCacheFlag);
         }
 
         bool IsStoreFieldCacheEnabled() const
-        {
+        {LOGMEIN("RecyclableObject.h] 134\n");
             return IsStoreFieldCacheEnabled(this);
         }
 
@@ -218,7 +218,7 @@ namespace Js {
 #if DBG_EXTRAFIELD
         // This dtor should only be call when OOM occurs and RecyclableObject ctor has completed
         // as the base class, or we have a stack instance
-        ~RecyclableObject() { dtorCalled = true; }
+        ~RecyclableObject() {LOGMEIN("RecyclableObject.h] 220\n"); dtorCalled = true; }
 #endif
         ScriptContext* GetScriptContext() const;
         TypeId GetTypeId() const;
@@ -235,24 +235,24 @@ namespace Js {
         void ClearWritableDataOnlyDetectionBit();
         bool IsWritableDataOnlyDetectionBitSet();
 
-        inline Type * GetType() const { return type; }
+        inline Type * GetType() const {LOGMEIN("RecyclableObject.h] 237\n"); return type; }
 
         // In order to avoid a branch, every object has an entry point if it gets called like a
         // function - however, if it can't be called like a function, it's set to DefaultEntryPoint
         // which will emit an error.
         static Var DefaultEntryPoint(RecyclableObject* function, CallInfo callInfo, ...);
 
-        virtual PropertyId GetPropertyId(PropertyIndex index) { return Constants::NoProperty; }
-        virtual PropertyId GetPropertyId(BigPropertyIndex index) { return Constants::NoProperty; }
-        virtual PropertyIndex GetPropertyIndex(PropertyId propertyId) { return Constants::NoSlot; }
-        virtual int GetPropertyCount() { return 0; }
+        virtual PropertyId GetPropertyId(PropertyIndex index) {LOGMEIN("RecyclableObject.h] 244\n"); return Constants::NoProperty; }
+        virtual PropertyId GetPropertyId(BigPropertyIndex index) {LOGMEIN("RecyclableObject.h] 245\n"); return Constants::NoProperty; }
+        virtual PropertyIndex GetPropertyIndex(PropertyId propertyId) {LOGMEIN("RecyclableObject.h] 246\n"); return Constants::NoSlot; }
+        virtual int GetPropertyCount() {LOGMEIN("RecyclableObject.h] 247\n"); return 0; }
         virtual BOOL HasProperty(PropertyId propertyId);
         virtual BOOL HasOwnProperty( PropertyId propertyId);
         virtual BOOL HasOwnPropertyNoHostObject( PropertyId propertyId);
-        virtual BOOL HasOwnPropertyCheckNoRedecl( PropertyId propertyId) { Assert(FALSE); return FALSE; }
-        virtual BOOL UseDynamicObjectForNoHostObjectAccess() { return FALSE; }
-        virtual DescriptorFlags GetSetter(PropertyId propertyId, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext) { return None; }
-        virtual DescriptorFlags GetSetter(JavascriptString* propertyNameString, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext) { return None; }
+        virtual BOOL HasOwnPropertyCheckNoRedecl( PropertyId propertyId) {LOGMEIN("RecyclableObject.h] 251\n"); Assert(FALSE); return FALSE; }
+        virtual BOOL UseDynamicObjectForNoHostObjectAccess() {LOGMEIN("RecyclableObject.h] 252\n"); return FALSE; }
+        virtual DescriptorFlags GetSetter(PropertyId propertyId, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext) {LOGMEIN("RecyclableObject.h] 253\n"); return None; }
+        virtual DescriptorFlags GetSetter(JavascriptString* propertyNameString, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext) {LOGMEIN("RecyclableObject.h] 254\n"); return None; }
         virtual BOOL GetProperty(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext);
         virtual BOOL GetProperty(Var originalInstance, JavascriptString* propertyNameString, Var* value, PropertyValueInfo* info, ScriptContext* requestContext);
         virtual BOOL GetInternalProperty(Var instance, PropertyId internalPropertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext);
@@ -274,7 +274,7 @@ namespace Js {
         virtual BOOL HasOwnItem(uint32 index);
         virtual BOOL GetItem(Var originalInstance, uint32 index, Var* value, ScriptContext * requestContext);
         virtual BOOL GetItemReference(Var originalInstance, uint32 index, Var* value, ScriptContext * requestContext);
-        virtual DescriptorFlags GetItemSetter(uint32 index, Var* setterValue, ScriptContext* requestContext) { return None; }
+        virtual DescriptorFlags GetItemSetter(uint32 index, Var* setterValue, ScriptContext* requestContext) {LOGMEIN("RecyclableObject.h] 276\n"); return None; }
         virtual BOOL SetItem(uint32 index, Var value, PropertyOperationFlags flags);
         virtual BOOL DeleteItem(uint32 index, PropertyOperationFlags flags);
         virtual BOOL GetEnumerator(JavascriptStaticEnumerator * enumerator, EnumeratorFlags flags, ScriptContext* requestContext, ForInCache * forInCache = nullptr);
@@ -282,27 +282,27 @@ namespace Js {
         virtual BOOL SetAccessors(PropertyId propertyId, Var getter, Var setter, PropertyOperationFlags flags = PropertyOperation_None);
         virtual BOOL Equals(__in Var other, __out BOOL* value, ScriptContext* requestContext);
         virtual BOOL StrictEquals(__in Var other, __out BOOL* value, ScriptContext* requestContext);
-        virtual BOOL IsWritable(PropertyId propertyId) { return false; }
-        virtual BOOL IsConfigurable(PropertyId propertyId) { return false; }
-        virtual BOOL IsEnumerable(PropertyId propertyId) { return false; }
-        virtual BOOL IsExtensible() { return false; }
-        virtual BOOL IsProtoImmutable() const { return false; }
-        virtual BOOL PreventExtensions() { return false; };     // Sets [[Extensible]] flag of instance to false
+        virtual BOOL IsWritable(PropertyId propertyId) {LOGMEIN("RecyclableObject.h] 284\n"); return false; }
+        virtual BOOL IsConfigurable(PropertyId propertyId) {LOGMEIN("RecyclableObject.h] 285\n"); return false; }
+        virtual BOOL IsEnumerable(PropertyId propertyId) {LOGMEIN("RecyclableObject.h] 286\n"); return false; }
+        virtual BOOL IsExtensible() {LOGMEIN("RecyclableObject.h] 287\n"); return false; }
+        virtual BOOL IsProtoImmutable() const {LOGMEIN("RecyclableObject.h] 288\n"); return false; }
+        virtual BOOL PreventExtensions() {LOGMEIN("RecyclableObject.h] 289\n"); return false; };     // Sets [[Extensible]] flag of instance to false
         virtual void ThrowIfCannotDefineProperty(PropertyId propId, const PropertyDescriptor& descriptor);
-        virtual void ThrowIfCannotGetOwnPropertyDescriptor(PropertyId propId) {}
+        virtual void ThrowIfCannotGetOwnPropertyDescriptor(PropertyId propId) {LOGMEIN("RecyclableObject.h] 291\n");}
         virtual BOOL GetDefaultPropertyDescriptor(PropertyDescriptor& descriptor);
-        virtual BOOL Seal() { return false; }                   // Seals the instance, no additional property can be added or deleted
-        virtual BOOL Freeze() { return false; }                 // Freezes the instance, no additional property can be added or deleted or written
-        virtual BOOL IsSealed() { return false; }
-        virtual BOOL IsFrozen() { return false; }
-        virtual BOOL SetWritable(PropertyId propertyId, BOOL value) { return false; }
-        virtual BOOL SetConfigurable(PropertyId propertyId, BOOL value) { return false; }
-        virtual BOOL SetEnumerable(PropertyId propertyId, BOOL value) { return false; }
-        virtual BOOL SetAttributes(PropertyId propertyId, PropertyAttributes attributes) { return false; }
+        virtual BOOL Seal() {LOGMEIN("RecyclableObject.h] 293\n"); return false; }                   // Seals the instance, no additional property can be added or deleted
+        virtual BOOL Freeze() {LOGMEIN("RecyclableObject.h] 294\n"); return false; }                 // Freezes the instance, no additional property can be added or deleted or written
+        virtual BOOL IsSealed() {LOGMEIN("RecyclableObject.h] 295\n"); return false; }
+        virtual BOOL IsFrozen() {LOGMEIN("RecyclableObject.h] 296\n"); return false; }
+        virtual BOOL SetWritable(PropertyId propertyId, BOOL value) {LOGMEIN("RecyclableObject.h] 297\n"); return false; }
+        virtual BOOL SetConfigurable(PropertyId propertyId, BOOL value) {LOGMEIN("RecyclableObject.h] 298\n"); return false; }
+        virtual BOOL SetEnumerable(PropertyId propertyId, BOOL value) {LOGMEIN("RecyclableObject.h] 299\n"); return false; }
+        virtual BOOL SetAttributes(PropertyId propertyId, PropertyAttributes attributes) {LOGMEIN("RecyclableObject.h] 300\n"); return false; }
 
-        virtual BOOL GetSpecialPropertyName(uint32 index, Var *propertyName, ScriptContext * requestContext) { return false; }
-        virtual uint GetSpecialPropertyCount() const { return 0; }
-        virtual PropertyId const * GetSpecialPropertyIds() const { return nullptr; }
+        virtual BOOL GetSpecialPropertyName(uint32 index, Var *propertyName, ScriptContext * requestContext) {LOGMEIN("RecyclableObject.h] 302\n"); return false; }
+        virtual uint GetSpecialPropertyCount() const {LOGMEIN("RecyclableObject.h] 303\n"); return 0; }
+        virtual PropertyId const * GetSpecialPropertyIds() const {LOGMEIN("RecyclableObject.h] 304\n"); return nullptr; }
         virtual RecyclableObject* GetThisObjectOrUnWrap(); // Due to the withScope object there are times we need to unwrap
 
         virtual BOOL HasInstance(Var instance, ScriptContext* scriptContext, IsInstInlineCache* inlineCache = NULL);
@@ -311,14 +311,14 @@ namespace Js {
         BOOL CanHaveInterceptors() const;
         BOOL IsExternal() const;
         // Used only in JsVarToExtension where it may be during dispose and the type is not available
-        virtual BOOL IsExternalVirtual() const { return FALSE; }
+        virtual BOOL IsExternalVirtual() const {LOGMEIN("RecyclableObject.h] 313\n"); return FALSE; }
 
-        virtual RecyclableObject* GetConfigurablePrototype(ScriptContext * requestContext) { return GetPrototype(); }
+        virtual RecyclableObject* GetConfigurablePrototype(ScriptContext * requestContext) {LOGMEIN("RecyclableObject.h] 315\n"); return GetPrototype(); }
         virtual Js::JavascriptString* GetClassName(ScriptContext * requestContext);
         virtual RecyclableObject* GetProxiedObjectForHeapEnum();
 
 #if DBG
-        virtual bool CanStorePropertyValueDirectly(PropertyId propertyId, bool allowLetConst) { Assert(false); return false; };
+        virtual bool CanStorePropertyValueDirectly(PropertyId propertyId, bool allowLetConst) {LOGMEIN("RecyclableObject.h] 320\n"); Assert(false); return false; };
 #endif
 
         virtual void RemoveFromPrototype(ScriptContext * requestContext) { AssertMsg(false, "Shouldn't call this implementation."); }
@@ -328,7 +328,7 @@ namespace Js {
         virtual BOOL ToString(Js::Var* value, Js::ScriptContext* scriptContext) { AssertMsg(FALSE, "Do not use this function."); return false; }
 
         // don't need cross-site: in HostDispatch it's IDispatchEx based; in CustomExternalObject we have marshalling code explicitly.
-        virtual Var GetNamespaceParent(Js::Var aChild) { return nullptr; }
+        virtual Var GetNamespaceParent(Js::Var aChild) {LOGMEIN("RecyclableObject.h] 330\n"); return nullptr; }
         virtual HRESULT QueryObjectInterface(REFIID riid, void **ppvObj);
 
         virtual BOOL GetDiagValueString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext);
@@ -343,7 +343,7 @@ namespace Js {
         // Only implemented by the HostDispatch object for cross-thread support
         // Only supports a subset of entry points to be called remotely.
         // For a list of supported entry points see the BuiltInOperation enum defined in JscriptInfo.idl
-        virtual BOOL InvokeBuiltInOperationRemotely(JavascriptMethod entryPoint, Arguments args, Var* result) { return FALSE; };
+        virtual BOOL InvokeBuiltInOperationRemotely(JavascriptMethod entryPoint, Arguments args, Var* result) {LOGMEIN("RecyclableObject.h] 345\n"); return FALSE; };
 
         // don't need cross-site: only supported in HostDispatch.
         virtual DynamicObject* GetRemoteObject();
@@ -367,16 +367,16 @@ namespace Js {
         }
         virtual void Mark(Recycler *recycler) override { AssertMsg(false, "Mark called on object that isn't TrackableObject"); }
 
-        static uint32 GetOffsetOfType() { return offsetof(RecyclableObject, type); }
+        static uint32 GetOffsetOfType() {LOGMEIN("RecyclableObject.h] 369\n"); return offsetof(RecyclableObject, type); }
 
-        virtual void InvalidateCachedScope() { return; }
-        virtual BOOL HasDeferredTypeHandler() const { return false; }
+        virtual void InvalidateCachedScope() {LOGMEIN("RecyclableObject.h] 371\n"); return; }
+        virtual BOOL HasDeferredTypeHandler() const {LOGMEIN("RecyclableObject.h] 372\n"); return false; }
 #if DBG
     public:
         // Used to Assert that the object may safely be cast to a DynamicObject
-        virtual bool DbgIsDynamicObject() const { return false; }
-        virtual BOOL DbgSkipsPrototype() const { return FALSE; }
-        virtual BOOL DbgCanHaveInterceptors() const { return false; }
+        virtual bool DbgIsDynamicObject() const {LOGMEIN("RecyclableObject.h] 376\n"); return false; }
+        virtual BOOL DbgSkipsPrototype() const {LOGMEIN("RecyclableObject.h] 377\n"); return FALSE; }
+        virtual BOOL DbgCanHaveInterceptors() const {LOGMEIN("RecyclableObject.h] 378\n"); return false; }
 #endif
 #if defined(PROFILE_RECYCLER_ALLOC) && defined(RECYCLER_DUMP_OBJECT_GRAPH)
     public:
@@ -387,13 +387,13 @@ namespace Js {
     public:
         //Do any additional marking that is needed for a TT snapshotable object
         virtual void MarkVisitKindSpecificPtrs(TTD::SnapshotExtractor* extractor)
-        {
+        {LOGMEIN("RecyclableObject.h] 389\n");
             ;
         }
 
         //Do the path processing for our "core path" computation to find wellknown objects in a brute force manner.
         virtual void ProcessCorePaths()
-        {
+        {LOGMEIN("RecyclableObject.h] 395\n");
             ;
         }
 
@@ -417,8 +417,8 @@ namespace Js {
     private:
         UINT m_heapEnumValidationCookie;
     public:
-        void SetHeapEnumValidationCookie(int cookie ) { m_heapEnumValidationCookie = cookie; }
-        int GetHeapEnumValidationCookie() { return m_heapEnumValidationCookie; }
+        void SetHeapEnumValidationCookie(int cookie ) {LOGMEIN("RecyclableObject.h] 419\n"); m_heapEnumValidationCookie = cookie; }
+        int GetHeapEnumValidationCookie() {LOGMEIN("RecyclableObject.h] 420\n"); return m_heapEnumValidationCookie; }
 #endif
     };
 }

@@ -10,9 +10,9 @@
 /* ----- PRIVATE ----- */
 
 Js::DynamicObject * IRtoJSObjectBuilder::CreateIntConstOpnd(Js::ScriptContext *scriptContext, IR::Opnd *opnd)
-{
+{LOGMEIN("IRViewer.cpp] 12\n");
     if (!opnd || !opnd->IsIntConstOpnd())
-    {
+    {LOGMEIN("IRViewer.cpp] 14\n");
         return NULL;
     }
 
@@ -28,9 +28,9 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateIntConstOpnd(Js::ScriptContext *s
 }
 
 Js::DynamicObject * IRtoJSObjectBuilder::CreateFloatConstOpnd(Js::ScriptContext *scriptContext, IR::Opnd *opnd)
-{
+{LOGMEIN("IRViewer.cpp] 30\n");
     if (!opnd || !opnd->IsFloatConstOpnd())
-    {
+    {LOGMEIN("IRViewer.cpp] 32\n");
         return NULL;
     }
 
@@ -46,9 +46,9 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateFloatConstOpnd(Js::ScriptContext 
 }
 
 Js::DynamicObject * IRtoJSObjectBuilder::CreateHelperCallOpnd(Js::ScriptContext *scriptContext, IR::Opnd *opnd)
-{
+{LOGMEIN("IRViewer.cpp] 48\n");
     if (!opnd || !opnd->IsHelperCallOpnd())
-    {
+    {LOGMEIN("IRViewer.cpp] 50\n");
         return NULL;
     }
 
@@ -65,9 +65,9 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateHelperCallOpnd(Js::ScriptContext 
 }
 
 Js::DynamicObject * IRtoJSObjectBuilder::CreateSymOpnd(Js::ScriptContext *scriptContext, IR::Opnd *opnd)
-{
+{LOGMEIN("IRViewer.cpp] 67\n");
     if (!opnd || !opnd->IsSymOpnd())
-    {
+    {LOGMEIN("IRViewer.cpp] 69\n");
         return NULL;
     }
 
@@ -83,9 +83,9 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateSymOpnd(Js::ScriptContext *script
 }
 
 Js::DynamicObject * IRtoJSObjectBuilder::CreateRegOpnd(Js::ScriptContext *scriptContext, IR::Opnd *opnd)
-{
+{LOGMEIN("IRViewer.cpp] 85\n");
     if (!opnd || !opnd->IsRegOpnd())
-    {
+    {LOGMEIN("IRViewer.cpp] 87\n");
         return NULL;
     }
 
@@ -96,12 +96,12 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateRegOpnd(Js::ScriptContext *script
     SymID symid = 0;
 
     if (op->m_sym)
-    {
+    {LOGMEIN("IRViewer.cpp] 98\n");
         symid = op->m_sym->m_id;
     }
 
     if (regid != RegNOREG)
-    {
+    {LOGMEIN("IRViewer.cpp] 103\n");
         Js::Var regidValue = Js::JavascriptNumber::ToVar(regid, scriptContext);
         SetProperty(opObject, _u("regid"), regidValue);
     }
@@ -113,9 +113,9 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateRegOpnd(Js::ScriptContext *script
 }
 
 Js::DynamicObject * IRtoJSObjectBuilder::CreateAddrOpnd(Js::ScriptContext *scriptContext, IR::Opnd *opnd, Func *func)
-{
+{LOGMEIN("IRViewer.cpp] 115\n");
     if (!opnd || !opnd->IsAddrOpnd())
-    {
+    {LOGMEIN("IRViewer.cpp] 117\n");
         return NULL;
     }
 
@@ -138,9 +138,9 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateAddrOpnd(Js::ScriptContext *scrip
 }
 
 Js::DynamicObject * IRtoJSObjectBuilder::CreateIndirOpnd(Js::ScriptContext *scriptContext, IR::Opnd *opnd)
-{
+{LOGMEIN("IRViewer.cpp] 140\n");
     if (!opnd || !opnd->IsIndirOpnd())
-    {
+    {LOGMEIN("IRViewer.cpp] 142\n");
         return NULL;
     }
 
@@ -150,7 +150,7 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateIndirOpnd(Js::ScriptContext *scri
     IR::RegOpnd *baseOpnd = op->GetBaseOpnd();
 
     Js::Var baseVar = NULL;
-    if (baseOpnd->m_sym) {
+    if (baseOpnd->m_sym) {LOGMEIN("IRViewer.cpp] 152\n");
         SymID baseid = baseOpnd->m_sym->m_id;
         baseVar = Js::JavascriptNumber::ToVar(baseid, scriptContext);
     } else {
@@ -162,7 +162,7 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateIndirOpnd(Js::ScriptContext *scri
 
     IR::RegOpnd *indexOpnd = op->GetIndexOpnd();
     if (indexOpnd)
-    {
+    {LOGMEIN("IRViewer.cpp] 164\n");
         SymID indexid = indexOpnd->m_sym->m_id;
         Js::Var indexVar = Js::JavascriptNumber::ToVar(indexid, scriptContext);
         SetProperty(opObject, _u("index"), indexVar);
@@ -170,7 +170,7 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateIndirOpnd(Js::ScriptContext *scri
 
     int32 offset = op->GetOffset();
     if (offset)
-    {
+    {LOGMEIN("IRViewer.cpp] 172\n");
         Js::Var offsetVar = Js::JavascriptNumber::ToVar(offset, scriptContext);
         SetProperty(opObject, _u("offset"), offsetVar);
     }
@@ -179,9 +179,9 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateIndirOpnd(Js::ScriptContext *scri
 }
 
 Js::DynamicObject * IRtoJSObjectBuilder::CreateLabelOpnd(Js::ScriptContext *scriptContext, IR::Opnd *opnd)
-{
+{LOGMEIN("IRViewer.cpp] 181\n");
     if (!opnd || !opnd->IsLabelOpnd())
-    {
+    {LOGMEIN("IRViewer.cpp] 183\n");
         return NULL;
     }
 
@@ -204,9 +204,9 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateLabelOpnd(Js::ScriptContext *scri
 
 
 Js::DynamicObject * IRtoJSObjectBuilder::CreateOpnd(Js::ScriptContext *scriptContext, IR::Opnd *opnd, Func *func)
-{
+{LOGMEIN("IRViewer.cpp] 206\n");
     if (!opnd)
-    {
+    {LOGMEIN("IRViewer.cpp] 208\n");
         return NULL;
     }
 
@@ -214,7 +214,7 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateOpnd(Js::ScriptContext *scriptCon
 
     IR::OpndKind kind = opnd->GetKind();
     switch (kind)
-    {
+    {LOGMEIN("IRViewer.cpp] 216\n");
 
     case IR::OpndKind::OpndKindInvalid:
         // do nothing
@@ -267,7 +267,7 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateOpnd(Js::ScriptContext *scriptCon
 
     // fallback create an object that can be used for identifying what info is missing
     if (!opObject)
-    {
+    {LOGMEIN("IRViewer.cpp] 269\n");
         opObject = scriptContext->GetLibrary()->CreateObject();
     }
 
@@ -280,7 +280,7 @@ Js::DynamicObject * IRtoJSObjectBuilder::CreateOpnd(Js::ScriptContext *scriptCon
 }
 
 Js::PropertyId IRtoJSObjectBuilder::CreateProperty(Js::ScriptContext *scriptContext, const char16 *propertyName)
-{
+{LOGMEIN("IRViewer.cpp] 282\n");
     Js::PropertyRecord const *propertyRecord;
     scriptContext->GetOrAddPropertyRecord(propertyName, (int) wcslen(propertyName), &propertyRecord);
     Js::PropertyId propertyId = propertyRecord->GetPropertyId();
@@ -289,10 +289,10 @@ Js::PropertyId IRtoJSObjectBuilder::CreateProperty(Js::ScriptContext *scriptCont
 }
 
 void IRtoJSObjectBuilder::SetProperty(Js::DynamicObject *obj, const char16 *propertyName, Js::Var value)
-{
+{LOGMEIN("IRViewer.cpp] 291\n");
     const size_t len = wcslen(propertyName);
     if (!(len > 0))
-    {
+    {LOGMEIN("IRViewer.cpp] 294\n");
         return;
     }
 
@@ -301,9 +301,9 @@ void IRtoJSObjectBuilder::SetProperty(Js::DynamicObject *obj, const char16 *prop
 }
 
 void IRtoJSObjectBuilder::SetProperty(Js::DynamicObject *obj, Js::PropertyId id, Js::Var value)
-{
+{LOGMEIN("IRViewer.cpp] 303\n");
     if (value == NULL)
-    {
+    {LOGMEIN("IRViewer.cpp] 305\n");
         return;
     }
 
@@ -340,7 +340,7 @@ enum STATEMENT_PARSE_T {
     @param len              The size of the buffer (maximum number of characters to copy).
 */
 void IRtoJSObjectBuilder::GetStatementSourceString(__out_ecount(len) char16 *buffer, LPCUTF8 sourceBegin, LPCUTF8 sourceEnd, const size_t len)
-{
+{LOGMEIN("IRViewer.cpp] 342\n");
     enum STATEMENT_PARSE_T state;
     size_t i;
 
@@ -348,15 +348,15 @@ void IRtoJSObjectBuilder::GetStatementSourceString(__out_ecount(len) char16 *buf
     for (i = 0, state = STATEMENT_PARSE_NORMAL;
         (i < len-1) && ((sourceBegin+i) < sourceEnd) && state != STATEMENT_PARSE_END;
         i++)
-    {
+    {LOGMEIN("IRViewer.cpp] 350\n");
         utf8char_t ch = sourceBegin[i];
         buffer[i] = ch;
 
         switch (state)
-        {
+        {LOGMEIN("IRViewer.cpp] 355\n");
         case STATEMENT_PARSE_NORMAL:
             switch (ch)
-            {
+            {LOGMEIN("IRViewer.cpp] 358\n");
             case '\'':
                 state = STATEMENT_PARSE_QUOT;
                 break;

@@ -11,12 +11,12 @@ namespace Js
         m_set(set),
         m_setIterator(set->GetIterator()),
         m_kind(kind)
-    {
+    {LOGMEIN("JavascriptSetIterator.cpp] 13\n");
         Assert(type->GetTypeId() == TypeIds_SetIterator);
     }
 
     bool JavascriptSetIterator::Is(Var aValue)
-    {
+    {LOGMEIN("JavascriptSetIterator.cpp] 18\n");
         TypeId typeId = JavascriptOperators::GetTypeId(aValue);
         return typeId == TypeIds_SetIterator;
     }
@@ -41,7 +41,7 @@ namespace Js
         Var thisObj = args[0];
 
         if (!JavascriptSetIterator::Is(thisObj))
-        {
+        {LOGMEIN("JavascriptSetIterator.cpp] 43\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedSetIterator, _u("Set Iterator.prototype.next"));
         }
 
@@ -50,7 +50,7 @@ namespace Js
         auto& setIterator = iterator->m_setIterator;
 
         if (set == nullptr || !setIterator.Next())
-        {
+        {LOGMEIN("JavascriptSetIterator.cpp] 52\n");
             iterator->m_set = nullptr;
             return library->CreateIteratorResultObjectUndefinedTrue();
         }
@@ -59,7 +59,7 @@ namespace Js
         Var result;
 
         if (iterator->m_kind == JavascriptSetIteratorKind::KeyAndValue)
-        {
+        {LOGMEIN("JavascriptSetIterator.cpp] 61\n");
             JavascriptArray* keyValueTuple = library->CreateArray(2);
             keyValueTuple->SetItem(0, value, PropertyOperation_None);
             keyValueTuple->SetItem(1, value, PropertyOperation_None);

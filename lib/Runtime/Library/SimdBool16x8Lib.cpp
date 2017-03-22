@@ -21,11 +21,11 @@ namespace Js
 
         uint argCount = args.Info.Count;
         for (uint i = 0; i < argCount - 1 && i < 8; i++)
-        {
+        {LOGMEIN("SimdBool16x8Lib.cpp] 23\n");
             b[i] = JavascriptConversion::ToBool(args[i + 1], scriptContext);
         }
         for (uint i = argCount - 1; i < 8; i++)
-        {
+        {LOGMEIN("SimdBool16x8Lib.cpp] 27\n");
             b[i] = JavascriptConversion::ToBool(undefinedVar, scriptContext);
         }
 
@@ -45,7 +45,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDBool16x8::Is(args[1]))
-        {
+        {LOGMEIN("SimdBool16x8Lib.cpp] 47\n");
             return args[1];
         }
         JavascriptError::ThrowTypeError(scriptContext, JSERR_SimdBool16x8TypeMismatch, _u("bool16x8"));
@@ -80,7 +80,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 3 && JavascriptSIMDBool16x8::Is(args[1]))
-        {
+        {LOGMEIN("SimdBool16x8Lib.cpp] 82\n");
             // if value arg is missing, then it is undefined.
             Var laneVar = args.Info.Count >= 3 ? args[2] : scriptContext->GetLibrary()->GetUndefined();
             bool result = (SIMDUtils::SIMD128ExtractLane<JavascriptSIMDBool16x8, 8, int16>(args[1], laneVar, scriptContext)) ? true : false;
@@ -101,7 +101,7 @@ namespace Js
 
 
         if (args.Info.Count >= 4 && JavascriptSIMDBool16x8::Is(args[1]))
-        {
+        {LOGMEIN("SimdBool16x8Lib.cpp] 103\n");
             // if value arg is missing, then it is undefined.
             Var laneVar = args.Info.Count >= 4 ? args[2] : scriptContext->GetLibrary()->GetUndefined();
             Var argVal = args.Info.Count >= 4 ? args[3] : scriptContext->GetLibrary()->GetUndefined();
@@ -127,7 +127,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDBool16x8::Is(args[1]))
-        {
+        {LOGMEIN("SimdBool16x8Lib.cpp] 129\n");
             JavascriptSIMDBool16x8 *a = JavascriptSIMDBool16x8::FromVar(args[1]);
             Assert(a);
 
@@ -150,7 +150,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDBool16x8::Is(args[1]))
-        {
+        {LOGMEIN("SimdBool16x8Lib.cpp] 152\n");
             JavascriptSIMDBool16x8 *a = JavascriptSIMDBool16x8::FromVar(args[1]);
             Assert(a);
 
@@ -174,7 +174,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDBool16x8::Is(args[1]))
-        {
+        {LOGMEIN("SimdBool16x8Lib.cpp] 176\n");
             JavascriptSIMDBool16x8 *a = JavascriptSIMDBool16x8::FromVar(args[1]);
             Assert(a);
 
@@ -200,7 +200,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDBool16x8::Is(args[1]) && JavascriptSIMDBool16x8::Is(args[2]))
-        {
+        {LOGMEIN("SimdBool16x8Lib.cpp] 202\n");
             JavascriptSIMDBool16x8 *a = JavascriptSIMDBool16x8::FromVar(args[1]);
             JavascriptSIMDBool16x8 *b = JavascriptSIMDBool16x8::FromVar(args[2]);
             Assert(a && b);
@@ -232,7 +232,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDBool16x8::Is(args[1]) && JavascriptSIMDBool16x8::Is(args[2]))
-        {
+        {LOGMEIN("SimdBool16x8Lib.cpp] 234\n");
             JavascriptSIMDBool16x8 *a = JavascriptSIMDBool16x8::FromVar(args[1]);
             JavascriptSIMDBool16x8 *b = JavascriptSIMDBool16x8::FromVar(args[2]);
             Assert(a && b);
@@ -264,7 +264,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDBool16x8::Is(args[1]) && JavascriptSIMDBool16x8::Is(args[2]))
-        {
+        {LOGMEIN("SimdBool16x8Lib.cpp] 266\n");
             JavascriptSIMDBool16x8 *a = JavascriptSIMDBool16x8::FromVar(args[1]);
             JavascriptSIMDBool16x8 *b = JavascriptSIMDBool16x8::FromVar(args[2]);
             Assert(a && b);

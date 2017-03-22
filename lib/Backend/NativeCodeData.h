@@ -47,7 +47,7 @@ public:
     };
 
     static DataChunk* GetDataChunk(void* data)
-    {
+    {LOGMEIN("NativeCodeData.h] 49\n");
         Assert(JITManager::GetJITManager()->IsJITServer());
         return (NativeCodeData::DataChunk*)((char*)data - offsetof(NativeCodeData::DataChunk, data));
     }
@@ -55,7 +55,7 @@ public:
     static char16* GetDataDescription(void* data, JitArenaAllocator * alloc);
 
     static unsigned int GetDataTotalOffset(void* data)
-    {
+    {LOGMEIN("NativeCodeData.h] 57\n");
         Assert(JITManager::GetJITManager()->IsJITServer());
         return GetDataChunk(data)->offset;
     }
@@ -105,8 +105,8 @@ public:
 
 #ifdef TRACK_ALLOC
         // Doesn't support tracking information, dummy implementation
-        Allocator * TrackAllocInfo(TrackAllocData const& data) { return this; }
-        void ClearTrackAllocInfo(TrackAllocData* data = NULL) {}
+        Allocator * TrackAllocInfo(TrackAllocData const& data) {LOGMEIN("NativeCodeData.h] 107\n"); return this; }
+        void ClearTrackAllocInfo(TrackAllocData* data = NULL) {LOGMEIN("NativeCodeData.h] 108\n");}
 #endif
     protected:
         bool isOOPJIT;
@@ -124,10 +124,10 @@ public:
     {
     public:
         void Fixup(NativeCodeData::DataChunk* chunkList)
-        {
+        {LOGMEIN("NativeCodeData.h] 126\n");
             int count = NativeCodeData::GetDataChunk(this)->len / sizeof(T);
             while (count-- > 0)
-            {
+            {LOGMEIN("NativeCodeData.h] 129\n");
                 (((T*)this) + count)->Fixup(chunkList);
             }
         }
@@ -138,15 +138,15 @@ public:
     {
     public:
         char * Alloc(size_t requestedBytes)
-        {
+        {LOGMEIN("NativeCodeData.h] 140\n");
             char* dataBlock = __super::Alloc(requestedBytes);
 #if DBG
             if (JITManager::GetJITManager()->IsJITServer())
-            {
+            {LOGMEIN("NativeCodeData.h] 144\n");
                 DataChunk* chunk = NativeCodeData::GetDataChunk(dataBlock);
                 chunk->dataType = typeid(T).name();
                 if (PHASE_TRACE1(Js::NativeCodeDataPhase))
-                {
+                {LOGMEIN("NativeCodeData.h] 148\n");
                     Output::Print(_u("NativeCodeData AllocNoFix: chunk: %p, data: %p, index: %d, len: %x, totalOffset: %x, type: %S\n"),
                         chunk, (void*)dataBlock, chunk->allocIndex, chunk->len, chunk->offset, chunk->dataType);
                 }
@@ -156,16 +156,16 @@ public:
             return dataBlock;
         }
         char * AllocZero(size_t requestedBytes)
-        {
+        {LOGMEIN("NativeCodeData.h] 158\n");
             char* dataBlock = __super::AllocZero(requestedBytes);
 
 #if DBG
             if (JITManager::GetJITManager()->IsJITServer())
-            {
+            {LOGMEIN("NativeCodeData.h] 163\n");
                 DataChunk* chunk = NativeCodeData::GetDataChunk(dataBlock);
                 chunk->dataType = typeid(T).name();
                 if (PHASE_TRACE1(Js::NativeCodeDataPhase))
-                {
+                {LOGMEIN("NativeCodeData.h] 167\n");
                     Output::Print(_u("NativeCodeData AllocNoFix: chunk: %p, data: %p, index: %d, len: %x, totalOffset: %x, type: %S\n"),
                         chunk, (void*)dataBlock, chunk->allocIndex, chunk->len, chunk->offset, chunk->dataType);
                 }
@@ -175,7 +175,7 @@ public:
             return dataBlock;
         }
         char * AllocLeaf(size_t requestedBytes)
-        {
+        {LOGMEIN("NativeCodeData.h] 177\n");
             return Alloc(requestedBytes);
         }
     };
@@ -184,15 +184,15 @@ public:
     class AllocatorT : public Allocator
     {
         char* AddFixup(char* dataBlock)
-        {
+        {LOGMEIN("NativeCodeData.h] 186\n");
             if (isOOPJIT)
-            {
+            {LOGMEIN("NativeCodeData.h] 188\n");
                 DataChunk* chunk = NativeCodeData::GetDataChunk(dataBlock);
                 chunk->fixupFunc = &Fixup;
 #if DBG
                 chunk->dataType = typeid(T).name();
                 if (PHASE_TRACE1(Js::NativeCodeDataPhase))
-                {
+                {LOGMEIN("NativeCodeData.h] 194\n");
                     Output::Print(_u("NativeCodeData Alloc: chunk: %p, data: %p, index: %d, len: %x, totalOffset: %x, type: %S\n"),
                         chunk, (void*)dataBlock, chunk->allocIndex, chunk->len, chunk->offset, chunk->dataType);
                 }
@@ -203,16 +203,16 @@ public:
 
     public:
         char * Alloc(size_t requestedBytes)
-        {
+        {LOGMEIN("NativeCodeData.h] 205\n");
             return AddFixup(__super::Alloc(requestedBytes));
         }
         char * AllocZero(size_t requestedBytes)
-        {
+        {LOGMEIN("NativeCodeData.h] 209\n");
             return AddFixup(__super::AllocZero(requestedBytes));
         }
 
         static void Fixup(void* pThis, NativeCodeData::DataChunk* chunkList)
-        {
+        {LOGMEIN("NativeCodeData.h] 214\n");
             ((T*)pThis)->Fixup(chunkList);
         }
     };
@@ -249,23 +249,23 @@ struct UIntType
 template<DataDesc desc = DataDesc_None>
 struct FloatType
 {
-    FloatType(float val) :data(val) {}
+    FloatType(float val) :data(val) {LOGMEIN("NativeCodeData.h] 251\n");}
     float data;
 };
 
 template<DataDesc desc = DataDesc_None>
 struct DoubleType
 {
-    DoubleType() {}
-    DoubleType(double val) :data(val) {}
+    DoubleType() {LOGMEIN("NativeCodeData.h] 258\n");}
+    DoubleType(double val) :data(val) {LOGMEIN("NativeCodeData.h] 259\n");}
     double data;
 };
 
 template<DataDesc desc = DataDesc_None>
 struct SIMDType
 {
-    SIMDType() {}
-    SIMDType(AsmJsSIMDValue val) :data(val) {}
+    SIMDType() {LOGMEIN("NativeCodeData.h] 266\n");}
+    SIMDType(AsmJsSIMDValue val) :data(val) {LOGMEIN("NativeCodeData.h] 267\n");}
     AsmJsSIMDValue data;
 };
 
@@ -288,6 +288,6 @@ inline void VarType<DataDesc_InlineeFrameRecord_Constants>::Fixup(NativeCodeData
 struct GlobalBailOutRecordDataTable;
 template<>
 inline void NativeCodeData::Array<GlobalBailOutRecordDataTable *>::Fixup(NativeCodeData::DataChunk* chunkList)
-{
+{LOGMEIN("NativeCodeData.h] 290\n");
     NativeCodeData::AddFixupEntryForPointerArray(this, chunkList);
 }

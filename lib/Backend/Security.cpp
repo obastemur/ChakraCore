@@ -6,32 +6,32 @@
 
 void
 Security::EncodeLargeConstants()
-{
+{LOGMEIN("Security.cpp] 8\n");
 #pragma prefast(suppress:6236 6285, "logical-or of constants is by design")
     if (PHASE_OFF(Js::EncodeConstantsPhase, this->func) || CONFIG_ISENABLED(Js::DebugFlag) || !MD_ENCODE_LG_CONSTS)
-    {
+    {LOGMEIN("Security.cpp] 11\n");
         return;
     }
 
     FOREACH_REAL_INSTR_IN_FUNC_EDITING(instr, instrNext, this->func)
-    {
+    {LOGMEIN("Security.cpp] 16\n");
         if (!instr->IsRealInstr())
-        {
+        {LOGMEIN("Security.cpp] 18\n");
             continue;
         }
         IR::Opnd *dst = instr->GetDst();
         if (dst)
-        {
+        {LOGMEIN("Security.cpp] 23\n");
             this->EncodeOpnd(instr, dst);
         }
         IR::Opnd *src1 = instr->GetSrc1();
         if (src1)
-        {
+        {LOGMEIN("Security.cpp] 28\n");
             this->EncodeOpnd(instr, src1);
 
             IR::Opnd *src2 = instr->GetSrc2();
             if (src2)
-            {
+            {LOGMEIN("Security.cpp] 33\n");
                 this->EncodeOpnd(instr, src2);
             }
         }
@@ -40,17 +40,17 @@ Security::EncodeLargeConstants()
 
 int
 Security::GetNextNOPInsertPoint()
-{
+{LOGMEIN("Security.cpp] 42\n");
     uint frequency = (1 << CONFIG_FLAG(NopFrequency)) - 1;
     return (Math::Rand() & frequency) + 1;
 }
 
 void
 Security::InsertRandomFunctionPad(IR::Instr * instrBeforeInstr)
-{
+{LOGMEIN("Security.cpp] 49\n");
     if (PHASE_OFF(Js::InsertNOPsPhase, instrBeforeInstr->m_func->GetTopFunc())
         || CONFIG_ISENABLED(Js::DebugFlag) || CONFIG_ISENABLED(Js::BenchmarkFlag))
-    {
+    {LOGMEIN("Security.cpp] 52\n");
         return;
     }
     DWORD randomPad = Math::Rand() & ((0 - INSTR_ALIGNMENT) & 0xF);
@@ -82,9 +82,9 @@ Security::InsertRandomFunctionPad(IR::Instr * instrBeforeInstr)
 
 void
 Security::InsertNOPs()
-{
+{LOGMEIN("Security.cpp] 84\n");
     if (PHASE_OFF(Js::InsertNOPsPhase, this->func) || CONFIG_ISENABLED(Js::DebugFlag) || CONFIG_ISENABLED(Js::BenchmarkFlag))
-    {
+    {LOGMEIN("Security.cpp] 86\n");
         return;
     }
 
@@ -92,14 +92,14 @@ Security::InsertNOPs()
     IR::Instr *instr = this->func->m_headInstr;
 
     while(true)
-    {
+    {LOGMEIN("Security.cpp] 94\n");
         count = this->GetNextNOPInsertPoint();
         while(instr && count--)
-        {
+        {LOGMEIN("Security.cpp] 97\n");
             instr = instr->GetNextRealInstr();
         }
         if (instr == nullptr)
-        {
+        {LOGMEIN("Security.cpp] 101\n");
             break;
         }
         this->InsertNOPBefore(instr);
@@ -114,18 +114,18 @@ Security::InsertNOPBefore(IR::Instr *instr)
 
 void
 Security::InsertSmallNOP(IR::Instr * instr, DWORD nopSize)
-{
+{LOGMEIN("Security.cpp] 116\n");
 #if defined(_M_IX86) || defined(_M_X64)
 #ifdef _M_IX86
     if (AutoSystemInfo::Data.SSE2Available())
-    {   // on x86 system that has SSE2, encode fast NOPs as x64 does
+    {LOGMEIN("Security.cpp] 120\n");   // on x86 system that has SSE2, encode fast NOPs as x64 does
 #endif
         Assert(nopSize >= 1 || nopSize <= 4);
         IR::Instr *nop = IR::Instr::New(Js::OpCode::NOP, instr->m_func);
 
         // Let the encoder know what the size of the NOP needs to be.
         if (nopSize > 1)
-        {
+        {LOGMEIN("Security.cpp] 127\n");
             // 2, 3 or 4 byte NOP.
             IR::IntConstOpnd *nopSizeOpnd = IR::IntConstOpnd::New(nopSize, TyInt8, instr->m_func);
             nop->SetSrc1(nopSizeOpnd);
@@ -140,7 +140,7 @@ Security::InsertSmallNOP(IR::Instr * instr, DWORD nopSize)
         IR::RegOpnd *regOpnd;
         IR::IndirOpnd *indirOpnd;
         switch (nopSize)
-        {
+        {LOGMEIN("Security.cpp] 142\n");
         case 1:
             // nop
             nopInstr = IR::Instr::New(Js::OpCode::NOP, instr->m_func);
@@ -175,7 +175,7 @@ Security::InsertSmallNOP(IR::Instr * instr, DWORD nopSize)
     IR::Instr *nopInstr = nullptr;
 
     switch(nopSize)
-    {
+    {LOGMEIN("Security.cpp] 177\n");
     case 1:
     case 2:
         nopInstr = IR::Instr::New(Js::OpCode::NOP, instr->m_func);
@@ -197,17 +197,17 @@ Security::InsertSmallNOP(IR::Instr * instr, DWORD nopSize)
 
 bool
 Security::DontEncode(IR::Opnd *opnd)
-{
+{LOGMEIN("Security.cpp] 199\n");
     switch (opnd->GetKind())
-    {
+    {LOGMEIN("Security.cpp] 201\n");
     case IR::OpndKindIntConst:
-    {
+    {LOGMEIN("Security.cpp] 203\n");
         IR::IntConstOpnd *intConstOpnd = opnd->AsIntConstOpnd();
         return intConstOpnd->m_dontEncode;
     }
 
     case IR::OpndKindAddr:
-    {
+    {LOGMEIN("Security.cpp] 209\n");
         IR::AddrOpnd *addrOpnd = opnd->AsAddrOpnd();
         return (addrOpnd->m_dontEncode ||
                 !addrOpnd->IsVar() ||
@@ -225,19 +225,19 @@ Security::DontEncode(IR::Opnd *opnd)
 
 void
 Security::EncodeOpnd(IR::Instr *instr, IR::Opnd *opnd)
-{
+{LOGMEIN("Security.cpp] 227\n");
     IR::RegOpnd *newOpnd;
     bool isSrc2 = false;
 
     if (Security::DontEncode(opnd))
-    {
+    {LOGMEIN("Security.cpp] 232\n");
         return;
     }
 
     switch(opnd->GetKind())
-    {
+    {LOGMEIN("Security.cpp] 237\n");
     case IR::OpndKindIntConst:
-    {
+    {LOGMEIN("Security.cpp] 239\n");
         IR::IntConstOpnd *intConstOpnd = opnd->AsIntConstOpnd();
 
         if (
@@ -245,12 +245,12 @@ Security::EncodeOpnd(IR::Instr *instr, IR::Opnd *opnd)
             IRType_IsInt64(intConstOpnd->GetType()) ? !this->IsLargeConstant(intConstOpnd->GetValue()) :
 #endif
             !this->IsLargeConstant(intConstOpnd->AsInt32()))
-        {
+        {LOGMEIN("Security.cpp] 247\n");
             return;
         }
 
         if (opnd != instr->GetSrc1())
-        {
+        {LOGMEIN("Security.cpp] 252\n");
             Assert(opnd == instr->GetSrc2());
             isSrc2 = true;
             instr->UnlinkSrc2();
@@ -269,17 +269,17 @@ Security::EncodeOpnd(IR::Instr *instr, IR::Opnd *opnd)
     break;
 
     case IR::OpndKindAddr:
-    {
+    {LOGMEIN("Security.cpp] 271\n");
         IR::AddrOpnd *addrOpnd = opnd->AsAddrOpnd();
 
         // Only encode large constants.  Small ones don't allow control of enough bits
         if (Js::TaggedInt::Is(addrOpnd->m_address) && !this->IsLargeConstant(Js::TaggedInt::ToInt32(addrOpnd->m_address)))
-        {
+        {LOGMEIN("Security.cpp] 276\n");
             return;
         }
 
         if (opnd != instr->GetSrc1())
-        {
+        {LOGMEIN("Security.cpp] 281\n");
             Assert(opnd == instr->GetSrc2());
             isSrc2 = true;
             instr->UnlinkSrc2();
@@ -294,11 +294,11 @@ Security::EncodeOpnd(IR::Instr *instr, IR::Opnd *opnd)
     break;
 
     case IR::OpndKindIndir:
-    {
+    {LOGMEIN("Security.cpp] 296\n");
         IR::IndirOpnd *indirOpnd = opnd->AsIndirOpnd();
 
         if (!this->IsLargeConstant(indirOpnd->GetOffset()) || indirOpnd->m_dontEncode)
-        {
+        {LOGMEIN("Security.cpp] 300\n");
             return;
         }
         AssertMsg(indirOpnd->GetIndexOpnd() == nullptr, "Code currently doesn't support indir with offset and indexOpnd");
@@ -321,18 +321,18 @@ Security::EncodeOpnd(IR::Instr *instr, IR::Opnd *opnd)
     IR::Opnd *dst = instr->GetDst();
 
     if (dst)
-    {
+    {LOGMEIN("Security.cpp] 323\n");
 #if _M_X64
         // Ensure the left and right operand has the same type (that might not be true for constants on x64)
         newOpnd = (IR::RegOpnd *)newOpnd->UseWithNewType(dst->GetType(), instr->m_func);
 #endif
         if (dst->IsRegOpnd())
-        {
+        {LOGMEIN("Security.cpp] 329\n");
             IR::RegOpnd *dstRegOpnd = dst->AsRegOpnd();
             StackSym *dstSym = dstRegOpnd->m_sym;
 
             if (dstSym)
-            {
+            {LOGMEIN("Security.cpp] 334\n");
                 dstSym->m_isConst = false;
                 dstSym->m_isIntConst = false;
                 dstSym->m_isInt64Const = false;
@@ -347,13 +347,13 @@ Security::EncodeOpnd(IR::Instr *instr, IR::Opnd *opnd)
 
 IntConstType
 Security::EncodeValue(IR::Instr *instr, IR::Opnd *opnd, IntConstType constValue, IR::RegOpnd **pNewOpnd)
-{
+{LOGMEIN("Security.cpp] 349\n");
     if (opnd->GetType() == TyInt32 || opnd->GetType() == TyInt16 || opnd->GetType() == TyInt8
 #if _M_IX86
         || opnd->GetType() == TyVar
 #endif
         )
-    {
+    {LOGMEIN("Security.cpp] 355\n");
         int32 cookie = (int32)Math::Rand();
         IR::RegOpnd *regOpnd = IR::RegOpnd::New(StackSym::New(TyInt32, instr->m_func), TyInt32, instr->m_func);
         IR::Instr * instrNew = LowererMD::CreateAssign(regOpnd, opnd, instr);
@@ -382,7 +382,7 @@ Security::EncodeValue(IR::Instr *instr, IR::Opnd *opnd, IntConstType constValue,
         return value;
     }
     else if (opnd->GetType() == TyUint32 || opnd->GetType() == TyUint16 || opnd->GetType() == TyUint8)
-    {
+    {LOGMEIN("Security.cpp] 384\n");
         uint32 cookie = (uint32)Math::Rand();
         IR::RegOpnd *regOpnd = IR::RegOpnd::New(StackSym::New(TyUint32, instr->m_func), TyUint32, instr->m_func);
         IR::Instr * instrNew = LowererMD::CreateAssign(regOpnd, opnd, instr);
@@ -424,7 +424,7 @@ Security::EncodeValue(IR::Instr *instr, IR::Opnd *opnd, IntConstType constValue,
 #ifdef _M_X64
 size_t
 Security::EncodeAddress(IR::Instr *instr, IR::Opnd *opnd, size_t value, IR::RegOpnd **pNewOpnd)
-{
+{LOGMEIN("Security.cpp] 426\n");
     IR::Instr   *instrNew = nullptr;
     IR::RegOpnd *regOpnd  = IR::RegOpnd::New(TyMachReg, instr->m_func);
 

@@ -12,7 +12,7 @@ private:
     Func *      func;
     Peeps *     peeps;
 public:
-    PeepsMD(Func *func) : func(func) {}
+    PeepsMD(Func *func) : func(func) {LOGMEIN("PeepsMD.h] 14\n");}
 
     void        Init(Peeps *peeps);
     void        ProcessImplicitRegs(IR::Instr *instr);

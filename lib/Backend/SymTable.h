@@ -44,16 +44,16 @@ public:
     StackSym *          GetImplicitParam(Js::ArgSlot paramSlotNum);
     SymID               GetMaxSymID() const;
     void                ClearStackSymScratch();
-    void                SetIDAdjustment() { m_IDAdjustment = m_currentID;}
-    void                ClearIDAdjustment() { m_IDAdjustment = 0; }
-    SymID               MapSymID(SymID id) {  return id + m_IDAdjustment; }
+    void                SetIDAdjustment() {LOGMEIN("SymTable.h] 46\n"); m_IDAdjustment = m_currentID;}
+    void                ClearIDAdjustment() {LOGMEIN("SymTable.h] 47\n"); m_IDAdjustment = 0; }
+    SymID               MapSymID(SymID id) {LOGMEIN("SymTable.h] 48\n");  return id + m_IDAdjustment; }
 private:
     int                 Hash(SymID id) const;
 };
 
 #define FOREACH_SYM_IN_TABLE(sym, table) \
     for (uint i = 0; i < table->k_symTableSize; i++) \
-    { \
+    {LOGMEIN("SymTable.h] 55\n"); \
         for (Sym *sym = table->m_table[i]; sym != nullptr; sym = sym->m_next) \
-        {
+        {LOGMEIN("SymTable.h] 57\n");
 #define NEXT_SYM_IN_TABLE } }

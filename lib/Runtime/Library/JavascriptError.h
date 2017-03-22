@@ -27,7 +27,7 @@ namespace Js
 
         JavascriptError(DynamicType* type, BOOL isExternalError = FALSE, BOOL isPrototype = FALSE) :
             DynamicObject(type), originalRuntimeErrorMessage(nullptr), isExternalError(isExternalError), isPrototype(isPrototype), isStackPropertyRedefined(false)
-        {
+        {LOGMEIN("JavascriptError.h] 29\n");
             Assert(type->GetTypeId() == TypeIds_Error);
             exceptionObject = nullptr;
             m_errorType = kjstCustomError;
@@ -36,7 +36,7 @@ namespace Js
         static bool Is(Var aValue);
         static bool IsRemoteError(Var aValue);
 
-        ErrorTypeEnum GetErrorType() { return m_errorType; }
+        ErrorTypeEnum GetErrorType() {LOGMEIN("JavascriptError.h] 38\n"); return m_errorType; }
 
         virtual bool HasDebugInfo();
 
@@ -132,20 +132,20 @@ namespace Js
         static bool ThrowIfStrictModeUndefinedSetter(PropertyOperationFlags flags, Var setterValue, ScriptContext* scriptContext);
         static bool ThrowIfNotExtensibleUndefinedSetter(PropertyOperationFlags flags, Var setterValue, ScriptContext* scriptContext);
 
-        BOOL IsExternalError() const { return isExternalError; }
-        BOOL IsPrototype() const { return isPrototype; }
-        bool IsStackPropertyRedefined() const { return isStackPropertyRedefined; }
-        void SetStackPropertyRedefined(const bool value) { isStackPropertyRedefined = value; }
+        BOOL IsExternalError() const {LOGMEIN("JavascriptError.h] 134\n"); return isExternalError; }
+        BOOL IsPrototype() const {LOGMEIN("JavascriptError.h] 135\n"); return isPrototype; }
+        bool IsStackPropertyRedefined() const {LOGMEIN("JavascriptError.h] 136\n"); return isStackPropertyRedefined; }
+        void SetStackPropertyRedefined(const bool value) {LOGMEIN("JavascriptError.h] 137\n"); isStackPropertyRedefined = value; }
         virtual BOOL GetDiagValueString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext) override;
         virtual BOOL GetDiagTypeString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext) override;
 
         void SetJavascriptExceptionObject(JavascriptExceptionObject *exceptionObject)
-        {
+        {LOGMEIN("JavascriptError.h] 142\n");
             Assert(exceptionObject);
             this->exceptionObject = exceptionObject;
         }
 
-        JavascriptExceptionObject *GetJavascriptExceptionObject() { return exceptionObject; }
+        JavascriptExceptionObject *GetJavascriptExceptionObject() {LOGMEIN("JavascriptError.h] 147\n"); return exceptionObject; }
 
         static DWORD GetAdjustedResourceStringHr(DWORD hr, bool isFormatString);
 
@@ -168,7 +168,7 @@ namespace Js
         static void Trace(const char16 *form, ...) // const
         {
             if (Js::Configuration::Global.flags.Trace.IsEnabled(Js::ErrorPhase))
-            {
+            {LOGMEIN("JavascriptError.h] 170\n");
                 va_list argptr;
                 va_start(argptr, form);
                 Output::Print(_u("Error: "));

@@ -147,7 +147,7 @@ struct ByteBuffer
 public:
     ByteBuffer(uint32 byteCount, void * pv)
         : byteCount(byteCount), pv(pv)
-    { }
+    {LOGMEIN("ByteCodeSerializer.cpp] 149\n"); }
 };
 } // namespace Js
 
@@ -155,16 +155,16 @@ template<>
 struct DefaultComparer<Js::ByteBuffer*>
 {
     static bool Equals(Js::ByteBuffer const * str1, Js::ByteBuffer const * str2)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 157\n");
         if (str1->byteCount != str2->byteCount)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 159\n");
             return false;
         }
         return memcmp(str1->pv, str2->pv, str1->byteCount)==0;
     }
 
     static hash_t GetHashCode(Js::ByteBuffer const * str)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 166\n");
         return JsUtil::CharacterBuffer<char>::StaticGetHashCode(str->s8, str->byteCount);
     }
 };
@@ -234,15 +234,15 @@ enum ConstantType : byte
 
 // Try to convert from size_t to uint32. May overflow (and return false) on 64-bit.
 bool TryConvertToUInt32(size_t size, uint32 * out)
-{
+{LOGMEIN("ByteCodeSerializer.cpp] 236\n");
     *out = (uint32)size;
     if (sizeof(size) == sizeof(uint32))
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 239\n");
         return true;
     }
     Assert(sizeof(size_t) == sizeof(uint64));
     if((uint64)(*out) == size)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 244\n");
         return true;
     }
     AssertMsg(false, "Is it really an offset greater than 32 bits?"); // More likely a bug somewhere.
@@ -252,17 +252,17 @@ bool TryConvertToUInt32(size_t size, uint32 * out)
 #if VARIABLE_INT_ENCODING
 template <typename T>
 static const byte * ReadVariableInt(const byte * buffer, size_t remainingBytes, T * value)
-{
+{LOGMEIN("ByteCodeSerializer.cpp] 254\n");
     Assert(remainingBytes >= sizeof(byte));
     byte firstByte = *(byte*) buffer;
 
     if (firstByte >= MIN_SENTINEL)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 259\n");
         Assert(remainingBytes >= sizeof(uint16));
         const byte* locationOfValue = buffer + 1;
 
         if (firstByte == TWO_BYTE_SENTINEL)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 264\n");
             uint16 twoByteValue = *((serialization_alignment uint16*) locationOfValue);
             Assert(twoByteValue > ONE_BYTE_MAX);
 
@@ -366,12 +366,12 @@ class ByteCodeBufferBuilder
     int builtInPropertyCount;
 
     bool GenerateLibraryByteCode() const
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 368\n");
         return (dwFlags & GENERATE_BYTE_CODE_BUFFER_LIBRARY) != 0;
     }
 
     bool GenerateByteCodeForNative() const
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 373\n");
         return (dwFlags & GENERATE_BYTE_CODE_FOR_NATIVE) != 0;
     }
 
@@ -412,9 +412,9 @@ public:
           alloc(alloc),
           dwFlags(dwFlags),
           builtInPropertyCount(builtInPropertyCount)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 414\n");
         if (GenerateLibraryByteCode())
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 416\n");
             expectedFunctionBodySize.value = 0;
             expectedOpCodeCount.value = 0;
         }
@@ -423,16 +423,16 @@ public:
         byte actualFileVersionScheme = GenerateLibraryByteCode() ? LibraryByteCodeVersioningScheme : CurrentFileVersionScheme;
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         if (Js::Configuration::Global.flags.ForceSerializedBytecodeVersionSchema)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 425\n");
             actualFileVersionScheme = (byte)Js::Configuration::Global.flags.ForceSerializedBytecodeVersionSchema;
         }
 #endif
 
         fileVersionKind.value = actualFileVersionScheme;
         switch (actualFileVersionScheme)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 432\n");
         case EngineeringVersioningScheme:
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 434\n");
                 Assert(!GenerateLibraryByteCode());
                 DWORD jscriptMajor, jscriptMinor, buildDateHash, buildTimeHash;
                 Js::VerifyOkCatastrophic(AutoSystemInfo::GetJscriptFileVersion(&jscriptMajor, &jscriptMinor, &buildDateHash, &buildTimeHash));
@@ -444,7 +444,7 @@ public:
             }
 
         case ReleaseVersioningScheme:
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 446\n");
                 Assert(!GenerateLibraryByteCode());
                 auto guidDWORDs = (DWORD*)(&byteCodeCacheReleaseFileVersion);
                 V1.value = guidDWORDs[0];
@@ -455,7 +455,7 @@ public:
             }
 
         case LibraryByteCodeVersioningScheme:
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 457\n");
                 Assert(GenerateLibraryByteCode());
                 // To keep consistent library code between Chakra.dll and ChakraCore.dll, use a fixed version.
                 // This goes hand in hand with the bytecode verification unit tests.
@@ -473,7 +473,7 @@ public:
 
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         if (Js::Configuration::Global.flags.ForceSerializedBytecodeMajorVersion)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 475\n");
             V1.value = Js::Configuration::Global.flags.ForceSerializedBytecodeMajorVersion;
             V2.value = 0;
             V3.value = 0;
@@ -484,7 +484,7 @@ public:
     }
 
     HRESULT Create(bool allocateBuffer, byte ** buffer, DWORD * bufferBytes)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 486\n");
         BufferBuilderList all(_u("Final"));
 
         // Reverse the lists
@@ -526,17 +526,17 @@ public:
 
         // Allocate the bytes
         if (allocateBuffer)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 528\n");
             *bufferBytes = size;
             *buffer = (byte*)CoTaskMemAlloc(*bufferBytes);
             if (*buffer == nullptr)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 532\n");
                 return E_OUTOFMEMORY;
             }
         }
 
         if (size > *bufferBytes)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 538\n");
             *bufferBytes = size;
             return *buffer == nullptr ? S_OK : E_INVALIDARG;
         }
@@ -550,15 +550,15 @@ public:
         }
     }
 
-    bool isBuiltinProperty(PropertyId pid) {
+    bool isBuiltinProperty(PropertyId pid) {LOGMEIN("ByteCodeSerializer.cpp] 552\n");
         if (pid < this->builtInPropertyCount || pid==/*nil*/0xffffffff)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 554\n");
             return true;
         }
         return false;
     };
 
-    PropertyId encodeNonBuiltinPropertyId(PropertyId id) {
+    PropertyId encodeNonBuiltinPropertyId(PropertyId id) {LOGMEIN("ByteCodeSerializer.cpp] 560\n");
         const PropertyRecord * propertyValue = nullptr;
         Assert(id >= this->builtInPropertyCount); // Shouldn't have gotten a builtin property id
         propertyValue = scriptContext->GetPropertyName(id);
@@ -566,10 +566,10 @@ public:
         return id ^ SERIALIZER_OBSCURE_NONBUILTIN_PROPERTY_ID;
     };
 
-    PropertyId encodePossiblyBuiltInPropertyId(PropertyId id) {
+    PropertyId encodePossiblyBuiltInPropertyId(PropertyId id) {LOGMEIN("ByteCodeSerializer.cpp] 568\n");
         const PropertyRecord * propertyValue = nullptr;
         if(id >= this->builtInPropertyCount)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 571\n");
             propertyValue = scriptContext->GetPropertyName(id);
             id = GetIdOfPropertyRecord(propertyValue);
         }
@@ -577,15 +577,15 @@ public:
     };
 
     int GetString16Id(ByteBuffer * bb, bool isPropertyRecord = false)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 579\n");
         IndexEntry indexEntry;
         if (!string16ToId->TryGetValue(bb, &indexEntry))
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 582\n");
             auto sizeInBytes = bb->byteCount;
             auto stringEntry = Anew(alloc, BufferBuilderRaw, _u("String16"), sizeInBytes, (const byte *)bb->pv); // Writing the terminator even though it is computable so that this memory can be used as-is when deserialized
             string16Table.list = string16Table.list->Prepend(stringEntry, alloc);
             if (string16IndexTable.list == nullptr)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 587\n");
                 // First item in the list is the first string.
                 auto stringIndexEntry = Anew(alloc, BufferBuilderRelativeOffset, _u("First String16 Index"), stringEntry);
                 string16IndexTable.list = regex::ImmutableList<Js::BufferBuilder*>::OfSingle(stringIndexEntry, alloc);
@@ -609,116 +609,116 @@ public:
         // A string might start off as not being a property record and later becoming one. Hence,
         // we set only if the transition is from false => true. Once it is a property record, it cannot go back.
         if(isPropertyRecord)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 611\n");
             indexEntry.isPropertyRecord->value = isPropertyRecord;
         }
         return indexEntry.id;
     }
 
     uint32 PrependRelativeOffset(BufferBuilderList & builder, LPCWSTR clue, BufferBuilder * pointedTo)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 618\n");
         auto entry = Anew(alloc, BufferBuilderRelativeOffset, clue, pointedTo, 0);
         builder.list = builder.list->Prepend(entry, alloc);
         return sizeof(int32);
     }
 
     uint32 PrependInt16(BufferBuilderList & builder, LPCWSTR clue, int16 value, BufferBuilderInt16 ** entryOut = nullptr)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 625\n");
         auto entry = Anew(alloc, BufferBuilderInt16, clue, value);
         builder.list = builder.list->Prepend(entry, alloc);
         if (entryOut)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 629\n");
             *entryOut = entry;
         }
         return sizeof(int16);
     }
 
     uint32 PrependInt32(BufferBuilderList & builder, LPCWSTR clue, int value, BufferBuilderInt32 ** entryOut = nullptr)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 636\n");
         auto entry = Anew(alloc, BufferBuilderInt32, clue, value);
         builder.list = builder.list->Prepend(entry, alloc);
         if (entryOut)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 640\n");
             *entryOut = entry;
         }
         return sizeof(int32);
     }
 
     uint32 PrependConstantInt16(BufferBuilderList & builder, LPCWSTR clue, int16 value, ConstantSizedBufferBuilderOf<int16> ** entryOut = nullptr)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 647\n");
         auto entry = Anew(alloc, ConstantSizedBufferBuilderOf<int16>, clue, value);
         builder.list = builder.list->Prepend(entry, alloc);
         if (entryOut)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 651\n");
             *entryOut = entry;
         }
         return sizeof(int16);
     }
 
     uint32 PrependConstantInt32(BufferBuilderList & builder, LPCWSTR clue, int value, ConstantSizedBufferBuilderOf<int> ** entryOut = nullptr)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 658\n");
         auto entry = Anew(alloc, ConstantSizedBufferBuilderOf<int>, clue, value);
         builder.list = builder.list->Prepend(entry, alloc);
         if (entryOut)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 662\n");
             *entryOut = entry;
         }
         return sizeof(int32);
     }
 
     uint32 PrependConstantInt64(BufferBuilderList & builder, LPCWSTR clue, int64 value, ConstantSizedBufferBuilderOf<int64> ** entryOut = nullptr)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 669\n");
         auto entry = Anew(alloc, ConstantSizedBufferBuilderOf<int64>, clue, value);
         builder.list = builder.list->Prepend(entry, alloc);
         if (entryOut)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 673\n");
             *entryOut = entry;
         }
         return sizeof(int64);
     }
 
     uint32 PrependByte(BufferBuilderList & builder, LPCWSTR clue, byte value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 680\n");
         auto entry = Anew(alloc, BufferBuilderByte, clue, value);
         builder.list = builder.list->Prepend(entry, alloc);
         return sizeof(byte);
     }
 
     uint32 PrependFunctionBodyFlags(BufferBuilderList & builder, LPCWSTR clue, FunctionBody::FunctionBodyFlags value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 687\n");
         return PrependByte(builder, clue, (byte) value);
     }
 
     uint32 PrependBool(BufferBuilderList & builder, LPCWSTR clue, bool value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 692\n");
         return PrependByte(builder, clue, (byte) value);
     }
 
     uint32 PrependFloat(BufferBuilderList & builder, LPCWSTR clue, float value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 697\n");
         auto entry = Anew(alloc, BufferBuilderFloat, clue, value);
         builder.list = builder.list->Prepend(entry, alloc);
         return sizeof(float);
     }
 
     uint32 PrependDouble(BufferBuilderList & builder, LPCWSTR clue, double value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 704\n");
         auto entry = Anew(alloc, BufferBuilderDouble, clue, value);
         builder.list = builder.list->Prepend(entry, alloc);
         return sizeof(double);
     }
 
     uint32 PrependSIMDValue(BufferBuilderList & builder, LPCWSTR clue, SIMDValue value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 711\n");
         auto entry = Anew(alloc, BufferBuilderSIMD, clue, value);
         builder.list = builder.list->Prepend(entry, alloc);
         return sizeof(SIMDValue);
     }
 
     uint32 PrependString16(__in BufferBuilderList & builder, __in_nz LPCWSTR clue, __in_bcount_opt(byteLength) LPCWSTR sz, __in uint32 byteLength)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 718\n");
         if (sz != nullptr)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 720\n");
             auto bb = Anew(alloc, ByteBuffer, byteLength, (void*)sz); // Includes trailing null
             return PrependInt32(builder, clue, GetString16Id(bb));
         }
@@ -729,17 +729,17 @@ public:
     }
 
     uint32 PrependByteBuffer(BufferBuilderList & builder, LPCWSTR clue, ByteBuffer * bb)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 731\n");
         auto id = GetString16Id(bb);
         return PrependInt32(builder, clue, id);
     }
 
     int GetIdOfPropertyRecord(const PropertyRecord * propertyRecord)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 737\n");
         AssertMsg(!propertyRecord->IsSymbol(), "bytecode serializer does not currently handle non-built-in symbol PropertyRecords");
         size_t byteCount = ((size_t)propertyRecord->GetLength() + 1) * sizeof(char16);
         if (byteCount > UINT_MAX)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 741\n");
             // We should never see property record that big
             Js::Throw::InternalError();
         }
@@ -755,7 +755,7 @@ public:
 
     template<typename TLayout>
     unaligned TLayout * DuplicateLayout(unaligned const TLayout * in)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 757\n");
         auto sizeOfLayout = sizeof(unaligned TLayout);
         auto newLayout = AnewArray(alloc, byte, sizeOfLayout);
         js_memcpy_s(newLayout, sizeOfLayout, in, sizeOfLayout);
@@ -764,7 +764,7 @@ public:
 
     template<typename T>
     uint32 Prepend(BufferBuilderList & builder, LPCWSTR clue, T * t)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 766\n");
         auto block = Anew(alloc, BufferBuilderRaw, clue, sizeof(serialization_alignment T), (const byte*)t);
         builder.list = builder.list->Prepend(block, alloc);
         return sizeof(serialization_alignment T);
@@ -778,7 +778,7 @@ public:
 
 #ifdef ASMJS_PLAT
     HRESULT RewriteAsmJsByteCodesInto(BufferBuilderList & builder, LPCWSTR clue, FunctionBody * function, ByteBlock * byteBlock)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 780\n");
         SListCounted<AuxRecord> auxRecords(alloc);
 
         auto finalSize = Anew(alloc, BufferBuilderInt32, _u("Final Byte Code Size"), 0); // Initially set to zero
@@ -794,9 +794,9 @@ public:
         auto saveBlock = [&]() {
             uint32 byteCount;
             if (TryConvertToUInt32(reader.GetIP() - opStart, &byteCount))
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 796\n");
                 if (!GenerateByteCodeForNative())
-                {
+                {LOGMEIN("ByteCodeSerializer.cpp] 798\n");
                     auto block = Anew(alloc, BufferBuilderRaw, clue, byteCount, (const byte*)opStart);
                     builder.list = builder.list->Prepend(block, alloc);
                     size += byteCount;
@@ -812,31 +812,31 @@ public:
         Assert(!function->HasCachedScopePropIds());
 
         while (!cantGenerate)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 814\n");
             opStart = reader.GetIP();
             opStart; // For prefast. It can't figure out that opStart is captured in saveBlock above.
             LayoutSize layoutSize;
             OpCodeAsmJs op = reader.ReadAsmJsOp(layoutSize);
             if (op == OpCodeAsmJs::EndOfBlock)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 820\n");
                 saveBlock();
                 break;
             }
 
             OpLayoutTypeAsmJs layoutType = OpCodeUtilAsmJs::GetOpCodeLayout(op);
             switch (layoutType)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 827\n");
 
 #define LAYOUT_TYPE(layout) \
-    case OpLayoutTypeAsmJs::##layout: { \
+    case OpLayoutTypeAsmJs::##layout: {LOGMEIN("ByteCodeSerializer.cpp] 830\n"); \
         Assert(layoutSize == SmallLayout); \
         reader.##layout(); \
         saveBlock(); \
         break; }
 #define LAYOUT_TYPE_WMS(layout) \
-    case OpLayoutTypeAsmJs::##layout: { \
+    case OpLayoutTypeAsmJs::##layout: {LOGMEIN("ByteCodeSerializer.cpp] 836\n"); \
         switch (layoutSize) \
-        { \
+        {LOGMEIN("ByteCodeSerializer.cpp] 838\n"); \
         case SmallLayout: \
             reader.##layout##_Small(); \
             break; \
@@ -860,12 +860,12 @@ public:
         }
 
         if (cantGenerate)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 862\n");
             return ByteCodeSerializer::CantGenerate;
         }
 
         if (size != byteBlock->GetLength() && !GenerateByteCodeForNative())
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 867\n");
             Assert(size == byteBlock->GetLength());
             return ByteCodeSerializer::CantGenerate;
         }
@@ -877,7 +877,7 @@ public:
 #endif
 
     HRESULT RewriteByteCodesInto(BufferBuilderList & builder, LPCWSTR clue, FunctionBody * function, ByteBlock * byteBlock)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 879\n");
         SListCounted<AuxRecord> auxRecords(alloc);
 
         auto finalSize = Anew(alloc, BufferBuilderInt32, _u("Final Byte Code Size"), 0); // Initially set to zero
@@ -893,9 +893,9 @@ public:
         auto saveBlock = [&]() {
             uint32 byteCount;
             if (TryConvertToUInt32(reader.GetIP()-opStart, &byteCount))
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 895\n");
                 if (!GenerateByteCodeForNative())
-                {
+                {LOGMEIN("ByteCodeSerializer.cpp] 897\n");
                     auto block = Anew(alloc, BufferBuilderRaw, clue, byteCount, (const byte*) opStart);
                     builder.list = builder.list->Prepend(block, alloc);
                     size += byteCount;
@@ -909,31 +909,31 @@ public:
         };
 
         while(!cantGenerate)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 911\n");
             opStart = reader.GetIP();
             opStart; // For prefast. It can't figure out that opStart is captured in saveBlock above.
             LayoutSize layoutSize;
             OpCode op = reader.ReadOp(layoutSize);
             if (op == OpCode::EndOfBlock)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 917\n");
                 saveBlock();
                 break;
             }
 
             OpLayoutType layoutType = OpCodeUtil::GetOpCodeLayout(op);
             switch (layoutType)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 924\n");
 
 #define DEFAULT_LAYOUT(op) \
-    case OpLayoutType::##op: { \
+    case OpLayoutType::##op: {LOGMEIN("ByteCodeSerializer.cpp] 927\n"); \
         Assert(layoutSize == SmallLayout); \
         reader.##op(); \
         saveBlock(); \
         break; }
 #define DEFAULT_LAYOUT_WITH_ONEBYTE(op) \
-    case OpLayoutType::##op: { \
+    case OpLayoutType::##op: {LOGMEIN("ByteCodeSerializer.cpp] 933\n"); \
         switch (layoutSize) \
-        { \
+        {LOGMEIN("ByteCodeSerializer.cpp] 935\n"); \
         case SmallLayout: \
             reader.##op##_Small(); \
             break; \
@@ -1008,9 +1008,9 @@ public:
 #undef DEFAULT_LAYOUT_WITH_ONEBYTE
                 case OpLayoutType::AuxNoReg:
                     switch (op)
-                    {
+                    {LOGMEIN("ByteCodeSerializer.cpp] 1010\n");
                         case OpCode::InitCachedFuncs:
-                        {
+                        {LOGMEIN("ByteCodeSerializer.cpp] 1012\n");
                             auto layout = reader.AuxNoReg();
                             AuxRecord record = { sakFuncInfoArray, layout->Offset };
                             auxRecords.Prepend(record);
@@ -1025,9 +1025,9 @@ public:
                     break;
                 case OpLayoutType::Auxiliary:
                     switch (op)
-                    {
+                    {LOGMEIN("ByteCodeSerializer.cpp] 1027\n");
                         case OpCode::NewScObjectLiteral:
-                        {
+                        {LOGMEIN("ByteCodeSerializer.cpp] 1029\n");
                             auto layout = reader.Auxiliary();
                             AuxRecord record = { sakPropertyIdArray, layout->Offset };
                             auxRecords.Prepend(record);
@@ -1035,7 +1035,7 @@ public:
                             break;
                         }
                         case OpCode::LdPropIds:
-                        {
+                        {LOGMEIN("ByteCodeSerializer.cpp] 1037\n");
                             auto layout = reader.Auxiliary();
                             AuxRecord record = { sakPropertyIdArray, layout->Offset };
                             auxRecords.Prepend(record);
@@ -1043,7 +1043,7 @@ public:
                             break;
                         }
                         case OpCode::StArrSegItem_A:
-                        {
+                        {LOGMEIN("ByteCodeSerializer.cpp] 1045\n");
                             auto layout = reader.Auxiliary();
                             AuxRecord record = { sakVarArrayIntCount, layout->Offset };
                             auxRecords.Prepend(record);
@@ -1051,7 +1051,7 @@ public:
                             break;
                         }
                         case OpCode::NewScObject_A:
-                        {
+                        {LOGMEIN("ByteCodeSerializer.cpp] 1053\n");
                             auto layout = reader.Auxiliary();
                             AuxRecord record = { sakVarArrayVarCount, layout->Offset };
                             auxRecords.Prepend(record);
@@ -1059,7 +1059,7 @@ public:
                             break;
                         }
                         case OpCode::NewScIntArray:
-                        {
+                        {LOGMEIN("ByteCodeSerializer.cpp] 1061\n");
                             auto layout = reader.Auxiliary();
                             AuxRecord record = { sakIntArray, layout->Offset };
                             auxRecords.Prepend(record);
@@ -1067,7 +1067,7 @@ public:
                             break;
                         }
                         case OpCode::NewScFltArray:
-                        {
+                        {LOGMEIN("ByteCodeSerializer.cpp] 1069\n");
                             auto layout = reader.Auxiliary();
                             AuxRecord record = { sakFloatArray, layout->Offset };
                             auxRecords.Prepend(record);
@@ -1082,9 +1082,9 @@ public:
                     break;
                 case OpLayoutType::ProfiledAuxiliary:
                     switch (op)
-                    {
+                    {LOGMEIN("ByteCodeSerializer.cpp] 1084\n");
                         case OpCode::ProfiledNewScIntArray:
-                        {
+                        {LOGMEIN("ByteCodeSerializer.cpp] 1086\n");
                             auto layout = reader.ProfiledAuxiliary();
                             AuxRecord record = { sakIntArray, layout->Offset };
                             auxRecords.Prepend(record);
@@ -1092,7 +1092,7 @@ public:
                             break;
                         }
                         case OpCode::ProfiledNewScFltArray:
-                        {
+                        {LOGMEIN("ByteCodeSerializer.cpp] 1094\n");
                             auto layout = reader.ProfiledAuxiliary();
                             AuxRecord record = { sakFloatArray, layout->Offset };
                             auxRecords.Prepend(record);
@@ -1107,9 +1107,9 @@ public:
                     break;
                 case OpLayoutType::Reg2Aux:
                     switch (op)
-                    {
+                    {LOGMEIN("ByteCodeSerializer.cpp] 1109\n");
                         case OpCode::SpreadArrayLiteral:
-                        {
+                        {LOGMEIN("ByteCodeSerializer.cpp] 1111\n");
                             auto layout = reader.Reg2Aux();
                             AuxRecord record = { sakIntArray, layout->Offset };
                             auxRecords.Prepend(record);
@@ -1125,7 +1125,7 @@ public:
 
 #define STORE_SPREAD_AUX_ARGS \
                     if (!(layout->Options & CallIExtended_SpreadArgs)) \
-                    { \
+                    {LOGMEIN("ByteCodeSerializer.cpp] 1127\n"); \
                         break; \
                     } \
                     AuxRecord record = { sakIntArray, layout->SpreadAuxOffset }; \
@@ -1133,23 +1133,23 @@ public:
 
 #define CALLIEXTENDED_LAYOUT_WITH_ONEBYTE(op) \
                     case OpLayoutType::##op: \
-                    { \
+                    {LOGMEIN("ByteCodeSerializer.cpp] 1135\n"); \
                         switch (layoutSize) \
-                        { \
+                        {LOGMEIN("ByteCodeSerializer.cpp] 1137\n"); \
                         case SmallLayout: \
-                        { \
+                        {LOGMEIN("ByteCodeSerializer.cpp] 1139\n"); \
                             auto layout = reader.##op##_Small(); \
                             STORE_SPREAD_AUX_ARGS; \
                             break; \
                         } \
                         case MediumLayout: \
-                        { \
+                        {LOGMEIN("ByteCodeSerializer.cpp] 1145\n"); \
                             auto layout = reader.##op##_Medium(); \
                             STORE_SPREAD_AUX_ARGS; \
                             break; \
                         } \
                         case LargeLayout: \
-                        { \
+                        {LOGMEIN("ByteCodeSerializer.cpp] 1151\n"); \
                             auto layout = reader.##op##_Large(); \
                             STORE_SPREAD_AUX_ARGS; \
                             break; \
@@ -1178,12 +1178,12 @@ public:
         }
 
         if (cantGenerate)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1180\n");
             return ByteCodeSerializer::CantGenerate;
         }
 
         if (size != byteBlock->GetLength() && !GenerateByteCodeForNative())
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1185\n");
             Assert(size == byteBlock->GetLength());
             return ByteCodeSerializer::CantGenerate;
         }
@@ -1196,22 +1196,22 @@ public:
 
     void RewriteAuxiliaryInto(BufferBuilderList& builder, SListCounted<AuxRecord> const& auxRecordList,
         ByteCodeReader& reader, FunctionBody * functionBody)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 1198\n");
         uint count = auxRecordList.Count();
         PrependInt32(builder, _u("Auxiliary Structure Count"), count);
         if (count == 0)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1202\n");
             return;
         }
 
-        auto writeAuxVarArray = [&](uint offset, bool isVarCount, int count, const Var * elements)  {
+        auto writeAuxVarArray = [&](uint offset, bool isVarCount, int count, const Var * elements)  {LOGMEIN("ByteCodeSerializer.cpp] 1206\n");
             typedef serialization_alignment SerializedVarArray T;
             T header(offset, isVarCount, count);
             auto block = Anew(alloc, ConstantSizedBufferBuilderOf<T>, _u("Var Array"), header);
             builder.list = builder.list->Prepend(block, alloc);
 
             for (int i=0;i<count; i++)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 1213\n");
                 auto var = elements[i];
                 PrependVarConstant(builder, var);
             }
@@ -1220,13 +1220,13 @@ public:
             PrependInt32(builder, _u("Magic end of aux"), magicEndOfAux);
 #endif
         };
-        auto writeAuxVarArrayIntCount = [&](uint offset) {
+        auto writeAuxVarArrayIntCount = [&](uint offset) {LOGMEIN("ByteCodeSerializer.cpp] 1222\n");
             const AuxArray<Var> * varArray = reader.ReadAuxArray<Var>(offset, functionBody);
             int count = varArray->count;
             const Var * elements = varArray->elements;
             writeAuxVarArray(offset, false, count, elements);
         };
-        auto writeAuxVarArrayVarCount = [&](uint offset) {
+        auto writeAuxVarArrayVarCount = [&](uint offset) {LOGMEIN("ByteCodeSerializer.cpp] 1228\n");
             const VarArrayVarCount * varArray = reader.ReadVarArrayVarCount(offset, functionBody);
             int count = Js::TaggedInt::ToInt32(varArray->count);
             const Var * elements = varArray->elements;
@@ -1243,7 +1243,7 @@ public:
             builder.list = builder.list->Prepend(block, alloc);
 
             for (int i=0;i<count; i++)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 1245\n");
                 auto value = elements[i];
                 PrependConstantInt32(builder, _u("Integer Constant Value"), value);
             }
@@ -1265,7 +1265,7 @@ public:
             builder.list = builder.list->Prepend(block, alloc);
 
             for (int i=0;i<count; i++)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 1267\n");
                 auto value = elements[i];
                 PrependDouble(builder, _u("Number Constant Value"), value);
             }
@@ -1285,7 +1285,7 @@ public:
             builder.list = builder.list->Prepend(block, alloc);
 
             for (uint32 i=0; i<propIds->count; i++)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 1287\n");
                 auto original = propIds->elements[i];
                 auto encoded = encodePossiblyBuiltInPropertyId(original);
                 PrependConstantInt32(builder, _u("Encoded Property Id"), encoded);
@@ -1311,7 +1311,7 @@ public:
             builder.list = builder.list->Prepend(block, alloc);
 
             for (uint32 i=0; i<funcInfos->count; i++)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 1313\n");
                 auto funcInfo = funcInfos->elements[i];
                 PrependConstantInt32(builder, _u("FuncInfo nestedIndex"), funcInfo.nestedIndex);
                 PrependConstantInt32(builder, _u("FuncInfo scopeSlot"), funcInfo.scopeSlot);
@@ -1330,7 +1330,7 @@ public:
         auxRecordList.Map([&](AuxRecord const& auxRecord)
         {
             switch (auxRecord.kind)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 1332\n");
             default:
                 AssertMsg(false, "Unexpected auxiliary kind");
                 Throw::FatalInternalError();
@@ -1364,7 +1364,7 @@ public:
     }
 
     uint32 PrependStringConstant(BufferBuilderList & builder, Var var)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 1366\n");
         auto str = JavascriptString::FromVar(var);
         uint32 size = 0;
 
@@ -1383,13 +1383,13 @@ public:
     }
 
     uint32 PrependStringTemplateCallsiteConstant(BufferBuilderList & builder, Var var)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 1385\n");
         ES5Array* callsite = ES5Array::FromVar(var);
         Var element = nullptr;
         auto size = PrependInt32(builder, _u("String Template Callsite Constant String Count"), (int)callsite->GetLength());
 
         for (uint32 i = 0; i < callsite->GetLength(); i++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1391\n");
             callsite->DirectGetItemAt(i, &element);
             size += PrependStringConstant(builder, element);
         }
@@ -1398,7 +1398,7 @@ public:
         ES5Array* rawArray = ES5Array::FromVar(rawVar);
 
         for (uint32 i = 0; i < rawArray->GetLength(); i++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1400\n");
             rawArray->DirectGetItemAt(i, &element);
             size += PrependStringConstant(builder, element);
         }
@@ -1407,19 +1407,19 @@ public:
     }
 
     uint32 PrependVarConstant(BufferBuilderList & builder, Var var)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 1409\n");
         if (var == (Js::Var)&Js::NullFrameDisplay)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1411\n");
             return PrependByte(builder, _u("Null Frame Display"), ctNullDisplay);
         }
         else if (var == (Js::Var)&Js::StrictNullFrameDisplay)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1415\n");
             return PrependByte(builder, _u("Strict Null Frame Display"), ctStrictNullDisplay);
         }
 
         auto typeId = JavascriptOperators::GetTypeId(var);
         switch (typeId)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1421\n");
         case TypeIds_Undefined:
             return PrependByte(builder, _u("Undefined Constant"), ctUndefined);
 
@@ -1430,25 +1430,25 @@ public:
             return PrependByte(builder, _u("Boolean Constant"), JavascriptBoolean::FromVar(var)->GetValue()? ctTrue : ctFalse);
 
         case TypeIds_Number:
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1432\n");
             auto size = PrependByte(builder, _u("Number Constant"), ctNumber);
             return size + PrependDouble(builder,  _u("Number Constant Value"), JavascriptNumber::GetValue(var));
         }
 
         case TypeIds_Integer:
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1438\n");
             auto size = PrependByte(builder, _u("Integer Constant"), ctInt);
             return size + PrependConstantInt32(builder,  _u("Integer Constant Value"), TaggedInt::ToInt32(var));
         }
 
         case TypeIds_String:
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1444\n");
             auto size = PrependByte(builder, _u("String Constant 16"), ctString16);
             return size + PrependStringConstant(builder, var);
         }
 
         case TypeIds_ES5Array:
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1450\n");
             // ES5Array objects in the constant table are always string template callsite objects.
             // If we later put other ES5Array objects in the constant table, we'll need another way
             // to decide the constant type.
@@ -1464,7 +1464,7 @@ public:
 
 #ifdef ASMJS_PLAT
     uint32 AddAsmJsConstantTable(BufferBuilderList & builder, FunctionBody * function)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 1466\n");
         uint32 size = 0;
 
 #ifdef BYTE_CODE_MAGIC_CONSTANTS
@@ -1475,19 +1475,19 @@ public:
         byte* tableEnd = (byte*)(constTable + function->GetConstantCount());
 
         for (int i = 0; i < WAsmJs::LIMIT; ++i)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1477\n");
             WAsmJs::Types type = (WAsmJs::Types)i;
             WAsmJs::TypedSlotInfo* typedInfo = function->GetAsmJsFunctionInfo()->GetTypedSlotInfo(type);
             uint32 constCount = typedInfo->constCount;
             if (constCount > FunctionBody::FirstRegSlot)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 1482\n");
                 uint32 typeSize = WAsmJs::GetTypeByteSize(type);
                 byte* byteTable = ((byte*)constTable) + typedInfo->constSrcByteOffset;
                 byteTable += typeSize * FunctionBody::FirstRegSlot;
                 for (uint32 reg = FunctionBody::FirstRegSlot; reg < constCount; ++reg)
-                {
+                {LOGMEIN("ByteCodeSerializer.cpp] 1487\n");
                     switch (type)
-                    {
+                    {LOGMEIN("ByteCodeSerializer.cpp] 1489\n");
                     case WAsmJs::INT32:   PrependConstantInt32(builder, _u("Integer Constant Value"), *(int*)byteTable); break;
                     case WAsmJs::FLOAT32: PrependFloat(builder, _u("Float Constant Value"), *(float*)byteTable); break;
                     case WAsmJs::FLOAT64: PrependDouble(builder, _u("Double Constant Value"), *(double*)byteTable); break;
@@ -1502,7 +1502,7 @@ public:
                 }
 
                 if (byteTable > tableEnd)
-                {
+                {LOGMEIN("ByteCodeSerializer.cpp] 1504\n");
                     Assert(UNREACHED);
                     Js::Throw::FatalInternalError();
                 }
@@ -1518,7 +1518,7 @@ public:
 #endif
 
     uint32 AddConstantTable(BufferBuilderList & builder, FunctionBody * function)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 1520\n");
         uint32 size = 0;
 
 #ifdef BYTE_CODE_MAGIC_CONSTANTS
@@ -1526,7 +1526,7 @@ public:
 #endif
 
         for (auto reg = FunctionBody::FirstRegSlot + 1; reg < function->GetConstantCount(); reg++) // Ignore first slot, it is always global object or module root object
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1528\n");
             auto var = function->GetConstantVar(reg);
             Assert(var != nullptr);
             size += PrependVarConstant(builder, var);
@@ -1540,9 +1540,9 @@ public:
     }
 
     uint32 AddPropertyIdsForScopeSlotArray(BufferBuilderList & builder, FunctionBody * function)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 1542\n");
         if (function->scopeSlotArraySize == 0)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1544\n");
             return 0;
         }
         uint32 size = 0;
@@ -1552,7 +1552,7 @@ public:
 #endif
 
         for (uint i = 0; i < function->scopeSlotArraySize; i++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1554\n");
             PropertyId propertyId = encodePossiblyBuiltInPropertyId(function->GetPropertyIdsForScopeSlotArray()[i]);
             size += PrependInt32(builder, _u("PropertyIdsForScopeSlots"), propertyId);
         }
@@ -1566,11 +1566,11 @@ public:
 
     // Gets the number of debugger slot array scopes there are in the function body's scope chain list.
     uint32 GetDebuggerScopeSlotArrayCount(FunctionBody * function)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 1568\n");
         Assert(function);
         uint debuggerScopeSlotArraySize = 0;
         if (function->GetScopeObjectChain())
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1572\n");
             debuggerScopeSlotArraySize = function->GetScopeObjectChain()->pScopeChain->CountWhere([&](DebuggerScope* scope)
             {
                 return scope->IsSlotScope();
@@ -1584,10 +1584,10 @@ public:
     // This is to ensure that block scope slot array properties are captured along with
     // function level slot array properties.
     uint32 AddSlotArrayDebuggerScopeProperties(BufferBuilderList & builder, DebuggerScope* debuggerScope, uint propertiesCount)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 1586\n");
         Assert(debuggerScope);
         if (propertiesCount == 0)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1589\n");
             return 0u;
         }
 
@@ -1601,7 +1601,7 @@ public:
         Assert(debuggerScope->scopeProperties->Count() >= 0);
         AssertMsg((uint)debuggerScope->scopeProperties->Count() == propertiesCount, "Property counts should match.");
         for (uint i = 0u; i < propertiesCount; ++i)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1603\n");
             DebuggerScopeProperty scopeProperty = debuggerScope->scopeProperties->Item(i);
             size += PrependInt32(builder, _u("SlotIndexesForDebuggerScopeSlots"), scopeProperty.location);
 
@@ -1620,10 +1620,10 @@ public:
     // This is to ensure that block scope slot array properties are captured along with
     // function level slot array properties.
     uint32 AddSlotArrayDebuggerScopes(BufferBuilderList & builder, FunctionBody* function, uint debuggerScopeSlotArraySize)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 1622\n");
         Assert(function);
         if (function->GetScopeObjectChain() == nullptr || debuggerScopeSlotArraySize == 0)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1625\n");
             return 0u;
         }
 
@@ -1635,10 +1635,10 @@ public:
 
         uint slotArrayCount = 0;
         for (uint i = 0u; i < static_cast<uint>(function->GetScopeObjectChain()->pScopeChain->Count()); ++i)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1637\n");
             DebuggerScope* debuggerScope = function->GetScopeObjectChain()->pScopeChain->Item(i);
             if (debuggerScope->IsSlotScope())
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 1640\n");
                 // Only add slot scope debugger scopes (store the index of the scope).
                 size += PrependInt32(builder, _u("SlotArrayDebuggerScope"), i);
 
@@ -1659,10 +1659,10 @@ public:
     }
 
     uint32 AddCacheIdToPropertyIdMap(BufferBuilderList & builder, FunctionBody * function)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 1661\n");
         uint count = function->GetInlineCacheCount();
         if (count == 0)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1664\n");
             return 0;
         }
         uint32 size = 0;
@@ -1672,7 +1672,7 @@ public:
 #endif
 
         for (uint i = 0; i < count; i++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1674\n");
             PropertyId propertyId = encodePossiblyBuiltInPropertyId(function->GetPropertyIdFromCacheId(i));
             size += PrependInt32(builder, _u("CacheIdToPropertyId"), propertyId);
         }
@@ -1685,10 +1685,10 @@ public:
     }
 
     uint32 AddReferencedPropertyIdMap(BufferBuilderList & builder, FunctionBody * function)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 1687\n");
         uint count = function->GetReferencedPropertyIdCount();
         if (count == 0)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1690\n");
             return 0;
         }
         uint32 size = 0;
@@ -1698,7 +1698,7 @@ public:
 #endif
 
         for (uint i = 0; i < count; i++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1700\n");
             PropertyId propertyId = encodeNonBuiltinPropertyId(function->GetReferencedPropertyIdWithMapIndex(i));
             size += PrependInt32(builder, _u("ReferencedPropertyId"), propertyId);
         }
@@ -1711,29 +1711,29 @@ public:
     }
 
     uint32 PrependByteArray(BufferBuilderList & builder, int length, byte * buffer)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 1713\n");
         int size = 0;
         for (int i = 0; i<length; ++i)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1716\n");
             size += PrependByte(builder, _u("Byte Array Element"), buffer[i]);
         }
         return size;
     }
 
     uint32 PrependUInt32Array(BufferBuilderList & builder, int length, uint32 * buffer)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 1723\n");
         int size = 0;
         for(int i=0;i<length;++i)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1726\n");
             size += PrependConstantInt32(builder, _u("UInt32 Array Element"), buffer[i]);
         }
         return size;
     }
 
     uint32 PrependGrowingUint32Array(BufferBuilderList & builder, LPCWSTR clue, JsUtil::GrowingUint32HeapArray * arr)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 1733\n");
         if (arr == nullptr || arr->Count() == 0 || arr->GetLength() == 0 || arr->GetBuffer() == nullptr)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1735\n");
             return PrependInt32(builder, clue, 0);
         }
         auto size = PrependInt32(builder, clue, arr->Count());
@@ -1742,7 +1742,7 @@ public:
     }
 
     uint32 PrependSmallSpanSequence(BufferBuilderList & builder, LPCWSTR clue, SmallSpanSequence * spanSequence)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 1744\n");
         auto size = PrependInt32(builder, clue, spanSequence->baseValue);
         size += PrependGrowingUint32Array(builder, _u("Statement Buffer"), spanSequence->pStatementBuffer);
         size += PrependGrowingUint32Array(builder, _u("Actual Offset List"), spanSequence->pActualOffsetList);
@@ -1751,7 +1751,7 @@ public:
 
     template <typename TStructType>
     uint32 PrependStruct(BufferBuilderList & builder, LPCWSTR clue, TStructType * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 1753\n");
         auto entry = Anew(alloc, ConstantSizedBufferBuilderOf<TStructType>, clue, *value);
         builder.list = builder.list->Prepend(entry, alloc);
 
@@ -1759,7 +1759,7 @@ public:
     }
 
     uint32 AddPropertyIdOfFormals(BufferBuilderList & builder, FunctionBody * function)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 1761\n");
         uint32 size = 0;
 #ifdef BYTE_CODE_MAGIC_CONSTANTS
         size += PrependInt32(builder, _u("Start propertyids of formals"), magicStartOfPropIdsOfFormals);
@@ -1767,7 +1767,7 @@ public:
 
         PropertyIdArray * propIds = function->GetFormalsPropIdArray(false);
         if (propIds == nullptr)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1769\n");
             size += PrependBool(builder, _u("ExportsIdArrayLength"), false);
         }
         else
@@ -1776,7 +1776,7 @@ public:
 
             byte extraSlotCount = 0;
             if (function->HasCachedScopePropIds())
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 1778\n");
                 extraSlotCount = ActivationObjectEx::ExtraSlotCount();
             }
 
@@ -1787,14 +1787,14 @@ public:
             size += PrependByte(builder, _u("ExportsIdArrayHasNonSimpleParams"), propIds->hasNonSimpleParams);
 
             for (uint i = 0; i < propIds->count; i++)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 1789\n");
                 PropertyId propertyId = encodePossiblyBuiltInPropertyId(propIds->elements[i]);
                 size += PrependInt32(builder, _u("ExportsIdArrayElem"), propertyId);
             }
 
             auto slots = propIds->elements + propIds->count;
             for (byte i = 0; i < extraSlotCount; i++)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 1796\n");
                 size += PrependInt32(builder, _u("Extra Slot"), slots[i]);
             }
         }
@@ -1806,7 +1806,7 @@ public:
 
 #ifdef ASMJS_PLAT
     uint32 AddAsmJsFunctionInfo(BufferBuilderList & builder, FunctionBody * function)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 1808\n");
         uint32 size = 0;
         AsmJsFunctionInfo* funcInfo = function->GetAsmJsFunctionInfo();
 
@@ -1822,10 +1822,10 @@ public:
         size += PrependByte(builder, _u("IsHeapBufferConst"), funcInfo->IsHeapBufferConst());
         size += PrependByte(builder, _u("UsesHeapBuffer"), funcInfo->UsesHeapBuffer());
         for (int i = WAsmJs::LIMIT - 1; i >= 0; --i)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1824\n");
             const char16* clue = nullptr;
             switch (i)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 1827\n");
             case WAsmJs::INT32:   clue = _u("Int32TypedSlots"); break;
             case WAsmJs::INT64:   clue = _u("Int64TypedSlots"); break;
             case WAsmJs::FLOAT32: clue = _u("Float32TypedSlots"); break;
@@ -1847,7 +1847,7 @@ public:
     }
 
     uint32 AddAsmJsModuleInfo(BufferBuilderList & builder, FunctionBody * function)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 1849\n");
         uint32 size = 0;
         AsmJsModuleInfo * moduleInfo = function->GetAsmJsModuleInfo();
 
@@ -1861,14 +1861,14 @@ public:
         size += PrependInt32(builder, _u("SIMDRegCount"), moduleInfo->GetSimdRegCount());
 
         if (moduleInfo->GetExportsCount() > 0)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1863\n");
             PropertyIdArray * propArray = moduleInfo->GetExportsIdArray();
             size += PrependByte(builder, _u("ExtraSlotsCount"), propArray->extraSlots);
             size += PrependByte(builder, _u("ExportsIdArrayDups"), propArray->hadDuplicates);
             size += PrependByte(builder, _u("ExportsIdArray__proto__"), propArray->has__proto__);
             size += PrependInt32(builder, _u("ExportsIdArrayLength"), propArray->count);
             for (uint i = 0; i < propArray->count; i++)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 1870\n");
                 PropertyId propertyId = encodePossiblyBuiltInPropertyId(propArray->elements[i]);
                 size += PrependInt32(builder, _u("ExportsIdArrayElem"), propertyId);
             }
@@ -1879,13 +1879,13 @@ public:
 
         size += PrependInt32(builder, _u("VarCount"), moduleInfo->GetVarCount());
         for (int i = 0; i < moduleInfo->GetVarCount(); i++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1881\n");
             size += PrependStruct(builder, _u("ModuleVar"), &moduleInfo->GetVar(i));
         }
 
         size += PrependInt32(builder, _u("VarImportCount"), moduleInfo->GetVarImportCount());
         for (int i = 0; i < moduleInfo->GetVarImportCount(); i++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1887\n");
             auto import = moduleInfo->GetVarImport(i);
             size += PrependInt32(builder, _u("ImportLocation"), import.location);
             size += PrependByte(builder, _u("ImportType"), import.type);
@@ -1895,7 +1895,7 @@ public:
 
         size += PrependInt32(builder, _u("FunctionImportCount"), moduleInfo->GetFunctionImportCount());
         for (int i = 0; i < moduleInfo->GetFunctionImportCount(); i++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1897\n");
             auto import = moduleInfo->GetFunctionImport(i);
             size += PrependInt32(builder, _u("ImportLocation"), import.location);
             PropertyId propertyId = encodePossiblyBuiltInPropertyId(import.field);
@@ -1904,14 +1904,14 @@ public:
 
         size += PrependInt32(builder, _u("FunctionCount"), moduleInfo->GetFunctionCount());
         for (int i = 0; i < moduleInfo->GetFunctionCount(); i++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1906\n");
             auto func = moduleInfo->GetFunction(i);
             size += PrependInt32(builder, _u("FuncLocation"), func.location);
         }
 
         size += PrependInt32(builder, _u("FunctionTableCount"), moduleInfo->GetFunctionTableCount());
         for (int i = 0; i < moduleInfo->GetFunctionTableCount(); i++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1913\n");
             auto table = moduleInfo->GetFunctionTable(i);
             size += PrependInt32(builder, _u("FuncTableSize"), table.size);
             PrependUInt32Array(builder, table.size, table.moduleFunctionIndex);
@@ -1922,7 +1922,7 @@ public:
         size += PrependInt32(builder, _u("AsmJsSlotMapCount"), moduleInfo->GetAsmJsSlotMap()->Count());
         auto slotIter = moduleInfo->GetAsmJsSlotMap()->GetIterator();
         while (slotIter.IsValid())
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1924\n");
             PropertyId propertyId = encodePossiblyBuiltInPropertyId(slotIter.CurrentKey());
             size += PrependInt32(builder, _u("AsmJsSlotPropId"), propertyId);
             size += PrependStruct(builder, _u("AsmJsSlotValue"), slotIter.CurrentValue());
@@ -1944,7 +1944,7 @@ public:
 #endif
 
     HRESULT AddFunctionBody(BufferBuilderList & builder, FunctionBody * function, SRCINFO const * srcInfo)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 1946\n");
         SerializedFieldList definedFields = { 0 };
 
 #ifdef BYTE_CODE_MAGIC_CONSTANTS
@@ -1957,7 +1957,7 @@ public:
         uint32 sourceDiff = 0;
 
         if (!TryConvertToUInt32(function->StartOffset(), &sourceDiff))
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1959\n");
             Assert(0); // Likely a bug
             return ByteCodeSerializer::CantGenerate;
         }
@@ -1968,13 +1968,13 @@ public:
         PrependString16(builder, _u("Display Name"), displayName, (displayNameLength + 1)* sizeof(char16));
 
         if (function->m_lineNumber != 0)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1970\n");
             definedFields.has_m_lineNumber = true;
             PrependInt32(builder, _u("Line Number"), function->m_lineNumber);
         }
 
         if (function->m_columnNumber != 0)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 1976\n");
             definedFields.has_m_columnNumber = true;
             PrependInt32(builder, _u("Column Number"), function->m_columnNumber);
         }
@@ -2026,7 +2026,7 @@ public:
 
         PrependInt32(builder, _u("Offset Into Source"), sourceDiff);
         if (function->GetNestedCount() > 0)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2028\n");
             definedFields.has_m_nestedCount = true;
             PrependInt32(builder, _u("Nested count"), function->GetNestedCount());
         }
@@ -2044,7 +2044,7 @@ public:
 #define DEFINE_FUNCTION_PROXY_FIELDS 1
 #define DEFINE_PARSEABLE_FUNCTION_INFO_FIELDS 1
 #define DECLARE_SERIALIZABLE_FIELD(type, name, serializableType) \
-        if (function->##name != 0) { \
+        if (function->##name != 0) {LOGMEIN("ByteCodeSerializer.cpp] 2046\n"); \
             definedFields.has_##name = true; \
             Prepend##serializableType(builder, _u(#name), function->##name); \
         }
@@ -2054,12 +2054,12 @@ public:
         {
 #define DEFINE_FUNCTION_BODY_FIELDS 1
 #define DECLARE_SERIALIZABLE_FIELD(type, name, serializableType) \
-            if (function->##name != 0) { \
+            if (function->##name != 0) {LOGMEIN("ByteCodeSerializer.cpp] 2056\n"); \
                 definedFields.has_##name = true; \
                 Prepend##serializableType(builder, _u(#name), function->##name); \
             }
 #define DECLARE_SERIALIZABLE_ACCESSOR_FIELD(type, name, serializableType) \
-            if (function->Get##name##() != 0) { \
+            if (function->Get##name##() != 0) {LOGMEIN("ByteCodeSerializer.cpp] 2061\n"); \
                 definedFields.has_##name = true; \
                 Prepend##serializableType(builder, _u(#name), function->Get##name##()); \
             }
@@ -2108,7 +2108,7 @@ public:
                 AddAsmJsConstantTable(builder, function);
                 auto hr = RewriteAsmJsByteCodesInto(builder, _u("Rewritten Byte Code"), function, function->byteCodeBlock);
                 if (FAILED(hr))
-                {
+                {LOGMEIN("ByteCodeSerializer.cpp] 2110\n");
                     return hr;
                 }
             }
@@ -2118,7 +2118,7 @@ public:
                 AddConstantTable(builder, function);
                 auto hr = RewriteByteCodesInto(builder, _u("Rewritten Byte Code"), function, function->byteCodeBlock);
                 if (FAILED(hr))
-                {
+                {LOGMEIN("ByteCodeSerializer.cpp] 2120\n");
                     return hr;
                 }
             }
@@ -2136,7 +2136,7 @@ public:
 
             // Literal regexes
             for (uint i = 0; i < function->GetLiteralRegexCount(); ++i)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 2138\n");
                 const auto literalRegex = function->GetLiteralRegex(i);
                 if (!literalRegex)
                 {
@@ -2156,11 +2156,11 @@ public:
 
         // Lastly, write each of the lexically enclosed functions
         if (function->GetNestedCount())
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2158\n");
             auto nestedBodyList = Anew(alloc, BufferBuilderList, _u("Nest Function Bodies"));
 
             for(uint32 i = 0; i<function->GetNestedCount(); ++i)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 2162\n");
                 auto nestedFunctionBody = function->GetNestedFunc(i)->GetFunctionBody();
                 if (nestedFunctionBody==nullptr)
                 {
@@ -2201,7 +2201,7 @@ public:
     }
 
     HRESULT AddTopFunctionBody(FunctionBody * function, SRCINFO const * srcInfo)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2203\n");
         topFunctionId = function->GetLocalFunctionId();
         return AddFunctionBody(functionsTable, function, srcInfo);
     }
@@ -2246,29 +2246,29 @@ public:
         expectedFunctionBodySize(sizeof(unaligned FunctionBody)),
         expectedBuildInPropertyCount(builtInPropertyCount),
         expectedOpCodeCount((int)OpCode::Count)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2248\n");
         if (isLibraryCode)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2250\n");
             expectedFunctionBodySize = 0;
             expectedOpCodeCount = 0;
         }
     }
 
     static const byte* ReadFunctionBodyFlags(const byte * buffer, size_t remainingBytes, FunctionBody::FunctionBodyFlags * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2257\n");
         Assert(remainingBytes >= sizeof(FunctionBody::FunctionBodyFlags));
         *value = *(FunctionBody::FunctionBodyFlags*) buffer;
         return buffer + sizeof(FunctionBody::FunctionBodyFlags);
     }
 
     const byte* ReadFunctionBodyFlags(const byte * buffer, FunctionBody::FunctionBodyFlags * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2264\n");
         auto remainingBytes = (raw + totalSize) - buffer;
         return ReadFunctionBodyFlags(buffer, remainingBytes, value);
     }
 
     const byte* ReadBool(const byte * buffer, bool * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2270\n");
         auto remainingBytes = (raw + totalSize) - buffer;
         Assert(remainingBytes >= sizeof(bool));
         *value = *buffer ? true : false;
@@ -2276,20 +2276,20 @@ public:
     }
 
     static const byte * ReadByte(const byte * buffer, size_t remainingBytes, byte * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2278\n");
         Assert(remainingBytes>=sizeof(byte));
         *value = *(byte*)buffer;
         return buffer + sizeof(byte);
     }
 
     const byte * ReadByte(const byte * buffer, byte * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2285\n");
         auto remainingBytes = (raw + totalSize) - buffer;
         return ReadByte(buffer, remainingBytes, value);
     }
 
     static const byte * ReadInt16(const byte * buffer, size_t remainingBytes, int16 * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2291\n");
 #if VARIABLE_INT_ENCODING
         return ReadVariableInt<int16>(buffer, remainingBytes, value);
 #else
@@ -2300,39 +2300,39 @@ public:
     }
 
     const byte * ReadInt16(const byte * buffer, int16 * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2302\n");
         auto remainingBytes = (raw + totalSize) - buffer;
         return ReadInt16(buffer, remainingBytes, value);
     }
 
     static const byte * ReadConstantSizedInt64(const byte * buffer, size_t remainingBytes, int64 * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2308\n");
         Assert(remainingBytes >= sizeof(int64));
         *value = *(int64 *)buffer;
         return buffer + sizeof(int64);
     }
 
     const byte * ReadConstantSizedInt64(const byte * buffer, int64 * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2315\n");
         auto remainingBytes = (raw + totalSize) - buffer;
         return ReadConstantSizedInt64(buffer, remainingBytes, value);
     }
 
     static const byte * ReadConstantSizedInt32(const byte * buffer, size_t remainingBytes, int * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2321\n");
         Assert(remainingBytes >= sizeof(int));
         *value = *(int *) buffer;
         return buffer + sizeof(int);
     }
 
     const byte * ReadConstantSizedInt32(const byte * buffer, int * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2328\n");
         auto remainingBytes = (raw + totalSize) - buffer;
         return ReadConstantSizedInt32(buffer, remainingBytes, value);
     }
 
     static const byte * ReadInt32(const byte * buffer, size_t remainingBytes, int * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2334\n");
 #if VARIABLE_INT_ENCODING
         return ReadVariableInt<int>(buffer, remainingBytes, value);
 #else
@@ -2342,13 +2342,13 @@ public:
     }
 
     const byte * ReadInt32(const byte * buffer, int * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2344\n");
         auto remainingBytes = (raw + totalSize) - buffer;
         return ReadInt32(buffer, remainingBytes, value);
     }
 
     const byte * ReadCharCount(const byte * buffer, size_t remainingBytes, charcount_t * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2350\n");
         Assert(remainingBytes>=sizeof(charcount_t));
 #if VARIABLE_INT_ENCODING
         return ReadVariableInt<charcount_t>(buffer, remainingBytes, value);
@@ -2359,99 +2359,99 @@ public:
     }
 
     const byte * ReadCharCount(const byte * buffer, charcount_t * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2361\n");
         auto remainingBytes = (raw + totalSize) - buffer;
         return ReadCharCount(buffer, remainingBytes, value);
     }
 
     static const byte * ReadFloat(const byte * buffer, size_t remainingBytes, float * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2367\n");
         Assert(remainingBytes >= sizeof(float));
         *value = *(float *)buffer;
         return buffer + sizeof(float);
     }
 
     const byte * ReadFloat(const byte * buffer, float * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2374\n");
         auto remainingBytes = (raw + totalSize) - buffer;
         return ReadFloat(buffer, remainingBytes, value);
     }
 
     static const byte * ReadDouble(const byte * buffer, size_t remainingBytes, double * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2380\n");
         Assert(remainingBytes>=sizeof(double));
         *value = *(double *)buffer;
         return buffer + sizeof(double);
     }
 
     const byte * ReadDouble(const byte * buffer, double * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2387\n");
         auto remainingBytes = (raw + totalSize) - buffer;
         return ReadDouble(buffer, remainingBytes, value);
     }
 
     static const byte * ReadSIMDValue(const byte * buffer, size_t remainingBytes, SIMDValue * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2393\n");
         Assert(remainingBytes >= sizeof(SIMDValue));
         *value = *(SIMDValue *)buffer;
         return buffer + sizeof(SIMDValue);
     }
 
     const byte * ReadSIMDValue(const byte * buffer, SIMDValue * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2400\n");
         auto remainingBytes = (raw + totalSize) - buffer;
         return ReadSIMDValue(buffer, remainingBytes, value);
     }
 
     const byte * ReadUInt16(const byte * buffer, uint16 * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2406\n");
         auto remainingBytes = (raw + totalSize) - buffer;
         return ReadInt16(buffer, remainingBytes, (int16*)value);
     }
 
     const byte * ReadUInt32(const byte * buffer, unsigned int * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2412\n");
         auto remainingBytes = (raw + totalSize) - buffer;
         return ReadInt32(buffer, remainingBytes, (int*)value);
     }
 
     const byte * ReadULong(const byte * buffer, uint32 * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2418\n");
         auto remainingBytes = (raw + totalSize) - buffer;
         return ReadInt32(buffer, remainingBytes, (int*)value);
     }
 
     const byte * ReadRegSlot(const byte * buffer, RegSlot * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2424\n");
         auto remainingBytes = (raw + totalSize) - buffer;
         return ReadInt32(buffer, remainingBytes, (int*)value);
     }
 
     const byte * ReadArgSlot(const byte * buffer, ArgSlot * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2430\n");
         auto remainingBytes = (raw + totalSize) - buffer;
         return ReadInt32(buffer, remainingBytes, (int*)value);
     }
 
     const byte * ReadConstantSizedInt32NoSize(const byte * buffer, int * value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2436\n");
         *value = *(int *)buffer;
         return buffer + sizeof(int);
     }
 
     template <typename TStructType>
     const byte * ReadStruct(const byte * buffer, serialization_alignment TStructType ** value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2443\n");
         *value = (serialization_alignment TStructType*)buffer;
         return buffer + sizeof(serialization_alignment TStructType);
     }
 
     const byte * ReadOffsetAsPointer(const byte * buffer, byte const ** value)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2449\n");
         int offset;
         auto next = ReadConstantSizedInt32(buffer, &offset);
         if (offset == 0)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2453\n");
             *value = nullptr;
             return next;
         }
@@ -2460,7 +2460,7 @@ public:
     }
     template<typename Fn>
     const byte * ReadByteBlock(const byte * buffer, Fn fn)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2462\n");
         int contentLength;
         buffer = ReadInt32(buffer, &contentLength);
 
@@ -2469,12 +2469,12 @@ public:
     }
 
     const byte * ReadAuxiliary(const byte * buffer, FunctionBody * functionBody)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2471\n");
         const byte * current = buffer;
         uint32 countOfAuxiliaryStructure;
         current = ReadUInt32(current, &countOfAuxiliaryStructure);
         if (countOfAuxiliaryStructure == 0)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2476\n");
             return current;
         }
         uint32 sizeOfAuxiliaryBlock;
@@ -2488,14 +2488,14 @@ public:
             ByteBlock::New(scriptContext->GetRecycler(), nullptr, sizeOfAuxiliaryContextBlock) : nullptr;
 
         for (uint i = 0; i < countOfAuxiliaryStructure; i++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2490\n");
             typedef serialization_alignment const SerializedAuxiliary TBase;
             auto part = (serialization_alignment const SerializedAuxiliary * )current;
 #ifdef BYTE_CODE_MAGIC_CONSTANTS
             Assert(part->auxMagic == magicStartOfAux);
 #endif
             switch(part->kind)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 2497\n");
             default:
                 AssertMsg(false, "Unexpected auxiliary kind");
                 Throw::FatalInternalError();
@@ -2538,18 +2538,18 @@ public:
     }
 
     LPCWSTR GetString16ById(int id, bool* isPropertyRecord = nullptr)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2540\n");
         if (id == 0xffffffff)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2542\n");
             return nullptr;
         }
         if(!(id >= this->expectedBuildInPropertyCount && id <= string16Count + this->expectedBuildInPropertyCount))
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2546\n");
             Assert(false);
         }
         const unaligned StringIndexRecord* record = string16IndexTable + (id - this->expectedBuildInPropertyCount);
         if(isPropertyRecord)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2551\n");
             *isPropertyRecord = record->isPropertyRecord;
         }
         auto offset = record->offset;
@@ -2558,9 +2558,9 @@ public:
     }
 
     uint32 GetString16LengthById(int id)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2560\n");
         if(!(id >= this->expectedBuildInPropertyCount && id<=string16Count + this->expectedBuildInPropertyCount))
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2562\n");
             Assert(false);
         }
         LPCWSTR s1 = GetString16ById(id);
@@ -2571,7 +2571,7 @@ public:
     }
 
     HRESULT ReadHeader()
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2573\n");
         auto current = ReadConstantSizedInt32NoSize(raw, &magic);
         if (magic != magicConstant)
         {
@@ -2584,13 +2584,13 @@ public:
         byte expectedFileVersionScheme = isLibraryCode? LibraryByteCodeVersioningScheme : CurrentFileVersionScheme;
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         if (Js::Configuration::Global.flags.ForceSerializedBytecodeVersionSchema)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2586\n");
             expectedFileVersionScheme = (byte)Js::Configuration::Global.flags.ForceSerializedBytecodeVersionSchema;
         }
 #endif
         // Ignore the version scheme check if it is library code
         if (!isLibraryCode && fileVersionScheme != expectedFileVersionScheme)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2592\n");
             // File version scheme is incompatible.
             return ByteCodeSerializer::InvalidByteCode;
         }
@@ -2601,16 +2601,16 @@ public:
         DWORD expectedV4 = 0;
 
         switch (expectedFileVersionScheme)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2603\n");
         case EngineeringVersioningScheme:
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 2605\n");
                 Js::VerifyCatastrophic(!isLibraryCode);
                 Js::VerifyOkCatastrophic(AutoSystemInfo::GetJscriptFileVersion(&expectedV1, &expectedV2, &expectedV3, &expectedV4));
                 break;
             }
 
         case ReleaseVersioningScheme:
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 2612\n");
                 Js::VerifyCatastrophic(!isLibraryCode);
                 auto guidDWORDs = (DWORD*)(&byteCodeCacheReleaseFileVersion);
                 expectedV1 = guidDWORDs[0];
@@ -2621,7 +2621,7 @@ public:
             }
 
         case LibraryByteCodeVersioningScheme:
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 2623\n");
                 // To keep consistent library code between Chakra.dll and ChakraCore.dll, use a fixed version.
                 // This goes hand in hand with the bytecode verification unit tests.
                 Js::VerifyCatastrophic(isLibraryCode);
@@ -2639,7 +2639,7 @@ public:
 
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         if (Js::Configuration::Global.flags.ForceSerializedBytecodeMajorVersion)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2641\n");
             expectedV1 = Js::Configuration::Global.flags.ForceSerializedBytecodeMajorVersion;
             expectedV2 = 0;
             expectedV3 = 0;
@@ -2648,7 +2648,7 @@ public:
 #endif
         current = ReadConstantSizedInt32(current, &V1);
         if ((DWORD)V1!=expectedV1)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2650\n");
             // Incompatible major version
             return ByteCodeSerializer::InvalidByteCode;
         }
@@ -2657,25 +2657,25 @@ public:
         // checking. Will rework this validation entirely under TFS 555060
         current = ReadConstantSizedInt32(current, &V2);
         if ((DWORD)V2 != expectedV2)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2659\n");
             // Incompatible minor version
             return ByteCodeSerializer::InvalidByteCode;
         }
         current = ReadConstantSizedInt32(current, &V3);
         if ((DWORD)V3 != expectedV3)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2665\n");
             // Incompatible 3rd version part
             return ByteCodeSerializer::InvalidByteCode;
         }
         current = ReadConstantSizedInt32(current, &V4);
         if ((DWORD)V4 != expectedV4)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2671\n");
             // Incompatible 4th version part
             return ByteCodeSerializer::InvalidByteCode;
         }
         current = ReadByte(current, &architecture);
         if (architecture!=magicArchitecture)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2677\n");
             // This byte cache file was created with against a chakra running under a different architecture. It is incompatible.
             return ByteCodeSerializer::InvalidByteCode;
         }
@@ -2683,19 +2683,19 @@ public:
         int functionBodySize, buildInPropertyCount, opCodeCount;
         current = ReadInt32(current, &functionBodySize);
         if (functionBodySize != expectedFunctionBodySize)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2685\n");
             // The size of function body didn't match. It is incompatible.
             return ByteCodeSerializer::InvalidByteCode;
         }
         current = ReadInt32(current, &buildInPropertyCount);
         if (buildInPropertyCount!=expectedBuildInPropertyCount)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2691\n");
             // This byte cache file was created with against a chakra that has a different number of built in properties. It is incompatible.
             return ByteCodeSerializer::InvalidByteCode;
         }
         current = ReadInt32(current, &opCodeCount);
         if (opCodeCount != expectedOpCodeCount)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2697\n");
             // This byte cache file was created with against a chakra that has a different number of built in properties. It is incompatible.
             return ByteCodeSerializer::InvalidByteCode;
         }
@@ -2722,7 +2722,7 @@ public:
     }
 
     const byte* ReadStringConstant(const byte* current, FunctionBody* function, LPCWSTR& string, uint32& len)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2724\n");
 #ifdef BYTE_CODE_MAGIC_CONSTANTS
         int constant;
         current = ReadInt32(current, &constant);
@@ -2741,7 +2741,7 @@ public:
     }
 
     const byte* ReadStringTemplateCallsiteConstant(const byte* current, FunctionBody* function, Var& var)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2743\n");
         int arrayLength = 0;
         current = ReadInt32(current, &arrayLength);
 
@@ -2755,7 +2755,7 @@ public:
         uint32 rawlen = 0;
 
         for (int i = 0; i < arrayLength; i++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2757\n");
             current = ReadStringConstant(current, function, string, len);
 
             JavascriptString* str = JavascriptString::NewCopyBuffer(string, len, scriptContext);
@@ -2765,7 +2765,7 @@ public:
         JavascriptArray* rawArray = scriptContext->GetLibrary()->CreateArray(arrayLength);
 
         for (int i = 0; i < arrayLength; i++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2767\n");
             current = ReadStringConstant(current, function, string, len);
             rawlen += len;
 
@@ -2782,7 +2782,7 @@ public:
         var = library->TryGetStringTemplateCallsiteObject(callsite);
 
         if (var == nullptr)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2784\n");
             library->AddStringTemplateCallsiteObject(callsite);
             var = callsite;
         }
@@ -2794,7 +2794,7 @@ public:
 
 #ifdef ASMJS_PLAT
     const byte * ReadAsmJsConstantsTable(const byte * current, FunctionBody * function)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2796\n");
 #ifdef BYTE_CODE_MAGIC_CONSTANTS
         int constant;
         current = ReadInt32(current, &constant);
@@ -2807,21 +2807,21 @@ public:
         byte* tableEnd = (byte*)(constTable + function->GetConstantCount());
 
         for (int i = 0; i < WAsmJs::LIMIT; ++i)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2809\n");
             WAsmJs::Types type = (WAsmJs::Types)i;
             WAsmJs::TypedSlotInfo* typedInfo = function->GetAsmJsFunctionInfo()->GetTypedSlotInfo(type);
             uint32 constCount = typedInfo->constCount;
             if (constCount > FunctionBody::FirstRegSlot)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 2814\n");
                 uint32 typeSize = WAsmJs::GetTypeByteSize(type);
                 byte* byteTable = ((byte*)constTable) + typedInfo->constSrcByteOffset;
                 byteTable += typeSize * FunctionBody::FirstRegSlot;
 
                 size_t remainingBytes = (raw + totalSize) - current;
                 for (uint32 reg = FunctionBody::FirstRegSlot; reg < constCount; ++reg)
-                {
+                {LOGMEIN("ByteCodeSerializer.cpp] 2821\n");
                     switch (type)
-                    {
+                    {LOGMEIN("ByteCodeSerializer.cpp] 2823\n");
                     case WAsmJs::INT32:   ReadConstantSizedInt32(current, remainingBytes, (int*)byteTable); break;
                     case WAsmJs::FLOAT32: ReadFloat(current, remainingBytes, (float*)byteTable); break;
                     case WAsmJs::FLOAT64: ReadDouble(current, remainingBytes, (double*)byteTable); break;
@@ -2838,7 +2838,7 @@ public:
                 }
 
                 if (byteTable > tableEnd)
-                {
+                {LOGMEIN("ByteCodeSerializer.cpp] 2840\n");
                     Assert(UNREACHED);
                     Js::Throw::FatalInternalError();
                 }
@@ -2855,7 +2855,7 @@ public:
 #endif
 
     const byte * ReadConstantsTable(const byte * current, FunctionBody * function)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2857\n");
 #ifdef BYTE_CODE_MAGIC_CONSTANTS
         int constant;
         current = ReadInt32(current, &constant);
@@ -2865,13 +2865,13 @@ public:
         function->CreateConstantTable();
 
         for (auto reg = FunctionBody::FirstRegSlot + 1; reg < function->GetConstantCount(); reg++) // Ignore first slot, it is always global or module root and has been preinitialized.
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2867\n");
             byte ct;
             current = ReadByte(current, &ct);
             switch(ct)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 2871\n");
             case ctString16:
-                {
+                {LOGMEIN("ByteCodeSerializer.cpp] 2873\n");
                     LPCWSTR string;
                     uint32 len;
                     current = ReadStringConstant(current, function, string, len);
@@ -2880,7 +2880,7 @@ public:
                     break;
                 }
             case ctStringTemplateCallsite:
-                {
+                {LOGMEIN("ByteCodeSerializer.cpp] 2882\n");
                     Var callsite;
                     current = ReadStringTemplateCallsiteConstant(current, function, callsite);
 
@@ -2888,7 +2888,7 @@ public:
                     break;
                 }
             case ctInt:
-                {
+                {LOGMEIN("ByteCodeSerializer.cpp] 2890\n");
                     int value;
                     current = ReadConstantSizedInt32(current, &value);
                     function->RecordIntConstant(reg, value);
@@ -2901,7 +2901,7 @@ public:
                 function->RecordUndefinedObject(reg);
                 break;
             case ctNumber:
-                {
+                {LOGMEIN("ByteCodeSerializer.cpp] 2903\n");
                     double value;
                     current = ReadDouble(current, &value);
                     function->RecordFloatConstant(reg, value);
@@ -2934,9 +2934,9 @@ public:
     }
 
     const byte * ReadPropertyIdsForScopeSlotArray(const byte * current, FunctionBody * function)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2936\n");
         if (function->scopeSlotArraySize == 0)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2938\n");
             return current;
         }
 #ifdef BYTE_CODE_MAGIC_CONSTANTS
@@ -2948,7 +2948,7 @@ public:
         function->SetPropertyIdsForScopeSlotArray(RecyclerNewArrayLeaf(scriptContext->GetRecycler(), Js::PropertyId, function->scopeSlotArraySize), function->scopeSlotArraySize, function->paramScopeSlotArraySize);
 
         for (uint i = 0; i < function->scopeSlotArraySize; i++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2950\n");
             int value;
             current = ReadInt32(current, &value);
             PropertyId propertyId = function->GetByteCodeCache()->LookupPropertyId(value);
@@ -2964,11 +2964,11 @@ public:
     }
 
     const byte * ReadSlotArrayDebuggerScopeProperties(const byte * current, FunctionBody* function, DebuggerScope* debuggerScope, uint propertyCount)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 2966\n");
         Assert(function);
         Assert(debuggerScope);
         if (propertyCount == 0)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2970\n");
             return current;
         }
 
@@ -2979,7 +2979,7 @@ public:
 #endif // BYTE_CODE_MAGIC_CONSTANTS
 
         for (uint i = 0u; i < propertyCount; ++i)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 2981\n");
             // Read the slot array index and property ID for each property (for heap enum to use).  The remaining properties
             // are needed for the debugger and will be filled in when generating byte code.
             int value;
@@ -3000,10 +3000,10 @@ public:
     }
 
     const byte * ReadSlotArrayDebuggerScopes(const byte * current, FunctionBody * function, uint debuggerScopeCount)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 3002\n");
         Assert(function);
         if (debuggerScopeCount == 0)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3005\n");
             return current;
         }
 
@@ -3018,13 +3018,13 @@ public:
 
         int currentScopeOffset = 0;
         for (uint i = 0u; i < debuggerScopeCount; i++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3020\n");
             int scopeIndex;
             current = ReadInt32(current, &scopeIndex);
             DebuggerScope* slotArrayDebuggerScope = nullptr;
             AssertMsg(currentScopeOffset <= scopeIndex, "Scope indices were not inserted into the serialized byte code in ascending order.");
             while (currentScopeOffset <= scopeIndex)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 3026\n");
                 // Fill the chain with dummy scopes until we reach the slot array scope we're on.
                 // These non-slot array scopes are only needed for the debugger and will be filled in
                 // properly during byte code generation (when attaching).
@@ -3051,10 +3051,10 @@ public:
     }
 
     const byte * ReadCacheIdToPropertyIdMap(const byte * current, FunctionBody * function)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 3053\n");
         uint count = function->GetInlineCacheCount();
         if (count == 0)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3056\n");
             return current;
         }
 
@@ -3067,7 +3067,7 @@ public:
         function->CreateCacheIdToPropertyIdMap();
 
         for (uint i = 0; i < count; i++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3069\n");
             int value;
             current = ReadInt32(current, &value);
             PropertyId propertyId = function->GetByteCodeCache()->LookupPropertyId(value);
@@ -3085,10 +3085,10 @@ public:
     }
 
     const byte * ReadReferencedPropertyIdMap(const byte * current, FunctionBody * function)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 3087\n");
         uint count = function->GetReferencedPropertyIdCount();
         if (count == 0)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3090\n");
             return current;
         }
 
@@ -3101,7 +3101,7 @@ public:
         function->CreateReferencedPropertyIdMap();
 
         for (uint i = 0; i < count; i++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3103\n");
             int value;
             current = ReadInt32(current, &value);
             PropertyId propertyId = function->GetByteCodeCache()->LookupNonBuiltinPropertyId(value);
@@ -3120,11 +3120,11 @@ public:
 
     // Read a growing Uint32 array
     const byte * ReadGrowingUint32Array(const byte * current, JsUtil::GrowingUint32HeapArray ** arr)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 3122\n");
         int count = 0;
         current = ReadInt32(current, &count);
         if (count == 0)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3126\n");
            (*arr) = nullptr;
            return current;
         }
@@ -3137,7 +3137,7 @@ public:
 
     // Read a small span sequence
     const byte * ReadSmallSpanSequence(const byte * current, SmallSpanSequence ** smallSpanSequence)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 3139\n");
         (*smallSpanSequence) = HeapNew(SmallSpanSequence);
         current = ReadInt32(current, &(*smallSpanSequence)->baseValue);
         current = ReadGrowingUint32Array(current, &(*smallSpanSequence)->pStatementBuffer); // CONSIDER: It would be really nice to change GrowingUint32Array to something with a fixed, readonly layout
@@ -3146,7 +3146,7 @@ public:
     }
 
     void ReadSourceInfo(const byte * functionBytes, int& lineNumber, int& columnNumber, bool& m_isEval, bool& m_isDynamicFunction)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 3148\n");
         int displayNameId;
         unsigned int bitflags;
         this->ReadFunctionBodyHeader(functionBytes, displayNameId, lineNumber, columnNumber, bitflags);
@@ -3155,7 +3155,7 @@ public:
     }
 
     const byte * ReadFunctionBodyHeader(const byte * functionBytes, int& displayNameId, int& lineNumber, int& columnNumber, unsigned int& bitflags)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 3157\n");
         serialization_alignment SerializedFieldList* definedFields = (serialization_alignment SerializedFieldList*) functionBytes;
 
         // Basic function body constructor arguments
@@ -3167,7 +3167,7 @@ public:
 #endif
         current = ReadInt32(current, &displayNameId);
         if (definedFields->has_m_lineNumber)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3169\n");
             current = ReadInt32(current, &lineNumber);
         }
         else
@@ -3176,7 +3176,7 @@ public:
         }
 
         if (definedFields->has_m_columnNumber)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3178\n");
             current = ReadInt32(current, &columnNumber);
         }
         else
@@ -3189,7 +3189,7 @@ public:
     }
 
     const byte * ReadPropertyIdOfFormals(const byte * current, FunctionBody * function)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 3191\n");
 #ifdef BYTE_CODE_MAGIC_CONSTANTS
         int constant = 0;
         current = ReadInt32(current, &constant);
@@ -3200,7 +3200,7 @@ public:
         current = ReadBool(current, &isPropertyIdArrayAvailable);
 
         if (isPropertyIdArrayAvailable)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3202\n");
             uint32 count = 0;
             current = ReadUInt32(current, &count);
 
@@ -3224,14 +3224,14 @@ public:
 
             int id = 0;
             for (uint i = 0; i < propIds->count; ++i)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 3226\n");
                 current = ReadInt32(current, &id);
                 PropertyId propertyId = function->GetByteCodeCache()->LookupPropertyId(id);
                 propIds->elements[i] = propertyId;
             }
 
             for (int i = 0; i < extraSlotCount; ++i)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 3233\n");
                 current = ReadInt32(current, &id);
                 propIds->elements[propIds->count + i] = id;
             }
@@ -3247,7 +3247,7 @@ public:
 
 #ifdef ASMJS_PLAT
     const byte * ReadAsmJsFunctionInfo(const byte * current, FunctionBody * function)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 3249\n");
 #ifdef BYTE_CODE_MAGIC_CONSTANTS
         int constant;
         current = ReadInt32(current, &constant);
@@ -3274,18 +3274,18 @@ public:
         uint* argArray = RecyclerNewArrayLeafZ(scriptContext->GetRecycler(), uint, argSizeArrayLength);
         funcInfo->SetArgsSizesArray(argArray);
         for (int i = 0; i < argSizeArrayLength; i++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3276\n");
             int32 size;
             current = ReadConstantSizedInt32(current, &size);
             argArray[i] = (uint32)size;
         }
 
         if (argCount > 0)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3283\n");
             AsmJsVarType::Which * typeArray = RecyclerNewArrayLeaf(scriptContext->GetRecycler(), AsmJsVarType::Which, argCount);
             funcInfo->SetArgTypeArray(typeArray);
             for (uint i = 0; i < argCount; i++)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 3287\n");
                 current = ReadByte(current, (byte*)&typeArray[i]);
             }
         }
@@ -3297,7 +3297,7 @@ public:
         funcInfo->SetUsesHeapBuffer(boolVal);
 
         for (int i = WAsmJs::LIMIT - 1; i >= 0; --i)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3299\n");
             serialization_alignment WAsmJs::TypedSlotInfo* info;
             current = ReadStruct<WAsmJs::TypedSlotInfo>(current, &info);
             WAsmJs::TypedSlotInfo* typedInfo = funcInfo->GetTypedSlotInfo((WAsmJs::Types)i);
@@ -3313,7 +3313,7 @@ public:
     }
 
     const byte * ReadAsmJsModuleInfo(const byte * current, FunctionBody * function)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 3315\n");
 #ifdef BYTE_CODE_MAGIC_CONSTANTS
         int constant;
         current = ReadInt32(current, &constant);
@@ -3337,7 +3337,7 @@ public:
 
         int id;
         if (exportsCount > 0)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3339\n");
             PropertyIdArray * propArray = moduleInfo->GetExportsIdArray();
 
             byte extraSlots;
@@ -3355,7 +3355,7 @@ public:
             propArray->count = count;
 
             for (uint i = 0; i < propArray->count; i++)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 3357\n");
                 current = ReadInt32(current, &id);
                 PropertyId propertyId = function->GetByteCodeCache()->LookupPropertyId(id);
                 propArray->elements[i] = propertyId;
@@ -3363,7 +3363,7 @@ public:
 
             RegSlot* exportLocations = moduleInfo->GetExportsFunctionLocation();
             for (int i = 0; i < exportsCount; i++)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 3365\n");
                 int32 loc;
                 current = ReadConstantSizedInt32(current, &loc);
                 exportLocations[i] = (uint32)loc;
@@ -3377,7 +3377,7 @@ public:
         moduleInfo->SetVarCount(count);
 
         for (int i = 0; i < count; i++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3379\n");
             serialization_alignment AsmJsModuleInfo::ModuleVar * modVar;
             current = ReadStruct<AsmJsModuleInfo::ModuleVar>(current, &modVar);
             moduleInfo->SetVar(i, *modVar);
@@ -3387,7 +3387,7 @@ public:
         moduleInfo->SetVarImportCount(count);
         AsmJsModuleInfo::ModuleVarImport varImport;
         for (int i = 0; i < count; i++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3389\n");
             current = ReadUInt32(current, &varImport.location);
             current = ReadByte(current, (byte*)&varImport.type);
             current = ReadInt32(current, &id);
@@ -3400,7 +3400,7 @@ public:
         moduleInfo->SetFunctionImportCount(count);
         AsmJsModuleInfo::ModuleFunctionImport funcImport;
         for (int i = 0; i < count; i++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3402\n");
             current = ReadUInt32(current, &funcImport.location);
             current = ReadInt32(current, &id);
             funcImport.field = function->GetByteCodeCache()->LookupPropertyId(id);
@@ -3412,7 +3412,7 @@ public:
 
         AsmJsModuleInfo::ModuleFunction modFunc;
         for (int i = 0; i < count; i++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3414\n");
             current = ReadUInt32(current, &modFunc.location);
             moduleInfo->SetFunction(i, modFunc);
         }
@@ -3422,10 +3422,10 @@ public:
 
         AsmJsModuleInfo::ModuleFunctionTable funcTable;
         for (int i = 0; i < count; i++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3424\n");
             current = ReadUInt32(current, &funcTable.size);
             if (funcTable.size > 0)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 3427\n");
                 funcTable.moduleFunctionIndex = RecyclerNewArray(this->scriptContext->GetRecycler(), RegSlot, funcTable.size);
             }
             else
@@ -3433,7 +3433,7 @@ public:
                 funcTable.moduleFunctionIndex = nullptr;
             }
             for (uint j = 0; j < funcTable.size; j++)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 3435\n");
                 current = ReadConstantSizedInt32(current, (int32*)&funcTable.moduleFunctionIndex[j]);
             }
             moduleInfo->SetFunctionTable(i, funcTable);
@@ -3445,7 +3445,7 @@ public:
 
         current = ReadInt32(current, &count);
         for (int i = 0; i < count; i++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3447\n");
 
             current = ReadInt32(current, &id);
             PropertyId key = function->GetByteCodeCache()->LookupPropertyId(id);
@@ -3489,7 +3489,7 @@ public:
 
     // Read a function body
     HRESULT ReadFunctionBody(const byte * functionBytes, FunctionProxy ** functionProxy, Utf8SourceInfo* sourceInfo, ByteCodeCache * cache, NativeModule *nativeModule, bool deserializeThis, bool deserializeNested = true, Js::DeferDeserializeFunctionInfo* deferDeserializeFunctionInfo = NULL)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 3491\n");
         Assert(sourceInfo->GetSrcInfo()->moduleID == kmodGlobal);
 
         int displayNameId;
@@ -3503,16 +3503,16 @@ public:
         FunctionProxy::SetDisplayNameFlags displayNameFlags = FunctionProxy::SetDisplayNameFlags::SetDisplayNameFlagsDontCopy;
         const char16* displayName = nullptr;
         if (bitflags & ffIsAnonymous)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3505\n");
             displayName = Constants::AnonymousFunction;
         }
         else
         {
             if (deferDeserializeFunctionInfo != nullptr)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 3511\n");
                 displayName = deferDeserializeFunctionInfo->GetDisplayName();
                 if (deferDeserializeFunctionInfo->GetDisplayNameIsRecyclerAllocated())
-                {
+                {LOGMEIN("ByteCodeSerializer.cpp] 3514\n");
                     displayNameFlags = (FunctionProxy::SetDisplayNameFlags)(displayNameFlags | FunctionProxy::SetDisplayNameFlags::SetDisplayNameFlagsRecyclerAllocated);
                 }
             }
@@ -3537,12 +3537,12 @@ public:
 
         int nestedCount = 0;
         if (definedFields->has_m_nestedCount)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3539\n");
             current = ReadInt32(current, &nestedCount);
         }
 
         if (!deserializeThis)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3544\n");
             Assert(sourceInfo->GetSrcInfo()->moduleID == kmodGlobal);
             Assert(!deserializeNested);
             *functionProxy = DeferDeserializeFunctionInfo::New(this->scriptContext, nestedCount, functionId, cache, functionBytes, sourceInfo, displayName, displayNameLength, displayShortNameOffset, nativeModule, (FunctionInfo::Attributes)attributes);
@@ -3554,7 +3554,7 @@ public:
         uint functionNumber;
 
         if (deferDeserializeFunctionInfo)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3556\n");
             functionNumber = deferDeserializeFunctionInfo->GetFunctionNumber();
         }
         else
@@ -3563,7 +3563,7 @@ public:
         }
 
         if (definedFields->has_ConstantCount)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3565\n");
             FunctionBody **functionBody = (FunctionBody **) function;
 
             *functionBody = FunctionBody::NewFromRecycler(this->scriptContext, nullptr /*displayName*/, 0 /*displayNameLength*/, 0 /*displayShortNameOffset*/, nestedCount,
@@ -3615,22 +3615,22 @@ public:
 #define DEFINE_FUNCTION_PROXY_FIELDS 1
 #define DEFINE_PARSEABLE_FUNCTION_INFO_FIELDS 1
 #define DECLARE_SERIALIZABLE_FIELD(type, name, serializableType) \
-        if (definedFields->has_##name == true) { \
+        if (definedFields->has_##name == true) {LOGMEIN("ByteCodeSerializer.cpp] 3617\n"); \
             current = Read##serializableType(current, &(*function)->##name); \
         }
 #include "SerializableFunctionFields.h"
 
         if (definedFields->has_ConstantCount)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3623\n");
             FunctionBody **functionBody = (FunctionBody **)function;
 
 #define DEFINE_FUNCTION_BODY_FIELDS 1
 #define DECLARE_SERIALIZABLE_FIELD(type, name, serializableType) \
-            if (definedFields->has_##name == true) { \
+            if (definedFields->has_##name == true) {LOGMEIN("ByteCodeSerializer.cpp] 3628\n"); \
                 current = Read##serializableType(current, &(*functionBody)->##name); \
             }
 #define DECLARE_SERIALIZABLE_ACCESSOR_FIELD(type, name, serializableType) \
-            if (definedFields->has_##name == true) { \
+            if (definedFields->has_##name == true) {LOGMEIN("ByteCodeSerializer.cpp] 3632\n"); \
                 type tmp##name=0; \
                 current = Read##serializableType(current, &tmp##name); \
                 (*functionBody)->Set##name##(tmp##name); \
@@ -3643,7 +3643,7 @@ public:
             // in the definedFields struct. If it's not set, that means that the flag was explicitly set to Flags_None so we'll have to set
             // that here.
             if (definedFields->has_flags == false)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 3645\n");
                 (*functionBody)->flags = FunctionBody::FunctionBodyFlags::Flags_None;
             }
             else
@@ -3652,17 +3652,17 @@ public:
             }
 
             if (definedFields->has_FirstTmpRegister == false)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 3654\n");
                 (*functionBody)->SetFirstTmpRegister(0);
             }
 
             if (definedFields->has_m_envDepth == false)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 3659\n");
                 (*functionBody)->m_envDepth = 0;
             }
 
             if (deserializeThis && !deserializeNested)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 3664\n");
                 (*functionBody)->m_isPartialDeserializedFunction = true;
             }
             (*functionBody)->FinishSourceInfo(); // SourceInfo is complete. Register this functionBody to utf8SourceInfo.
@@ -3678,18 +3678,18 @@ public:
 #endif
 
             if ((*functionBody)->paramScopeSlotArraySize > 0)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 3680\n");
                 (*functionBody)->SetParamAndBodyScopeNotMerged();
             }
             byte loopHeaderExists;
             current = ReadByte(current, &loopHeaderExists);
             if (loopHeaderExists)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 3686\n");
                 (*functionBody)->AllocateLoopHeaders();
                 auto loopHeaderArray = (*functionBody)->GetLoopHeaderArray();
                 uint loopCount = (*functionBody)->GetLoopCount();
                 for (uint i = 0; i < loopCount; ++i)
-                {
+                {LOGMEIN("ByteCodeSerializer.cpp] 3691\n");
                     uint startOffset, endOffset;
                     current = ReadUInt32(current, &startOffset);
                     current = ReadUInt32(current, &endOffset);
@@ -3702,11 +3702,11 @@ public:
             current = ReadByte(current, &asmJsInfoExists);
 #ifdef ASMJS_PLAT
             if (asmJsInfoExists == 1)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 3704\n");
                 current = ReadAsmJsFunctionInfo(current, *functionBody);
             }
             else if (asmJsInfoExists == 2)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 3708\n");
                 current = ReadAsmJsModuleInfo(current, *functionBody);
             }
             else
@@ -3718,7 +3718,7 @@ public:
             // Read constants table
 #ifdef ASMJS_PLAT
             if ((*functionBody)->GetIsAsmJsFunction())
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 3720\n");
                 current = ReadAsmJsConstantsTable(current, *functionBody);
             }
             else
@@ -3731,7 +3731,7 @@ public:
             current = ReadByteBlock(current, [&functionBody, this](int contentLength, const byte* buffer)
             {
                 if (contentLength == 0)
-                {
+                {LOGMEIN("ByteCodeSerializer.cpp] 3733\n");
                     (*functionBody)->byteCodeBlock = nullptr;
                 }
                 else
@@ -3764,11 +3764,11 @@ public:
             // Literal regexes
             (*functionBody)->AllocateLiteralRegexArray();
             for (uint i = 0; i < (*functionBody)->GetLiteralRegexCount(); ++i)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 3766\n");
                 int length;
                 current = ReadInt32(current, &length);
                 if (length == -1)
-                {
+                {LOGMEIN("ByteCodeSerializer.cpp] 3770\n");
                     Assert(!(*functionBody)->GetLiteralRegex(i));
                     continue;
                 }
@@ -3791,13 +3791,13 @@ public:
 
         // Read lexically nested functions
         if (nestedCount)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3793\n");
             for(auto i = 0; i<nestedCount; ++i)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 3795\n");
                 const byte * nestedFunctionBytes;
                 current = ReadOffsetAsPointer(current, &nestedFunctionBytes);
                 if (nestedFunctionBytes == nullptr)
-                {
+                {LOGMEIN("ByteCodeSerializer.cpp] 3799\n");
                     (*function)->SetNestedFunc(NULL, i, 0u);
                 }
                 else
@@ -3810,7 +3810,7 @@ public:
                     // from the old function- otherwise, create proxies for the nested functions
                     auto hr = ReadFunctionBody(nestedFunctionBytes, &nestedFunction, sourceInfo, cache, nativeModule, deserializeNested, deserializeNested);
                     if (FAILED(hr))
-                    {
+                    {LOGMEIN("ByteCodeSerializer.cpp] 3812\n");
                         Assert(0);
                         return hr;
                     }
@@ -3825,17 +3825,17 @@ public:
         int constant;
         ReadInt32(current, &constant);
         if (constant != magicEndOfFunctionBody)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3827\n");
             Assert(constant == magicEndOfFunctionBody);
             Throw::FatalInternalError();
         }
 #endif
         if (definedFields->has_ConstantCount)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3833\n");
             FunctionBody **functionBody = (FunctionBody **) function;
 #if DBG
             if (PHASE_DUMP(Js::DebuggerScopePhase, (*functionBody)))
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 3837\n");
                 (*functionBody)->DumpScopes();
             }
 #endif
@@ -3844,7 +3844,7 @@ public:
             if ((!PHASE_OFF(Js::BackEndPhase, *functionBody))
                 && !this->scriptContext->GetConfig()->IsNoNative()
                 && !(*functionBody)->GetIsAsmjsMode())
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 3846\n");
                 GenerateFunction(this->scriptContext->GetNativeCodeGenerator(), *functionBody);
             }
 #endif // ENABLE_NATIVE_CODEGEN
@@ -3861,7 +3861,7 @@ public:
 
     // Read the top function body.
     HRESULT ReadTopFunctionBody(Field(FunctionBody*)* function, Utf8SourceInfo* sourceInfo, ByteCodeCache * cache, bool allowDefer, NativeModule *nativeModule)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 3863\n");
         auto topFunction = ReadInt32(functions, &functionCount);
         firstFunctionId = sourceInfo->GetSrcInfo()->sourceContextInfo->nextLocalFunctionId;
         sourceInfo->GetSrcInfo()->sourceContextInfo->nextLocalFunctionId += functionCount;
@@ -3884,7 +3884,7 @@ public:
 
 #if ENABLE_NATIVE_CODEGEN && defined(ENABLE_PREJIT)
         if (prejit)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3886\n");
             Assert(!allowDefer);
             GenerateAllFunctions(scriptContext->GetNativeCodeGenerator(), functionBody);
         }
@@ -3897,7 +3897,7 @@ public:
     // Deserialize and save a PropertyIdArray
     const byte *
     DeserializePropertyIdArray(ScriptContext * scriptContext, const byte * buffer, ByteBlock * deserializeInto, FunctionBody * functionBody)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 3899\n");
         auto serialized = (serialization_alignment const Js::SerializedPropertyIdArray *)buffer;
 #ifdef BYTE_CODE_MAGIC_CONSTANTS
         Assert(serialized->magic == magicStartOfAuxPropIdArray);
@@ -3915,11 +3915,11 @@ public:
 
         auto elements = (PropertyId*)(serialized + 1);
         for(int i=0;i<propertyCount;++i)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3917\n");
             result->elements[i] = functionBody->GetByteCodeCache()->LookupPropertyId(elements[i]);
         }
         for(int i=0;i<extraSlotCount;++i)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3921\n");
             result->elements[propertyCount + i] = elements[propertyCount + i];
         }
         auto current = buffer +
@@ -3935,7 +3935,7 @@ public:
     // Deserialize and save a FuncInfoArray
     const byte *
     DeserializeFuncInfoArray(ScriptContext * scriptContext, const byte * buffer, ByteBlock * deserializeInto)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 3937\n");
         auto serialized = (serialization_alignment const SerializedFuncInfoArray *)buffer;
 #ifdef BYTE_CODE_MAGIC_CONSTANTS
         Assert(serialized->magic == magicStartOfAuxFuncInfoArray);
@@ -3949,7 +3949,7 @@ public:
 
         auto elements = (int*)(serialized+1);
         for(int i=0;i<count;++i)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3951\n");
             result->elements[i].nestedIndex = elements[i*2];
             result->elements[i].scopeSlot = elements[i*2+1];
         }
@@ -3965,7 +3965,7 @@ public:
     // Deserialize a var array
     template<typename T>
     const byte * DeserializeVarArray(ScriptContext * scriptContext, const byte * buffer, ByteBlock * deserializeInto)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 3967\n");
         auto serialized = (serialization_alignment const Js::SerializedVarArray *)buffer;
 #ifdef BYTE_CODE_MAGIC_CONSTANTS
         Assert(serialized->magic == magicStartOfAuxVarArray);
@@ -3979,20 +3979,20 @@ public:
         auto content = (const byte*)(serialized + 1);
         auto current = content;
         for (uint index = 0; index < count; index++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 3981\n");
             byte code;
             current = ReadByte(current, &code);
             switch(code)
-            {
+            {LOGMEIN("ByteCodeSerializer.cpp] 3985\n");
                 case ctInt:
-                    {
+                    {LOGMEIN("ByteCodeSerializer.cpp] 3987\n");
                         int value;
                         current = ReadConstantSizedInt32(current, &value);
                         result->elements[index] = Js::TaggedInt::ToVarUnchecked(value);
                         break;
                     }
                 case ctNumber:
-                    {
+                    {LOGMEIN("ByteCodeSerializer.cpp] 3994\n");
                         double value;
                         current = ReadDouble(current, &value);
                         const auto number = Js::JavascriptNumber::New(value, scriptContext);
@@ -4018,7 +4018,7 @@ public:
     }
 
     const byte * DeserializeIntArray(ScriptContext * scriptContext, const byte * buffer, ByteBlock * deserializeInto)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 4020\n");
         auto serialized = (serialization_alignment const Js::SerializedIntArray *)buffer;
 #ifdef BYTE_CODE_MAGIC_CONSTANTS
         Assert(serialized->magic == magicStartOfAuxIntArray);
@@ -4032,7 +4032,7 @@ public:
         auto content = (const byte*)(serialized + 1);
         auto current = content;
         for (uint index = 0; index < count; index++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 4034\n");
             int32 value;
             current = ReadConstantSizedInt32(current, &value);
             result->elements[index] = value;
@@ -4048,7 +4048,7 @@ public:
 
     const byte *
     DeserializeFloatArray(ScriptContext * scriptContext, const byte * buffer, ByteBlock * deserializeInto)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 4050\n");
         auto serialized = (serialization_alignment const SerializedFloatArray *)buffer;
 #ifdef BYTE_CODE_MAGIC_CONSTANTS
         Assert(serialized->magic == magicStartOfAuxFltArray);
@@ -4062,7 +4062,7 @@ public:
         auto content = (const byte*)(serialized + 1);
         auto current = content;
         for (uint index = 0; index < count; index++)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 4064\n");
             double value;
             current = ReadDouble(current, &value);
             result->elements[index] = value;
@@ -4080,11 +4080,11 @@ public:
 // Construct the byte code cache. Copy things needed by inline 'Lookup' functions from reader.
 ByteCodeCache::ByteCodeCache(ScriptContext * scriptContext, ByteCodeBufferReader * reader, int builtInPropertyCount)
     : reader(reader), propertyCount(reader->string16Count), builtInPropertyCount(builtInPropertyCount)
-{
+{LOGMEIN("ByteCodeSerializer.cpp] 4082\n");
     auto alloc = scriptContext->SourceCodeAllocator();
     propertyIds = AnewArray(alloc, PropertyId, propertyCount);
     for (auto i=0; i < propertyCount; ++i)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 4086\n");
         propertyIds[i] = -1;
     }
 
@@ -4099,12 +4099,12 @@ ByteCodeCache::ByteCodeCache(ScriptContext * scriptContext, ByteCodeBufferReader
 
 // Deserialize and save a PropertyId
 void ByteCodeCache::PopulateLookupPropertyId(ScriptContext * scriptContext, int realOffset)
-{
+{LOGMEIN("ByteCodeSerializer.cpp] 4101\n");
     PropertyId idInCache = realOffset + this->builtInPropertyCount;
     bool isPropertyRecord;
     auto propertyName = reader->GetString16ById(idInCache, &isPropertyRecord);
     if(isPropertyRecord)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 4106\n");
         auto propertyNameLength = reader->GetString16LengthById(idInCache);
 
         const Js::PropertyRecord * propertyRecord = scriptContext->GetThreadContext()->GetOrAddPropertyRecordBind(
@@ -4116,7 +4116,7 @@ void ByteCodeCache::PopulateLookupPropertyId(ScriptContext * scriptContext, int 
 
 // Serialize function body
 HRESULT ByteCodeSerializer::SerializeToBuffer(ScriptContext * scriptContext, ArenaAllocator * alloc, DWORD sourceByteLength, LPCUTF8 utf8Source, FunctionBody * function, SRCINFO const* srcInfo, bool allocateBuffer, byte ** buffer, DWORD * bufferBytes, DWORD dwFlags)
-{
+{LOGMEIN("ByteCodeSerializer.cpp] 4118\n");
 
     int builtInPropertyCount = (dwFlags & GENERATE_BYTE_CODE_BUFFER_LIBRARY) != 0 ?  PropertyIds::_countJSOnlyProperty : TotalNumberOfBuiltInProperties;
 
@@ -4125,7 +4125,7 @@ HRESULT ByteCodeSerializer::SerializeToBuffer(ScriptContext * scriptContext, Are
     HRESULT hr = utf8SourceInfo->EnsureLineOffsetCacheNoThrow();
 
     if (FAILED(hr))
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 4127\n");
         return hr;
     }
 
@@ -4134,13 +4134,13 @@ HRESULT ByteCodeSerializer::SerializeToBuffer(ScriptContext * scriptContext, Are
     hr = builder.AddTopFunctionBody(function, srcInfo);
 
     if (SUCCEEDED(hr))
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 4136\n");
         hr = builder.Create(allocateBuffer, buffer, bufferBytes);
     }
 
 #if INSTRUMENT_BUFFER_INTS
     for (int i = 0; i < 4; i++)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 4142\n");
         printf("[BCGENSTATS] %d, %d\n", i, Counts[i]);
     }
 #endif
@@ -4148,12 +4148,12 @@ HRESULT ByteCodeSerializer::SerializeToBuffer(ScriptContext * scriptContext, Are
 }
 
 HRESULT ByteCodeSerializer::DeserializeFromBuffer(ScriptContext * scriptContext, uint32 scriptFlags, LPCUTF8 utf8Source, SRCINFO const * srcInfo, byte * buffer, NativeModule *nativeModule, Field(FunctionBody*)* function, uint sourceIndex)
-{
+{LOGMEIN("ByteCodeSerializer.cpp] 4150\n");
     return ByteCodeSerializer::DeserializeFromBufferInternal(scriptContext, scriptFlags, utf8Source, /* sourceHolder */ nullptr, srcInfo, buffer, nativeModule, function, sourceIndex);
 }
 // Deserialize function body from supplied buffer
 HRESULT ByteCodeSerializer::DeserializeFromBuffer(ScriptContext * scriptContext, uint32 scriptFlags, ISourceHolder* sourceHolder, SRCINFO const * srcInfo, byte * buffer, NativeModule *nativeModule, Field(FunctionBody*)* function, uint sourceIndex)
-{
+{LOGMEIN("ByteCodeSerializer.cpp] 4155\n");
     AssertMsg(sourceHolder != nullptr, "SourceHolder can't be null, if you have an empty source then pass ISourceHolder::GetEmptySourceHolder()");
     return ByteCodeSerializer::DeserializeFromBufferInternal(scriptContext, scriptFlags, /* utf8Source */ nullptr, sourceHolder, srcInfo, buffer, nativeModule, function, sourceIndex);
 }
@@ -4168,7 +4168,7 @@ HRESULT ByteCodeSerializer::DeserializeFromBufferInternal(ScriptContext * script
     auto reader = Anew(alloc, ByteCodeBufferReader, scriptContext, buffer, isLibraryCode, builtInPropertyCount);
     auto hr = reader->ReadHeader();
     if (FAILED(hr))
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 4170\n");
         return hr;
     }
 
@@ -4177,9 +4177,9 @@ HRESULT ByteCodeSerializer::DeserializeFromBufferInternal(ScriptContext * script
     pinnedSrcInfo = srcInfo;
 
     if(sourceIndex == Js::Constants::InvalidSourceIndex)
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 4179\n");
         if (sourceHolder == nullptr)
-        {
+        {LOGMEIN("ByteCodeSerializer.cpp] 4181\n");
             sourceHolder = utf8Source == nullptr ? ISourceHolder::GetEmptySourceHolder() : RecyclerNew(scriptContext->GetRecycler(), SimpleSourceHolder, utf8Source, reader->sourceSize);
         }
 
@@ -4212,20 +4212,20 @@ HRESULT ByteCodeSerializer::DeserializeFromBufferInternal(ScriptContext * script
 }
 
 void ByteCodeSerializer::ReadSourceInfo(const DeferDeserializeFunctionInfo* deferredFunction, int& lineNumber, int& columnNumber, bool& m_isEval, bool& m_isDynamicFunction)
-{
+{LOGMEIN("ByteCodeSerializer.cpp] 4214\n");
     ByteCodeCache* cache = deferredFunction->m_cache;
     ByteCodeBufferReader* reader = cache->GetReader();
     reader->ReadSourceInfo(deferredFunction->m_functionBytes, lineNumber, columnNumber, m_isEval, m_isDynamicFunction);
 }
 
 FunctionBody* ByteCodeSerializer::DeserializeFunction(ScriptContext* scriptContext, DeferDeserializeFunctionInfo* deferredFunction)
-{
+{LOGMEIN("ByteCodeSerializer.cpp] 4221\n");
     FunctionBody* deserializedFunctionBody = nullptr;
     ByteCodeCache* cache = deferredFunction->m_cache;
     ByteCodeBufferReader* reader = cache->GetReader();
     HRESULT hr = reader->ReadFunctionBody(deferredFunction->m_functionBytes, (FunctionProxy **)&deserializedFunctionBody, deferredFunction->GetUtf8SourceInfo(), cache, deferredFunction->m_nativeModule, true /* deserialize this */, false /* deserialize nested functions */, deferredFunction);
     if (FAILED(hr))
-    {
+    {LOGMEIN("ByteCodeSerializer.cpp] 4227\n");
         // This should never happen as the code is currently
         // structured since we validate the serialized bytecode during creation
         // of function proxies. In the future though, when we reorganize the byte

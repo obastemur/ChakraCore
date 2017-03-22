@@ -12,7 +12,7 @@ namespace Js
     private:
         Field(T) m_value;
         inline JavascriptTypedNumber(T value, StaticType * type) : RecyclableObject(type), m_value(value)
-        {
+        {LOGMEIN("JavascriptTypedNumber.h] 14\n");
 #if DBG
             AssertMsg(type->GetTypeId() == TypeIds_Int64Number ||
                 type->GetTypeId() == TypeIds_UInt64Number, "invalid typed number");
@@ -25,14 +25,14 @@ namespace Js
     public:
 
         T GetValue() const
-        {
+        {LOGMEIN("JavascriptTypedNumber.h] 27\n");
             return m_value;
         }
 
         static Var ToVar(T nValue, ScriptContext* scriptContext);
 
         static JavascriptTypedNumber<T>* FromVar(Var value)
-        {
+        {LOGMEIN("JavascriptTypedNumber.h] 34\n");
 #if DBG
             AssertMsg(JavascriptOperators::GetTypeId(value) == TypeIds_Int64Number ||
                 JavascriptOperators::GetTypeId(value) == TypeIds_UInt64Number, "invalid typed number");
@@ -43,7 +43,7 @@ namespace Js
         static JavascriptString* ToString(Var value, ScriptContext* scriptContext);
 
         Var ToJavascriptNumber()
-        {
+        {LOGMEIN("JavascriptTypedNumber.h] 45\n");
             return JavascriptNumber::New((double)GetValue(), GetScriptContext());
         }
 

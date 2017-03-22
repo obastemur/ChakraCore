@@ -22,16 +22,16 @@ namespace Js
 #define WasmVirtualAllocator ((AllocWrapperType)Js::ArrayBuffer::AllocWrapper<MAX_WASM__ARRAYBUFFER_LENGTH>)
         template<size_t MaxVirtualSize = MAX_ASMJS_ARRAYBUFFER_LENGTH>
         static void* __cdecl AllocWrapper(DECLSPEC_GUARD_OVERFLOW size_t length)
-        {
+        {LOGMEIN("ArrayBuffer.h] 24\n");
             LPVOID address = VirtualAlloc(nullptr, MaxVirtualSize, MEM_RESERVE, PAGE_NOACCESS);
             //throw out of memory
             if (!address)
-            {
+            {LOGMEIN("ArrayBuffer.h] 28\n");
                 return nullptr;
             }
 
             if (length == 0)
-            {
+            {LOGMEIN("ArrayBuffer.h] 33\n");
                 return address;
             }
 
@@ -45,13 +45,13 @@ namespace Js
         }
 
         static void FreeMemAlloc(Var ptr)
-        {
+        {LOGMEIN("ArrayBuffer.h] 47\n");
             BOOL fSuccess = VirtualFree((LPVOID)ptr, 0, MEM_RELEASE);
             Assert(fSuccess);
         }
 #else
         static void* __cdecl AllocWrapper(DECLSPEC_GUARD_OVERFLOW size_t length)
-        {
+        {LOGMEIN("ArrayBuffer.h] 53\n");
             // This allocator should never be used
             Js::Throw::FatalInternalError();
         }
@@ -67,17 +67,17 @@ namespace Js
         virtual void MarshalCrossSite_TTDInflate() = 0;
 #endif
 
-        ArrayBufferBase(DynamicType *type) : DynamicObject(type) { }
+        ArrayBufferBase(DynamicType *type) : DynamicObject(type) {LOGMEIN("ArrayBuffer.h] 69\n"); }
 
         virtual bool IsArrayBuffer() = 0;
         virtual bool IsSharedArrayBuffer() = 0;
         virtual ArrayBuffer * GetAsArrayBuffer() = 0;
-        virtual SharedArrayBuffer * GetAsSharedArrayBuffer() { return nullptr; }
-        virtual void AddParent(ArrayBufferParent* parent) { }
-        virtual bool IsDetached() { return false; }
+        virtual SharedArrayBuffer * GetAsSharedArrayBuffer() {LOGMEIN("ArrayBuffer.h] 74\n"); return nullptr; }
+        virtual void AddParent(ArrayBufferParent* parent) {LOGMEIN("ArrayBuffer.h] 75\n"); }
+        virtual bool IsDetached() {LOGMEIN("ArrayBuffer.h] 76\n"); return false; }
         virtual uint32 GetByteLength() const = 0;
         virtual BYTE* GetBuffer() const = 0;
-        virtual bool IsValidVirtualBufferLength(uint length) { return false; }
+        virtual bool IsValidVirtualBufferLength(uint length) {LOGMEIN("ArrayBuffer.h] 79\n"); return false; }
 
         static bool Is(Var value);
         static ArrayBufferBase* FromVar(Var value);
@@ -101,7 +101,7 @@ namespace Js
             ArrayBufferDetachedState(BYTE* buffer, uint32 bufferLength, FreeFN* freeFunction, ArrayBufferAllocationType allocationType)
                 : ArrayBufferDetachedStateBase(TypeIds_ArrayBuffer, buffer, bufferLength, allocationType),
                 freeFunction(freeFunction)
-            {}
+            {LOGMEIN("ArrayBuffer.h] 103\n");}
 
             virtual void ClearSelfOnly() override
             {
@@ -111,7 +111,7 @@ namespace Js
             virtual void DiscardState() override
             {
                 if (this->buffer != nullptr)
-                {
+                {LOGMEIN("ArrayBuffer.h] 113\n");
                     freeFunction(this->buffer);
                     this->buffer = nullptr;
                 }
@@ -159,9 +159,9 @@ namespace Js
         virtual uint32 GetByteLength() const override { return bufferLength; }
         virtual BYTE* GetBuffer() const override { return buffer; }
 
-        static int GetByteLengthOffset() { return offsetof(ArrayBuffer, bufferLength); }
-        static int GetIsDetachedOffset() { return offsetof(ArrayBuffer, isDetached); }
-        static int GetBufferOffset() { return offsetof(ArrayBuffer, buffer); }
+        static int GetByteLengthOffset() {LOGMEIN("ArrayBuffer.h] 161\n"); return offsetof(ArrayBuffer, bufferLength); }
+        static int GetIsDetachedOffset() {LOGMEIN("ArrayBuffer.h] 162\n"); return offsetof(ArrayBuffer, isDetached); }
+        static int GetBufferOffset() {LOGMEIN("ArrayBuffer.h] 163\n"); return offsetof(ArrayBuffer, buffer); }
 
         virtual void AddParent(ArrayBufferParent* parent) override;
 #if _WIN64
@@ -173,7 +173,7 @@ namespace Js
 #endif
         static const uint32 ParentsCleanupThreshold = 1000;
 
-        virtual bool IsValidAsmJsBufferLength(uint length, bool forceCheck = false) { return false; }
+        virtual bool IsValidAsmJsBufferLength(uint length, bool forceCheck = false) {LOGMEIN("ArrayBuffer.h] 175\n"); return false; }
         virtual bool IsArrayBuffer() override { return true; }
         virtual bool IsSharedArrayBuffer() override { return false; }
         virtual ArrayBuffer * GetAsArrayBuffer() override { return ArrayBuffer::FromVar(this); }
@@ -195,7 +195,7 @@ namespace Js
         {
             OtherParents(Recycler* recycler)
                 :SList<RecyclerWeakReference<ArrayBufferParent>*, Recycler>(recycler), increasedCount(0)
-            {
+            {LOGMEIN("ArrayBuffer.h] 197\n");
             }
             Field(uint) increasedCount;
         };
@@ -224,13 +224,13 @@ namespace Js
         ArrayBufferParent(DynamicType * type, uint32 length, ArrayBufferBase* arrayBuffer)
             : ArrayObject(type, /*initSlots*/true, length),
             arrayBuffer(arrayBuffer)
-        {
+        {LOGMEIN("ArrayBuffer.h] 226\n");
             arrayBuffer->AddParent(this);
         }
 
     public:
         ArrayBufferBase* GetArrayBuffer() const
-        {
+        {LOGMEIN("ArrayBuffer.h] 232\n");
             return this->arrayBuffer;
         }
 
@@ -268,7 +268,7 @@ namespace Js
         virtual ArrayBufferDetachedStateBase* CreateDetachedState(BYTE* buffer, DECLSPEC_GUARD_OVERFLOW uint32 bufferLength) override;
 
         template<typename Allocator>
-        JavascriptArrayBuffer(uint32 length, DynamicType * type, Allocator allocator): ArrayBuffer(length, type, allocator){}
+        JavascriptArrayBuffer(uint32 length, DynamicType * type, Allocator allocator): ArrayBuffer(length, type, allocator){LOGMEIN("ArrayBuffer.h] 270\n");}
         JavascriptArrayBuffer(uint32 length, DynamicType * type);
         JavascriptArrayBuffer(byte* buffer, uint32 length, DynamicType * type);
 

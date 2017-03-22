@@ -8,12 +8,12 @@
 namespace Js
 {
     CodeGenRecyclableData::CodeGenRecyclableData(const FunctionCodeGenJitTimeData *const jitTimeData) : jitTimeData(jitTimeData)
-    {
+    {LOGMEIN("CodeGenRecyclableData.cpp] 10\n");
         Assert(jitTimeData);
     }
 
     const FunctionCodeGenJitTimeData *CodeGenRecyclableData::JitTimeData() const
-    {
+    {LOGMEIN("CodeGenRecyclableData.cpp] 15\n");
         return jitTimeData;
     }
 }

@@ -8,9 +8,9 @@ namespace Js
 {
     template <>
     Var JavascriptTypedNumber<__int64>::ToVar(__int64 value, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptTypedNumber.cpp] 10\n");
         if (!TaggedInt::IsOverflow(value))
-        {
+        {LOGMEIN("JavascriptTypedNumber.cpp] 12\n");
             return TaggedInt::ToVarUnchecked((int)value);
         }
         JavascriptTypedNumber<__int64>* number = RecyclerNewLeaf(scriptContext->GetRecycler(), JavascriptInt64Number, value,
@@ -20,9 +20,9 @@ namespace Js
 
     template <>
     Var JavascriptTypedNumber<unsigned __int64>::ToVar(unsigned __int64 value, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptTypedNumber.cpp] 22\n");
         if (!TaggedInt::IsOverflow(value))
-        {
+        {LOGMEIN("JavascriptTypedNumber.cpp] 24\n");
             return TaggedInt::ToVarUnchecked((uint)value);
         }
         JavascriptTypedNumber<unsigned __int64>* number = RecyclerNewLeaf(scriptContext->GetRecycler(), JavascriptUInt64Number, value,
@@ -32,7 +32,7 @@ namespace Js
 
     template <>
     JavascriptString* JavascriptTypedNumber<__int64>::ToString(Var value, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptTypedNumber.cpp] 34\n");
         char16 szBuffer[30];
         __int64 val = JavascriptTypedNumber<__int64>::FromVar(value)->GetValue();
         errno_t err = _i64tow_s(val, szBuffer, 30, 10);
@@ -42,7 +42,7 @@ namespace Js
 
     template <>
     JavascriptString* JavascriptTypedNumber<unsigned __int64>::ToString(Var value, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptTypedNumber.cpp] 44\n");
         char16 szBuffer[30];
         unsigned __int64 val = JavascriptUInt64Number::FromVar(value)->GetValue();
         errno_t err = _ui64tow_s(val, szBuffer, 30, 10);
@@ -52,7 +52,7 @@ namespace Js
 
     template <typename T>
     RecyclableObject* JavascriptTypedNumber<T>::ToObject(ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptTypedNumber.cpp] 54\n");
         return requestContext->GetLibrary()->CreateNumberObjectWithCheck((double)m_value);
     }
 }

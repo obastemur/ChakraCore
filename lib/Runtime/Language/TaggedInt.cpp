@@ -7,13 +7,13 @@
 namespace Js
 {
     Var TaggedInt::Negate(Var aRight,ScriptContext* scriptContext)
-    {
+    {LOGMEIN("TaggedInt.cpp] 9\n");
         int32 nValue = ToInt32(aRight);
         return JavascriptNumber::ToVar(-nValue,scriptContext);
     }
 
     Var TaggedInt::Not(Var aRight,ScriptContext* scriptContext)
-    {
+    {LOGMEIN("TaggedInt.cpp] 15\n");
         int32 nValue = ToInt32(aRight);
 
         return JavascriptNumber::ToVar(~nValue,scriptContext);
@@ -21,21 +21,21 @@ namespace Js
 
     // Explicitly marking noinline and stdcall since this is called from inline asm
     _NOINLINE Var __stdcall TaggedInt::OverflowHelper(int overflowValue, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("TaggedInt.cpp] 23\n");
         Assert( IsOverflow(overflowValue) );
         return JavascriptNumber::NewInlined(static_cast<double>(overflowValue), scriptContext);
     }
 
     // noinline since it's a rare edge case and we don't want to bloat mainline code
     _NOINLINE Var TaggedInt::DivideByZero(int nLeft, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("TaggedInt.cpp] 30\n");
         if (nLeft == 0)
-        {
+        {LOGMEIN("TaggedInt.cpp] 32\n");
             return scriptContext->GetLibrary()->GetNaN();
         }
 
         if (nLeft < 0)
-        {
+        {LOGMEIN("TaggedInt.cpp] 37\n");
             return scriptContext->GetLibrary()->GetNegativeInfinite();
         }
 
@@ -43,12 +43,12 @@ namespace Js
     }
 
     Var TaggedInt::Divide(Var aLeft,Var aRight,ScriptContext* scriptContext)
-    {
+    {LOGMEIN("TaggedInt.cpp] 45\n");
         int nLeft   = ToInt32(aLeft);
         int nRight  = ToInt32(aRight);
 
         if (nRight == 0)
-        {
+        {LOGMEIN("TaggedInt.cpp] 50\n");
             return DivideByZero(nLeft, scriptContext);
         }
 
@@ -61,16 +61,16 @@ namespace Js
 #if INT32VAR
         // 0x80000000 / -1 (or %) will trigger an integer overflow exception
         if (nLeft != INT_MIN || nRight != -1)
-        {
+        {LOGMEIN("TaggedInt.cpp] 63\n");
 #endif
             if ((nLeft % nRight) == 0)
-            {
+            {LOGMEIN("TaggedInt.cpp] 66\n");
                 //
                 // Check that result is not -0. !(Dividend is 0 and Divisor is negative)
                 //
 
                 if ((nLeft != 0) || (nRight > 0))
-                {
+                {LOGMEIN("TaggedInt.cpp] 72\n");
                     return JavascriptNumber::ToVar(nLeft/nRight, scriptContext);
                 }
             }
@@ -87,31 +87,31 @@ namespace Js
     }
 
     Var TaggedInt::Modulus(Var aLeft, Var aRight, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("TaggedInt.cpp] 89\n");
         int nLeft    = ToInt32(aLeft);
         int nRight   = ToInt32(aRight);
 
         // nLeft is positive and nRight is +2^i
         // Fast path for Power of 2 divisor
         if (nLeft > 0 && ::Math::IsPow2(nRight))
-        {
+        {LOGMEIN("TaggedInt.cpp] 96\n");
             return ToVarUnchecked(nLeft & (nRight - 1));
         }
 
         if (nRight == 0)
-        {
+        {LOGMEIN("TaggedInt.cpp] 101\n");
             return scriptContext->GetLibrary()->GetNaN();
         }
 
         if (nLeft == 0)
-        {
+        {LOGMEIN("TaggedInt.cpp] 106\n");
           return ToVarUnchecked(0);
         }
         int result;
 #if INT32VAR
         // 0x80000000 / -1 (or %) will trigger an integer overflow exception
         if (nLeft != INT_MIN || nRight != -1)
-        {
+        {LOGMEIN("TaggedInt.cpp] 113\n");
 #endif
             result = nLeft % nRight;
 
@@ -125,7 +125,7 @@ namespace Js
         }
 #endif
         if (result != 0)
-        {
+        {LOGMEIN("TaggedInt.cpp] 127\n");
             return ToVarUnchecked(result);
         }
         else
@@ -135,7 +135,7 @@ namespace Js
             //
 
             if (nLeft >= 0)
-            {
+            {LOGMEIN("TaggedInt.cpp] 137\n");
                 return ToVarUnchecked(0);
             }
             else
@@ -145,12 +145,12 @@ namespace Js
         }
     }
     Var TaggedInt::DivideInPlace(Var aLeft,Var aRight,ScriptContext* scriptContext, JavascriptNumber *result)
-    {
+    {LOGMEIN("TaggedInt.cpp] 147\n");
         int nLeft   = ToInt32(aLeft);
         int nRight  = ToInt32(aRight);
 
         if (nRight == 0)
-        {
+        {LOGMEIN("TaggedInt.cpp] 152\n");
             return DivideByZero(nLeft, scriptContext);
         }
 
@@ -161,13 +161,13 @@ namespace Js
         //
 
         if ((nLeft % nRight) == 0)
-        {
+        {LOGMEIN("TaggedInt.cpp] 163\n");
             //
             // Check that result is not -0. !(Dividend is 0 and Divisor is negative)
             //
 
             if ((nLeft != 0) || (nRight > 0))
-            {
+            {LOGMEIN("TaggedInt.cpp] 169\n");
                 return JavascriptNumber::ToVar(nLeft/nRight, scriptContext);
             }
         }
@@ -183,7 +183,7 @@ namespace Js
     }
 
     Var TaggedInt::Multiply(Var aLeft, Var aRight, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("TaggedInt.cpp] 185\n");
         //
         // Perform the signed integer multiplication.
         //
@@ -196,11 +196,11 @@ namespace Js
 
         if (((int64Result >> 32) == 0 && (nResult > 0 || (nResult == 0 && nLeft+nRight >= 0)))
             || ((int64Result >> 32) == -1 && nResult < 0))
-        {
+        {LOGMEIN("TaggedInt.cpp] 198\n");
             return JavascriptNumber::ToVar(nResult,scriptContext);
         }
         else if (int64Result == 0)
-        {
+        {LOGMEIN("TaggedInt.cpp] 202\n");
             return JavascriptNumber::ToVarNoCheck((double)nLeft * (double)nRight, scriptContext);
         }
         else
@@ -210,7 +210,7 @@ namespace Js
     }
 
     Var TaggedInt::MultiplyInPlace(Var aLeft, Var aRight, ScriptContext* scriptContext, JavascriptNumber *result)
-    {
+    {LOGMEIN("TaggedInt.cpp] 212\n");
         //
         // Perform the signed integer multiplication.
         //
@@ -223,9 +223,9 @@ namespace Js
 
         if (((int64Result >> 32) == 0 && nResult > 0)
             || ((int64Result >> 32) == -1 && nResult < 0))
-        {
+        {LOGMEIN("TaggedInt.cpp] 225\n");
             if (!TaggedInt::IsOverflow(nResult))
-            {
+            {LOGMEIN("TaggedInt.cpp] 227\n");
                 return TaggedInt::ToVarUnchecked(nResult);
             }
             else
@@ -234,7 +234,7 @@ namespace Js
             }
         }
         else if (int64Result == 0)
-        {
+        {LOGMEIN("TaggedInt.cpp] 236\n");
             return JavascriptNumber::InPlaceNew((double)nLeft * (double)nRight, scriptContext, result);
         }
         else
@@ -297,7 +297,7 @@ LblDone:
 
         int64 nResult64 = ToInt64(aLeft) - ToInt64(aRight);
         if (IsOverflow(nResult64))
-        {
+        {LOGMEIN("TaggedInt.cpp] 299\n");
             //
             // Promote result to double.
             //
@@ -324,12 +324,12 @@ LblDone:
     // Without checking, bitwise 'and' the two values together. If the result passes the "Is" test
     // then both arguments were valid Int31s and the result is correct.
     Var TaggedInt::Speculative_And(Var aLeft, Var aRight)
-    {
+    {LOGMEIN("TaggedInt.cpp] 326\n");
         return (Var) (((size_t) aLeft) & ((size_t) aRight));
     }
 
     Var TaggedInt::And(Var aLeft, Var aRight)
-    {
+    {LOGMEIN("TaggedInt.cpp] 331\n");
         //
         // Perform the integer "bitwise and":
         //
@@ -346,7 +346,7 @@ LblDone:
     }
 
     Var TaggedInt::Or(Var aLeft, Var aRight)
-    {
+    {LOGMEIN("TaggedInt.cpp] 348\n");
         //
         // Perform the integer "bitwise or":
         //
@@ -364,13 +364,13 @@ LblDone:
 
 #if INT32VAR
     Var TaggedInt::Xor(Var aLeft, Var aRight)
-    {
+    {LOGMEIN("TaggedInt.cpp] 366\n");
         int32 nResult = ToInt32(aLeft) ^ ToInt32(aRight);
         return TaggedInt::ToVarUnchecked(nResult);
     }
 #else
     Var TaggedInt::Xor(Var aLeft, Var aRight)
-    {
+    {LOGMEIN("TaggedInt.cpp] 372\n");
         //
         // Perform the integer "bitwise xor":
         //
@@ -388,7 +388,7 @@ LblDone:
 #endif
 
     Var TaggedInt::ShiftLeft(Var aLeft,Var aRight,ScriptContext* scriptContext)
-    {
+    {LOGMEIN("TaggedInt.cpp] 390\n");
         //
         // Shifting an integer left will always remain an integer, but it may overflow the Int31
         // range. Therefore, we must call JavascriptNumber::ToVar() to check.
@@ -401,7 +401,7 @@ LblDone:
     }
 
     Var TaggedInt::ShiftRight(Var aLeft, Var aRight)
-    {
+    {LOGMEIN("TaggedInt.cpp] 403\n");
         //
         // If aLeft was an Int31 coming in, then the result must always be an Int31 going out because
         // shifting right only makes value smaller. Therefore, we may call ToVarUnchecked()
@@ -415,7 +415,7 @@ LblDone:
     }
 
     Var TaggedInt::ShiftRightU(Var aLeft, Var aRight, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("TaggedInt.cpp] 417\n");
         //
         // If aLeft was an Int31 coming in, then the result must always be an Int31 going out because
         // shifting right only makes value smaller. Therefore, we may call ToVarUnchecked()
@@ -429,36 +429,36 @@ LblDone:
     }
 
     void TaggedInt::ToBuffer(Var aValue, __out_ecount_z(bufSize) char16 * buffer, uint bufSize)
-    {
+    {LOGMEIN("TaggedInt.cpp] 431\n");
         return ToBuffer(ToInt32(aValue), buffer, bufSize);
     }
 
     void TaggedInt::ToBuffer(int value, __out_ecount_z(bufSize) char16 * buffer, uint bufSize)
-    {
+    {LOGMEIN("TaggedInt.cpp] 436\n");
         Assert(bufSize > 10);
         _itow_s(value, buffer, bufSize, 10);
     }
 
     void TaggedInt::ToBuffer(uint value, __out_ecount_z(bufSize) char16 * buffer, uint bufSize)
-    {
+    {LOGMEIN("TaggedInt.cpp] 442\n");
         Assert(bufSize > 10);
         _ultow_s(value, buffer, bufSize, 10);
     }
 
     JavascriptString* TaggedInt::ToString(Var aValue,ScriptContext* scriptContext)
-    {
+    {LOGMEIN("TaggedInt.cpp] 448\n");
         return ToString(ToInt32(aValue), scriptContext);
     }
 
     JavascriptString* TaggedInt::ToString(int value, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("TaggedInt.cpp] 453\n");
         char16 szBuffer[20];
         ToBuffer(value, szBuffer, _countof(szBuffer));
 
         return JavascriptString::NewCopySz(szBuffer, scriptContext);
     }
     JavascriptString* TaggedInt::ToString(uint value, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("TaggedInt.cpp] 460\n");
         char16 szBuffer[20];
         ToBuffer(value, szBuffer, _countof(szBuffer));
 
@@ -492,12 +492,12 @@ LblDone:
 
     // Explicitly marking noinline and stdcall since this is called from inline asm
     _NOINLINE Var __stdcall TaggedInt::IncrementOverflowHelper(ScriptContext* scriptContext)
-    {
+    {LOGMEIN("TaggedInt.cpp] 494\n");
         return JavascriptNumber::New( k_nMaxValue + 1.0, scriptContext );
     }
 
     Var TaggedInt::Increment(Var aValue, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("TaggedInt.cpp] 499\n");
 #if _M_IX86
 
 
@@ -524,7 +524,7 @@ LblDone:
 
         // Wrap-around
         if( result == MinVal() )
-        {
+        {LOGMEIN("TaggedInt.cpp] 526\n");
             // Use New instead of ToVar for this constant
             return IncrementOverflowHelper(scriptContext);
         }
@@ -536,12 +536,12 @@ LblDone:
 
     // Explicitly marking noinline and stdcall since this is called from inline asm
     _NOINLINE Var __stdcall TaggedInt::DecrementUnderflowHelper(ScriptContext* scriptContext)
-    {
+    {LOGMEIN("TaggedInt.cpp] 538\n");
         return JavascriptNumber::New( k_nMinValue - 1.0, scriptContext );
     }
 
     Var TaggedInt::Decrement(Var aValue, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("TaggedInt.cpp] 543\n");
 #if _M_IX86
 
         __asm
@@ -567,7 +567,7 @@ LblDone:
 
         // Wrap-around
         if( result == MaxVal() )
-        {
+        {LOGMEIN("TaggedInt.cpp] 569\n");
             // Use New instead of ToVar for this constant
             return DecrementUnderflowHelper(scriptContext);
         }

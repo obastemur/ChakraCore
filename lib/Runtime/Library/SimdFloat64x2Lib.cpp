@@ -36,7 +36,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));    // comment out to satisfy language service -ls -stress run
 
         if (args.Info.Count >= 2 && JavascriptSIMDFloat64x2::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 38\n");
             return args[1];
         }
         JavascriptError::ThrowTypeError(scriptContext, JSERR_SimdFloat64x2TypeMismatch, _u("Float64x2"));
@@ -69,7 +69,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDFloat32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 71\n");
             JavascriptSIMDFloat32x4 *instance = JavascriptSIMDFloat32x4::FromVar(args[1]);
             Assert(instance);
 
@@ -89,7 +89,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDFloat32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 91\n");
             JavascriptSIMDFloat32x4 *instance = JavascriptSIMDFloat32x4::FromVar(args[1]);
             Assert(instance);
 
@@ -109,7 +109,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDInt32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 111\n");
             JavascriptSIMDInt32x4 *instance = JavascriptSIMDInt32x4::FromVar(args[1]);
             Assert(instance);
 
@@ -129,7 +129,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDInt32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 131\n");
             JavascriptSIMDInt32x4 *instance = JavascriptSIMDInt32x4::FromVar(args[1]);
             Assert(instance);
 
@@ -150,7 +150,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDFloat64x2::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 152\n");
             JavascriptSIMDFloat64x2 *a = JavascriptSIMDFloat64x2::FromVar(args[1]);
             Assert(a);
 
@@ -175,7 +175,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDFloat64x2::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 177\n");
             JavascriptSIMDFloat64x2 *a = JavascriptSIMDFloat64x2::FromVar(args[1]);
             Assert(a);
 
@@ -200,7 +200,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDFloat64x2::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 202\n");
             JavascriptSIMDFloat64x2 *a = JavascriptSIMDFloat64x2::FromVar(args[1]);
             Assert(a);
 
@@ -225,7 +225,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDFloat64x2::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 227\n");
             JavascriptSIMDFloat64x2 *a = JavascriptSIMDFloat64x2::FromVar(args[1]);
             Assert(a);
 
@@ -250,7 +250,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDFloat64x2::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 252\n");
             JavascriptSIMDFloat64x2 *a = JavascriptSIMDFloat64x2::FromVar(args[1]);
             Assert(a);
 
@@ -275,7 +275,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDFloat64x2::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 277\n");
             JavascriptSIMDFloat64x2 *a = JavascriptSIMDFloat64x2::FromVar(args[1]);
             Assert(a);
 
@@ -302,7 +302,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat64x2::Is(args[1]) && JavascriptSIMDFloat64x2::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 304\n");
             JavascriptSIMDFloat64x2 *a = JavascriptSIMDFloat64x2::FromVar(args[1]);
             JavascriptSIMDFloat64x2 *b = JavascriptSIMDFloat64x2::FromVar(args[2]);
             Assert(a && b);
@@ -332,7 +332,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat64x2::Is(args[1]) && JavascriptSIMDFloat64x2::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 334\n");
             JavascriptSIMDFloat64x2 *a = JavascriptSIMDFloat64x2::FromVar(args[1]);
             JavascriptSIMDFloat64x2 *b = JavascriptSIMDFloat64x2::FromVar(args[2]);
             Assert(a && b);
@@ -362,7 +362,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat64x2::Is(args[1]) && JavascriptSIMDFloat64x2::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 364\n");
             JavascriptSIMDFloat64x2 *a = JavascriptSIMDFloat64x2::FromVar(args[1]);
             JavascriptSIMDFloat64x2 *b = JavascriptSIMDFloat64x2::FromVar(args[2]);
             Assert(a && b);
@@ -392,7 +392,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat64x2::Is(args[1]) && JavascriptSIMDFloat64x2::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 394\n");
             JavascriptSIMDFloat64x2 *a = JavascriptSIMDFloat64x2::FromVar(args[1]);
             JavascriptSIMDFloat64x2 *b = JavascriptSIMDFloat64x2::FromVar(args[2]);
             Assert(a && b);
@@ -422,7 +422,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat64x2::Is(args[1]) && JavascriptSIMDFloat64x2::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 424\n");
             JavascriptSIMDFloat64x2 *a = JavascriptSIMDFloat64x2::FromVar(args[1]);
             JavascriptSIMDFloat64x2 *b = JavascriptSIMDFloat64x2::FromVar(args[2]);
             Assert(a && b);
@@ -452,7 +452,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat64x2::Is(args[1]) && JavascriptSIMDFloat64x2::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 454\n");
             JavascriptSIMDFloat64x2 *a = JavascriptSIMDFloat64x2::FromVar(args[1]);
             JavascriptSIMDFloat64x2 *b = JavascriptSIMDFloat64x2::FromVar(args[2]);
             Assert(a && b);
@@ -482,7 +482,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat64x2::Is(args[1]) && JavascriptSIMDFloat64x2::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 484\n");
             JavascriptSIMDFloat64x2 *a = JavascriptSIMDFloat64x2::FromVar(args[1]);
             JavascriptSIMDFloat64x2 *b = JavascriptSIMDFloat64x2::FromVar(args[2]);
             Assert(a && b);
@@ -512,7 +512,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat64x2::Is(args[1]) && JavascriptSIMDFloat64x2::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 514\n");
             JavascriptSIMDFloat64x2 *a = JavascriptSIMDFloat64x2::FromVar(args[1]);
             JavascriptSIMDFloat64x2 *b = JavascriptSIMDFloat64x2::FromVar(args[2]);
             Assert(a && b);
@@ -542,7 +542,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat64x2::Is(args[1]) && JavascriptSIMDFloat64x2::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 544\n");
             JavascriptSIMDFloat64x2 *a = JavascriptSIMDFloat64x2::FromVar(args[1]);
             JavascriptSIMDFloat64x2 *b = JavascriptSIMDFloat64x2::FromVar(args[2]);
             Assert(a && b);
@@ -571,7 +571,7 @@ namespace Js
 
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         if (args.Info.Count >= 3 && JavascriptSIMDFloat64x2::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 573\n");
             JavascriptSIMDFloat64x2 *a = JavascriptSIMDFloat64x2::FromVar(args[1]);
             Assert(a);
 
@@ -600,7 +600,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat64x2::Is(args[1]) && JavascriptSIMDFloat64x2::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 602\n");
             JavascriptSIMDFloat64x2 *a = JavascriptSIMDFloat64x2::FromVar(args[1]);
             JavascriptSIMDFloat64x2 *b = JavascriptSIMDFloat64x2::FromVar(args[2]);
             Assert(a && b);
@@ -630,7 +630,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat64x2::Is(args[1]) && JavascriptSIMDFloat64x2::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 632\n");
             JavascriptSIMDFloat64x2 *a = JavascriptSIMDFloat64x2::FromVar(args[1]);
             JavascriptSIMDFloat64x2 *b = JavascriptSIMDFloat64x2::FromVar(args[2]);
             Assert(a && b);
@@ -660,7 +660,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat64x2::Is(args[1]) && JavascriptSIMDFloat64x2::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 662\n");
             JavascriptSIMDFloat64x2 *a = JavascriptSIMDFloat64x2::FromVar(args[1]);
             JavascriptSIMDFloat64x2 *b = JavascriptSIMDFloat64x2::FromVar(args[2]);
             Assert(a && b);
@@ -690,7 +690,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat64x2::Is(args[1]) && JavascriptSIMDFloat64x2::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 692\n");
             JavascriptSIMDFloat64x2 *a = JavascriptSIMDFloat64x2::FromVar(args[1]);
             JavascriptSIMDFloat64x2 *b = JavascriptSIMDFloat64x2::FromVar(args[2]);
             Assert(a && b);
@@ -720,7 +720,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat64x2::Is(args[1]) && JavascriptSIMDFloat64x2::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 722\n");
             JavascriptSIMDFloat64x2 *a = JavascriptSIMDFloat64x2::FromVar(args[1]);
             JavascriptSIMDFloat64x2 *b = JavascriptSIMDFloat64x2::FromVar(args[2]);
             Assert(a && b);
@@ -750,7 +750,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat64x2::Is(args[1]) && JavascriptSIMDFloat64x2::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 752\n");
             JavascriptSIMDFloat64x2 *a = JavascriptSIMDFloat64x2::FromVar(args[1]);
             JavascriptSIMDFloat64x2 *b = JavascriptSIMDFloat64x2::FromVar(args[2]);
             Assert(a && b);
@@ -780,10 +780,10 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 2 && JavascriptSIMDFloat64x2::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 782\n");
             // type check on lane indices
             if (args.Info.Count < 4)
-            {
+            {LOGMEIN("SimdFloat64x2Lib.cpp] 785\n");
                 // missing lane args
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedNumber, _u("Lane index"));
             }
@@ -809,10 +809,10 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat64x2::Is(args[1]) && JavascriptSIMDFloat64x2::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 811\n");
             // type check on lane indices
             if (args.Info.Count < 5)
-            {
+            {LOGMEIN("SimdFloat64x2Lib.cpp] 814\n");
                 // missing lane args
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedNumber, _u("Lane index"));
             }
@@ -840,7 +840,7 @@ namespace Js
             JavascriptSIMDInt32x4::Is(args[1]) &&
             JavascriptSIMDFloat64x2::Is(args[2]) &&
             JavascriptSIMDFloat64x2::Is(args[3]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 842\n");
 
             JavascriptSIMDInt32x4 *mask = JavascriptSIMDInt32x4::FromVar(args[1]);
             Assert(mask);
@@ -878,7 +878,7 @@ namespace Js
         Var tarray;
         Var index;
         if (args.Info.Count > 1)
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 880\n");
             tarray = args[1];
         }
         else
@@ -886,7 +886,7 @@ namespace Js
             tarray = scriptContext->GetLibrary()->GetUndefined();
         }
         if (args.Info.Count > 2)
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 888\n");
             index = args[2];
         }
         else
@@ -910,7 +910,7 @@ namespace Js
         Var tarray;
         Var index;
         if (args.Info.Count > 1)
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 912\n");
             tarray = args[1];
         }
         else
@@ -918,7 +918,7 @@ namespace Js
             tarray = scriptContext->GetLibrary()->GetUndefined();
         }
         if (args.Info.Count > 2)
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 920\n");
             index = args[2];
         }
         else
@@ -940,7 +940,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 4 && JavascriptSIMDFloat64x2::Is(args[3]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 942\n");
             SIMDUtils::SIMD128TypedArrayStore<JavascriptSIMDFloat64x2>(args[1], args[2], args[3], 2 * FLOAT64_SIZE, scriptContext);
             return NULL;
         }
@@ -959,7 +959,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 4 && JavascriptSIMDFloat64x2::Is(args[3]))
-        {
+        {LOGMEIN("SimdFloat64x2Lib.cpp] 961\n");
             SIMDUtils::SIMD128TypedArrayStore<JavascriptSIMDFloat64x2>(args[1], args[2], args[3], 1 * FLOAT64_SIZE, scriptContext);
             return NULL;
         }

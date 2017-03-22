@@ -11,16 +11,16 @@ namespace Js
         m_iterableObject(iterable),
         m_nextIndex(0),
         m_kind(kind)
-    {
+    {LOGMEIN("JavascriptArrayIterator.cpp] 13\n");
         Assert(type->GetTypeId() == TypeIds_ArrayIterator);
         if (m_iterableObject == this->GetLibrary()->GetUndefined())
-        {
+        {LOGMEIN("JavascriptArrayIterator.cpp] 16\n");
             m_iterableObject = nullptr;
         }
     }
 
     bool JavascriptArrayIterator::Is(Var aValue)
-    {
+    {LOGMEIN("JavascriptArrayIterator.cpp] 22\n");
         TypeId typeId = JavascriptOperators::GetTypeId(aValue);
         return typeId == TypeIds_ArrayIterator;
     }
@@ -45,7 +45,7 @@ namespace Js
         Var thisObj = args[0];
 
         if (!JavascriptArrayIterator::Is(thisObj))
-        {
+        {LOGMEIN("JavascriptArrayIterator.cpp] 47\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedArrayIterator, _u("Array Iterator.prototype.next"));
         }
 
@@ -53,7 +53,7 @@ namespace Js
         Var iterable = iterator->m_iterableObject;
 
         if (iterable == nullptr)
-        {
+        {LOGMEIN("JavascriptArrayIterator.cpp] 55\n");
             return library->CreateIteratorResultObjectUndefinedTrue();
         }
 
@@ -61,7 +61,7 @@ namespace Js
         JavascriptArray* pArr = nullptr;
         TypedArrayBase *typedArrayBase = nullptr;
         if (JavascriptArray::Is(iterable) && !JavascriptArray::FromVar(iterable)->IsCrossSiteObject())
-        {
+        {LOGMEIN("JavascriptArrayIterator.cpp] 63\n");
 #if ENABLE_COPYONACCESS_ARRAY
             Assert(!JavascriptCopyOnAccessNativeIntArray::Is(iterable));
 #endif
@@ -69,10 +69,10 @@ namespace Js
             length = pArr->GetLength();
         }
         else if (TypedArrayBase::Is(iterable))
-        {
+        {LOGMEIN("JavascriptArrayIterator.cpp] 71\n");
             typedArrayBase = TypedArrayBase::FromVar(iterable);
             if (typedArrayBase->IsDetachedBuffer())
-            {
+            {LOGMEIN("JavascriptArrayIterator.cpp] 74\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_DetachedTypedArray);
             }
 
@@ -86,7 +86,7 @@ namespace Js
         int64 index = iterator->m_nextIndex;
 
         if (index >= length)
-        {
+        {LOGMEIN("JavascriptArrayIterator.cpp] 88\n");
             // Nulling out the m_iterableObject field is important so that the iterator
             // does not keep the iterable object alive after iteration is completed.
             iterator->m_iterableObject = nullptr;
@@ -96,18 +96,18 @@ namespace Js
         iterator->m_nextIndex += 1;
 
         if (iterator->m_kind == JavascriptArrayIteratorKind::Key)
-        {
+        {LOGMEIN("JavascriptArrayIterator.cpp] 98\n");
             return library->CreateIteratorResultObjectValueFalse(JavascriptNumber::ToVar(index, scriptContext));
         }
 
         Var value;
         if (pArr != nullptr)
-        {
+        {LOGMEIN("JavascriptArrayIterator.cpp] 104\n");
             Assert(index <= UINT_MAX);
             value = pArr->DirectGetItem((uint32)index);
         }
         else if (typedArrayBase != nullptr)
-        {
+        {LOGMEIN("JavascriptArrayIterator.cpp] 109\n");
             Assert(index <= UINT_MAX);
             value = typedArrayBase->DirectGetItem((uint32)index);
         }
@@ -117,7 +117,7 @@ namespace Js
         }
 
         if (iterator->m_kind == JavascriptArrayIteratorKind::Value)
-        {
+        {LOGMEIN("JavascriptArrayIterator.cpp] 119\n");
             return library->CreateIteratorResultObjectValueFalse(value);
         }
 

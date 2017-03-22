@@ -20,32 +20,32 @@ namespace Js
         profiledIterations(GetFunctionBody() && GetFunctionBody()->GetByteCode() ? GetFunctionBody()->GetProfiledIterations() : 0),
         sharedPropertyGuards(nullptr),
         sharedPropertyGuardCount(0)
-    {
+    {LOGMEIN("FunctionCodeGenJitTimeData.cpp] 22\n");
     }
 
     uint16 FunctionCodeGenJitTimeData::GetProfiledIterations() const
-    {
+    {LOGMEIN("FunctionCodeGenJitTimeData.cpp] 26\n");
         return profiledIterations;
     }
 
     FunctionInfo *FunctionCodeGenJitTimeData::GetFunctionInfo() const
-    {
+    {LOGMEIN("FunctionCodeGenJitTimeData.cpp] 31\n");
         return this->functionInfo;
     }
 
     FunctionBody *FunctionCodeGenJitTimeData::GetFunctionBody() const
-    {
+    {LOGMEIN("FunctionCodeGenJitTimeData.cpp] 36\n");
         FunctionProxy *proxy = this->functionInfo->GetFunctionProxy();
         return proxy && proxy->IsFunctionBody() ? proxy->GetFunctionBody() : nullptr;
     }
 
     Var FunctionCodeGenJitTimeData::GetGlobalThisObject() const
-    {
+    {LOGMEIN("FunctionCodeGenJitTimeData.cpp] 42\n");
         return this->globalThisObject;
     }
 
     bool FunctionCodeGenJitTimeData::IsPolymorphicCallSite(const ProfileId profiledCallSiteId) const
-    {
+    {LOGMEIN("FunctionCodeGenJitTimeData.cpp] 47\n");
         Assert(GetFunctionBody());
         Assert(profiledCallSiteId < GetFunctionBody()->GetProfiledCallSiteCount());
 
@@ -53,7 +53,7 @@ namespace Js
     }
 
     const FunctionCodeGenJitTimeData *FunctionCodeGenJitTimeData::GetInlinee(const ProfileId profiledCallSiteId) const
-    {
+    {LOGMEIN("FunctionCodeGenJitTimeData.cpp] 55\n");
         Assert(GetFunctionBody());
         Assert(profiledCallSiteId < GetFunctionBody()->GetProfiledCallSiteCount());
 
@@ -61,17 +61,17 @@ namespace Js
     }
 
     const FunctionCodeGenJitTimeData *FunctionCodeGenJitTimeData::GetJitTimeDataFromFunctionInfo(FunctionInfo *polyFunctionInfo) const
-    {
+    {LOGMEIN("FunctionCodeGenJitTimeData.cpp] 63\n");
         const FunctionCodeGenJitTimeData *next = this;
         while (next && next->functionInfo != polyFunctionInfo)
-        {
+        {LOGMEIN("FunctionCodeGenJitTimeData.cpp] 66\n");
             next = next->next;
         }
         return next;
     }
 
     const FunctionCodeGenJitTimeData *FunctionCodeGenJitTimeData::GetLdFldInlinee(const InlineCacheIndex inlineCacheIndex) const
-    {
+    {LOGMEIN("FunctionCodeGenJitTimeData.cpp] 73\n");
         Assert(GetFunctionBody());
         Assert(inlineCacheIndex < GetFunctionBody()->GetInlineCacheCount());
 
@@ -83,7 +83,7 @@ namespace Js
         const ProfileId profiledCallSiteId,
         FunctionInfo *const inlinee,
         bool isInlined)
-    {
+    {LOGMEIN("FunctionCodeGenJitTimeData.cpp] 85\n");
         Assert(recycler);
         const auto functionBody = GetFunctionBody();
         Assert(functionBody);
@@ -91,17 +91,17 @@ namespace Js
         Assert(inlinee);
 
         if (!inlinees)
-        {
+        {LOGMEIN("FunctionCodeGenJitTimeData.cpp] 93\n");
             inlinees = RecyclerNewArrayZ(recycler, Field(FunctionCodeGenJitTimeData *), functionBody->GetProfiledCallSiteCount());
         }
 
         FunctionCodeGenJitTimeData *inlineeData = nullptr;
         if (!inlinees[profiledCallSiteId])
-        {
+        {LOGMEIN("FunctionCodeGenJitTimeData.cpp] 99\n");
             inlineeData = RecyclerNew(recycler, FunctionCodeGenJitTimeData, inlinee, nullptr /* entryPoint */, isInlined);
             inlinees[profiledCallSiteId] = inlineeData;
             if (++inlineeCount == 0)
-            {
+            {LOGMEIN("FunctionCodeGenJitTimeData.cpp] 103\n");
                 Js::Throw::OutOfMemory();
             }
         }
@@ -119,7 +119,7 @@ namespace Js
         Recycler *const recycler,
         const InlineCacheIndex inlineCacheIndex,
         FunctionInfo *const inlinee)
-    {
+    {LOGMEIN("FunctionCodeGenJitTimeData.cpp] 121\n");
         Assert(recycler);
         const auto functionBody = GetFunctionBody();
         Assert(functionBody);
@@ -127,7 +127,7 @@ namespace Js
         Assert(inlinee);
 
         if (!ldFldInlinees)
-        {
+        {LOGMEIN("FunctionCodeGenJitTimeData.cpp] 129\n");
             ldFldInlinees = RecyclerNewArrayZ(recycler, Field(FunctionCodeGenJitTimeData*), GetFunctionBody()->GetInlineCacheCount());
         }
 
@@ -135,30 +135,30 @@ namespace Js
         Assert(!ldFldInlinees[inlineCacheIndex]);
         ldFldInlinees[inlineCacheIndex] = inlineeData;
         if (++ldFldInlineeCount == 0)
-        {
+        {LOGMEIN("FunctionCodeGenJitTimeData.cpp] 137\n");
             Js::Throw::OutOfMemory();
         }
         return inlineeData;
     }
 
     uint FunctionCodeGenJitTimeData::InlineeCount() const
-    {
+    {LOGMEIN("FunctionCodeGenJitTimeData.cpp] 144\n");
         return inlineeCount;
     }
 
     uint FunctionCodeGenJitTimeData::LdFldInlineeCount() const
-    {
+    {LOGMEIN("FunctionCodeGenJitTimeData.cpp] 149\n");
         return ldFldInlineeCount;
     }
 
 #ifdef FIELD_ACCESS_STATS
     void FunctionCodeGenJitTimeData::EnsureInlineCacheStats(Recycler* recycler)
-    {
+    {LOGMEIN("FunctionCodeGenJitTimeData.cpp] 155\n");
         this->inlineCacheStats = RecyclerNew(recycler, FieldAccessStats);
     }
 
     void FunctionCodeGenJitTimeData::AddInlineeInlineCacheStats(FunctionCodeGenJitTimeData* inlineeJitTimeData)
-    {
+    {LOGMEIN("FunctionCodeGenJitTimeData.cpp] 160\n");
         Assert(this->inlineCacheStats != nullptr);
         Assert(inlineeJitTimeData != nullptr && inlineeJitTimeData->inlineCacheStats != nullptr);
         this->inlineCacheStats->Add(inlineeJitTimeData->inlineCacheStats);

@@ -8,7 +8,7 @@ class LinearScan;
 class LinearScanMDShared
 {
 public:
-    void Init(LinearScan * linearScan) { this->linearScan = linearScan; }
+    void Init(LinearScan * linearScan) {LOGMEIN("LinearScanMDShared.h] 10\n"); this->linearScan = linearScan; }
 
 protected:
     LinearScan * linearScan;

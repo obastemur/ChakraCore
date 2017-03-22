@@ -19,12 +19,12 @@ namespace TTD
     public:
         TTDNestingDepthAutoAdjuster(ThreadContext* threadContext)
             : m_threadContext(threadContext)
-        {
+        {LOGMEIN("TTEventLog.h] 21\n");
             this->m_threadContext->TTDRootNestingCount++;
         }
 
         ~TTDNestingDepthAutoAdjuster() 
-        {
+        {LOGMEIN("TTEventLog.h] 26\n");
             this->m_threadContext->TTDRootNestingCount--;
         }
     };
@@ -39,19 +39,19 @@ namespace TTD
     public:
         TTDJsRTActionResultAutoRecorder() 
             : m_actionEvent(nullptr), m_resultPtr(nullptr)
-        {
+        {LOGMEIN("TTEventLog.h] 41\n");
             ;
         }
 
         void InitializeWithEventAndEnter(NSLogEvents::EventLogEntry* actionEvent)
-        {
+        {LOGMEIN("TTEventLog.h] 46\n");
             TTDAssert(this->m_actionEvent == nullptr, "Don't double initialize");
 
             this->m_actionEvent = actionEvent;
         }
 
         void InitializeWithEventAndEnterWResult(NSLogEvents::EventLogEntry* actionEvent, TTDVar* resultPtr)
-        {
+        {LOGMEIN("TTEventLog.h] 53\n");
             TTDAssert(this->m_actionEvent == nullptr, "Don't double initialize");
 
             this->m_actionEvent = actionEvent;
@@ -61,18 +61,18 @@ namespace TTD
         }
 
         void SetResult(Js::Var* result)
-        {
+        {LOGMEIN("TTEventLog.h] 63\n");
             TTDAssert(this->m_resultPtr != nullptr, "Why are we calling this then???");
             if(result != nullptr)
-            {
+            {LOGMEIN("TTEventLog.h] 66\n");
                 *(this->m_resultPtr) = TTD_CONVERT_JSVAR_TO_TTDVAR(*(result));
             }
         }
 
         void CompleteWithStatusCode(int32 exitStatus)
-        {
+        {LOGMEIN("TTEventLog.h] 72\n");
             if(this->m_actionEvent != nullptr)
-            {
+            {LOGMEIN("TTEventLog.h] 74\n");
                 TTDAssert(this->m_actionEvent->ResultStatus == -1, "Hmm this got changed somewhere???");
 
                 this->m_actionEvent->ResultStatus = exitStatus;
@@ -314,7 +314,7 @@ namespace TTD
 
         template <typename T, NSLogEvents::EventKind tag>
         NSLogEvents::EventLogEntry* RecordGetInitializedEvent(T** extraData)
-        {
+        {LOGMEIN("TTEventLog.h] 316\n");
             NSLogEvents::EventLogEntry* res = this->m_eventList.GetNextAvailableEntry();
             NSLogEvents::EventLogEntry_Initialize(res, tag, this->GetCurrentEventTimeAndAdvance());
 
@@ -324,7 +324,7 @@ namespace TTD
 
         template <typename T, NSLogEvents::EventKind tag>
         T* RecordGetInitializedEvent_DataOnly()
-        {
+        {LOGMEIN("TTEventLog.h] 326\n");
             NSLogEvents::EventLogEntry* res = this->m_eventList.GetNextAvailableEntry();
             NSLogEvents::EventLogEntry_Initialize(res, tag, this->GetCurrentEventTimeAndAdvance());
 
@@ -342,9 +342,9 @@ namespace TTD
         //A helper for getting and doing some iterator manipulation during replay
         template <typename T, NSLogEvents::EventKind tag>
         const T* ReplayGetReplayEvent_Helper()
-        {
+        {LOGMEIN("TTEventLog.h] 344\n");
             if(!this->m_currentReplayEventIterator.IsValid())
-            {
+            {LOGMEIN("TTEventLog.h] 346\n");
                 this->AbortReplayReturnToHost();
             }
 
@@ -731,28 +731,28 @@ namespace TTD
     public:
         TTDExceptionFramePopper()
             : m_log(nullptr), m_function(nullptr)
-        {
+        {LOGMEIN("TTEventLog.h] 733\n");
             ;
         }
 
         ~TTDExceptionFramePopper()
-        {
+        {LOGMEIN("TTEventLog.h] 738\n");
             //we didn't clear this so an exception was thrown and we are propagating
             if(this->m_log != nullptr)
-            {
+            {LOGMEIN("TTEventLog.h] 741\n");
                 //if it doesn't have an exception frame then this is the frame where the exception was thrown so record our info
                 this->m_log->PopCallEventException(this->m_function);
             }
         }
 
         void PushInfo(EventLog* log, Js::JavascriptFunction* function)
-        {
+        {LOGMEIN("TTEventLog.h] 748\n");
             this->m_log = log; //set the log info so if the pop isn't called the destructor will record propagation
             this->m_function = function;
         }
 
         void PopInfo()
-        {
+        {LOGMEIN("TTEventLog.h] 754\n");
             this->m_log = nullptr; //normal pop (no exception) just clear so destructor nops
         }
     };
@@ -767,20 +767,20 @@ namespace TTD
     public:
         TTModeStackAutoPopper(EventLog* log)
             : m_log(log), m_popMode(TTDMode::Invalid)
-        {
+        {LOGMEIN("TTEventLog.h] 769\n");
             ;
         }
 
         void PushModeAndSetToAutoPop(TTDMode mode)
-        {
+        {LOGMEIN("TTEventLog.h] 774\n");
             this->m_log->PushMode(mode);
             this->m_popMode = mode;
         }
 
         ~TTModeStackAutoPopper()
-        {
+        {LOGMEIN("TTEventLog.h] 780\n");
             if(this->m_popMode != TTDMode::Invalid)
-            {
+            {LOGMEIN("TTEventLog.h] 782\n");
                 this->m_log->PopMode(this->m_popMode);
             }
         }

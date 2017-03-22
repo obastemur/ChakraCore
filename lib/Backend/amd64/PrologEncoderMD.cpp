@@ -6,7 +6,7 @@
 #include "PrologEncoderMD.h"
 
 unsigned __int8 PrologEncoderMD::GetRequiredNodeCountForAlloca(size_t size)
-{
+{LOGMEIN("PrologEncoderMD.cpp] 8\n");
     Assert(size);
     Assert(size % 8 == 0);
 
@@ -19,9 +19,9 @@ unsigned __int8 PrologEncoderMD::GetRequiredNodeCountForAlloca(size_t size)
 }
 
 unsigned __int8 PrologEncoderMD::GetOp(IR::Instr *instr)
-{
+{LOGMEIN("PrologEncoderMD.cpp] 21\n");
     switch (instr->m_opcode)
-    {
+    {LOGMEIN("PrologEncoderMD.cpp] 23\n");
     case Js::OpCode::PUSH:
         Assert(instr->GetSrc1()->IsRegOpnd());
         return UWOP_PUSH_NONVOL;
@@ -60,13 +60,13 @@ unsigned __int8 PrologEncoderMD::GetOp(IR::Instr *instr)
 }
 
 unsigned __int8 PrologEncoderMD::GetNonVolRegToSave(IR::Instr *instr)
-{
+{LOGMEIN("PrologEncoderMD.cpp] 62\n");
     Assert(instr->m_opcode == Js::OpCode::PUSH);
     return (instr->GetSrc1()->AsRegOpnd()->GetReg() - 1) & 0xFF;
 }
 
 unsigned __int8 PrologEncoderMD::GetXmmRegToSave(IR::Instr *instr, unsigned __int16 *scaledOffset)
-{
+{LOGMEIN("PrologEncoderMD.cpp] 68\n");
     Assert(scaledOffset);
     Assert(instr->m_opcode == Js::OpCode::MOVAPD || instr->m_opcode == Js::OpCode::MOVAPS);
     Assert(instr->GetDst() && instr->GetDst()->IsIndirOpnd());
@@ -98,7 +98,7 @@ unsigned __int8 PrologEncoderMD::GetXmmRegToSave(IR::Instr *instr, unsigned __in
 }
 
 size_t PrologEncoderMD::GetAllocaSize(IR::Instr *instr)
-{
+{LOGMEIN("PrologEncoderMD.cpp] 100\n");
     Assert(instr->m_opcode == Js::OpCode::SUB);
     Assert(instr->GetSrc1() && instr->GetSrc2());
     Assert(instr->GetSrc1()->AsRegOpnd()->GetReg() == RegRSP &&
@@ -109,6 +109,6 @@ size_t PrologEncoderMD::GetAllocaSize(IR::Instr *instr)
 }
 
 unsigned __int8 PrologEncoderMD::GetFPReg()
-{
+{LOGMEIN("PrologEncoderMD.cpp] 111\n");
     return RegRBP - 1;
 }

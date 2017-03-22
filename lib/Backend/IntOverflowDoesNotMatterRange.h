@@ -28,7 +28,7 @@ public:
         symsRequiredToBeInt(allocator),
         symsRequiredToBeLossyInt(allocator),
         next(next)
-    {
+    {LOGMEIN("IntOverflowDoesNotMatterRange.h] 30\n");
         Assert(firstInstr);
         Assert(lastInstr);
         Assert(lastInstr->m_opcode == Js::OpCode::NoIntOverflowBoundary);
@@ -39,7 +39,7 @@ public:
         IR::Instr *const firstInstr,
         IR::Instr *const lastInstr,
         IntOverflowDoesNotMatterRange *const next)
-    {
+    {LOGMEIN("IntOverflowDoesNotMatterRange.h] 41\n");
         return JitAnew(allocator, IntOverflowDoesNotMatterRange, allocator, firstInstr, lastInstr, next);
     }
 
@@ -50,33 +50,33 @@ public:
 
 public:
     IR::Instr *FirstInstr() const
-    {
+    {LOGMEIN("IntOverflowDoesNotMatterRange.h] 52\n");
         return firstInstr;
     }
 
     void SetFirstInstr(IR::Instr *const firstInstr)
-    {
+    {LOGMEIN("IntOverflowDoesNotMatterRange.h] 57\n");
         Assert(firstInstr);
         this->firstInstr = firstInstr;
     }
 
     IR::Instr *LastInstr() const
-    {
+    {LOGMEIN("IntOverflowDoesNotMatterRange.h] 63\n");
         return lastInstr;
     }
 
     BVSparse<JitArenaAllocator> *SymsRequiredToBeInt()
-    {
+    {LOGMEIN("IntOverflowDoesNotMatterRange.h] 68\n");
         return &symsRequiredToBeInt;
     }
 
     BVSparse<JitArenaAllocator> *SymsRequiredToBeLossyInt()
-    {
+    {LOGMEIN("IntOverflowDoesNotMatterRange.h] 73\n");
         return &symsRequiredToBeLossyInt;
     }
 
     IntOverflowDoesNotMatterRange *Next() const
-    {
+    {LOGMEIN("IntOverflowDoesNotMatterRange.h] 78\n");
         return next;
     }
 

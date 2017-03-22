@@ -8,22 +8,22 @@
 namespace Js
 {
     JavascriptSIMDFloat64x2::JavascriptSIMDFloat64x2(SIMDValue *val, StaticType *type) : RecyclableObject(type), value(*val)
-    {
+    {LOGMEIN("JavascriptSimdFloat64x2.cpp] 10\n");
         Assert(type->GetTypeId() == TypeIds_SIMDFloat64x2);
     }
 
     JavascriptSIMDFloat64x2* JavascriptSIMDFloat64x2::New(SIMDValue *val, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptSimdFloat64x2.cpp] 15\n");
         return (JavascriptSIMDFloat64x2 *)AllocatorNew(Recycler, requestContext->GetRecycler(), JavascriptSIMDFloat64x2, val, requestContext->GetLibrary()->GetSIMDFloat64x2TypeStatic());
     }
 
     bool  JavascriptSIMDFloat64x2::Is(Var instance)
-    {
+    {LOGMEIN("JavascriptSimdFloat64x2.cpp] 20\n");
         return JavascriptOperators::GetTypeId(instance) == TypeIds_SIMDFloat64x2;
     }
 
     JavascriptSIMDFloat64x2* JavascriptSIMDFloat64x2::FromVar(Var aValue)
-    {
+    {LOGMEIN("JavascriptSimdFloat64x2.cpp] 25\n");
         Assert(aValue);
         AssertMsg(Is(aValue), "Ensure var is actually a 'JavascriptSIMDFloat64x2'");
 
@@ -31,34 +31,34 @@ namespace Js
     }
 
     JavascriptSIMDFloat64x2* JavascriptSIMDFloat64x2::FromFloat32x4(JavascriptSIMDFloat32x4 *instance, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptSimdFloat64x2.cpp] 33\n");
         SIMDValue result = SIMDFloat64x2Operation::OpFromFloat32x4(instance->GetValue());
         return JavascriptSIMDFloat64x2::New(&result, requestContext);
     }
 
     JavascriptSIMDFloat64x2* JavascriptSIMDFloat64x2::FromInt32x4(JavascriptSIMDInt32x4   *instance, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptSimdFloat64x2.cpp] 39\n");
         SIMDValue result = SIMDFloat64x2Operation::OpFromInt32x4(instance->GetValue());
         return JavascriptSIMDFloat64x2::New(&result, requestContext);
     }
 
     BOOL JavascriptSIMDFloat64x2::GetProperty(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptSimdFloat64x2.cpp] 45\n");
         return GetPropertyBuiltIns(propertyId, value, requestContext);
     }
 
     RecyclableObject * JavascriptSIMDFloat64x2::CloneToScriptContext(ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptSimdFloat64x2.cpp] 50\n");
         return JavascriptSIMDFloat64x2::New(&value, requestContext);
     }
 
     BOOL JavascriptSIMDFloat64x2::GetProperty(Var originalInstance, JavascriptString* propertyNameString, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptSimdFloat64x2.cpp] 55\n");
         PropertyRecord const* propertyRecord;
         this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
 
         if (propertyRecord != nullptr && GetPropertyBuiltIns(propertyRecord->GetPropertyId(), value, requestContext))
-        {
+        {LOGMEIN("JavascriptSimdFloat64x2.cpp] 60\n");
             return true;
         }
 
@@ -67,14 +67,14 @@ namespace Js
     }
 
     BOOL JavascriptSIMDFloat64x2::GetPropertyReference(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptSimdFloat64x2.cpp] 69\n");
         return JavascriptSIMDFloat64x2::GetProperty(originalInstance, propertyId, value, info, requestContext);
     }
 
     bool JavascriptSIMDFloat64x2::GetPropertyBuiltIns(PropertyId propertyId, Var* value, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptSimdFloat64x2.cpp] 74\n");
         switch (propertyId)
-        {
+        {LOGMEIN("JavascriptSimdFloat64x2.cpp] 76\n");
         case PropertyIds::toString:
             *value = requestContext->GetLibrary()->GetSIMDFloat64x2ToStringFunction();
             return true;
@@ -97,7 +97,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count == 0 || JavascriptOperators::GetTypeId(args[0]) != TypeIds_SIMDFloat64x2)
-        {
+        {LOGMEIN("JavascriptSimdFloat64x2.cpp] 99\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedSimd, _u("SIMDFloat64x2.toString"));
         }
 
@@ -117,7 +117,7 @@ namespace Js
     // End Entry Points
 
     Var JavascriptSIMDFloat64x2::Copy(ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptSimdFloat64x2.cpp] 119\n");
         return JavascriptSIMDFloat64x2::New(&this->value, requestContext);
     }
 }

@@ -20,9 +20,9 @@ namespace Js
         static JavascriptSymbolObject* FromVar(Js::Var aValue);
 
         inline const PropertyRecord* GetValue()
-        {
+        {LOGMEIN("JavascriptSymbolObject.h] 22\n");
             if (value == nullptr)
-            {
+            {LOGMEIN("JavascriptSymbolObject.h] 24\n");
                 return nullptr;
             }
             return value->GetValue();

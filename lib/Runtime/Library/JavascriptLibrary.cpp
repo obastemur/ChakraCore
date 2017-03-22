@@ -90,7 +90,7 @@ namespace Js
 
 #if ENABLE_COPYONACCESS_ARRAY
         if (!PHASE_OFF1(CopyOnAccessArrayPhase))
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 92\n");
             this->cacheForCopyOnAccessArraySegments = RecyclerNewZ(this->recycler, CacheForCopyOnAccessArraySegments);
         }
 #endif
@@ -100,12 +100,12 @@ namespace Js
     }
 
     void JavascriptLibrary::Uninitialize()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 102\n");
         this->globalObject = nullptr;
     }
 
     void JavascriptLibrary::InitializePrototypes()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 107\n");
         Recycler* recycler = this->GetRecycler();
 
         // Recycler macros below expect that their arguments will not throw when they're evaluated.
@@ -131,7 +131,7 @@ namespace Js
                 DeferredTypeHandler<InitializeArrayBufferPrototype, DefaultDeferredTypeFilter, true>::GetDefaultInstance()));
 
         if (scriptContext->GetConfig()->IsESSharedArrayBufferEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 133\n");
             sharedArrayBufferPrototype = DynamicObject::New(recycler,
                 DynamicType::New(scriptContext, TypeIds_Object, objectPrototype, nullptr,
                     DeferredTypeHandler<InitializeSharedArrayBufferPrototype, DefaultDeferredTypeFilter, true>::GetDefaultInstance()));
@@ -221,7 +221,7 @@ namespace Js
 #ifdef ENABLE_SIMDJS
         /* Initialize SIMD prototypes*/
         if (GetScriptContext()->GetConfig()->IsSimdjsEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 223\n");
             tempDynamicType = DynamicType::New(scriptContext, TypeIds_SIMDObject, objectPrototype, nullptr,
                 DeferredTypeHandler<InitializeSIMDBool8x16Prototype, DefaultDeferredTypeFilter, true>::GetDefaultInstance());
             simdBool8x16Prototype = RecyclerNew(recycler, JavascriptSIMDObject, nullptr, tempDynamicType);
@@ -259,7 +259,7 @@ namespace Js
 #endif
 
         if (scriptContext->GetConfig()->IsES6PrototypeChain())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 261\n");
             datePrototype = DynamicObject::New(recycler,
                 DynamicType::New(scriptContext, TypeIds_Object, objectPrototype, nullptr,
                 DeferredTypeHandler<InitializeDatePrototype, DefaultDeferredTypeFilter, true>::GetDefaultInstance()));
@@ -287,7 +287,7 @@ namespace Js
 
 #define INIT_ERROR_PROTO(field, initFunc) \
         if (scriptContext->GetConfig()->IsES6PrototypeChain()) \
-        { \
+        {LOGMEIN("JavascriptLibrary.cpp] 289\n"); \
             field = DynamicObject::New(recycler, \
                 DynamicType::New(scriptContext, TypeIds_Object, errorPrototype, nullptr, \
                 DeferredTypeHandler<initFunc, DefaultDeferredTypeFilter, true>::GetDefaultInstance())); \
@@ -365,7 +365,7 @@ namespace Js
 
 #ifdef ENABLE_WASM
         if (scriptContext->GetConfig()->IsWasmEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 367\n");
             webAssemblyMemoryPrototype = DynamicObject::New(recycler,
                 DynamicType::New(scriptContext, TypeIds_Object, objectPrototype, nullptr,
                     DeferredTypeHandler<InitializeWebAssemblyMemoryPrototype, DefaultDeferredTypeFilter, true>::GetDefaultInstance()));
@@ -386,14 +386,14 @@ namespace Js
 #endif
 
         if(scriptContext->GetConfig()->IsES6PromiseEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 388\n");
             promisePrototype = DynamicObject::New(recycler,
                 DynamicType::New(scriptContext, TypeIds_Object, objectPrototype, nullptr,
                 DeferredTypeHandler<InitializePromisePrototype, DefaultDeferredTypeFilter, true>::GetDefaultInstance()));
         }
 
         if(scriptContext->GetConfig()->IsES6GeneratorsEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 395\n");
             generatorFunctionPrototype = DynamicObject::New(recycler,
                 DynamicType::New(scriptContext, TypeIds_Object, functionPrototype, nullptr,
                 DeferredTypeHandler<InitializeGeneratorFunctionPrototype, DefaultDeferredTypeFilter, true>::GetDefaultInstance()));
@@ -404,7 +404,7 @@ namespace Js
         }
 
         if(scriptContext->GetConfig()->IsES7AsyncAndAwaitEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 406\n");
             asyncFunctionPrototype = DynamicObject::New(recycler,
                 DynamicType::New(scriptContext, TypeIds_Object, functionPrototype, nullptr,
                 DeferredTypeHandler<InitializeAsyncFunctionPrototype, DefaultDeferredTypeFilter, true>::GetDefaultInstance()));
@@ -412,7 +412,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeTypes()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 414\n");
         Recycler* recycler = this->GetRecycler();
         ScriptConfiguration const *config = scriptContext->GetConfig();
 
@@ -492,17 +492,17 @@ namespace Js
         symbolTypeDynamic = DynamicType::New(scriptContext, TypeIds_SymbolObject, symbolPrototype, nullptr, NullTypeHandler<false>::GetDefaultInstance(), true, true);
 
         if (config->IsES6UnscopablesEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 494\n");
             withType = StaticType::New(scriptContext, TypeIds_WithScopeObject, GetNull(), nullptr);
         }
 
         if (config->IsES6SpreadEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 499\n");
             SpreadArgumentType = DynamicType::New(scriptContext, TypeIds_SpreadArgument, GetNull(), nullptr, NullTypeHandler<false>::GetDefaultInstance(), true, true);
         }
 
         if (config->IsES6ProxyEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 504\n");
             // proxy's prototype is not actually used. once a proxy is used, the GetType()->GetPrototype() is not used in instanceOf style usage as they are trapped.
             // We can use GetType()->GetPrototype() in [[get]], [[set]], and [[hasProperty]] to force the prototype walk to stop at prototype so we don't need to
             // continue prototype chain walk after proxy.
@@ -510,12 +510,12 @@ namespace Js
         }
 
         if (config->IsES6PromiseEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 512\n");
             promiseType = DynamicType::New(scriptContext, TypeIds_Promise, promisePrototype, nullptr, NullTypeHandler<false>::GetDefaultInstance(), true, true);
         }
 
         if (config->IsES6ModuleEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 517\n");
             moduleNamespaceType = DynamicType::New(scriptContext, TypeIds_ModuleNamespace, nullValue, nullptr, &SharedNamespaceSymbolTypeHandler);
         }
 
@@ -528,7 +528,7 @@ namespace Js
         anonymousFunctionWithPrototypeTypeHandler = &SharedFunctionWithPrototypeTypeHandlerV11;
         //  Initialize function types
         if (config->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 530\n");
             functionTypeHandler = &SharedFunctionWithoutPrototypeTypeHandler;
         }
         else
@@ -537,7 +537,7 @@ namespace Js
         }
 
         if (config->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 539\n");
             functionWithPrototypeTypeHandler = &SharedFunctionWithPrototypeTypeHandler;
         }
         else
@@ -557,7 +557,7 @@ namespace Js
             Js::DeferredTypeHandler<Js::JavascriptExternalFunction::DeferredInitializer>::GetDefaultInstance(), true, true);
 
         if (config->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 559\n");
             boundFunctionType = DynamicType::New(scriptContext, TypeIds_Function, functionPrototype, BoundFunction::NewInstance,
                 GetDeferredFunctionTypeHandler(), true, true);
         }
@@ -583,7 +583,7 @@ namespace Js
         // Initialize types
 #ifdef ENABLE_SIMDJS
         if (GetScriptContext()->GetConfig()->IsSimdjsEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 585\n");
             simdBool8x16TypeDynamic  = DynamicType::New(scriptContext, TypeIds_SIMDObject, simdBool8x16Prototype, nullptr, NullTypeHandler<false>::GetDefaultInstance(), true, true);
             simdBool16x8TypeDynamic  = DynamicType::New(scriptContext, TypeIds_SIMDObject, simdBool16x8Prototype, nullptr, NullTypeHandler<false>::GetDefaultInstance(), true, true);
             simdBool32x4TypeDynamic  = DynamicType::New(scriptContext, TypeIds_SIMDObject, simdBool32x4Prototype, nullptr, NullTypeHandler<false>::GetDefaultInstance(), true, true);
@@ -615,7 +615,7 @@ namespace Js
 
 #ifdef ENABLE_WASM
         if (scriptContext->GetConfig()->IsWasmEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 617\n");
             webAssemblyModuleType = DynamicType::New(scriptContext, TypeIds_WebAssemblyModule, webAssemblyModulePrototype, nullptr, NullTypeHandler<false>::GetDefaultInstance(), true, true);
             webAssemblyInstanceType = DynamicType::New(scriptContext, TypeIds_WebAssemblyInstance, webAssemblyInstancePrototype, nullptr, NullTypeHandler<false>::GetDefaultInstance(), true, true);
             webAssemblyMemoryType = DynamicType::New(scriptContext, TypeIds_WebAssemblyMemory, webAssemblyMemoryPrototype, nullptr, NullTypeHandler<false>::GetDefaultInstance(), true, true);
@@ -624,7 +624,7 @@ namespace Js
 #endif
         // Initialize Object types
         for (int16 i = 0; i < PreInitializedObjectTypeCount; i++)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 626\n");
             SimplePathTypeHandler * typeHandler =
                 SimplePathTypeHandler::New(
                     scriptContext,
@@ -638,7 +638,7 @@ namespace Js
             objectTypes[i] = DynamicType::New(scriptContext, TypeIds_Object, objectPrototype, nullptr, typeHandler, true, true);
         }
         for (int16 i = 0; i < PreInitializedObjectTypeCount; i++)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 640\n");
             SimplePathTypeHandler * typeHandler =
                 SimplePathTypeHandler::New(
                     scriptContext,
@@ -697,7 +697,7 @@ namespace Js
             SimplePathTypeHandler::New(scriptContext, this->GetRootPath(), 0, 0, 0, true, true), true, true);
 
         if (config->IsES6GeneratorsEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 699\n");
             generatorConstructorPrototypeObjectType = DynamicType::New(scriptContext, TypeIds_Object, generatorPrototype, nullptr,
                 NullTypeHandler<false>::GetDefaultInstance(), true, true);
 
@@ -714,7 +714,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeGeneratorFunction(DynamicObject *function, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 716\n");
         bool isAnonymousFunction = JavascriptGeneratorFunction::FromVar(function)->IsAnonymousFunction();
 
         JavascriptLibrary* javascriptLibrary = function->GetType()->GetLibrary();
@@ -722,7 +722,7 @@ namespace Js
         function->SetPropertyWithAttributes(PropertyIds::prototype, javascriptLibrary->CreateGeneratorConstructorPrototypeObject(), PropertyWritable, nullptr);
 
         if (function->GetScriptContext()->GetConfig()->IsES6FunctionNameEnabled() && !isAnonymousFunction)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 724\n");
             JavascriptString * functionName = nullptr;
             DebugOnly(bool status = ) ((Js::JavascriptFunction*)function)->GetFunctionName(&functionName);
             Assert(status);
@@ -731,12 +731,12 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeAsyncFunction(DynamicObject *function, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 733\n");
         // Async function instances do not have a prototype property as they are not constructable
         typeHandler->Convert(function, mode, 1);
 
         if (function->GetScriptContext()->GetConfig()->IsES6FunctionNameEnabled() && !JavascriptAsyncFunction::FromVar(function)->IsAnonymousFunction())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 738\n");
             JavascriptString * functionName = nullptr;
             DebugOnly(bool status = ) ((Js::JavascriptFunction*)function)->GetFunctionName(&functionName);
             Assert(status);
@@ -746,7 +746,7 @@ namespace Js
 
     /* static */
     void JavascriptLibrary::PrecalculateArrayAllocationBuckets()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 748\n");
         JavascriptArray::EnsureCalculationOfAllocationBuckets<Js::JavascriptNativeIntArray>();
         JavascriptArray::EnsureCalculationOfAllocationBuckets<Js::JavascriptNativeFloatArray>();
         JavascriptArray::EnsureCalculationOfAllocationBuckets<Js::JavascriptArray>();
@@ -754,18 +754,18 @@ namespace Js
 
     template<bool addPrototype>
     void JavascriptLibrary::InitializeFunction(DynamicObject *function, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 756\n");
         JavascriptLibrary* javascriptLibrary = function->GetType()->GetLibrary();
         ScriptFunction *scriptFunction = nullptr;
         bool useAnonymous = false;
         if (ScriptFunction::Is(function))
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 761\n");
             scriptFunction = Js::ScriptFunction::FromVar(function);
             useAnonymous = scriptFunction->IsAnonymousFunction();
         }
 
         if (!addPrototype)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 767\n");
             Assert(!useAnonymous);
             typeHandler->Convert(function, javascriptLibrary->functionTypeHandler);
         }
@@ -776,32 +776,32 @@ namespace Js
         }
 
         if (scriptFunction)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 778\n");
             if (scriptFunction->GetFunctionInfo()->IsClassConstructor())
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 780\n");
                 scriptFunction->SetWritable(Js::PropertyIds::prototype, FALSE);
             }
         }
 
         ScriptContext *scriptContext = function->GetScriptContext();
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 787\n");
             if(scriptFunction && (useAnonymous || scriptFunction->GetFunctionProxy()->EnsureDeserialized()->GetIsStaticNameFunction()))
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 789\n");
                 return;
             }
             JavascriptString * functionName = nullptr;
             if (((Js::JavascriptFunction*)function)->GetFunctionName(&functionName))
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 794\n");
                 function->SetPropertyWithAttributes(PropertyIds::name, functionName, PropertyConfigurable, nullptr);
             }
         }
     }
 
     DynamicType* JavascriptLibrary::GetErrorType(ErrorTypeEnum typeToFind) const
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 801\n");
         switch (typeToFind)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 803\n");
         case kjstError:
             return GetErrorType();
 
@@ -840,11 +840,11 @@ namespace Js
     class InitializeFunctionDeferredTypeHandlerFilter
     {
     public:
-        static bool HasFilter() { return true; }
+        static bool HasFilter() {LOGMEIN("JavascriptLibrary.cpp] 842\n"); return true; }
         static bool HasProperty(PropertyId propertyId)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 844\n");
             switch (propertyId)
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 846\n");
             case PropertyIds::prototype:
                 return isPrototypeAvailable;
             case PropertyIds::name:
@@ -856,37 +856,37 @@ namespace Js
 
     template<bool isNameAvailable, bool isPrototypeAvailable>
     DynamicTypeHandler * JavascriptLibrary::GetDeferredFunctionTypeHandlerBase()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 858\n");
         return DeferredTypeHandler<InitializeFunction<isPrototypeAvailable>, InitializeFunctionDeferredTypeHandlerFilter<isNameAvailable, isPrototypeAvailable>>::GetDefaultInstance();
     }
 
     template<bool isNameAvailable, bool isPrototypeAvailable>
     DynamicTypeHandler * JavascriptLibrary::GetDeferredGeneratorFunctionTypeHandlerBase()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 864\n");
         return DeferredTypeHandler<InitializeGeneratorFunction, InitializeFunctionDeferredTypeHandlerFilter<isNameAvailable, isPrototypeAvailable>>::GetDefaultInstance();
     }
 
     template<bool isNameAvailable>
     DynamicTypeHandler * JavascriptLibrary::GetDeferredAsyncFunctionTypeHandlerBase()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 870\n");
         // Async functions do not have the prototype property
         return DeferredTypeHandler<InitializeAsyncFunction, InitializeFunctionDeferredTypeHandlerFilter<isNameAvailable, /* isPrototypeAvailable */ false>>::GetDefaultInstance();
     }
 
     DynamicTypeHandler * JavascriptLibrary::GetDeferredAnonymousPrototypeGeneratorFunctionTypeHandler()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 876\n");
         return JavascriptLibrary::GetDeferredGeneratorFunctionTypeHandlerBase</*isNameAvailable*/ false>();
     }
 
     DynamicTypeHandler * JavascriptLibrary::GetDeferredAnonymousPrototypeAsyncFunctionTypeHandler()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 881\n");
         return JavascriptLibrary::GetDeferredAsyncFunctionTypeHandlerBase</*isNameAvailable*/ false>();
     }
 
     DynamicTypeHandler * JavascriptLibrary::GetDeferredPrototypeGeneratorFunctionTypeHandler(ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 886\n");
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 888\n");
             return JavascriptLibrary::GetDeferredGeneratorFunctionTypeHandlerBase</*isNameAvailable*/ true>();
         }
         else
@@ -896,9 +896,9 @@ namespace Js
     }
 
     DynamicTypeHandler * JavascriptLibrary::GetDeferredPrototypeAsyncFunctionTypeHandler(ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 898\n");
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 900\n");
             return JavascriptLibrary::GetDeferredAsyncFunctionTypeHandlerBase</*isNameAvailable*/ true>();
         }
         else
@@ -908,14 +908,14 @@ namespace Js
     }
 
     DynamicTypeHandler * JavascriptLibrary::GetDeferredAnonymousPrototypeFunctionTypeHandler()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 910\n");
         return JavascriptLibrary::GetDeferredFunctionTypeHandlerBase</*isNameAvailable*/ false>();
     }
 
     DynamicTypeHandler * JavascriptLibrary::GetDeferredPrototypeFunctionTypeHandler(ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 915\n");
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 917\n");
             return JavascriptLibrary::GetDeferredFunctionTypeHandlerBase</*isNameAvailable*/ true>();
         }
         else
@@ -925,25 +925,25 @@ namespace Js
     }
 
     DynamicTypeHandler * JavascriptLibrary::GetDeferredAnonymousFunctionTypeHandler()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 927\n");
         return anonymousFunctionTypeHandler;
     }
 
     DynamicTypeHandler * JavascriptLibrary::GetDeferredFunctionTypeHandler()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 932\n");
         if (this->GetScriptContext()->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 934\n");
             return GetDeferredFunctionTypeHandlerBase</*isNameAvailable*/ true, /*isPrototypeAvailable*/ false>();
         }
         return functionTypeHandler;
     }
 
     DynamicTypeHandler * JavascriptLibrary::ScriptFunctionTypeHandler(bool noPrototypeProperty, bool isAnonymousFunction)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 941\n");
         DynamicTypeHandler * scriptFunctionTypeHandler = nullptr;
 
         if (noPrototypeProperty)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 945\n");
             scriptFunctionTypeHandler = isAnonymousFunction ?
                 this->GetDeferredAnonymousFunctionTypeHandler() :
                 this->GetDeferredFunctionTypeHandler();
@@ -958,24 +958,24 @@ namespace Js
     }
 
     DynamicType * JavascriptLibrary::CreateDeferredPrototypeGeneratorFunctionType(JavascriptMethod entrypoint, bool isAnonymousFunction, bool isShared)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 960\n");
         return DynamicType::New(scriptContext, TypeIds_Function, generatorFunctionPrototype, entrypoint,
             isAnonymousFunction ? GetDeferredAnonymousPrototypeGeneratorFunctionTypeHandler() : GetDeferredPrototypeGeneratorFunctionTypeHandler(scriptContext), isShared, isShared);
     }
 
     DynamicType * JavascriptLibrary::CreateDeferredPrototypeAsyncFunctionType(JavascriptMethod entrypoint, bool isAnonymousFunction, bool isShared)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 966\n");
         return DynamicType::New(scriptContext, TypeIds_Function, asyncFunctionPrototype, entrypoint,
             isAnonymousFunction ? GetDeferredAnonymousPrototypeAsyncFunctionTypeHandler() : GetDeferredPrototypeAsyncFunctionTypeHandler(scriptContext), isShared, isShared);
     }
 
     DynamicType * JavascriptLibrary::CreateDeferredPrototypeFunctionType(JavascriptMethod entrypoint)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 972\n");
         return CreateDeferredPrototypeFunctionTypeNoProfileThunk(this->inDispatchProfileMode ? ProfileEntryThunk : entrypoint);
     }
 
     DynamicType * JavascriptLibrary::CreateDeferredPrototypeFunctionTypeNoProfileThunk(JavascriptMethod entrypoint, bool isShared)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 977\n");
         // Note: the lack of TypeHandler switching here based on the isAnonymousFunction flag is intentional.
         // We can't switch shared typeHandlers and RuntimeFunctions do not produce script code for us to know if a function is Anonymous.
         // As a result we may have an issue where hasProperty would say you have a name property but getProperty returns undefined
@@ -983,9 +983,9 @@ namespace Js
             GetDeferredPrototypeFunctionTypeHandler(scriptContext), isShared, isShared);
     }
     DynamicType * JavascriptLibrary::CreateFunctionType(JavascriptMethod entrypoint, RecyclableObject* prototype)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 985\n");
         if (prototype == nullptr)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 987\n");
             prototype = functionPrototype;
         }
 
@@ -994,22 +994,22 @@ namespace Js
     }
 
     DynamicType * JavascriptLibrary::CreateFunctionWithLengthType(FunctionInfo * functionInfo)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 996\n");
         return CreateFunctionWithLengthType(this->GetFunctionPrototype(), functionInfo);
     }
 
     DynamicType * JavascriptLibrary::CreateFunctionWithLengthAndNameType(FunctionInfo * functionInfo)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1001\n");
         return CreateFunctionWithLengthAndNameType(this->GetFunctionPrototype(), functionInfo);
     }
 
     DynamicType * JavascriptLibrary::CreateFunctionWithLengthAndPrototypeType(FunctionInfo * functionInfo)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1006\n");
         return CreateFunctionWithLengthAndPrototypeType(this->GetFunctionPrototype(), functionInfo);
     }
 
     DynamicType * JavascriptLibrary::CreateFunctionWithLengthType(DynamicObject * prototype, FunctionInfo * functionInfo)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1011\n");
         Assert(!functionInfo->HasBody());
         return DynamicType::New(scriptContext, TypeIds_Function, prototype,
             this->inProfileMode? ProfileEntryThunk : functionInfo->GetOriginalEntryPoint(),
@@ -1017,7 +1017,7 @@ namespace Js
     }
 
     DynamicType * JavascriptLibrary::CreateFunctionWithLengthAndNameType(DynamicObject * prototype, FunctionInfo * functionInfo)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1019\n");
         Assert(!functionInfo->HasBody());
         return DynamicType::New(scriptContext, TypeIds_Function, prototype,
             this->inProfileMode ? ProfileEntryThunk : functionInfo->GetOriginalEntryPoint(),
@@ -1025,7 +1025,7 @@ namespace Js
     }
 
     DynamicType * JavascriptLibrary::CreateFunctionWithLengthAndPrototypeType(DynamicObject * prototype, FunctionInfo * functionInfo)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1027\n");
         Assert(!functionInfo->HasBody());
         return DynamicType::New(scriptContext, TypeIds_Function, prototype,
             this->inProfileMode? ProfileEntryThunk : functionInfo->GetOriginalEntryPoint(),
@@ -1033,22 +1033,22 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeProperties(ThreadContext * threadContext)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1035\n");
         if ( threadContext->GetMaxPropertyId() < PropertyIds::_countJSOnlyProperty )
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1037\n");
             threadContext->UncheckedAddBuiltInPropertyId();
         }
     }
 
     DynamicObject * JavascriptLibraryBase::GetObjectPrototype()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1043\n");
         return GetObjectPrototypeObject();
     }
 
     void JavascriptLibraryBase::Finalize(bool isShutdown)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1048\n");
         if (scriptContext)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1050\n");
             // Clear the weak reference dictionary so we don't need to clean them
             // during PostCollectCallBack before Dispose deleting the script context.
             scriptContext->ResetWeakReferenceDictionaryList();
@@ -1059,15 +1059,15 @@ namespace Js
     }
 
     void JavascriptLibraryBase::Dispose(bool isShutdown)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1061\n");
         if (scriptContext)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1063\n");
             HeapDelete(scriptContext);
             scriptContext = nullptr;
         }
     }
     void JavascriptLibrary::Finalize(bool isShutdown)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1069\n");
         __super::Finalize(isShutdown);
 
         this->SetFakeGlobalFuncForUndefer(nullptr);
@@ -1079,7 +1079,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeGlobal(GlobalObject * globalObject)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1081\n");
         RecyclableObject* globalObjectPrototype = GetObjectPrototype();
         globalObject->SetPrototype(globalObjectPrototype);
         Recycler * recycler = this->GetRecycler();
@@ -1132,7 +1132,7 @@ namespace Js
 
 #ifdef ENABLE_SIMDJS
         if (GetScriptContext()->GetConfig()->IsSimdjsEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1134\n");
             simdFloat32x4DisplayString = CreateStringFromCppLiteral(_u("float32x4"));
             //simdFloat64x2DisplayString = CreateStringFromCppLiteral(_u("float64x2"));
             simdInt32x4DisplayString = CreateStringFromCppLiteral(_u("int32x4"));
@@ -1160,7 +1160,7 @@ namespace Js
         symbolUnscopables = CreateSymbol(BuiltInPropertyRecords::_symbolUnscopables);
 
         if (scriptContext->GetConfig()->IsES6RegExSymbolsEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1162\n");
             symbolMatch = CreateSymbol(BuiltInPropertyRecords::_symbolMatch);
             symbolReplace = CreateSymbol(BuiltInPropertyRecords::_symbolReplace);
             symbolSearch = CreateSymbol(BuiltInPropertyRecords::_symbolSearch);
@@ -1178,7 +1178,7 @@ namespace Js
         defaultAccessorFunction = CreateNonProfiledFunction(&JavascriptOperators::EntryInfo::DefaultAccessor);
 
         if (scriptContext->GetConfig()->IsErrorStackTraceEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1180\n");
             stackTraceAccessorFunction = CreateNonProfiledFunction(&JavascriptExceptionOperators::EntryInfo::StackTraceAccessor);
             stackTraceAccessorFunction->SetPropertyWithAttributes(PropertyIds::length, TaggedInt::ToVarUnchecked(0), PropertyNone, nullptr);
         }
@@ -1193,7 +1193,7 @@ namespace Js
         __proto__setterFunction->SetPropertyWithAttributes(PropertyIds::length, TaggedInt::ToVarUnchecked(1), PropertyNone, nullptr);
 
         if (scriptContext->GetConfig()->IsES6PromiseEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1195\n");
             identityFunction = CreateNonProfiledFunction(&JavascriptPromise::EntryInfo::Identity);
             identityFunction->SetPropertyWithAttributes(PropertyIds::length, TaggedInt::ToVarUnchecked(1), PropertyNone, nullptr);
 
@@ -1287,7 +1287,7 @@ namespace Js
         AddFunction(globalObject, PropertyIds::Symbol, symbolConstructor);
 
         if (scriptContext->GetConfig()->IsES6ProxyEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1289\n");
             proxyConstructor = CreateBuiltinConstructor(&JavascriptProxy::EntryInfo::NewInstance,
                 DeferredTypeHandler<InitializeProxyConstructor>::GetDefaultInstance());
             AddFunction(globalObject, PropertyIds::Proxy, proxyConstructor);
@@ -1298,7 +1298,7 @@ namespace Js
         }
 
         if (scriptContext->GetConfig()->IsES6PromiseEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1300\n");
             promiseConstructor = CreateBuiltinConstructor(&JavascriptPromise::EntryInfo::NewInstance,
                 DeferredTypeHandler<InitializePromiseConstructor>::GetDefaultInstance());
             AddFunction(globalObject, PropertyIds::Promise, promiseConstructor);
@@ -1319,7 +1319,7 @@ namespace Js
         // we declare global objects and lib functions only if SSE2 is available. Else, we use the polyfill.
 #ifdef ENABLE_SIMDJS
         if (GetScriptContext()->GetConfig()->IsSimdjsEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1321\n");
             simdObject = DynamicObject::New(recycler,
                 DynamicType::New(scriptContext, TypeIds_Object, objectPrototype, nullptr,
                 DeferredTypeHandler<InitializeSIMDObject>::GetDefaultInstance()));
@@ -1397,7 +1397,7 @@ namespace Js
         AddFunction(globalObject, PropertyIds::Float64Array, Float64ArrayConstructor);
 
         if (scriptContext->GetConfig()->IsESSharedArrayBufferEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1399\n");
             sharedArrayBufferConstructor = CreateBuiltinConstructor(&SharedArrayBuffer::EntryInfo::NewInstance,
                 DeferredTypeHandler<InitializeSharedArrayBufferConstructor>::GetDefaultInstance());
             AddFunction(globalObject, PropertyIds::SharedArrayBuffer, sharedArrayBufferConstructor);
@@ -1420,7 +1420,7 @@ namespace Js
 
 #ifdef ENABLE_INTL_OBJECT
         if (scriptContext->IsIntlEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1422\n");
             IntlObject = DynamicObject::New(recycler,
                 DynamicType::New(scriptContext, TypeIds_Object, objectPrototype, nullptr,
                 DeferredTypeHandler<InitializeIntlObject>::GetDefaultInstance()));
@@ -1462,7 +1462,7 @@ namespace Js
         generatorFunctionConstructor = nullptr;
 
         if (scriptContext->GetConfig()->IsES6GeneratorsEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1464\n");
             generatorFunctionConstructor = CreateBuiltinConstructor(&JavascriptGeneratorFunction::EntryInfo::NewInstance,
                 DeferredTypeHandler<InitializeGeneratorFunctionConstructor>::GetDefaultInstance(),
                 functionConstructor);
@@ -1472,7 +1472,7 @@ namespace Js
         asyncFunctionConstructor = nullptr;
 
         if (scriptContext->GetConfig()->IsES7AsyncAndAwaitEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1474\n");
             asyncFunctionConstructor = CreateBuiltinConstructor(&JavascriptFunction::EntryInfo::NewAsyncFunctionInstance,
                 DeferredTypeHandler<InitializeAsyncFunctionConstructor>::GetDefaultInstance(),
                 functionConstructor);
@@ -1485,7 +1485,7 @@ namespace Js
 
         RuntimeFunction* nativeErrorPrototype = nullptr;
         if (scriptContext->GetConfig()->IsES6PrototypeChain())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1487\n");
             nativeErrorPrototype = errorConstructor;
         }
 
@@ -1521,7 +1521,7 @@ namespace Js
 
 #ifdef ENABLE_WASM
         if (scriptContext->GetConfig()->IsWasmEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1523\n");
             // new WebAssembly object
             webAssemblyObject = DynamicObject::New(recycler,
                 DynamicType::New(scriptContext, TypeIds_Object, objectPrototype, nullptr,
@@ -1556,18 +1556,18 @@ namespace Js
     }
 
     void JavascriptLibrary::EnsureDebugObject(DynamicObject* newDebugObject)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1558\n");
         Assert(!debugObject);
 
         if (!debugObject)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1562\n");
             this->debugObject = newDebugObject;
             AddMember(globalObject, PropertyIds::Debug, debugObject);
         }
     }
 
     void JavascriptLibrary::SetDebugObjectNonUserAccessor(FunctionInfo *funcGetter, FunctionInfo *funcSetter)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1569\n");
         Assert(funcGetter);
         Assert(funcSetter);
 
@@ -1580,7 +1580,7 @@ namespace Js
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
     void JavascriptLibrary::SetDebugObjectFaultInjectionCookieGetterAccessor(FunctionInfo *funcGetter, FunctionInfo *funcSetter)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1582\n");
         Assert(funcGetter);
         Assert(funcSetter);
 
@@ -1593,7 +1593,7 @@ namespace Js
 #endif
 
     void JavascriptLibrary::SetDebugObjectDebugModeAccessor(FunctionInfo *funcGetter)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1595\n");
         Assert(funcGetter);
 
         debugObjectDebugModeGetterFunction = CreateNonProfiledFunction(funcGetter);
@@ -1601,7 +1601,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeArrayConstructor(DynamicObject* arrayConstructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1603\n");
         typeHandler->Convert(arrayConstructor, mode, 6);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterArray
         // so that the update is in sync with profiler
@@ -1612,12 +1612,12 @@ namespace Js
         library->AddMember(arrayConstructor, PropertyIds::length, TaggedInt::ToVarUnchecked(1), PropertyNone);
         library->AddMember(arrayConstructor, PropertyIds::prototype, scriptContext->GetLibrary()->arrayPrototype, PropertyNone);
         if (scriptContext->GetConfig()->IsES6SpeciesEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1614\n");
             library->AddAccessorsToLibraryObject(arrayConstructor, PropertyIds::_symbolSpecies, &JavascriptArray::EntryInfo::GetterSymbolSpecies, nullptr);
         }
 
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1619\n");
             library->AddMember(arrayConstructor, PropertyIds::name, scriptContext->GetPropertyString(PropertyIds::Array), PropertyConfigurable);
         }
         builtinFuncs[BuiltinFunction::JavascriptArray_IsArray] = library->AddFunctionToLibraryObject(arrayConstructor, PropertyIds::isArray, &JavascriptArray::EntryInfo::IsArray, 1);
@@ -1631,9 +1631,9 @@ namespace Js
     }
 
     JavascriptFunction* JavascriptLibrary::EnsureArrayPrototypeValuesFunction()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1633\n");
         if (arrayPrototypeValuesFunction == nullptr)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1635\n");
             arrayPrototypeValuesFunction = DefaultCreateFunction(&JavascriptArray::EntryInfo::Values, 0, nullptr, nullptr, PropertyIds::values);
         }
 
@@ -1641,7 +1641,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeArrayPrototype(DynamicObject* arrayPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1643\n");
         typeHandler->Convert(arrayPrototype, mode, 24);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterArray
         // so that the update is in sync with profiler
@@ -1665,7 +1665,7 @@ namespace Js
         // The toString and toLocaleString properties are shared between Array.prototype and %TypedArray%.prototype.
         // Whichever prototype is initialized first will create the functions, the other should just load the existing function objects.
         if (library->arrayPrototypeToStringFunction == nullptr)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1667\n");
             Assert(library->arrayPrototypeToLocaleStringFunction == nullptr);
 
             library->arrayPrototypeToLocaleStringFunction = /* No inlining       Array_ToLocaleString */ library->AddFunctionToLibraryObject(arrayPrototype, PropertyIds::toLocaleString, &JavascriptArray::EntryInfo::ToLocaleString, 0);
@@ -1693,7 +1693,7 @@ namespace Js
         /* No inlining                Array_Some           */ library->AddFunctionToLibraryObject(arrayPrototype, PropertyIds::some,            &JavascriptArray::EntryInfo::Some,              1);
 
         if (scriptContext->GetConfig()->IsES6StringExtensionsEnabled()) // This is not a typo, Array.prototype.find and .findIndex are part of the ES6 Improved String APIs feature
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1695\n");
             /* No inlining            Array_Find           */ library->AddFunctionToLibraryObject(arrayPrototype, PropertyIds::find,            &JavascriptArray::EntryInfo::Find,              1);
             /* No inlining            Array_FindIndex      */ library->AddFunctionToLibraryObject(arrayPrototype, PropertyIds::findIndex,       &JavascriptArray::EntryInfo::FindIndex,         1);
         }
@@ -1706,7 +1706,7 @@ namespace Js
         /* No inlining                Array_SymbolIterator */ library->AddMember(arrayPrototype, PropertyIds::_symbolIterator, values);
 
         if (scriptContext->GetConfig()->IsES6UnscopablesEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1708\n");
             DynamicType* dynamicType = DynamicType::New(scriptContext, TypeIds_Object, library->nullValue, nullptr, NullTypeHandler<false>::GetDefaultInstance(), false);
             DynamicObject* unscopablesList = DynamicObject::New(library->GetRecycler(), dynamicType);
             unscopablesList->SetProperty(PropertyIds::find,       JavascriptBoolean::ToVar(true, scriptContext), PropertyOperation_None, nullptr);
@@ -1731,7 +1731,7 @@ namespace Js
     }
 
     void  JavascriptLibrary::InitializeSharedArrayBufferConstructor(DynamicObject* sharedArrayBufferConstructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1733\n");
         typeHandler->Convert(sharedArrayBufferConstructor, mode, 4);
 
         ScriptContext* scriptContext = sharedArrayBufferConstructor->GetScriptContext();
@@ -1742,7 +1742,7 @@ namespace Js
         library->AddAccessorsToLibraryObject(sharedArrayBufferConstructor, PropertyIds::_symbolSpecies, &SharedArrayBuffer::EntryInfo::GetterSymbolSpecies, nullptr);
 
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1744\n");
             library->AddMember(sharedArrayBufferConstructor, PropertyIds::name, scriptContext->GetPropertyString(PropertyIds::SharedArrayBuffer), PropertyConfigurable);
         }
 
@@ -1750,7 +1750,7 @@ namespace Js
     }
 
     void  JavascriptLibrary::InitializeSharedArrayBufferPrototype(DynamicObject* sharedArrayBufferPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1752\n");
         typeHandler->Convert(sharedArrayBufferPrototype, mode, 4);
 
         ScriptContext* scriptContext = sharedArrayBufferPrototype->GetScriptContext();
@@ -1760,7 +1760,7 @@ namespace Js
         library->AddAccessorsToLibraryObject(sharedArrayBufferPrototype, PropertyIds::byteLength, &SharedArrayBuffer::EntryInfo::GetterByteLength, nullptr);
 
         if (scriptContext->GetConfig()->IsES6ToStringTagEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1762\n");
             library->AddMember(sharedArrayBufferPrototype, PropertyIds::_symbolToStringTag, library->CreateStringFromCppLiteral(_u("SharedArrayBuffer")), PropertyConfigurable);
         }
 
@@ -1768,7 +1768,7 @@ namespace Js
     }
 
     void  JavascriptLibrary::InitializeAtomicsObject(DynamicObject* atomicsObject, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1770\n");
         typeHandler->Convert(atomicsObject, mode, 12);
 
         JavascriptLibrary* library = atomicsObject->GetLibrary();
@@ -1790,7 +1790,7 @@ namespace Js
     }
 
     void  JavascriptLibrary::InitializeArrayBufferConstructor(DynamicObject* arrayBufferConstructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1792\n");
         typeHandler->Convert(arrayBufferConstructor, mode, 4);
 
         ScriptContext* scriptContext = arrayBufferConstructor->GetScriptContext();
@@ -1799,18 +1799,18 @@ namespace Js
         library->AddMember(arrayBufferConstructor, PropertyIds::prototype, scriptContext->GetLibrary()->arrayBufferPrototype, PropertyNone);
 
         if (scriptContext->GetConfig()->IsES6SpeciesEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1801\n");
             library->AddAccessorsToLibraryObject(arrayBufferConstructor, PropertyIds::_symbolSpecies, &ArrayBuffer::EntryInfo::GetterSymbolSpecies, nullptr);
         }
 
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1806\n");
             library->AddMember(arrayBufferConstructor, PropertyIds::name, scriptContext->GetPropertyString(PropertyIds::ArrayBuffer), PropertyConfigurable);
         }
         library->AddFunctionToLibraryObject(arrayBufferConstructor, PropertyIds::isView, &ArrayBuffer::EntryInfo::IsView, 1);
 
         if (scriptContext->GetConfig()->IsArrayBufferTransferEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1812\n");
             library->AddFunctionToLibraryObject(arrayBufferConstructor, PropertyIds::transfer, &ArrayBuffer::EntryInfo::Transfer, 2);
         }
 
@@ -1818,7 +1818,7 @@ namespace Js
     }
 
     void  JavascriptLibrary::InitializeArrayBufferPrototype(DynamicObject* arrayBufferPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1820\n");
         typeHandler->Convert(arrayBufferPrototype, mode, 2);
 
         ScriptContext* scriptContext = arrayBufferPrototype->GetScriptContext();
@@ -1829,7 +1829,7 @@ namespace Js
         library->AddAccessorsToLibraryObject(arrayBufferPrototype, PropertyIds::byteLength, &ArrayBuffer::EntryInfo::GetterByteLength, nullptr);
 
         if (scriptContext->GetConfig()->IsES6ToStringTagEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1831\n");
             library->AddMember(arrayBufferPrototype, PropertyIds::_symbolToStringTag, library->CreateStringFromCppLiteral(_u("ArrayBuffer")), PropertyConfigurable);
         }
 
@@ -1837,7 +1837,7 @@ namespace Js
     }
 
     void  JavascriptLibrary::InitializeDataViewConstructor(DynamicObject* dataViewConstructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1839\n");
         typeHandler->Convert(dataViewConstructor, mode, 3);
 
         ScriptContext* scriptContext = dataViewConstructor->GetScriptContext();
@@ -1845,14 +1845,14 @@ namespace Js
         library->AddMember(dataViewConstructor, PropertyIds::length, TaggedInt::ToVarUnchecked(1), PropertyNone);
         library->AddMember(dataViewConstructor, PropertyIds::prototype, scriptContext->GetLibrary()->dataViewPrototype, PropertyNone);
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1847\n");
             library->AddMember(dataViewConstructor, PropertyIds::name, scriptContext->GetPropertyString(PropertyIds::DataView), PropertyConfigurable);
         }
         dataViewConstructor->SetHasNoEnumerableProperties(true);
     }
 
     void JavascriptLibrary::InitializeDataViewPrototype(DynamicObject* dataViewPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1854\n");
         typeHandler->Convert(dataViewPrototype, mode, 2);
 
         ScriptContext* scriptContext = dataViewPrototype->GetScriptContext();
@@ -1880,7 +1880,7 @@ namespace Js
         library->AddAccessorsToLibraryObject(dataViewPrototype, PropertyIds::byteOffset, &DataView::EntryInfo::GetterByteOffset, nullptr);
 
         if (scriptContext->GetConfig()->IsES6ToStringTagEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1882\n");
             library->AddMember(dataViewPrototype, PropertyIds::_symbolToStringTag, library->CreateStringFromCppLiteral(_u("DataView")), PropertyConfigurable);
         }
 
@@ -1888,7 +1888,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeTypedArrayConstructor(DynamicObject* typedArrayConstructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1890\n");
         typeHandler->Convert(typedArrayConstructor, mode, 5);
 
         ScriptContext* scriptContext = typedArrayConstructor->GetScriptContext();
@@ -1896,7 +1896,7 @@ namespace Js
 
         library->AddMember(typedArrayConstructor, PropertyIds::length, TaggedInt::ToVarUnchecked(3), PropertyNone);
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1898\n");
             library->AddMember(typedArrayConstructor, PropertyIds::name, library->CreateStringFromCppLiteral(_u("TypedArray")), PropertyConfigurable);
         }
         library->AddMember(typedArrayConstructor, PropertyIds::prototype, library->typedArrayPrototype, PropertyNone);
@@ -1904,7 +1904,7 @@ namespace Js
         library->AddFunctionToLibraryObject(typedArrayConstructor, PropertyIds::from, &TypedArrayBase::EntryInfo::From, 1);
         library->AddFunctionToLibraryObject(typedArrayConstructor, PropertyIds::of, &TypedArrayBase::EntryInfo::Of, 0);
         if (scriptContext->GetConfig()->IsES6SpeciesEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1906\n");
             library->AddAccessorsToLibraryObject(typedArrayConstructor, PropertyIds::_symbolSpecies, &TypedArrayBase::EntryInfo::GetterSymbolSpecies, nullptr);
         }
 
@@ -1912,7 +1912,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeTypedArrayPrototype(DynamicObject* typedarrayPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 1914\n");
         typeHandler->Convert(typedarrayPrototype, mode, 31);
 
         ScriptContext* scriptContext = typedarrayPrototype->GetScriptContext();
@@ -1950,7 +1950,7 @@ namespace Js
         library->AddAccessorsToLibraryObject(typedarrayPrototype, PropertyIds::length, &TypedArrayBase::EntryInfo::GetterLength, nullptr);
 
         if (scriptContext->GetConfig()->IsES6ToStringTagEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1952\n");
             // ES2017 22.2.3.32 get %TypedArray%.prototype[@@toStringTag]
             // %TypedArray%.prototype[@@toStringTag] is an accessor property whose set accessor function is undefined.
             // This property has the attributes { [[Enumerable]]: false, [[Configurable]]: true }.
@@ -1961,7 +1961,7 @@ namespace Js
         // The toString and toLocaleString properties are shared between Array.prototype and %TypedArray%.prototype.
         // Whichever prototype is initialized first will create the functions, the other should just load the existing function objects.
         if (library->arrayPrototypeToStringFunction == nullptr)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 1963\n");
             Assert(library->arrayPrototypeToLocaleStringFunction == nullptr);
 
             library->arrayPrototypeToLocaleStringFunction = library->AddFunctionToLibraryObject(typedarrayPrototype, PropertyIds::toLocaleString, &JavascriptArray::EntryInfo::ToLocaleString, 0);
@@ -1980,13 +1980,13 @@ namespace Js
 
 #define INIT_TYPEDARRAY_CONSTRUCTOR(typedArray, typedarrayPrototype, TypeName) \
     void  JavascriptLibrary::Initialize##typedArray##Constructor(DynamicObject* typedArrayConstructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode) \
-    { \
+    {LOGMEIN("JavascriptLibrary.cpp] 1982\n"); \
         typeHandler->Convert(typedArrayConstructor, mode, 4); \
         ScriptContext* scriptContext = typedArrayConstructor->GetScriptContext(); \
         JavascriptLibrary* library = typedArrayConstructor->GetLibrary(); \
         library->AddMember(typedArrayConstructor, PropertyIds::length, TaggedInt::ToVarUnchecked(3), PropertyNone); \
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled()) \
-        { \
+        {LOGMEIN("JavascriptLibrary.cpp] 1988\n"); \
             library->AddMember(typedArrayConstructor, PropertyIds::name, library->CreateStringFromCppLiteral(_u(#typedArray)), PropertyConfigurable); \
         } \
         library->AddMember(typedArrayConstructor, PropertyIds::BYTES_PER_ELEMENT, TaggedInt::ToVarUnchecked(sizeof(TypeName)), PropertyNone); \
@@ -2006,7 +2006,7 @@ namespace Js
 
 #define INIT_TYPEDARRAY_PROTOTYPE(typedArray, typedarrayPrototype, TypeName) \
     void JavascriptLibrary::Initialize##typedarrayPrototype##(DynamicObject* typedarrayPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode) \
-    { \
+    {LOGMEIN("JavascriptLibrary.cpp] 2008\n"); \
         typeHandler->Convert(typedarrayPrototype, mode, 2); \
         JavascriptLibrary* library = typedarrayPrototype->GetLibrary(); \
         library->AddMember(typedarrayPrototype, PropertyIds::constructor, library->##typedArray##Constructor); \
@@ -2028,7 +2028,7 @@ namespace Js
     // there is no subarray method either as that's another way to create typed array.
 #define INIT_MSINTERNAL_TYPEDARRAY_PROTOTYPE(typedArray, typedarrayPrototype) \
     void JavascriptLibrary::Initialize##typedarrayPrototype##(DynamicObject* typedarrayPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)  \
-    {   \
+    {LOGMEIN("JavascriptLibrary.cpp] 2030\n");   \
         typeHandler->Convert(typedarrayPrototype, mode, 1); \
         JavascriptLibrary* library = typedarrayPrototype->GetLibrary(); \
         library->AddFunctionToLibraryObject(typedarrayPrototype, PropertyIds::set, &##typedArray##::EntryInfo::Set, 2); \
@@ -2041,7 +2041,7 @@ namespace Js
     INIT_MSINTERNAL_TYPEDARRAY_PROTOTYPE(CharArray, CharArrayPrototype);
 
     void JavascriptLibrary::InitializeErrorConstructor(DynamicObject* constructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2043\n");
         typeHandler->Convert(constructor, mode, 4);
 
         ScriptContext* scriptContext = constructor->GetScriptContext();
@@ -2051,11 +2051,11 @@ namespace Js
         library->AddMember(constructor, PropertyIds::length, TaggedInt::ToVarUnchecked(1), PropertyNone);
 
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2053\n");
             library->AddMember(constructor, PropertyIds::name, scriptContext->GetPropertyString(PropertyIds::Error), PropertyConfigurable);
         }
         if (scriptContext->GetConfig()->IsErrorStackTraceEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2057\n");
             library->AddMember(constructor, PropertyIds::stackTraceLimit, JavascriptNumber::ToVar(JavascriptExceptionOperators::DefaultStackTraceLimit, scriptContext), PropertyConfigurable | PropertyWritable | PropertyEnumerable);
         }
 
@@ -2063,7 +2063,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeErrorPrototype(DynamicObject* prototype, DeferredTypeHandlerBase* typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2065\n");
         typeHandler->Convert(prototype, mode, 4);
 
         JavascriptLibrary* library = prototype->GetLibrary();
@@ -2082,21 +2082,21 @@ namespace Js
 
 #define INIT_ERROR(error) \
     void JavascriptLibrary::Initialize##error##Constructor(DynamicObject* constructor, DeferredTypeHandlerBase* typeHandler, DeferredInitializeMode mode) \
-    { \
+    {LOGMEIN("JavascriptLibrary.cpp] 2084\n"); \
         typeHandler->Convert(constructor, mode, 3); \
         ScriptContext* scriptContext = constructor->GetScriptContext(); \
         JavascriptLibrary* library = constructor->GetLibrary(); \
         library->AddMember(constructor, PropertyIds::prototype, library->Get##error##Prototype(), PropertyNone); \
         library->AddMember(constructor, PropertyIds::length, TaggedInt::ToVarUnchecked(1), PropertyNone); \
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled()) \
-        { \
+        {LOGMEIN("JavascriptLibrary.cpp] 2091\n"); \
             PropertyAttributes prototypeNameMessageAttributes = PropertyConfigurable; \
             library->AddMember(constructor, PropertyIds::name, library->CreateStringFromCppLiteral(_u(#error)), prototypeNameMessageAttributes); \
         } \
         constructor->SetHasNoEnumerableProperties(true); \
     } \
     void JavascriptLibrary::Initialize##error##Prototype(DynamicObject* prototype, DeferredTypeHandlerBase* typeHandler, DeferredInitializeMode mode) \
-    { \
+    {LOGMEIN("JavascriptLibrary.cpp] 2098\n"); \
         typeHandler->Convert(prototype, mode, 4); \
         JavascriptLibrary* library = prototype->GetLibrary(); \
         library->AddMember(prototype, PropertyIds::constructor, library->Get##error##Constructor()); \
@@ -2121,7 +2121,7 @@ namespace Js
 #undef INIT_ERROR
 
     void JavascriptLibrary::InitializeBooleanConstructor(DynamicObject* booleanConstructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2123\n");
         typeHandler->Convert(booleanConstructor, mode, 3);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterBoolean
         // so that the update is in sync with profiler
@@ -2130,7 +2130,7 @@ namespace Js
         library->AddMember(booleanConstructor, PropertyIds::length, TaggedInt::ToVarUnchecked(1), PropertyNone);
         library->AddMember(booleanConstructor, PropertyIds::prototype, library->booleanPrototype, PropertyNone);
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2132\n");
             library->AddMember(booleanConstructor, PropertyIds::name, scriptContext->GetPropertyString(PropertyIds::Boolean), PropertyConfigurable);
         }
 
@@ -2138,7 +2138,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeBooleanPrototype(DynamicObject* booleanPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2140\n");
         typeHandler->Convert(booleanPrototype, mode, 3);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterBoolean
         // so that the update is in sync with profiler
@@ -2153,7 +2153,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeSymbolConstructor(DynamicObject* symbolConstructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2155\n");
         typeHandler->Convert(symbolConstructor, mode, 16);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterSymbol
         // so that the update is in sync with profiler
@@ -2162,36 +2162,36 @@ namespace Js
         library->AddMember(symbolConstructor, PropertyIds::length, TaggedInt::ToVarUnchecked(0), PropertyNone);
         library->AddMember(symbolConstructor, PropertyIds::prototype, library->symbolPrototype, PropertyNone);
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2164\n");
             library->AddMember(symbolConstructor, PropertyIds::name, scriptContext->GetPropertyString(PropertyIds::Symbol), PropertyConfigurable);
         }
         if (scriptContext->GetConfig()->IsES6HasInstanceEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2168\n");
             library->AddMember(symbolConstructor, PropertyIds::hasInstance, library->GetSymbolHasInstance(), PropertyNone);
         }
         if (scriptContext->GetConfig()->IsES6IsConcatSpreadableEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2172\n");
             library->AddMember(symbolConstructor, PropertyIds::isConcatSpreadable, library->GetSymbolIsConcatSpreadable(), PropertyNone);
         }
         library->AddMember(symbolConstructor, PropertyIds::iterator, library->GetSymbolIterator(), PropertyNone);
         if (scriptContext->GetConfig()->IsES6SpeciesEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2177\n");
             library->AddMember(symbolConstructor, PropertyIds::species, library->GetSymbolSpecies(), PropertyNone);
         }
 
         if (scriptContext->GetConfig()->IsES6ToPrimitiveEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2182\n");
             library->AddMember(symbolConstructor, PropertyIds::toPrimitive, library->GetSymbolToPrimitive(), PropertyNone);
         }
 
         if (scriptContext->GetConfig()->IsES6ToStringTagEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2187\n");
             library->AddMember(symbolConstructor, PropertyIds::toStringTag, library->GetSymbolToStringTag(), PropertyNone);
         }
         library->AddMember(symbolConstructor, PropertyIds::unscopables, library->GetSymbolUnscopables(), PropertyNone);
 
         if (scriptContext->GetConfig()->IsES6RegExSymbolsEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2193\n");
             library->AddMember(symbolConstructor, PropertyIds::match, library->GetSymbolMatch(), PropertyNone);
             library->AddMember(symbolConstructor, PropertyIds::replace, library->GetSymbolReplace(), PropertyNone);
             library->AddMember(symbolConstructor, PropertyIds::search, library->GetSymbolSearch(), PropertyNone);
@@ -2205,7 +2205,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeSymbolPrototype(DynamicObject* symbolPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2207\n");
         typeHandler->Convert(symbolPrototype, mode, 5);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterSymbol
         // so that the update is in sync with profiler
@@ -2215,7 +2215,7 @@ namespace Js
         library->AddMember(symbolPrototype, PropertyIds::constructor, library->symbolConstructor);
 
         if (scriptContext->GetConfig()->IsES6ToStringTagEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2217\n");
             library->AddMember(symbolPrototype, PropertyIds::_symbolToStringTag, library->CreateStringFromCppLiteral(_u("Symbol")), PropertyConfigurable);
         }
         scriptContext->SetBuiltInLibraryFunction(JavascriptSymbol::EntryInfo::ValueOf.GetOriginalEntryPoint(),
@@ -2224,7 +2224,7 @@ namespace Js
             library->AddFunctionToLibraryObject(symbolPrototype, PropertyIds::toString, &JavascriptSymbol::EntryInfo::ToString, 0));
 
         if (scriptContext->GetConfig()->IsES6ToPrimitiveEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2226\n");
             scriptContext->SetBuiltInLibraryFunction(JavascriptSymbol::EntryInfo::SymbolToPrimitive.GetOriginalEntryPoint(),
                 library->AddFunctionToLibraryObjectWithName(symbolPrototype, PropertyIds::_symbolToPrimitive, PropertyIds::_RuntimeFunctionNameId_toPrimitive,
                 &JavascriptSymbol::EntryInfo::SymbolToPrimitive, 1));
@@ -2234,7 +2234,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializePromiseConstructor(DynamicObject* promiseConstructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2236\n");
         typeHandler->Convert(promiseConstructor, mode, 8);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterPromise
         // so that the update is in sync with profiler
@@ -2244,12 +2244,12 @@ namespace Js
         library->AddMember(promiseConstructor, PropertyIds::prototype, library->promisePrototype, PropertyNone);
 
         if (scriptContext->GetConfig()->IsES6SpeciesEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2246\n");
             library->AddAccessorsToLibraryObject(promiseConstructor, PropertyIds::_symbolSpecies, &JavascriptPromise::EntryInfo::GetterSymbolSpecies, nullptr);
         }
 
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2251\n");
             library->AddMember(promiseConstructor, PropertyIds::name, scriptContext->GetPropertyString(PropertyIds::Promise), PropertyConfigurable);
         }
 
@@ -2262,16 +2262,16 @@ namespace Js
     }
 
     JavascriptFunction* JavascriptLibrary::EnsurePromiseResolveFunction()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2264\n");
         if (promiseResolveFunction == nullptr)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2266\n");
             promiseResolveFunction = DefaultCreateFunction(&JavascriptPromise::EntryInfo::Resolve, 1, nullptr, nullptr, PropertyIds::resolve);
         }
         return promiseResolveFunction;
     }
 
     void JavascriptLibrary::InitializePromisePrototype(DynamicObject* promisePrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2273\n");
         typeHandler->Convert(promisePrototype, mode, 4);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterPromise
         // so that the update is in sync with profiler
@@ -2280,7 +2280,7 @@ namespace Js
 
         library->AddMember(promisePrototype, PropertyIds::constructor, library->promiseConstructor);
         if (scriptContext->GetConfig()->IsES6ToStringTagEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2282\n");
             library->AddMember(promisePrototype, PropertyIds::_symbolToStringTag, library->CreateStringFromCppLiteral(_u("Promise")), PropertyConfigurable);
         }
         scriptContext->SetBuiltInLibraryFunction(JavascriptPromise::EntryInfo::Catch.GetOriginalEntryPoint(),
@@ -2292,21 +2292,21 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeGeneratorFunctionConstructor(DynamicObject* generatorFunctionConstructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2294\n");
         typeHandler->Convert(generatorFunctionConstructor, mode, 3);
         JavascriptLibrary* library = generatorFunctionConstructor->GetLibrary();
         ScriptContext* scriptContext = generatorFunctionConstructor->GetScriptContext();
         library->AddMember(generatorFunctionConstructor, PropertyIds::length, TaggedInt::ToVarUnchecked(1), PropertyConfigurable);
         library->AddMember(generatorFunctionConstructor, PropertyIds::prototype, library->generatorFunctionPrototype, PropertyNone);
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2301\n");
             library->AddMember(generatorFunctionConstructor, PropertyIds::name, library->CreateStringFromCppLiteral(_u("GeneratorFunction")), PropertyConfigurable);
         }
         generatorFunctionConstructor->SetHasNoEnumerableProperties(true);
     }
 
     void JavascriptLibrary::InitializeGeneratorFunctionPrototype(DynamicObject* generatorFunctionPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2308\n");
         typeHandler->Convert(generatorFunctionPrototype, mode, 3);
         JavascriptLibrary* library = generatorFunctionPrototype->GetLibrary();
         ScriptContext* scriptContext = library->GetScriptContext();
@@ -2314,14 +2314,14 @@ namespace Js
         library->AddMember(generatorFunctionPrototype, PropertyIds::constructor, library->generatorFunctionConstructor, PropertyConfigurable);
         library->AddMember(generatorFunctionPrototype, PropertyIds::prototype, library->generatorPrototype, PropertyConfigurable);
         if (scriptContext->GetConfig()->IsES6ToStringTagEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2316\n");
             library->AddMember(generatorFunctionPrototype, PropertyIds::_symbolToStringTag, library->CreateStringFromCppLiteral(_u("GeneratorFunction")), PropertyConfigurable);
         }
         generatorFunctionPrototype->SetHasNoEnumerableProperties(true);
     }
 
     void JavascriptLibrary::InitializeGeneratorPrototype(DynamicObject* generatorPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2323\n");
         typeHandler->Convert(generatorPrototype, mode, 5);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterGenerator
         // so that the update is in sync with profiler
@@ -2330,7 +2330,7 @@ namespace Js
 
         library->AddMember(generatorPrototype, PropertyIds::constructor, library->generatorFunctionPrototype, PropertyConfigurable);
         if (scriptContext->GetConfig()->IsES6ToStringTagEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2332\n");
             library->AddMember(generatorPrototype, PropertyIds::_symbolToStringTag, library->CreateStringFromCppLiteral(_u("Generator")), PropertyConfigurable);
         }
         library->AddFunctionToLibraryObject(generatorPrototype, PropertyIds::return_, &JavascriptGenerator::EntryInfo::Return, 1);
@@ -2341,53 +2341,53 @@ namespace Js
     }
 
     JavascriptFunction* JavascriptLibrary::EnsureGeneratorNextFunction()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2343\n");
         if (generatorNextFunction == nullptr)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2345\n");
             generatorNextFunction = DefaultCreateFunction(&JavascriptGenerator::EntryInfo::Next, 1, nullptr, nullptr, PropertyIds::next);
         }
         return generatorNextFunction;
     }
 
     JavascriptFunction* JavascriptLibrary::EnsureGeneratorThrowFunction()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2352\n");
         if (generatorThrowFunction == nullptr)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2354\n");
             generatorThrowFunction = DefaultCreateFunction(&JavascriptGenerator::EntryInfo::Throw, 1, nullptr, nullptr, PropertyIds::throw_);
         }
         return generatorThrowFunction;
     }
 
     void JavascriptLibrary::InitializeAsyncFunctionConstructor(DynamicObject* asyncFunctionConstructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2361\n");
         typeHandler->Convert(asyncFunctionConstructor, mode, 3);
         JavascriptLibrary* library = asyncFunctionConstructor->GetLibrary();
         ScriptContext* scriptContext = asyncFunctionConstructor->GetScriptContext();
         library->AddMember(asyncFunctionConstructor, PropertyIds::length, TaggedInt::ToVarUnchecked(1), PropertyConfigurable);
         library->AddMember(asyncFunctionConstructor, PropertyIds::prototype, library->asyncFunctionPrototype, PropertyNone);
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2368\n");
             library->AddMember(asyncFunctionConstructor, PropertyIds::name, library->CreateStringFromCppLiteral(_u("AsyncFunction")), PropertyConfigurable);
         }
         asyncFunctionConstructor->SetHasNoEnumerableProperties(true);
     }
 
     void JavascriptLibrary::InitializeAsyncFunctionPrototype(DynamicObject* asyncFunctionPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2375\n");
         typeHandler->Convert(asyncFunctionPrototype, mode, 2);
         JavascriptLibrary* library = asyncFunctionPrototype->GetLibrary();
         ScriptContext* scriptContext = library->GetScriptContext();
 
         library->AddMember(asyncFunctionPrototype, PropertyIds::constructor, library->asyncFunctionConstructor, PropertyConfigurable);
         if (scriptContext->GetConfig()->IsES6ToStringTagEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2382\n");
             library->AddMember(asyncFunctionPrototype, PropertyIds::_symbolToStringTag, library->CreateStringFromCppLiteral(_u("AsyncFunction")), PropertyConfigurable);
         }
         asyncFunctionPrototype->SetHasNoEnumerableProperties(true);
     }
 
     void JavascriptLibrary::InitializeProxyConstructor(DynamicObject* proxyConstructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2389\n");
         typeHandler->Convert(proxyConstructor, mode, 4);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterSymbol
         // so that the update is in sync with profiler
@@ -2395,7 +2395,7 @@ namespace Js
         ScriptContext* scriptContext = proxyConstructor->GetScriptContext();
         library->AddMember(proxyConstructor, PropertyIds::length, TaggedInt::ToVarUnchecked(2), PropertyConfigurable);
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2397\n");
             library->AddMember(proxyConstructor, PropertyIds::name, scriptContext->GetPropertyString(PropertyIds::Proxy), PropertyConfigurable);
         }
         library->AddFunctionToLibraryObject(proxyConstructor, PropertyIds::revocable, &JavascriptProxy::EntryInfo::Revocable, PropertyNone);
@@ -2404,7 +2404,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeProxyPrototype(DynamicObject* proxyPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2406\n");
         typeHandler->Convert(proxyPrototype, mode, 1);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterSymbol
         // so that the update is in sync with profiler
@@ -2415,7 +2415,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeDateConstructor(DynamicObject* dateConstructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2417\n");
         typeHandler->Convert(dateConstructor, mode, 6);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterDate
         // so that the update is in sync with profiler
@@ -2424,7 +2424,7 @@ namespace Js
         library->AddMember(dateConstructor, PropertyIds::length, TaggedInt::ToVarUnchecked(7), PropertyNone);
         library->AddMember(dateConstructor, PropertyIds::prototype, library->datePrototype, PropertyNone);
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2426\n");
             library->AddMember(dateConstructor, PropertyIds::name, scriptContext->GetPropertyString(PropertyIds::Date), PropertyConfigurable);
         }
         library->AddFunctionToLibraryObject(dateConstructor, PropertyIds::parse, &JavascriptDate::EntryInfo::Parse, 1); // should be static
@@ -2435,7 +2435,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeDatePrototype(DynamicObject* datePrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2437\n");
         typeHandler->Convert(datePrototype, mode, 51);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterDate
         // so that the update is in sync with profiler
@@ -2479,7 +2479,7 @@ namespace Js
         scriptContext->SetBuiltInLibraryFunction(JavascriptDate::EntryInfo::GetUTCSeconds.GetOriginalEntryPoint(),
             library->AddFunctionToLibraryObject(datePrototype, PropertyIds::getUTCSeconds, &JavascriptDate::EntryInfo::GetUTCSeconds, 0));
         if (scriptContext->GetConfig()->SupportsES3Extensions())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2481\n");
             scriptContext->SetBuiltInLibraryFunction(JavascriptDate::EntryInfo::GetVarDate.GetOriginalEntryPoint(),
                 library->AddFunctionToLibraryObject(datePrototype, PropertyIds::getVarDate, &JavascriptDate::EntryInfo::GetVarDate, 0));
         }
@@ -2540,7 +2540,7 @@ namespace Js
             library->AddFunctionToLibraryObject(datePrototype, PropertyIds::valueOf, &JavascriptDate::EntryInfo::ValueOf, 0));
 
         if (scriptContext->GetConfig()->IsES6ToPrimitiveEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2542\n");
             scriptContext->SetBuiltInLibraryFunction(JavascriptDate::EntryInfo::SymbolToPrimitive.GetOriginalEntryPoint(),
                 library->AddFunctionToLibraryObjectWithName(datePrototype, PropertyIds::_symbolToPrimitive, PropertyIds::_RuntimeFunctionNameId_toPrimitive,
                 &JavascriptDate::EntryInfo::SymbolToPrimitive, 1));
@@ -2551,7 +2551,7 @@ namespace Js
 
 
     void JavascriptLibrary::InitializeFunctionConstructor(DynamicObject* functionConstructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2553\n");
         typeHandler->Convert(functionConstructor, mode, 3);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterFunction
         // so that the update is in sync with profiler
@@ -2560,14 +2560,14 @@ namespace Js
         library->AddMember(functionConstructor, PropertyIds::prototype, library->functionPrototype, PropertyNone);
         library->AddMember(functionConstructor, PropertyIds::length, TaggedInt::ToVarUnchecked(1), PropertyConfigurable);
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2562\n");
             library->AddMember(functionConstructor, PropertyIds::name, scriptContext->GetPropertyString(PropertyIds::Function), PropertyConfigurable);
         }
         functionConstructor->SetHasNoEnumerableProperties(true);
     }
 
     void JavascriptLibrary::InitializeFunctionPrototype(DynamicObject* functionPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2569\n");
         typeHandler->Convert(functionPrototype, mode, 7);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterFunction
         // so that the update is in sync with profiler
@@ -2579,7 +2579,7 @@ namespace Js
         library->AddMember(functionPrototype, PropertyIds::length, TaggedInt::ToVarUnchecked(0), PropertyConfigurable);
 
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2581\n");
             library->AddMember(functionPrototype, PropertyIds::name, LiteralString::CreateEmptyString(scriptContext->GetLibrary()->GetStringTypeStatic()), PropertyConfigurable);
         }
 
@@ -2592,7 +2592,7 @@ namespace Js
         library->AddFunctionToLibraryObject(functionPrototype, PropertyIds::toString, &JavascriptFunction::EntryInfo::ToString, 0);
 
         if (scriptContext->GetConfig()->IsES6HasInstanceEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2594\n");
             scriptContext->SetBuiltInLibraryFunction(JavascriptFunction::EntryInfo::SymbolHasInstance.GetOriginalEntryPoint(),
                                                      library->AddFunctionToLibraryObjectWithName(functionPrototype, PropertyIds::_symbolHasInstance, PropertyIds::_RuntimeFunctionNameId_hasInstance,
                                                                                                  &JavascriptFunction::EntryInfo::SymbolHasInstance, 1));
@@ -2606,7 +2606,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeComplexThings()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2608\n");
         emptyRegexPattern = RegexHelper::CompileDynamic(scriptContext, _u(""), 0, _u(""), 0, false);
 
         Recycler *const recycler = GetRecycler();
@@ -2620,7 +2620,7 @@ namespace Js
         // In ES6, RegExp.prototype is not a RegExp object itself so we do not need to wait and create an empty RegExp.
         // Instead, we just create an ordinary object prototype for RegExp.prototype in InitializePrototypes.
         if (!scriptConfig->IsES6PrototypeChain() && regexPrototype == nullptr)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2622\n");
             regexPrototype = RecyclerNew(recycler, JavascriptRegExp, emptyRegexPattern,
                 DynamicType::New(scriptContext, TypeIds_RegEx, objectPrototype, nullptr,
                 DeferredTypeHandler<InitializeRegexPrototype, DefaultDeferredTypeFilter, true>::GetDefaultInstance()));
@@ -2630,7 +2630,7 @@ namespace Js
             SimplePathTypeHandler::New(scriptContext, this->GetRootPath(), 0, 0, 0, true, true);
         // See JavascriptRegExp::IsWritable for property writability
         if (!scriptConfig->IsES6RegExPrototypePropertiesEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2632\n");
             typeHandler->ClearHasOnlyWritableDataProperties();
         }
 
@@ -2638,7 +2638,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeMathObject(DynamicObject* mathObject, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2640\n");
         typeHandler->Convert(mathObject, mode, 42);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterMath
         // so that the update is in sync with profiler
@@ -2676,7 +2676,7 @@ namespace Js
         builtinFuncs[BuiltinFunction::Math_Tan]    = library->AddFunctionToLibraryObject(mathObject, PropertyIds::tan,    &Math::EntryInfo::Tan,    1);
 
         if (scriptContext->GetConfig()->IsES6MathExtensionsEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2678\n");
             builtinFuncs[BuiltinFunction::Math_Imul] = library->AddFunctionToLibraryObject(mathObject, PropertyIds::imul, &Math::EntryInfo::Imul, 2);
             builtinFuncs[BuiltinFunction::Math_Fround] = library->AddFunctionToLibraryObject(mathObject, PropertyIds::fround, &Math::EntryInfo::Fround, 1);
             /*builtinFuncs[BuiltinFunction::Math_Log10] =*/ library->AddFunctionToLibraryObject(mathObject, PropertyIds::log10, &Math::EntryInfo::Log10, 1);
@@ -2697,7 +2697,7 @@ namespace Js
         }
 
         if (scriptContext->GetConfig()->IsES6ToStringTagEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2699\n");
             library->AddMember(mathObject, PropertyIds::_symbolToStringTag, library->CreateStringFromCppLiteral(_u("Math")), PropertyConfigurable);
         }
 
@@ -2709,7 +2709,7 @@ namespace Js
 #ifdef ENABLE_WASM
 
     void JavascriptLibrary::InitializeWebAssemblyTablePrototype(DynamicObject* prototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2711\n");
         typeHandler->Convert(prototype, mode, 6);
 
         JavascriptLibrary* library = prototype->GetLibrary();
@@ -2717,7 +2717,7 @@ namespace Js
 
         library->AddMember(prototype, PropertyIds::constructor, library->webAssemblyTableConstructor);
         if (scriptContext->GetConfig()->IsES6ToStringTagEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2719\n");
             library->AddMember(prototype, PropertyIds::_symbolToStringTag, library->CreateStringFromCppLiteral(_u("WebAssemblyTable")), PropertyConfigurable);
         }
         scriptContext->SetBuiltInLibraryFunction(WebAssemblyTable::EntryInfo::Grow.GetOriginalEntryPoint(),
@@ -2735,21 +2735,21 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeWebAssemblyTableConstructor(DynamicObject* constructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2737\n");
         typeHandler->Convert(constructor, mode, 3);
         JavascriptLibrary* library = constructor->GetLibrary();
         ScriptContext* scriptContext = constructor->GetScriptContext();
         library->AddMember(constructor, PropertyIds::length, TaggedInt::ToVarUnchecked(1), PropertyConfigurable);
         library->AddMember(constructor, PropertyIds::prototype, library->webAssemblyTablePrototype, PropertyNone);
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2744\n");
             library->AddMember(constructor, PropertyIds::name, library->CreateStringFromCppLiteral(_u("WebAssemblyTable")), PropertyConfigurable);
         }
         constructor->SetHasNoEnumerableProperties(true);
     }
 
     void JavascriptLibrary::InitializeWebAssemblyMemoryPrototype(DynamicObject* prototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2751\n");
         typeHandler->Convert(prototype, mode, 4);
 
         JavascriptLibrary* library = prototype->GetLibrary();
@@ -2757,7 +2757,7 @@ namespace Js
 
         library->AddMember(prototype, PropertyIds::constructor, library->webAssemblyMemoryConstructor);
         if (scriptContext->GetConfig()->IsES6ToStringTagEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2759\n");
             library->AddMember(prototype, PropertyIds::_symbolToStringTag, library->CreateStringFromCppLiteral(_u("WebAssemblyMemory")), PropertyConfigurable);
         }
         scriptContext->SetBuiltInLibraryFunction(WebAssemblyMemory::EntryInfo::Grow.GetOriginalEntryPoint(),
@@ -2769,21 +2769,21 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeWebAssemblyMemoryConstructor(DynamicObject* constructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2771\n");
         typeHandler->Convert(constructor, mode, 3);
         JavascriptLibrary* library = constructor->GetLibrary();
         ScriptContext* scriptContext = constructor->GetScriptContext();
         library->AddMember(constructor, PropertyIds::length, TaggedInt::ToVarUnchecked(1), PropertyConfigurable);
         library->AddMember(constructor, PropertyIds::prototype, library->webAssemblyMemoryPrototype, PropertyNone);
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2778\n");
             library->AddMember(constructor, PropertyIds::name, library->CreateStringFromCppLiteral(_u("WebAssemblyMemory")), PropertyConfigurable);
         }
         constructor->SetHasNoEnumerableProperties(true);
     }
 
     void JavascriptLibrary::InitializeWebAssemblyInstancePrototype(DynamicObject* prototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2785\n");
         typeHandler->Convert(prototype, mode, 2);
 
         JavascriptLibrary* library = prototype->GetLibrary();
@@ -2791,28 +2791,28 @@ namespace Js
 
         library->AddMember(prototype, PropertyIds::constructor, library->webAssemblyInstanceConstructor);
         if (scriptContext->GetConfig()->IsES6ToStringTagEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2793\n");
             library->AddMember(prototype, PropertyIds::_symbolToStringTag, library->CreateStringFromCppLiteral(_u("WebAssemblyInstance")), PropertyConfigurable);
         }
         prototype->SetHasNoEnumerableProperties(true);
     }
 
     void JavascriptLibrary::InitializeWebAssemblyInstanceConstructor(DynamicObject* constructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2800\n");
         typeHandler->Convert(constructor, mode, 3);
         JavascriptLibrary* library = constructor->GetLibrary();
         ScriptContext* scriptContext = constructor->GetScriptContext();
         library->AddMember(constructor, PropertyIds::length, TaggedInt::ToVarUnchecked(1), PropertyConfigurable);
         library->AddMember(constructor, PropertyIds::prototype, library->webAssemblyInstancePrototype, PropertyNone);
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2807\n");
             library->AddMember(constructor, PropertyIds::name, library->CreateStringFromCppLiteral(_u("WebAssemblyInstance")), PropertyConfigurable);
         }
         constructor->SetHasNoEnumerableProperties(true);
     }
 
     void JavascriptLibrary::InitializeWebAssemblyModulePrototype(DynamicObject* prototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2814\n");
         typeHandler->Convert(prototype, mode, 2);
 
         JavascriptLibrary* library = prototype->GetLibrary();
@@ -2820,14 +2820,14 @@ namespace Js
 
         library->AddMember(prototype, PropertyIds::constructor, library->webAssemblyModuleConstructor);
         if (scriptContext->GetConfig()->IsES6ToStringTagEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2822\n");
             library->AddMember(prototype, PropertyIds::_symbolToStringTag, library->CreateStringFromCppLiteral(_u("WebAssemblyModule")), PropertyConfigurable);
         }
         prototype->SetHasNoEnumerableProperties(true);
     }
 
     void JavascriptLibrary::InitializeWebAssemblyModuleConstructor(DynamicObject* constructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2829\n");
         typeHandler->Convert(constructor, mode, 5);
         JavascriptLibrary* library = constructor->GetLibrary();
         ScriptContext* scriptContext = constructor->GetScriptContext();
@@ -2839,14 +2839,14 @@ namespace Js
         library->AddFunctionToLibraryObject(constructor, PropertyIds::customSections, &WebAssemblyModule::EntryInfo::CustomSections, 2);
 
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 2841\n");
             library->AddMember(constructor, PropertyIds::name, library->CreateStringFromCppLiteral(_u("WebAssemblyModule")), PropertyConfigurable);
         }
         constructor->SetHasNoEnumerableProperties(true);
     }
 
     void JavascriptLibrary::InitializeWebAssemblyObject(DynamicObject* webAssemblyObject, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2848\n");
         typeHandler->Convert(webAssemblyObject, mode, 8);
         JavascriptLibrary* library = webAssemblyObject->GetLibrary();
         library->AddFunctionToLibraryObject(webAssemblyObject, PropertyIds::compile, &WebAssembly::EntryInfo::Compile, 2);
@@ -2868,7 +2868,7 @@ namespace Js
     // SIMD_JS
 #ifdef ENABLE_SIMDJS
     void JavascriptLibrary::InitializeSIMDObject(DynamicObject* simdObject, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 2870\n");
         // Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterSIMD so that the update is in sync with profiler
         typeHandler->Convert(simdObject, mode, 2);
         JavascriptLibrary* library = simdObject->GetLibrary();
@@ -3349,7 +3349,7 @@ namespace Js
 #endif
 
     void JavascriptLibrary::InitializeReflectObject(DynamicObject* reflectObject, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 3351\n");
         typeHandler->Convert(reflectObject, mode, 12);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterReflect
         // so that the update is in sync with profiler
@@ -3384,7 +3384,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeStaticValues()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 3386\n");
         constructorCacheDefaultInstance = &Js::ConstructorCache::DefaultInstance;
         absDoubleCst = Js::JavascriptNumber::AbsDoubleCst;
         uintConvertConst = Js::JavascriptNumber::UIntConvertConst;
@@ -3451,9 +3451,9 @@ namespace Js
 #endif
 
         for (TypeId typeId = static_cast<TypeId>(0); typeId < TypeIds_Limit; typeId = static_cast<TypeId>(typeId + 1))
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 3453\n");
             switch (typeId)
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 3455\n");
             case TypeIds_Undefined:
                 typeDisplayStrings[typeId] = undefinedDisplayString;
                 break;
@@ -3547,9 +3547,9 @@ namespace Js
     // which have same names for Array and String cannot be resolved just by the property id
 
     BuiltinFunction JavascriptLibrary::GetBuiltinFunctionForPropId(PropertyId id)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 3549\n");
         switch (id)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 3551\n");
         case PropertyIds::abs:
             return BuiltinFunction::Math_Abs;
 
@@ -3732,10 +3732,10 @@ namespace Js
     /*static*/
     void JavascriptLibrary::CheckRegisteredBuiltIns(
         Field(JavascriptFunction*)* builtInFuncs, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 3734\n");
         byte count = BuiltinFunction::Count;
         for (byte index = 0; index < count; index++)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 3737\n");
             Assert(!builtInFuncs[index] || (index == GetBuiltInForFuncInfo((intptr_t)builtInFuncs[index]->GetFunctionInfo(), scriptContext->GetThreadContext())));
         }
     }
@@ -3744,10 +3744,10 @@ namespace Js
     // Returns built-in enum value for given funcInfo. Ultimately this will work for all built-ins (not only Math.*).
     // Used by inliner.
     BuiltinFunction JavascriptLibrary::GetBuiltInForFuncInfo(intptr_t funcInfoAddr, ThreadContextInfo * context)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 3746\n");
 #define LIBRARY_FUNCTION(target, name, argc, flags, EntryInfo) \
         if(funcInfoAddr == SHIFT_ADDR(context, (intptr_t)&EntryInfo)) \
-        { \
+        {LOGMEIN("JavascriptLibrary.cpp] 3749\n"); \
             return BuiltinFunction::##target##_##name; \
         }
 #include "LibraryFunction.h"
@@ -3758,10 +3758,10 @@ namespace Js
 
     // Returns true if the function's return type is always float.
     BOOL JavascriptLibrary::IsFltFunc(BuiltinFunction index)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 3760\n");
         // Note: MathFunction is one of built-ins.
         if (!JavascriptLibrary::CanFloatPreferenceFunc(index))
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 3763\n");
             return FALSE;
         }
 
@@ -3795,12 +3795,12 @@ namespace Js
     };
 
     bool JavascriptLibrary::IsFloatFunctionCallsite(BuiltinFunction index, size_t argc)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 3797\n");
         if (IsFltFunc(index))
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 3799\n");
             Assert(index < BuiltinFunction::Count);
             if (argc)
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 3802\n");
                 return JavascriptLibrary::LibraryFunctionArgC[index] <= (argc - 1 /* this */);
             }
         }
@@ -3810,15 +3810,15 @@ namespace Js
 
     // For abs, min, max -- return can be int or float, but still return true from here.
     BOOL JavascriptLibrary::CanFloatPreferenceFunc(BuiltinFunction index)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 3812\n");
         // Shortcut the common case:
         if (index == BuiltinFunction::None)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 3815\n");
             return FALSE;
         }
 
         switch (index)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 3820\n");
         case BuiltinFunction::Math_Abs:
         case BuiltinFunction::Math_Acos:
         case BuiltinFunction::Math_Asin:
@@ -3840,9 +3840,9 @@ namespace Js
     }
 
     bool JavascriptLibrary::IsFltBuiltInConst(PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 3842\n");
         switch (propertyId)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 3844\n");
         case Js::PropertyIds::E:
         case Js::PropertyIds::LN10:
         case Js::PropertyIds::LN2:
@@ -3857,23 +3857,23 @@ namespace Js
     }
 
     void JavascriptLibrary::TypeAndPrototypesAreEnsuredToHaveOnlyWritableDataProperties(Type *const type)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 3859\n");
         Assert(type);
         Assert(type->GetScriptContext() == scriptContext);
         Assert(type->AreThisAndPrototypesEnsuredToHaveOnlyWritableDataProperties());
         Assert(!scriptContext->IsClosed());
 
         if(typesEnsuredToHaveOnlyWritableDataPropertiesInItAndPrototypeChain->Count() == 0)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 3866\n");
             scriptContext->RegisterPrototypeChainEnsuredToHaveOnlyWritableDataPropertiesScriptContext();
         }
         typesEnsuredToHaveOnlyWritableDataPropertiesInItAndPrototypeChain->Add(type);
     }
 
     void JavascriptLibrary::NoPrototypeChainsAreEnsuredToHaveOnlyWritableDataProperties()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 3873\n");
         for(int i = 0; i < typesEnsuredToHaveOnlyWritableDataPropertiesInItAndPrototypeChain->Count(); ++i)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 3875\n");
             typesEnsuredToHaveOnlyWritableDataPropertiesInItAndPrototypeChain
                 ->Item(i)
                 ->SetAreThisAndPrototypesEnsuredToHaveOnlyWritableDataProperties(false);
@@ -3882,7 +3882,7 @@ namespace Js
     }
 
     bool JavascriptLibrary::ArrayIteratorPrototypeHasUserDefinedNext(ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 3884\n");
         Var arrayIteratorPrototypeNext = nullptr;
         ImplicitCallFlags flags = scriptContext->GetThreadContext()->TryWithDisabledImplicitCall(
             [&]() { arrayIteratorPrototypeNext = JavascriptOperators::GetProperty(scriptContext->GetLibrary()->GetArrayIteratorPrototype(), PropertyIds::next, scriptContext); });
@@ -3891,7 +3891,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeNumberConstructor(DynamicObject* numberConstructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 3893\n");
         typeHandler->Convert(numberConstructor, mode, 17);
 
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterNumber
@@ -3901,7 +3901,7 @@ namespace Js
         library->AddMember(numberConstructor, PropertyIds::length,            TaggedInt::ToVarUnchecked(1), PropertyNone);
         library->AddMember(numberConstructor, PropertyIds::prototype,         library->numberPrototype,     PropertyNone);
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 3903\n");
             library->AddMember(numberConstructor, PropertyIds::name, scriptContext->GetPropertyString(PropertyIds::Number), PropertyConfigurable);
         }
         library->AddMember(numberConstructor, PropertyIds::MAX_VALUE,         library->maxValue,            PropertyNone);
@@ -3911,11 +3911,11 @@ namespace Js
         library->AddMember(numberConstructor, PropertyIds::POSITIVE_INFINITY, library->positiveInfinite,    PropertyNone);
 
         if (scriptContext->GetConfig()->IsES6NumberExtensionsEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 3913\n");
 #ifdef DBG
             double epsilon = 0.0;
             for (double next = 1.0; next + 1.0 != 1.0; next = next / 2.0)
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 3917\n");
                 epsilon = next;
             }
             Assert(epsilon == Math::EPSILON);
@@ -3938,7 +3938,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeNumberPrototype(DynamicObject* numberPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 3940\n");
         typeHandler->Convert(numberPrototype, mode, 8);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterNumber
         // so that the update is in sync with profiler
@@ -3964,7 +3964,7 @@ namespace Js
 #ifdef ENABLE_SIMDJS
     template<typename SIMDTypeName>
     void JavascriptLibrary::SIMDPrototypeInitHelper(DynamicObject* simdPrototype, JavascriptLibrary* library, JavascriptFunction* constructorFn, JavascriptString* strLiteral)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 3966\n");
         ScriptContext* scriptContext = simdPrototype->GetScriptContext();
         //The initial value of SIMDConstructor.prototype.constructor is the intrinsic object %SIMDConstructor%
         library->AddMember(simdPrototype, PropertyIds::constructor, constructorFn);
@@ -3977,12 +3977,12 @@ namespace Js
             library->AddFunctionToLibraryObject(simdPrototype, PropertyIds::valueOf, &SIMDTypeName::EntryInfo::ValueOf, 0));
 
         if (scriptContext->GetConfig()->IsES6ToStringTagEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 3979\n");
             library->AddMember(simdPrototype, PropertyIds::_symbolToStringTag, strLiteral, PropertyConfigurable);
         }
 
         if (scriptContext->GetConfig()->IsES6ToPrimitiveEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 3984\n");
             scriptContext->SetBuiltInLibraryFunction(SIMDTypeName::EntryInfo::SymbolToPrimitive.GetOriginalEntryPoint(),
                 library->AddFunctionToLibraryObjectWithName(simdPrototype, PropertyIds::_symbolToPrimitive, PropertyIds::_RuntimeFunctionNameId_toPrimitive,
                     &SIMDTypeName::EntryInfo::SymbolToPrimitive, 1));
@@ -3993,7 +3993,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeSIMDBool8x16Prototype(DynamicObject* simdPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 3995\n");
         typeHandler->Convert(simdPrototype, mode, 6);
         JavascriptLibrary* library = simdPrototype->GetLibrary();
         SIMDPrototypeInitHelper<JavascriptSIMDBool8x16>(simdPrototype, library, library->GetBuiltinFunctions()[BuiltinFunction::SIMDBool8x16Lib_Bool8x16],
@@ -4001,7 +4001,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeSIMDBool16x8Prototype(DynamicObject* simdPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4003\n");
         typeHandler->Convert(simdPrototype, mode, 6);
         JavascriptLibrary* library = simdPrototype->GetLibrary();
         SIMDPrototypeInitHelper<JavascriptSIMDBool16x8>(simdPrototype, library, library->GetBuiltinFunctions()[BuiltinFunction::SIMDBool16x8Lib_Bool16x8],
@@ -4009,7 +4009,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeSIMDBool32x4Prototype(DynamicObject* simdPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4011\n");
         typeHandler->Convert(simdPrototype, mode, 6);
         JavascriptLibrary* library = simdPrototype->GetLibrary();
         SIMDPrototypeInitHelper<JavascriptSIMDBool32x4>(simdPrototype, library, library->GetBuiltinFunctions()[BuiltinFunction::SIMDBool32x4Lib_Bool32x4],
@@ -4017,7 +4017,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeSIMDInt8x16Prototype(DynamicObject* simdPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4019\n");
         typeHandler->Convert(simdPrototype, mode, 6);
         JavascriptLibrary* library = simdPrototype->GetLibrary();
         SIMDPrototypeInitHelper<JavascriptSIMDInt8x16>(simdPrototype, library, library->GetBuiltinFunctions()[BuiltinFunction::SIMDInt8x16Lib_Int8x16],
@@ -4025,7 +4025,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeSIMDInt16x8Prototype(DynamicObject* simdPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4027\n");
         typeHandler->Convert(simdPrototype, mode, 6);
         JavascriptLibrary* library = simdPrototype->GetLibrary();
         SIMDPrototypeInitHelper<JavascriptSIMDInt16x8>(simdPrototype, library, library->GetBuiltinFunctions()[BuiltinFunction::SIMDInt16x8Lib_Int16x8],
@@ -4033,7 +4033,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeSIMDInt32x4Prototype(DynamicObject* simdPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4035\n");
         typeHandler->Convert(simdPrototype, mode, 6);
         JavascriptLibrary* library = simdPrototype->GetLibrary();
         SIMDPrototypeInitHelper<JavascriptSIMDInt32x4>(simdPrototype, library, library->GetBuiltinFunctions()[BuiltinFunction::SIMDInt32x4Lib_Int32x4],
@@ -4041,7 +4041,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeSIMDUint8x16Prototype(DynamicObject* simdPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4043\n");
         typeHandler->Convert(simdPrototype, mode, 6);
         JavascriptLibrary* library = simdPrototype->GetLibrary();
         SIMDPrototypeInitHelper<JavascriptSIMDUint8x16>(simdPrototype, library, library->GetBuiltinFunctions()[BuiltinFunction::SIMDUint8x16Lib_Uint8x16],
@@ -4049,7 +4049,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeSIMDUint16x8Prototype(DynamicObject* simdPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4051\n");
         typeHandler->Convert(simdPrototype, mode, 6);
         JavascriptLibrary* library = simdPrototype->GetLibrary();
         SIMDPrototypeInitHelper<JavascriptSIMDUint16x8>(simdPrototype, library, library->GetBuiltinFunctions()[BuiltinFunction::SIMDUint16x8Lib_Uint16x8],
@@ -4057,7 +4057,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeSIMDUint32x4Prototype(DynamicObject* simdPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4059\n");
         typeHandler->Convert(simdPrototype, mode, 6);
         JavascriptLibrary* library = simdPrototype->GetLibrary();
         SIMDPrototypeInitHelper<JavascriptSIMDUint32x4>(simdPrototype, library, library->GetBuiltinFunctions()[BuiltinFunction::SIMDUint32x4Lib_Uint32x4],
@@ -4065,7 +4065,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeSIMDFloat32x4Prototype(DynamicObject* simdPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4067\n");
         typeHandler->Convert(simdPrototype, mode, 6);
         JavascriptLibrary* library = simdPrototype->GetLibrary();
         SIMDPrototypeInitHelper<JavascriptSIMDFloat32x4>(simdPrototype, library, library->GetBuiltinFunctions()[BuiltinFunction::SIMDFloat32x4Lib_Float32x4],
@@ -4074,19 +4074,19 @@ namespace Js
 #endif
 
     void JavascriptLibrary::InitializeObjectConstructor(DynamicObject* objectConstructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4076\n");
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterObject
         // so that the update is in sync with profiler
         JavascriptLibrary* library = objectConstructor->GetLibrary();
         ScriptContext* scriptContext = objectConstructor->GetScriptContext();
         int propertyCount = 18;
         if (scriptContext->GetConfig()->IsES6ObjectExtensionsEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4083\n");
             propertyCount += 2;
         }
 
         if (scriptContext->GetConfig()->IsESObjectGetOwnPropertyDescriptorsEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4088\n");
             propertyCount++;
         }
 
@@ -4095,7 +4095,7 @@ namespace Js
         library->AddMember(objectConstructor, PropertyIds::length, TaggedInt::ToVarUnchecked(1), PropertyNone);
         library->AddMember(objectConstructor, PropertyIds::prototype, library->objectPrototype, PropertyNone);
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4097\n");
             library->AddMember(objectConstructor, PropertyIds::name, scriptContext->GetPropertyString(PropertyIds::Object), PropertyConfigurable);
         }
 
@@ -4104,7 +4104,7 @@ namespace Js
         scriptContext->SetBuiltInLibraryFunction(JavascriptObject::EntryInfo::GetOwnPropertyDescriptor.GetOriginalEntryPoint(),
             library->AddFunctionToLibraryObject(objectConstructor, PropertyIds::getOwnPropertyDescriptor, &JavascriptObject::EntryInfo::GetOwnPropertyDescriptor, 2));
         if (scriptContext->GetConfig()->IsESObjectGetOwnPropertyDescriptorsEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4106\n");
             scriptContext->SetBuiltInLibraryFunction(JavascriptObject::EntryInfo::GetOwnPropertyDescriptors.GetOriginalEntryPoint(),
                 library->AddFunctionToLibraryObject(objectConstructor, PropertyIds::getOwnPropertyDescriptors, &JavascriptObject::EntryInfo::GetOwnPropertyDescriptors, 1));
         }
@@ -4134,7 +4134,7 @@ namespace Js
         scriptContext->SetBuiltInLibraryFunction(JavascriptObject::EntryInfo::GetOwnPropertySymbols.GetOriginalEntryPoint(),
             library->AddFunctionToLibraryObject(objectConstructor, PropertyIds::getOwnPropertySymbols, &JavascriptObject::EntryInfo::GetOwnPropertySymbols, 1));
         if (scriptContext->GetConfig()->IsES6ObjectExtensionsEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4136\n");
             scriptContext->SetBuiltInLibraryFunction(JavascriptObject::EntryInfo::Is.GetOriginalEntryPoint(),
                 library->AddFunctionToLibraryObject(objectConstructor, PropertyIds::is, &JavascriptObject::EntryInfo::Is, 2));
             scriptContext->SetBuiltInLibraryFunction(JavascriptObject::EntryInfo::Assign.GetOriginalEntryPoint(),
@@ -4142,7 +4142,7 @@ namespace Js
         }
 
         if (scriptContext->GetConfig()->IsES7ValuesEntriesEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4144\n");
             scriptContext->SetBuiltInLibraryFunction(JavascriptObject::EntryInfo::Values.GetOriginalEntryPoint(),
                 library->AddFunctionToLibraryObject(objectConstructor, PropertyIds::values, &JavascriptObject::EntryInfo::Values, 1));
             scriptContext->SetBuiltInLibraryFunction(JavascriptObject::EntryInfo::Entries.GetOriginalEntryPoint(),
@@ -4153,7 +4153,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeObjectPrototype(DynamicObject* objectPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4155\n");
         JavascriptLibrary* library = objectPrototype->GetLibrary();
         ScriptContext* scriptContext = objectPrototype->GetScriptContext();
 
@@ -4176,7 +4176,7 @@ namespace Js
         objectPrototype->SetEnumerable(PropertyIds::__proto__, FALSE);
         // Let's pretend __proto__ is actually writable.  We'll make sure we always go through a special code path when writing to it.
         if (hadOnlyWritableDataProperties)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4178\n");
             objectPrototype->GetDynamicType()->GetTypeHandler()->SetHasOnlyWritableDataProperties();
         }
 
@@ -4189,7 +4189,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeRegexConstructor(DynamicObject* regexConstructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4191\n");
         JavascriptLibrary* library = regexConstructor->GetLibrary();
         ScriptContext* scriptContext = regexConstructor->GetScriptContext();
         typeHandler->Convert(regexConstructor, mode, 3);
@@ -4199,12 +4199,12 @@ namespace Js
         library->AddMember(regexConstructor, PropertyIds::prototype, library->regexPrototype, PropertyNone);
 
         if (scriptContext->GetConfig()->IsES6SpeciesEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4201\n");
             library->AddAccessorsToLibraryObject(regexConstructor, PropertyIds::_symbolSpecies, &JavascriptRegExp::EntryInfo::GetterSymbolSpecies, nullptr);
         }
 
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4206\n");
             library->AddMember(regexConstructor, PropertyIds::name, scriptContext->GetPropertyString(PropertyIds::RegExp), PropertyConfigurable);
         }
 
@@ -4212,7 +4212,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeRegexPrototype(DynamicObject* regexPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4214\n");
         typeHandler->Convert(regexPrototype, mode, 24);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterRegExp
         // so that the update is in sync with profiler
@@ -4238,7 +4238,7 @@ namespace Js
         const ScriptConfiguration* scriptConfig = regexPrototype->GetScriptContext()->GetConfig();
 
         if (scriptConfig->IsES6RegExPrototypePropertiesEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4240\n");
             library->regexGlobalGetterFunction =
                 library->AddGetterToLibraryObject(regexPrototype, PropertyIds::global, &JavascriptRegExp::EntryInfo::GetterGlobal);
             library->regexGlobalGetterSlotIndex = 5;
@@ -4255,7 +4255,7 @@ namespace Js
             Assert(regexPrototype->GetSlot(library->regexFlagsGetterSlotIndex) == library->regexFlagsGetterFunction);
 
             if (scriptConfig->IsES6RegExStickyEnabled())
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 4257\n");
                 library->regexStickyGetterFunction =
                     library->AddGetterToLibraryObject(regexPrototype, PropertyIds::sticky, &JavascriptRegExp::EntryInfo::GetterSticky);
                 library->regexStickyGetterSlotIndex = 17;
@@ -4263,7 +4263,7 @@ namespace Js
             }
 
             if (scriptConfig->IsES6UnicodeExtensionsEnabled())
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 4265\n");
                 library->regexUnicodeGetterFunction =
                     library->AddGetterToLibraryObject(regexPrototype, PropertyIds::unicode, &JavascriptRegExp::EntryInfo::GetterUnicode);
                 library->regexUnicodeGetterSlotIndex = 19;
@@ -4272,7 +4272,7 @@ namespace Js
         }
 
         if (scriptConfig->IsES6RegExSymbolsEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4274\n");
             library->AddFunctionToLibraryObjectWithName(
                 regexPrototype,
                 PropertyIds::_symbolMatch,
@@ -4307,7 +4307,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeStringConstructor(DynamicObject* stringConstructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4309\n");
         typeHandler->Convert(stringConstructor, mode, 6);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterString
         // so that the update is in sync with profiler
@@ -4319,14 +4319,14 @@ namespace Js
         library->AddMember(stringConstructor, PropertyIds::prototype, library->stringPrototype, PropertyNone);
 
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4321\n");
             library->AddMember(stringConstructor, PropertyIds::name, scriptContext->GetPropertyString(PropertyIds::String), PropertyConfigurable);
         }
 
 
         builtinFuncs[BuiltinFunction::JavascriptString_FromCharCode]  = library->AddFunctionToLibraryObject(stringConstructor, PropertyIds::fromCharCode,  &JavascriptString::EntryInfo::FromCharCode,  1);
         if(scriptContext->GetConfig()->IsES6UnicodeExtensionsEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4328\n");
             builtinFuncs[BuiltinFunction::JavascriptString_FromCodePoint] = library->AddFunctionToLibraryObject(stringConstructor, PropertyIds::fromCodePoint, &JavascriptString::EntryInfo::FromCodePoint, 1);
         }
 
@@ -4338,7 +4338,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeStringPrototype(DynamicObject* stringPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4340\n");
         typeHandler->Convert(stringPrototype, mode, 38);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterString
         // so that the update is in sync with profiler
@@ -4354,7 +4354,7 @@ namespace Js
         builtinFuncs[BuiltinFunction::JavascriptString_Slice]         = library->AddFunctionToLibraryObject(stringPrototype, PropertyIds::slice,              &JavascriptString::EntryInfo::Slice,                2);
 
         if (CONFIG_FLAG(ES6Unicode))
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4356\n");
             builtinFuncs[BuiltinFunction::JavascriptString_CodePointAt]   = library->AddFunctionToLibraryObject(stringPrototype, PropertyIds::codePointAt,        &JavascriptString::EntryInfo::CodePointAt,          1);
             /* builtinFuncs[BuiltinFunction::String_Normalize] =*/library->AddFunctionToLibraryObject(stringPrototype, PropertyIds::normalize,          &JavascriptString::EntryInfo::Normalize,            0);
         }
@@ -4393,7 +4393,7 @@ namespace Js
             /* No inlining                String_Sup           */ library->AddFunctionToLibraryObject(stringPrototype, PropertyIds::sup,                &JavascriptString::EntryInfo::Sup,                  0);
 
         if (scriptContext->GetConfig()->IsES6StringExtensionsEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4395\n");
             /* No inlining                String_Repeat        */ library->AddFunctionToLibraryObject(stringPrototype, PropertyIds::repeat,             &JavascriptString::EntryInfo::Repeat,               1);
             /* No inlining                String_StartsWith    */ library->AddFunctionToLibraryObject(stringPrototype, PropertyIds::startsWith,         &JavascriptString::EntryInfo::StartsWith,           1);
             /* No inlining                String_EndsWith      */ library->AddFunctionToLibraryObject(stringPrototype, PropertyIds::endsWith,           &JavascriptString::EntryInfo::EndsWith,             1);
@@ -4413,7 +4413,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeMapConstructor(DynamicObject* mapConstructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4415\n");
         typeHandler->Convert(mapConstructor, mode, 3);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterMap
         // so that the update is in sync with profiler
@@ -4423,12 +4423,12 @@ namespace Js
         library->AddMember(mapConstructor, PropertyIds::prototype, library->mapPrototype, PropertyNone);
 
         if (scriptContext->GetConfig()->IsES6SpeciesEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4425\n");
             library->AddAccessorsToLibraryObject(mapConstructor, PropertyIds::_symbolSpecies, &JavascriptMap::EntryInfo::GetterSymbolSpecies, nullptr);
         }
 
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4430\n");
             library->AddMember(mapConstructor, PropertyIds::name, scriptContext->GetPropertyString(PropertyIds::Map), PropertyConfigurable);
         }
 
@@ -4436,7 +4436,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeMapPrototype(DynamicObject* mapPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4438\n");
         typeHandler->Convert(mapPrototype, mode, 13, true);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterMap
         // so that the update is in sync with profiler
@@ -4460,7 +4460,7 @@ namespace Js
         library->AddMember(mapPrototype, PropertyIds::_symbolIterator, entriesFunc);
 
         if (scriptContext->GetConfig()->IsES6ToStringTagEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4462\n");
             library->AddMember(mapPrototype, PropertyIds::_symbolToStringTag, library->CreateStringFromCppLiteral(_u("Map")), PropertyConfigurable);
         }
 
@@ -4468,7 +4468,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeSetConstructor(DynamicObject* setConstructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4470\n");
         typeHandler->Convert(setConstructor, mode, 3);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterSet
         // so that the update is in sync with profiler
@@ -4478,12 +4478,12 @@ namespace Js
         library->AddMember(setConstructor, PropertyIds::prototype, library->setPrototype, PropertyNone);
 
         if (scriptContext->GetConfig()->IsES6SpeciesEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4480\n");
             library->AddAccessorsToLibraryObject(setConstructor, PropertyIds::_symbolSpecies, &JavascriptSet::EntryInfo::GetterSymbolSpecies, nullptr);
         }
 
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4485\n");
             library->AddMember(setConstructor, PropertyIds::name, scriptContext->GetPropertyString(PropertyIds::Set), PropertyConfigurable);
         }
 
@@ -4491,7 +4491,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeSetPrototype(DynamicObject* setPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4493\n");
         typeHandler->Convert(setPrototype, mode, 12, true);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterSet
         // so that the update is in sync with profiler
@@ -4514,7 +4514,7 @@ namespace Js
         library->AddMember(setPrototype, PropertyIds::_symbolIterator, valuesFunc);
 
         if (scriptContext->GetConfig()->IsES6ToStringTagEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4516\n");
             library->AddMember(setPrototype, PropertyIds::_symbolToStringTag, library->CreateStringFromCppLiteral(_u("Set")), PropertyConfigurable);
         }
 
@@ -4522,7 +4522,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeWeakMapConstructor(DynamicObject* weakMapConstructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4524\n");
         typeHandler->Convert(weakMapConstructor, mode, 3);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterWeakMap
         // so that the update is in sync with profiler
@@ -4531,7 +4531,7 @@ namespace Js
         library->AddMember(weakMapConstructor, PropertyIds::length, TaggedInt::ToVarUnchecked(0), PropertyNone);
         library->AddMember(weakMapConstructor, PropertyIds::prototype, library->weakMapPrototype, PropertyNone);
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4533\n");
             library->AddMember(weakMapConstructor, PropertyIds::name, scriptContext->GetPropertyString(PropertyIds::WeakMap), PropertyConfigurable);
         }
 
@@ -4539,7 +4539,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeWeakMapPrototype(DynamicObject* weakMapPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4541\n");
         typeHandler->Convert(weakMapPrototype, mode, 6);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterWeakMap
         // so that the update is in sync with profiler
@@ -4553,7 +4553,7 @@ namespace Js
         library->AddFunctionToLibraryObject(weakMapPrototype, PropertyIds::set, &JavascriptWeakMap::EntryInfo::Set, 2);
 
         if (scriptContext->GetConfig()->IsES6ToStringTagEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4555\n");
             library->AddMember(weakMapPrototype, PropertyIds::_symbolToStringTag, library->CreateStringFromCppLiteral(_u("WeakMap")), PropertyConfigurable);
         }
 
@@ -4561,7 +4561,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeWeakSetConstructor(DynamicObject* weakSetConstructor, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4563\n");
         typeHandler->Convert(weakSetConstructor, mode, 3);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterWeakSet
         // so that the update is in sync with profiler
@@ -4570,7 +4570,7 @@ namespace Js
         library->AddMember(weakSetConstructor, PropertyIds::length, TaggedInt::ToVarUnchecked(0), PropertyNone);
         library->AddMember(weakSetConstructor, PropertyIds::prototype, library->weakSetPrototype, PropertyNone);
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4572\n");
             library->AddMember(weakSetConstructor, PropertyIds::name, scriptContext->GetPropertyString(PropertyIds::WeakSet), PropertyConfigurable);
         }
 
@@ -4578,7 +4578,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeWeakSetPrototype(DynamicObject* weakSetPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4580\n");
         typeHandler->Convert(weakSetPrototype, mode, 5);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterWeakSet
         // so that the update is in sync with profiler
@@ -4591,7 +4591,7 @@ namespace Js
         library->AddFunctionToLibraryObject(weakSetPrototype, PropertyIds::has, &JavascriptWeakSet::EntryInfo::Has, 1);
 
         if (scriptContext->GetConfig()->IsES6ToStringTagEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4593\n");
             library->AddMember(weakSetPrototype, PropertyIds::_symbolToStringTag, library->CreateStringFromCppLiteral(_u("WeakSet")), PropertyConfigurable);
         }
 
@@ -4599,7 +4599,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeIteratorPrototype(DynamicObject* iteratorPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4601\n");
         typeHandler->Convert(iteratorPrototype, mode, 1);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterIterator
         // so that the update is in sync with profiler
@@ -4611,7 +4611,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeArrayIteratorPrototype(DynamicObject* arrayIteratorPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4613\n");
         typeHandler->Convert(arrayIteratorPrototype, mode, 2);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterArrayIterator
         // so that the update is in sync with profiler
@@ -4622,13 +4622,13 @@ namespace Js
         library->arrayIteratorPrototypeBuiltinNextFunction = library->AddFunctionToLibraryObject(arrayIteratorPrototype, PropertyIds::next, &JavascriptArrayIterator::EntryInfo::Next, 0);
 
         if (scriptContext->GetConfig()->IsES6ToStringTagEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4624\n");
             library->AddMember(arrayIteratorPrototype, PropertyIds::_symbolToStringTag, library->CreateStringFromCppLiteral(_u("Array Iterator")), PropertyConfigurable);
         }
     }
 
     void JavascriptLibrary::InitializeMapIteratorPrototype(DynamicObject* mapIteratorPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4630\n");
         typeHandler->Convert(mapIteratorPrototype, mode, 2);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterMapIterator
         // so that the update is in sync with profiler
@@ -4639,13 +4639,13 @@ namespace Js
         library->AddFunctionToLibraryObject(mapIteratorPrototype, PropertyIds::next, &JavascriptMapIterator::EntryInfo::Next, 0);
 
         if (scriptContext->GetConfig()->IsES6ToStringTagEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4641\n");
             library->AddMember(mapIteratorPrototype, PropertyIds::_symbolToStringTag, library->CreateStringFromCppLiteral(_u("Map Iterator")), PropertyConfigurable);
         }
     }
 
     void JavascriptLibrary::InitializeSetIteratorPrototype(DynamicObject* setIteratorPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4647\n");
         typeHandler->Convert(setIteratorPrototype, mode, 2);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterSetIterator
         // so that the update is in sync with profiler
@@ -4655,13 +4655,13 @@ namespace Js
         library->AddFunctionToLibraryObject(setIteratorPrototype, PropertyIds::next, &JavascriptSetIterator::EntryInfo::Next, 0);
 
         if (scriptContext->GetConfig()->IsES6ToStringTagEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4657\n");
             library->AddMember(setIteratorPrototype, PropertyIds::_symbolToStringTag, library->CreateStringFromCppLiteral(_u("Set Iterator")), PropertyConfigurable);
         }
     }
 
     void JavascriptLibrary::InitializeStringIteratorPrototype(DynamicObject* stringIteratorPrototype, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4663\n");
         typeHandler->Convert(stringIteratorPrototype, mode, 2);
         // Note: Any new function addition/deletion/modification should also be updated in JavascriptLibrary::ProfilerRegisterStringIterator
         // so that the update is in sync with profiler
@@ -4671,17 +4671,17 @@ namespace Js
         library->AddFunctionToLibraryObject(stringIteratorPrototype, PropertyIds::next, &JavascriptStringIterator::EntryInfo::Next, 0);
 
         if (scriptContext->GetConfig()->IsES6ToStringTagEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4673\n");
             library->AddMember(stringIteratorPrototype, PropertyIds::_symbolToStringTag, library->CreateStringFromCppLiteral(_u("String Iterator")), PropertyConfigurable);
         }
     }
 
     RuntimeFunction* JavascriptLibrary::CreateBuiltinConstructor(FunctionInfo * functionInfo, DynamicTypeHandler * typeHandler, DynamicObject* prototype)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4679\n");
         Assert((functionInfo->GetAttributes() & FunctionInfo::Attributes::ErrorOnNew) == 0);
 
         if (prototype == nullptr)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4683\n");
             prototype = functionPrototype;
         }
 
@@ -4694,14 +4694,14 @@ namespace Js
     }
 
     JavascriptExternalFunction* JavascriptLibrary::CreateExternalConstructor(Js::ExternalMethod entryPoint, PropertyId nameId, RecyclableObject * prototype)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4696\n");
         Assert(nameId >= Js::InternalPropertyIds::Count && scriptContext->IsTrackedPropertyId(nameId));
         JavascriptExternalFunction* function = this->CreateIdMappedExternalFunction(entryPoint, idMappedFunctionWithPrototypeType);
         function->SetFunctionNameId(TaggedInt::ToVarUnchecked(nameId));
 
         Js::RecyclableObject* objPrototype;
         if (prototype == nullptr)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4703\n");
             objPrototype = CreateConstructorPrototypeObject(function);
             Assert(!objPrototype->IsEnumerable(Js::PropertyIds::constructor));
         }
@@ -4718,7 +4718,7 @@ namespace Js
         function->SetPropertyWithAttributes(Js::PropertyIds::prototype, objPrototype, PropertyNone, nullptr);
 
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4720\n");
             JavascriptString * functionName = nullptr;
             DebugOnly(bool status =) function->GetFunctionName(&functionName);
             AssertMsg(status,"CreateExternalConstructor sets the functionNameId, status should always be true");
@@ -4729,12 +4729,12 @@ namespace Js
     }
 
     JavascriptExternalFunction* JavascriptLibrary::CreateExternalConstructor(Js::ExternalMethod entryPoint, PropertyId nameId, InitializeMethod method, unsigned short deferredTypeSlots, bool hasAccessors)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4731\n");
         Assert(nameId >= Js::InternalPropertyIds::Count && scriptContext->IsTrackedPropertyId(nameId));
 
         JavascriptExternalFunction* function = nullptr;
         if (entryPoint != nullptr)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4736\n");
              function = RecyclerNewEnumClass(this->GetRecycler(), EnumFunctionClass, JavascriptExternalFunction, entryPoint,
                 externalConstructorFunctionWithDeferredPrototypeType, method, deferredTypeSlots, hasAccessors);
         }
@@ -4749,40 +4749,40 @@ namespace Js
     }
 
     DynamicType* JavascriptLibrary::GetCachedJsrtExternalType(uintptr_t finalizeCallback)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4751\n");
         RecyclerWeakReference<DynamicType>* dynamicTypeWeakRef = nullptr;
         DynamicType* dynamicType = nullptr;
         if (jsrtExternalTypesCache == nullptr)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4755\n");
             jsrtExternalTypesCache = RecyclerNew(recycler, JsrtExternalTypesCache, recycler, 3);
             // Register for periodic cleanup
             scriptContext->RegisterWeakReferenceDictionary(jsrtExternalTypesCache);
         }
         if (jsrtExternalTypesCache->TryGetValue(finalizeCallback, &dynamicTypeWeakRef))
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4761\n");
             dynamicType = dynamicTypeWeakRef->Get();
         }
         return dynamicType;
     }
 
     void JavascriptLibrary::CacheJsrtExternalType(uintptr_t finalizeCallback, DynamicType* dynamicTypeToCache)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4768\n");
         jsrtExternalTypesCache->Item(finalizeCallback, recycler->CreateWeakReferenceHandle<DynamicType>(dynamicTypeToCache));
     }
 
     RuntimeFunction* JavascriptLibrary::DefaultCreateFunction(FunctionInfo * functionInfo, int length, DynamicObject * prototype, DynamicType * functionType, PropertyId nameId)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4773\n");
         Assert(nameId >= Js::InternalPropertyIds::Count && scriptContext->IsTrackedPropertyId(nameId));
         return DefaultCreateFunction(functionInfo, length, prototype, functionType, TaggedInt::ToVarUnchecked((int)nameId));
     }
 
     RuntimeFunction* JavascriptLibrary::DefaultCreateFunction(FunctionInfo * functionInfo, int length, DynamicObject * prototype, DynamicType * functionType, Var nameId)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4779\n");
         Assert(nameId != nullptr);
         RuntimeFunction * function;
 
         if (nullptr == functionType)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4784\n");
             functionType = (nullptr == prototype) ?
                                 scriptContext->GetConfig()->IsES6FunctionNameEnabled() ?
                                     CreateFunctionWithLengthAndNameType(functionInfo) :
@@ -4793,7 +4793,7 @@ namespace Js
         function = RecyclerNewEnumClass(this->GetRecycler(), EnumFunctionClass, RuntimeFunction, functionType, functionInfo);
 
         if (prototype != nullptr)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4795\n");
             // NOTE: Assume all built in function prototype doesn't contain valueOf or toString that has side effects
             function->SetPropertyWithAttributes(PropertyIds::prototype, prototype, PropertyNone, nullptr, PropertyOperation_None, SideEffects_None);
         }
@@ -4801,7 +4801,7 @@ namespace Js
         function->SetPropertyWithAttributes(PropertyIds::length, TaggedInt::ToVarUnchecked(length), PropertyConfigurable, nullptr);
         function->SetFunctionNameId(nameId);
         if (function->GetScriptContext()->GetConfig()->IsES6FunctionNameEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4803\n");
             JavascriptString * functionName = nullptr;
             DebugOnly(bool status = ) function->GetFunctionName(&functionName);
             AssertMsg(status, "DefaultCreateFunction sets the functionNameId, status should always be true");
@@ -4824,28 +4824,28 @@ namespace Js
     }
 
     JavascriptFunction * JavascriptLibrary::AddFunctionToLibraryObject(DynamicObject* object, PropertyId propertyId, FunctionInfo * functionInfo, int length, PropertyAttributes attributes)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4826\n");
         RuntimeFunction* function = DefaultCreateFunction(functionInfo, length, nullptr, nullptr, propertyId);
         AddMember(object, propertyId, function, attributes);
         return function;
     }
 
     JavascriptFunction * JavascriptLibrary::AddFunctionToLibraryObjectWithPrototype(DynamicObject * object, PropertyId propertyId, FunctionInfo * functionInfo, int length, DynamicObject * prototype, DynamicType * functionType)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4833\n");
         RuntimeFunction* function = DefaultCreateFunction(functionInfo, length, prototype, functionType, propertyId);
         AddMember(object, propertyId, function);
         return function;
     }
 
     JavascriptFunction * JavascriptLibrary::AddFunctionToLibraryObjectWithName(DynamicObject* object, PropertyId propertyId, PropertyId name, FunctionInfo * functionInfo, int length)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4840\n");
         RuntimeFunction* function = DefaultCreateFunction(functionInfo, length, nullptr, nullptr, name);
         AddMember(object, propertyId, function);
         return function;
     }
 
     RuntimeFunction* JavascriptLibrary::AddGetterToLibraryObject(DynamicObject* object, PropertyId propertyId, FunctionInfo* functionInfo)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4847\n");
         RuntimeFunction* getter = CreateGetterFunction(propertyId, functionInfo);
         AddAccessorsToLibraryObject(object, propertyId, getter, nullptr);
         return getter;
@@ -4857,14 +4857,14 @@ namespace Js
     }
 
     void JavascriptLibrary::AddAccessorsToLibraryObject(DynamicObject* object, PropertyId propertyId, RecyclableObject* getterFunction, RecyclableObject* setterFunction)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4859\n");
         if (getterFunction == nullptr)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4861\n");
             getterFunction = GetUndefined();
         }
 
         if (setterFunction == nullptr)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4866\n");
             setterFunction = GetUndefined();
         }
 
@@ -4873,7 +4873,7 @@ namespace Js
     }
 
     void JavascriptLibrary::AddAccessorsToLibraryObjectWithName(DynamicObject* object, PropertyId propertyId, PropertyId nameId, FunctionInfo * getterFunctionInfo, FunctionInfo * setterFunctionInfo)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4875\n");
         Js::RuntimeFunction* getterFunction = (getterFunctionInfo != nullptr)
             ? CreateGetterFunction(nameId, getterFunctionInfo)
             : nullptr;
@@ -4884,7 +4884,7 @@ namespace Js
     }
 
     RuntimeFunction* JavascriptLibrary::CreateGetterFunction(PropertyId nameId, FunctionInfo* functionInfo)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4886\n");
         Var name_withGetPrefix = LiteralString::Concat(LiteralString::NewCopySz(_u("get "), scriptContext), scriptContext->GetPropertyString(nameId));
         RuntimeFunction* getterFunction = DefaultCreateFunction(functionInfo, 0, nullptr, nullptr, name_withGetPrefix);
         getterFunction->SetPropertyWithAttributes(PropertyIds::length, TaggedInt::ToVarUnchecked(0), PropertyNone, nullptr);
@@ -4892,7 +4892,7 @@ namespace Js
     }
 
     RuntimeFunction* JavascriptLibrary::CreateSetterFunction(PropertyId nameId, FunctionInfo* functionInfo)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4894\n");
         Var name_withSetPrefix = LiteralString::Concat(LiteralString::NewCopySz(_u("set "), scriptContext), scriptContext->GetPropertyString(nameId));
         RuntimeFunction* setterFunction = DefaultCreateFunction(functionInfo, 0, nullptr, nullptr, name_withSetPrefix);
         setterFunction->SetPropertyWithAttributes(PropertyIds::length, TaggedInt::ToVarUnchecked(1), PropertyNone, nullptr);
@@ -4905,13 +4905,13 @@ namespace Js
     }
 
     void JavascriptLibrary::AddMember(DynamicObject* object, PropertyId propertyId, Var value, PropertyAttributes attributes)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4907\n");
         // NOTE: Assume all built in member doesn't have side effect
         object->SetPropertyWithAttributes(propertyId, value, attributes, nullptr, PropertyOperation_None, SideEffects_None);
     }
 
     void JavascriptLibrary::InitializeJSONObject(DynamicObject* JSONObject, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4913\n");
         typeHandler->Convert(JSONObject, mode, 3);
         JavascriptLibrary* library = JSONObject->GetLibrary();
         JSONObject->GetScriptContext()->SetBuiltInLibraryFunction(JSON::EntryInfo::Stringify.GetOriginalEntryPoint(),
@@ -4919,7 +4919,7 @@ namespace Js
         library->AddFunctionToLibraryObject(JSONObject, PropertyIds::parse, &JSON::EntryInfo::Parse, 2);
 
         if (JSONObject->GetScriptContext()->GetConfig()->IsES6ToStringTagEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4921\n");
             library->AddMember(JSONObject, PropertyIds::_symbolToStringTag, JSONObject->GetLibrary()->CreateStringFromCppLiteral(_u("JSON")), PropertyConfigurable);
         }
 
@@ -4928,7 +4928,7 @@ namespace Js
 
 #if defined(ENABLE_INTL_OBJECT) || defined(ENABLE_PROJECTION)
     void JavascriptLibrary::InitializeEngineInterfaceObject(DynamicObject* engineInterface, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4930\n");
         typeHandler->Convert(engineInterface, mode, 3);
 
         EngineInterfaceObject::FromVar(engineInterface)->Initialize();
@@ -4938,13 +4938,13 @@ namespace Js
 #endif
 
     void JavascriptLibrary::SetNativeHostPromiseContinuationFunction(PromiseContinuationCallback function, void *state)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4940\n");
         this->nativeHostPromiseContinuationFunction = function;
         this->nativeHostPromiseContinuationFunctionState = state;
     }
 
     void JavascriptLibrary::SetJsrtContext(FinalizableObject* jsrtContext)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4946\n");
         // With JsrtContext supporting cross context, ensure that it doesn't get GCed
         // prematurely. So pin the instance to javascriptLibrary so it will stay alive
         // until any object of it are alive.
@@ -4953,21 +4953,21 @@ namespace Js
     }
 
     FinalizableObject* JavascriptLibrary::GetJsrtContext()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4955\n");
         return this->jsrtContextObject;
     }
 
     void JavascriptLibrary::EnqueueTask(Var taskVar)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 4960\n");
         Assert(JavascriptFunction::Is(taskVar));
 
         if(this->nativeHostPromiseContinuationFunction)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 4964\n");
 #if ENABLE_TTD
             TTDAssert(this->scriptContext != nullptr, "We shouldn't be adding tasks if this is the case???");
 
             if(this->scriptContext->ShouldPerformReplayAction())
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 4969\n");
                 this->scriptContext->GetThreadContext()->TTDRootNestingCount++;
 
                 this->scriptContext->GetThreadContext()->TTDLog->ReplayEnqueueTaskEvent(scriptContext, taskVar);
@@ -4975,17 +4975,17 @@ namespace Js
                 this->scriptContext->GetThreadContext()->TTDRootNestingCount--;
             }
             else if(this->scriptContext->ShouldPerformRecordAction())
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 4977\n");
                 this->scriptContext->GetThreadContext()->TTDRootNestingCount++;
                 TTD::NSLogEvents::EventLogEntry* evt = this->scriptContext->GetThreadContext()->TTDLog->RecordEnqueueTaskEvent(taskVar);
 
                 BEGIN_LEAVE_SCRIPT(this->scriptContext);
                 try
-                {
+                {LOGMEIN("JavascriptLibrary.cpp] 4983\n");
                     this->nativeHostPromiseContinuationFunction(taskVar, this->nativeHostPromiseContinuationFunctionState);
                 }
                 catch(...)
-                {
+                {LOGMEIN("JavascriptLibrary.cpp] 4987\n");
                     // Hosts are required not to pass exceptions back across the callback boundary. If
                     // this happens, it is a bug in the host, not something that we are expected to
                     // handle gracefully.
@@ -5000,11 +5000,11 @@ namespace Js
             {
                 BEGIN_LEAVE_SCRIPT(scriptContext);
                 try
-                {
+                {LOGMEIN("JavascriptLibrary.cpp] 5002\n");
                     this->nativeHostPromiseContinuationFunction(taskVar, this->nativeHostPromiseContinuationFunctionState);
                 }
                 catch(...)
-                {
+                {LOGMEIN("JavascriptLibrary.cpp] 5006\n");
                     // Hosts are required not to pass exceptions back across the callback boundary. If
                     // this happens, it is a bug in the host, not something that we are expected to
                     // handle gracefully.
@@ -5015,11 +5015,11 @@ namespace Js
 #else
             BEGIN_LEAVE_SCRIPT(scriptContext);
             try
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 5017\n");
                 this->nativeHostPromiseContinuationFunction(taskVar, this->nativeHostPromiseContinuationFunctionState);
             }
             catch (...)
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 5021\n");
                 // Hosts are required not to pass exceptions back across the callback boundary. If
                 // this happens, it is a bug in the host, not something that we are expected to
                 // handle gracefully.
@@ -5042,7 +5042,7 @@ namespace Js
 
             HRESULT hr = scriptContext->GetHostScriptContext()->EnqueuePromiseTask(taskVar);
             if (hr != S_OK)
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 5044\n");
                 Js::JavascriptError::MapAndThrowError(scriptContext, hr);
             }
         }
@@ -5050,7 +5050,7 @@ namespace Js
 
 #ifdef ENABLE_INTL_OBJECT
     void JavascriptLibrary::ResetIntlObject()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5052\n");
         IntlObject = DynamicObject::New(
             recycler,
             DynamicType::New(scriptContext,
@@ -5059,7 +5059,7 @@ namespace Js
     }
 
     void JavascriptLibrary::EnsureIntlObjectReady()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5061\n");
         Assert(this->IntlObject != nullptr);
 
         // For Intl builtins, we need to make sure the Intl object has been initialized before fetching the
@@ -5067,11 +5067,11 @@ namespace Js
         // Intl.js and are registered into the EngineInterfaceObject as part of Intl object initialization.
         JavascriptExceptionObject * caughtExceptionObject = nullptr;
         try
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5069\n");
             this->IntlObject->GetTypeHandler()->EnsureObjectReady(this->IntlObject);
         }
         catch (const JavascriptException& err)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5073\n");
             caughtExceptionObject = err.GetAndClear();
         }
 
@@ -5079,14 +5079,14 @@ namespace Js
         if (caughtExceptionObject != nullptr &&
             (caughtExceptionObject == ThreadContext::GetContextForCurrentThread()->GetPendingOOMErrorObject() ||
             caughtExceptionObject == ThreadContext::GetContextForCurrentThread()->GetPendingSOErrorObject()))
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5081\n");
             caughtExceptionObject = caughtExceptionObject->CloneIfStaticExceptionObject(scriptContext);
             JavascriptExceptionOperators::DoThrow(caughtExceptionObject, scriptContext);
         }
     }
 
     void JavascriptLibrary::InitializeIntlObject(DynamicObject* IntlObject, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5088\n");
         typeHandler->Convert(IntlObject, mode,  /*initSlotCapacity*/ 2);
 
         auto intlInitializer = [&](IntlEngineInterfaceExtensionObject* intlExtension, ScriptContext * scriptContext, DynamicObject* intlObject) ->void
@@ -5097,7 +5097,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeIntlForStringPrototype()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5099\n");
         auto stringPrototypeInitializer = [&](IntlEngineInterfaceExtensionObject* intlExtension, ScriptContext * scriptContext, DynamicObject* intlObject) ->void
         {
             intlExtension->InjectIntlLibraryCode(scriptContext, intlObject, IntlInitializationType::StringPrototype);
@@ -5106,7 +5106,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeIntlForDatePrototype()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5108\n");
         auto datePrototypeInitializer = [&](IntlEngineInterfaceExtensionObject* intlExtension, ScriptContext * scriptContext, DynamicObject* intlObject) ->void
         {
             intlExtension->InjectIntlLibraryCode(scriptContext, intlObject, IntlInitializationType::DatePrototype);
@@ -5115,7 +5115,7 @@ namespace Js
     }
 
     void JavascriptLibrary::InitializeIntlForNumberPrototype()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5117\n");
         auto numberPrototypeInitializer = [&](IntlEngineInterfaceExtensionObject* intlExtension, ScriptContext * scriptContext, DynamicObject* intlObject) ->void
         {
             intlExtension->InjectIntlLibraryCode(scriptContext, intlObject, IntlInitializationType::NumberPrototype);
@@ -5125,10 +5125,10 @@ namespace Js
 
     template <class Fn>
     void JavascriptLibrary::InitializeIntlForPrototypes(Fn fn)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5127\n");
         ScriptContext* scriptContext = this->IntlObject->GetScriptContext();
         if (scriptContext->VerifyAlive())  // Can't initialize if scriptContext closed, will need to run script
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5130\n");
             JavascriptLibrary* library = this->IntlObject->GetLibrary();
             Assert(library->engineInterfaceObject != nullptr);
             IntlEngineInterfaceExtensionObject* intlExtension = static_cast<IntlEngineInterfaceExtensionObject*>(library->GetEngineInterfaceObject()->GetEngineExtension(EngineInterfaceExtensionKind_Intl));
@@ -5138,17 +5138,17 @@ namespace Js
 #endif
 
     void JavascriptLibrary::SetProfileMode(bool fSet)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5140\n");
         inProfileMode = fSet;
     }
 
     void JavascriptLibrary::SetDispatchProfile(bool fSet, JavascriptMethod dispatchInvoke)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5145\n");
         if (!fSet)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5147\n");
             this->inDispatchProfileMode = false;
             if (dispatchInvoke != nullptr)
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 5150\n");
                 this->GetScriptContext()->GetHostScriptContext()->SetDispatchInvoke(dispatchInvoke);
             }
             idMappedFunctionWithPrototypeType->SetEntryPoint(JavascriptExternalFunction::ExternalFunctionThunk);
@@ -5159,7 +5159,7 @@ namespace Js
         {
             this->inDispatchProfileMode = true;
             if (dispatchInvoke != nullptr)
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 5161\n");
                 this->GetScriptContext()->GetHostScriptContext()->SetDispatchInvoke(dispatchInvoke);
             }
             idMappedFunctionWithPrototypeType->SetEntryPoint(ProfileEntryThunk);
@@ -5168,36 +5168,36 @@ namespace Js
         }
     }
     JavascriptString* JavascriptLibrary::CreateEmptyString()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5170\n");
         return LiteralString::CreateEmptyString(stringTypeStatic);
     }
 
     JavascriptRegExp* JavascriptLibrary::CreateEmptyRegExp()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5175\n");
         return RecyclerNew(scriptContext->GetRecycler(), JavascriptRegExp, emptyRegexPattern,
                            this->GetRegexType());
     }
 
 #if ENABLE_TTD
     Js::PropertyId JavascriptLibrary::ExtractPrimitveSymbolId_TTD(Var value)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5182\n");
         return Js::JavascriptSymbol::FromVar(value)->GetValue()->GetPropertyId();
     }
 
     Js::RecyclableObject* JavascriptLibrary::CreatePrimitveSymbol_TTD(Js::PropertyId pid)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5187\n");
         return this->CreateSymbol(this->scriptContext->GetPropertyName(pid));
     }
 
     Js::RecyclableObject* JavascriptLibrary::CreatePrimitveSymbol_TTD(Js::JavascriptString* str)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5192\n");
         return this->CreateSymbol(str);
     }
 
     Js::RecyclableObject* JavascriptLibrary::CreateDefaultBoxedObject_TTD(Js::TypeId kind)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5197\n");
         switch(kind)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5199\n");
         case Js::TypeIds_BooleanObject:
             return this->CreateBooleanObject();
         case Js::TypeIds_NumberObject:
@@ -5213,9 +5213,9 @@ namespace Js
     }
 
     void JavascriptLibrary::SetBoxedObjectValue_TTD(Js::RecyclableObject* obj, Js::Var value)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5215\n");
         switch(obj->GetTypeId())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5217\n");
         case Js::TypeIds_BooleanObject:
             Js::JavascriptBooleanObject::FromVar(obj)->SetValue_TTD(value);
             break;
@@ -5235,12 +5235,12 @@ namespace Js
     }
 
     Js::RecyclableObject* JavascriptLibrary::CreateDate_TTD(double value)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5237\n");
         return this->CreateDate(value);
     }
 
     Js::RecyclableObject* JavascriptLibrary::CreateRegex_TTD(const char16* patternSource, uint32 patternLength, UnifiedRegex::RegexFlags flags, CharCount lastIndex, Js::Var lastVar)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5242\n");
         Js::JavascriptRegExp* re = Js::JavascriptRegExp::CreateRegEx(patternSource, patternLength, flags, this->scriptContext);
         re->SetLastIndexInfo_TTD(lastIndex, lastVar);
 
@@ -5248,12 +5248,12 @@ namespace Js
     }
 
     Js::RecyclableObject* JavascriptLibrary::CreateError_TTD()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5250\n");
         return this->CreateError();
     }
 
     Js::RecyclableObject* JavascriptLibrary::CreateES5Array_TTD()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5255\n");
         Js::JavascriptArray* arrayObj = this->CreateArray();
         arrayObj->GetTypeHandler()->ConvertToTypeWithItemAttributes(arrayObj);
 
@@ -5261,74 +5261,74 @@ namespace Js
     }
 
     void JavascriptLibrary::SetLengthWritableES5Array_TTD(Js::RecyclableObject* es5Array, bool isLengthWritable)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5263\n");
         Js::ES5Array* es5a = Js::ES5Array::FromVar(es5Array);
         if(es5a->IsLengthWritable() != isLengthWritable)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5266\n");
             es5a->SetWritable(Js::PropertyIds::length, isLengthWritable ? TRUE : FALSE);
         }
     }
 
     Js::RecyclableObject* JavascriptLibrary::CreateSet_TTD()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5272\n");
         return JavascriptSet::CreateForSnapshotRestore(this->scriptContext);
     }
 
     Js::RecyclableObject* JavascriptLibrary::CreateWeakSet_TTD()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5277\n");
         return this->CreateWeakSet();
     }
 
     void JavascriptLibrary::AddSetElementInflate_TTD(Js::JavascriptSet* set, Var value)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5282\n");
         set->Add(value);
     }
 
     void JavascriptLibrary::AddWeakSetElementInflate_TTD(Js::JavascriptWeakSet* set, Var value)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5287\n");
         set->GetScriptContext()->TTDContextInfo->TTDWeakReferencePinSet->Add(Js::DynamicObject::FromVar(value));
 
         set->Add(Js::DynamicObject::FromVar(value));
     }
 
     Js::RecyclableObject* JavascriptLibrary::CreateMap_TTD()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5294\n");
         return JavascriptMap::CreateForSnapshotRestore(this->scriptContext);
     }
 
     Js::RecyclableObject* JavascriptLibrary::CreateWeakMap_TTD()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5299\n");
         return this->CreateWeakMap();
     }
 
     void JavascriptLibrary::AddMapElementInflate_TTD(Js::JavascriptMap* map, Var key, Var value)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5304\n");
         map->Set(key, value);
     }
 
     void JavascriptLibrary::AddWeakMapElementInflate_TTD(Js::JavascriptWeakMap* map, Var key, Var value)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5309\n");
         map->GetScriptContext()->TTDContextInfo->TTDWeakReferencePinSet->Add(Js::DynamicObject::FromVar(key));
 
         map->Set(Js::DynamicObject::FromVar(key), value);
     }
 
     Js::RecyclableObject* JavascriptLibrary::CreateExternalFunction_TTD(Js::Var fname)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5316\n");
         return this->CreateStdCallExternalFunction(&JavascriptExternalFunction::TTDReplayDummyExternalMethod, fname, nullptr);
     }
 
     Js::RecyclableObject* JavascriptLibrary::CreateBoundFunction_TTD(RecyclableObject* function, Var bThis, uint32 ct, Var* args)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5321\n");
         return BoundFunction::InflateBoundFunction(this->scriptContext, function, bThis, ct, args);
     }
 
     Js::RecyclableObject* JavascriptLibrary::CreateProxy_TTD(RecyclableObject* handler, RecyclableObject* target)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5326\n");
         JavascriptProxy* newProxy = RecyclerNew(this->scriptContext->GetRecycler(), JavascriptProxy, this->GetProxyType(), this->scriptContext, target, handler);
 
         if(target != nullptr && JavascriptConversion::IsCallable(target))
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5330\n");
             newProxy->ChangeType();
             newProxy->GetDynamicType()->SetEntryPoint(JavascriptProxy::FunctionCallTrap);
         }
@@ -5337,7 +5337,7 @@ namespace Js
     }
 
     Js::RecyclableObject* JavascriptLibrary::CreateRevokeFunction_TTD(RecyclableObject* proxy)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5339\n");
         RuntimeFunction* revoker = RecyclerNewEnumClass(this->scriptContext->GetRecycler(), JavascriptLibrary::EnumFunctionClass, RuntimeFunction, this->CreateFunctionWithLengthType(&JavascriptProxy::EntryInfo::Revoke), &JavascriptProxy::EntryInfo::Revoke);
 
         revoker->SetPropertyWithAttributes(Js::PropertyIds::length, Js::TaggedInt::ToVarUnchecked(0), PropertyNone, NULL);
@@ -5347,14 +5347,14 @@ namespace Js
     }
 
     Js::RecyclableObject* JavascriptLibrary::CreateHeapArguments_TTD(uint32 numOfArguments, uint32 formalCount, ActivationObject* frameObject, byte* deletedArray)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5349\n");
         Js::HeapArgumentsObject* argsObj = this->CreateHeapArguments(frameObject, formalCount);
 
         argsObj->SetNumberOfArguments(numOfArguments);
         for(uint32 i = 0; i < formalCount; ++i)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5354\n");
             if(deletedArray[i])
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 5356\n");
                 argsObj->DeleteItemAt(i);
             }
         }
@@ -5363,14 +5363,14 @@ namespace Js
     }
 
     Js::RecyclableObject* JavascriptLibrary::CreateES5HeapArguments_TTD(uint32 numOfArguments, uint32 formalCount, ActivationObject* frameObject, byte* deletedArray)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5365\n");
         Js::HeapArgumentsObject* argsObj = this->CreateHeapArguments(frameObject, formalCount);
 
         argsObj->SetNumberOfArguments(numOfArguments);
         for(uint32 i = 0; i < formalCount; ++i)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5370\n");
             if(deletedArray[i])
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 5372\n");
                 argsObj->DeleteItemAt(i);
             }
         }
@@ -5379,22 +5379,22 @@ namespace Js
     }
 
     Js::JavascriptPromiseCapability* JavascriptLibrary::CreatePromiseCapability_TTD(Var promise, Var resolve, Var reject)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5381\n");
         return JavascriptPromiseCapability::New(promise, resolve, reject, this->scriptContext);
     }
 
     Js::JavascriptPromiseReaction* JavascriptLibrary::CreatePromiseReaction_TTD(RecyclableObject* handler, JavascriptPromiseCapability* capabilities)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5386\n");
         return JavascriptPromiseReaction::New(capabilities, handler, this->scriptContext);
     }
 
     Js::RecyclableObject* JavascriptLibrary::CreatePromise_TTD(uint32 status, Var result, JsUtil::List<Js::JavascriptPromiseReaction*, HeapAllocator>& resolveReactions, JsUtil::List<Js::JavascriptPromiseReaction*, HeapAllocator>& rejectReactions)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5391\n");
         return JavascriptPromise::InitializePromise_TTD(this->scriptContext, status, result, resolveReactions, rejectReactions);
     }
 
     JavascriptPromiseResolveOrRejectFunctionAlreadyResolvedWrapper* JavascriptLibrary::CreateAlreadyDefinedWrapper_TTD(bool alreadyDefined)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5396\n");
         JavascriptPromiseResolveOrRejectFunctionAlreadyResolvedWrapper* alreadyResolvedRecord = RecyclerNewStructZ(scriptContext->GetRecycler(), JavascriptPromiseResolveOrRejectFunctionAlreadyResolvedWrapper);
         alreadyResolvedRecord->alreadyResolved = alreadyDefined;
 
@@ -5402,19 +5402,19 @@ namespace Js
     }
 
     Js::RecyclableObject* JavascriptLibrary::CreatePromiseResolveOrRejectFunction_TTD(RecyclableObject* promise, bool isReject, JavascriptPromiseResolveOrRejectFunctionAlreadyResolvedWrapper* alreadyResolved)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5404\n");
         TTDAssert(JavascriptPromise::Is(promise), "Not a promise!");
 
         return this->CreatePromiseResolveOrRejectFunction(JavascriptPromise::EntryResolveOrRejectFunction, static_cast<JavascriptPromise*>(promise), isReject, alreadyResolved);
     }
 
     Js::RecyclableObject* JavascriptLibrary::CreatePromiseReactionTaskFunction_TTD(JavascriptPromiseReaction* reaction, Var argument)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5411\n");
         return this->CreatePromiseReactionTaskFunction(JavascriptPromise::EntryReactionTaskFunction, reaction, argument);
     }
 
     JavascriptPromiseAllResolveElementFunctionRemainingElementsWrapper* JavascriptLibrary::CreateRemainingElementsWrapper_TTD(Js::ScriptContext* ctx, uint32 value)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5416\n");
         JavascriptPromiseAllResolveElementFunctionRemainingElementsWrapper* remainingElementsWrapper = RecyclerNewStructZ(ctx->GetRecycler(), JavascriptPromiseAllResolveElementFunctionRemainingElementsWrapper);
         remainingElementsWrapper->remainingElements = value;
 
@@ -5422,7 +5422,7 @@ namespace Js
     }
 
     Js::RecyclableObject* JavascriptLibrary::CreatePromiseAllResolveElementFunction_TTD(Js::JavascriptPromiseCapability* capabilities, uint32 index, Js::JavascriptPromiseAllResolveElementFunctionRemainingElementsWrapper* wrapper, Js::RecyclableObject* values, bool alreadyCalled)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5424\n");
         Js::JavascriptPromiseAllResolveElementFunction* res = this->CreatePromiseAllResolveElementFunction(JavascriptPromise::EntryAllResolveElementFunction, index, Js::JavascriptArray::FromVar(values), capabilities, wrapper);
         res->SetAlreadyCalled(alreadyCalled);
 
@@ -5431,14 +5431,14 @@ namespace Js
 #endif
 
     void JavascriptLibrary::SetCrossSiteForSharedFunctionType(JavascriptFunction * function)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5433\n");
         Assert(function->GetDynamicType()->GetIsShared());
 
         if (ScriptFunction::Is(function))
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5437\n");
 #if DEBUG
             if (!function->GetFunctionProxy()->GetIsAnonymousFunction())
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 5440\n");
                 Assert(function->GetFunctionInfo()->IsConstructor() ?
                     function->GetDynamicType()->GetTypeHandler() == JavascriptLibrary::GetDeferredPrototypeFunctionTypeHandler(this->GetScriptContext()) :
                     function->GetDynamicType()->GetTypeHandler() == JavascriptLibrary::GetDeferredFunctionTypeHandler());
@@ -5454,7 +5454,7 @@ namespace Js
             function->SetEntryPoint(scriptContext->CurrentCrossSiteThunk);
         }
         else if (BoundFunction::Is(function))
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5456\n");
             function->ChangeType();
             function->SetEntryPoint(scriptContext->CurrentCrossSiteThunk);
         }
@@ -5462,11 +5462,11 @@ namespace Js
         {
             DynamicTypeHandler * typeHandler = function->GetDynamicType()->GetTypeHandler();
             if (typeHandler == JavascriptLibrary::GetDeferredPrototypeFunctionTypeHandler(this->GetScriptContext()))
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 5464\n");
                 function->ReplaceType(crossSiteDeferredPrototypeFunctionType);
             }
             else if (typeHandler == Js::DeferredTypeHandler<Js::JavascriptExternalFunction::DeferredInitializer>::GetDefaultInstance())
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 5468\n");
                 function->ReplaceType(crossSiteExternalConstructFunctionWithPrototypeType);
             }
             else
@@ -5479,14 +5479,14 @@ namespace Js
 
     JavascriptExternalFunction*
     JavascriptLibrary::CreateExternalFunction(ExternalMethod entryPoint, PropertyId nameId, Var signature, JavascriptTypeId prototypeTypeId, UINT64 flags)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5481\n");
         Assert(nameId == 0 || scriptContext->IsTrackedPropertyId(nameId));
         return CreateExternalFunction(entryPoint, TaggedInt::ToVarUnchecked(nameId), signature, prototypeTypeId, flags);
     }
 
     JavascriptExternalFunction*
     JavascriptLibrary::CreateExternalFunction(ExternalMethod entryPoint, Var nameId, Var signature, JavascriptTypeId prototypeTypeId, UINT64 flags)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5488\n");
         JavascriptExternalFunction* function = this->CreateIdMappedExternalFunction(entryPoint, externalFunctionWithDeferredPrototypeType);
         function->SetPrototypeTypeId(prototypeTypeId);
         function->SetExternalFlags(flags);
@@ -5499,7 +5499,7 @@ namespace Js
         JS_ETW_INTERNAL(EventWriteJSCRIPT_BUILD_DIRECT_FUNCTION(scriptContext, function, TaggedInt::Is(nameId) ? scriptContext->GetThreadContext()->GetPropertyName(TaggedInt::ToInt32(nameId))->GetBuffer() : ((JavascriptString *)nameId)->GetString()));
 #if DBG_DUMP
         if (Js::Configuration::Global.flags.Trace.IsEnabled(Js::HostPhase))
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5501\n");
             Output::Print(_u("Create new external function: methodAddr= %p, propertyRecord= %p, propertyName= %s\n"),
                 this, nameId,
                 TaggedInt::Is(nameId) ? scriptContext->GetThreadContext()->GetPropertyName(TaggedInt::ToInt32(nameId))->GetBuffer() : ((JavascriptString *)nameId)->GetString());
@@ -5509,15 +5509,15 @@ namespace Js
     }
 
     void JavascriptLibrary::EnsureStringTemplateCallsiteObjectList()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5511\n");
         if (this->stringTemplateCallsiteObjectList == nullptr)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5513\n");
             this->stringTemplateCallsiteObjectList = RecyclerNew(GetRecycler(), StringTemplateCallsiteObjectList, GetRecycler());
         }
     }
 
     void JavascriptLibrary::AddStringTemplateCallsiteObject(RecyclableObject* callsite)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5519\n");
         this->EnsureStringTemplateCallsiteObjectList();
 
         RecyclerWeakReference<RecyclableObject>* callsiteRef = this->GetRecycler()->CreateWeakReferenceHandle<RecyclableObject>(callsite);
@@ -5526,17 +5526,17 @@ namespace Js
     }
 
     RecyclableObject* JavascriptLibrary::TryGetStringTemplateCallsiteObject(ParseNodePtr pnode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5528\n");
         this->EnsureStringTemplateCallsiteObjectList();
 
         RecyclerWeakReference<RecyclableObject>* callsiteRef = this->stringTemplateCallsiteObjectList->LookupWithKey(pnode);
 
         if (callsiteRef)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5534\n");
             RecyclableObject* callsite = callsiteRef->Get();
 
             if (callsite)
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 5538\n");
                 return callsite;
             }
         }
@@ -5545,18 +5545,18 @@ namespace Js
     }
 
     RecyclableObject* JavascriptLibrary::TryGetStringTemplateCallsiteObject(RecyclableObject* callsite)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5547\n");
         this->EnsureStringTemplateCallsiteObjectList();
 
         RecyclerWeakReference<RecyclableObject>* callsiteRef = this->GetRecycler()->CreateWeakReferenceHandle<RecyclableObject>(callsite);
         RecyclerWeakReference<RecyclableObject>* existingCallsiteRef = this->stringTemplateCallsiteObjectList->LookupWithKey(callsiteRef);
 
         if (existingCallsiteRef)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5554\n");
             RecyclableObject* existingCallsite = existingCallsiteRef->Get();
 
             if (existingCallsite)
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 5558\n");
                 return existingCallsite;
             }
         }
@@ -5566,7 +5566,7 @@ namespace Js
 
 #if DBG_DUMP
     const char16* JavascriptLibrary::GetStringTemplateCallsiteObjectKey(Var callsite)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5568\n");
         // Calculate the key for the string template callsite object.
         // Key is combination of the raw string literals delimited by '${}' since string template literals cannot include that symbol.
         // `str1${expr1}str2${expr2}str3` => "str1${}str2${}str3"
@@ -5584,7 +5584,7 @@ namespace Js
 
         // Count the size in characters of the raw strings
         for (uint32 i = 0; i < arrayLength; i++)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5586\n");
             rawArray->DirectGetItemAt(i, &var);
             str = JavascriptString::FromVar(var);
             totalStringLength += str->GetLength();
@@ -5606,7 +5606,7 @@ namespace Js
 
         // Append a delimiter and the rest of the items
         for (uint32 i = 1; i < arrayLength; i++)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5608\n");
             len = 3; // strlen(_u("${}"));
             js_wmemcpy_s(ptr, remainingSpace, _u("${}"), len);
             ptr += len;
@@ -5629,7 +5629,7 @@ namespace Js
 #endif
 
     bool StringTemplateCallsiteObjectComparer<ParseNodePtr>::Equals(ParseNodePtr x, RecyclerWeakReference<Js::RecyclableObject>* y)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5631\n");
         Assert(x != nullptr);
         Assert(x->nop == knopStrTemplate);
 
@@ -5637,7 +5637,7 @@ namespace Js
 
         // If the weak reference is dead, we can't be equal.
         if (obj == nullptr)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5639\n");
             return false;
         }
 
@@ -5649,7 +5649,7 @@ namespace Js
 
         // If the length of string literals is different, these callsite objects are not equal.
         if (x->sxStrTemplate.countStringLiterals != length)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5651\n");
             return false;
         }
 
@@ -5664,7 +5664,7 @@ namespace Js
         Assert(length != 0);
 
         for (uint32 i = 0; i < length - 1; i++)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5666\n");
             rawArray->DirectGetItemAt(i, &element);
             str = Js::JavascriptString::FromVar(element);
 
@@ -5675,13 +5675,13 @@ namespace Js
 
             // If strings have different length, they aren't equal
             if (pid->Cch() != str->GetLength())
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 5677\n");
                 return false;
             }
 
             // If the strings at this index are not equal, the callsite objects are not equal.
             if (!JsUtil::CharacterBuffer<char16>::StaticEquals(pid->Psz(), str->GetSz(), str->GetLength()))
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 5683\n");
                 return false;
             }
 
@@ -5698,13 +5698,13 @@ namespace Js
 
         // If strings have different length, they aren't equal
         if (pid->Cch() != str->GetLength())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5700\n");
             return false;
         }
 
         // If the strings at this index are not equal, the callsite objects are not equal.
         if (!JsUtil::CharacterBuffer<char16>::StaticEquals(pid->Psz(), str->GetSz(), str->GetLength()))
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5706\n");
             return false;
         }
 
@@ -5712,13 +5712,13 @@ namespace Js
     }
 
     bool StringTemplateCallsiteObjectComparer<ParseNodePtr>::Equals(ParseNodePtr x, ParseNodePtr y)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5714\n");
         Assert(x != nullptr && y != nullptr);
         Assert(x->nop == knopStrTemplate && y->nop == knopStrTemplate);
 
         // If the ParseNode is the same, they are equal.
         if (x == y)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5720\n");
             return true;
         }
 
@@ -5728,7 +5728,7 @@ namespace Js
         // If one of the templates only includes one string value, the raw literals ParseNode will
         // be a knopStr instead of knopList.
         if (x->nop != y->nop)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5730\n");
             return false;
         }
 
@@ -5736,10 +5736,10 @@ namespace Js
         const char16* pid_y;
 
         while (x->nop == knopList)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5738\n");
             // If y is knopStr here, that means x has more strings in the list than y does.
             if (y->nop != knopList)
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 5741\n");
                 return false;
             }
 
@@ -5751,7 +5751,7 @@ namespace Js
 
             // If the pid values of each raw string don't match each other, these are different.
             if (!DefaultComparer<const char16*>::Equals(pid_x, pid_y))
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 5753\n");
                 return false;
             }
 
@@ -5761,7 +5761,7 @@ namespace Js
 
         // If y is still knopList here, that means y has more strings in the list than x does.
         if (y->nop != knopStr)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5763\n");
             return false;
         }
 
@@ -5775,7 +5775,7 @@ namespace Js
     }
 
     hash_t StringTemplateCallsiteObjectComparer<ParseNodePtr>::GetHashCode(ParseNodePtr i)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5777\n");
         hash_t hash = 0;
 
         Assert(i != nullptr);
@@ -5786,7 +5786,7 @@ namespace Js
         const char16* pid;
 
         while (i->nop == knopList)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5788\n");
             Assert(i->sxBin.pnode1->nop == knopStr);
 
             pid = i->sxBin.pnode1->sxPid.pid->Psz();
@@ -5807,24 +5807,24 @@ namespace Js
     }
 
     bool StringTemplateCallsiteObjectComparer<RecyclerWeakReference<Js::RecyclableObject>*>::Equals(RecyclerWeakReference<Js::RecyclableObject>* x, ParseNodePtr y)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5809\n");
         return StringTemplateCallsiteObjectComparer<ParseNodePtr>::Equals(y, x);
     }
 
     bool StringTemplateCallsiteObjectComparer<RecyclerWeakReference<Js::RecyclableObject>*>::Equals(RecyclerWeakReference<Js::RecyclableObject>* x, RecyclerWeakReference<Js::RecyclableObject>* y)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5814\n");
         Js::RecyclableObject* objLeft = x->Get();
         Js::RecyclableObject* objRight = y->Get();
 
         // If either WeakReference is dead, we can't be equal to anything.
         if (objLeft == nullptr || objRight == nullptr)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5820\n");
             return false;
         }
 
         // If the Var pointers are the same, they are equal.
         if (objLeft == objRight)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5826\n");
             return true;
         }
 
@@ -5837,7 +5837,7 @@ namespace Js
 
         // If the length of string literals is different, these callsite objects are not equal.
         if (lengthLeft != lengthRight)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5839\n");
             return false;
         }
 
@@ -5855,13 +5855,13 @@ namespace Js
         Assert(lengthRight == arrayRight->GetLength());
 
         for (uint32 i = 0; i < lengthLeft; i++)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5857\n");
             arrayLeft->DirectGetItemAt(i, &varLeft);
             arrayRight->DirectGetItemAt(i, &varRight);
 
             // If the strings at this index are not equal, the callsite objects are not equal.
             if (!Js::JavascriptString::Equals(varLeft, varRight))
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 5863\n");
                 return false;
             }
         }
@@ -5870,13 +5870,13 @@ namespace Js
     }
 
     hash_t StringTemplateCallsiteObjectComparer<RecyclerWeakReference<Js::RecyclableObject>*>::GetHashCode(RecyclerWeakReference<Js::RecyclableObject>* o)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5872\n");
         hash_t hash = 0;
 
         Js::RecyclableObject* obj = o->Get();
 
         if (obj == nullptr)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5878\n");
             return hash;
         }
 
@@ -5891,7 +5891,7 @@ namespace Js
         hash ^= DefaultComparer<const char16*>::GetHashCode(str->GetSz());
 
         for (uint32 i = 1; i < rawArray->GetLength(); i++)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5893\n");
             hash ^= DefaultComparer<const char16*>::GetHashCode(_u("${}"));
 
             rawArray->DirectGetItemAt(i, &var);
@@ -5903,9 +5903,9 @@ namespace Js
     }
 
     DynamicType * JavascriptLibrary::GetObjectLiteralType(uint16 requestedInlineSlotCapacity)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5905\n");
         if (requestedInlineSlotCapacity <= MaxPreInitializedObjectTypeInlineSlotCount)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5907\n");
             return objectTypes[DynamicTypeHandler::RoundUpInlineSlotCapacity(requestedInlineSlotCapacity) / InlineSlotCountIncrement];
         }
         else
@@ -5915,7 +5915,7 @@ namespace Js
     }
 
     DynamicType * JavascriptLibrary::GetObjectHeaderInlinedLiteralType(uint16 requestedInlineSlotCapacity)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5917\n");
         Assert(requestedInlineSlotCapacity <= MaxPreInitializedObjectHeaderInlinedTypeInlineSlotCount);
 
         return
@@ -5937,7 +5937,7 @@ namespace Js
         DynamicType * argumentsType = nullptr;
 
         if (isStrictMode)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 5939\n");
             //TODO: Make DictionaryTypeHandler shareable - So that Arguments' type can be cached on the javascriptLibrary.
             DictionaryTypeHandler * dictTypeHandlerForArgumentsInStrictMode = DictionaryTypeHandler::CreateTypeHandlerForArgumentsInStrictMode(recycler, scriptContext);
             argumentsType = DynamicType::New(scriptContext, TypeIds_Arguments, objectPrototype, nullptr,
@@ -5970,7 +5970,7 @@ namespace Js
     }
 
     JavascriptArray *JavascriptLibrary::CreateArrayOnStack(void *const stackAllocationPointer)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 5972\n");
         return JavascriptArray::New<JavascriptArray, 0>(stackAllocationPointer, 0, arrayType);
     }
 
@@ -6067,53 +6067,53 @@ namespace Js
     }
 
     ArrayBuffer* JavascriptLibrary::CreateArrayBuffer(uint32 length)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6069\n");
         ArrayBuffer* arr = JavascriptArrayBuffer::Create(length, arrayBufferType);
         return arr;
     }
 
     ArrayBuffer* JavascriptLibrary::CreateArrayBuffer(byte* buffer, uint32 length)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6075\n");
         ArrayBuffer* arr = JavascriptArrayBuffer::Create(buffer, length, arrayBufferType);
         return arr;
     }
 
     Js::ArrayBuffer* JavascriptLibrary::CreateWebAssemblyArrayBuffer(uint32 length)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6081\n");
         return WebAssemblyArrayBuffer::Create(nullptr, length, arrayBufferType);
     }
 
     Js::ArrayBuffer* JavascriptLibrary::CreateWebAssemblyArrayBuffer(byte* buffer, uint32 length)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6086\n");
         return WebAssemblyArrayBuffer::Create(buffer, length, arrayBufferType);
     }
 
     SharedArrayBuffer* JavascriptLibrary::CreateSharedArrayBuffer(uint32 length)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6091\n");
         return JavascriptSharedArrayBuffer::Create(length, sharedArrayBufferType);
     }
 
     SharedArrayBuffer* JavascriptLibrary::CreateSharedArrayBuffer(SharedContents *contents)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6096\n");
         return JavascriptSharedArrayBuffer::Create(contents, sharedArrayBufferType);
     }
 
     ArrayBuffer* JavascriptLibrary::CreateProjectionArraybuffer(uint32 length)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6101\n");
         ArrayBuffer* arr = ProjectionArrayBuffer::Create(length, arrayBufferType);
         JS_ETW(EventWriteJSCRIPT_RECYCLER_ALLOCATE_OBJECT(arr));
         return arr;
     }
 
     ArrayBuffer* JavascriptLibrary::CreateProjectionArraybuffer(byte* buffer, uint32 length)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6108\n");
         ArrayBuffer* arr = ProjectionArrayBuffer::Create(buffer, length, arrayBufferType);
         JS_ETW(EventWriteJSCRIPT_RECYCLER_ALLOCATE_OBJECT(arr));
         return arr;
     }
 
     DataView* JavascriptLibrary::CreateDataView(ArrayBufferBase* arrayBuffer, uint32 offset, uint32 length)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6115\n");
         DataView* dataView = RecyclerNew(this->GetRecycler(), DataView, arrayBuffer, offset, length, dataViewType);
 
         return dataView;
@@ -6176,7 +6176,7 @@ namespace Js
     }
 
     JavascriptPromiseAsyncSpawnExecutorFunction* JavascriptLibrary::CreatePromiseAsyncSpawnExecutorFunction(JavascriptMethod entryPoint, JavascriptGenerator* generator, Var target)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6178\n");
         FunctionInfo* functionInfo = RecyclerNew(this->GetRecycler(), FunctionInfo, entryPoint);
         DynamicType* type = CreateDeferredPrototypeFunctionType(this->inDispatchProfileMode ? ProfileEntryThunk : entryPoint);
         JavascriptPromiseAsyncSpawnExecutorFunction* function = RecyclerNewEnumClass(this->GetRecycler(), EnumFunctionClass, JavascriptPromiseAsyncSpawnExecutorFunction, type, functionInfo, generator, target);
@@ -6185,7 +6185,7 @@ namespace Js
     }
 
     JavascriptPromiseAsyncSpawnStepArgumentExecutorFunction* JavascriptLibrary::CreatePromiseAsyncSpawnStepArgumentExecutorFunction(JavascriptMethod entryPoint, JavascriptGenerator* generator, Var argument, JavascriptFunction* resolve, JavascriptFunction* reject, bool isReject)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6187\n");
         FunctionInfo* functionInfo = RecyclerNew(this->GetRecycler(), FunctionInfo, entryPoint);
         DynamicType* type = CreateDeferredPrototypeFunctionType(this->inDispatchProfileMode ? ProfileEntryThunk : entryPoint);
         JavascriptPromiseAsyncSpawnStepArgumentExecutorFunction* function = RecyclerNewEnumClass(this->GetRecycler(), EnumFunctionClass, JavascriptPromiseAsyncSpawnStepArgumentExecutorFunction, type, functionInfo, generator, argument, resolve, reject, isReject);
@@ -6194,7 +6194,7 @@ namespace Js
     }
 
     JavascriptGenerator* JavascriptLibrary::CreateGenerator(Arguments& args, ScriptFunction* scriptFunction, RecyclableObject* prototype)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6196\n");
         Assert(scriptContext->GetConfig()->IsES6GeneratorsEnabled());
         DynamicType* generatorType = CreateGeneratorType(prototype);
         return JavascriptGenerator::New(this->GetRecycler(), generatorType, args, scriptFunction);
@@ -6209,12 +6209,12 @@ namespace Js
     }
 
     JavascriptSymbol* JavascriptLibrary::CreateSymbol(JavascriptString* description)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6211\n");
         return this->CreateSymbol(description->GetString(), (int)description->GetLength());
     }
 
     JavascriptSymbol* JavascriptLibrary::CreateSymbol(const char16* description, int descriptionLength)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6216\n");
         ENTER_PINNED_SCOPE(const Js::PropertyRecord, propertyRecord);
 
         propertyRecord = this->scriptContext->GetThreadContext()->UncheckedAddPropertyId(description, descriptionLength, /*bind*/false, /*isSymbol*/true);
@@ -6231,10 +6231,10 @@ namespace Js
     }
 
     JavascriptError* JavascriptLibrary::CreateExternalError(ErrorTypeEnum errorTypeEnum)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6233\n");
         DynamicType* baseErrorType = NULL;
         switch (errorTypeEnum)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 6236\n");
         case kjstError:
         default:
             baseErrorType = errorType;
@@ -6292,7 +6292,7 @@ namespace Js
 #undef CREATE_ERROR
 
     JavascriptError* JavascriptLibrary::CreateStackOverflowError()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6294\n");
 #if DBG
         // If we are doing a heap enum, we need to be able to allocate the error object.
         Recycler::AutoAllowAllocationDuringHeapEnum autoAllowAllocationDuringHeapEnum(this->GetRecycler());
@@ -6304,14 +6304,14 @@ namespace Js
     }
 
     JavascriptError* JavascriptLibrary::CreateOutOfMemoryError()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6306\n");
         JavascriptError* outOfMemoryError = scriptContext->GetLibrary()->CreateError();
         JavascriptError::SetErrorMessage(outOfMemoryError, VBSERR_OutOfMemory, NULL, scriptContext);
         return outOfMemoryError;
     }
 
     JavascriptFunction* JavascriptLibrary::CreateNonProfiledFunction(FunctionInfo * functionInfo)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6313\n");
         Assert(functionInfo->GetAttributes() & FunctionInfo::DoNotProfile);
         return RecyclerNew(this->GetRecycler(), RuntimeFunction,
             CreateDeferredPrototypeFunctionTypeNoProfileThunk(functionInfo->GetOriginalEntryPoint()),
@@ -6319,42 +6319,42 @@ namespace Js
     }
 
     ScriptFunction* JavascriptLibrary::CreateScriptFunction(FunctionProxy * proxy)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6321\n");
         ScriptFunctionType* deferredPrototypeType = proxy->EnsureDeferredPrototypeType();
         return RecyclerNewEnumClass(this->GetRecycler(), EnumFunctionClass, ScriptFunction, proxy, deferredPrototypeType);
     }
 
     AsmJsScriptFunction* JavascriptLibrary::CreateAsmJsScriptFunction(FunctionProxy * proxy)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6327\n");
         ScriptFunctionType* deferredPrototypeType = proxy->EnsureDeferredPrototypeType();
         return RecyclerNewEnumClass(this->GetRecycler(), EnumFunctionClass, AsmJsScriptFunction, proxy, deferredPrototypeType);
     }
 
     ScriptFunctionWithInlineCache* JavascriptLibrary::CreateScriptFunctionWithInlineCache(FunctionProxy * proxy)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6333\n");
         ScriptFunctionType* deferredPrototypeType = proxy->EnsureDeferredPrototypeType();
         return RecyclerNewWithInfoBits(this->GetRecycler(), (Memory::ObjectInfoBits)(EnumFunctionClass | Memory::FinalizableObjectBits), ScriptFunctionWithInlineCache, proxy, deferredPrototypeType);
     }
 
     GeneratorVirtualScriptFunction* JavascriptLibrary::CreateGeneratorVirtualScriptFunction(FunctionProxy * proxy)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6339\n");
         ScriptFunctionType* deferredPrototypeType = proxy->EnsureDeferredPrototypeType();
         return RecyclerNewEnumClass(this->GetRecycler(), EnumFunctionClass, GeneratorVirtualScriptFunction, proxy, deferredPrototypeType);
     }
 
     DynamicType * JavascriptLibrary::CreateGeneratorType(RecyclableObject* prototype)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6345\n");
         return DynamicType::New(scriptContext, TypeIds_Generator, prototype, nullptr, NullTypeHandler<false>::GetDefaultInstance());
     }
 
     template <class MethodType>
     JavascriptExternalFunction* JavascriptLibrary::CreateIdMappedExternalFunction(MethodType entryPoint, DynamicType *pPrototypeType)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6351\n");
         return RecyclerNewEnumClass(this->GetRecycler(), EnumFunctionClass, JavascriptExternalFunction, entryPoint, pPrototypeType);
     }
 
     JavascriptGeneratorFunction* JavascriptLibrary::CreateGeneratorFunction(JavascriptMethod entryPoint, GeneratorVirtualScriptFunction* scriptFunction)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6356\n");
         Assert(scriptContext->GetConfig()->IsES6GeneratorsEnabled());
 
         DynamicType* type = CreateDeferredPrototypeGeneratorFunctionType(entryPoint, scriptFunction->IsAnonymousFunction());
@@ -6363,20 +6363,20 @@ namespace Js
     }
 
     JavascriptAsyncFunction* JavascriptLibrary::CreateAsyncFunction(JavascriptMethod entryPoint, GeneratorVirtualScriptFunction* scriptFunction)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6365\n");
         DynamicType* type = CreateDeferredPrototypeAsyncFunctionType(entryPoint, scriptFunction->IsAnonymousFunction());
 
         return RecyclerNewEnumClass(this->GetRecycler(), EnumFunctionClass, JavascriptAsyncFunction, type, scriptFunction);
     }
 
     JavascriptExternalFunction* JavascriptLibrary::CreateStdCallExternalFunction(StdCallJavascriptMethod entryPoint, PropertyId nameId, void *callbackState)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6372\n");
         Assert(nameId == 0 || scriptContext->IsTrackedPropertyId(nameId));
         return CreateStdCallExternalFunction(entryPoint, TaggedInt::ToVarUnchecked(nameId), callbackState);
     }
 
     JavascriptExternalFunction* JavascriptLibrary::CreateStdCallExternalFunction(StdCallJavascriptMethod entryPoint, Var nameId, void *callbackState)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6378\n");
         JavascriptExternalFunction* function = this->CreateIdMappedExternalFunction(entryPoint, stdCallFunctionWithDeferredPrototypeType);
         function->SetFunctionNameId(nameId);
         function->SetCallbackState(callbackState);
@@ -6385,7 +6385,7 @@ namespace Js
     }
 
     JavascriptPromiseCapabilitiesExecutorFunction* JavascriptLibrary::CreatePromiseCapabilitiesExecutorFunction(JavascriptMethod entryPoint, JavascriptPromiseCapability* capability)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6387\n");
         Assert(scriptContext->GetConfig()->IsES6PromiseEnabled());
 
         FunctionInfo* functionInfo = &Js::JavascriptPromise::EntryInfo::CapabilitiesExecutorFunction;
@@ -6398,7 +6398,7 @@ namespace Js
     }
 
     JavascriptPromiseResolveOrRejectFunction* JavascriptLibrary::CreatePromiseResolveOrRejectFunction(JavascriptMethod entryPoint, JavascriptPromise* promise, bool isReject, JavascriptPromiseResolveOrRejectFunctionAlreadyResolvedWrapper* alreadyResolvedRecord)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6400\n");
         Assert(scriptContext->GetConfig()->IsES6PromiseEnabled());
 
         FunctionInfo* functionInfo = &Js::JavascriptPromise::EntryInfo::ResolveOrRejectFunction;
@@ -6411,7 +6411,7 @@ namespace Js
     }
 
     JavascriptPromiseReactionTaskFunction* JavascriptLibrary::CreatePromiseReactionTaskFunction(JavascriptMethod entryPoint, JavascriptPromiseReaction* reaction, Var argument)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6413\n");
         Assert(scriptContext->GetConfig()->IsES6PromiseEnabled());
 
         FunctionInfo* functionInfo = RecyclerNew(this->GetRecycler(), FunctionInfo, entryPoint);
@@ -6421,7 +6421,7 @@ namespace Js
     }
 
     JavascriptPromiseResolveThenableTaskFunction* JavascriptLibrary::CreatePromiseResolveThenableTaskFunction(JavascriptMethod entryPoint, JavascriptPromise* promise, RecyclableObject* thenable, RecyclableObject* thenFunction)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6423\n");
         Assert(scriptContext->GetConfig()->IsES6PromiseEnabled());
 
         FunctionInfo* functionInfo = RecyclerNew(this->GetRecycler(), FunctionInfo, entryPoint);
@@ -6431,7 +6431,7 @@ namespace Js
     }
 
     JavascriptPromiseAllResolveElementFunction* JavascriptLibrary::CreatePromiseAllResolveElementFunction(JavascriptMethod entryPoint, uint32 index, JavascriptArray* values, JavascriptPromiseCapability* capabilities, JavascriptPromiseAllResolveElementFunctionRemainingElementsWrapper* remainingElements)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6433\n");
         Assert(scriptContext->GetConfig()->IsES6PromiseEnabled());
 
         FunctionInfo* functionInfo = &Js::JavascriptPromise::EntryInfo::AllResolveElementFunction;
@@ -6444,7 +6444,7 @@ namespace Js
     }
 
     JavascriptExternalFunction* JavascriptLibrary::CreateWrappedExternalFunction(JavascriptExternalFunction* wrappedFunction)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6446\n");
         // The wrapped function will have profiling, so the wrapper function does not need it.
         JavascriptExternalFunction* function = RecyclerNew(this->GetRecycler(), JavascriptExternalFunction, wrappedFunction, wrappedFunctionWithDeferredPrototypeType);
         function->SetFunctionNameId(wrappedFunction->GetSourceString());
@@ -6488,7 +6488,7 @@ namespace Js
     DynamicObject* JavascriptLibrary::CreateObject(
         const bool allowObjectHeaderInlining,
         const PropertyIndex requestedInlineSlotCapacity)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6490\n");
         Assert(GetObjectType());
         Assert(GetObjectHeaderInlinedType());
 
@@ -6502,14 +6502,14 @@ namespace Js
     }
 
     DynamicObject* JavascriptLibrary::CreateObject(DynamicTypeHandler * typeHandler)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6504\n");
         return DynamicObject::New(this->GetRecycler(),
             Js::DynamicType::New(scriptContext, Js::TypeIds_Object, this->GetObjectPrototype(),
                 RecyclableObject::DefaultEntryPoint, typeHandler, false, false));
     }
 
     DynamicType* JavascriptLibrary::CreateObjectType(RecyclableObject* prototype, Js::TypeId typeId, uint16 requestedInlineSlotCapacity)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6511\n");
         const bool useObjectHeaderInlining = FunctionBody::DoObjectHeaderInliningForConstructor(requestedInlineSlotCapacity);
         const uint16 offsetOfInlineSlots =
             useObjectHeaderInlining
@@ -6528,12 +6528,12 @@ namespace Js
 
         if (useCache &&
             prototype->GetInternalProperty(prototype, Js::InternalPropertyIds::TypeOfPrototypeObjectInlined, (Js::Var*) &dynamicType, nullptr, this->scriptContext))
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 6530\n");
             //If the prototype is externalObject, then ExternalObject::Reinitialize can set all the properties to undefined in navigation scenario.
             //Check to make sure dynamicType which is stored as a Js::Var is not undefined.
             //See Blue 419324
             if (dynamicType != nullptr && (Js::Var)dynamicType != this->GetUndefined())
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 6535\n");
                 DynamicTypeHandler *const dynamicTypeHandler = dynamicType->GetTypeHandler();
                 if (dynamicTypeHandler->IsObjectHeaderInlinedTypeHandler() == useObjectHeaderInlining &&
                     (
@@ -6544,14 +6544,14 @@ namespace Js
                             : DynamicTypeHandler::RoundUpInlineSlotCapacity(requestedInlineSlotCapacity)
                             )
                         ))
-                {
+                {LOGMEIN("JavascriptLibrary.cpp] 6546\n");
                     Assert(dynamicType->GetIsShared());
 
                     if (PHASE_TRACE1(TypeShareForChangePrototypePhase))
-                    {
+                    {LOGMEIN("JavascriptLibrary.cpp] 6550\n");
 #if DBG
                         if (PHASE_VERBOSE_TRACE1(TypeShareForChangePrototypePhase))
-                        {
+                        {LOGMEIN("JavascriptLibrary.cpp] 6553\n");
                             Output::Print(_u("TypeSharing: Reusing prototype [0x%p] object's InlineSlot cache 0x%p in CreateObject.\n"), prototype, dynamicType);
                         }
                         else
@@ -6568,7 +6568,7 @@ namespace Js
                 }
 #if DBG
                 if (PHASE_VERBOSE_TRACE1(TypeShareForChangePrototypePhase))
-                {
+                {LOGMEIN("JavascriptLibrary.cpp] 6570\n");
                     if (dynamicTypeHandler->IsObjectHeaderInlinedTypeHandler() != useObjectHeaderInlining)
                     {
                         swprintf_s(reason, 1024, _u("useObjectHeaderInlining mismatch."));
@@ -6590,7 +6590,7 @@ namespace Js
 
 #if DBG
         if (PHASE_VERBOSE_TRACE1(TypeShareForChangePrototypePhase))
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 6592\n");
             if (dynamicType == nullptr)
             {
                 swprintf_s(reason, 1024, _u("cached type was null"));
@@ -6606,13 +6606,13 @@ namespace Js
         dynamicType = DynamicType::New(scriptContext, typeId, prototype, RecyclableObject::DefaultEntryPoint, typeHandler, true, true);
 
         if (useCache)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 6608\n");
             prototype->SetInternalProperty(Js::InternalPropertyIds::TypeOfPrototypeObjectInlined, (Var)dynamicType, PropertyOperationFlags::PropertyOperation_Force, nullptr);
             if (PHASE_TRACE1(TypeShareForChangePrototypePhase))
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 6611\n");
 #if DBG
                 if (PHASE_VERBOSE_TRACE1(TypeShareForChangePrototypePhase))
-                {
+                {LOGMEIN("JavascriptLibrary.cpp] 6614\n");
                     Output::Print(_u("TypeSharing: Updating prototype [0x%p] object's InlineSlot cache from 0x%p to 0x%p in CreateObject. Reason = %s\n"), prototype, oldCachedType, dynamicType, reason);
                 }
                 else
@@ -6630,19 +6630,19 @@ namespace Js
     }
 
     DynamicType* JavascriptLibrary::CreateObjectTypeNoCache(RecyclableObject* prototype, Js::TypeId typeId)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6632\n");
         return DynamicType::New(scriptContext, typeId, prototype, RecyclableObject::DefaultEntryPoint,
             SimplePathTypeHandler::New(scriptContext, this->GetRootPath(), 0, 0, 0, true, true), true, true);
     }
 
     DynamicType* JavascriptLibrary::CreateObjectType(RecyclableObject* prototype, uint16 requestedInlineSlotCapacity)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6638\n");
         // We can't reuse the type in objectType even if the prototype is the object prototype, because those has inline slot capacity fixed
         return CreateObjectType(prototype, TypeIds_Object, requestedInlineSlotCapacity);
     }
 
     DynamicObject* JavascriptLibrary::CreateObject(RecyclableObject* prototype, uint16 requestedInlineSlotCapacity)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6644\n");
         Assert(JavascriptOperators::IsObject(prototype));
 
         DynamicType* dynamicType = CreateObjectType(prototype, requestedInlineSlotCapacity);
@@ -6650,9 +6650,9 @@ namespace Js
     }
 
     PropertyStringCacheMap* JavascriptLibrary::EnsurePropertyStringMap()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6652\n");
         if (this->propertyStringMap == nullptr)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 6654\n");
             this->propertyStringMap = RecyclerNew(this->recycler, PropertyStringCacheMap, this->GetRecycler());
             this->scriptContext->RegisterWeakReferenceDictionary((JsUtil::IWeakReferenceDictionary*) this->propertyStringMap);
         }
@@ -6730,9 +6730,9 @@ namespace Js
 
 #ifdef ENABLE_SIMDJS
     JavascriptSIMDObject* JavascriptLibrary::CreateSIMDObject(Var simdValue, TypeId typeDescriptor)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6732\n");
         switch (typeDescriptor)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 6734\n");
         case TypeIds_SIMDBool8x16:
             AssertMsg(simdBool8x16TypeDynamic, "Where's simdTypeDynamic?");
             return RecyclerNew(this->GetRecycler(), JavascriptSIMDObject, simdValue, simdBool8x16TypeDynamic, typeDescriptor);
@@ -6777,7 +6777,7 @@ namespace Js
     }
 
     JavascriptNumberObject* JavascriptLibrary::CreateNumberObjectWithCheck(double value)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6779\n");
         return CreateNumberObject(JavascriptNumber::ToVarWithCheck(value, scriptContext));
     }
 
@@ -6825,7 +6825,7 @@ namespace Js
     }
 
     DynamicObject* JavascriptLibrary::CreateIteratorResultObject(Var value, Var done)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6827\n");
         DynamicObject* iteratorResult = DynamicObject::New(this->GetRecycler(), iteratorResultType);
 
         iteratorResult->SetSlot(SetSlotArguments(Js::PropertyIds::value, 0, value));
@@ -6835,7 +6835,7 @@ namespace Js
     }
 
     JavascriptListIterator* JavascriptLibrary::CreateListIterator(ListForListIterator* list)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6837\n");
         JavascriptListIterator* iterator = RecyclerNew(this->GetRecycler(), JavascriptListIterator, listIteratorType, list);
         RuntimeFunction* nextFunction = DefaultCreateFunction(&JavascriptListIterator::EntryInfo::Next, 0, nullptr, nullptr, PropertyIds::next);
         JavascriptOperators::SetProperty(iterator, iterator, PropertyIds::next, RuntimeFunction::FromVar(nextFunction), GetScriptContext(), PropertyOperation_None);
@@ -6843,23 +6843,23 @@ namespace Js
     }
 
     DynamicObject* JavascriptLibrary::CreateIteratorResultObjectValueFalse(Var value)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6845\n");
         return CreateIteratorResultObject(value, GetFalse());
     }
 
     DynamicObject* JavascriptLibrary::CreateIteratorResultObjectUndefinedTrue()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6850\n");
         return CreateIteratorResultObject(GetUndefined(), GetTrue());
     }
 
     RecyclableObject* JavascriptLibrary::CreateThrowErrorObject(JavascriptError* error)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6855\n");
         return ThrowErrorObject::New(this->throwErrorObjectType, error, this->GetRecycler());
     }
 
 #if ENABLE_COPYONACCESS_ARRAY
     bool JavascriptLibrary::IsCopyOnAccessArrayCallSite(JavascriptLibrary *lib, ArrayCallSiteInfo *arrayInfo, uint32 length)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6861\n");
         return
             lib->cacheForCopyOnAccessArraySegments
             && lib->cacheForCopyOnAccessArraySegments->IsNotOverHardLimit()
@@ -6880,7 +6880,7 @@ namespace Js
     }
 
     bool JavascriptLibrary::IsCachedCopyOnAccessArrayCallSite(const JavascriptLibrary *lib, ArrayCallSiteInfo *arrayInfo)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6882\n");
         return lib->cacheForCopyOnAccessArraySegments
             && lib->cacheForCopyOnAccessArraySegments->IsValidIndex(arrayInfo->copyOnAccessArrayCacheIndex);
     }
@@ -6888,7 +6888,7 @@ namespace Js
 
     // static
     bool JavascriptLibrary::IsTypedArrayConstructor(Var constructor, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6890\n");
         JavascriptLibrary* library = scriptContext->GetLibrary();
         return constructor == library->GetInt8ArrayConstructor()
             || constructor == library->GetUint8ArrayConstructor()
@@ -6902,24 +6902,24 @@ namespace Js
     }
 
     Field(JavascriptFunction*)* JavascriptLibrary::GetBuiltinFunctions()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6904\n");
         AssertMsg(this->builtinFunctions, "builtinFunctions table must've been initialized as part of library initialization!");
         return this->builtinFunctions;
     }
 
     void JavascriptLibrary::SetIsPRNGSeeded(bool val)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6910\n");
         this->isPRNGSeeded = val;
 #if ENABLE_NATIVE_CODEGEN
         if (JITManager::GetJITManager()->IsOOPJITEnabled() && JITManager::GetJITManager()->IsConnected())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 6914\n");
             HRESULT hr = JITManager::GetJITManager()->SetIsPRNGSeeded(GetScriptContext()->GetRemoteScriptAddr(), val);
             JITManager::HandleServerCallResult(hr, RemoteCallType::StateUpdate);
         }
 #endif
     }
     INT_PTR* JavascriptLibrary::GetVTableAddresses()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6921\n");
         AssertMsg(this->vtableAddresses, "vtableAddresses table must've been initialized as part of library initialization!");
         return this->vtableAddresses;
     }
@@ -6927,9 +6927,9 @@ namespace Js
 #if ENABLE_NATIVE_CODEGEN
     //static
     BuiltinFunction JavascriptLibrary::GetBuiltInInlineCandidateId(OpCode opCode)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 6929\n");
         switch (opCode)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 6931\n");
         case OpCode::InlineMathAcos:
             return BuiltinFunction::Math_Acos;
 
@@ -7026,7 +7026,7 @@ namespace Js
     // Parses given flags and arg kind (dst or src1, or src2) returns the type the arg must be type-specialized to.
     // static
     BuiltInArgSpecializationType JavascriptLibrary::GetBuiltInArgType(BuiltInFlags flags, BuiltInArgShift argKind)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7028\n");
         Assert(argKind == BuiltInArgShift::BIAS_Dst || BuiltInArgShift::BIAS_Src1 || BuiltInArgShift::BIAS_Src2);
 
         BuiltInArgSpecializationType type = static_cast<BuiltInArgSpecializationType>(
@@ -7037,35 +7037,35 @@ namespace Js
     }
 
     ModuleRecordList* JavascriptLibrary::EnsureModuleRecordList()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7039\n");
         if (moduleRecordList == nullptr)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 7041\n");
             moduleRecordList = RecyclerNew(recycler, ModuleRecordList, recycler);
         }
         return moduleRecordList;
     }
 
     SourceTextModuleRecord* JavascriptLibrary::GetModuleRecord(uint moduleId)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7048\n");
         Assert((moduleRecordList->Count() >= 0) && (moduleId < (uint)moduleRecordList->Count()));
         if (moduleId >= (uint)moduleRecordList->Count())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 7051\n");
             Js::Throw::FatalInternalError();
         }
         return moduleRecordList->Item(moduleId);
     }
 
     void JavascriptLibrary::BindReference(void * addr)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7058\n");
         // The last void* is the linklist connecting to next block.
         if (bindRefChunkCurrent == bindRefChunkEnd)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 7061\n");
             Field(void*)* tmpBindRefChunk = RecyclerNewArrayZ(recycler,
                 Field(void*), HeapConstants::ObjectGranularity / sizeof(void *));
             // reserve the last void* as the linklist node.
             bindRefChunkEnd = tmpBindRefChunk + (HeapConstants::ObjectGranularity / sizeof(void *) -1 );
             if (bindRefChunkBegin == nullptr)
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 7067\n");
                 bindRefChunkCurrent = tmpBindRefChunk;
                 bindRefChunkBegin = bindRefChunkCurrent;
             }
@@ -7081,15 +7081,15 @@ namespace Js
     }
 
     void JavascriptLibrary::CleanupForClose()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7083\n");
         bindRefChunkCurrent = nullptr;
         bindRefChunkEnd = nullptr;
     }
 
     void JavascriptLibrary::BeginDynamicFunctionReferences()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7089\n");
         if (this->dynamicFunctionReference == nullptr)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 7091\n");
             this->dynamicFunctionReference = RecyclerNew(this->recycler, FunctionReferenceList, this->recycler);
             this->BindReference(this->dynamicFunctionReference);
             this->dynamicFunctionReferenceDepth = 0;
@@ -7099,19 +7099,19 @@ namespace Js
     }
 
     void JavascriptLibrary::EndDynamicFunctionReferences()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7101\n");
         Assert(this->dynamicFunctionReference != nullptr);
 
         this->dynamicFunctionReferenceDepth--;
 
         if (this->dynamicFunctionReferenceDepth == 0)
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 7107\n");
             this->dynamicFunctionReference->Clear();
         }
     }
 
     void JavascriptLibrary::RegisterDynamicFunctionReference(FunctionProxy* func)
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7113\n");
         Assert(this->dynamicFunctionReferenceDepth > 0);
         this->dynamicFunctionReference->Push(func);
     }
@@ -7122,17 +7122,17 @@ namespace Js
 
 #define REGISTER_OBJECT(object)\
     if (FAILED(hr = this->ProfilerRegister##object()))\
-    {\
+    {LOGMEIN("JavascriptLibrary.cpp] 7124\n");\
     return hr; \
     }\
 
 #define REG_LIB_FUNC_CORE(pwszObjectName, pwszFunctionName, functionPropertyId, entryPoint)\
     if (FAILED(hr = this->GetScriptContext()->RegisterLibraryFunction(pwszObjectName, pwszFunctionName, functionPropertyId, entryPoint)))\
-    {\
+    {LOGMEIN("JavascriptLibrary.cpp] 7130\n");\
     return hr; \
     }\
 
-#define REG_OBJECTS_DYNAMIC_LIB_FUNC(pwszFunctionName, nFuncNameLen, entryPoint) {\
+#define REG_OBJECTS_DYNAMIC_LIB_FUNC(pwszFunctionName, nFuncNameLen, entryPoint) {LOGMEIN("JavascriptLibrary.cpp] 7134\n");\
     Js::PropertyRecord const * propRecord; \
     this->GetScriptContext()->GetOrAddPropertyRecord(pwszFunctionName, nFuncNameLen, &propRecord); \
     REG_LIB_FUNC_CORE(pwszObjectName, pwszFunctionName, propRecord->GetPropertyId(), entryPoint)\
@@ -7158,7 +7158,7 @@ namespace Js
     REG_LIB_FUNC(_u(#functionPropertyId), toString, JavascriptError::EntryToString)\
 
     HRESULT JavascriptLibrary::ProfilerRegisterBuiltIns()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7160\n");
         HRESULT hr = S_OK;
 
         // Register functions directly in global scope
@@ -7208,19 +7208,19 @@ namespace Js
         REGISTER_OBJECT(TypedArray);
 
         if (config.IsES6PromiseEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 7210\n");
             REGISTER_OBJECT(Promise);
         }
 
         if (config.IsES6ProxyEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 7215\n");
             REGISTER_OBJECT(Proxy);
             REGISTER_OBJECT(Reflect);
         }
 
 #ifdef IR_VIEWER
         if (Js::Configuration::Global.flags.IsEnabled(Js::IRViewerFlag))
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 7222\n");
             REGISTER_OBJECT(IRViewer);
         }
 #endif /* IR_VIEWER */
@@ -7236,7 +7236,7 @@ namespace Js
 
 #ifdef ENABLE_PROJECTION
         if (config.IsWinRTEnabled())
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 7238\n");
             REGISTER_ERROR_OBJECT(WinRTError);
         }
 #endif
@@ -7244,7 +7244,7 @@ namespace Js
     }
 
      HRESULT JavascriptLibrary::ProfilerRegisterObject()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7246\n");
         HRESULT hr = S_OK;
 
         REG_GLOBAL_CONSTRUCTOR(Object);
@@ -7302,7 +7302,7 @@ namespace Js
     }
 
     HRESULT JavascriptLibrary::ProfilerRegisterArray()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7304\n");
         HRESULT hr = S_OK;
         REG_GLOBAL_CONSTRUCTOR(Array);
 
@@ -7354,7 +7354,7 @@ namespace Js
     }
 
     HRESULT JavascriptLibrary::ProfilerRegisterBoolean()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7356\n");
         HRESULT hr = S_OK;
         REG_GLOBAL_CONSTRUCTOR(Boolean);
 
@@ -7367,7 +7367,7 @@ namespace Js
     }
 
     HRESULT JavascriptLibrary::ProfilerRegisterDate()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7369\n");
         HRESULT hr = S_OK;
         REG_GLOBAL_CONSTRUCTOR(Date);
 
@@ -7434,7 +7434,7 @@ namespace Js
     }
 
     HRESULT JavascriptLibrary::ProfilerRegisterFunction()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7436\n");
         HRESULT hr = S_OK;
         REG_GLOBAL_CONSTRUCTOR(Function);
 
@@ -7449,7 +7449,7 @@ namespace Js
     }
 
     HRESULT JavascriptLibrary::ProfilerRegisterMath()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7451\n");
         HRESULT hr = S_OK;
 
         DEFINE_OBJECT_NAME(Math);
@@ -7498,7 +7498,7 @@ namespace Js
     }
 
     HRESULT JavascriptLibrary::ProfilerRegisterNumber()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7500\n");
         HRESULT hr = S_OK;
         REG_GLOBAL_CONSTRUCTOR(Number);
 
@@ -7523,7 +7523,7 @@ namespace Js
     }
 
     HRESULT JavascriptLibrary::ProfilerRegisterString()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7525\n");
         HRESULT hr = S_OK;
         REG_GLOBAL_CONSTRUCTOR(String);
 
@@ -7596,7 +7596,7 @@ namespace Js
     }
 
     HRESULT JavascriptLibrary::ProfilerRegisterRegExp()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7598\n");
         HRESULT hr = S_OK;
         REG_GLOBAL_CONSTRUCTOR(RegExp);
 
@@ -7612,7 +7612,7 @@ namespace Js
     }
 
     HRESULT JavascriptLibrary::ProfilerRegisterJSON()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7614\n");
         HRESULT hr = S_OK;
 
         DEFINE_OBJECT_NAME(JSON);
@@ -7623,7 +7623,7 @@ namespace Js
     }
 
     HRESULT JavascriptLibrary::ProfilerRegisterAtomics()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7625\n");
         HRESULT hr = S_OK;
 
         DEFINE_OBJECT_NAME(Atomics);
@@ -7645,7 +7645,7 @@ namespace Js
     }
 
     HRESULT JavascriptLibrary::ProfilerRegisterWeakMap()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7647\n");
         HRESULT hr = S_OK;
         REG_GLOBAL_CONSTRUCTOR(WeakMap);
 
@@ -7660,7 +7660,7 @@ namespace Js
     }
 
     HRESULT JavascriptLibrary::ProfilerRegisterWeakSet()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7662\n");
         HRESULT hr = S_OK;
         REG_GLOBAL_CONSTRUCTOR(WeakSet);
 
@@ -7674,7 +7674,7 @@ namespace Js
     }
 
     HRESULT JavascriptLibrary::ProfilerRegisterMap()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7676\n");
         HRESULT hr = S_OK;
         REG_GLOBAL_CONSTRUCTOR(Map);
 
@@ -7695,7 +7695,7 @@ namespace Js
     }
 
     HRESULT JavascriptLibrary::ProfilerRegisterSet()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7697\n");
         HRESULT hr = S_OK;
         REG_GLOBAL_CONSTRUCTOR(Set);
 
@@ -7714,7 +7714,7 @@ namespace Js
     }
 
     HRESULT JavascriptLibrary::ProfilerRegisterSymbol()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7716\n");
         HRESULT hr = S_OK;
         REG_GLOBAL_CONSTRUCTOR(Symbol);
 
@@ -7729,7 +7729,7 @@ namespace Js
     }
 
     HRESULT JavascriptLibrary::ProfilerRegisterIterator()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7731\n");
         HRESULT hr = S_OK;
         // Array Iterator has no global constructor
 
@@ -7741,7 +7741,7 @@ namespace Js
     }
 
     HRESULT JavascriptLibrary::ProfilerRegisterArrayIterator()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7743\n");
         HRESULT hr = S_OK;
         // Array Iterator has no global constructor
 
@@ -7753,7 +7753,7 @@ namespace Js
     }
 
     HRESULT JavascriptLibrary::ProfilerRegisterMapIterator()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7755\n");
         HRESULT hr = S_OK;
         // Map Iterator has no global constructor
 
@@ -7765,7 +7765,7 @@ namespace Js
     }
 
     HRESULT JavascriptLibrary::ProfilerRegisterSetIterator()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7767\n");
         HRESULT hr = S_OK;
         // Set Iterator has no global constructor
 
@@ -7777,7 +7777,7 @@ namespace Js
     }
 
     HRESULT JavascriptLibrary::ProfilerRegisterStringIterator()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7779\n");
         HRESULT hr = S_OK;
         // String Iterator has no global constructor
 
@@ -7789,7 +7789,7 @@ namespace Js
     }
 
     HRESULT JavascriptLibrary::ProfilerRegisterTypedArray()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7791\n");
         HRESULT hr = S_OK;
         // TypedArray has no named global constructor
 
@@ -7823,7 +7823,7 @@ namespace Js
     }
 
     HRESULT JavascriptLibrary::ProfilerRegisterPromise()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7825\n");
         HRESULT hr = S_OK;
         REG_GLOBAL_CONSTRUCTOR(Promise);
 
@@ -7839,7 +7839,7 @@ namespace Js
     }
 
     HRESULT JavascriptLibrary::ProfilerRegisterProxy()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7841\n");
         HRESULT hr = S_OK;
         REG_GLOBAL_CONSTRUCTOR(Proxy);
 
@@ -7850,7 +7850,7 @@ namespace Js
     }
 
     HRESULT JavascriptLibrary::ProfilerRegisterReflect()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7852\n");
         HRESULT hr = S_OK;
         DEFINE_OBJECT_NAME(Reflect);
 
@@ -7872,7 +7872,7 @@ namespace Js
 
 
     HRESULT JavascriptLibrary::ProfilerRegisterGenerator()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7874\n");
         HRESULT hr = S_OK;
         DEFINE_OBJECT_NAME(Generator);
 
@@ -7885,7 +7885,7 @@ namespace Js
 
 #ifdef ENABLE_SIMDJS
     HRESULT JavascriptLibrary::ProfilerRegisterSIMD()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 7887\n");
         HRESULT hr = S_OK;
 
         DEFINE_OBJECT_NAME(SIMD);
@@ -8236,17 +8236,17 @@ namespace Js
 
 #if DBG
     void JavascriptLibrary::DumpLibraryByteCode()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 8238\n");
 #ifdef ENABLE_INTL_OBJECT
         // We aren't going to be passing in a number to check range of -dump:LibInit, that will be done by Intl/Promise
         // This is just to force init Intl code if dump:LibInit has been passed
         if (CONFIG_ISENABLED(DumpFlag) && Js::Configuration::Global.flags.Dump.IsEnabled(Js::JsLibInitPhase))
-        {
+        {LOGMEIN("JavascriptLibrary.cpp] 8243\n");
             for (uint i = 0; i <= MaxEngineInterfaceExtensionKind; i++)
-            {
+            {LOGMEIN("JavascriptLibrary.cpp] 8245\n");
                 EngineExtensionObjectBase* engineExtension = this->GetEngineInterfaceObject()->GetEngineExtension((Js::EngineInterfaceExtensionKind)i);
                 if (engineExtension != nullptr)
-                {
+                {LOGMEIN("JavascriptLibrary.cpp] 8248\n");
                     engineExtension->DumpByteCode();
                 }
             }
@@ -8256,7 +8256,7 @@ namespace Js
 #endif
 #ifdef IR_VIEWER
     HRESULT JavascriptLibrary::ProfilerRegisterIRViewer()
-    {
+    {LOGMEIN("JavascriptLibrary.cpp] 8258\n");
         HRESULT hr = S_OK;
 
         DEFINE_OBJECT_NAME(IRViewer);

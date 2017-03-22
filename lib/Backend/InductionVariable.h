@@ -47,6 +47,6 @@ public:
 
 template<>
 inline SymID JsUtil::ValueToKey<SymID, InductionVariable>::ToKey(const InductionVariable &inductionVariable)
-{
+{LOGMEIN("InductionVariable.h] 49\n");
     return inductionVariable.Sym()->m_id;
 }

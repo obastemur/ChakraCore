@@ -11,7 +11,7 @@ namespace Js
 {
     // SIMD.Int16x8 operation wrappers that cover instrinsics for x86/x64 system
     SIMDValue SIMDInt16x8Operation::OpInt16x8(int16 values[])
-    {
+    {LOGMEIN("SimdInt16x8OperationX86X64.cpp] 13\n");
         X86SIMDValue x86Result;
         // Sets the 8 signed 16-bit integer values, note in revised order: starts with x7
         x86Result.m128i_value = _mm_set_epi16(values[7], values[6], values[5], values[4], values[3], values[2], values[1], values[0]);
@@ -20,7 +20,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpSplat(int16 x)
-    {
+    {LOGMEIN("SimdInt16x8OperationX86X64.cpp] 22\n");
         X86SIMDValue x86Result;
         // set 8 signed 16-bit integers values to input value x
         x86Result.m128i_value = _mm_set1_epi16(x);
@@ -31,7 +31,7 @@ namespace Js
     // Unary Ops
 
      SIMDValue SIMDInt16x8Operation::OpNeg(const SIMDValue& value)
-    {
+    {LOGMEIN("SimdInt16x8OperationX86X64.cpp] 33\n");
         X86SIMDValue x86Result;
 
         X86SIMDValue SIGNMASK, temp;
@@ -46,7 +46,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpNot(const SIMDValue& value)
-    {
+    {LOGMEIN("SimdInt16x8OperationX86X64.cpp] 48\n");
         X86SIMDValue x86Result;
 
         X86SIMDValue negativeOnes = { { -1, -1, -1, -1} };
@@ -57,7 +57,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpAdd(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdInt16x8OperationX86X64.cpp] 59\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -68,7 +68,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpSub(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdInt16x8OperationX86X64.cpp] 70\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -79,7 +79,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpMul(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdInt16x8OperationX86X64.cpp] 81\n");
         SIMDValue result;
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
@@ -92,7 +92,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpAnd(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdInt16x8OperationX86X64.cpp] 94\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -103,7 +103,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpOr(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdInt16x8OperationX86X64.cpp] 105\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -114,7 +114,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpXor(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdInt16x8OperationX86X64.cpp] 116\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -125,7 +125,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpAddSaturate(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdInt16x8OperationX86X64.cpp] 127\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -136,7 +136,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpSubSaturate(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdInt16x8OperationX86X64.cpp] 138\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -147,7 +147,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpMin(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdInt16x8OperationX86X64.cpp] 149\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -158,7 +158,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpMax(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdInt16x8OperationX86X64.cpp] 160\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -169,7 +169,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpLessThan(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdInt16x8OperationX86X64.cpp] 171\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -179,7 +179,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpLessThanOrEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdInt16x8OperationX86X64.cpp] 181\n");
         X86SIMDValue x86Result, x86Result1, x86Result2;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -191,7 +191,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdInt16x8OperationX86X64.cpp] 193\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -201,7 +201,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpNotEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdInt16x8OperationX86X64.cpp] 203\n");
         X86SIMDValue x86Result, tmpResult;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -212,7 +212,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpGreaterThan(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdInt16x8OperationX86X64.cpp] 214\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -222,7 +222,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpGreaterThanOrEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdInt16x8OperationX86X64.cpp] 224\n");
         X86SIMDValue x86Result, x86Result1, x86Result2;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -235,7 +235,7 @@ namespace Js
 
     // ShiftOps
     SIMDValue SIMDInt16x8Operation::OpShiftLeftByScalar(const SIMDValue& value, int count)
-    {
+    {LOGMEIN("SimdInt16x8OperationX86X64.cpp] 237\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpValue = X86SIMDValue::ToX86SIMDValue(value);
         // Shifts the 8 signed 16-bit integers in a left by count bits while shifting in zeros
@@ -245,7 +245,7 @@ namespace Js
     }
 
     SIMDValue SIMDInt16x8Operation::OpShiftRightByScalar(const SIMDValue& value, int count)
-    {
+    {LOGMEIN("SimdInt16x8OperationX86X64.cpp] 247\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpValue = X86SIMDValue::ToX86SIMDValue(value);
         // Shifts the 8 signed 16-bit integers right by count bits while shifting in the sign bit

@@ -19,11 +19,11 @@ namespace Js
         friend class ModuleNamespace;
 
         SourceTextModuleRecord(ScriptContext* scriptContext);
-        IdentPtrList* GetRequestedModuleList() const { return requestedModuleList; }
-        ModuleImportOrExportEntryList* GetImportEntryList() const { return importRecordList; }
-        ModuleImportOrExportEntryList* GetLocalExportEntryList() const { return localExportRecordList; }
-        ModuleImportOrExportEntryList* GetIndirectExportEntryList() const { return indirectExportRecordList; }
-        ModuleImportOrExportEntryList* GetStarExportRecordList() const { return starExportRecordList; }
+        IdentPtrList* GetRequestedModuleList() const {LOGMEIN("SourceTextModuleRecord.h] 21\n"); return requestedModuleList; }
+        ModuleImportOrExportEntryList* GetImportEntryList() const {LOGMEIN("SourceTextModuleRecord.h] 22\n"); return importRecordList; }
+        ModuleImportOrExportEntryList* GetLocalExportEntryList() const {LOGMEIN("SourceTextModuleRecord.h] 23\n"); return localExportRecordList; }
+        ModuleImportOrExportEntryList* GetIndirectExportEntryList() const {LOGMEIN("SourceTextModuleRecord.h] 24\n"); return indirectExportRecordList; }
+        ModuleImportOrExportEntryList* GetStarExportRecordList() const {LOGMEIN("SourceTextModuleRecord.h] 25\n"); return starExportRecordList; }
         virtual ExportedNames* GetExportedNames(ExportModuleRecordList* exportStarSet) override;
         virtual bool IsSourceTextModuleRecord() override { return true; } // we don't really have other kind of modulerecord at this time.
 
@@ -42,42 +42,42 @@ namespace Js
 
         HRESULT ResolveExternalModuleDependencies();
 
-        void* GetHostDefined() const { return hostDefined; }
-        void SetHostDefined(void* hostObj) { hostDefined = hostObj; }
+        void* GetHostDefined() const {LOGMEIN("SourceTextModuleRecord.h] 44\n"); return hostDefined; }
+        void SetHostDefined(void* hostObj) {LOGMEIN("SourceTextModuleRecord.h] 45\n"); hostDefined = hostObj; }
 
-        void SetSpecifier(Var specifier) { this->normalizedSpecifier = specifier; }
-        Var GetSpecifier() const { return normalizedSpecifier; }
+        void SetSpecifier(Var specifier) {LOGMEIN("SourceTextModuleRecord.h] 47\n"); this->normalizedSpecifier = specifier; }
+        Var GetSpecifier() const {LOGMEIN("SourceTextModuleRecord.h] 48\n"); return normalizedSpecifier; }
 
-        Var GetErrorObject() const { return errorObject; }
+        Var GetErrorObject() const {LOGMEIN("SourceTextModuleRecord.h] 50\n"); return errorObject; }
 
-        bool WasParsed() const { return wasParsed; }
-        void SetWasParsed() { wasParsed = true; }
-        bool WasDeclarationInitialized() const { return wasDeclarationInitialized; }
-        void SetWasDeclarationInitialized() { wasDeclarationInitialized = true; }
-        void SetIsRootModule() { isRootModule = true; }
+        bool WasParsed() const {LOGMEIN("SourceTextModuleRecord.h] 52\n"); return wasParsed; }
+        void SetWasParsed() {LOGMEIN("SourceTextModuleRecord.h] 53\n"); wasParsed = true; }
+        bool WasDeclarationInitialized() const {LOGMEIN("SourceTextModuleRecord.h] 54\n"); return wasDeclarationInitialized; }
+        void SetWasDeclarationInitialized() {LOGMEIN("SourceTextModuleRecord.h] 55\n"); wasDeclarationInitialized = true; }
+        void SetIsRootModule() {LOGMEIN("SourceTextModuleRecord.h] 56\n"); isRootModule = true; }
 
-        void SetImportRecordList(ModuleImportOrExportEntryList* importList) { importRecordList = importList; }
-        void SetLocalExportRecordList(ModuleImportOrExportEntryList* localExports) { localExportRecordList = localExports; }
-        void SetIndirectExportRecordList(ModuleImportOrExportEntryList* indirectExports) { indirectExportRecordList = indirectExports; }
-        void SetStarExportRecordList(ModuleImportOrExportEntryList* starExports) { starExportRecordList = starExports; }
-        void SetrequestedModuleList(IdentPtrList* requestModules) { requestedModuleList = requestModules; }
+        void SetImportRecordList(ModuleImportOrExportEntryList* importList) {LOGMEIN("SourceTextModuleRecord.h] 58\n"); importRecordList = importList; }
+        void SetLocalExportRecordList(ModuleImportOrExportEntryList* localExports) {LOGMEIN("SourceTextModuleRecord.h] 59\n"); localExportRecordList = localExports; }
+        void SetIndirectExportRecordList(ModuleImportOrExportEntryList* indirectExports) {LOGMEIN("SourceTextModuleRecord.h] 60\n"); indirectExportRecordList = indirectExports; }
+        void SetStarExportRecordList(ModuleImportOrExportEntryList* starExports) {LOGMEIN("SourceTextModuleRecord.h] 61\n"); starExportRecordList = starExports; }
+        void SetrequestedModuleList(IdentPtrList* requestModules) {LOGMEIN("SourceTextModuleRecord.h] 62\n"); requestedModuleList = requestModules; }
 
-        ScriptContext* GetScriptContext() const { return scriptContext; }
+        ScriptContext* GetScriptContext() const {LOGMEIN("SourceTextModuleRecord.h] 64\n"); return scriptContext; }
         HRESULT ParseSource(__in_bcount(sourceLength) byte* sourceText, uint32 sourceLength, SRCINFO * srcInfo, Var* exceptionVar, bool isUtf8);
         HRESULT OnHostException(void* errorVar);
 
         static SourceTextModuleRecord* FromHost(void* hostModuleRecord)
-        {
+        {LOGMEIN("SourceTextModuleRecord.h] 69\n");
             SourceTextModuleRecord* moduleRecord = static_cast<SourceTextModuleRecord*>(hostModuleRecord);
             Assert((moduleRecord == nullptr) || (moduleRecord->magicNumber == moduleRecord->ModuleMagicNumber));
             return moduleRecord;
         }
 
         static bool Is(void* hostModuleRecord)
-        {
+        {LOGMEIN("SourceTextModuleRecord.h] 76\n");
             SourceTextModuleRecord* moduleRecord = static_cast<SourceTextModuleRecord*>(hostModuleRecord);
             if (moduleRecord != nullptr && (moduleRecord->magicNumber == moduleRecord->ModuleMagicNumber))
-            {
+            {LOGMEIN("SourceTextModuleRecord.h] 79\n");
                 return true;
             }
             return false;
@@ -87,17 +87,17 @@ namespace Js
 
         uint GetLocalExportSlotIndexByExportName(PropertyId exportNameId);
         uint GetLocalExportSlotIndexByLocalName(PropertyId localNameId);
-        Field(Var)* GetLocalExportSlots() const { return localExportSlots; }
-        uint GetLocalExportSlotCount() const { return localSlotCount; }
-        uint GetModuleId() const { return moduleId; }
-        uint GetLocalExportCount() const { return localExportCount; }
+        Field(Var)* GetLocalExportSlots() const {LOGMEIN("SourceTextModuleRecord.h] 89\n"); return localExportSlots; }
+        uint GetLocalExportSlotCount() const {LOGMEIN("SourceTextModuleRecord.h] 90\n"); return localSlotCount; }
+        uint GetModuleId() const {LOGMEIN("SourceTextModuleRecord.h] 91\n"); return moduleId; }
+        uint GetLocalExportCount() const {LOGMEIN("SourceTextModuleRecord.h] 92\n"); return localExportCount; }
 
-        ModuleNameRecord* GetNamespaceNameRecord() { return &namespaceRecord; }
+        ModuleNameRecord* GetNamespaceNameRecord() {LOGMEIN("SourceTextModuleRecord.h] 94\n"); return &namespaceRecord; }
 
         SourceTextModuleRecord* GetChildModuleRecord(LPCOLESTR specifier) const;
 
         void SetParent(SourceTextModuleRecord* parentRecord, LPCOLESTR moduleName);
-        Utf8SourceInfo* GetSourceInfo() { return this->pSourceInfo; }
+        Utf8SourceInfo* GetSourceInfo() {LOGMEIN("SourceTextModuleRecord.h] 99\n"); return this->pSourceInfo; }
 
     private:
         const static uint InvalidModuleIndex = 0xffffffff;
@@ -151,9 +151,9 @@ namespace Js
         void InitializeLocalExports();
         void InitializeIndirectExports();
         PropertyId EnsurePropertyIdForIdentifier(IdentPtr pid);
-        LocalExportMap* GetLocalExportMap() const { return localExportMapByExportName; }
-        LocalExportIndexList* GetLocalExportIndexList() const { return localExportIndexList; }
-        ResolvedExportMap* GetExportedNamesMap() const { return resolvedExportMap; }
+        LocalExportMap* GetLocalExportMap() const {LOGMEIN("SourceTextModuleRecord.h] 153\n"); return localExportMapByExportName; }
+        LocalExportIndexList* GetLocalExportIndexList() const {LOGMEIN("SourceTextModuleRecord.h] 154\n"); return localExportIndexList; }
+        ResolvedExportMap* GetExportedNamesMap() const {LOGMEIN("SourceTextModuleRecord.h] 155\n"); return resolvedExportMap; }
     };
 
     struct ServerSourceTextModuleRecord

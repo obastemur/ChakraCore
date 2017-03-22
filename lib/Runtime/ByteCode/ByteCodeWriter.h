@@ -20,40 +20,40 @@ namespace Js
             DataChunk(ArenaAllocator* allocator, uint initSize) :
                 nextChunk(nullptr),
                 byteSize(initSize)
-            {
+            {LOGMEIN("ByteCodeWriter.h] 22\n");
                 buffer = AnewArray(allocator, byte, initSize);
                 currentByte = buffer;
             }
             inline uint GetSize()
-            {
+            {LOGMEIN("ByteCodeWriter.h] 27\n");
                 return byteSize;
             }
             inline const byte* GetBuffer()
-            {
+            {LOGMEIN("ByteCodeWriter.h] 31\n");
                 return buffer;
             }
             inline void Reset()
-            {
+            {LOGMEIN("ByteCodeWriter.h] 35\n");
                 currentByte = buffer;
             }
             inline uint RemainingBytes()
-            {
+            {LOGMEIN("ByteCodeWriter.h] 39\n");
                 Assert(byteSize >= GetCurrentOffset());
                 return byteSize - GetCurrentOffset();
             }
             inline uint GetCurrentOffset()
-            {
+            {LOGMEIN("ByteCodeWriter.h] 44\n");
                 Assert(currentByte >= buffer);
                 return (uint) (currentByte - buffer);
             }
             inline void SetCurrentOffset(uint offset)
-            {
+            {LOGMEIN("ByteCodeWriter.h] 49\n");
                 currentByte = buffer + offset;
             }
 
             // This does not do check if there is enough space for the copy to succeed.
             inline void WriteUnsafe(__in_bcount(byteSize) const void* data, __in uint byteSize)
-            {
+            {LOGMEIN("ByteCodeWriter.h] 55\n");
                 AssertMsg(RemainingBytes() >= byteSize, "We do not have enough room");
 
                 js_memcpy_s(currentByte, this->RemainingBytes(), data, byteSize);
@@ -83,15 +83,15 @@ namespace Js
                 tempAllocator(nullptr),
                 currentOffset(0),
                 fixedGrowthPolicy(fixedGrowthPolicy)
-            {
+            {LOGMEIN("ByteCodeWriter.h] 85\n");
             }
             void Create(uint initSize, ArenaAllocator* tmpAlloc);
-            inline uint GetCurrentOffset() const { return currentOffset; }
-            inline DataChunk * GetCurrentChunk() const { return &(*current); }
+            inline uint GetCurrentOffset() const {LOGMEIN("ByteCodeWriter.h] 88\n"); return currentOffset; }
+            inline DataChunk * GetCurrentChunk() const {LOGMEIN("ByteCodeWriter.h] 89\n"); return &(*current); }
             void SetCurrent(uint offset, DataChunk* currChunk);
             void Copy(Recycler* alloc, ByteBlock ** finalBlock);
-            void Encode(OpCode op, ByteCodeWriter* writer) { EncodeT<Js::SmallLayout>(op, writer); }
-            void Encode(OpCode op, const void * rawData, int byteSize, ByteCodeWriter* writer) { EncodeT<Js::SmallLayout>(op, rawData, byteSize, writer); }
+            void Encode(OpCode op, ByteCodeWriter* writer) {LOGMEIN("ByteCodeWriter.h] 92\n"); EncodeT<Js::SmallLayout>(op, writer); }
+            void Encode(OpCode op, const void * rawData, int byteSize, ByteCodeWriter* writer) {LOGMEIN("ByteCodeWriter.h] 93\n"); EncodeT<Js::SmallLayout>(op, rawData, byteSize, writer); }
             void Encode(const void * rawData, int byteSize);
 
             template <LayoutSize layoutSize> void EncodeOpCode(uint16 op, ByteCodeWriter* writer);
@@ -101,8 +101,8 @@ namespace Js
             template <LayoutSize layoutSize> uint EncodeT(OpCode op, ByteCodeWriter* writer);
             template <LayoutSize layoutSize> uint EncodeT(OpCode op, const void * rawData, int byteSize, ByteCodeWriter* writer);
             // asm.js encoding
-            void Encode(OpCodeAsmJs op, ByteCodeWriter* writer){ EncodeT<Js::SmallLayout>(op, writer, /*isPatching*/false); }
-            void Encode(OpCodeAsmJs op, const void * rawData, int byteSize, ByteCodeWriter* writer, bool isPatching = false){ EncodeT<Js::SmallLayout>(op, rawData, byteSize, writer, isPatching); }
+            void Encode(OpCodeAsmJs op, ByteCodeWriter* writer){LOGMEIN("ByteCodeWriter.h] 103\n"); EncodeT<Js::SmallLayout>(op, writer, /*isPatching*/false); }
+            void Encode(OpCodeAsmJs op, const void * rawData, int byteSize, ByteCodeWriter* writer, bool isPatching = false){LOGMEIN("ByteCodeWriter.h] 104\n"); EncodeT<Js::SmallLayout>(op, rawData, byteSize, writer, isPatching); }
             template <LayoutSize layoutSize> uint EncodeT(OpCodeAsmJs op, ByteCodeWriter* writer, bool isPatching);
             template <LayoutSize layoutSize> uint EncodeT(OpCodeAsmJs op, const void * rawData, int byteSize, ByteCodeWriter* writer, bool isPatching = false);
 
@@ -113,8 +113,8 @@ namespace Js
             uint startOffset;
             uint endOffset;
             bool isNested;
-            LoopHeaderData() {}
-            LoopHeaderData(uint startOffset, uint endOffset, bool isNested) : startOffset(startOffset), endOffset(endOffset), isNested(isNested){}
+            LoopHeaderData() {LOGMEIN("ByteCodeWriter.h] 115\n");}
+            LoopHeaderData(uint startOffset, uint endOffset, bool isNested) : startOffset(startOffset), endOffset(endOffset), isNested(isNested){LOGMEIN("ByteCodeWriter.h] 116\n");}
         };
 
         JsUtil::List<uint, ArenaAllocator> * m_labelOffsets;          // Label offsets, once defined
@@ -155,8 +155,8 @@ namespace Js
             ParseNode* node;
             int beginCodeSpan;
 
-            SubexpressionNode() {}
-            SubexpressionNode(ParseNode* node, int beginCodeSpan) : node(node), beginCodeSpan(beginCodeSpan) {}
+            SubexpressionNode() {LOGMEIN("ByteCodeWriter.h] 157\n");}
+            SubexpressionNode(ParseNode* node, int beginCodeSpan) : node(node), beginCodeSpan(beginCodeSpan) {LOGMEIN("ByteCodeWriter.h] 158\n");}
         };
         JsUtil::Stack<SubexpressionNode> * m_subexpressionNodesStack; // Parse nodes for Subexpressions not participating in debug-stepping actions
         SmallSpanSequenceIter spanIter;
@@ -173,8 +173,8 @@ namespace Js
         struct CacheIdUnit {
             uint cacheId;
             bool isRootObjectCache;
-            CacheIdUnit() {}
-            CacheIdUnit(uint cacheId, bool isRootObjectCache = false) : cacheId(cacheId), isRootObjectCache(isRootObjectCache) {}
+            CacheIdUnit() {LOGMEIN("ByteCodeWriter.h] 175\n");}
+            CacheIdUnit(uint cacheId, bool isRootObjectCache = false) : cacheId(cacheId), isRootObjectCache(isRootObjectCache) {LOGMEIN("ByteCodeWriter.h] 176\n");}
         };
 
     protected:
@@ -217,9 +217,9 @@ namespace Js
         void PopDebuggerScope();
 
     public:
-        ByteCodeWriter() : m_byteCodeCount(/*fixedGrowthPolicy=*/ true), m_currentDebuggerScope(nullptr) {}
+        ByteCodeWriter() : m_byteCodeCount(/*fixedGrowthPolicy=*/ true), m_currentDebuggerScope(nullptr) {LOGMEIN("ByteCodeWriter.h] 219\n");}
 #if DBG
-        ~ByteCodeWriter() { Assert(!isInUse); }
+        ~ByteCodeWriter() {LOGMEIN("ByteCodeWriter.h] 221\n"); Assert(!isInUse); }
 #endif
 
         void Create();
@@ -357,19 +357,19 @@ namespace Js
         void EndSubexpression(ParseNode* node);
         void RecordFrameDisplayRegister(RegSlot slot);
         void RecordObjectRegister(RegSlot slot);
-        uint GetCurrentOffset() const { return (uint)m_byteCodeData.GetCurrentOffset(); }
-        DataChunk * GetCurrentChunk() const { return m_byteCodeData.GetCurrentChunk(); }
-        void SetCurrent(uint offset, DataChunk * chunk) { m_byteCodeData.SetCurrent(offset, chunk); }
+        uint GetCurrentOffset() const {LOGMEIN("ByteCodeWriter.h] 359\n"); return (uint)m_byteCodeData.GetCurrentOffset(); }
+        DataChunk * GetCurrentChunk() const {LOGMEIN("ByteCodeWriter.h] 360\n"); return m_byteCodeData.GetCurrentChunk(); }
+        void SetCurrent(uint offset, DataChunk * chunk) {LOGMEIN("ByteCodeWriter.h] 361\n"); m_byteCodeData.SetCurrent(offset, chunk); }
         bool ShouldIncrementCallSiteId(OpCode op);
-        inline void SetCallSiteCount(Js::ProfileId callSiteId) { this->m_functionWrite->SetProfiledCallSiteCount(callSiteId); }
+        inline void SetCallSiteCount(Js::ProfileId callSiteId) {LOGMEIN("ByteCodeWriter.h] 363\n"); this->m_functionWrite->SetProfiledCallSiteCount(callSiteId); }
 
         // Debugger methods.
         DebuggerScope* RecordStartScopeObject(DiagExtraScopesType scopeType, RegSlot scopeLocation = Js::Constants::NoRegister, int* index = nullptr);
         void AddPropertyToDebuggerScope(DebuggerScope* debuggerScope, RegSlot location, Js::PropertyId propertyId, bool shouldConsumeRegister = true, DebuggerScopePropertyFlags flags = DebuggerScopePropertyFlags_None, bool isFunctionDeclaration = false);
         void RecordEndScopeObject();
-        DebuggerScope* GetCurrentDebuggerScope() const { return m_currentDebuggerScope; }
+        DebuggerScope* GetCurrentDebuggerScope() const {LOGMEIN("ByteCodeWriter.h] 369\n"); return m_currentDebuggerScope; }
         void UpdateDebuggerPropertyInitializationOffset(Js::DebuggerScope* currentDebuggerScope, Js::RegSlot location, Js::PropertyId propertyId, bool shouldConsumeRegister = true, int byteCodeOffset = Constants::InvalidOffset, bool isFunctionDeclaration = false);
-        FunctionBody* GetFunctionWrite() const { return m_functionWrite; }
+        FunctionBody* GetFunctionWrite() const {LOGMEIN("ByteCodeWriter.h] 371\n"); return m_functionWrite; }
 
         void RecordStatementAdjustment(FunctionBody::StatementAdjustmentType type);
         void RecordCrossFrameEntryExitRecord(bool isEnterBlock);
@@ -378,23 +378,23 @@ namespace Js
         uint EnterLoop(Js::ByteCodeLabel loopEntrance);
         void ExitLoop(uint loopId);
 
-        bool DoJitLoopBodies() const { return m_doJitLoopBodies; }
-        bool DoInterruptProbes() const { return m_doInterruptProbe; }
+        bool DoJitLoopBodies() const {LOGMEIN("ByteCodeWriter.h] 380\n"); return m_doJitLoopBodies; }
+        bool DoInterruptProbes() const {LOGMEIN("ByteCodeWriter.h] 381\n"); return m_doInterruptProbe; }
 
         static bool DoProfileCallOp(OpCode op)
-        {
+        {LOGMEIN("ByteCodeWriter.h] 384\n");
             return op >= OpCode::CallI && op <= OpCode::CallIExtendedFlags;
         }
 
         bool DoProfileNewScObjectOp(OpCode op)
-        {
+        {LOGMEIN("ByteCodeWriter.h] 389\n");
             return
                 !PHASE_OFF(InlineConstructorsPhase, m_functionWrite) &&
                 (op == OpCode::NewScObject || op == OpCode::NewScObjectSpread);
         }
 
         bool DoProfileNewScObjArrayOp(OpCode op)
-        {
+        {LOGMEIN("ByteCodeWriter.h] 396\n");
             return
                 !PHASE_OFF(NativeArrayPhase, m_functionWrite) &&
                 !m_functionWrite->IsInDebugMode() &&
@@ -402,7 +402,7 @@ namespace Js
         }
 
         bool DoProfileNewScArrayOp(OpCode op)
-        {
+        {LOGMEIN("ByteCodeWriter.h] 404\n");
             return
                 !PHASE_OFF(NativeArrayPhase, m_functionWrite) &&
                 !PHASE_OFF(NativeNewScArrayPhase, m_functionWrite) &&
@@ -411,13 +411,13 @@ namespace Js
         }
 
         uint GetTotalSize()
-        {
+        {LOGMEIN("ByteCodeWriter.h] 413\n");
             return m_byteCodeData.GetCurrentOffset() + m_auxiliaryData.GetCurrentOffset() + m_auxContextData.GetCurrentOffset();
         }
 
 #if DBG
-        bool IsInitialized() const { return isInitialized; }
-        bool IsInUse() const { return isInUse; }
+        bool IsInitialized() const {LOGMEIN("ByteCodeWriter.h] 418\n"); return isInitialized; }
+        bool IsInUse() const {LOGMEIN("ByteCodeWriter.h] 419\n"); return isInUse; }
 #endif
     };
 }
@@ -429,7 +429,7 @@ namespace JsUtil
     {
     public:
         void Clear()
-        {
+        {LOGMEIN("ByteCodeWriter.h] 431\n");
             this->value = 0;
         }
     };

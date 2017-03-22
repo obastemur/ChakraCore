@@ -105,13 +105,13 @@ namespace Js
 
         template<class TMapFunction>
         void MapProbes(TMapFunction map)
-        {
+        {LOGMEIN("ProbeContainer.h] 107\n");
             this->diagProbeList->Map(map);
         }
 
         template<class TMapFunction>
         void MapProbesUntil(TMapFunction map)
-        {
+        {LOGMEIN("ProbeContainer.h] 113\n");
             this->diagProbeList->MapUntil(map);
         }
 
@@ -145,8 +145,8 @@ namespace Js
         bool AdvanceToNextUserStatement(Js::FunctionBody* functionBody, ByteCodeReader* reader);
 
         void SetNextStatementAt(int bytecodeOffset);
-        bool IsSetNextStatementCalled() const { return IsNextStatementChanged; }
-        int GetByteCodeOffset() const { Assert(IsNextStatementChanged); return bytecodeOffset; }
+        bool IsSetNextStatementCalled() const {LOGMEIN("ProbeContainer.h] 147\n"); return IsNextStatementChanged; }
+        int GetByteCodeOffset() const {LOGMEIN("ProbeContainer.h] 148\n"); Assert(IsNextStatementChanged); return bytecodeOffset; }
 
         void AsyncActivate(HaltCallback* haltCallback);
         void AsyncDeactivate();
@@ -158,25 +158,25 @@ namespace Js
         bool IsContextRegistered(DWORD_PTR context);
         FunctionBody * GetGlobalFunc(ScriptContext* scriptContext, DWORD_PTR secondaryHostSourceContext);
 
-        Var GetExceptionObject() { return jsExceptionObject; }
+        Var GetExceptionObject() {LOGMEIN("ProbeContainer.h] 160\n"); return jsExceptionObject; }
 
         bool HasAllowedForException(__in JavascriptExceptionObject* exceptionObject);
 
-        void SetThrowIsInternal(bool set) { isThrowInternal = set; }
+        void SetThrowIsInternal(bool set) {LOGMEIN("ProbeContainer.h] 164\n"); isThrowInternal = set; }
 
         bool IsExceptionReportingEnabled();
         bool IsFirstChanceExceptionEnabled();
         bool IsNonUserCodeSupportEnabled();
         bool IsLibraryStackFrameSupportEnabled();
 
-        void SetCurrentTmpRegCount(uint32 set) { tmpRegCount = set; }
-        uint32 GetCurrentTmpRegCount() const { return tmpRegCount; }
+        void SetCurrentTmpRegCount(uint32 set) {LOGMEIN("ProbeContainer.h] 171\n"); tmpRegCount = set; }
+        uint32 GetCurrentTmpRegCount() const {LOGMEIN("ProbeContainer.h] 172\n"); return tmpRegCount; }
         void PinPropertyRecord(const Js::PropertyRecord *propertyRecord);
 
-        bool IsPrimaryBrokenToDebuggerContext() const { return isPrimaryBrokenToDebuggerContext; }
-        void SetIsPrimaryBrokenToDebuggerContext(bool set) { isPrimaryBrokenToDebuggerContext = set; }
+        bool IsPrimaryBrokenToDebuggerContext() const {LOGMEIN("ProbeContainer.h] 175\n"); return isPrimaryBrokenToDebuggerContext; }
+        void SetIsPrimaryBrokenToDebuggerContext(bool set) {LOGMEIN("ProbeContainer.h] 176\n"); isPrimaryBrokenToDebuggerContext = set; }
 
-        DebugManager *GetDebugManager() const { return this->debugManager; }
+        DebugManager *GetDebugManager() const {LOGMEIN("ProbeContainer.h] 178\n"); return this->debugManager; }
 
 #ifdef ENABLE_MUTATION_BREAKPOINT
         typedef JsUtil::List<RecyclerWeakReference<Js::MutationBreakpoint>*, Recycler, false, Js::WeakRefFreeListedRemovePolicy> MutationBreakpointList;

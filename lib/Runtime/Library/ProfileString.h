@@ -40,9 +40,9 @@ namespace Js
             uint countUnicode;
 
             void Accumulate( RequiredEncoding encoding )
-            {
+            {LOGMEIN("ProfileString.h] 42\n");
                 switch(encoding)
-                {
+                {LOGMEIN("ProfileString.h] 44\n");
                 case ASCII7bit:
                     this->count7BitASCII++;
                     break;
@@ -56,14 +56,14 @@ namespace Js
             }
 
             uint Total() const
-            {
+            {LOGMEIN("ProfileString.h] 58\n");
                 return this->count7BitASCII +
                     this->count8BitASCII +
                     this->countUnicode;
             }
 
             void Accumulate(StringMetrics& rhs)
-            {
+            {LOGMEIN("ProfileString.h] 65\n");
                 this->count7BitASCII += rhs.count7BitASCII;
                 this->count8BitASCII += rhs.count8BitASCII;
                 this->countUnicode   += rhs.countUnicode;
@@ -77,18 +77,18 @@ namespace Js
             uint bufferStringBuilderCount;
             uint unknownCount;
 
-            ConcatMetrics() {}
+            ConcatMetrics() {LOGMEIN("ProfileString.h] 79\n");}
 
             ConcatMetrics(ConcatType concatType)
                 : compoundStringCount(0), concatTreeCount(0), bufferStringBuilderCount(0), unknownCount(0)
-            {
+            {LOGMEIN("ProfileString.h] 83\n");
                 this->Accumulate(concatType);
             }
 
             void Accumulate(ConcatType concatType)
-            {
+            {LOGMEIN("ProfileString.h] 88\n");
                 switch(concatType)
-                {
+                {LOGMEIN("ProfileString.h] 90\n");
                 case ConcatType_CompoundString:
                     this->compoundStringCount++;
                     break;
@@ -104,7 +104,7 @@ namespace Js
                 }
             }
             uint Total() const
-            {
+            {LOGMEIN("ProfileString.h] 106\n");
                 return this->compoundStringCount +
                     this->concatTreeCount +
                     this->bufferStringBuilderCount +
@@ -127,12 +127,12 @@ namespace Js
             uint second;
 
             bool operator==(UintUintPair const& other) const
-            {
+            {LOGMEIN("ProfileString.h] 129\n");
                 return this->first == other.first && this->second == other.second;
             }
 
             operator uint() const
-            {
+            {LOGMEIN("ProfileString.h] 134\n");
                 return this->first | (this->second << 16);
             }
         };

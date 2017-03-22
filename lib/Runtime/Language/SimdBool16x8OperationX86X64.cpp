@@ -8,14 +8,14 @@
 namespace Js
 {
     SIMDValue SIMDBool16x8Operation::OpBool16x8(bool b[])
-    {
+    {LOGMEIN("SimdBool16x8OperationX86X64.cpp] 10\n");
         X86SIMDValue x86Result;
         x86Result.m128i_value = _mm_set_epi16(b[7] * -1, b[6] * -1, b[5] * -1, b[4] * -1, b[3] * -1, b[2] * -1, b[1] * -1, b[0] * -1);
         return X86SIMDValue::ToSIMDValue(x86Result);
     }
 
     SIMDValue SIMDBool16x8Operation::OpBool16x8(const SIMDValue& v)
-    {
+    {LOGMEIN("SimdBool16x8OperationX86X64.cpp] 17\n");
         // overload function with input parameter as SIMDValue for completeness
         SIMDValue result;
         result = v;

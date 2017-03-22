@@ -22,25 +22,25 @@ private:
 public:
     static const LPCWSTR LibraryName;
 
-    UCrtC99MathApis() : m_pfnlog2(nullptr), m_pfnlog1p(nullptr), m_pfnexpm1(nullptr), m_pfnacosh(nullptr), m_pfnasinh(nullptr), m_pfnatanh(nullptr), m_pfntrunc(nullptr), m_pfncbrt(nullptr) { }
-    virtual ~UCrtC99MathApis() { }
+    UCrtC99MathApis() : m_pfnlog2(nullptr), m_pfnlog1p(nullptr), m_pfnexpm1(nullptr), m_pfnacosh(nullptr), m_pfnasinh(nullptr), m_pfnatanh(nullptr), m_pfntrunc(nullptr), m_pfncbrt(nullptr) {LOGMEIN("MathLibrary.h] 24\n"); }
+    virtual ~UCrtC99MathApis() {LOGMEIN("MathLibrary.h] 25\n"); }
 
     virtual LPCWSTR GetLibraryName() const override { return LibraryName; }
 
-    bool IsAvailable() { Ensure(); return DelayLoadLibrary::IsAvailable(); }
+    bool IsAvailable() {LOGMEIN("MathLibrary.h] 29\n"); Ensure(); return DelayLoadLibrary::IsAvailable(); }
 
     void Ensure();
 
-    HMODULE GetHandle() const { return m_hModule; }
+    HMODULE GetHandle() const {LOGMEIN("MathLibrary.h] 33\n"); return m_hModule; }
 
-    double log2 (_In_ double x) { Assert(IsAvailable()); return m_pfnlog2 (x); }
-    double log1p(_In_ double x) { Assert(IsAvailable()); return m_pfnlog1p(x); }
-    double expm1(_In_ double x) { Assert(IsAvailable()); return m_pfnexpm1(x); }
-    double acosh(_In_ double x) { Assert(IsAvailable()); return m_pfnacosh(x); }
-    double asinh(_In_ double x) { Assert(IsAvailable()); return m_pfnasinh(x); }
-    double atanh(_In_ double x) { Assert(IsAvailable()); return m_pfnatanh(x); }
-    double trunc(_In_ double x) { Assert(IsAvailable()); return m_pfntrunc(x); }
-    double cbrt (_In_ double x) { Assert(IsAvailable()); return m_pfncbrt (x); }
+    double log2 (_In_ double x) {LOGMEIN("MathLibrary.h] 35\n"); Assert(IsAvailable()); return m_pfnlog2 (x); }
+    double log1p(_In_ double x) {LOGMEIN("MathLibrary.h] 36\n"); Assert(IsAvailable()); return m_pfnlog1p(x); }
+    double expm1(_In_ double x) {LOGMEIN("MathLibrary.h] 37\n"); Assert(IsAvailable()); return m_pfnexpm1(x); }
+    double acosh(_In_ double x) {LOGMEIN("MathLibrary.h] 38\n"); Assert(IsAvailable()); return m_pfnacosh(x); }
+    double asinh(_In_ double x) {LOGMEIN("MathLibrary.h] 39\n"); Assert(IsAvailable()); return m_pfnasinh(x); }
+    double atanh(_In_ double x) {LOGMEIN("MathLibrary.h] 40\n"); Assert(IsAvailable()); return m_pfnatanh(x); }
+    double trunc(_In_ double x) {LOGMEIN("MathLibrary.h] 41\n"); Assert(IsAvailable()); return m_pfntrunc(x); }
+    double cbrt (_In_ double x) {LOGMEIN("MathLibrary.h] 42\n"); Assert(IsAvailable()); return m_pfncbrt (x); }
 };
 
 namespace Js {

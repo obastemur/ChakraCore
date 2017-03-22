@@ -10,10 +10,10 @@ namespace Js
     {
     public:
         RootObjectInlineCache(InlineCacheAllocator * allocator);
-        uint AddRef() { return ++refCount; }
-        uint Release() { Assert(refCount != 0); return --refCount; }
-        Js::InlineCache * GetInlineCache() const { return inlineCache; }
-        uint GetRefCount() { return refCount; }
+        uint AddRef() {LOGMEIN("RootObjectBase.h] 12\n"); return ++refCount; }
+        uint Release() {LOGMEIN("RootObjectBase.h] 13\n"); Assert(refCount != 0); return --refCount; }
+        Js::InlineCache * GetInlineCache() const {LOGMEIN("RootObjectBase.h] 14\n"); return inlineCache; }
+        uint GetRefCount() {LOGMEIN("RootObjectBase.h] 15\n"); return refCount; }
     private:
         Field(uint) refCount;
         Field(Js::InlineCache *) inlineCache;
@@ -76,7 +76,7 @@ namespace Js
     template <typename Fn>
     void
     RootObjectBase::MapLetConstGlobals(Fn fn)
-    {
+    {LOGMEIN("RootObjectBase.h] 78\n");
         int index = 0;
         const PropertyRecord* propertyRecord;
         Var value;

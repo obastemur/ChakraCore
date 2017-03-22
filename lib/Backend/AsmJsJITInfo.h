@@ -13,10 +13,10 @@ public:
 
     WAsmJs::TypedSlotInfo GetTypedSlotInfo(WAsmJs::Types type) const;
 #define TYPED_SLOT_INFO_GETTER(name, type) \
-    int Get##name##ByteOffset() const   { return m_data.typedSlotInfos[WAsmJs::##type].byteOffset; }\
-    int Get##name##ConstCount() const   { return m_data.typedSlotInfos[WAsmJs::##type].constCount; }\
-    int Get##name##TmpCount() const     { return m_data.typedSlotInfos[WAsmJs::##type].tmpCount; }\
-    int Get##name##VarCount() const     { return m_data.typedSlotInfos[WAsmJs::##type].varCount; }
+    int Get##name##ByteOffset() const   {LOGMEIN("AsmJsJITInfo.h] 15\n"); return m_data.typedSlotInfos[WAsmJs::##type].byteOffset; }\
+    int Get##name##ConstCount() const   {LOGMEIN("AsmJsJITInfo.h] 16\n"); return m_data.typedSlotInfos[WAsmJs::##type].constCount; }\
+    int Get##name##TmpCount() const     {LOGMEIN("AsmJsJITInfo.h] 17\n"); return m_data.typedSlotInfos[WAsmJs::##type].tmpCount; }\
+    int Get##name##VarCount() const     {LOGMEIN("AsmJsJITInfo.h] 18\n"); return m_data.typedSlotInfos[WAsmJs::##type].varCount; }
 
     TYPED_SLOT_INFO_GETTER(Double, FLOAT64);
     TYPED_SLOT_INFO_GETTER(Float, FLOAT32);

@@ -7,5 +7,5 @@ namespace Js
 
 #include "EdgeJavascriptTypeId.h"
     // All WinRT dates are regular Javascript dates too
-    inline bool IsDateTypeId(TypeId typeId) { return (typeId == TypeIds_Date || typeId == TypeIds_WinRTDate); }
+    inline bool IsDateTypeId(TypeId typeId) {LOGMEIN("TypeId.h] 9\n"); return (typeId == TypeIds_Date || typeId == TypeIds_WinRTDate); }
 }

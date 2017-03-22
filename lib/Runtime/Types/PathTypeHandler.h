@@ -35,7 +35,7 @@ namespace Js
         static DynamicType* CreateTypeForNewScObject(ScriptContext* scriptContext, DynamicType* type, const Js::PropertyIdArray *propIds, bool shareType);
         static DynamicType* CreateNewScopeObject(ScriptContext* scriptContext, DynamicType* type, const Js::PropertyIdArray *propIds, PropertyAttributes extraAttributes = PropertyNone, uint extraAttributesSlotCount = UINT_MAX);
 
-        static PathTypeHandlerBase * FromTypeHandler(DynamicTypeHandler * const typeHandler) { Assert(typeHandler->IsPathTypeHandler()); return static_cast<PathTypeHandlerBase*>(typeHandler); }
+        static PathTypeHandlerBase * FromTypeHandler(DynamicTypeHandler * const typeHandler) {LOGMEIN("PathTypeHandler.h] 37\n"); Assert(typeHandler->IsPathTypeHandler()); return static_cast<PathTypeHandlerBase*>(typeHandler); }
 
         virtual int GetPropertyCount() override;
         virtual PropertyId GetPropertyId(ScriptContext* scriptContext, PropertyIndex index) override;
@@ -72,7 +72,7 @@ namespace Js
         virtual void MarshalAllPropertiesToScriptContext(DynamicObject* instance, ScriptContext* targetScriptContext, bool invalidateFixedFields) override;
         virtual DynamicTypeHandler* ConvertToTypeWithItemAttributes(DynamicObject* instance) override;
         virtual BOOL AllPropertiesAreEnumerable() sealed { return true; }
-        virtual BOOL IsPathTypeHandler() const { return TRUE; }
+        virtual BOOL IsPathTypeHandler() const {LOGMEIN("PathTypeHandler.h] 74\n"); return TRUE; }
 
         virtual void ShrinkSlotAndInlineSlotCapacity() override;
         virtual void LockInlineSlotCapacity() override { Assert(false); };
@@ -86,7 +86,7 @@ namespace Js
         virtual void SetIsPrototype(DynamicObject* instance) override;
 
 #if DBG
-        virtual bool SupportsPrototypeInstances() const { return !IsolatePrototypes(); }
+        virtual bool SupportsPrototypeInstances() const {LOGMEIN("PathTypeHandler.h] 88\n"); return !IsolatePrototypes(); }
 #endif
 
         virtual bool HasSingletonInstance() const override sealed;
@@ -117,7 +117,7 @@ namespace Js
 
     private:
         static bool FixPropsOnPathTypes()
-        {
+        {LOGMEIN("PathTypeHandler.h] 119\n");
 #ifdef SUPPORT_FIXED_FIELDS_ON_PATH_TYPES
             return CONFIG_FLAG(FixPropsOnPathTypes);
 #else
@@ -137,11 +137,11 @@ namespace Js
             this->typePath->SetSingletonInstance(instance, GetPathLength());
         }
 
-        virtual void ClearSingletonInstance() { Assert(false); }
+        virtual void ClearSingletonInstance() {LOGMEIN("PathTypeHandler.h] 139\n"); Assert(false); }
 
 #if DBG
         bool HasSingletonInstanceOnlyIfNeeded() const
-        {
+        {LOGMEIN("PathTypeHandler.h] 143\n");
 #ifdef SUPPORT_FIXED_FIELDS_ON_PATH_TYPES
             return AreSingletonInstancesNeeded() || !this->typePath->HasSingletonInstance();
 #else
@@ -171,7 +171,7 @@ namespace Js
         ConvertToSimpleDictionaryType(DynamicObject* instance, int propertyCapacity, bool mayBecomeShared = false);
 
         SimpleDictionaryTypeHandler* ConvertToSimpleDictionaryType(DynamicObject* instance, int propertyCapacity, bool mayBecomeShared = false)
-        {
+        {LOGMEIN("PathTypeHandler.h] 173\n");
             return ConvertToSimpleDictionaryType<SimpleDictionaryTypeHandler>(instance, propertyCapacity, mayBecomeShared);
         }
 
@@ -195,9 +195,9 @@ namespace Js
         virtual bool GetSuccessor(const PropertyRecord* propertyRecord, RecyclerWeakReference<DynamicType> ** typeWeakRef) = 0;
         virtual void SetSuccessor(DynamicType * type, const PropertyRecord* propertyRecord, RecyclerWeakReference<DynamicType> * typeWeakRef, ScriptContext * scriptContext) = 0;
 
-        uint16 GetPathLength() const { return GetUnusedBytesValue(); }
-        TypePath * GetTypePath() const { return typePath; }
-        DynamicType * GetPredecessorType() const { return predecessorType; }
+        uint16 GetPathLength() const {LOGMEIN("PathTypeHandler.h] 197\n"); return GetUnusedBytesValue(); }
+        TypePath * GetTypePath() const {LOGMEIN("PathTypeHandler.h] 198\n"); return typePath; }
+        DynamicType * GetPredecessorType() const {LOGMEIN("PathTypeHandler.h] 199\n"); return predecessorType; }
         PathTypeHandlerBase* GetRootPathTypeHandler();
 
     public:

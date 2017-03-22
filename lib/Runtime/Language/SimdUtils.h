@@ -36,18 +36,18 @@ struct _SIMDValue
     };
 
     void SetValue(_SIMDValue value)
-    {
+    {LOGMEIN("SimdUtils.h] 38\n");
         i32[SIMD_X] = value.i32[SIMD_X];
         i32[SIMD_Y] = value.i32[SIMD_Y];
         i32[SIMD_Z] = value.i32[SIMD_Z];
         i32[SIMD_W] = value.i32[SIMD_W];
     }
     void Zero()
-    {
+    {LOGMEIN("SimdUtils.h] 45\n");
         f64[SIMD_X] = f64[SIMD_Y] = 0;
     }
     bool operator==(const _SIMDValue& r)
-    {
+    {LOGMEIN("SimdUtils.h] 49\n");
         // don't compare f64/f32 because NaN bit patterns will not be considered equal.
         return (this->i32[SIMD_X] == r.i32[SIMD_X] &&
             this->i32[SIMD_Y] == r.i32[SIMD_Y] &&
@@ -55,7 +55,7 @@ struct _SIMDValue
             this->i32[SIMD_W] == r.i32[SIMD_W]);
     }
     bool IsZero()
-    {
+    {LOGMEIN("SimdUtils.h] 57\n");
         return (i32[SIMD_X] == 0 && i32[SIMD_Y] == 0 && i32[SIMD_Z] == 0 && i32[SIMD_W] == 0);
     }
 
@@ -67,12 +67,12 @@ template <>
 struct DefaultComparer<_SIMDValue>
 {
     __forceinline static bool Equals(_SIMDValue x, _SIMDValue y)
-    {
+    {LOGMEIN("SimdUtils.h] 69\n");
         return x == y;
     }
 
     __forceinline static hash_t GetHashCode(_SIMDValue d)
-    {
+    {LOGMEIN("SimdUtils.h] 74\n");
         return (hash_t)(d.i32[SIMD_X] ^ d.i32[SIMD_Y] ^ d.i32[SIMD_Z] ^ d.i32[SIMD_W]);
     }
 };
@@ -88,14 +88,14 @@ struct _x86_SIMDValue
     };
 
     static _x86_SIMDValue ToX86SIMDValue(const SIMDValue& val)
-    {
+    {LOGMEIN("SimdUtils.h] 90\n");
         _x86_SIMDValue result;
         result.m128_value = _mm_loadu_ps((float*) &val);
         return result;
     }
 
     static SIMDValue ToSIMDValue(const _x86_SIMDValue& val)
-    {
+    {LOGMEIN("SimdUtils.h] 97\n");
         SIMDValue result;
         _mm_storeu_ps((float*) &result, val.m128_value);
         return result;
@@ -169,13 +169,13 @@ namespace Js {
     private:
         template<typename SIMDType, typename T>
         static SIMDValue SIMD128SetLaneValue(const Var aVar, const uint32 laneValue, const T value)
-        {
+        {LOGMEIN("SimdUtils.h] 171\n");
             Assert(IsSimdType(aVar));
             SIMDType *jsVal = SIMDType::FromVar(aVar);
             SIMDValue simdValue = jsVal->GetValue();
 
             switch (GetSIMDLaneCount(aVar))
-            {
+            {LOGMEIN("SimdUtils.h] 177\n");
             case 4:
                 return (JavascriptSIMDFloat32x4::Is(aVar)) ?
                        SIMD128InnerReplaceLaneF4(simdValue, laneValue, static_cast<float>(value)):
@@ -192,12 +192,12 @@ namespace Js {
 
         template<typename SIMDType, uint32 laneCount, typename T>
         static T SIMD128GetLaneValue(const Var aVar, const uint32 laneValue)
-        {
+        {LOGMEIN("SimdUtils.h] 194\n");
             Assert(IsSimdType(aVar));
             SIMDType *jsVal = SIMDType::FromVar(aVar);
 
             switch (laneCount)
-            {
+            {LOGMEIN("SimdUtils.h] 199\n");
             case 4:
                 return (JavascriptSIMDFloat32x4::Is(aVar)) ?
                        static_cast<T>(SIMD128InnerExtractLaneF4(jsVal->GetValue(), laneValue)):
@@ -217,40 +217,40 @@ namespace Js {
         static uint32 GetSIMDLaneCount(const Var aVar);
         static inline uint32 SIMDCheckTypedArrayIndex(ScriptContext* scriptContext, const Var index);
         static uint32 SIMDCheckLaneIndex(ScriptContext* scriptContext, const Var lane, const uint32 range = 4);
-        static uint32 inline SIMDGetShiftAmountMask(uint32 eleSizeInBytes) { return (eleSizeInBytes << 3) - 1; }
+        static uint32 inline SIMDGetShiftAmountMask(uint32 eleSizeInBytes) {LOGMEIN("SimdUtils.h] 219\n"); return (eleSizeInBytes << 3) - 1; }
 
         ////////////////////////////////////////////
         //SIMD Extract Lane / Replace Lane Helpers
         ////////////////////////////////////////////
         static inline SIMDValue SIMD128InnerReplaceLaneF4(SIMDValue simdVal, const uint32 lane, const float value)
-        {
+        {LOGMEIN("SimdUtils.h] 225\n");
             simdVal.f32[lane] = value;
             return simdVal;
         };
         static inline SIMDValue SIMD128InnerReplaceLaneI4(SIMDValue simdVal, const uint32 lane, const int32 value)
-        {
+        {LOGMEIN("SimdUtils.h] 230\n");
             simdVal.i32[lane] = value;
             return simdVal;
         };
         static inline SIMDValue SIMD128InnerReplaceLaneI8(SIMDValue simdVal, const uint32 lane, const int16 value)
-        {
+        {LOGMEIN("SimdUtils.h] 235\n");
             simdVal.i16[lane] = value;
             return simdVal;
         };
         static inline SIMDValue SIMD128InnerReplaceLaneI16(SIMDValue simdVal, const uint32 lane, const int8 value)
-        {
+        {LOGMEIN("SimdUtils.h] 240\n");
             simdVal.i8[lane] = value;
             return simdVal;
         };
 
-        static inline float SIMD128InnerExtractLaneF4(const SIMDValue src1, const uint32 lane) { return src1.f32[lane]; };
-        static inline int32 SIMD128InnerExtractLaneI4(const SIMDValue src1, const uint32 lane) { return src1.i32[lane]; };
-        static inline int16 SIMD128InnerExtractLaneI8(const SIMDValue src1, const uint32 lane) { return src1.i16[lane]; };
-        static inline int8 SIMD128InnerExtractLaneI16(const SIMDValue src1, const uint32 lane) { return src1.i8[lane];  };
+        static inline float SIMD128InnerExtractLaneF4(const SIMDValue src1, const uint32 lane) {LOGMEIN("SimdUtils.h] 245\n"); return src1.f32[lane]; };
+        static inline int32 SIMD128InnerExtractLaneI4(const SIMDValue src1, const uint32 lane) {LOGMEIN("SimdUtils.h] 246\n"); return src1.i32[lane]; };
+        static inline int16 SIMD128InnerExtractLaneI8(const SIMDValue src1, const uint32 lane) {LOGMEIN("SimdUtils.h] 247\n"); return src1.i16[lane]; };
+        static inline int8 SIMD128InnerExtractLaneI16(const SIMDValue src1, const uint32 lane) {LOGMEIN("SimdUtils.h] 248\n"); return src1.i8[lane];  };
 
         template<class SIMDType, uint32 laneCount, typename T>
         static inline T SIMD128ExtractLane(const Var src, const Var lane, ScriptContext* scriptContext)
-        {
+        {LOGMEIN("SimdUtils.h] 252\n");
             uint32 laneValue = SIMDUtils::SIMDCheckLaneIndex(scriptContext, lane, laneCount);
             Assert(laneValue >= 0 && laneValue < laneCount);
             return SIMD128GetLaneValue<SIMDType, laneCount, T>(src, laneValue);
@@ -258,7 +258,7 @@ namespace Js {
 
         template<class SIMDType, uint32 laneCount, typename T>
         static inline SIMDValue SIMD128ReplaceLane(const Var src, const Var lane, const T value, ScriptContext* scriptContext)
-        {
+        {LOGMEIN("SimdUtils.h] 260\n");
             uint32 laneValue = SIMDUtils::SIMDCheckLaneIndex(scriptContext, lane, laneCount);
             Assert(laneValue >= 0 && laneValue < laneCount);
             return SIMD128SetLaneValue<SIMDType, T>(src, laneValue, value);
@@ -277,7 +277,7 @@ namespace Js {
         ///////////////////////////////////////////
         template<class SIMDType1, class SIMDType2>
         static inline Var SIMDConvertTypeFromBits(SIMDType1 &instance, ScriptContext& requestContext)
-        {
+        {LOGMEIN("SimdUtils.h] 279\n");
             SIMDValue result = FromSimdBits(instance.GetValue());
             return SIMDType2::New(&result, &requestContext);
         }
@@ -295,7 +295,7 @@ namespace Js {
 
         template <class SIMDType>
         static Var SIMD128TypedArrayLoad(Var arg1, Var arg2, uint32 dataWidth, ScriptContext *scriptContext)
-        {
+        {LOGMEIN("SimdUtils.h] 297\n");
             Assert(dataWidth >= 4 && dataWidth <= 16);
             TypedArrayBase *tarray = NULL;
             int32 index = -1;
@@ -312,7 +312,7 @@ namespace Js {
 
         template <class SIMDType>
         static void SIMD128TypedArrayStore(Var arg1, Var arg2, Var simdVar, uint32 dataWidth, ScriptContext *scriptContext)
-        {
+        {LOGMEIN("SimdUtils.h] 314\n");
             Assert(dataWidth >= 4 && dataWidth <= 16);
             TypedArrayBase *tarray = NULL;
             int32 index = -1;

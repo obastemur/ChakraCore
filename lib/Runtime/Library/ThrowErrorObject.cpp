@@ -23,7 +23,7 @@ namespace Js
             !AutoRegisterIgnoreExceptionWrapper::IsRegistered(scriptContext->GetThreadContext());
 
         if (useExceptionWrapper)
-        {
+        {LOGMEIN("ThrowErrorObject.cpp] 25\n");
             // Forward the throw via regular try-catch wrapper logic that we use for helper/library calls.
             AutoRegisterIgnoreExceptionWrapper autoWrapper(scriptContext->GetThreadContext());
 
@@ -40,27 +40,27 @@ namespace Js
 
     ThrowErrorObject::ThrowErrorObject(StaticType* type, JavascriptError* error)
         : RecyclableObject(type), m_error(error)
-    {
+    {LOGMEIN("ThrowErrorObject.cpp] 42\n");
     }
 
     ThrowErrorObject* ThrowErrorObject::New(StaticType* type, JavascriptError* error, Recycler* recycler)
-    {
+    {LOGMEIN("ThrowErrorObject.cpp] 46\n");
         return RecyclerNew(recycler, ThrowErrorObject, type, error);
     }
 
     bool ThrowErrorObject::Is(Var aValue)
-    {
+    {LOGMEIN("ThrowErrorObject.cpp] 51\n");
         return JavascriptOperators::GetTypeId(aValue) == TypeIds_Undefined;
     }
 
     ThrowErrorObject* ThrowErrorObject::FromVar(Var aValue)
-    {
+    {LOGMEIN("ThrowErrorObject.cpp] 56\n");
         Assert(Is(aValue));
         return static_cast<ThrowErrorObject*>(RecyclableObject::FromVar(aValue));
     }
 
     RecyclableObject* ThrowErrorObject::CreateThrowErrorObject(CreateErrorFunc createError, ScriptContext* scriptContext, int32 hCode, PCWSTR varName)
-    {
+    {LOGMEIN("ThrowErrorObject.cpp] 62\n");
         JavascriptLibrary* library = scriptContext->GetLibrary();
         JavascriptError *pError = (library->*createError)();
         JavascriptError::SetErrorMessage(pError, hCode, varName, scriptContext);
@@ -68,12 +68,12 @@ namespace Js
     }
 
     RecyclableObject* ThrowErrorObject::CreateThrowTypeErrorObject(ScriptContext* scriptContext, int32 hCode, PCWSTR varName)
-    {
+    {LOGMEIN("ThrowErrorObject.cpp] 70\n");
         return CreateThrowErrorObject(&JavascriptLibrary::CreateTypeError, scriptContext, hCode, varName);
     }
 
     RecyclableObject* ThrowErrorObject::CreateThrowTypeErrorObject(ScriptContext* scriptContext, int32 hCode, JavascriptString* varName)
-    {
+    {LOGMEIN("ThrowErrorObject.cpp] 75\n");
         return CreateThrowTypeErrorObject(scriptContext, hCode, varName->GetSz());
     }
 }

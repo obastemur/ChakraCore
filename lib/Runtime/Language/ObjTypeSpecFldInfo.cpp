@@ -13,9 +13,9 @@ namespace Js
 {
     ObjTypeSpecFldInfo* ObjTypeSpecFldInfo::CreateFrom(uint id, InlineCache* cache, uint cacheId, EntryPointInfo *entryPoint,
         FunctionBody* const topFunctionBody, FunctionBody *const functionBody, FieldAccessStatsPtr inlineCacheStats)
-    {
+    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 15\n");
         if (cache->IsEmpty())
-        {
+        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 17\n");
             return nullptr;
         }
 
@@ -30,23 +30,23 @@ namespace Js
         bool isAccessor = localCache.IsAccessor();
         bool isGetter = localCache.IsGetterAccessor();
         if (isLocal)
-        {
+        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 32\n");
             type = TypeWithoutAuxSlotTag(localCache.u.local.type);
             if (localCache.u.local.typeWithoutProperty)
-            {
+            {LOGMEIN("ObjTypeSpecFldInfo.cpp] 35\n");
                 typeWithoutProperty = TypeWithoutAuxSlotTag(localCache.u.local.typeWithoutProperty);
             }
             propertyOwnerType = type;
         }
         else if (isProto)
-        {
+        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 41\n");
             type = TypeWithoutAuxSlotTag(localCache.u.proto.type);
             propertyOwnerType = localCache.u.proto.prototypeObject->GetType();
         }
         else
         {
             if (PHASE_OFF(Js::FixAccessorPropsPhase, functionBody))
-            {
+            {LOGMEIN("ObjTypeSpecFldInfo.cpp] 48\n");
                 return nullptr;
             }
 
@@ -73,14 +73,14 @@ namespace Js
         // The type pointers must be untagged so that the types cannot be collected during JIT.
 
         if (isLocal)
-        {
+        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 75\n");
             slotIndex = localCache.u.local.slotIndex;
             if (type != localCache.u.local.type)
-            {
+            {LOGMEIN("ObjTypeSpecFldInfo.cpp] 78\n");
                 usesAuxSlot = true;
             }
             if (typeWithoutProperty)
-            {
+            {LOGMEIN("ObjTypeSpecFldInfo.cpp] 82\n");
                 Assert(entryPoint->GetJitTransferData() != nullptr);
                 entryPoint->GetJitTransferData()->AddJitTimeTypeRef(typeWithoutProperty, recycler);
 
@@ -91,11 +91,11 @@ namespace Js
             }
         }
         else if (isProto)
-        {
+        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 93\n");
             prototypeObject = localCache.u.proto.prototypeObject;
             slotIndex = localCache.u.proto.slotIndex;
             if (type != localCache.u.proto.type)
-            {
+            {LOGMEIN("ObjTypeSpecFldInfo.cpp] 97\n");
                 usesAuxSlot = true;
                 fieldValue = prototypeObject->GetAuxSlot(slotIndex);
             }
@@ -110,7 +110,7 @@ namespace Js
         {
             slotIndex = localCache.u.accessor.slotIndex;
             if (type != localCache.u.accessor.type)
-            {
+            {LOGMEIN("ObjTypeSpecFldInfo.cpp] 112\n");
                 usesAuxSlot = true;
                 fieldValue = localCache.u.accessor.object->GetAuxSlot(slotIndex);
             }
@@ -128,19 +128,19 @@ namespace Js
         bool allFixedPhaseOFF = PHASE_OFF(Js::FixedMethodsPhase, topFunctionBody) & PHASE_OFF(Js::UseFixedDataPropsPhase, topFunctionBody);
 
         if (!allFixedPhaseOFF)
-        {
+        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 130\n");
             Assert(propertyOwnerType != nullptr);
             if (Js::DynamicType::Is(propertyOwnerType->GetTypeId()))
-            {
+            {LOGMEIN("ObjTypeSpecFldInfo.cpp] 133\n");
                 Js::DynamicTypeHandler* propertyOwnerTypeHandler = ((Js::DynamicType*)propertyOwnerType)->GetTypeHandler();
                 Js::PropertyRecord const * const fixedPropertyRecord = functionBody->GetScriptContext()->GetPropertyName(propertyId);
                 Var fixedProperty = nullptr;
                 Js::JavascriptFunction* functionObject = nullptr;
 
                 if (isLocal || isProto)
-                {
+                {LOGMEIN("ObjTypeSpecFldInfo.cpp] 140\n");
                     if (typeWithoutProperty == nullptr)
-                    {
+                    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 142\n");
                         // Since we don't know if this cache is used for LdMethodFld, we may fix up (use as fixed) too
                         // aggressively here, if we load a function that we don't actually call.  This happens in the case
                         // of constructors (e.g. Object.defineProperty or Object.create).
@@ -157,15 +157,15 @@ namespace Js
                 }
 
                 if (fixedProperty != nullptr && propertyGuard == nullptr)
-                {
+                {LOGMEIN("ObjTypeSpecFldInfo.cpp] 159\n");
                     propertyGuard = entryPoint->RegisterSharedPropertyGuard(propertyId, scriptContext);
                 }
 
                 if (fixedProperty != nullptr && Js::JavascriptFunction::Is(fixedProperty))
-                {
+                {LOGMEIN("ObjTypeSpecFldInfo.cpp] 164\n");
                     functionObject = (Js::JavascriptFunction *)fixedProperty;
                     if (PHASE_VERBOSE_TRACE(Js::FixedMethodsPhase, functionBody))
-                    {
+                    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 167\n");
                         char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                         char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
@@ -179,7 +179,7 @@ namespace Js
                     }
 
                     if (PHASE_VERBOSE_TESTTRACE(Js::FixedMethodsPhase, functionBody))
-                    {
+                    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 181\n");
                         char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                         char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
@@ -199,7 +199,7 @@ namespace Js
 
                     ConstructorCache* runtimeConstructorCache = functionObject->GetConstructorCache();
                     if (runtimeConstructorCache->IsSetUpForJit() && runtimeConstructorCache->GetScriptContext() == scriptContext)
-                    {
+                    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 201\n");
                         FunctionInfo* functionInfo = functionObject->GetFunctionInfo();
                         Assert(functionInfo != nullptr);
                         Assert((functionInfo->GetAttributes() & FunctionInfo::ErrorOnNew) == 0);
@@ -207,16 +207,16 @@ namespace Js
                         Assert(!runtimeConstructorCache->IsDefault());
 
                         if (runtimeConstructorCache->IsNormal())
-                        {
+                        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 209\n");
                             Assert(runtimeConstructorCache->GetType()->GetIsShared());
                             // If we populated the cache with initial type before calling the constructor, but then didn't end up updating the cache
                             // after the constructor and shrinking (and locking) the inline slot capacity, we must lock it now.  In that case it is
                             // also possible that the inline slot capacity was shrunk since we originally cached it, so we must update it also.
 #if DBG_DUMP
                             if (!runtimeConstructorCache->GetType()->GetTypeHandler()->GetIsInlineSlotCapacityLocked())
-                            {
+                            {LOGMEIN("ObjTypeSpecFldInfo.cpp] 216\n");
                                 if (PHASE_TRACE(Js::FixedNewObjPhase, functionBody))
-                                {
+                                {LOGMEIN("ObjTypeSpecFldInfo.cpp] 218\n");
                                     char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                                     char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
@@ -238,7 +238,7 @@ namespace Js
                         ctorCache = RecyclerNew(recycler, JITTimeConstructorCache, functionObject, runtimeConstructorCache);
 
                         if (PHASE_TRACE(Js::FixedNewObjPhase, functionBody))
-                        {
+                        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 240\n");
                             char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                             char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
@@ -253,9 +253,9 @@ namespace Js
                     else
                     {
                         if (!runtimeConstructorCache->IsDefault())
-                        {
+                        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 255\n");
                             if (PHASE_TRACE(Js::FixedNewObjPhase, functionBody))
-                            {
+                            {LOGMEIN("ObjTypeSpecFldInfo.cpp] 257\n");
                                 char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                                 char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
@@ -279,7 +279,7 @@ namespace Js
                 }
 
                 if (fixedProperty != nullptr)
-                {
+                {LOGMEIN("ObjTypeSpecFldInfo.cpp] 281\n");
                     Assert(fieldValue == nullptr || fieldValue == fixedProperty);
                     fieldValue = fixedProperty;
                     isFieldValueFixed = true;
@@ -301,7 +301,7 @@ namespace Js
         if ((!PHASE_OFF(Js::EquivObjTypeSpecByDefaultPhase, topFunctionBody) ||
             PHASE_STRESS(Js::EquivObjTypeSpecPhase, topFunctionBody))
             && !PHASE_OFF(Js::EquivObjTypeSpecPhase, topFunctionBody))
-        {
+        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 303\n");
             Assert(topFunctionBody->HasDynamicProfileInfo());
             auto profileData = topFunctionBody->GetAnyDynamicProfileInfo();
             // We only support equivalent fixed fields on loads from prototype, and no equivalence on missing properties
@@ -309,22 +309,22 @@ namespace Js
         }
 
         if (isFieldValueFixed)
-        {
+        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 311\n");
             // Fixed field checks allow us to assume a specific type ID, but the assumption is only
             // valid if we lock the type. Otherwise, the type ID may change out from under us without
             // evolving the type.
             if (DynamicType::Is(type->GetTypeId()))
-            {
+            {LOGMEIN("ObjTypeSpecFldInfo.cpp] 316\n");
                 DynamicType *dynamicType = static_cast<DynamicType*>(type);
                 if (!dynamicType->GetIsLocked())
-                {
+                {LOGMEIN("ObjTypeSpecFldInfo.cpp] 319\n");
                     dynamicType->LockType();
                 }
             }
         }
 
         if (forcePoly)
-        {
+        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 326\n");
             uint16 typeCount = 1;
             RecyclerJITTypeHolder* types = RecyclerNewArray(recycler, RecyclerJITTypeHolder, typeCount);
             types[0].t = RecyclerNew(recycler, JITType);
@@ -336,7 +336,7 @@ namespace Js
                 prototypeObject, propertyGuard, ctorCache, fixedFieldInfoArray, 1);
 
             if (PHASE_TRACE(Js::ObjTypeSpecPhase, topFunctionBody) || PHASE_TRACE(Js::EquivObjTypeSpecPhase, topFunctionBody))
-            {
+            {LOGMEIN("ObjTypeSpecFldInfo.cpp] 338\n");
                 const PropertyRecord* propertyRecord = scriptContext->GetPropertyName(propertyId);
                 Output::Print(_u("Created ObjTypeSpecFldInfo: id %u, property %s(#%u), slot %u, type set: 0x%p\n"),
                     id, propertyRecord->GetBuffer(), propertyId, slotIndex, type);
@@ -350,7 +350,7 @@ namespace Js
                 prototypeObject, propertyGuard, ctorCache, fixedFieldInfoArray);
 
             if (PHASE_TRACE(Js::ObjTypeSpecPhase, topFunctionBody) || PHASE_TRACE(Js::EquivObjTypeSpecPhase, topFunctionBody))
-            {
+            {LOGMEIN("ObjTypeSpecFldInfo.cpp] 352\n");
                 const PropertyRecord* propertyRecord = scriptContext->GetPropertyName(propertyId);
                 Output::Print(_u("Created ObjTypeSpecFldInfo: id %u, property %s(#%u), slot %u, type: 0x%p\n"),
                     id, propertyRecord->GetBuffer(), propertyId, slotIndex, type);
@@ -363,10 +363,10 @@ namespace Js
 
     ObjTypeSpecFldInfo* ObjTypeSpecFldInfo::CreateFrom(uint id, PolymorphicInlineCache* cache, uint cacheId, EntryPointInfo *entryPoint,
         FunctionBody* const topFunctionBody, FunctionBody *const functionBody, FieldAccessStatsPtr inlineCacheStats)
-    {
+    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 365\n");
 
 #ifdef FIELD_ACCESS_STATS
-#define IncInlineCacheCount(counter) if (inlineCacheStats) { inlineCacheStats->counter++; }
+#define IncInlineCacheCount(counter) if (inlineCacheStats) {LOGMEIN("ObjTypeSpecFldInfo.cpp] 368\n"); inlineCacheStats->counter++; }
 #else
 #define IncInlineCacheCount(counter)
 #endif
@@ -377,9 +377,9 @@ namespace Js
         bool gatherDataForInlining = cache->GetCloneForJitTimeUse() && functionBody->PolyInliningUsingFixedMethodsAllowedByConfigFlags(topFunctionBody);
 
         if (PHASE_OFF(Js::EquivObjTypeSpecPhase, topFunctionBody) || profileData->IsEquivalentObjTypeSpecDisabled())
-        {
+        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 379\n");
             if (!gatherDataForInlining)
-            {
+            {LOGMEIN("ObjTypeSpecFldInfo.cpp] 381\n");
                 return nullptr;
             }
         }
@@ -404,14 +404,14 @@ namespace Js
 
         uint16 typeCount = 0;
         for (uint16 i = 0; (areEquivalent || stress || gatherDataForInlining) && i < polyCacheSize; i++)
-        {
+        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 406\n");
             InlineCache& inlineCache = inlineCaches[i];
             if (inlineCache.IsEmpty()) continue;
 
             if (firstNonEmptyCacheIndex == UINT16_MAX)
-            {
+            {LOGMEIN("ObjTypeSpecFldInfo.cpp] 411\n");
                 if (inlineCache.IsLocal())
-                {
+                {LOGMEIN("ObjTypeSpecFldInfo.cpp] 413\n");
                     typeId = TypeWithoutAuxSlotTag(inlineCache.u.local.type)->GetTypeId();
                     usesAuxSlot = TypeHasAuxSlotTag(inlineCache.u.local.type);
                     slotIndex = inlineCache.u.local.slotIndex;
@@ -424,7 +424,7 @@ namespace Js
                 // Missing properties by definition do not exist on the proto chain, so in the end we could have an EquivalentObjTypeSpec cache hit on a
                 // property that once was missing, but has since been added. (See OS Bugs 280582).
                 else if (inlineCache.IsProto() && !inlineCache.u.proto.isMissing)
-                {
+                {LOGMEIN("ObjTypeSpecFldInfo.cpp] 426\n");
                     isProto = true;
                     typeId = TypeWithoutAuxSlotTag(inlineCache.u.proto.type)->GetTypeId();
                     usesAuxSlot = TypeHasAuxSlotTag(inlineCache.u.proto.type);
@@ -434,7 +434,7 @@ namespace Js
                 else
                 {
                     if (!PHASE_OFF(Js::FixAccessorPropsPhase, functionBody))
-                    {
+                    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 436\n");
                         isAccessor = true;
                         isGetterAccessor = inlineCache.IsGetterAccessor();
                         isAccessorOnProto = inlineCache.u.accessor.isOnProto;
@@ -453,26 +453,26 @@ namespace Js
 
                 // If we're stressing equivalent object type spec then let's keep trying to find a cache that we could use.
                 if (!stress || areStressEquivalent)
-                {
+                {LOGMEIN("ObjTypeSpecFldInfo.cpp] 455\n");
                     firstNonEmptyCacheIndex = i;
                 }
             }
             else
             {
                 if (inlineCache.IsLocal())
-                {
+                {LOGMEIN("ObjTypeSpecFldInfo.cpp] 462\n");
                     if (isProto || isAccessor || inlineCache.u.local.typeWithoutProperty != nullptr || slotIndex != inlineCache.u.local.slotIndex ||
                         typeId != TypeWithoutAuxSlotTag(inlineCache.u.local.type)->GetTypeId() || usesAuxSlot != TypeHasAuxSlotTag(inlineCache.u.local.type))
-                    {
+                    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 465\n");
                         areEquivalent = false;
                     }
                     gatherDataForInlining = false;
                 }
                 else if (inlineCache.IsProto())
-                {
+                {LOGMEIN("ObjTypeSpecFldInfo.cpp] 471\n");
                     if (!isProto || isAccessor || prototypeObject != inlineCache.u.proto.prototypeObject || slotIndex != inlineCache.u.proto.slotIndex ||
                         typeId != TypeWithoutAuxSlotTag(inlineCache.u.proto.type)->GetTypeId() || usesAuxSlot != TypeHasAuxSlotTag(inlineCache.u.proto.type))
-                    {
+                    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 474\n");
                         areEquivalent = false;
                     }
                 }
@@ -485,7 +485,7 @@ namespace Js
                     // This is done to keep the equivalence check helper as-is
                     if (!isAccessor || isGetterAccessor != inlineCache.IsGetterAccessor() || !isAccessorOnProto || !inlineCache.u.accessor.isOnProto || accessorOwnerObject != inlineCache.u.accessor.object ||
                         slotIndex != inlineCache.u.accessor.slotIndex || typeId != TypeWithoutAuxSlotTag(inlineCache.u.accessor.type)->GetTypeId() || usesAuxSlot != TypeHasAuxSlotTag(inlineCache.u.accessor.type))
-                    {
+                    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 487\n");
                         areEquivalent = false;
                     }
                     gatherDataForInlining = false;
@@ -495,23 +495,23 @@ namespace Js
         }
 
         if (firstNonEmptyCacheIndex == UINT16_MAX)
-        {
+        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 497\n");
             IncInlineCacheCount(emptyPolyInlineCacheCount);
             return nullptr;
         }
 
         if (cache->GetIgnoreForEquivalentObjTypeSpec())
-        {
+        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 503\n");
             areEquivalent = areStressEquivalent = false;
         }
 
         gatherDataForInlining = gatherDataForInlining && (typeCount <= 4); // Only support 4-way (max) polymorphic inlining
         if (!areEquivalent && !areStressEquivalent)
-        {
+        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 509\n");
             IncInlineCacheCount(nonEquivPolyInlineCacheCount);
             cache->SetIgnoreForEquivalentObjTypeSpec(true);
             if (!gatherDataForInlining)
-            {
+            {LOGMEIN("ObjTypeSpecFldInfo.cpp] 513\n");
                 return nullptr;
             }
         }
@@ -522,7 +522,7 @@ namespace Js
 
         // If we're stressing equivalent object type spec and the types are not equivalent, let's grab the first one only.
         if (stress && (areEquivalent != areStressEquivalent))
-        {
+        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 524\n");
             polyCacheSize = firstNonEmptyCacheIndex + 1;
         }
 
@@ -539,14 +539,14 @@ namespace Js
         // Since all types in the polymorphic cache share the same prototype, it's enough to grab the fixed function from the prototype object.
         Var fixedProperty = nullptr;
         if ((isProto || isAccessorOnProto) && (areEquivalent || areStressEquivalent))
-        {
+        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 541\n");
             const Js::PropertyRecord* propertyRecord = scriptContext->GetPropertyName(functionBody->GetPropertyIdFromCacheId(cacheId));
             if (isProto)
-            {
+            {LOGMEIN("ObjTypeSpecFldInfo.cpp] 544\n");
                 prototypeObject->GetDynamicType()->GetTypeHandler()->TryUseFixedProperty(propertyRecord, &fixedProperty, (Js::FixedPropertyKind)(Js::FixedPropertyKind::FixedMethodProperty | Js::FixedPropertyKind::FixedDataProperty), scriptContext);
             }
             else if (isAccessorOnProto)
-            {
+            {LOGMEIN("ObjTypeSpecFldInfo.cpp] 548\n");
                 accessorOwnerObject->GetDynamicType()->GetTypeHandler()->TryUseFixedAccessor(propertyRecord, &fixedProperty, Js::FixedPropertyKind::FixedAccessorProperty, isGetterAccessor, scriptContext);
             }
 
@@ -562,7 +562,7 @@ namespace Js
         uint16 typeNumber = 0;
         Js::JavascriptFunction* fixedFunctionObject = nullptr;
         for (uint16 i = firstNonEmptyCacheIndex; i < polyCacheSize; i++)
-        {
+        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 564\n");
             InlineCache& inlineCache = inlineCaches[i];
             if (inlineCache.IsEmpty()) continue;
 
@@ -571,12 +571,12 @@ namespace Js
                 TypeWithoutAuxSlotTag(inlineCache.u.accessor.type);
 
             if (gatherDataForInlining)
-            {
+            {LOGMEIN("ObjTypeSpecFldInfo.cpp] 573\n");
                 inlineCache.TryGetFixedMethodFromCache(functionBody, cacheId, &fixedFunctionObject);
                 if (!fixedFunctionObject || !fixedFunctionObject->GetFunctionInfo()->HasBody())
-                {
+                {LOGMEIN("ObjTypeSpecFldInfo.cpp] 576\n");
                     if (!(areEquivalent || areStressEquivalent))
-                    {
+                    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 578\n");
                         // If we reach here only because we are gathering data for inlining, and one of the Inline Caches doesn't have a fixedfunction object, return.
                         return nullptr;
                     }
@@ -601,12 +601,12 @@ namespace Js
         }
 
         if (isAccessor && gatherDataForInlining)
-        {
+        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 603\n");
             Assert(fixedFunctionCount <= 1);
         }
 
         if (stress && (areEquivalent != areStressEquivalent))
-        {
+        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 608\n");
             typeCount = 1;
         }
 
@@ -617,7 +617,7 @@ namespace Js
 
         FixedFieldInfo* fixedFieldInfoArray;
         if (gatherDataForInlining)
-        {
+        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 619\n");
             fixedFieldInfoArray = RecyclerNewArrayZ(recycler, FixedFieldInfo, fixedFunctionCount);
             CopyArray<FixedFieldInfo, Field(Var)>(
                 fixedFieldInfoArray, fixedFunctionCount, localFixedFieldInfoArray, fixedFunctionCount);
@@ -642,21 +642,21 @@ namespace Js
         auto jitTransferData = entryPoint->GetJitTransferData();
         Assert(jitTransferData != nullptr);
         if (areEquivalent || areStressEquivalent)
-        {
+        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 644\n");
             RecyclerJITTypeHolder* types = RecyclerNewArray(recycler, RecyclerJITTypeHolder, typeCount);
             for (uint16 i = 0; i < typeCount; i++)
-            {
+            {LOGMEIN("ObjTypeSpecFldInfo.cpp] 647\n");
                 jitTransferData->AddJitTimeTypeRef(localTypes[i], recycler);
                 if (hasFixedValue)
-                {
+                {LOGMEIN("ObjTypeSpecFldInfo.cpp] 650\n");
                     // Fixed field checks allow us to assume a specific type ID, but the assumption is only
                     // valid if we lock the type. Otherwise, the type ID may change out from under us without
                     // evolving the type.
                     if (DynamicType::Is(localTypes[i]->GetTypeId()))
-                    {
+                    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 655\n");
                         DynamicType *dynamicType = static_cast<DynamicType*>(localTypes[i]);
                         if (!dynamicType->GetIsLocked())
-                        {
+                        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 658\n");
                             dynamicType->LockType();
                         }
                     }
@@ -674,16 +674,16 @@ namespace Js
             prototypeObject, propertyGuard, nullptr, fixedFieldInfoArray, fixedFunctionCount/*, nullptr, nullptr, nullptr*/);
 
         if (PHASE_TRACE(Js::ObjTypeSpecPhase, topFunctionBody) || PHASE_TRACE(Js::EquivObjTypeSpecPhase, topFunctionBody))
-        {
+        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 676\n");
             if (PHASE_TRACE(Js::ObjTypeSpecPhase, topFunctionBody) || PHASE_TRACE(Js::EquivObjTypeSpecPhase, topFunctionBody))
-            {
+            {LOGMEIN("ObjTypeSpecFldInfo.cpp] 678\n");
                 if (typeSet)
-                {
+                {LOGMEIN("ObjTypeSpecFldInfo.cpp] 680\n");
                     const PropertyRecord* propertyRecord = scriptContext->GetPropertyName(propertyId);
                     Output::Print(_u("Created ObjTypeSpecFldInfo: id %u, property %s(#%u), slot %u, type set: "),
                         id, propertyRecord->GetBuffer(), propertyId, slotIndex);
                     for (uint16 ti = 0; ti < typeCount - 1; ti++)
-                    {
+                    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 685\n");
                         Output::Print(_u("0x%p, "), typeSet->GetType(ti));
                     }
                     Output::Print(_u("0x%p\n"), typeSet->GetType(typeCount - 1));
@@ -698,7 +698,7 @@ namespace Js
     }
 
     Js::JavascriptFunction* ObjTypeSpecFldInfo::GetFieldValueAsFixedFunction() const
-    {
+    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 700\n");
         Assert(HasFixedValue());
         Assert(IsMono() || (IsPoly() && !DoesntHaveEquivalence()));
         Assert(this->fixedFieldInfoArray[0].fieldValue != nullptr && Js::JavascriptFunction::Is(this->fixedFieldInfoArray[0].fieldValue));
@@ -707,7 +707,7 @@ namespace Js
     }
 
     Js::JavascriptFunction* ObjTypeSpecFldInfo::GetFieldValueAsFixedFunction(uint i) const
-    {
+    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 709\n");
         Assert(HasFixedValue());
         Assert(IsPoly());
         Assert(this->fixedFieldInfoArray[i].fieldValue != nullptr && Js::JavascriptFunction::Is(this->fixedFieldInfoArray[i].fieldValue));
@@ -716,7 +716,7 @@ namespace Js
     }
 
     Js::JavascriptFunction* ObjTypeSpecFldInfo::GetFieldValueAsFunction() const
-    {
+    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 718\n");
         Assert(IsMono() || (IsPoly() && !DoesntHaveEquivalence()));
         Assert(this->fixedFieldInfoArray[0].fieldValue != nullptr && JavascriptFunction::Is(this->fixedFieldInfoArray[0].fieldValue));
 
@@ -724,7 +724,7 @@ namespace Js
     }
 
     Js::JavascriptFunction* ObjTypeSpecFldInfo::GetFieldValueAsFunctionIfAvailable() const
-    {
+    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 726\n");
         Assert(IsMono() || (IsPoly() && !DoesntHaveEquivalence()));
 
         if (PHASE_OFF1(ObjTypeSpecPhase)) return nullptr; // TODO: (lei)remove this after obj type spec for OOPJIT implemented
@@ -734,14 +734,14 @@ namespace Js
     }
 
     Js::JavascriptFunction* ObjTypeSpecFldInfo::GetFieldValueAsFixedFunctionIfAvailable() const
-    {
+    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 736\n");
         Assert(HasFixedValue());
         Assert(IsMono() || (IsPoly() && !DoesntHaveEquivalence()));
         return GetFieldValueAsFunctionIfAvailable();
     }
 
     Js::JavascriptFunction* ObjTypeSpecFldInfo::GetFieldValueAsFixedFunctionIfAvailable(uint i) const
-    {
+    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 743\n");
         Assert(HasFixedValue());
         Assert(IsPoly());
         return this->fixedFieldInfoArray[i].fieldValue != nullptr && JavascriptFunction::Is(this->fixedFieldInfoArray[i].fieldValue) ?
@@ -749,13 +749,13 @@ namespace Js
     }
 
     JITTypeHolder ObjTypeSpecFldInfo::GetFirstEquivalentType() const
-    {
+    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 751\n");
         Assert(IsObjTypeSpecCandidate() && this->typeSet);
         return this->typeSet->GetFirstType();
     }
 
     Js::Var ObjTypeSpecFldInfo::GetFieldValueAsFixedDataIfAvailable() const
-    {
+    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 757\n");
         Assert(HasFixedValue() && this->fixedFieldCount == 1);
 
         if (PHASE_OFF1(ObjTypeSpecPhase)) return nullptr; // TODO: (lei)remove this after obj type spec for OOPJIT implemented
@@ -765,7 +765,7 @@ namespace Js
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
     const char16* ObjTypeSpecFldInfo::GetCacheLayoutString() const
-    {
+    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 767\n");
         return IsLoadedFromProto() ? _u("proto") : UsesAccessor() ? _u("flags") : _u("local");
     }
 #endif
@@ -779,13 +779,13 @@ namespace Js
     }
 
     void ObjTypeSpecFldInfoArray::EnsureArray(Recycler *const recycler, FunctionBody *const functionBody)
-    {
+    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 781\n");
         Assert(recycler != nullptr);
         Assert(functionBody != nullptr);
         Assert(functionBody->GetInlineCacheCount() != 0);
 
         if (this->infoArray)
-        {
+        {LOGMEIN("ObjTypeSpecFldInfo.cpp] 787\n");
             Assert(functionBody->GetInlineCacheCount() == this->infoCount);
             return;
         }
@@ -797,7 +797,7 @@ namespace Js
     }
 
     ObjTypeSpecFldInfo* ObjTypeSpecFldInfoArray::GetInfo(FunctionBody *const functionBody, const uint index) const
-    {
+    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 799\n");
         Assert(functionBody);
         Assert(this->infoArray == nullptr || functionBody->GetInlineCacheCount() == this->infoCount);
         Assert(index < functionBody->GetInlineCacheCount());
@@ -806,7 +806,7 @@ namespace Js
 
     void ObjTypeSpecFldInfoArray::SetInfo(Recycler *const recycler, FunctionBody *const functionBody,
         const uint index, ObjTypeSpecFldInfo* info)
-    {
+    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 808\n");
         Assert(recycler);
         Assert(functionBody);
         Assert(this->infoArray == nullptr || functionBody->GetInlineCacheCount() == this->infoCount);
@@ -818,7 +818,7 @@ namespace Js
     }
 
     void ObjTypeSpecFldInfoArray::Reset()
-    {
+    {LOGMEIN("ObjTypeSpecFldInfo.cpp] 820\n");
         this->infoArray = nullptr;
 #if DBG
         this->infoCount = 0;

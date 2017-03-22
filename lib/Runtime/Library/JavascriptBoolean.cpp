@@ -7,17 +7,17 @@
 namespace Js
 {
     Var JavascriptBoolean::OP_LdTrue(ScriptContext*scriptContext)
-    {
+    {LOGMEIN("JavascriptBoolean.cpp] 9\n");
         return scriptContext->GetLibrary()->GetTrue();
     }
 
     Var JavascriptBoolean::OP_LdFalse(ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptBoolean.cpp] 14\n");
         return scriptContext->GetLibrary()->GetFalse();
     }
 
     Js::Var JavascriptBoolean::ToVar(BOOL fValue, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptBoolean.cpp] 19\n");
         return
             fValue ?
             scriptContext->GetLibrary()->GetTrue() :
@@ -43,7 +43,7 @@ namespace Js
         BOOL value;
 
         if (args.Info.Count > 1)
-        {
+        {LOGMEIN("JavascriptBoolean.cpp] 45\n");
             value = JavascriptConversion::ToBoolean(args[1], scriptContext) ? true : false;
         }
         else
@@ -52,7 +52,7 @@ namespace Js
         }
 
         if (callInfo.Flags & CallFlags_New)
-        {
+        {LOGMEIN("JavascriptBoolean.cpp] 54\n");
             RecyclableObject* pNew = scriptContext->GetLibrary()->CreateBooleanObject(value);
             return isCtorSuperCall ?
                 JavascriptOperators::OrdinaryCreateFromConstructor(RecyclableObject::FromVar(newTarget), pNew, nullptr, scriptContext) :
@@ -73,11 +73,11 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if(JavascriptBoolean::Is(args[0]))
-        {
+        {LOGMEIN("JavascriptBoolean.cpp] 75\n");
             return args[0];
         }
         else if (JavascriptBooleanObject::Is(args[0]))
-        {
+        {LOGMEIN("JavascriptBoolean.cpp] 79\n");
             JavascriptBooleanObject* booleanObject = JavascriptBooleanObject::FromVar(args[0]);
             return scriptContext->GetLibrary()->CreateBoolean(booleanObject->GetValue());
         }
@@ -101,11 +101,11 @@ namespace Js
         BOOL bval;
         Var aValue = args[0];
         if(JavascriptBoolean::Is(aValue))
-        {
+        {LOGMEIN("JavascriptBoolean.cpp] 103\n");
             bval = JavascriptBoolean::FromVar(aValue)->GetValue();
         }
         else if (JavascriptBooleanObject::Is(aValue))
-        {
+        {LOGMEIN("JavascriptBoolean.cpp] 107\n");
             JavascriptBooleanObject* booleanObject = JavascriptBooleanObject::FromVar(aValue);
             bval = booleanObject->GetValue();
         }
@@ -118,27 +118,27 @@ namespace Js
     }
 
     RecyclableObject * JavascriptBoolean::CloneToScriptContext(ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptBoolean.cpp] 120\n");
         if (this->GetValue())
-        {
+        {LOGMEIN("JavascriptBoolean.cpp] 122\n");
             return requestContext->GetLibrary()->GetTrue();
         }
         return requestContext->GetLibrary()->GetFalse();
     }
 
     Var JavascriptBoolean::TryInvokeRemotelyOrThrow(JavascriptMethod entryPoint, ScriptContext * scriptContext, Arguments & args, int32 errorCode, PCWSTR varName)
-    {
+    {LOGMEIN("JavascriptBoolean.cpp] 129\n");
         if (JavascriptOperators::GetTypeId(args[0]) == TypeIds_HostDispatch)
-        {
+        {LOGMEIN("JavascriptBoolean.cpp] 131\n");
             Var result;
             if (RecyclableObject::FromVar(args[0])->InvokeBuiltInOperationRemotely(entryPoint, args, &result))
-            {
+            {LOGMEIN("JavascriptBoolean.cpp] 134\n");
                 return result;
             }
         }
         // Don't error if we disabled implicit calls
         if(scriptContext->GetThreadContext()->RecordImplicitException())
-        {
+        {LOGMEIN("JavascriptBoolean.cpp] 140\n");
             JavascriptError::ThrowTypeError(scriptContext, errorCode, varName);
         }
         else
@@ -148,14 +148,14 @@ namespace Js
     }
 
     BOOL JavascriptBoolean::Equals(Var other, BOOL* value, ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptBoolean.cpp] 150\n");
         return JavascriptBoolean::Equals(this, other, value, requestContext);
     }
 
     BOOL JavascriptBoolean::Equals(JavascriptBoolean* left, Var right, BOOL* value, ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptBoolean.cpp] 155\n");
         switch (JavascriptOperators::GetTypeId(right))
-        {
+        {LOGMEIN("JavascriptBoolean.cpp] 157\n");
         case TypeIds_Integer:
             *value = left->GetValue() ? TaggedInt::ToInt32(right) == 1 : TaggedInt::ToInt32(right) == 0;
             break;
@@ -193,9 +193,9 @@ namespace Js
     }
 
     BOOL JavascriptBoolean::GetDiagValueString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptBoolean.cpp] 195\n");
         if (this->GetValue())
-        {
+        {LOGMEIN("JavascriptBoolean.cpp] 197\n");
             JavascriptString* trueDisplayString = GetLibrary()->GetTrueDisplayString();
             stringBuilder->Append(trueDisplayString->GetString(), trueDisplayString->GetLength());
         }
@@ -208,18 +208,18 @@ namespace Js
     }
 
     BOOL JavascriptBoolean::GetDiagTypeString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptBoolean.cpp] 210\n");
         stringBuilder->AppendCppLiteral(_u("Boolean"));
         return TRUE;
     }
 
     RecyclableObject* JavascriptBoolean::ToObject(ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptBoolean.cpp] 216\n");
         return requestContext->GetLibrary()->CreateBooleanObject(this->GetValue() ? true : false);
     }
 
     Var JavascriptBoolean::GetTypeOfString(ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptBoolean.cpp] 221\n");
         return requestContext->GetLibrary()->GetBooleanTypeDisplayString();
     }
 } // namespace Js

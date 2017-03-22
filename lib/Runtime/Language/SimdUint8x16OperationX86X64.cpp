@@ -11,7 +11,7 @@ namespace Js
 {
     // SIMD.UInt8x16 operation wrappers that cover instrinsics for x86/x64 system
     SIMDValue SIMDUint8x16Operation::OpUint8x16(uint8 values[])
-    {
+    {LOGMEIN("SimdUint8x16OperationX86X64.cpp] 13\n");
         X86SIMDValue x86Result;
         // Sets the 16 signed 8-bit integer values, note in revised order: starts with x15 below
         x86Result.m128i_value = _mm_set_epi8((int8)values[15], (int8)values[14], (int8)values[13], (int8)values[12],
@@ -23,7 +23,7 @@ namespace Js
     }
 
     SIMDValue SIMDUint8x16Operation::OpMin(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdUint8x16OperationX86X64.cpp] 25\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -34,7 +34,7 @@ namespace Js
     }
 
     SIMDValue SIMDUint8x16Operation::OpMax(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdUint8x16OperationX86X64.cpp] 36\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -45,7 +45,7 @@ namespace Js
     }
 
     SIMDValue SIMDUint8x16Operation::OpLessThan(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdUint8x16OperationX86X64.cpp] 47\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -64,7 +64,7 @@ namespace Js
     }
 
     SIMDValue SIMDUint8x16Operation::OpLessThanOrEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdUint8x16OperationX86X64.cpp] 66\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -85,7 +85,7 @@ namespace Js
     }
 
     SIMDValue SIMDUint8x16Operation::OpGreaterThanOrEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdUint8x16OperationX86X64.cpp] 87\n");
         SIMDValue result;
         result = SIMDUint8x16Operation::OpLessThan(aValue, bValue);
         result = SIMDInt32x4Operation::OpNot(result);
@@ -93,7 +93,7 @@ namespace Js
     }
 
     SIMDValue SIMDUint8x16Operation::OpGreaterThan(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdUint8x16OperationX86X64.cpp] 95\n");
         SIMDValue result;
         result = SIMDUint8x16Operation::OpLessThanOrEqual(aValue, bValue);
         result = SIMDInt32x4Operation::OpNot(result);
@@ -101,7 +101,7 @@ namespace Js
     }
 
     SIMDValue SIMDUint8x16Operation::OpShiftRightByScalar(const SIMDValue& value, int count)
-    {
+    {LOGMEIN("SimdUint8x16OperationX86X64.cpp] 103\n");
         X86SIMDValue x86Result = { { 0, 0, 0, 0} };
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(value);
         __m128i x86tmp1;
@@ -116,7 +116,7 @@ namespace Js
     }
 
     SIMDValue SIMDUint8x16Operation::OpAddSaturate(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdUint8x16OperationX86X64.cpp] 118\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -126,7 +126,7 @@ namespace Js
     }
 
     SIMDValue SIMDUint8x16Operation::OpSubSaturate(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdUint8x16OperationX86X64.cpp] 128\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);

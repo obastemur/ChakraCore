@@ -24,9 +24,9 @@ private:
 
 public:
 #if defined(_M_IX86) || defined(_M_X64)
-    Peeps(Func *func) : func(func), peepsMD(func), peepsAgen(func) {}
+    Peeps(Func *func) : func(func), peepsMD(func), peepsAgen(func) {LOGMEIN("Peeps.h] 26\n");}
 #else
-    Peeps(Func *func) : func(func), peepsMD(func) {}
+    Peeps(Func *func) : func(func), peepsMD(func) {LOGMEIN("Peeps.h] 28\n");}
 #endif
 
     void                 PeepFunc();

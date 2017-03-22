@@ -36,7 +36,7 @@ private:
 protected:
     ValueInfo(const ValueType type, const ValueStructureKind structureKind)
         : ValueType(type), structureKind(structureKind)
-    {
+    {LOGMEIN("GlobOpt.h] 38\n");
         // We can only prove that the representation is a tagged int on a ToVar. Currently, we cannot have more than one value
         // info per value number in a block, so a value info specifying tagged int representation cannot be created for a
         // specific sym. Instead, a value info can be shared by multiple syms, and hence cannot specify tagged int
@@ -50,18 +50,18 @@ protected:
 private:
     ValueInfo(const ValueInfo &other, const bool)
         : ValueType(other), structureKind(ValueStructureKind::Generic) // uses generic structure kind, as opposed to copying the structure kind
-    {
+    {LOGMEIN("GlobOpt.h] 52\n");
         SetSymStore(other.GetSymStore());
     }
 
 public:
     static ValueInfo *          New(JitArenaAllocator *const alloc, const ValueType type)
-    {
+    {LOGMEIN("GlobOpt.h] 58\n");
         return JitAnew(alloc, ValueInfo, type, ValueStructureKind::Generic);
     }
 
-    const ValueType &       Type() const { return *this; }
-    ValueType &             Type() { return *this; }
+    const ValueType &       Type() const {LOGMEIN("GlobOpt.h] 62\n"); return *this; }
+    ValueType &             Type() {LOGMEIN("GlobOpt.h] 63\n"); return *this; }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // ValueType imports. Only importing functions that are appropriate to be called on Value.
@@ -254,9 +254,9 @@ public:
 
 
 public:
-    Sym *                   GetSymStore() const { return this->symStore; }
+    Sym *                   GetSymStore() const {LOGMEIN("GlobOpt.h] 256\n"); return this->symStore; }
     void                    SetSymStore(Sym * sym)
-    {
+    {LOGMEIN("GlobOpt.h] 258\n");
         // Sym store should always be a var sym
         Assert(sym == nullptr || sym->IsPropertySym() || !sym->AsStackSym()->IsTypeSpec()); // property syms always have a var stack sym
         this->symStore = sym;
@@ -268,7 +268,7 @@ public:
     ValueInfo *             Copy(JitArenaAllocator * allocator);
 
     ValueInfo *             CopyWithGenericStructureKind(JitArenaAllocator * allocator) const
-    {
+    {LOGMEIN("GlobOpt.h] 270\n");
         return JitAnew(allocator, ValueInfo, *this, false);
     }
 
@@ -279,7 +279,7 @@ public:
 #endif
 #if DBG
     // Add a vtable in debug builds so that the actual can been inspected easily in the debugger without having to manually cast
-    virtual void            AddVtable() { Assert(false); }
+    virtual void            AddVtable() {LOGMEIN("GlobOpt.h] 281\n"); Assert(false); }
 #endif
 };
 
@@ -292,25 +292,25 @@ private:
 protected:
     Value(const ValueNumber valueNumber, ValueInfo *valueInfo)
         : valueNumber(valueNumber), valueInfo(valueInfo)
-    {
+    {LOGMEIN("GlobOpt.h] 294\n");
     };
 
 public:
     static Value *New(JitArenaAllocator *const allocator, const ValueNumber valueNumber, ValueInfo *valueInfo)
-    {
+    {LOGMEIN("GlobOpt.h] 299\n");
         return JitAnew(allocator, Value, valueNumber, valueInfo);
     }
 
-    ValueNumber GetValueNumber() const { return this->valueNumber; }
-    ValueInfo * GetValueInfo() const { return this->valueInfo; }
-    ValueInfo * ShareValueInfo() const { this->valueInfo->SetIsShared(); return this->valueInfo; }
+    ValueNumber GetValueNumber() const {LOGMEIN("GlobOpt.h] 303\n"); return this->valueNumber; }
+    ValueInfo * GetValueInfo() const {LOGMEIN("GlobOpt.h] 304\n"); return this->valueInfo; }
+    ValueInfo * ShareValueInfo() const {LOGMEIN("GlobOpt.h] 305\n"); this->valueInfo->SetIsShared(); return this->valueInfo; }
 
-    void        SetValueInfo(ValueInfo * newValueInfo) { Assert(newValueInfo); this->valueInfo = newValueInfo; }
+    void        SetValueInfo(ValueInfo * newValueInfo) {LOGMEIN("GlobOpt.h] 307\n"); Assert(newValueInfo); this->valueInfo = newValueInfo; }
 
-    Value *     Copy(JitArenaAllocator * allocator, ValueNumber newValueNumber) { return Value::New(allocator, newValueNumber, this->ShareValueInfo()); }
+    Value *     Copy(JitArenaAllocator * allocator, ValueNumber newValueNumber) {LOGMEIN("GlobOpt.h] 309\n"); return Value::New(allocator, newValueNumber, this->ShareValueInfo()); }
 
 #if DBG_DUMP
-    _NOINLINE void Dump() const { Output::Print(_u("0x%X  ValueNumber: %3d,  -> "), this, this->valueNumber);  this->valueInfo->Dump(); }
+    _NOINLINE void Dump() const {LOGMEIN("GlobOpt.h] 312\n"); Output::Print(_u("0x%X  ValueNumber: %3d,  -> "), this, this->valueNumber);  this->valueInfo->Dump(); }
 #endif
 };
 
@@ -325,29 +325,29 @@ protected:
     IntConstantValueInfo(const int32 intValue)
         : ValueInfo(GetInt(IsTaggable(intValue)), ValueStructureKind::IntConstant),
         intValue(intValue)
-    {
+    {LOGMEIN("GlobOpt.h] 327\n");
     }
 
 public:
     static IntConstantValueInfo *New(JitArenaAllocator *const allocator, const int32 intValue)
-    {
+    {LOGMEIN("GlobOpt.h] 332\n");
         return JitAnew(allocator, IntConstantValueInfo, intValue);
     }
 
     IntConstantValueInfo *Copy(JitArenaAllocator *const allocator) const
-    {
+    {LOGMEIN("GlobOpt.h] 337\n");
         return JitAnew(allocator, IntConstantValueInfo, *this);
     }
 
 public:
     int32 IntValue() const
-    {
+    {LOGMEIN("GlobOpt.h] 343\n");
         return intValue;
     }
 
 private:
     static bool IsTaggable(const int32 i)
-    {
+    {LOGMEIN("GlobOpt.h] 349\n");
 #if INT32VAR
         // All 32-bit ints are taggable on 64-bit architectures
         return true;
@@ -374,7 +374,7 @@ protected:
         : ValueInfo(constantBounds.GetValueType(), structureKind),
         IntConstantBounds(constantBounds),
         wasNegativeZeroPreventedByBailout(wasNegativeZeroPreventedByBailout)
-    {
+    {LOGMEIN("GlobOpt.h] 376\n");
         Assert(!wasNegativeZeroPreventedByBailout || constantBounds.LowerBound() <= 0 && constantBounds.UpperBound() >= 0);
     }
 
@@ -384,7 +384,7 @@ public:
         const int32 lowerBound,
         const int32 upperBound,
         const bool wasNegativeZeroPreventedByBailout)
-    {
+    {LOGMEIN("GlobOpt.h] 386\n");
         return
             JitAnew(
                 allocator,
@@ -394,13 +394,13 @@ public:
     }
 
     IntRangeValueInfo *Copy(JitArenaAllocator *const allocator) const
-    {
+    {LOGMEIN("GlobOpt.h] 396\n");
         return JitAnew(allocator, IntRangeValueInfo, *this);
     }
 
 public:
     bool WasNegativeZeroPreventedByBailout() const
-    {
+    {LOGMEIN("GlobOpt.h] 402\n");
         return wasNegativeZeroPreventedByBailout;
     }
 };
@@ -413,24 +413,24 @@ private:
 public:
     FloatConstantValueInfo(const FloatConstType floatValue)
         : ValueInfo(Float, ValueStructureKind::FloatConstant), floatValue(floatValue)
-    {
+    {LOGMEIN("GlobOpt.h] 415\n");
     }
 
     static FloatConstantValueInfo *New(
         JitArenaAllocator *const allocator,
         const FloatConstType floatValue)
-    {
+    {LOGMEIN("GlobOpt.h] 421\n");
         return JitAnew(allocator, FloatConstantValueInfo, floatValue);
     }
 
     FloatConstantValueInfo *Copy(JitArenaAllocator *const allocator) const
-    {
+    {LOGMEIN("GlobOpt.h] 426\n");
         return JitAnew(allocator, FloatConstantValueInfo, *this);
     }
 
 public:
     FloatConstType FloatValue() const
-    {
+    {LOGMEIN("GlobOpt.h] 432\n");
         return floatValue;
     }
 };
@@ -446,24 +446,24 @@ public:
     VarConstantValueInfo(Js::Var varValue, ValueType valueType, bool isFunction = false, Js::Var localVarValue = nullptr)
         : ValueInfo(valueType, ValueStructureKind::VarConstant),
         varValue(varValue), localVarValue(localVarValue), isFunction(isFunction)
-    {
+    {LOGMEIN("GlobOpt.h] 448\n");
     }
 
     static VarConstantValueInfo *New(JitArenaAllocator *const allocator, Js::Var varValue, ValueType valueType, bool isFunction = false, Js::Var localVarValue = nullptr)
-    {
+    {LOGMEIN("GlobOpt.h] 452\n");
         return JitAnew(allocator, VarConstantValueInfo, varValue, valueType, isFunction, localVarValue);
     }
 
     VarConstantValueInfo *Copy(JitArenaAllocator *const allocator) const
-    {
+    {LOGMEIN("GlobOpt.h] 457\n");
         return JitAnew(allocator, VarConstantValueInfo, *this);
     }
 
 public:
     Js::Var VarValue(bool useLocal = false) const
-    {
+    {LOGMEIN("GlobOpt.h] 463\n");
         if(useLocal && this->localVarValue)
-        {
+        {LOGMEIN("GlobOpt.h] 465\n");
             return this->localVarValue;
         }
         else
@@ -473,7 +473,7 @@ public:
     }
 
     bool IsFunction() const
-    {
+    {LOGMEIN("GlobOpt.h] 475\n");
         return this->isFunction;
     }
 };
@@ -497,74 +497,74 @@ public:
     JsTypeValueInfo(JITTypeHolder type)
         : ValueInfo(Uninitialized, ValueStructureKind::JsType),
         jsType(type), jsTypeSet(nullptr), isShared(false)
-    {
+    {LOGMEIN("GlobOpt.h] 499\n");
     }
 
     JsTypeValueInfo(Js::EquivalentTypeSet * typeSet)
         : ValueInfo(Uninitialized, ValueStructureKind::JsType),
         jsType(nullptr), jsTypeSet(typeSet), isShared(false)
-    {
+    {LOGMEIN("GlobOpt.h] 505\n");
     }
 
     JsTypeValueInfo(const JsTypeValueInfo& other)
         : ValueInfo(Uninitialized, ValueStructureKind::JsType),
         jsType(other.jsType), jsTypeSet(other.jsTypeSet)
-    {
+    {LOGMEIN("GlobOpt.h] 511\n");
     }
 
     static JsTypeValueInfo * New(JitArenaAllocator *const allocator, JITTypeHolder typeSet)
-    {
+    {LOGMEIN("GlobOpt.h] 515\n");
         return JitAnew(allocator, JsTypeValueInfo, typeSet);
     }
 
     static JsTypeValueInfo * New(JitArenaAllocator *const allocator, Js::EquivalentTypeSet * typeSet)
-    {
+    {LOGMEIN("GlobOpt.h] 520\n");
         return JitAnew(allocator, JsTypeValueInfo, typeSet);
     }
 
     JsTypeValueInfo(const JITTypeHolder type, Js::EquivalentTypeSet * typeSet)
         : ValueInfo(Uninitialized, ValueStructureKind::JsType),
         jsType(type), jsTypeSet(typeSet), isShared(false)
-    {
+    {LOGMEIN("GlobOpt.h] 527\n");
     }
 
     static JsTypeValueInfo * New(JitArenaAllocator *const allocator, const JITTypeHolder type, Js::EquivalentTypeSet * typeSet)
-    {
+    {LOGMEIN("GlobOpt.h] 531\n");
         return JitAnew(allocator, JsTypeValueInfo, type, typeSet);
     }
 
 public:
     JsTypeValueInfo * Copy(JitArenaAllocator *const allocator) const
-    {
+    {LOGMEIN("GlobOpt.h] 537\n");
         JsTypeValueInfo * newInfo = JitAnew(allocator, JsTypeValueInfo, *this);
         newInfo->isShared = false;
         return newInfo;
     }
 
     JITTypeHolder GetJsType() const
-    {
+    {LOGMEIN("GlobOpt.h] 544\n");
         return this->jsType;
     }
 
     void SetJsType(const JITTypeHolder value)
-    {
+    {LOGMEIN("GlobOpt.h] 549\n");
         Assert(!this->isShared);
         this->jsType = value;
     }
 
     Js::EquivalentTypeSet * GetJsTypeSet() const
-    {
+    {LOGMEIN("GlobOpt.h] 555\n");
         return this->jsTypeSet;
     }
 
     void SetJsTypeSet(Js::EquivalentTypeSet * value)
-    {
+    {LOGMEIN("GlobOpt.h] 560\n");
         Assert(!this->isShared);
         this->jsTypeSet = value;
     }
 
-    bool GetIsShared() const { return this->isShared; }
-    void SetIsShared() { this->isShared = true; }
+    bool GetIsShared() const {LOGMEIN("GlobOpt.h] 565\n"); return this->isShared; }
+    void SetIsShared() {LOGMEIN("GlobOpt.h] 566\n"); this->isShared = true; }
 };
 
 class ArrayValueInfo : public ValueInfo
@@ -585,7 +585,7 @@ private:
         headSegmentSym(headSegmentSym),
         headSegmentLengthSym(headSegmentLengthSym),
         lengthSym(lengthSym)
-    {
+    {LOGMEIN("GlobOpt.h] 587\n");
         Assert(valueType.IsAnyOptimizedArray());
         Assert(!(valueType.IsLikelyTypedArray() && !valueType.IsOptimizedTypedArray()));
 
@@ -595,7 +595,7 @@ private:
         Assert(!lengthSym || lengthSym != headSegmentLengthSym);
 
         if(symStore)
-        {
+        {LOGMEIN("GlobOpt.h] 597\n");
             SetSymStore(symStore);
         }
     }
@@ -608,7 +608,7 @@ public:
         StackSym *const headSegmentLengthSym,
         StackSym *const lengthSym,
         Sym *const symStore = nullptr)
-    {
+    {LOGMEIN("GlobOpt.h] 610\n");
         Assert(allocator);
 
         return JitAnew(allocator, ArrayValueInfo, valueType, headSegmentSym, headSegmentLengthSym, lengthSym, symStore);
@@ -619,7 +619,7 @@ public:
         const bool copyHeadSegment = true,
         const bool copyHeadSegmentLength = true,
         const bool copyLength = true) const
-    {
+    {LOGMEIN("GlobOpt.h] 621\n");
         Assert(allocator);
 
         return
@@ -636,17 +636,17 @@ public:
 
 public:
     StackSym *HeadSegmentSym() const
-    {
+    {LOGMEIN("GlobOpt.h] 638\n");
         return headSegmentSym;
     }
 
     StackSym *HeadSegmentLengthSym() const
-    {
+    {LOGMEIN("GlobOpt.h] 643\n");
         return headSegmentLengthSym;
     }
 
     StackSym *LengthSym() const
-    {
+    {LOGMEIN("GlobOpt.h] 648\n");
         return lengthSym;
     }
 
@@ -658,7 +658,7 @@ public:
         const bool eliminatedLowerBoundCheck,
         const bool eliminatedUpperBoundCheck,
         Func *const func) const
-    {
+    {LOGMEIN("GlobOpt.h] 660\n");
         Assert(previousArrayOpnd);
         Assert(func);
 
@@ -682,25 +682,25 @@ protected:
 
 public:
     ExprAttributes(const uint32 attributes = 0) : attributes(attributes)
-    {
+    {LOGMEIN("GlobOpt.h] 684\n");
     }
 
     uint32 Attributes() const
-    {
+    {LOGMEIN("GlobOpt.h] 688\n");
         return attributes;
     }
 
 private:
     static const uint32 BitMask(const uint index)
-    {
+    {LOGMEIN("GlobOpt.h] 694\n");
         return 1u << index;
     }
 
 protected:
     void SetBitAttribute(const uint index, const bool bit)
-    {
+    {LOGMEIN("GlobOpt.h] 700\n");
         if(bit)
-        {
+        {LOGMEIN("GlobOpt.h] 702\n");
             attributes |= BitMask(index);
         }
         else
@@ -718,7 +718,7 @@ private:
 
 public:
     IntMathExprAttributes(const ExprAttributes &exprAttributes) : ExprAttributes(exprAttributes)
-    {
+    {LOGMEIN("GlobOpt.h] 720\n");
     }
 
     IntMathExprAttributes(const bool ignoredIntOverflow, const bool ignoredNegativeZero)
@@ -736,7 +736,7 @@ private:
 
 public:
     DstIsIntOrNumberAttributes(const ExprAttributes &exprAttributes) : ExprAttributes(exprAttributes)
-    {
+    {LOGMEIN("GlobOpt.h] 738\n");
     }
 
     DstIsIntOrNumberAttributes(const bool dstIsIntOnly, const bool dstIsNumberOnly)
@@ -750,11 +750,11 @@ public:
 class ExprHash
 {
 public:
-    ExprHash() { this->opcode = 0; }
-    ExprHash(int init) { Assert(init == 0); this->opcode = 0; }
+    ExprHash() {LOGMEIN("GlobOpt.h] 752\n"); this->opcode = 0; }
+    ExprHash(int init) {LOGMEIN("GlobOpt.h] 753\n"); Assert(init == 0); this->opcode = 0; }
 
     void Init(Js::OpCode opcode, ValueNumber src1Val, ValueNumber src2Val, ExprAttributes exprAttributes)
-    {
+    {LOGMEIN("GlobOpt.h] 756\n");
         extern uint8 OpCodeToHash[(int)Js::OpCode::Count];
 
         uint32 opCodeHash = OpCodeToHash[(int)opcode];
@@ -769,7 +769,7 @@ public:
 
         // If value numbers are too large, just give up
         if (this->src1Val != src1Val || this->src2Val != src2Val)
-        {
+        {LOGMEIN("GlobOpt.h] 771\n");
             this->opcode = 0;
             this->src1Val = 0;
             this->src2Val = 0;
@@ -777,13 +777,13 @@ public:
         }
     }
 
-    Js::OpCode  GetOpcode()             { return (Js::OpCode)this->opcode; }
-    ValueNumber GetSrc1ValueNumber()    { return this->src1Val; }
-    ValueNumber GetSrc2ValueNumber()    { return this->src2Val; }
-    ExprAttributes GetExprAttributes()  { return this->attributes; }
-    bool        IsValid()               { return this->opcode != 0; }
+    Js::OpCode  GetOpcode()             {LOGMEIN("GlobOpt.h] 779\n"); return (Js::OpCode)this->opcode; }
+    ValueNumber GetSrc1ValueNumber()    {LOGMEIN("GlobOpt.h] 780\n"); return this->src1Val; }
+    ValueNumber GetSrc2ValueNumber()    {LOGMEIN("GlobOpt.h] 781\n"); return this->src2Val; }
+    ExprAttributes GetExprAttributes()  {LOGMEIN("GlobOpt.h] 782\n"); return this->attributes; }
+    bool        IsValid()               {LOGMEIN("GlobOpt.h] 783\n"); return this->opcode != 0; }
 
-    operator    uint()                  { return *(uint*)this; }
+    operator    uint()                  {LOGMEIN("GlobOpt.h] 785\n"); return *(uint*)this; }
 
 private:
     uint32  opcode: 8;
@@ -812,7 +812,7 @@ private:
 public:
     PathDependentInfo(const PathDependentRelationship relationship, Value *const leftValue, Value *const rightValue)
         : relationship(relationship), leftValue(leftValue), rightValue(rightValue)
-    {
+    {LOGMEIN("GlobOpt.h] 814\n");
         Assert(leftValue);
         Assert(rightValue);
     }
@@ -823,36 +823,36 @@ public:
         Value *const rightValue,
         const int32 rightConstantValue)
         : relationship(relationship), leftValue(leftValue), rightValue(rightValue), rightConstantValue(rightConstantValue)
-    {
+    {LOGMEIN("GlobOpt.h] 825\n");
         Assert(leftValue);
     }
 
 public:
     bool HasInfo() const
-    {
+    {LOGMEIN("GlobOpt.h] 831\n");
         return !!leftValue;
     }
 
     PathDependentRelationship Relationship() const
-    {
+    {LOGMEIN("GlobOpt.h] 836\n");
         Assert(HasInfo());
         return relationship;
     }
 
     Value *LeftValue() const
-    {
+    {LOGMEIN("GlobOpt.h] 842\n");
         Assert(HasInfo());
         return leftValue;
     }
 
     Value *RightValue() const
-    {
+    {LOGMEIN("GlobOpt.h] 848\n");
         Assert(HasInfo());
         return rightValue;
     }
 
     int32 RightConstantValue() const
-    {
+    {LOGMEIN("GlobOpt.h] 854\n");
         Assert(!RightValue());
         return rightConstantValue;
     }
@@ -865,28 +865,28 @@ private:
 
 public:
     PathDependentInfoToRestore() : leftValueInfo(nullptr), rightValueInfo(nullptr)
-    {
+    {LOGMEIN("GlobOpt.h] 867\n");
     }
 
     PathDependentInfoToRestore(ValueInfo *const leftValueInfo, ValueInfo *const rightValueInfo)
         : leftValueInfo(leftValueInfo), rightValueInfo(rightValueInfo)
-    {
+    {LOGMEIN("GlobOpt.h] 872\n");
     }
 
 public:
     ValueInfo *LeftValueInfo() const
-    {
+    {LOGMEIN("GlobOpt.h] 877\n");
         return leftValueInfo;
     }
 
     ValueInfo *RightValueInfo() const
-    {
+    {LOGMEIN("GlobOpt.h] 882\n");
         return rightValueInfo;
     }
 
 public:
     void Clear()
-    {
+    {LOGMEIN("GlobOpt.h] 888\n");
         leftValueInfo = nullptr;
         rightValueInfo = nullptr;
     }
@@ -922,7 +922,7 @@ namespace JsUtil
     {
     public:
         void Clear()
-        {
+        {LOGMEIN("GlobOpt.h] 924\n");
 #if DBG
             this->value.propIds = nullptr;
             this->value.currentInitFldCount = (uint)-1;
@@ -968,7 +968,7 @@ public:
         curFunc(func),
         hasDataRef(nullptr),
         stackLiteralInitFldDataMap(nullptr)
-    {
+    {LOGMEIN("GlobOpt.h] 970\n");
     }
 
     // Data
@@ -1027,34 +1027,34 @@ private:
 
 public:
     void OnDataInitialized(JitArenaAllocator *const allocator)
-    {
+    {LOGMEIN("GlobOpt.h] 1029\n");
         Assert(allocator);
 
         hasDataRef = JitAnew(allocator, bool, true);
     }
 
     void OnDataReused(GlobOptBlockData *const fromData)
-    {
+    {LOGMEIN("GlobOpt.h] 1036\n");
         // If a block's data is deleted, *hasDataRef will be set to false. Since these two blocks are pointing to the same data,
         // they also need to point to the same has-data info.
         hasDataRef = fromData->hasDataRef;
     }
 
     void OnDataUnreferenced()
-    {
+    {LOGMEIN("GlobOpt.h] 1043\n");
         // Other blocks may still be using the data, we should only un-reference the previous data
         hasDataRef = nullptr;
     }
 
     void OnDataDeleted()
-    {
+    {LOGMEIN("GlobOpt.h] 1049\n");
         if(hasDataRef)
             *hasDataRef = false;
         OnDataUnreferenced();
     }
 
     bool HasData()
-    {
+    {LOGMEIN("GlobOpt.h] 1056\n");
         if(!hasDataRef)
             return false;
         if(*hasDataRef)
@@ -1065,9 +1065,9 @@ public:
 
     // SIMD_JS
     BVSparse<JitArenaAllocator> * GetSimd128LivenessBV(IRType type)
-    {
+    {LOGMEIN("GlobOpt.h] 1067\n");
         switch (type)
-        {
+        {LOGMEIN("GlobOpt.h] 1069\n");
         case TySimd128F4:
             return liveSimd128F4Syms;
         case TySimd128I4:
@@ -1104,38 +1104,38 @@ private:
 
 public:
     JsArrayKills() : bits(0)
-    {
+    {LOGMEIN("GlobOpt.h] 1106\n");
     }
 
 private:
     JsArrayKills(const byte bits) : bits(bits)
-    {
+    {LOGMEIN("GlobOpt.h] 1111\n");
     }
 
 public:
-    bool KillsAllArrays() const { return killsAllArrays; }
-    void SetKillsAllArrays() { killsAllArrays = true; }
+    bool KillsAllArrays() const {LOGMEIN("GlobOpt.h] 1115\n"); return killsAllArrays; }
+    void SetKillsAllArrays() {LOGMEIN("GlobOpt.h] 1116\n"); killsAllArrays = true; }
 
-    bool KillsArraysWithNoMissingValues() const { return killsArraysWithNoMissingValues; }
-    void SetKillsArraysWithNoMissingValues() { killsArraysWithNoMissingValues = true; }
+    bool KillsArraysWithNoMissingValues() const {LOGMEIN("GlobOpt.h] 1118\n"); return killsArraysWithNoMissingValues; }
+    void SetKillsArraysWithNoMissingValues() {LOGMEIN("GlobOpt.h] 1119\n"); killsArraysWithNoMissingValues = true; }
 
-    bool KillsNativeArrays() const { return killsNativeArrays; }
-    void SetKillsNativeArrays() { killsNativeArrays = true; }
+    bool KillsNativeArrays() const {LOGMEIN("GlobOpt.h] 1121\n"); return killsNativeArrays; }
+    void SetKillsNativeArrays() {LOGMEIN("GlobOpt.h] 1122\n"); killsNativeArrays = true; }
 
-    bool KillsArrayHeadSegments() const { return killsArrayHeadSegments; }
-    void SetKillsArrayHeadSegments() { killsArrayHeadSegments = true; }
+    bool KillsArrayHeadSegments() const {LOGMEIN("GlobOpt.h] 1124\n"); return killsArrayHeadSegments; }
+    void SetKillsArrayHeadSegments() {LOGMEIN("GlobOpt.h] 1125\n"); killsArrayHeadSegments = true; }
 
-    bool KillsArrayHeadSegmentLengths() const { return killsArrayHeadSegmentLengths; }
-    void SetKillsArrayHeadSegmentLengths() { killsArrayHeadSegmentLengths = true; }
+    bool KillsArrayHeadSegmentLengths() const {LOGMEIN("GlobOpt.h] 1127\n"); return killsArrayHeadSegmentLengths; }
+    void SetKillsArrayHeadSegmentLengths() {LOGMEIN("GlobOpt.h] 1128\n"); killsArrayHeadSegmentLengths = true; }
 
-    bool KillsTypedArrayHeadSegmentLengths() const { return KillsAllArrays(); }
+    bool KillsTypedArrayHeadSegmentLengths() const {LOGMEIN("GlobOpt.h] 1130\n"); return KillsAllArrays(); }
 
-    bool KillsArrayLengths() const { return killsArrayLengths; }
-    void SetKillsArrayLengths() { killsArrayLengths = true; }
+    bool KillsArrayLengths() const {LOGMEIN("GlobOpt.h] 1132\n"); return killsArrayLengths; }
+    void SetKillsArrayLengths() {LOGMEIN("GlobOpt.h] 1133\n"); killsArrayLengths = true; }
 
 public:
     bool KillsValueType(const ValueType valueType) const
-    {
+    {LOGMEIN("GlobOpt.h] 1137\n");
         Assert(valueType.IsArrayOrObjectWithArray());
 
         return
@@ -1145,12 +1145,12 @@ public:
     }
 
     bool AreSubsetOf(const JsArrayKills &other) const
-    {
+    {LOGMEIN("GlobOpt.h] 1147\n");
         return (bits & other.bits) == bits;
     }
 
     JsArrayKills Merge(const JsArrayKills &other)
-    {
+    {LOGMEIN("GlobOpt.h] 1152\n");
         return bits | other.bits;
     }
 };
@@ -1291,10 +1291,10 @@ public:
     static bool             DoFieldHoisting(Loop * loop);
 
     IR::ByteCodeUsesInstr * ConvertToByteCodeUses(IR::Instr * isntr);
-    bool GetIsAsmJSFunc()const{ return isAsmJSFunc; };
+    bool GetIsAsmJSFunc()const{LOGMEIN("GlobOpt.h] 1293\n"); return isAsmJSFunc; };
     BOOLEAN                 IsArgumentsOpnd(IR::Opnd* opnd);
 private:
-    bool                    IsLoopPrePass() const { return this->prePassLoop != nullptr; }
+    bool                    IsLoopPrePass() const {LOGMEIN("GlobOpt.h] 1296\n"); return this->prePassLoop != nullptr; }
     void                    OptBlock(BasicBlock *block);
     void                    BackwardPass(Js::Phase tag);
     void                    ForwardPass();
@@ -1633,7 +1633,7 @@ private:
     bool                    DoDivIntTypeSpec() const;
     bool                    DoLossyIntTypeSpec() const;
     bool                    DoFloatTypeSpec() const;
-    bool                    DoStringTypeSpec() const { return GlobOpt::DoStringTypeSpec(this->func); }
+    bool                    DoStringTypeSpec() const {LOGMEIN("GlobOpt.h] 1635\n"); return GlobOpt::DoStringTypeSpec(this->func); }
     bool                    DoArrayCheckHoist() const;
     bool                    DoArrayCheckHoist(const ValueType baseValueType, Loop* loop, IR::Instr *const instr = nullptr) const;
     bool                    DoArrayMissingValueCheckHoist() const;
@@ -1641,10 +1641,10 @@ private:
     bool                    DoTypedArraySegmentLengthHoist(Loop *const loop) const;
     bool                    DoArrayLengthHoist() const;
     bool                    DoEliminateArrayAccessHelperCall() const;
-    bool                    DoTypedArrayTypeSpec() const { return GlobOpt::DoTypedArrayTypeSpec(this->func); }
-    bool                    DoNativeArrayTypeSpec() const { return GlobOpt::DoNativeArrayTypeSpec(this->func); }
+    bool                    DoTypedArrayTypeSpec() const {LOGMEIN("GlobOpt.h] 1643\n"); return GlobOpt::DoTypedArrayTypeSpec(this->func); }
+    bool                    DoNativeArrayTypeSpec() const {LOGMEIN("GlobOpt.h] 1644\n"); return GlobOpt::DoNativeArrayTypeSpec(this->func); }
     bool                    DoLdLenIntSpec(IR::Instr *const instr, const ValueType baseValueType) const;
-    bool                    IsSwitchOptEnabled() const { return GlobOpt::IsSwitchOptEnabled(this->func); }
+    bool                    IsSwitchOptEnabled() const {LOGMEIN("GlobOpt.h] 1646\n"); return GlobOpt::IsSwitchOptEnabled(this->func); }
     bool                    DoPathDependentValues() const;
     bool                    DoTrackRelativeIntBounds() const;
     bool                    DoBoundCheckElimination() const;
@@ -1711,8 +1711,8 @@ private:
     bool                    DoFieldHoisting() const;
     bool                    DoObjTypeSpec() const;
     bool                    DoObjTypeSpec(Loop * loop) const;
-    bool                    DoFieldRefOpts() const { return DoObjTypeSpec(); }
-    bool                    DoFieldRefOpts(Loop * loop) const { return DoObjTypeSpec(loop); }
+    bool                    DoFieldRefOpts() const {LOGMEIN("GlobOpt.h] 1713\n"); return DoObjTypeSpec(); }
+    bool                    DoFieldRefOpts(Loop * loop) const {LOGMEIN("GlobOpt.h] 1714\n"); return DoObjTypeSpec(loop); }
     bool                    DoFieldOpts(Loop * loop) const;
     bool                    DoFieldPRE() const;
     bool                    DoFieldPRE(Loop *loop) const;

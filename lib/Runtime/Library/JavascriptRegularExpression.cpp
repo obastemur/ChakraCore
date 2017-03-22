@@ -16,18 +16,18 @@ namespace Js
         splitPattern(nullptr),
         lastIndexVar(nullptr),
         lastIndexOrFlag(0)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 18\n");
         Assert(type->GetTypeId() == TypeIds_RegEx);
         Assert(!this->GetType()->AreThisAndPrototypesEnsuredToHaveOnlyWritableDataProperties());
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
         if (REGEX_CONFIG_FLAG(RegexTracing))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 24\n");
             UnifiedRegex::DebugWriter* w = type->GetScriptContext()->GetRegexDebugWriter();
             if (pattern == 0)
                 w->PrintEOL(_u("// REGEX CREATE"));
             else
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 29\n");
                 w->Print(_u("// REGEX CREATE "));
                 pattern->Print(w);
                 w->EOL();
@@ -42,12 +42,12 @@ namespace Js
         splitPattern(nullptr),
         lastIndexVar(nullptr),
         lastIndexOrFlag(0)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 44\n");
         Assert(type->GetTypeId() == TypeIds_RegEx);
 
 #if DBG
         if (REGEX_CONFIG_FLAG(RegexTracing))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 49\n");
             UnifiedRegex::DebugWriter* w = type->GetScriptContext()->GetRegexDebugWriter();
             w->PrintEOL(_u("REGEX CREATE"));
         }
@@ -60,23 +60,23 @@ namespace Js
         splitPattern(instance->GetSplitPattern()),
         lastIndexVar(instance->lastIndexVar),
         lastIndexOrFlag(instance->lastIndexOrFlag)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 62\n");
         // For boxing stack instance
         Assert(ThreadContext::IsOnStack(instance));
     }
 
     bool JavascriptRegExp::Is(Var aValue)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 68\n");
         return JavascriptOperators::GetTypeId(aValue) == TypeIds_RegEx;
     }
 
     // IsRegExp in the spec.
     bool JavascriptRegExp::IsRegExpLike(Var aValue, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 74\n");
         if (scriptContext->GetConfig()->IsES6RegExSymbolsEnabled())
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 76\n");
             if (!JavascriptOperators::IsObject(aValue))
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 78\n");
                 return false;
             }
 
@@ -85,7 +85,7 @@ namespace Js
                 PropertyIds::_symbolMatch,
                 scriptContext);
             if (!JavascriptOperators::IsUndefined(symbolMatchProperty))
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 87\n");
                 return JavascriptConversion::ToBool(symbolMatchProperty, scriptContext);
             }
         }
@@ -101,7 +101,7 @@ namespace Js
     }
 
     CharCount JavascriptRegExp::GetLastIndexProperty(RecyclableObject* instance, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 103\n");
         int64 lastIndex = JavascriptConversion::ToLength(
             JavascriptOperators::GetProperty(instance, PropertyIds::lastIndex, scriptContext),
             scriptContext);
@@ -117,7 +117,7 @@ namespace Js
     }
 
     void JavascriptRegExp::SetLastIndexProperty(Var instance, Var lastIndex, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 119\n");
         JavascriptOperators::SetProperty(
             instance,
             RecyclableObject::FromVar(instance),
@@ -128,47 +128,47 @@ namespace Js
     }
 
     bool JavascriptRegExp::GetGlobalProperty(RecyclableObject* instance, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 130\n");
         return JavascriptConversion::ToBool(
             JavascriptOperators::GetProperty(instance, PropertyIds::global, scriptContext),
             scriptContext);
     }
 
     bool JavascriptRegExp::GetUnicodeProperty(RecyclableObject* instance, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 137\n");
         return JavascriptConversion::ToBool(
             JavascriptOperators::GetProperty(instance, PropertyIds::unicode, scriptContext),
             scriptContext);
     }
 
     CharCount JavascriptRegExp::AddIndex(CharCount base, CharCount offset)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 144\n");
         return (base + offset < base) // Overflow?
             ? MaxCharCount
             : base + offset;
     }
 
     CharCount JavascriptRegExp::GetIndexOrMax(int64 index)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 151\n");
         return (index > SIZE_MAX || IsValidCharCount((size_t) index))
             ? (CharCount) index
             : MaxCharCount;
     }
 
     InternalString JavascriptRegExp::GetSource() const
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 158\n");
         return GetPattern()->GetSource();
     }
 
     UnifiedRegex::RegexFlags JavascriptRegExp::GetFlags() const
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 163\n");
         return GetPattern()->GetFlags();
     }
 
     JavascriptRegExp* JavascriptRegExp::GetJavascriptRegExp(Arguments& args, PCWSTR propertyName, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 168\n");
         if (args.Info.Count == 0)
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 170\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedRegExp, propertyName);
         }
 
@@ -176,19 +176,19 @@ namespace Js
     }
 
     JavascriptRegExp* JavascriptRegExp::ToRegExp(Var var, PCWSTR varName, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 178\n");
         if (JavascriptRegExp::Is(var))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 180\n");
             return JavascriptRegExp::FromVar(var);
         }
 
         if (JavascriptOperators::GetTypeId(var) == TypeIds_HostDispatch)
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 185\n");
             TypeId remoteTypeId;
             RecyclableObject* reclObj = RecyclableObject::FromVar(var);
             reclObj->GetRemoteTypeId(&remoteTypeId);
             if (remoteTypeId == TypeIds_RegEx)
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 190\n");
                 return static_cast<JavascriptRegExp *>(reclObj->GetRemoteObject());
             }
         }
@@ -198,9 +198,9 @@ namespace Js
 
 
     RecyclableObject* JavascriptRegExp::GetThisObject(Arguments& args, PCWSTR varName, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 200\n");
         if (args.Info.Count == 0 || !JavascriptOperators::IsObject(args[0]))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 202\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedObject, varName);
         }
 
@@ -208,13 +208,13 @@ namespace Js
     }
 
     JavascriptString* JavascriptRegExp::GetFirstStringArg(Arguments& args, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 210\n");
         if (args.Info.Count == 1)
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 212\n");
             return scriptContext->GetLibrary()->GetUndefinedDisplayString();
         }
         else if (JavascriptString::Is(args[1]))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 216\n");
             return JavascriptString::FromVar(args[1]);
         }
         else
@@ -224,7 +224,7 @@ namespace Js
     }
 
     bool JavascriptRegExp::ShouldApplyPrototypeWebWorkaround(Arguments& args, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 226\n");
         return scriptContext->GetConfig()->IsES6PrototypeChain() && \
                args.Info.Count >= 1 && args[0] == scriptContext->GetLibrary()->GetRegExpPrototype();
     }
@@ -251,18 +251,18 @@ namespace Js
         JavascriptRegExp* regex = nullptr;
 
         if (callInfo.Count < 2)
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 253\n");
             pattern = scriptContext->GetLibrary()->GetEmptyRegexPattern();
         }
         else if (JavascriptRegExp::IsRegExpLike(args[1], scriptContext))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 257\n");
             // JavascriptRegExp::IsRegExpLike() makes sure that args[1] is an Object.
             RecyclableObject* regexLikeObj = RecyclableObject::FromVar(args[1]);
 
             if (!(callInfo.Flags & CallFlags_New) &&
                 (callInfo.Count == 2 || JavascriptOperators::IsUndefinedObject(args[2], scriptContext)) &&
                 newTarget == JavascriptOperators::GetProperty(regexLikeObj, PropertyIds::constructor, scriptContext))
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 264\n");
                 // ES5 15.10.3.1 Called as a function: If pattern R is a regexp object and flags is undefined, then return R unchanged.
                 // As per ES6 21.2.3.1: We should only return pattern when the this argument is not an uninitialized RegExp object.
                 //                      If regex is null, we can be sure the this argument is not initialized.
@@ -270,15 +270,15 @@ namespace Js
             }
 
             if (JavascriptRegExp::Is(regexLikeObj))
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 272\n");
                 JavascriptRegExp* source = JavascriptRegExp::FromVar(regexLikeObj);
 
                 if (callInfo.Count > 2)
-                {
+                {LOGMEIN("JavascriptRegularExpression.cpp] 276\n");
                     // As per ES 2015 21.2.3.1: If 1st argument is RegExp and 2nd argument is flag then return regexp with same pattern as 1st
                     // argument and flags supplied by the 2nd argument.
                     if (!JavascriptOperators::IsUndefinedObject(args[2], scriptContext))
-                    {
+                    {LOGMEIN("JavascriptRegularExpression.cpp] 280\n");
                         InternalString str = source->GetSource();
                         pattern = CreatePattern(JavascriptString::NewCopyBuffer(str.GetBuffer(), str.GetLength(), scriptContext),
                             args[2], scriptContext);
@@ -290,13 +290,13 @@ namespace Js
                         UnifiedRegex::RegexFlags newSplitFlags =
                             static_cast<UnifiedRegex::RegexFlags>(pattern->GetFlags() & ~UnifiedRegex::StickyRegexFlag);
                         if (newSplitFlags == currentSplitFlags)
-                        {
+                        {LOGMEIN("JavascriptRegularExpression.cpp] 292\n");
                             splitPattern = source->GetSplitPattern();
                         }
                     }
                 }
                 if (!pattern)
-                {
+                {LOGMEIN("JavascriptRegularExpression.cpp] 298\n");
                     pattern = source->GetPattern();
                     splitPattern = source->GetSplitPattern();
                 }
@@ -316,7 +316,7 @@ namespace Js
         }
 
         if (regex == nullptr)
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 318\n");
             regex = scriptContext->GetLibrary()->CreateRegExp(nullptr);
         }
 
@@ -329,15 +329,15 @@ namespace Js
     }
 
     UnifiedRegex::RegexPattern* JavascriptRegExp::CreatePattern(Var aValue, Var options, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 331\n");
         JavascriptString * strBody;
 
         if (JavascriptString::Is(aValue))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 335\n");
             strBody = JavascriptString::FromVar(aValue);
         }
         else if (JavascriptOperators::GetTypeId(aValue) == TypeIds_Undefined)
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 339\n");
             strBody = scriptContext->GetLibrary()->GetEmptyString();
         }
         else
@@ -352,9 +352,9 @@ namespace Js
 
         JavascriptString * strOptions = nullptr;
         if (options != nullptr && !JavascriptOperators::IsUndefinedObject(options, scriptContext))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 354\n");
             if (JavascriptString::Is(options))
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 356\n");
                 strOptions = JavascriptString::FromVar(options);
             }
             else
@@ -372,18 +372,18 @@ namespace Js
     }
 
     JavascriptRegExp* JavascriptRegExp::CreateRegEx(const char16* pSource, CharCount sourceLen, UnifiedRegex::RegexFlags flags, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 374\n");
         UnifiedRegex::RegexPattern* pattern = RegexHelper::CompileDynamic(scriptContext, pSource, sourceLen, flags, false);
 
         return scriptContext->GetLibrary()->CreateRegExp(pattern);
     }
 
     JavascriptRegExp* JavascriptRegExp::CreateRegEx(Var aValue, Var options, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 381\n");
         // This is called as helper from OpCode::CoerseRegEx. If aValue is regex pattern /a/, CreatePattern converts
         // it to pattern "/a/" instead of "a". So if we know that aValue is regex, then just return the same object
         if (JavascriptRegExp::Is(aValue))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 385\n");
             return JavascriptRegExp::FromVar(aValue);
         }
         else
@@ -393,18 +393,18 @@ namespace Js
     }
 
     JavascriptRegExp* JavascriptRegExp::CreateRegExNoCoerce(Var aValue, Var options, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 395\n");
         UnifiedRegex::RegexPattern* pattern = CreatePattern(aValue, options, scriptContext);
 
         return scriptContext->GetLibrary()->CreateRegExp(pattern);
     }
 
     void JavascriptRegExp::CacheLastIndex()
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 402\n");
         if (lastIndexVar == nullptr)
             lastIndexOrFlag = 0;
         else
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 406\n");
             // Does ToInteger(lastIndex) yield an integer in [0, MaxCharCount]?
             double v = JavascriptConversion::ToInteger(lastIndexVar, GetScriptContext());
             if (JavascriptNumber::IsNan(v))
@@ -420,16 +420,16 @@ namespace Js
     }
 
     JavascriptString *JavascriptRegExp::ToString(bool sourceOnly)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 422\n");
         Js::InternalString str = pattern->GetSource();
         CompoundString *const builder = CompoundString::NewWithCharCapacity(str.GetLength() + 5, GetLibrary());
 
         if (!sourceOnly)
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 427\n");
             builder->AppendChars(_u('/'));
         }
         if (pattern->IsLiteral())
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 431\n");
             builder->AppendChars(str.GetBuffer(), str.GetLength());
         }
         else
@@ -440,20 +440,20 @@ namespace Js
             //   - Unescaped '/' needs to be escaped so that it doesn't end the static regex prematurely
             //   - Line terminators need to be escaped since they're not allowed in a static regex
             if (str.GetLength() == 0)
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 442\n");
                 builder->AppendChars(_u("(?:)"));
             }
             else
             {
                 bool escape = false;
                 for (charcount_t i = 0; i < str.GetLength(); ++i)
-                {
+                {LOGMEIN("JavascriptRegularExpression.cpp] 449\n");
                     const char16 c = str.GetBuffer()[i];
 
                     if(!escape)
-                    {
+                    {LOGMEIN("JavascriptRegularExpression.cpp] 453\n");
                         switch(c)
-                        {
+                        {LOGMEIN("JavascriptRegularExpression.cpp] 455\n");
                             case _u('/'):
                             case _u('\n'):
                             case _u('\r'):
@@ -483,7 +483,7 @@ namespace Js
 
                     builder->AppendChars(_u('\\'));
                     switch(c)
-                    {
+                    {LOGMEIN("JavascriptRegularExpression.cpp] 485\n");
                         // Line terminators need to be escaped. \<lineTerminator> is a special case, where \\n doesn't work
                         // since that means a '\' followed by an 'n'. We need to use \n instead.
                         case _u('\n'):
@@ -507,29 +507,29 @@ namespace Js
         }
 
         if (!sourceOnly)
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 509\n");
             builder->AppendChars(_u('/'));
 
             // Cross-browser compatibility - flags are listed in alphabetical order in the spec and by other browsers
             // If you change the order of the flags, don't forget to change it in EntryGetterFlags() and GetOptions() too.
             if (pattern->IsGlobal())
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 515\n");
                 builder->AppendChars(_u('g'));
             }
             if (pattern->IsIgnoreCase())
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 519\n");
                 builder->AppendChars(_u('i'));
             }
             if (pattern->IsMultiline())
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 523\n");
                 builder->AppendChars(_u('m'));
             }
             if (pattern->IsUnicode())
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 527\n");
                 builder->AppendChars(_u('u'));
             }
             if (pattern->IsSticky())
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 531\n");
                 builder->AppendChars(_u('y'));
             }
         }
@@ -550,18 +550,18 @@ namespace Js
         UnifiedRegex::RegexPattern* splitPattern = nullptr;
 
         if (callInfo.Count == 1 )
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 552\n");
             pattern = scriptContext->GetLibrary()->GetEmptyRegexPattern();
         }
         else if (JavascriptRegExp::Is(args[1]))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 556\n");
             JavascriptRegExp* source = JavascriptRegExp::FromVar(args[1]);
             //compile with a regular expression
             pattern = source->GetPattern();
             splitPattern = source->GetSplitPattern();
             // second arg must be undefined if a reg expression is passed
             if(callInfo.Count > 2 &&  JavascriptOperators::GetTypeId(args[2]) != TypeIds_Undefined)
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 563\n");
                 JavascriptError::ThrowSyntaxError(scriptContext, JSERR_RegExpSyntax);
             }
         }
@@ -570,11 +570,11 @@ namespace Js
             //compile with a string
             JavascriptString * strBody;
             if (JavascriptString::Is(args[1]))
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 572\n");
                 strBody = JavascriptString::FromVar(args[1]);
             }
             else if(JavascriptOperators::GetTypeId(args[1]) == TypeIds_Undefined)
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 576\n");
                 strBody = scriptContext->GetLibrary()->GetEmptyString();
             }
             else
@@ -589,9 +589,9 @@ namespace Js
 
             JavascriptString * strOptions = nullptr;
             if (callInfo.Count > 2 && !JavascriptOperators::IsUndefinedObject(args[2], scriptContext))
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 591\n");
                 if (JavascriptString::Is(args[2]))
-                {
+                {LOGMEIN("JavascriptRegularExpression.cpp] 593\n");
                     strOptions = JavascriptString::FromVar(args[2]);
                 }
                 else
@@ -612,7 +612,7 @@ namespace Js
     }
 
     Var JavascriptRegExp::OP_NewRegEx(Var aCompiledRegex, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 614\n");
         JavascriptRegExp * pNewInstance =
             RecyclerNew(scriptContext->GetRecycler(),JavascriptRegExp,((UnifiedRegex::RegexPattern*)aCompiledRegex),
             scriptContext->GetLibrary()->GetRegexType());
@@ -661,7 +661,7 @@ namespace Js
         const ScriptConfiguration* scriptConfig = scriptContext->GetConfig();
 
         if (scriptConfig->IsES6RegExPrototypePropertiesEnabled())
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 663\n");
             RecyclableObject *thisObj = GetThisObject(args, varName, scriptContext);
             JavascriptString* source = JavascriptConversion::ToString(
                 JavascriptOperators::GetProperty(thisObj, PropertyIds::source, scriptContext),
@@ -709,11 +709,11 @@ namespace Js
     }
 
     bool JavascriptRegExp::HasOriginalRegExType(RecyclableObject* instance)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 711\n");
         JavascriptLibrary* library = instance->GetLibrary();
 
         if (instance->GetType() != library->GetRegexType())
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 715\n");
             return false;
         }
 
@@ -723,33 +723,33 @@ namespace Js
     }
 
     bool JavascriptRegExp::HasObservableConstructor(DynamicObject* regexPrototype)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 725\n");
         JavascriptLibrary* library = regexPrototype->GetLibrary();
         return regexPrototype->GetSlot(library->GetRegexConstructorSlotIndex()) != library->GetRegExpConstructor();
     }
 
     bool JavascriptRegExp::HasObservableExec(DynamicObject* regexPrototype)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 731\n");
         JavascriptLibrary* library = regexPrototype->GetLibrary();
         return regexPrototype->GetSlot(library->GetRegexExecSlotIndex()) != library->GetRegexExecFunction();
     }
 
     bool JavascriptRegExp::HasObservableFlags(DynamicObject* regexPrototype)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 737\n");
         JavascriptLibrary* library = regexPrototype->GetLibrary();
         return regexPrototype->GetScriptContext()->GetConfig()->IsES6RegExPrototypePropertiesEnabled()
             && regexPrototype->GetSlot(library->GetRegexFlagsGetterSlotIndex()) != library->GetRegexFlagsGetterFunction();
     }
 
     bool JavascriptRegExp::HasObservableGlobalFlag(DynamicObject* regexPrototype)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 744\n");
         JavascriptLibrary* library = regexPrototype->GetLibrary();
         return regexPrototype->GetScriptContext()->GetConfig()->IsES6RegExPrototypePropertiesEnabled()
             && regexPrototype->GetSlot(library->GetRegexGlobalGetterSlotIndex()) != library->GetRegexGlobalGetterFunction();
     }
 
     bool JavascriptRegExp::HasObservableUnicodeFlag(DynamicObject* regexPrototype)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 751\n");
         const ScriptConfiguration* scriptConfig = regexPrototype->GetScriptContext()->GetConfig();
         JavascriptLibrary* library = regexPrototype->GetLibrary();
         return scriptConfig->IsES6UnicodeExtensionsEnabled()
@@ -775,7 +775,7 @@ namespace Js
         Var replaceValue = (args.Info.Count > 2) ? args[2] : scriptContext->GetLibrary()->GetUndefined();
 
         if (JavascriptFunction::Is(replaceValue))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 777\n");
             JavascriptFunction* replaceFunction = JavascriptFunction::FromVar(replaceValue);
             return RegexHelper::RegexReplaceFunction(scriptContext, thisObj, string, replaceFunction);
         }
@@ -856,15 +856,15 @@ namespace Js
     }
 
     Var JavascriptRegExp::CallExec(RecyclableObject* thisObj, JavascriptString* string, PCWSTR varName, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 858\n");
         Var exec = JavascriptOperators::GetProperty(thisObj, PropertyIds::exec, scriptContext);
         if (JavascriptConversion::IsCallable(exec))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 861\n");
             RecyclableObject* execFn = RecyclableObject::FromVar(exec);
             Var result = CALL_FUNCTION(execFn, CallInfo(CallFlags_Value, 2), thisObj, string);
 
             if (!JavascriptOperators::IsObjectOrNull(result))
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 866\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_RegExpExecInvalidReturnType, varName);
             }
 
@@ -880,7 +880,7 @@ namespace Js
         UnifiedRegex::RegexFlags flags,
         UnifiedRegex::RegexFlags flag,
         ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 882\n");
         bool isEnabled = JavascriptConversion::ToBool(
             JavascriptOperators::GetProperty(this, propertyId, scriptContext),
             scriptContext);
@@ -910,7 +910,7 @@ namespace Js
         Var flags;
 
         BEGIN_TEMP_ALLOCATOR(tempAlloc, scriptContext, _u("JavascriptRegExp"))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 912\n");
             StringBuilder<ArenaAllocator> bs(tempAlloc, 5);
 
 #define APPEND_FLAG(propertyId, flag) AppendFlagForFlagsProperty(&bs, thisObj, propertyId, flag, scriptContext)
@@ -922,12 +922,12 @@ namespace Js
             ScriptConfiguration const * scriptConfig = scriptContext->GetConfig();
 
             if (scriptConfig->IsES6UnicodeExtensionsEnabled())
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 924\n");
                 APPEND_FLAG(PropertyIds::unicode, _u('u'));
             }
 
             if (scriptConfig->IsES6RegExStickyEnabled())
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 929\n");
                 APPEND_FLAG(PropertyIds::sticky, _u('y'));
             }
 #undef APPEND_FLAG
@@ -945,10 +945,10 @@ namespace Js
         PropertyId propertyId,
         char16 flag,
         ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 947\n");
         Var propertyValue = JavascriptOperators::GetProperty(thisObj, propertyId, scriptContext);
         if (JavascriptConversion::ToBoolean(propertyValue, scriptContext))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 950\n");
             builder->Append(flag);
         }
     }
@@ -961,7 +961,7 @@ namespace Js
 
         ScriptContext* scriptContext = function->GetScriptContext();
         if (ShouldApplyPrototypeWebWorkaround(args, scriptContext))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 963\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -969,33 +969,33 @@ namespace Js
     }
 
     Var JavascriptRegExp::GetOptions()
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 971\n");
         Var options;
 
         ScriptContext* scriptContext = this->GetLibrary()->GetScriptContext();
         BEGIN_TEMP_ALLOCATOR(tempAlloc, scriptContext, _u("JavascriptRegExp"))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 976\n");
             StringBuilder<ArenaAllocator> bs(tempAlloc, 4);
 
             // If you change the order of the flags, don't forget to change it in EntryGetterFlags() and ToString() too.
             if(GetPattern()->IsGlobal())
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 981\n");
                 bs.Append(_u('g'));
             }
             if(GetPattern()->IsIgnoreCase())
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 985\n");
                 bs.Append(_u('i'));
             }
             if(GetPattern()->IsMultiline())
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 989\n");
                 bs.Append(_u('m'));
             }
             if (GetPattern()->IsUnicode())
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 993\n");
                 bs.Append(_u('u'));
             }
             if (GetPattern()->IsSticky())
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 997\n");
                 bs.Append(_u('y'));
             }
             options = Js::JavascriptString::NewCopyBuffer(bs.Detach(), bs.Count(), scriptContext);
@@ -1013,7 +1013,7 @@ namespace Js
 
         ScriptContext* scriptContext = function->GetScriptContext();
         if (ShouldApplyPrototypeWebWorkaround(args, scriptContext))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1015\n");
             return JavascriptString::NewCopyBuffer(_u("(?:)"), 4, scriptContext);
         }
 
@@ -1029,7 +1029,7 @@ namespace Js
         \
         ScriptContext* scriptContext = function->GetScriptContext(); \
         if (ShouldApplyPrototypeWebWorkaround(args, scriptContext)) \
-        {\
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1031\n");\
             return scriptContext->GetLibrary()->GetUndefined(); \
         }\
         \
@@ -1044,13 +1044,13 @@ namespace Js
     DEFINE_FLAG_GETTER(EntryGetterUnicode, unicode, IsUnicode)
 
     JavascriptRegExp * JavascriptRegExp::BoxStackInstance(JavascriptRegExp * instance)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1046\n");
         Assert(ThreadContext::IsOnStack(instance));
         // On the stack, the we reserved a pointer before the object as to store the boxed value
         JavascriptRegExp ** boxedInstanceRef = ((JavascriptRegExp **)instance) - 1;
         JavascriptRegExp * boxedInstance = *boxedInstanceRef;
         if (boxedInstance)
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1052\n");
             return boxedInstance;
         }
         Assert(instance->GetTypeHandler()->GetInlineSlotsSize() == 0);
@@ -1085,14 +1085,14 @@ namespace Js
     };
 
     BOOL JavascriptRegExp::HasProperty(PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1087\n");
         const ScriptConfiguration* scriptConfig = this->GetScriptContext()->GetConfig();
 
 #define HAS_PROPERTY(ownProperty) \
         return (ownProperty ? true : DynamicObject::HasProperty(propertyId));
 
         switch (propertyId)
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1094\n");
         case PropertyIds::lastIndex:
             return true;
         case PropertyIds::global:
@@ -1113,15 +1113,15 @@ namespace Js
     }
 
     BOOL JavascriptRegExp::GetPropertyReference(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1115\n");
         return JavascriptRegExp::GetProperty(originalInstance, propertyId, value, info, requestContext);
     }
 
     BOOL JavascriptRegExp::GetProperty(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1120\n");
         BOOL result;
         if (GetPropertyBuiltIns(propertyId, value, &result))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1123\n");
             return result;
         }
 
@@ -1129,13 +1129,13 @@ namespace Js
     }
 
     BOOL JavascriptRegExp::GetProperty(Var originalInstance, JavascriptString* propertyNameString, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1131\n");
         BOOL result;
         PropertyRecord const* propertyRecord;
         this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
 
         if (propertyRecord != nullptr && GetPropertyBuiltIns(propertyRecord->GetPropertyId(), value, &result))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1137\n");
             return result;
         }
 
@@ -1143,12 +1143,12 @@ namespace Js
     }
 
     bool JavascriptRegExp::GetPropertyBuiltIns(PropertyId propertyId, Var* value, BOOL* result)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1145\n");
         const ScriptConfiguration* scriptConfig = this->GetScriptContext()->GetConfig();
 
 #define GET_FLAG(patternMethod) \
         if (!scriptConfig->IsES6RegExPrototypePropertiesEnabled()) \
-        { \
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1150\n"); \
             *value = this->GetLibrary()->CreateBoolean(this->GetPattern()->##patternMethod##()); \
             *result = true; \
             return true; \
@@ -1159,10 +1159,10 @@ namespace Js
         }
 
         switch (propertyId)
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1161\n");
         case PropertyIds::lastIndex:
             if (this->lastIndexVar == nullptr)
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 1164\n");
                 Assert(lastIndexOrFlag <= MaxCharCount);
                 this->lastIndexVar = JavascriptNumber::ToVar(lastIndexOrFlag, GetScriptContext());
             }
@@ -1181,7 +1181,7 @@ namespace Js
             GET_FLAG(IsSticky)
         case PropertyIds::source:
             if (!scriptConfig->IsES6RegExPrototypePropertiesEnabled())
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 1183\n");
                 *value = this->ToString(true);
                 *result = true;
                 return true;
@@ -1192,7 +1192,7 @@ namespace Js
             }
         case PropertyIds::options:
             if (!scriptConfig->IsES6RegExPrototypePropertiesEnabled())
-            {
+            {LOGMEIN("JavascriptRegularExpression.cpp] 1194\n");
                 *value = GetOptions();
                 *result = true;
                 return true;
@@ -1209,10 +1209,10 @@ namespace Js
     }
 
     BOOL JavascriptRegExp::SetProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1211\n");
         BOOL result;
         if (SetPropertyBuiltIns(propertyId, value, flags, &result))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1214\n");
             return result;
         }
 
@@ -1220,13 +1220,13 @@ namespace Js
     }
 
     BOOL JavascriptRegExp::SetProperty(JavascriptString* propertyNameString, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1222\n");
         BOOL result;
         PropertyRecord const * propertyRecord;
         this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
 
         if (propertyRecord != nullptr && SetPropertyBuiltIns(propertyRecord->GetPropertyId(), value, flags, &result))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1228\n");
             return result;
         }
 
@@ -1234,12 +1234,12 @@ namespace Js
     }
 
     bool JavascriptRegExp::SetPropertyBuiltIns(PropertyId propertyId, Var value, PropertyOperationFlags flags, BOOL* result)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1236\n");
         const ScriptConfiguration* scriptConfig = this->GetScriptContext()->GetConfig();
 
 #define SET_PROPERTY(ownProperty) \
         if (ownProperty) \
-        { \
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1241\n"); \
             JavascriptError::ThrowCantAssignIfStrictMode(flags, this->GetScriptContext()); \
             *result = false; \
             return true; \
@@ -1247,7 +1247,7 @@ namespace Js
         return false;
 
         switch (propertyId)
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1249\n");
         case PropertyIds::lastIndex:
             this->lastIndexVar = value;
             lastIndexOrFlag = NotCachedValue;
@@ -1271,24 +1271,24 @@ namespace Js
     }
 
     BOOL JavascriptRegExp::InitProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1273\n");
         return SetProperty(propertyId, value, flags, info);
     }
 
     BOOL JavascriptRegExp::DeleteProperty(PropertyId propertyId, PropertyOperationFlags propertyOperationFlags)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1278\n");
         const ScriptConfiguration* scriptConfig = this->GetScriptContext()->GetConfig();
 
 #define DELETE_PROPERTY(ownProperty) \
         if (ownProperty) \
-        { \
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1283\n"); \
             JavascriptError::ThrowCantDeleteIfStrictMode(propertyOperationFlags, this->GetScriptContext(), this->GetScriptContext()->GetPropertyName(propertyId)->GetBuffer()); \
             return false; \
         } \
         return DynamicObject::DeleteProperty(propertyId, propertyOperationFlags);
 
         switch (propertyId)
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1290\n");
         case PropertyIds::lastIndex:
             DELETE_PROPERTY(true);
         case PropertyIds::global:
@@ -1309,20 +1309,20 @@ namespace Js
     }
 
     BOOL JavascriptRegExp::DeleteProperty(JavascriptString *propertyNameString, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1311\n");
         const ScriptConfiguration* scriptConfig = this->GetScriptContext()->GetConfig();
         JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
 
 #define DELETE_PROPERTY(ownProperty) \
         if (ownProperty) \
-        { \
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1317\n"); \
             JavascriptError::ThrowCantDeleteIfStrictMode(flags, this->GetScriptContext(), propertyNameString->GetString()); \
             return false; \
         } \
         return DynamicObject::DeleteProperty(propertyNameString, flags);
 
         if (BuiltInPropertyRecords::lastIndex.Equals(propertyName))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1324\n");
             DELETE_PROPERTY(true);
         }
         else if (BuiltInPropertyRecords::global.Equals(propertyName)
@@ -1330,15 +1330,15 @@ namespace Js
             || BuiltInPropertyRecords::ignoreCase.Equals(propertyName)
             || BuiltInPropertyRecords::source.Equals(propertyName)
             || BuiltInPropertyRecords::options.Equals(propertyName))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1332\n");
             DELETE_PROPERTY(!scriptConfig->IsES6RegExPrototypePropertiesEnabled());
         }
         else if (BuiltInPropertyRecords::unicode.Equals(propertyName))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1336\n");
             DELETE_PROPERTY(scriptConfig->IsES6UnicodeExtensionsEnabled() && !scriptConfig->IsES6RegExPrototypePropertiesEnabled());
         }
         else if (BuiltInPropertyRecords::sticky.Equals(propertyName))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1340\n");
             DELETE_PROPERTY(scriptConfig->IsES6RegExStickyEnabled() && !scriptConfig->IsES6RegExPrototypePropertiesEnabled());
         }
         else
@@ -1351,10 +1351,10 @@ namespace Js
     }
 
     DescriptorFlags JavascriptRegExp::GetSetter(PropertyId propertyId, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1353\n");
         DescriptorFlags result;
         if (GetSetterBuiltIns(propertyId, info, &result))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1356\n");
             return result;
         }
 
@@ -1362,13 +1362,13 @@ namespace Js
     }
 
     DescriptorFlags JavascriptRegExp::GetSetter(JavascriptString* propertyNameString, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1364\n");
         DescriptorFlags result;
         PropertyRecord const * propertyRecord;
         this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
 
         if (propertyRecord != nullptr && GetSetterBuiltIns(propertyRecord->GetPropertyId(), info, &result))
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1370\n");
             return result;
         }
 
@@ -1376,12 +1376,12 @@ namespace Js
     }
 
     bool JavascriptRegExp::GetSetterBuiltIns(PropertyId propertyId, PropertyValueInfo* info, DescriptorFlags* result)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1378\n");
         const ScriptConfiguration* scriptConfig = this->GetScriptContext()->GetConfig();
 
 #define GET_SETTER(ownProperty) \
         if (ownProperty) \
-        { \
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1383\n"); \
             PropertyValueInfo::SetNoCache(info, this); \
             *result = JavascriptRegExp::IsWritable(propertyId) ? WritableData : Data; \
             return true; \
@@ -1389,7 +1389,7 @@ namespace Js
         return false;
 
         switch (propertyId)
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1391\n");
         case PropertyIds::lastIndex:
             GET_SETTER(true);
         case PropertyIds::global:
@@ -1410,27 +1410,27 @@ namespace Js
     }
 
     BOOL JavascriptRegExp::GetDiagValueString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1412\n");
         Js::InternalString str = pattern->GetSource();
         stringBuilder->Append(str.GetBuffer(), str.GetLength());
         return TRUE;
     }
 
     BOOL JavascriptRegExp::GetDiagTypeString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1419\n");
         stringBuilder->AppendCppLiteral(JS_DIAG_TYPE_JavascriptRegExp);
         return TRUE;
     }
 
     BOOL JavascriptRegExp::IsEnumerable(PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1425\n");
         const ScriptConfiguration* scriptConfig = this->GetScriptContext()->GetConfig();
 
 #define IS_ENUMERABLE(ownProperty) \
         return (ownProperty ? false : DynamicObject::IsEnumerable(propertyId));
 
         switch (propertyId)
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1432\n");
         case PropertyIds::lastIndex:
             return false;
         case PropertyIds::global:
@@ -1451,14 +1451,14 @@ namespace Js
     }
 
     BOOL JavascriptRegExp::IsConfigurable(PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1453\n");
         const ScriptConfiguration* scriptConfig = this->GetScriptContext()->GetConfig();
 
 #define IS_CONFIGURABLE(ownProperty) \
         return (ownProperty ? false : DynamicObject::IsConfigurable(propertyId));
 
         switch (propertyId)
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1460\n");
         case PropertyIds::lastIndex:
             return false;
         case PropertyIds::global:
@@ -1479,14 +1479,14 @@ namespace Js
     }
 
     BOOL JavascriptRegExp::IsWritable(PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1481\n");
         const ScriptConfiguration* scriptConfig = this->GetScriptContext()->GetConfig();
 
 #define IS_WRITABLE(ownProperty) \
         return (ownProperty ? false : DynamicObject::IsWritable(propertyId));
 
         switch (propertyId)
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1488\n");
         case PropertyIds::lastIndex:
             return true;
         case PropertyIds::global:
@@ -1506,11 +1506,11 @@ namespace Js
 #undef IS_WRITABLE
     }
     BOOL JavascriptRegExp::GetSpecialPropertyName(uint32 index, Var *propertyName, ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1508\n");
         uint length = GetSpecialPropertyCount();
 
         if (index < length)
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1512\n");
             *propertyName = requestContext->GetPropertyString(GetSpecialPropertyIdsInlined()[index]);
             return true;
         }
@@ -1519,21 +1519,21 @@ namespace Js
 
     // Returns the number of special non-enumerable properties this type has.
     uint JavascriptRegExp::GetSpecialPropertyCount() const
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1521\n");
         if (GetScriptContext()->GetConfig()->IsES6RegExPrototypePropertiesEnabled())
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1523\n");
             return 1; // lastIndex
         }
 
         uint specialPropertyCount = defaultSpecialPropertyIdsCount;
 
         if (GetScriptContext()->GetConfig()->IsES6UnicodeExtensionsEnabled())
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1530\n");
             specialPropertyCount += 1;
         }
 
         if (GetScriptContext()->GetConfig()->IsES6RegExStickyEnabled())
-        {
+        {LOGMEIN("JavascriptRegularExpression.cpp] 1535\n");
             specialPropertyCount += 1;
         }
 
@@ -1542,12 +1542,12 @@ namespace Js
 
     // Returns the list of special non-enumerable properties for the type.
     PropertyId const * JavascriptRegExp::GetSpecialPropertyIds() const
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1544\n");
         return GetSpecialPropertyIdsInlined();
     }
 
     inline PropertyId const * JavascriptRegExp::GetSpecialPropertyIdsInlined() const
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1549\n");
         return GetScriptContext()->GetConfig()->IsES6UnicodeExtensionsEnabled()
             ? specialPropertyIdsAll
             : specialPropertyIdsWithoutUnicode;
@@ -1555,12 +1555,12 @@ namespace Js
 
 #if ENABLE_TTD
     TTD::NSSnapObjects::SnapObjectType JavascriptRegExp::GetSnapTag_TTD() const
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1557\n");
         return TTD::NSSnapObjects::SnapObjectType::SnapRegexObject;
     }
 
     void JavascriptRegExp::ExtractSnapObjectDataInto(TTD::NSSnapObjects::SnapObject* objData, TTD::SlabAllocator& alloc)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1562\n");
         TTD::NSSnapObjects::SnapRegexInfo* sri = alloc.SlabAllocateStruct<TTD::NSSnapObjects::SnapRegexInfo>();
 
         UnifiedRegex::RegexPattern* pattern = this->pattern;
@@ -1575,7 +1575,7 @@ namespace Js
     }
 
     void JavascriptRegExp::SetLastIndexInfo_TTD(CharCount lastIndex, Js::Var lastVar)
-    {
+    {LOGMEIN("JavascriptRegularExpression.cpp] 1577\n");
         this->lastIndexOrFlag = lastIndex;
         this->lastIndexVar = lastVar;
     }

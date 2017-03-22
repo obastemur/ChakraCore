@@ -28,7 +28,7 @@ public:
     void        EndOfHelperBlock(uint32 helperSpilledLiveranges);
 
     uint        UnAllocatableRegCount(Func *func) const
-                {
+                {LOGMEIN("LinearScanMD.h] 30\n");
                     return func->GetLocalsPointer() != RegSP ? 5 : 4; //r11(Frame Pointer),r12,sp,pc
                 }
 
@@ -36,7 +36,7 @@ public:
 
     void        LegalizeDef(IR::Instr * instr);
     void        LegalizeUse(IR::Instr * instr, IR::Opnd * opnd);
-    void        LegalizeConstantUse(IR::Instr * instr, IR::Opnd * opnd) { /* no op for arm */ }
+    void        LegalizeConstantUse(IR::Instr * instr, IR::Opnd * opnd) {LOGMEIN("LinearScanMD.h] 38\n"); /* no op for arm */ }
 
     void        GenerateBailOut(IR::Instr * instr, __in_ecount(registerSaveSymsCount) StackSym ** registerSaveSyms, uint registerSaveSymsCount);
     IR::Instr  *GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, BailOutInfo * bailOutInfo);
@@ -48,7 +48,7 @@ public:
     static RegNum GetParamReg(IR::SymOpnd *symOpnd, Func *func);
 
     bool        IsAllocatable(RegNum reg, Func *func) const;
-    static uint GetRegisterSaveSlotCount() {
+    static uint GetRegisterSaveSlotCount() {LOGMEIN("LinearScanMD.h] 50\n");
         return RegisterSaveSlotCount ;
     }
     static uint GetRegisterSaveIndex(RegNum reg);

@@ -39,7 +39,7 @@ namespace Js
     {
     public:
         Arm64StackFrame() : frame(nullptr), codeAddr(nullptr), addressOfCodeAddr(nullptr)
-        {
+        {LOGMEIN("StackFrame.h] 41\n");
         }
 
         bool InitializeByFrameId(void * returnAddress, ScriptContext* scriptContext);
@@ -50,11 +50,11 @@ namespace Js
         void *GetInstructionPointer();
         void **GetArgv(bool isCurrentContextNative = false, bool shouldCheckForNativeAddr = true);
         void *GetReturnAddress(bool isCurrentContextNative = false, bool shouldCheckForNativeAddr = true);
-        void *GetAddressOfInstructionPointer() { Assert(addressOfCodeAddr != nullptr); return addressOfCodeAddr; }
+        void *GetAddressOfInstructionPointer() {LOGMEIN("StackFrame.h] 52\n"); Assert(addressOfCodeAddr != nullptr); return addressOfCodeAddr; }
         void *GetAddressOfReturnAddress(bool isCurrentContextNative = false, bool shouldCheckForNativeAddr = true);
         bool SkipToFrame(void * returnAddress);
-        void *GetFrame() { return (void *)frame;};
-        size_t GetStackCheckCodeHeight() { return this->stackCheckCodeHeight; }
+        void *GetFrame() {LOGMEIN("StackFrame.h] 55\n"); return (void *)frame;};
+        size_t GetStackCheckCodeHeight() {LOGMEIN("StackFrame.h] 56\n"); return this->stackCheckCodeHeight; }
         static bool IsInStackCheckCode(void *entry, void *codeAddr, size_t stackCheckCodeHeight);
 
     private:

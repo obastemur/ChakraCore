@@ -24,9 +24,9 @@ namespace Js
             || JavascriptOperators::GetTypeId(args[0]) == TypeIds_HostDispatch);
 
         if (args.Info.Count > 1)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 26\n");
             switch (JavascriptOperators::GetTypeId(args[1]))
-            {
+            {LOGMEIN("JavascriptObject.cpp] 28\n");
             case TypeIds_Undefined:
             case TypeIds_Null:
                 // Break to return a new object
@@ -53,7 +53,7 @@ namespace Js
             default:
                 RecyclableObject* result = nullptr;
                 if (FALSE == JavascriptConversion::ToObject(args[1], scriptContext, &result))
-                {
+                {LOGMEIN("JavascriptObject.cpp] 55\n");
                     // JavascriptConversion::ToObject should only return FALSE for null and undefined.
                     Assert(false);
                 }
@@ -65,7 +65,7 @@ namespace Js
         }
 
         if (callInfo.Flags & CallFlags_NotUsed)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 67\n");
             return args[0];
         }
         Var newObj = scriptContext->GetLibrary()->CreateObject(true);
@@ -87,13 +87,13 @@ namespace Js
 
         RecyclableObject* dynamicObject = nullptr;
         if (FALSE == JavascriptConversion::ToObject(args[0], scriptContext, &dynamicObject))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 89\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NullOrUndefined, _u("Object.prototype.hasOwnProperty"));
         }
 
         // no property specified
         if (args.Info.Count == 1)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 95\n");
             return scriptContext->GetLibrary()->GetFalse();
         }
 
@@ -101,7 +101,7 @@ namespace Js
         JavascriptConversion::ToPropertyKey(args[1], scriptContext, &propertyRecord);
 
         if (JavascriptOperators::HasOwnProperty(dynamicObject, propertyRecord->GetPropertyId(), scriptContext))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 103\n");
             return scriptContext->GetLibrary()->GetTrue();
         }
 
@@ -121,12 +121,12 @@ namespace Js
 
         RecyclableObject* dynamicObject = nullptr;
         if (FALSE == JavascriptConversion::ToObject(args[0], scriptContext, &dynamicObject))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 123\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NullOrUndefined, _u("Object.prototype.propertyIsEnumerable"));
         }
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 128\n");
             const PropertyRecord* propertyRecord;
             JavascriptConversion::ToPropertyKey(args[1], scriptContext, &propertyRecord);
             PropertyId propertyId = propertyRecord->GetPropertyId();
@@ -134,9 +134,9 @@ namespace Js
             PropertyDescriptor currentDescriptor;
             BOOL isCurrentDescriptorDefined = JavascriptOperators::GetOwnPropertyDescriptor(dynamicObject, propertyId, scriptContext, &currentDescriptor);
             if (isCurrentDescriptorDefined == TRUE)
-            {
+            {LOGMEIN("JavascriptObject.cpp] 136\n");
                 if (currentDescriptor.IsEnumerable())
-                {
+                {LOGMEIN("JavascriptObject.cpp] 138\n");
                     return scriptContext->GetLibrary()->GetTrue();
                 }
             }
@@ -145,7 +145,7 @@ namespace Js
     }
 
     BOOL JavascriptObject::ChangePrototype(RecyclableObject* object, RecyclableObject* newPrototype, bool shouldThrow, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptObject.cpp] 147\n");
         // 8.3.2    [[SetInheritance]] (V)
         // When the [[SetInheritance]] internal method of O is called with argument V the following steps are taken:
         // 1.   Assert: Either Type(V) is Object or Type(V) is Null.
@@ -153,7 +153,7 @@ namespace Js
         Assert(JavascriptOperators::IsObjectOrNull(newPrototype));
 
         if (JavascriptProxy::Is(object))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 155\n");
             JavascriptProxy* proxy = JavascriptProxy::FromVar(object);
             CrossSite::ForceCrossSiteThunkOnPrototypeChain(newPrototype);
             return proxy->SetPrototypeTrap(newPrototype, shouldThrow);
@@ -163,22 +163,22 @@ namespace Js
         // 3.   Let current be the value of the [[Prototype]] internal data property of O.
         // 4.   If SameValue(V, current), then return true.
         if (newPrototype == JavascriptObject::GetPrototypeOf(object, scriptContext))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 165\n");
             return TRUE;
         }
 
         // 5.   If extensible is false, then return false.
         if (!object->IsExtensible())
-        {
+        {LOGMEIN("JavascriptObject.cpp] 171\n");
             if (shouldThrow)
-            {
+            {LOGMEIN("JavascriptObject.cpp] 173\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_NonExtensibleObject);
             }
             return FALSE;
         }
 
         if (object->IsProtoImmutable())
-        {
+        {LOGMEIN("JavascriptObject.cpp] 180\n");
             // ES2016 19.1.3:
             // The Object prototype object is the intrinsic object %ObjectPrototype%.
             // The Object prototype object is an immutable prototype exotic object.
@@ -195,9 +195,9 @@ namespace Js
         //      iii.    ReturnIfAbrupt(nextp).
         //      iv. Let  p be nextp.
         if (IsPrototypeOf(object, newPrototype, scriptContext)) // Reject cycle
-        {
+        {LOGMEIN("JavascriptObject.cpp] 197\n");
             if (shouldThrow)
-            {
+            {LOGMEIN("JavascriptObject.cpp] 199\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_CyclicProtoValue);
             }
             return FALSE;
@@ -213,11 +213,11 @@ namespace Js
         // Simply assign it a new type so if this object used protoInlineCache in past, it will
         // be invalidated because of type mismatch and subsequently we will update its protoInlineCache
         if (!(obj->GetDynamicType()->GetTypeHandler()->GetFlags() & DynamicTypeHandler::IsPrototypeFlag))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 215\n");
             // If object has locked type, skip changing its type here as it will be changed anyway below
             // when object gets newPrototype object.
             if (!obj->HasLockedType())
-            {
+            {LOGMEIN("JavascriptObject.cpp] 219\n");
                 obj->ChangeType();
             }
             Assert(!obj->GetScriptContext()->GetThreadContext()->IsObjectRegisteredInProtoInlineCaches(obj));
@@ -226,7 +226,7 @@ namespace Js
         }
 
         if (isInvalidationOfInlineCacheNeeded)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 228\n");
             // Notify old prototypes that they are being removed from a prototype chain. This triggers invalidating protocache, etc.
             JavascriptOperators::MapObjectAndPrototypes<true>(object->GetPrototype(), [=](RecyclableObject* obj)
             {
@@ -239,7 +239,7 @@ namespace Js
 
             if (!objectAndPrototypeChainHasOnlyWritableDataProperties
                 || object->GetScriptContext() != newPrototype->GetScriptContext())
-            {
+            {LOGMEIN("JavascriptObject.cpp] 241\n");
                 // The HaveOnlyWritableDataProperties cache is cleared when a property is added or changed,
                 // but only for types in the same script context. Therefore, if the prototype is in another
                 // context, the object's cache won't be cleared when a property is added or changed on the prototype.
@@ -254,12 +254,12 @@ namespace Js
             }
 
             if (!objectAndPrototypeChainHasOnlyWritableDataProperties)
-            {
+            {LOGMEIN("JavascriptObject.cpp] 256\n");
                 // Invalidate StoreField/PropertyGuards for any non-WritableData property in the new chain
                 JavascriptOperators::MapObjectAndPrototypes<true>(newPrototype, [=](RecyclableObject* obj)
                 {
                     if (!obj->HasOnlyWritableDataProperties())
-                    {
+                    {LOGMEIN("JavascriptObject.cpp] 261\n");
                         obj->AddToPrototype(scriptContext);
                     }
                 });
@@ -268,7 +268,7 @@ namespace Js
 
         // Set to new prototype
         if (object->IsExternal() || (DynamicType::Is(object->GetTypeId()) && (DynamicObject::FromVar(object))->IsCrossSiteObject()))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 270\n");
             CrossSite::ForceCrossSiteThunkOnPrototypeChain(newPrototype);
         }
         object->SetPrototype(newPrototype);
@@ -288,27 +288,27 @@ namespace Js
 
         // no property specified
         if (args.Info.Count == 1 || !JavascriptOperators::IsObject(args[1]))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 290\n");
             return scriptContext->GetLibrary()->GetFalse();
         }
 
         RecyclableObject* dynamicObject = nullptr;
         if (FALSE == JavascriptConversion::ToObject(args[0], scriptContext, &dynamicObject))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 296\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NullOrUndefined, _u("Object.prototype.isPrototypeOf"));
         }
         RecyclableObject* value = RecyclableObject::FromVar(args[1]);
 
         if (dynamicObject->GetTypeId() == TypeIds_GlobalObject)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 302\n");
             dynamicObject = RecyclableObject::FromVar(static_cast<Js::GlobalObject*>(dynamicObject)->ToThis());
         }
 
         while (JavascriptOperators::GetTypeId(value) != TypeIds_Null)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 307\n");
             value = JavascriptOperators::GetPrototype(value);
             if (dynamicObject == value)
-            {
+            {LOGMEIN("JavascriptObject.cpp] 310\n");
                 return scriptContext->GetLibrary()->GetTrue();
             }
         }
@@ -330,13 +330,13 @@ namespace Js
         RecyclableObject* dynamicObject = nullptr;
 
         if (FALSE == JavascriptConversion::ToObject(thisValue, scriptContext, &dynamicObject))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 332\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NullOrUndefined, _u("Object.prototype.toLocaleString"));
         }
 
         Var toStringVar = nullptr;
         if (!JavascriptOperators::GetProperty(thisValue, dynamicObject, Js::PropertyIds::toString, &toStringVar, scriptContext) || !JavascriptConversion::IsCallable(toStringVar))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 338\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedFunction, _u("Object.prototype.toLocaleString"));
         }
 
@@ -359,17 +359,17 @@ namespace Js
 
     // ES2017 19.1.3.6 Object.prototype.toString()
     JavascriptString* JavascriptObject::ToStringTagHelper(Var thisArg, ScriptContext *scriptContext, TypeId type)
-    {
+    {LOGMEIN("JavascriptObject.cpp] 361\n");
         JavascriptLibrary *library = scriptContext->GetLibrary();
 
         // 1. If the this value is undefined, return "[object Undefined]".
         if (type == TypeIds_Undefined)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 366\n");
             return library->CreateStringFromCppLiteral(_u("[object Undefined]"));
         }
         // 2. If the this value is null, return "[object Null]".
         if (type == TypeIds_Null)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 371\n");
             return library->CreateStringFromCppLiteral(_u("[object Null]"));
         }
 
@@ -384,7 +384,7 @@ namespace Js
         Var tag = JavascriptOperators::GetProperty(thisArgAsObject, PropertyIds::_symbolToStringTag, scriptContext); // Let tag be the result of Get(O, @@toStringTag).
 
         // 17. Return the String that is the result of concatenating "[object ", tag, and "]". 
-        auto buildToString = [&scriptContext](Var tag) {
+        auto buildToString = [&scriptContext](Var tag) {LOGMEIN("JavascriptObject.cpp] 386\n");
             JavascriptString *tagStr = JavascriptString::FromVar(tag);
 
             CompoundString::Builder<32> stringBuilder(scriptContext);
@@ -397,20 +397,20 @@ namespace Js
             return stringBuilder.ToString();
         };
         if (tag != nullptr && JavascriptString::Is(tag))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 399\n");
             return buildToString(tag);
         }
 
         // If we don't have a tag or it's not a string, use the 'built in tag'.
         if (isArray)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 405\n");
             // 5. If isArray is true, let builtinTag be "Array".
             return library->CreateStringFromCppLiteral(_u("[object Array]"));
         }
 
         JavascriptString* builtInTag = nullptr;
         switch (type)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 412\n");
             // 6. Else if O is an exotic String object, let builtinTag be "String".
         case TypeIds_String:
         case TypeIds_StringObject:
@@ -460,9 +460,9 @@ namespace Js
 
             // 14. Else, let builtinTag be "Object".
         default:
-        {
+        {LOGMEIN("JavascriptObject.cpp] 462\n");
             if (thisArgAsObject->IsExternal())
-            {
+            {LOGMEIN("JavascriptObject.cpp] 464\n");
                 builtInTag = buildToString(thisArgAsObject->GetClassName(scriptContext));
             }
             else
@@ -479,23 +479,23 @@ namespace Js
     }
 
     Var JavascriptObject::ToStringHelper(Var thisArg, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptObject.cpp] 481\n");
         TypeId type = JavascriptOperators::GetTypeId(thisArg);
 
         // We first need to make sure we are in the right context.
         if (type == TypeIds_HostDispatch)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 486\n");
             RecyclableObject* hostDispatchObject = RecyclableObject::FromVar(thisArg);
             const DynamicObject* remoteObject = hostDispatchObject->GetRemoteObject();
             if (!remoteObject)
-            {
+            {LOGMEIN("JavascriptObject.cpp] 490\n");
                 Var result = nullptr;
                 Js::Var values[1];
                 Js::CallInfo info(Js::CallFlags_Value, 1);
                 Js::Arguments args(info, values);
                 values[0] = thisArg;
                 if (hostDispatchObject->InvokeBuiltInOperationRemotely(EntryToString, args, &result))
-                {
+                {LOGMEIN("JavascriptObject.cpp] 497\n");
                     return result;
                 }
             }
@@ -503,7 +503,7 @@ namespace Js
 
         // Dispatch to @@toStringTag implementation.
         if (type >= TypeIds_TypedArrayMin && type <= TypeIds_TypedArrayMax && !scriptContext->GetThreadContext()->IsScriptActive())
-        {
+        {LOGMEIN("JavascriptObject.cpp] 505\n");
             // Use external call for typedarray in the debugger.
             Var toStringValue = nullptr;
             BEGIN_JS_RUNTIME_CALL_EX(scriptContext, false);
@@ -540,7 +540,7 @@ namespace Js
         // throw a TypeError if TypeId is null or undefined, and apply ToObject to the 'this' value otherwise.
 
         if ((argType == TypeIds_Null) || (argType == TypeIds_Undefined))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 542\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NullOrUndefined, _u("Object.prototype.valueOf"));
         }
         else
@@ -560,7 +560,7 @@ namespace Js
 
         RecyclableObject* obj = nullptr;
         if (args.Info.Count < 2)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 562\n");
             obj = RecyclableObject::FromVar(JavascriptOperators::ToObject(scriptContext->GetLibrary()->GetUndefined(), scriptContext));
         }
         else
@@ -571,10 +571,10 @@ namespace Js
 
         // If the object is HostDispatch try to invoke the operation remotely
         if (obj->GetTypeId() == TypeIds_HostDispatch)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 573\n");
             Var result;
             if (obj->InvokeBuiltInOperationRemotely(EntryGetOwnPropertyDescriptor, args, &result))
-            {
+            {LOGMEIN("JavascriptObject.cpp] 576\n");
                 return result;
             }
         }
@@ -585,7 +585,7 @@ namespace Js
     }
 
     Var JavascriptObject::GetOwnPropertyDescriptorHelper(RecyclableObject* obj, Var propertyKey, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptObject.cpp] 587\n");
         const PropertyRecord* propertyRecord;
         JavascriptConversion::ToPropertyKey(propertyKey, scriptContext, &propertyRecord);
         PropertyId propertyId = propertyRecord->GetPropertyId();
@@ -596,7 +596,7 @@ namespace Js
         BOOL isPropertyDescriptorDefined;
         isPropertyDescriptorDefined = JavascriptObject::GetOwnPropertyDescriptorHelper(obj, propertyId, scriptContext, propertyDescriptor);
         if (!isPropertyDescriptorDefined)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 598\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -604,10 +604,10 @@ namespace Js
     }
 
     BOOL JavascriptObject::GetOwnPropertyDescriptorHelper(RecyclableObject* obj, PropertyId propertyId, ScriptContext* scriptContext, PropertyDescriptor& propertyDescriptor)
-    {
+    {LOGMEIN("JavascriptObject.cpp] 606\n");
         BOOL isPropertyDescriptorDefined;
         if (obj->CanHaveInterceptors())
-        {
+        {LOGMEIN("JavascriptObject.cpp] 609\n");
             isPropertyDescriptorDefined = obj->HasOwnProperty(propertyId) ?
                 JavascriptOperators::GetOwnPropertyDescriptor(obj, propertyId, scriptContext, &propertyDescriptor) : obj->GetDefaultPropertyDescriptor(propertyDescriptor);
         }
@@ -631,7 +631,7 @@ namespace Js
         RecyclableObject* obj = nullptr;
 
         if (args.Info.Count < 2)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 633\n");
             obj = RecyclableObject::FromVar(JavascriptOperators::ToObject(scriptContext->GetLibrary()->GetUndefined(), scriptContext));
         }
         else
@@ -642,10 +642,10 @@ namespace Js
 
         // If the object is HostDispatch try to invoke the operation remotely
         if (obj->GetTypeId() == TypeIds_HostDispatch)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 644\n");
             Var result;
             if (obj->InvokeBuiltInOperationRemotely(EntryGetOwnPropertyDescriptors, args, &result))
-            {
+            {LOGMEIN("JavascriptObject.cpp] 647\n");
                 return result;
             }
         }
@@ -657,12 +657,12 @@ namespace Js
         Var propKey = nullptr;
 
         for (uint i = 0; i < ownPropertyKeys->GetLength(); i++)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 659\n");
             BOOL getPropResult = ownPropertyKeys->DirectGetItemAt(i, &propKey);
             Assert(getPropResult);
 
             if (!getPropResult)
-            {
+            {LOGMEIN("JavascriptObject.cpp] 664\n");
                 continue;
             }
             
@@ -671,7 +671,7 @@ namespace Js
 
             Var newDescriptor = JavascriptObject::GetOwnPropertyDescriptorHelper(obj, propKey, scriptContext);
             if (!JavascriptOperators::IsUndefined(newDescriptor))
-            {
+            {LOGMEIN("JavascriptObject.cpp] 673\n");
                 resultObj->SetProperty(propertyRecord->GetPropertyId(), newDescriptor, PropertyOperation_None, nullptr);
             }
         }
@@ -697,7 +697,7 @@ namespace Js
         // 1. Let obj be ToObject(O).
         // 2. ReturnIfAbrupt(obj).
         if (args.Info.Count < 2 || !JavascriptConversion::ToObject(args[1], scriptContext, &object))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 699\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedObject, _u("Object.getPrototypeOf"));
         }
 
@@ -722,22 +722,22 @@ namespace Js
         int32 errCode = NOERROR;
 
         if (args.Info.Count < 2 || !JavascriptConversion::CheckObjectCoercible(args[1], scriptContext))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 724\n");
             errCode = JSERR_FunctionArgument_NeedObject;
         }
         else if (args.Info.Count < 3 || !JavascriptOperators::IsObjectOrNull(args[2]))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 728\n");
             errCode = JSERR_FunctionArgument_NotObjectOrNull;
         }
 
         if (errCode != NOERROR)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 733\n");
             JavascriptError::ThrowTypeError(scriptContext, errCode, _u("Object.setPrototypeOf"));
         }
 
         // 4. If Type(O) is not Object, return O.
         if (!JavascriptOperators::IsObject(args[1]))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 739\n");
             return args[1];
         }
 
@@ -769,11 +769,11 @@ namespace Js
 
         // Spec update in Rev29 under section 19.1.2.17
         if (args.Info.Count < 2)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 771\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
         else if (!JavascriptOperators::IsObject(args[1]))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 775\n");
             return args[1];
         }
 
@@ -782,7 +782,7 @@ namespace Js
 
         GlobalObject* globalObject = object->GetLibrary()->GetGlobalObject();
         if (globalObject != object && globalObject && (globalObject->ToThis() == object))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 784\n");
             globalObject->Seal();
         }
 
@@ -802,11 +802,11 @@ namespace Js
 
         // Spec update in Rev29 under section 19.1.2.5
         if (args.Info.Count < 2)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 804\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
         else if (!JavascriptOperators::IsObject(args[1]))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 808\n");
             return args[1];
         }
 
@@ -814,7 +814,7 @@ namespace Js
 
         GlobalObject* globalObject = object->GetLibrary()->GetGlobalObject();
         if (globalObject != object && globalObject && (globalObject->ToThis() == object))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 816\n");
             globalObject->Freeze();
         }
 
@@ -834,11 +834,11 @@ namespace Js
 
         // Spec update in Rev29 under section 19.1.2.15
         if (args.Info.Count < 2)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 836\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
         else if (!JavascriptOperators::IsObject(args[1]))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 840\n");
             return args[1];
         }
 
@@ -846,7 +846,7 @@ namespace Js
 
         GlobalObject* globalObject = object->GetLibrary()->GetGlobalObject();
         if (globalObject != object && globalObject && (globalObject->ToThis() == object))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 848\n");
             globalObject->PreventExtensions();
         }
 
@@ -866,7 +866,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Object_Constructor_isSealed);
 
         if (args.Info.Count < 2 || !JavascriptOperators::IsObject(args[1]))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 868\n");
             return scriptContext->GetLibrary()->GetTrue();
         }
 
@@ -876,7 +876,7 @@ namespace Js
 
         GlobalObject* globalObject = object->GetLibrary()->GetGlobalObject();
         if (isSealed && globalObject != object && globalObject && (globalObject->ToThis() == object))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 878\n");
             isSealed = globalObject->IsSealed();
         }
 
@@ -894,7 +894,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Object_Constructor_isFrozen);
 
         if (args.Info.Count < 2 || !JavascriptOperators::IsObject(args[1]))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 896\n");
             return scriptContext->GetLibrary()->GetTrue();
         }
 
@@ -904,7 +904,7 @@ namespace Js
 
         GlobalObject* globalObject = object->GetLibrary()->GetGlobalObject();
         if (isFrozen && globalObject != object && globalObject && (globalObject->ToThis() == object))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 906\n");
             isFrozen = globalObject->IsFrozen();
         }
 
@@ -922,7 +922,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count < 2 || !JavascriptOperators::IsObject(args[1]))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 924\n");
             return scriptContext->GetLibrary()->GetFalse();
         }
 
@@ -931,7 +931,7 @@ namespace Js
 
         GlobalObject* globalObject = object->GetLibrary()->GetGlobalObject();
         if (isExtensible && globalObject != object && globalObject && (globalObject->ToThis() == object))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 933\n");
             isExtensible = globalObject->IsExtensible();
         }
 
@@ -952,10 +952,10 @@ namespace Js
         RecyclableObject *object = RecyclableObject::FromVar(JavascriptOperators::ToObject(tempVar, scriptContext));
 
         if (object->GetTypeId() == TypeIds_HostDispatch)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 954\n");
             Var result;
             if (object->InvokeBuiltInOperationRemotely(EntryGetOwnPropertyNames, args, &result))
-            {
+            {LOGMEIN("JavascriptObject.cpp] 957\n");
                 return result;
             }
         }
@@ -976,10 +976,10 @@ namespace Js
         RecyclableObject *object = RecyclableObject::FromVar(JavascriptOperators::ToObject(tempVar, scriptContext));
 
         if (object->GetTypeId() == TypeIds_HostDispatch)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 978\n");
             Var result;
             if (object->InvokeBuiltInOperationRemotely(EntryGetOwnPropertySymbols, args, &result))
-            {
+            {LOGMEIN("JavascriptObject.cpp] 981\n");
                 return result;
             }
         }
@@ -1001,10 +1001,10 @@ namespace Js
         RecyclableObject *object = RecyclableObject::FromVar(JavascriptOperators::ToObject(tempVar, scriptContext));
 
         if (object->GetTypeId() == TypeIds_HostDispatch)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1003\n");
             Var result;
             if (object->InvokeBuiltInOperationRemotely(EntryKeys, args, &result))
-            {
+            {LOGMEIN("JavascriptObject.cpp] 1006\n");
                 return result;
             }
         }
@@ -1012,7 +1012,7 @@ namespace Js
     }
 
     Var JavascriptObject::GetValuesOrEntries(RecyclableObject* object, bool valuesToReturn, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptObject.cpp] 1014\n");
         Assert(object != nullptr);
         Assert(scriptContext != nullptr);
         JavascriptArray* valuesArray = scriptContext->GetLibrary()->CreateArray(0);
@@ -1024,7 +1024,7 @@ namespace Js
         const PropertyRecord* propertyRecord = nullptr;
         PropertyId propertyId;
         for (uint32 i = 0, index = 0; i < length; i++)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1026\n");
             nextKey = ownKeysResult->DirectGetItem(i);
             Assert(JavascriptString::Is(nextKey));
 
@@ -1035,12 +1035,12 @@ namespace Js
             Assert(propertyId != Constants::NoProperty);
 
             if (JavascriptOperators::GetOwnPropertyDescriptor(object, propertyId, scriptContext, &propertyDescriptor))
-            {
+            {LOGMEIN("JavascriptObject.cpp] 1037\n");
                 if (propertyDescriptor.IsEnumerable())
-                {
+                {LOGMEIN("JavascriptObject.cpp] 1039\n");
                     Var value = JavascriptOperators::GetProperty(object, propertyId, scriptContext);
                     if (!valuesToReturn)
-                    {
+                    {LOGMEIN("JavascriptObject.cpp] 1042\n");
                         // For Object.entries each entry is key, value pair
                         JavascriptArray* entry = scriptContext->GetLibrary()->CreateArray(2);
                         entry->DirectSetItemAt(0, CrossSite::MarshalVar(scriptContext, nextKey));
@@ -1088,33 +1088,33 @@ namespace Js
     }
 
     JavascriptArray* JavascriptObject::CreateOwnSymbolPropertiesHelper(RecyclableObject* object, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptObject.cpp] 1090\n");
         return CreateKeysHelper(object, scriptContext, TRUE, true /*includeSymbolsOnly */, false, true /*includeSpecialProperties*/);
     }
 
     JavascriptArray* JavascriptObject::CreateOwnStringPropertiesHelper(RecyclableObject* object, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptObject.cpp] 1095\n");
         return CreateKeysHelper(object, scriptContext, TRUE, false, true /*includeStringsOnly*/, true /*includeSpecialProperties*/);
     }
 
     JavascriptArray* JavascriptObject::CreateOwnStringSymbolPropertiesHelper(RecyclableObject* object, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptObject.cpp] 1100\n");
         return CreateKeysHelper(object, scriptContext, TRUE, true/*includeSymbolsOnly*/, true /*includeStringsOnly*/, true /*includeSpecialProperties*/);
     }
 
     JavascriptArray* JavascriptObject::CreateOwnEnumerableStringPropertiesHelper(RecyclableObject* object, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptObject.cpp] 1105\n");
         return CreateKeysHelper(object, scriptContext, FALSE, false, true/*includeStringsOnly*/, false);
     }
 
     JavascriptArray* JavascriptObject::CreateOwnEnumerableStringSymbolPropertiesHelper(RecyclableObject* object, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptObject.cpp] 1110\n");
         return CreateKeysHelper(object, scriptContext, FALSE, true/*includeSymbolsOnly*/, true/*includeStringsOnly*/, false);
     }
 
     // 9.1.12 [[OwnPropertyKeys]] () in RC#4 dated April 3rd 2015.
     JavascriptArray* JavascriptObject::CreateKeysHelper(RecyclableObject* object, ScriptContext* scriptContext, BOOL includeNonEnumerable, bool includeSymbolProperties, bool includeStringProperties, bool includeSpecialProperties)
-    {
+    {LOGMEIN("JavascriptObject.cpp] 1116\n");
         //1. Let keys be a new empty List.
         //2. For each own property key P of O that is an integer index, in ascending numeric index order
         //      a. Add P as the last element of keys.
@@ -1130,15 +1130,15 @@ namespace Js
         JavascriptArray* newArrForSymbols = scriptContext->GetLibrary()->CreateArray(0);
         EnumeratorFlags flags = EnumeratorFlags::None;
         if (includeNonEnumerable)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1132\n");
             flags |= EnumeratorFlags::EnumNonEnumerable;
         }
         if (includeSymbolProperties)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1136\n");
             flags |= EnumeratorFlags::EnumSymbols;
         }
         if (!object->GetEnumerator(&enumerator, flags, scriptContext))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1140\n");
             return newArr;  // Return an empty array if we don't have an enumerator
         }
 
@@ -1151,15 +1151,15 @@ namespace Js
         JavascriptSymbol* symbol;
 
         while ((propertyName = enumerator.MoveAndGetNext(propertyId)) != NULL)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1153\n");
             if (!JavascriptOperators::IsUndefinedObject(propertyName, undefined)) //There are some code paths in which GetCurrentIndex can return undefined
-            {
+            {LOGMEIN("JavascriptObject.cpp] 1155\n");
                 if (includeSymbolProperties)
-                {
+                {LOGMEIN("JavascriptObject.cpp] 1157\n");
                     propertyRecord = scriptContext->GetPropertyName(propertyId);
 
                     if (propertyRecord->IsSymbol())
-                    {
+                    {LOGMEIN("JavascriptObject.cpp] 1161\n");
                         symbol = scriptContext->GetLibrary()->CreateSymbol(propertyRecord);
                         // no need to marshal symbol because it is created from scriptContext
                         newArrForSymbols->DirectSetItemAt(symbolIndex++, symbol);
@@ -1167,7 +1167,7 @@ namespace Js
                     }
                 }
                 if (includeStringProperties)
-                {
+                {LOGMEIN("JavascriptObject.cpp] 1169\n");
                     newArr->DirectSetItemAt(propertyIndex++, CrossSite::MarshalVar(scriptContext, propertyName));
                 }
             }
@@ -1175,12 +1175,12 @@ namespace Js
 
         // Special properties
         if (includeSpecialProperties && includeStringProperties)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1177\n");
             uint32 index = 0;
             while (object->GetSpecialPropertyName(index, &propertyName, scriptContext))
-            {
+            {LOGMEIN("JavascriptObject.cpp] 1180\n");
                 if (!JavascriptOperators::IsUndefinedObject(propertyName, undefined))
-                {
+                {LOGMEIN("JavascriptObject.cpp] 1182\n");
                     newArr->DirectSetItemAt(propertyIndex++, propertyName);
                 }
                 index++;
@@ -1190,7 +1190,7 @@ namespace Js
         // Append all the symbols at the end of list
         uint32 totalSymbols = newArrForSymbols->GetLength();
         for (uint32 symIndex = 0; symIndex < totalSymbols; symIndex++)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1192\n");
             newArr->DirectSetItemAt(propertyIndex++, newArrForSymbols->DirectGetItem(symIndex));
         }
 
@@ -1210,7 +1210,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count < 2 || !JavascriptOperators::IsObject(args[1]))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1212\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedObject, _u("Object.defineProperty"));
         }
 
@@ -1221,9 +1221,9 @@ namespace Js
 
         // If the object is HostDispatch try to invoke the operation remotely
         if (obj->GetTypeId() == TypeIds_HostDispatch)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1223\n");
             if (obj->InvokeBuiltInOperationRemotely(EntryDefineProperty, args, NULL))
-            {
+            {LOGMEIN("JavascriptObject.cpp] 1225\n");
                 return obj;
             }
         }
@@ -1235,7 +1235,7 @@ namespace Js
         Var descVar = args.Info.Count > 3 ? args[3] : obj->GetLibrary()->GetUndefined();
         PropertyDescriptor propertyDescriptor;
         if (!JavascriptOperators::ToPropertyDescriptor(descVar, &propertyDescriptor, scriptContext))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1237\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_PropertyDescriptor_Invalid, scriptContext->GetPropertyName(propertyRecord->GetPropertyId())->GetBuffer());
         }
 
@@ -1261,7 +1261,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count < 2 || !JavascriptOperators::IsObject(args[1]))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1263\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedObject, _u("Object.defineProperties"));
         }
 
@@ -1272,9 +1272,9 @@ namespace Js
 
         // If the object is HostDispatch try to invoke the operation remotely
         if (object->GetTypeId() == TypeIds_HostDispatch)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1274\n");
             if (object->InvokeBuiltInOperationRemotely(EntryDefineProperties, args, NULL))
-            {
+            {LOGMEIN("JavascriptObject.cpp] 1276\n");
                 return object;
             }
         }
@@ -1282,7 +1282,7 @@ namespace Js
         Var propertiesVar = args.Info.Count > 2 ? args[2] : object->GetLibrary()->GetUndefined();
         RecyclableObject* properties = nullptr;
         if (FALSE == JavascriptConversion::ToObject(propertiesVar, scriptContext, &properties))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1284\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NullOrUndefined, _u("Object.defineProperties"));
         }
 
@@ -1316,7 +1316,7 @@ namespace Js
         Var getterFunc = args.Info.Count > 2 ? args[2] : obj->GetLibrary()->GetUndefined();
 
         if (!JavascriptConversion::IsCallable(getterFunc))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1318\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedFunction, _u("Object.prototype.__defineGetter__"));
         }
 
@@ -1354,7 +1354,7 @@ namespace Js
         Var setterFunc = args.Info.Count > 2 ? args[2] : obj->GetLibrary()->GetUndefined();
 
         if (!JavascriptConversion::IsCallable(setterFunc))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1356\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedFunction, _u("Object.prototype.__defineSetter__"));
         }
 
@@ -1380,7 +1380,7 @@ namespace Js
 
         RecyclableObject* obj = nullptr;
         if (!JavascriptConversion::ToObject(args[0], scriptContext, &obj))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1382\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NullOrUndefined, _u("Object.prototype.__lookupGetter__"));
         }
 
@@ -1391,9 +1391,9 @@ namespace Js
         Var getter = nullptr;
         Var unused = nullptr;
         if (JavascriptOperators::GetAccessors(obj, propertyRecord->GetPropertyId(), scriptContext, &getter, &unused))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1393\n");
             if (getter != nullptr)
-            {
+            {LOGMEIN("JavascriptObject.cpp] 1395\n");
                 return getter;
             }
         }
@@ -1413,7 +1413,7 @@ namespace Js
 
         RecyclableObject* obj = nullptr;
         if (!JavascriptConversion::ToObject(args[0], scriptContext, &obj))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1415\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NullOrUndefined, _u("Object.prototype.__lookupSetter__"));
         }
 
@@ -1424,9 +1424,9 @@ namespace Js
         Var unused = nullptr;
         Var setter = nullptr;
         if (JavascriptOperators::GetAccessors(obj, propertyRecord->GetPropertyId(), scriptContext, &unused, &setter))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1426\n");
             if (setter != nullptr)
-            {
+            {LOGMEIN("JavascriptObject.cpp] 1428\n");
                 return setter;
             }
         }
@@ -1464,19 +1464,19 @@ namespace Js
         // 3  If only one argument was passed, return to.
         RecyclableObject* to = nullptr;
         if (args.Info.Count == 1 || !JavascriptConversion::ToObject(args[1], scriptContext, &to))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1466\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedObject, _u("Object.assign"));
         }
 
         if (args.Info.Count < 3)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1471\n");
             return to;
         }
 
         // 4. Let sources be the List of argument values starting with the second argument.
         // 5. For each element nextSource of sources, in ascending index order,
         for (unsigned int i = 2; i < args.Info.Count; i++)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1478\n");
             //      a. If nextSource is undefined or null, let keys be an empty List.
             //      b. Else,
             //          i.Let from be ToObject(nextSource).
@@ -1484,13 +1484,13 @@ namespace Js
             //          iii.Let keys be from.[[OwnPropertyKeys]]().
             //          iv.ReturnIfAbrupt(keys).
             if (JavascriptOperators::IsUndefinedOrNull(args[i]))
-            {
+            {LOGMEIN("JavascriptObject.cpp] 1486\n");
                 continue;
             }
 
             RecyclableObject* from = nullptr;
             if (!JavascriptConversion::ToObject(args[i], scriptContext, &from))
-            {
+            {LOGMEIN("JavascriptObject.cpp] 1492\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedObject, _u("Object.assign"));
             }
 
@@ -1515,10 +1515,10 @@ namespace Js
     }
 
     void JavascriptObject::AssignForGenericObjects(RecyclableObject* from, RecyclableObject* to, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptObject.cpp] 1517\n");
         JavascriptStaticEnumerator enumerator;
         if (!from->GetEnumerator(&enumerator, EnumeratorFlags::SnapShotSemantics | EnumeratorFlags::EnumSymbols, scriptContext))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1520\n");
             //nothing to enumerate, continue with the nextSource.
             return;
         }
@@ -1529,11 +1529,11 @@ namespace Js
 
         //enumerate through each property of properties and fetch the property descriptor
         while ((propertyVar = enumerator.MoveAndGetNext(nextKey)) != NULL)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1531\n");
             if (nextKey == Constants::NoProperty)
-            {
+            {LOGMEIN("JavascriptObject.cpp] 1533\n");
                 if (JavascriptOperators::IsUndefinedObject(propertyVar)) //There are some code paths in which GetCurrentIndex can return undefined
-                {
+                {LOGMEIN("JavascriptObject.cpp] 1535\n");
                     continue;
                 }
 
@@ -1545,19 +1545,19 @@ namespace Js
             }
 
             if (!JavascriptOperators::GetOwnProperty(from, nextKey, &propValue, scriptContext))
-            {
+            {LOGMEIN("JavascriptObject.cpp] 1547\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_Operand_Invalid_NeedObject, _u("Object.assign"));
             }
 
             if (!JavascriptOperators::SetProperty(to, to, nextKey, propValue, scriptContext, PropertyOperationFlags::PropertyOperation_ThrowIfNonWritable))
-            {
+            {LOGMEIN("JavascriptObject.cpp] 1552\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_Operand_Invalid_NeedObject, _u("Object.assign"));
             }
         }
     }
 
     void JavascriptObject::AssignForProxyObjects(RecyclableObject* from, RecyclableObject* to, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptObject.cpp] 1559\n");
          JavascriptArray *keys = JavascriptOperators::GetOwnEnumerablePropertyNamesSymbols(from, scriptContext);
 
         //      c. Repeat for each element nextKey of keys in List order,
@@ -1574,7 +1574,7 @@ namespace Js
         PropertyId propertyId;
         Var propValue = nullptr;
         for (uint32 j = 0; j < length; j++)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1576\n");
             PropertyDescriptor propertyDescriptor;
             nextKey = keys->DirectGetItem(j);
             AssertMsg(JavascriptSymbol::Is(nextKey) || JavascriptString::Is(nextKey), "Invariant check during ownKeys proxy trap should make sure we only get property key here. (symbol or string primitives)");
@@ -1583,15 +1583,15 @@ namespace Js
             propertyId = propertyRecord->GetPropertyId();
             AssertMsg(propertyId != Constants::NoProperty, "AssignForProxyObjects - OwnPropertyKeys returned a propertyId with value NoProperty.");
             if (JavascriptOperators::GetOwnPropertyDescriptor(from, propertyRecord->GetPropertyId(), scriptContext, &propertyDescriptor))
-            {
+            {LOGMEIN("JavascriptObject.cpp] 1585\n");
                 if (propertyDescriptor.IsEnumerable())
-                {
+                {LOGMEIN("JavascriptObject.cpp] 1587\n");
                     if (!JavascriptOperators::GetOwnProperty(from, propertyId, &propValue, scriptContext))
-                    {
+                    {LOGMEIN("JavascriptObject.cpp] 1589\n");
                         JavascriptError::ThrowTypeError(scriptContext, JSERR_Operand_Invalid_NeedObject, _u("Object.assign"));
                     }
                     if (!JavascriptOperators::SetProperty(to, to, propertyId, propValue, scriptContext))
-                    {
+                    {LOGMEIN("JavascriptObject.cpp] 1593\n");
                         JavascriptError::ThrowTypeError(scriptContext, JSERR_Operand_Invalid_NeedObject, _u("Object.assign"));
                     }
                 }
@@ -1614,13 +1614,13 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count < 2)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1616\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NotObjectOrNull, _u("Object.create"));
         }
 
         TypeId typeId = JavascriptOperators::GetTypeId(args[1]);
         if (typeId != TypeIds_Null && !JavascriptOperators::IsObjectType(typeId))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1622\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NotObjectOrNull, _u("Object.create"));
         }
 
@@ -1633,16 +1633,16 @@ namespace Js
         JS_ETW(EventWriteJSCRIPT_RECYCLER_ALLOCATE_OBJECT(object));
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         if (Js::Configuration::Global.flags.IsEnabled(Js::autoProxyFlag))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1635\n");
             object = DynamicObject::FromVar(JavascriptProxy::AutoProxyWrapper(object));
         }
 #endif
 
         if (args.Info.Count > 2 && JavascriptOperators::GetTypeId(args[2]) != TypeIds_Undefined)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1641\n");
             RecyclableObject* properties = nullptr;
             if (FALSE == JavascriptConversion::ToObject(args[2], scriptContext, &properties))
-            {
+            {LOGMEIN("JavascriptObject.cpp] 1644\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NullOrUndefined, _u("Object.create"));
             }
             return DefinePropertiesHelper(object, properties, scriptContext);
@@ -1651,9 +1651,9 @@ namespace Js
     }
 
     Var JavascriptObject::DefinePropertiesHelper(RecyclableObject *object, RecyclableObject* props, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptObject.cpp] 1653\n");
         if (JavascriptProxy::Is(props))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1655\n");
             return DefinePropertiesHelperForProxyObjects(object, props, scriptContext);
         }
         else
@@ -1664,7 +1664,7 @@ namespace Js
 
 
     Var JavascriptObject::DefinePropertiesHelperForGenericObjects(RecyclableObject *object, RecyclableObject* props, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptObject.cpp] 1666\n");
         size_t descSize = 16;
         size_t descCount = 0;
         struct DescriptorMap
@@ -1676,7 +1676,7 @@ namespace Js
 
         JavascriptStaticEnumerator enumerator;
         if (!props->GetEnumerator(&enumerator, EnumeratorFlags::EnumSymbols, scriptContext))
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1678\n");
             return object;
         }
 
@@ -1691,11 +1691,11 @@ namespace Js
 
         //enumerate through each property of properties and fetch the property descriptor
         while ((tempVar = enumerator.MoveAndGetNext(propId)) != NULL)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1693\n");
             if (propId == Constants::NoProperty) //try current property id query first
-            {
+            {LOGMEIN("JavascriptObject.cpp] 1695\n");
                 if (!JavascriptOperators::IsUndefinedObject(tempVar, undefined)) //There are some enumerators returning propertyName but not propId
-                {
+                {LOGMEIN("JavascriptObject.cpp] 1697\n");
                     propertyName = JavascriptString::FromVar(tempVar);
                     scriptContext->GetOrAddPropertyRecord(propertyName->GetString(), propertyName->GetLength(), &propertyRecord);
                     propId = propertyRecord->GetPropertyId();
@@ -1711,14 +1711,14 @@ namespace Js
             }
 
             if (descCount == descSize)
-            {
+            {LOGMEIN("JavascriptObject.cpp] 1713\n");
                 //reallocate - consider linked list of DescriptorMap if the descSize is too high
                 descSize = AllocSizeMath::Mul(descCount, 2);
                 __analysis_assume(descSize == descCount * 2);
                 DescriptorMap *temp = RecyclerNewArray(scriptContext->GetRecycler(), DescriptorMap, descSize);
 
                 for (size_t i = 0; i < descCount; i++)
-                {
+                {LOGMEIN("JavascriptObject.cpp] 1720\n");
                     temp[i] = descriptors[i];
                 }
                 descriptors = temp;
@@ -1728,7 +1728,7 @@ namespace Js
 
             AnalysisAssert(descCount < descSize);
             if (!JavascriptOperators::ToPropertyDescriptor(tempVar, &descriptors[descCount].descriptor, scriptContext))
-            {
+            {LOGMEIN("JavascriptObject.cpp] 1730\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_PropertyDescriptor_Invalid, scriptContext->GetPropertyName(propId)->GetBuffer());
             }
             // In proxy, we need to get back the original ToPropertDescriptor var in [[defineProperty]] trap.
@@ -1757,7 +1757,7 @@ namespace Js
 
     //ES5 15.2.3.7
     Var JavascriptObject::DefinePropertiesHelperForProxyObjects(RecyclableObject *object, RecyclableObject* props, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptObject.cpp] 1759\n");
         Assert(JavascriptProxy::Is(props));
 
         //1.  If Type(O) is not Object throw a TypeError exception.
@@ -1794,7 +1794,7 @@ namespace Js
         PropertyId propertyId;
         Var descObj;
         for (uint32 j = 0; j < length; j++)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1796\n");
             PropertyDescriptor propertyDescriptor;
             nextKey = keys->DirectGetItem(j);
             AssertMsg(JavascriptSymbol::Is(nextKey) || JavascriptString::Is(nextKey), "Invariant check during ownKeys proxy trap should make sure we only get property key here. (symbol or string primitives)");
@@ -1803,13 +1803,13 @@ namespace Js
             AssertMsg(propertyId != Constants::NoProperty, "DefinePropertiesHelper - OwnPropertyKeys returned a propertyId with value NoProperty.");
 
             if (JavascriptOperators::GetOwnPropertyDescriptor(props, propertyRecord->GetPropertyId(), scriptContext, &propertyDescriptor))
-            {
+            {LOGMEIN("JavascriptObject.cpp] 1805\n");
                 if (propertyDescriptor.IsEnumerable())
-                {
+                {LOGMEIN("JavascriptObject.cpp] 1807\n");
                     descObj = JavascriptOperators::GetProperty(props, propertyId, scriptContext);
 
                     if (!JavascriptOperators::ToPropertyDescriptor(descObj, &descriptors[descCount].descriptor, scriptContext))
-                    {
+                    {LOGMEIN("JavascriptObject.cpp] 1811\n");
                         JavascriptError::ThrowTypeError(scriptContext, JSERR_PropertyDescriptor_Invalid, scriptContext->GetPropertyName(propertyId)->GetBuffer());
                     }
 
@@ -1843,7 +1843,7 @@ namespace Js
     }
 
     Var JavascriptObject::GetPrototypeOf(RecyclableObject* obj, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptObject.cpp] 1845\n");
         return obj->IsExternal() ? obj->GetConfigurablePrototype(scriptContext) : obj->GetPrototype();
     }
 
@@ -1851,7 +1851,7 @@ namespace Js
     // Check if "proto" is a prototype of "object" (on its prototype chain).
     //
     bool JavascriptObject::IsPrototypeOf(RecyclableObject* proto, RecyclableObject* object, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptObject.cpp] 1853\n");
         return JavascriptOperators::MapObjectAndPrototypesUntil<false>(object, [=](RecyclableObject* obj)
         {
             return obj == proto;
@@ -1862,16 +1862,16 @@ namespace Js
 
     /*static*/
     char16 * JavascriptObject::ConstructName(const PropertyRecord * propertyRecord, const char16 * getOrSetStr, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptObject.cpp] 1864\n");
         Assert(propertyRecord);
         Assert(scriptContext);
         char16 * finalName = nullptr;
         size_t propertyLength = (size_t)propertyRecord->GetLength();
         if (propertyLength > 0)
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1870\n");
             size_t totalChars;
             if (SizeTAdd(propertyLength, ConstructNameGetSetLength, &totalChars) == S_OK)
-            {
+            {LOGMEIN("JavascriptObject.cpp] 1873\n");
                 finalName = RecyclerNewArrayLeaf(scriptContext->GetRecycler(), char16, totalChars);
                 Assert(finalName != nullptr);
                 const char16* propertyName = propertyRecord->GetBuffer();
@@ -1889,21 +1889,21 @@ namespace Js
 
     /*static*/
     void JavascriptObject::ModifyGetterSetterFuncName(const PropertyRecord * propertyRecord, const PropertyDescriptor& descriptor, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptObject.cpp] 1891\n");
         Assert(scriptContext);
         Assert(propertyRecord);
         if (descriptor.GetterSpecified() || descriptor.SetterSpecified())
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1895\n");
             charcount_t propertyLength = propertyRecord->GetLength();
 
             if (descriptor.GetterSpecified()
                 && Js::ScriptFunction::Is(descriptor.GetGetter())
                 && _wcsicmp(Js::ScriptFunction::FromVar(descriptor.GetGetter())->GetFunctionProxy()->GetDisplayName(), _u("get")) == 0)
-            {
+            {LOGMEIN("JavascriptObject.cpp] 1901\n");
                 // modify to name.get
                 const char16* finalName = ConstructName(propertyRecord, _u(".get"), scriptContext);
                 if (finalName != nullptr)
-                {
+                {LOGMEIN("JavascriptObject.cpp] 1905\n");
                     FunctionProxy::SetDisplayNameFlags flags = (FunctionProxy::SetDisplayNameFlags) (FunctionProxy::SetDisplayNameFlagsDontCopy | FunctionProxy::SetDisplayNameFlagsRecyclerAllocated);
 
                     Js::ScriptFunction::FromVar(descriptor.GetGetter())->GetFunctionProxy()->SetDisplayName(finalName,
@@ -1914,11 +1914,11 @@ namespace Js
             if (descriptor.SetterSpecified()
                 && Js::ScriptFunction::Is(descriptor.GetSetter())
                 && _wcsicmp(Js::ScriptFunction::FromVar(descriptor.GetSetter())->GetFunctionProxy()->GetDisplayName(), _u("set")) == 0)
-            {
+            {LOGMEIN("JavascriptObject.cpp] 1916\n");
                 // modify to name.set
                 const char16* finalName = ConstructName(propertyRecord, _u(".set"), scriptContext);
                 if (finalName != nullptr)
-                {
+                {LOGMEIN("JavascriptObject.cpp] 1920\n");
                     FunctionProxy::SetDisplayNameFlags flags = (FunctionProxy::SetDisplayNameFlags) (FunctionProxy::SetDisplayNameFlagsDontCopy | FunctionProxy::SetDisplayNameFlagsRecyclerAllocated);
 
                     Js::ScriptFunction::FromVar(descriptor.GetSetter())->GetFunctionProxy()->SetDisplayName(finalName,
@@ -1929,7 +1929,7 @@ namespace Js
     }
 
     BOOL JavascriptObject::DefineOwnPropertyHelper(RecyclableObject* obj, PropertyId propId, const PropertyDescriptor& descriptor, ScriptContext* scriptContext, bool throwOnError /* = true*/)
-    {
+    {LOGMEIN("JavascriptObject.cpp] 1931\n");
         BOOL returnValue;
         obj->ThrowIfCannotDefineProperty(propId, descriptor);
 
@@ -1939,9 +1939,9 @@ namespace Js
         // HostDispatch: it doesn't support changing property attributes and default attributes are not per ES5,
         // so there is no benefit in using ES5 DefineOwnPropertyDescriptor for it, use old implementation.
         if (TypeIds_HostDispatch != obj->GetTypeId())
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1941\n");
             if (DynamicObject::IsAnyArray(obj))
-            {
+            {LOGMEIN("JavascriptObject.cpp] 1943\n");
                 returnValue = JavascriptOperators::DefineOwnPropertyForArray(
                     JavascriptArray::FromAnyArray(obj), propId, descriptor, throwOnError, scriptContext);
             }
@@ -1949,7 +1949,7 @@ namespace Js
             {
                 returnValue = JavascriptOperators::DefineOwnPropertyDescriptor(obj, propId, descriptor, throwOnError, scriptContext);
                 if (propId == PropertyIds::__proto__)
-                {
+                {LOGMEIN("JavascriptObject.cpp] 1951\n");
                     scriptContext->GetLibrary()->GetObjectPrototypeObject()->PostDefineOwnProperty__proto__(obj);
                 }
             }
@@ -1960,14 +1960,14 @@ namespace Js
         }
 
         if (propId == PropertyIds::_symbolSpecies && obj == scriptContext->GetLibrary()->GetArrayConstructor())
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1962\n");
             scriptContext->GetLibrary()->SetArrayObjectHasUserDefinedSpecies(true);
         }
 
         if (obj->IsWritableDataOnlyDetectionBitSet())
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1967\n");
             if (obj->GetType() == oldType)
-            {
+            {LOGMEIN("JavascriptObject.cpp] 1969\n");
                 // Also, if the object's type has not changed, we need to ensure that
                 // the cached property string for this property, if any, does not
                 // specify this object's type.
@@ -1976,7 +1976,7 @@ namespace Js
         }
 
         if (descriptor.IsAccessorDescriptor())
-        {
+        {LOGMEIN("JavascriptObject.cpp] 1978\n");
             scriptContext->optimizationOverrides.SetSideEffects(Js::SideEffects_Accessor);
         }
         return returnValue;

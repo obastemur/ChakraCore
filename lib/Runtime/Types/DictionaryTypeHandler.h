@@ -49,7 +49,7 @@ namespace Js
         // Create a new type handler for a future DynamicObject. This is for public usage. "initialCapacity" indicates desired slotCapacity, subject to alignment round up.
         template <typename SubClassType>
         static SubClassType* NewTypeHandler(Recycler * recycler, int initialCapacity, uint16 inlineSlotCapacity, uint16 offsetOfInlineSlots)
-        {
+        {LOGMEIN("DictionaryTypeHandler.h] 51\n");
             PropertyIndexRangesType::VerifySlotCapacity(initialCapacity);
             return RecyclerNew(recycler, SubClassType, recycler, initialCapacity, inlineSlotCapacity, offsetOfInlineSlots);
         }
@@ -102,7 +102,7 @@ namespace Js
         virtual DescriptorFlags GetRootSetter(DynamicObject* instance, PropertyId propertyId, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext) override;
         virtual BOOL DeleteRootProperty(DynamicObject* instance, PropertyId propertyId, PropertyOperationFlags flags) override;
 
-        virtual BOOL IsDictionaryTypeHandler() const {return TRUE;}
+        virtual BOOL IsDictionaryTypeHandler() const {LOGMEIN("DictionaryTypeHandler.h] 104\n");return TRUE;}
 #if DBG
         virtual bool IsLetConstGlobal(DynamicObject* instance, PropertyId propertyId) override;
 #endif
@@ -137,7 +137,7 @@ namespace Js
         virtual void SetIsPrototype(DynamicObject* instance) override;
 
 #if DBG
-        virtual bool SupportsPrototypeInstances() const { return true; }
+        virtual bool SupportsPrototypeInstances() const {LOGMEIN("DictionaryTypeHandler.h] 139\n"); return true; }
 #endif
 
         virtual bool HasSingletonInstance() const override sealed;
@@ -191,7 +191,7 @@ namespace Js
 
 #if DBG
         bool HasSingletonInstanceOnlyIfNeeded() const
-        {
+        {LOGMEIN("DictionaryTypeHandler.h] 193\n");
             return AreSingletonInstancesNeeded() || this->singletonInstance == nullptr;
         }
 #endif
@@ -203,7 +203,7 @@ namespace Js
         void InvalidateFixedField(DynamicObject* instance, TPropertyKey propertyKey, DictionaryPropertyDescriptor<T>* descriptor);
 
     private:
-        void SetNumDeletedProperties(const byte n) {}
+        void SetNumDeletedProperties(const byte n) {LOGMEIN("DictionaryTypeHandler.h] 205\n");}
 
         void Add(const PropertyRecord* propertyId, PropertyAttributes attributes, ScriptContext *const scriptContext);
         void Add(const PropertyRecord* propertyId, PropertyAttributes attributes, bool isInitialized, bool isFixed, bool usedAsFixed, ScriptContext *const scriptContext);

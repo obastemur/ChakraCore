@@ -7,7 +7,7 @@
 #if ENABLE_TTD
 
 void TTDAbort_fatal_error(const char* msg)
-{
+{LOGMEIN("TTSupport.cpp] 9\n");
     printf("TTD assert failed: %s\n", msg);
 
     int scenario = 101;
@@ -18,7 +18,7 @@ namespace TTD
 {
     TTModeStack::TTModeStack()
         : m_stackEntries(nullptr), m_stackTop(0), m_stackMax(16)
-    {
+    {LOGMEIN("TTSupport.cpp] 20\n");
         this->m_stackEntries = TT_HEAP_ALLOC_ARRAY_ZERO(TTDMode, 16);
     }
 
@@ -28,28 +28,28 @@ namespace TTD
     }
 
     uint32 TTModeStack::Count() const
-    {
+    {LOGMEIN("TTSupport.cpp] 30\n");
         return this->m_stackTop;
     }
 
     TTDMode TTModeStack::GetAt(uint32 index) const
-    {
+    {LOGMEIN("TTSupport.cpp] 35\n");
         TTDAssert(index < this->m_stackTop, "index is out of range");
 
         return this->m_stackEntries[index];
     }
 
     void TTModeStack::SetAt(uint32 index, TTDMode m)
-    {
+    {LOGMEIN("TTSupport.cpp] 42\n");
         TTDAssert(index < this->m_stackTop, "index is out of range");
 
         this->m_stackEntries[index] = m;
     }
 
     void TTModeStack::Push(TTDMode m)
-    {
+    {LOGMEIN("TTSupport.cpp] 49\n");
         if(this->m_stackTop == this->m_stackMax)
-        {
+        {LOGMEIN("TTSupport.cpp] 51\n");
             uint32 newMax = this->m_stackMax + 16;
             TTDMode* newStack = TT_HEAP_ALLOC_ARRAY_ZERO(TTDMode, newMax);
             js_memcpy_s(newStack, newMax * sizeof(TTDMode), this->m_stackEntries, this->m_stackMax * sizeof(TTDMode));
@@ -65,14 +65,14 @@ namespace TTD
     }
 
     TTDMode TTModeStack::Peek() const
-    {
+    {LOGMEIN("TTSupport.cpp] 67\n");
         TTDAssert(this->m_stackTop > 0, "Undeflow in stack pop.");
 
         return this->m_stackEntries[this->m_stackTop - 1];
     }
 
     void TTModeStack::Pop()
-    {
+    {LOGMEIN("TTSupport.cpp] 74\n");
         TTDAssert(this->m_stackTop > 0, "Undeflow in stack pop.");
 
         this->m_stackTop--;
@@ -82,13 +82,13 @@ namespace TTD
     {
         TTAutoString::TTAutoString()
             : m_allocSize(-1), m_contents(nullptr), m_optFormatBuff(nullptr)
-        {
+        {LOGMEIN("TTSupport.cpp] 84\n");
             ;
         }
 
         TTAutoString::TTAutoString(const char16* str)
             : m_allocSize(-1), m_contents(nullptr), m_optFormatBuff(nullptr)
-        {
+        {LOGMEIN("TTSupport.cpp] 90\n");
             size_t clen = wcslen(str) + 1;
 
             this->m_contents = TT_HEAP_ALLOC_ARRAY_ZERO(char16, clen);
@@ -99,14 +99,14 @@ namespace TTD
 
         TTAutoString::TTAutoString(const TTAutoString& str)
             : m_allocSize(-1), m_contents(nullptr), m_optFormatBuff(nullptr)
-        {
+        {LOGMEIN("TTSupport.cpp] 101\n");
             this->Append(str.m_contents);
         }
 
         TTAutoString& TTAutoString::operator=(const TTAutoString& str)
-        {
+        {LOGMEIN("TTSupport.cpp] 106\n");
             if(this != &str)
-            {
+            {LOGMEIN("TTSupport.cpp] 108\n");
                 this->Clear();
 
                 this->Append(str.GetStrValue());
@@ -116,12 +116,12 @@ namespace TTD
         }
 
         TTAutoString::~TTAutoString()
-        {
+        {LOGMEIN("TTSupport.cpp] 118\n");
             this->Clear();
         }
 
         void TTAutoString::Clear()
-        {
+        {LOGMEIN("TTSupport.cpp] 123\n");
             if(this->m_contents != nullptr)
             {
                 TT_HEAP_FREE_ARRAY(char16, this->m_contents, (size_t)this->m_allocSize);
@@ -137,23 +137,23 @@ namespace TTD
         }
 
         bool TTAutoString::IsNullString() const
-        {
+        {LOGMEIN("TTSupport.cpp] 139\n");
             return this->m_contents == nullptr;
         }
 
         void TTAutoString::Append(const char16* str, size_t start, size_t end)
-        {
+        {LOGMEIN("TTSupport.cpp] 144\n");
             Assert(end > start);
 
             if(this->m_contents == nullptr && str == nullptr)
-            {
+            {LOGMEIN("TTSupport.cpp] 148\n");
                 return;
             }
 
             size_t origsize = (this->m_contents != nullptr ? wcslen(this->m_contents) : 0);
             size_t strsize = 0;
             if(start == 0 && end == SIZE_T_MAX)
-            {
+            {LOGMEIN("TTSupport.cpp] 155\n");
                 strsize = (str != nullptr ? wcslen(str) : 0);
             }
             else
@@ -174,10 +174,10 @@ namespace TTD
             }
 
             if(str != nullptr)
-            {
+            {LOGMEIN("TTSupport.cpp] 176\n");
                 size_t curr = origsize;
                 for(size_t i = start; i <= end && str[i] != '\0'; ++i)
-                {
+                {LOGMEIN("TTSupport.cpp] 179\n");
                     nbuff[curr] = str[i];
                     curr++;
                 }
@@ -189,14 +189,14 @@ namespace TTD
         }
 
         void TTAutoString::Append(const TTAutoString& str, size_t start, size_t end)
-        {
+        {LOGMEIN("TTSupport.cpp] 191\n");
             this->Append(str.GetStrValue(), start, end);
         }
 
         void TTAutoString::Append(uint64 val)
-        {
+        {LOGMEIN("TTSupport.cpp] 196\n");
             if(this->m_optFormatBuff == nullptr)
-            {
+            {LOGMEIN("TTSupport.cpp] 198\n");
                 this->m_optFormatBuff = TT_HEAP_ALLOC_ARRAY_ZERO(char16, 64);
             }
 
@@ -206,14 +206,14 @@ namespace TTD
         }
 
         void TTAutoString::Append(LPCUTF8 strBegin, LPCUTF8 strEnd)
-        {
+        {LOGMEIN("TTSupport.cpp] 208\n");
             int32 strCount = (int32)((strEnd - strBegin) + 1);
             char16* buff = TT_HEAP_ALLOC_ARRAY_ZERO(char16, (size_t)strCount);
 
             LPCUTF8 curr = strBegin;
             int32 i = 0;
             while(curr != strEnd)
-            {
+            {LOGMEIN("TTSupport.cpp] 215\n");
                 buff[i] = (char16)*curr;
                 i++;
                 curr++;
@@ -227,14 +227,14 @@ namespace TTD
         }
 
         int32 TTAutoString::GetLength() const
-        {
+        {LOGMEIN("TTSupport.cpp] 229\n");
             TTDAssert(!this->IsNullString(), "That doesn't make sense.");
 
             return (int32)wcslen(this->m_contents);
         }
 
         char16 TTAutoString::GetCharAt(int32 pos) const
-        {
+        {LOGMEIN("TTSupport.cpp] 236\n");
             TTDAssert(!this->IsNullString(), "That doesn't make sense.");
             TTDAssert(0 <= pos && pos < this->GetLength(), "Not in valid range.");
 
@@ -242,7 +242,7 @@ namespace TTD
         }
 
         const char16* TTAutoString::GetStrValue() const
-        {
+        {LOGMEIN("TTSupport.cpp] 244\n");
             return this->m_contents;
         }
     }
@@ -276,33 +276,33 @@ namespace TTD
     //////////////////
 
     void InitializeAsNullPtrTTString(TTString& str)
-    {
+    {LOGMEIN("TTSupport.cpp] 278\n");
         str.Length = 0;
         str.Contents = nullptr;
     }
 
     bool IsNullPtrTTString(const TTString& str)
-    {
+    {LOGMEIN("TTSupport.cpp] 284\n");
         return str.Contents == nullptr;
     }
 
 #if ENABLE_TTD_INTERNAL_DIAGNOSTICS
     bool TTStringEQForDiagnostics(const TTString& str1, const TTString& str2)
-    {
+    {LOGMEIN("TTSupport.cpp] 290\n");
         if(IsNullPtrTTString(str1) || IsNullPtrTTString(str2))
-        {
+        {LOGMEIN("TTSupport.cpp] 292\n");
             return IsNullPtrTTString(str1) && IsNullPtrTTString(str2);
         }
 
         if(str1.Length != str2.Length)
-        {
+        {LOGMEIN("TTSupport.cpp] 297\n");
             return false;
         }
 
         for(uint32 i = 0; i < str1.Length; ++i)
-        {
+        {LOGMEIN("TTSupport.cpp] 302\n");
             if(str1.Contents[i] != str2.Contents[i])
-            {
+            {LOGMEIN("TTSupport.cpp] 304\n");
                 return false;
             }
         }
@@ -315,7 +315,7 @@ namespace TTD
 
     MarkTable::MarkTable()
         : m_capcity(TTD_MARK_TABLE_INIT_SIZE), m_h2Prime(TTD_MARK_TABLE_INIT_H2PRIME), m_count(0), m_iterPos(0)
-    {
+    {LOGMEIN("TTSupport.cpp] 317\n");
         this->m_addrArray = TT_HEAP_ALLOC_ARRAY_ZERO(uint64, this->m_capcity);
         this->m_markArray = TT_HEAP_ALLOC_ARRAY_ZERO(MarkTableTag, this->m_capcity);
 
@@ -329,9 +329,9 @@ namespace TTD
     }
 
     void MarkTable::Clear()
-    {
+    {LOGMEIN("TTSupport.cpp] 331\n");
         if(this->m_capcity == TTD_MARK_TABLE_INIT_SIZE)
-        {
+        {LOGMEIN("TTSupport.cpp] 333\n");
             memset(this->m_addrArray, 0, TTD_MARK_TABLE_INIT_SIZE * sizeof(uint64));
             memset(this->m_markArray, 0, TTD_MARK_TABLE_INIT_SIZE * sizeof(MarkTableTag));
         }

@@ -39,6 +39,6 @@ namespace Js
         static Var EntryNext(RecyclableObject* function, CallInfo callInfo, ...);
 
     public:
-        Var GetIteratorObjectForHeapEnum() { return m_iterableObject; }
+        Var GetIteratorObjectForHeapEnum() {LOGMEIN("JavascriptArrayIterator.h] 41\n"); return m_iterableObject; }
     };
 } // namespace Js

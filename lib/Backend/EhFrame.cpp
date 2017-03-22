@@ -47,20 +47,20 @@ static const ubyte DWARF_RegNum[] =
 static const ubyte DWARF_RegRA = 16;
 
 ubyte GetDwarfRegNum(ubyte regNum)
-{
+{LOGMEIN("EhFrame.cpp] 49\n");
     return DWARF_RegNum[regNum];
 }
 
 // Encode into ULEB128 (Unsigned Little Endian Base 128)
 BYTE* EmitLEB128(BYTE* pc, unsigned value)
-{
+{LOGMEIN("EhFrame.cpp] 55\n");
     do
-    {
+    {LOGMEIN("EhFrame.cpp] 57\n");
         BYTE b = value & 0x7F; // low order 7 bits
         value >>= 7;
 
         if (value)  // more bytes to come
-        {
+        {LOGMEIN("EhFrame.cpp] 62\n");
             b |= 0x80;
         }
 
@@ -73,7 +73,7 @@ BYTE* EmitLEB128(BYTE* pc, unsigned value)
 
 // Encode into signed LEB128 (Signed Little Endian Base 128)
 BYTE* EmitLEB128(BYTE* pc, int value)
-{
+{LOGMEIN("EhFrame.cpp] 75\n");
     static const int size = sizeof(value) * 8;
     static const bool isLogicShift = (-1 >> 1) != -1;
 
@@ -81,18 +81,18 @@ BYTE* EmitLEB128(BYTE* pc, int value)
 
     bool more = true;
     while (more)
-    {
+    {LOGMEIN("EhFrame.cpp] 83\n");
         BYTE b = value & 0x7F; // low order 7 bits
         value >>= 7;
 
         if (signExtend)
-        {
+        {LOGMEIN("EhFrame.cpp] 88\n");
             value |= - (1 << (size - 7)); // sign extend
         }
 
         const bool signBit = (b & 0x40) != 0;
         if ((value == 0 && !signBit) || (value == -1 && signBit))
-        {
+        {LOGMEIN("EhFrame.cpp] 94\n");
             more = false;
         }
         else
@@ -108,7 +108,7 @@ BYTE* EmitLEB128(BYTE* pc, int value)
 
 
 void EhFrame::Entry::Begin()
-{
+{LOGMEIN("EhFrame.cpp] 110\n");
     Assert(beginOffset == -1);
     beginOffset = writer->Count();
 
@@ -118,13 +118,13 @@ void EhFrame::Entry::Begin()
 }
 
 void EhFrame::Entry::End()
-{
+{LOGMEIN("EhFrame.cpp] 120\n");
     Assert(beginOffset != -1); // Must have called Begin()
 
     // padding
     size_t padding = (MachPtr - writer->Count() % MachPtr) % MachPtr;
     for (size_t i = 0; i < padding; i++)
-    {
+    {LOGMEIN("EhFrame.cpp] 126\n");
         cfi_nop();
     }
 
@@ -135,17 +135,17 @@ void EhFrame::Entry::End()
 }
 
 void EhFrame::Entry::cfi_advance(uword advance)
-{
+{LOGMEIN("EhFrame.cpp] 137\n");
     if (advance <= 0x3F)        // 6-bits
-    {
+    {LOGMEIN("EhFrame.cpp] 139\n");
         cfi_advance_loc(static_cast<ubyte>(advance));
     }
     else if (advance <= 0xFF)   // 1-byte
-    {
+    {LOGMEIN("EhFrame.cpp] 143\n");
         cfi_advance_loc1(static_cast<ubyte>(advance));
     }
     else if (advance <= 0xFFFF) // 2-byte
-    {
+    {LOGMEIN("EhFrame.cpp] 147\n");
         cfi_advance_loc2(static_cast<uword>(advance));
     }
     else                        // 4-byte
@@ -155,7 +155,7 @@ void EhFrame::Entry::cfi_advance(uword advance)
 }
 
 void EhFrame::CIE::Begin()
-{
+{LOGMEIN("EhFrame.cpp] 157\n");
     Assert(writer->Count() == 0);
     Entry::Begin();
 
@@ -180,7 +180,7 @@ void EhFrame::CIE::Begin()
 
 
 void EhFrame::FDE::Begin()
-{
+{LOGMEIN("EhFrame.cpp] 182\n");
     Entry::Begin();
 
     const uword cie_id = writer->Count();
@@ -194,7 +194,7 @@ void EhFrame::FDE::Begin()
 }
 
 void EhFrame::FDE::UpdateAddressRange(const void* pcBegin, size_t pcRange)
-{
+{LOGMEIN("EhFrame.cpp] 196\n");
     writer->Write(pcBeginOffset, pcBegin);
     writer->Write(pcBeginOffset + sizeof(pcBegin),
         reinterpret_cast<const void*>(pcRange));
@@ -203,7 +203,7 @@ void EhFrame::FDE::UpdateAddressRange(const void* pcBegin, size_t pcRange)
 
 EhFrame::EhFrame(BYTE* buffer, size_t size)
         : writer(buffer, size), fde(&writer)
-{
+{LOGMEIN("EhFrame.cpp] 205\n");
     CIE cie(&writer);
     cie.Begin();
 
@@ -219,7 +219,7 @@ EhFrame::EhFrame(BYTE* buffer, size_t size)
 }
 
 void EhFrame::End()
-{
+{LOGMEIN("EhFrame.cpp] 221\n");
     fde.End();
 
     // Write length 0 to mark terminate entry

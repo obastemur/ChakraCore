@@ -79,14 +79,14 @@ static const int BackendOpCodeAttributes[] =
 };
 
 static const int GetOpCodeAttributes(Js::OpCode op)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 81\n");
     if (op <= Js::OpCode::MaxByteSizedOpcodes)
-    {
+    {LOGMEIN("BackendOpCodeAttr.cpp] 83\n");
         AnalysisAssert(op < _countof(OpcodeAttributes));
         return OpcodeAttributes[(int)op];
     }
     else if (op < Js::OpCode::ByteCodeLast)
-    {
+    {LOGMEIN("BackendOpCodeAttr.cpp] 88\n");
         uint opIndex = op - (Js::OpCode::MaxByteSizedOpcodes + 1);
         AnalysisAssert(opIndex < _countof(ExtendedOpcodeAttributes));
         return ExtendedOpcodeAttributes[opIndex];
@@ -97,139 +97,139 @@ static const int GetOpCodeAttributes(Js::OpCode op)
 }
 
 bool HasSideEffects(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 99\n");
     return ((GetOpCodeAttributes(opcode) & OpSideEffect) != 0);
 };
 bool CanCSE(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 103\n");
     Assert(((GetOpCodeAttributes(opcode) & OpCanCSE) == 0) || ((GetOpCodeAttributes(opcode) & OpSideEffect) == 0));
     return ((GetOpCodeAttributes(opcode) & OpCanCSE) != 0);
 };
 bool UseAllFields(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 108\n");
     return ((GetOpCodeAttributes(opcode) & OpUseAllFields) != 0);
 }
 bool NonTempNumberSources(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 112\n");
     return ((GetOpCodeAttributes(opcode) & OpTempNumberSources) == 0);
 }
 bool TempNumberSources(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 116\n");
     return ((GetOpCodeAttributes(opcode) & OpTempNumberSources) != 0);
 }
 bool TempNumberProducing(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 120\n");
     return ((GetOpCodeAttributes(opcode) & OpTempNumberProducing) != 0);
 }
 bool TempNumberTransfer(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 124\n");
     return ((GetOpCodeAttributes(opcode) & OpTempNumberTransfer) == OpTempNumberTransfer);
 }
 
 bool TempObjectSources(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 129\n");
     return ((GetOpCodeAttributes(opcode) & OpTempObjectSources) != 0);
 }
 bool TempObjectProducing(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 133\n");
     return ((GetOpCodeAttributes(opcode) & OpTempObjectProducing) != 0);
 }
 bool TempObjectTransfer(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 137\n");
     return ((GetOpCodeAttributes(opcode) & OpTempObjectTransfer) == OpTempObjectTransfer);
 }
 bool TempObjectCanStoreTemp(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 141\n");
     return ((GetOpCodeAttributes(opcode) & OpTempObjectCanStoreTemp) == OpTempObjectCanStoreTemp);
 }
 bool CallInstr(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 145\n");
     return ((GetOpCodeAttributes(opcode) & OpCallInstr) != 0);
 }
 bool InlineCallInstr(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 149\n");
     return ((GetOpCodeAttributes(opcode) & OpInlineCallInstr) != 0);
 }
 bool OpndHasImplicitCall(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 153\n");
     return ((GetOpCodeAttributes(opcode) & OpOpndHasImplicitCall) != 0);
 }
 bool FastFldInstr(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 157\n");
     return ((GetOpCodeAttributes(opcode) & OpFastFldInstr) != 0);
 }
 bool BailOutRec(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 161\n");
     return ((GetOpCodeAttributes(opcode) & OpBailOutRec) != 0);
 }
 bool ByteCodeOnly(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 165\n");
     return ((GetOpCodeAttributes(opcode) & OpByteCodeOnly) != 0);
 }
 bool BackEndOnly(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 169\n");
     return ((GetOpCodeAttributes(opcode) & OpBackEndOnly) != 0);
 }
 bool DoNotTransfer(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 173\n");
     return ((GetOpCodeAttributes(opcode) & OpDoNotTransfer) != 0);
 }
 bool HasImplicitCall(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 177\n");
     return ((GetOpCodeAttributes(opcode) & OpHasImplicitCall) != 0);
 }
 bool IsProfiledOp(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 181\n");
     return ((GetOpCodeAttributes(opcode) & OpProfiled) != 0);
 }
 bool IsProfiledOpWithICIndex(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 185\n");
     return ((GetOpCodeAttributes(opcode) & OpProfiledWithICIndex) != 0);
 }
 bool IsInlineBuiltIn(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 189\n");
     return ((GetOpCodeAttributes(opcode) & OpInlinableBuiltIn) != 0);
 }
 bool NonIntTransfer(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 193\n");
     return ((GetOpCodeAttributes(opcode) & OpNonIntTransfer) != 0);
 }
 bool IsInt32(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 197\n");
     return ((GetOpCodeAttributes(opcode) & OpIsInt32) != 0);
 }
 bool ProducesNumber(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 201\n");
     return ((GetOpCodeAttributes(opcode) & OpProducesNumber) != 0);
 }
 bool HasFallThrough(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 205\n");
     return ((GetOpCodeAttributes(opcode) & OpNoFallThrough) == 0);
 }
 bool NeedsPostOpDbgBailOut(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 209\n");
     return ((GetOpCodeAttributes(opcode) & OpPostOpDbgBailOut) != 0);
 }
 
 bool HasMultiSizeLayout(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 214\n");
     return ((GetOpCodeAttributes(opcode) & OpHasMultiSizeLayout) != 0);
 }
 
 bool HasProfiledOp(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 219\n");
     return ((GetOpCodeAttributes(opcode) & OpHasProfiled) != 0);
 }
 bool HasProfiledOpWithICIndex(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 223\n");
     return ((GetOpCodeAttributes(opcode) & OpHasProfiledWithICIndex) != 0);
 }
 bool HasDeadFallThrough(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 227\n");
     return ((GetOpCodeAttributes(opcode) & OpDeadFallThrough) != 0);
 }
 bool CanLoadFixedFields(Js::OpCode opcode)
-{
+{LOGMEIN("BackendOpCodeAttr.cpp] 231\n");
     return ((GetOpCodeAttributes(opcode) & OpCanLoadFixedFields) != 0);
 }
 

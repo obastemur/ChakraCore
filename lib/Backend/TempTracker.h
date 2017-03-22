@@ -9,7 +9,7 @@ class TempTrackerBase
 {
 public:
 #if DBG
-    bool HasTempTransferDependencies() const { return tempTransferDependencies != nullptr; }
+    bool HasTempTransferDependencies() const {LOGMEIN("TempTracker.h] 11\n"); return tempTransferDependencies != nullptr; }
 #endif
 protected:
     TempTrackerBase(JitArenaAllocator * alloc, bool inLoop);
@@ -48,7 +48,7 @@ public:
     void MarkTemp(StackSym * sym, BackwardPass * backwardPass);
 
 #if DBG
-    void Dump() { __super::Dump(T::GetTraceName()); }
+    void Dump() {LOGMEIN("TempTracker.h] 50\n"); __super::Dump(T::GetTraceName()); }
 #endif
 };
 
@@ -82,12 +82,12 @@ protected:
 
     bool IsTempIndirTransferLoad(IR::Instr * instr, BackwardPass * backwardPass);
 
-    bool IsInLoop() const { return propertyIdsTempTransferDependencies != nullptr; }
+    bool IsInLoop() const {LOGMEIN("TempTracker.h] 84\n"); return propertyIdsTempTransferDependencies != nullptr; }
     bool DoMarkTempNumbersOnTempObjects(BackwardPass * backwardPass) const;
 
 #if DBG_DUMP
     static bool DoTrace(BackwardPass * backwardPass);
-    static char16 const * GetTraceName() { return _u("MarkTempNumber"); }
+    static char16 const * GetTraceName() {LOGMEIN("TempTracker.h] 89\n"); return _u("MarkTempNumber"); }
     void Dump(char16 const * traceName);
 #endif
 
@@ -119,7 +119,7 @@ public:
     static StackSym * GetStackSym(IR::Opnd * opnd, IR::PropertySymOpnd ** pPropertySymOpnd);
 protected:
     // Place holder functions, only implemented for ObjectTempVerify
-    ObjectTemp(JitArenaAllocator * alloc, bool inLoop) : TempTrackerBase(alloc, inLoop) { /* Do nothing */ }
+    ObjectTemp(JitArenaAllocator * alloc, bool inLoop) : TempTrackerBase(alloc, inLoop) {LOGMEIN("TempTracker.h] 121\n"); /* Do nothing */ }
 
     // Function used by the TempTracker
     static bool IsTempUse(IR::Instr * instr, Sym * sym, BackwardPass * backwardPass);
@@ -130,15 +130,15 @@ protected:
 
     // Object tracker doesn't support property transfer
     // (So we don't stack allocate object if it is assigned to another stack allocated object)
-    bool IsTempPropertyTransferLoad(IR::Instr * instr, BackwardPass * backwardPass) { return false; }
-    bool IsTempPropertyTransferStore(IR::Instr * instr, BackwardPass * backwardPass) { return false; }
-    void PropagateTempPropertyTransferStoreDependencies(SymID usedSymID, PropertySym * propertySym, BackwardPass * backwardPass) { Assert(false); }
-    bool IsTempIndirTransferLoad(IR::Instr * instr, BackwardPass * backwardPass) { return false; }
-    bool HasExposedFieldDependencies(BVSparse<JitArenaAllocator> * bvTempTransferDependencies, BackwardPass * backwardPass) { return false; }
+    bool IsTempPropertyTransferLoad(IR::Instr * instr, BackwardPass * backwardPass) {LOGMEIN("TempTracker.h] 132\n"); return false; }
+    bool IsTempPropertyTransferStore(IR::Instr * instr, BackwardPass * backwardPass) {LOGMEIN("TempTracker.h] 133\n"); return false; }
+    void PropagateTempPropertyTransferStoreDependencies(SymID usedSymID, PropertySym * propertySym, BackwardPass * backwardPass) {LOGMEIN("TempTracker.h] 134\n"); Assert(false); }
+    bool IsTempIndirTransferLoad(IR::Instr * instr, BackwardPass * backwardPass) {LOGMEIN("TempTracker.h] 135\n"); return false; }
+    bool HasExposedFieldDependencies(BVSparse<JitArenaAllocator> * bvTempTransferDependencies, BackwardPass * backwardPass) {LOGMEIN("TempTracker.h] 136\n"); return false; }
 
 #if DBG_DUMP
     static bool DoTrace(BackwardPass * backwardPass);
-    static char16 const * GetTraceName() { return _u("MarkTempObject"); }
+    static char16 const * GetTraceName() {LOGMEIN("TempTracker.h] 140\n"); return _u("MarkTempObject"); }
 #endif
 private:
     static bool IsTempProducing(IR::Instr * instr);
@@ -177,20 +177,20 @@ protected:
 
     // Object tracker doesn't support property transfer
     // (So we don't stack allocate object if it is assigned to another stack allocated object)
-    bool IsTempPropertyTransferLoad(IR::Instr * instr, BackwardPass * backwardPass) { return false; }
-    bool IsTempPropertyTransferStore(IR::Instr * instr, BackwardPass * backwardPass) { return false; }
-    void PropagateTempPropertyTransferStoreDependencies(SymID usedSymID, PropertySym * propertySym, BackwardPass * backwardPass)  { Assert(false); }
-    bool IsTempIndirTransferLoad(IR::Instr * instr, BackwardPass * backwardPass) { return false; }
-    bool HasExposedFieldDependencies(BVSparse<JitArenaAllocator> * bvTempTransferDependencies, BackwardPass * backwardPass) { return false; }
+    bool IsTempPropertyTransferLoad(IR::Instr * instr, BackwardPass * backwardPass) {LOGMEIN("TempTracker.h] 179\n"); return false; }
+    bool IsTempPropertyTransferStore(IR::Instr * instr, BackwardPass * backwardPass) {LOGMEIN("TempTracker.h] 180\n"); return false; }
+    void PropagateTempPropertyTransferStoreDependencies(SymID usedSymID, PropertySym * propertySym, BackwardPass * backwardPass)  {LOGMEIN("TempTracker.h] 181\n"); Assert(false); }
+    bool IsTempIndirTransferLoad(IR::Instr * instr, BackwardPass * backwardPass) {LOGMEIN("TempTracker.h] 182\n"); return false; }
+    bool HasExposedFieldDependencies(BVSparse<JitArenaAllocator> * bvTempTransferDependencies, BackwardPass * backwardPass) {LOGMEIN("TempTracker.h] 183\n"); return false; }
 
     static bool DoTrace(BackwardPass * backwardPass);
-    static char16 const * GetTraceName() { return _u("MarkTempObjectVerify"); }
+    static char16 const * GetTraceName() {LOGMEIN("TempTracker.h] 186\n"); return _u("MarkTempObjectVerify"); }
 private:
     BVSparse<JitArenaAllocator> removedUpwardExposedUse;
 };
 
-template <typename T> bool IsObjectTempVerify() { return false; }
-template <> inline bool IsObjectTempVerify<ObjectTempVerify>() { return true; }
+template <typename T> bool IsObjectTempVerify() {LOGMEIN("TempTracker.h] 191\n"); return false; }
+template <> inline bool IsObjectTempVerify<ObjectTempVerify>() {LOGMEIN("TempTracker.h] 192\n"); return true; }
 
 typedef TempTracker<ObjectTempVerify> TempObjectVerifyTracker;
 #endif

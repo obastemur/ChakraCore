@@ -17,15 +17,15 @@ namespace Js
         static JavascriptFunction * EnsureBoxed(BOX_PARAM(JavascriptFunction * function, void * returnAddress, char16 const * reason));
         static void Box(FunctionBody * functionBody, ScriptFunction ** functionRef);
         static ScriptFunction * OP_NewStackScFunc(FrameDisplay *environment, FunctionInfoPtrPtr infoRef, ScriptFunction * stackFunction);
-        static uint32 GetOffsetOfBoxedScriptFunction() { return offsetof(StackScriptFunction, boxedScriptFunction); }
+        static uint32 GetOffsetOfBoxedScriptFunction() {LOGMEIN("StackScriptFunction.h] 19\n"); return offsetof(StackScriptFunction, boxedScriptFunction); }
 
         static JavascriptFunction * GetCurrentFunctionObject(JavascriptFunction * function);
 
         StackScriptFunction(FunctionProxy * proxy, ScriptFunctionType* deferredPrototypeType) :
-            ScriptFunction(proxy, deferredPrototypeType), boxedScriptFunction(nullptr) {};
+            ScriptFunction(proxy, deferredPrototypeType), boxedScriptFunction(nullptr) {LOGMEIN("StackScriptFunction.h] 24\n");};
 #if DBG
         static bool IsBoxed(Var var)
-        {
+        {LOGMEIN("StackScriptFunction.h] 27\n");
             return StackScriptFunction::FromVar(var)->boxedScriptFunction != nullptr;
         }
 

@@ -23,7 +23,7 @@ struct Int64RegPair
 {
     IR::Opnd* high;
     IR::Opnd* low;
-    Int64RegPair(): high(nullptr), low(nullptr) {}
+    Int64RegPair(): high(nullptr), low(nullptr) {LOGMEIN("Lower.h] 25\n");}
 };
 
 #if defined(_M_IX86) || defined(_M_AMD64)
@@ -62,7 +62,7 @@ public:
 #endif
     }
     ~Lowerer()
-    {
+    {LOGMEIN("Lower.h] 64\n");
 #ifdef RECYCLER_WRITE_BARRIER_JIT
         m_func->m_lowerer = nullptr;
 #endif
@@ -83,7 +83,7 @@ public:
     void FinalLower();
     void EHBailoutPatchUp();
     inline Js::ScriptContext* GetScriptContext()
-    {
+    {LOGMEIN("Lower.h] 85\n");
         return m_func->GetScriptContext();
     }
 
@@ -369,7 +369,7 @@ public:
     static IR::HelperCallOpnd*  CreateHelperCallOpnd(IR::JnHelperMethod helperMethod, int helperArgCount, Func* func);
     static IR::Opnd *           GetMissingItemOpnd(IRType type, Func *func);
     static IR::Opnd *           GetImplicitCallFlagsOpnd(Func * func);
-    inline static IR::IntConstOpnd* MakeCallInfoConst(ushort flags, int32 argCount, Func* func) {
+    inline static IR::IntConstOpnd* MakeCallInfoConst(ushort flags, int32 argCount, Func* func) {LOGMEIN("Lower.h] 371\n");
 #ifdef _M_X64
         // This was defined differently for x64
         Js::CallInfo callInfo = Js::CallInfo((Js::CallFlags)flags, (unsigned __int16)argCount);
@@ -479,7 +479,7 @@ private:
     bool            GenerateFastArgumentsLdElemI(IR::Instr* ldElem, IR::LabelInstr *labelFallThru);
     bool            GenerateFastRealStackArgumentsLdLen(IR::Instr *ldLen);
     bool            GenerateFastArgumentsLdLen(IR::Instr *ldLen, IR::LabelInstr* labelFallThru);
-    static const uint16  GetFormalParamOffset() { /*formal start after frame pointer, return address, function object, callInfo*/ return 4;};
+    static const uint16  GetFormalParamOffset() {LOGMEIN("Lower.h] 481\n"); /*formal start after frame pointer, return address, function object, callInfo*/ return 4;};
 
     IR::RegOpnd*    GenerateFunctionTypeFromFixedFunctionObject(IR::Instr *callInstr, IR::Opnd* functionObjOpnd);
 
@@ -633,12 +633,12 @@ private:
     IR::LabelInstr* InsertLoopTopLabel(IR::Instr * insertBeforeInstr);
 public:
     static IRType   GetImplicitCallFlagsType()
-    {
+    {LOGMEIN("Lower.h] 635\n");
         static_assert(sizeof(Js::ImplicitCallFlags) == 1, "If this size changes, change TyUint8 in the line below to the right type.");
         return TyUint8;
     }
     static IRType   GetFldInfoFlagsType()
-    {
+    {LOGMEIN("Lower.h] 640\n");
         static_assert(sizeof(Js::FldInfoFlags) == 1, "If this size changes, change TyUint8 in the line below to the right type.");
         return TyUint8;
     }
@@ -646,10 +646,10 @@ public:
     static bool     IsSpreadCall(IR::Instr *instr);
     static
     IR::Instr*      GetLdSpreadIndicesInstr(IR::Instr *instr);
-    static bool DoLazyBailout(Func* func) { return PHASE_ON(Js::LazyBailoutPhase, func) && !func->IsLoopBody(); }
-    static bool DoLazyFixedTypeBailout(Func* func) { return DoLazyBailout(func) && !PHASE_OFF(Js::LazyFixedTypeBailoutPhase, func); }
-    static bool DoLazyFixedDataBailout(Func* func) { return DoLazyBailout(func) && !PHASE_OFF(Js::LazyFixedDataBailoutPhase, func); }
-    LowererMD * GetLowererMD() { return &m_lowererMD; }
+    static bool DoLazyBailout(Func* func) {LOGMEIN("Lower.h] 648\n"); return PHASE_ON(Js::LazyBailoutPhase, func) && !func->IsLoopBody(); }
+    static bool DoLazyFixedTypeBailout(Func* func) {LOGMEIN("Lower.h] 649\n"); return DoLazyBailout(func) && !PHASE_OFF(Js::LazyFixedTypeBailoutPhase, func); }
+    static bool DoLazyFixedDataBailout(Func* func) {LOGMEIN("Lower.h] 650\n"); return DoLazyBailout(func) && !PHASE_OFF(Js::LazyFixedDataBailoutPhase, func); }
+    LowererMD * GetLowererMD() {LOGMEIN("Lower.h] 651\n"); return &m_lowererMD; }
 private:
     Func *          m_func;
     LowererMD       m_lowererMD;

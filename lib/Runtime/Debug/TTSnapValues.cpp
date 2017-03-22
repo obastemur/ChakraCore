@@ -13,19 +13,19 @@ namespace TTD
     namespace JsSupport
     {
         bool IsVarTaggedInline(Js::Var v)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 15\n");
             return Js::TaggedNumber::Is(v);
         }
 
         bool IsVarPtrValued(Js::Var v)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 20\n");
             return !Js::TaggedNumber::Is(v);
         }
 
         bool IsVarPrimitiveKind(Js::Var v)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 25\n");
             if(Js::TaggedNumber::Is(v))
-            {
+            {LOGMEIN("TTSnapValues.cpp] 27\n");
                 return false;
             }
 
@@ -34,9 +34,9 @@ namespace TTD
         }
 
         bool IsVarComplexKind(Js::Var v)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 36\n");
             if(Js::TaggedNumber::Is(v))
-            {
+            {LOGMEIN("TTSnapValues.cpp] 38\n");
                 return false;
             }
 
@@ -46,19 +46,19 @@ namespace TTD
 
 #if ENABLE_TTD_INTERNAL_DIAGNOSTICS
         bool AreInlineVarsEquiv(Js::Var v1, Js::Var v2)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 48\n");
             if(v1 == v2)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 50\n");
                 return true; //same bit pattern so no problem
             }
 
             if(v1 == nullptr || v2 == nullptr)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 55\n");
                 return false; //then they should be the same per above
             }
 
             if(Js::TaggedNumber::Is(v1) != Js::TaggedNumber::Is(v2))
-            {
+            {LOGMEIN("TTSnapValues.cpp] 60\n");
                 return false;
             }
 
@@ -66,7 +66,7 @@ namespace TTD
             double v2val = Js::TaggedInt::Is(v2) ? Js::TaggedInt::ToInt32(v2) : Js::JavascriptNumber::GetValue(v2);
 
             if(Js::JavascriptNumber::IsNan(v1val) != Js::JavascriptNumber::IsNan(v2val))
-            {
+            {LOGMEIN("TTSnapValues.cpp] 68\n");
                 return false;
             }
 
@@ -75,18 +75,18 @@ namespace TTD
 #endif
 
         Js::FunctionBody* ForceAndGetFunctionBody(Js::ParseableFunctionInfo* pfi)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 77\n");
             Js::FunctionBody* fb = nullptr;
 
             if(pfi->IsDeferredDeserializeFunction())
-            {
+            {LOGMEIN("TTSnapValues.cpp] 81\n");
                 Js::DeferDeserializeFunctionInfo* deferDeserializeInfo = pfi->GetDeferDeserializeFunctionInfo();
                 fb = deferDeserializeInfo->Deserialize();
             }
             else
             {
                 if(pfi->IsDeferredParseFunction())
-                {
+                {LOGMEIN("TTSnapValues.cpp] 88\n");
                     fb = pfi->GetParseableFunctionInfo()->Parse();
                 }
                 else
@@ -101,13 +101,13 @@ namespace TTD
         }
 
         void CopyStringToHeapAllocatorWLength(const char16* string, uint32 length, TTString& into)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 103\n");
             TTDAssert(string != nullptr, "Not allowed with string + length");
 
             into.Length = length;
 
             if(length == 0)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 109\n");
                 into.Contents = nullptr;
             }
             else
@@ -120,7 +120,7 @@ namespace TTD
         }
 
         void DeleteStringFromHeapAllocator(TTString& string)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 122\n");
             if(string.Contents != nullptr)
             {
                 TT_HEAP_FREE_ARRAY(char16, string.Contents, string.Length + 1);
@@ -128,7 +128,7 @@ namespace TTD
         }
 
         void WriteCodeToFile(ThreadContext* threadContext, bool fromEvent, uint64 bodyId, bool isUtf8Source, byte* sourceBuffer, uint32 length)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 130\n");
             char asciiResourceName[64];
             sprintf_s(asciiResourceName, 64, "src%s_%I64u.js", (fromEvent ? "_ld" : ""), bodyId);
 
@@ -137,7 +137,7 @@ namespace TTD
             TTDAssert(srcStream != nullptr, "Failed to open code resource stream for writing.");
 
             if(isUtf8Source)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 139\n");
                 byte byteOrderArray[3] = { 0xEF, 0xBB, 0xBF };
                 size_t byteOrderCount = 0;
                 bool okBOC = iofp.pfWriteBytesToStream(srcStream, byteOrderArray, _countof(byteOrderArray), &byteOrderCount);
@@ -159,7 +159,7 @@ namespace TTD
         }
 
         void ReadCodeFromFile(ThreadContext* threadContext, bool fromEvent, uint64 bodyId, bool isUtf8Source, byte* sourceBuffer, uint32 length)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 161\n");
             char asciiResourceName[64];
             sprintf_s(asciiResourceName, 64, "src%s_%I64u.js", (fromEvent ? "_ld" : ""), bodyId);
 
@@ -168,7 +168,7 @@ namespace TTD
             TTDAssert(srcStream != nullptr, "Failed to open code resource stream for reading.");
 
             if(isUtf8Source)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 170\n");
                 byte byteOrderArray[3] = { 0x0, 0x0, 0x0 };
                 size_t byteOrderCount = 0;
                 bool okBOC = iofp.pfReadBytesFromStream(srcStream, byteOrderArray, _countof(byteOrderArray), &byteOrderCount);
@@ -193,19 +193,19 @@ namespace TTD
     namespace NSSnapValues
     {
         void EmitTTDVar(TTDVar var, FileWriter* writer, NSTokens::Separator separator)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 195\n");
             writer->WriteRecordStart(separator);
 
             if(var == nullptr)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 199\n");
                 writer->WriteTag<TTDVarEmitTag>(NSTokens::Key::ttdVarTag, TTDVarEmitTag::TTDVarNull);
                 writer->WriteNull(NSTokens::Key::nullVal, NSTokens::Separator::CommaSeparator);
             }
             else if(Js::TaggedNumber::Is(var))
-            {
+            {LOGMEIN("TTSnapValues.cpp] 204\n");
 #if FLOATVAR
                 if(Js::TaggedInt::Is(var))
-                {
+                {LOGMEIN("TTSnapValues.cpp] 207\n");
 #endif
                     writer->WriteTag<TTDVarEmitTag>(NSTokens::Key::ttdVarTag, TTDVarEmitTag::TTDVarInt);
                     writer->WriteInt32(NSTokens::Key::i32Val, Js::TaggedInt::ToInt32(var), NSTokens::Separator::CommaSeparator);
@@ -230,24 +230,24 @@ namespace TTD
         }
 
         TTDVar ParseTTDVar(bool readSeperator, FileReader* reader)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 232\n");
             reader->ReadRecordStart(readSeperator);
 
             TTDVar res = nullptr;
             TTDVarEmitTag tag = reader->ReadTag<TTDVarEmitTag>(NSTokens::Key::ttdVarTag);
             if(tag == TTDVarEmitTag::TTDVarNull)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 238\n");
                 reader->ReadNull(NSTokens::Key::nullVal, true);
                 res = nullptr;
             }
             else if(tag == TTDVarEmitTag::TTDVarInt)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 243\n");
                 int32 intVal = reader->ReadInt32(NSTokens::Key::i32Val, true);
                 res = Js::TaggedInt::ToVarUnchecked(intVal);
             }
 #if FLOATVAR
             else if(tag == TTDVarEmitTag::TTDVarDouble)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 249\n");
                 double doubleVal = reader->ReadDouble(NSTokens::Key::doubleVal, true);
                 res = Js::JavascriptNumber::NewInlined(doubleVal, nullptr);
             }
@@ -267,9 +267,9 @@ namespace TTD
 
 #if ENABLE_SNAPSHOT_COMPARE
         bool CheckSnapEquivTTDDouble(double d1, double d2)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 269\n");
             if(Js::JavascriptNumber::IsNan(d1) || Js::JavascriptNumber::IsNan(d2))
-            {
+            {LOGMEIN("TTSnapValues.cpp] 271\n");
                 return (Js::JavascriptNumber::IsNan(d1) && Js::JavascriptNumber::IsNan(d2));
             }
             else
@@ -279,13 +279,13 @@ namespace TTD
         }
 
         void AssertSnapEquivTTDVar_Helper(const TTDVar v1, const TTDVar v2, TTDCompareMap& compareMap, TTDComparePath::StepKind stepKind, const TTDComparePath::PathEntry& next)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 281\n");
             if(v1 == nullptr || v2 == nullptr)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 283\n");
                 compareMap.DiagnosticAssert(v1 == v2);
             }
             else if(Js::TaggedNumber::Is(v1) || Js::TaggedNumber::Is(v2))
-            {
+            {LOGMEIN("TTSnapValues.cpp] 287\n");
                 compareMap.DiagnosticAssert(JsSupport::AreInlineVarsEquiv(v1, v2));
             }
             else
@@ -295,43 +295,43 @@ namespace TTD
         }
 
         void AssertSnapEquivTTDVar_Property(const TTDVar v1, const TTDVar v2, TTDCompareMap& compareMap, Js::PropertyId pid)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 297\n");
             TTDComparePath::PathEntry next{ (uint32)pid, nullptr };
             AssertSnapEquivTTDVar_Helper(v1, v2, compareMap, TTDComparePath::StepKind::PropertyData, next);
         }
 
         void AssertSnapEquivTTDVar_PropertyGetter(const TTDVar v1, const TTDVar v2, TTDCompareMap& compareMap, Js::PropertyId pid)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 303\n");
             TTDComparePath::PathEntry next{ (uint32)pid, nullptr };
             AssertSnapEquivTTDVar_Helper(v1, v2, compareMap, TTDComparePath::StepKind::PropertyGetter, next);
         }
 
         void AssertSnapEquivTTDVar_PropertySetter(const TTDVar v1, const TTDVar v2, TTDCompareMap& compareMap, Js::PropertyId pid)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 309\n");
             TTDComparePath::PathEntry next{ (uint32)pid, nullptr };
             AssertSnapEquivTTDVar_Helper(v1, v2, compareMap, TTDComparePath::StepKind::PropertySetter, next);
         }
 
         void AssertSnapEquivTTDVar_Array(const TTDVar v1, const TTDVar v2, TTDCompareMap& compareMap, uint32 index)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 315\n");
             TTDComparePath::PathEntry next{ index, nullptr };
             AssertSnapEquivTTDVar_Helper(v1, v2, compareMap, TTDComparePath::StepKind::Array, next);
         }
 
         void AssertSnapEquivTTDVar_SlotArray(const TTDVar v1, const TTDVar v2, TTDCompareMap& compareMap, uint32 index)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 321\n");
             TTDComparePath::PathEntry next{ index, nullptr };
             AssertSnapEquivTTDVar_Helper(v1, v2, compareMap, TTDComparePath::StepKind::SlotArray, next);
         }
 
         void AssertSnapEquivTTDVar_Special(const TTDVar v1, const TTDVar v2, TTDCompareMap& compareMap, const char16* specialField)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 327\n");
             TTDComparePath::PathEntry next{ -1, specialField };
             AssertSnapEquivTTDVar_Helper(v1, v2, compareMap, TTDComparePath::StepKind::Special, next);
         }
 
         void AssertSnapEquivTTDVar_SpecialArray(const TTDVar v1, const TTDVar v2, TTDCompareMap& compareMap, const char16* specialField, uint32 index)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 333\n");
             TTDComparePath::PathEntry next{ index, specialField };
             AssertSnapEquivTTDVar_Helper(v1, v2, compareMap, TTDComparePath::StepKind::SpecialArray, next);
         }
@@ -340,7 +340,7 @@ namespace TTD
         //////////////////
 
         void ExtractSnapPrimitiveValue(SnapPrimitiveValue* snapValue, Js::RecyclableObject* jsValue, bool isWellKnown, const TTDIdentifierDictionary<TTD_PTR_ID, NSSnapType::SnapType*>& idToTypeMap, SlabAllocator& alloc)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 342\n");
             snapValue->PrimitiveValueId = TTD_CONVERT_VAR_TO_PTR_ID(jsValue);
 
             Js::Type* objType = jsValue->GetType();
@@ -350,11 +350,11 @@ namespace TTD
             snapValue->OptWellKnownToken = alloc.CopyRawNullTerminatedStringInto(lookupToken);
 
             if(snapValue->OptWellKnownToken == TTD_INVALID_WELLKNOWN_TOKEN)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 352\n");
                 Js::JavascriptLibrary* jslib = jsValue->GetLibrary();
 
                 switch(snapValue->SnapType->JsTypeId)
-                {
+                {LOGMEIN("TTSnapValues.cpp] 356\n");
                 case Js::TypeIds_Undefined:
                 case Js::TypeIds_Null:
                     break;
@@ -385,26 +385,26 @@ namespace TTD
         }
 
         void InflateSnapPrimitiveValue(const SnapPrimitiveValue* snapValue, InflateMap* inflator)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 387\n");
             Js::ScriptContext* ctx = inflator->LookupScriptContext(snapValue->SnapType->ScriptContextLogId);
             Js::JavascriptLibrary* jslib = ctx->GetLibrary();
 
             Js::Var res = nullptr;
             if(snapValue->OptWellKnownToken != TTD_INVALID_WELLKNOWN_TOKEN)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 393\n");
                 res = ctx->TTDWellKnownInfo->LookupKnownObjectFromPath(snapValue->OptWellKnownToken);
             }
             else
             {
                 Js::RecyclableObject* rObj = inflator->FindReusableObjectIfExists(snapValue->PrimitiveValueId);
                 if(rObj != nullptr)
-                {
+                {LOGMEIN("TTSnapValues.cpp] 400\n");
                     res = rObj;
                 }
                 else
                 {
                     switch(snapValue->SnapType->JsTypeId)
-                    {
+                    {LOGMEIN("TTSnapValues.cpp] 406\n");
                     case Js::TypeIds_Undefined:
                         res = jslib->GetUndefined();
                         break;
@@ -440,20 +440,20 @@ namespace TTD
         }
 
         void EmitSnapPrimitiveValue(const SnapPrimitiveValue* snapValue, FileWriter* writer, NSTokens::Separator separator)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 442\n");
             writer->WriteRecordStart(separator);
             writer->WriteAddr(NSTokens::Key::primitiveId, snapValue->PrimitiveValueId);
             writer->WriteAddr(NSTokens::Key::typeId, snapValue->SnapType->TypePtrId, NSTokens::Separator::CommaSeparator);
 
             writer->WriteBool(NSTokens::Key::isWellKnownToken, snapValue->OptWellKnownToken != TTD_INVALID_WELLKNOWN_TOKEN, NSTokens::Separator::CommaSeparator);
             if(snapValue->OptWellKnownToken != TTD_INVALID_WELLKNOWN_TOKEN)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 449\n");
                 writer->WriteWellKnownToken(NSTokens::Key::wellKnownToken, snapValue->OptWellKnownToken, NSTokens::Separator::CommaSeparator);
             }
             else
             {
                 switch(snapValue->SnapType->JsTypeId)
-                {
+                {LOGMEIN("TTSnapValues.cpp] 455\n");
                 case Js::TypeIds_Undefined:
                 case Js::TypeIds_Null:
                     break;
@@ -484,7 +484,7 @@ namespace TTD
         }
 
         void ParseSnapPrimitiveValue(SnapPrimitiveValue* snapValue, bool readSeperator, FileReader* reader, SlabAllocator& alloc, const TTDIdentifierDictionary<TTD_PTR_ID, NSSnapType::SnapType*>& ptrIdToTypeMap)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 486\n");
             reader->ReadRecordStart(readSeperator);
             snapValue->PrimitiveValueId = reader->ReadAddr(NSTokens::Key::primitiveId);
 
@@ -493,7 +493,7 @@ namespace TTD
 
             bool isWellKnown = reader->ReadBool(NSTokens::Key::isWellKnownToken, true);
             if(isWellKnown)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 495\n");
                 snapValue->OptWellKnownToken = reader->ReadWellKnownToken(NSTokens::Key::wellKnownToken, alloc, true);
 
                 //just clear it to help avoid any confusion later
@@ -504,7 +504,7 @@ namespace TTD
                 snapValue->OptWellKnownToken = nullptr;
 
                 switch(snapValue->SnapType->JsTypeId)
-                {
+                {LOGMEIN("TTSnapValues.cpp] 506\n");
                 case Js::TypeIds_Undefined:
                 case Js::TypeIds_Null:
                     break;
@@ -538,20 +538,20 @@ namespace TTD
 
 #if ENABLE_SNAPSHOT_COMPARE
         void AssertSnapEquiv(const SnapPrimitiveValue* v1, const SnapPrimitiveValue* v2, TTDCompareMap& compareMap)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 540\n");
             compareMap.DiagnosticAssert(v1->SnapType->JsTypeId == v2->SnapType->JsTypeId);
 
             NSSnapType::AssertSnapEquiv(v1->SnapType, v2->SnapType, compareMap);
 
             if(v1->OptWellKnownToken != TTD_INVALID_WELLKNOWN_TOKEN || v2->OptWellKnownToken != TTD_INVALID_WELLKNOWN_TOKEN)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 546\n");
                 compareMap.DiagnosticAssert(v1->OptWellKnownToken != TTD_INVALID_WELLKNOWN_TOKEN && v2->OptWellKnownToken != TTD_INVALID_WELLKNOWN_TOKEN);
                 compareMap.DiagnosticAssert(TTD_DIAGNOSTIC_COMPARE_WELLKNOWN_TOKENS(v1->OptWellKnownToken, v2->OptWellKnownToken));
             }
             else
             {
                 switch(v1->SnapType->JsTypeId)
-                {
+                {LOGMEIN("TTSnapValues.cpp] 553\n");
                 case Js::TypeIds_Undefined:
                 case Js::TypeIds_Null:
                     break;
@@ -584,7 +584,7 @@ namespace TTD
         //////////////////
 
         Js::Var* InflateSlotArrayInfo(const SlotArrayInfo* slotInfo, InflateMap* inflator)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 586\n");
             Js::ScriptContext* ctx = inflator->LookupScriptContext(slotInfo->ScriptContextLogId);
             Field(Js::Var)* slotArray = RecyclerNewArray(ctx->GetRecycler(), Field(Js::Var), slotInfo->SlotCount + Js::ScopeSlots::FirstSlotIndex);
 
@@ -593,24 +593,24 @@ namespace TTD
 
             Js::Var undef = ctx->GetLibrary()->GetUndefined();
             for(uint32 j = 0; j < slotInfo->SlotCount; j++)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 595\n");
                 scopeSlots.Set(j, undef);
             }
 
             if(slotInfo->isFunctionBodyMetaData)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 600\n");
                 Js::FunctionBody* fbody = inflator->LookupFunctionBody(slotInfo->OptFunctionBodyId);
                 scopeSlots.SetScopeMetadata(fbody->GetFunctionInfo());
 
                 //This is a doubly nested lookup so if the scope slot array is large this could be expensive
                 Js::PropertyId* propertyIds = fbody->GetPropertyIdsForScopeSlotArray();
                 for(uint32 j = 0; j < slotInfo->SlotCount; j++)
-                {
+                {LOGMEIN("TTSnapValues.cpp] 607\n");
                     Js::PropertyId trgtPid = slotInfo->PIDArray[j];
                     for(uint32 i = 0; i < fbody->GetScopeSlotArraySize(); i++)
-                    {
+                    {LOGMEIN("TTSnapValues.cpp] 610\n");
                         if(trgtPid == propertyIds[i])
-                        {
+                        {LOGMEIN("TTSnapValues.cpp] 612\n");
                             Js::Var sval = inflator->InflateTTDVar(slotInfo->Slots[j]);
                             scopeSlots.Set(i, sval);
                             break;
@@ -622,7 +622,7 @@ namespace TTD
             {
                 Js::DebuggerScope* dbgScope = nullptr;
                 if(slotInfo->OptWellKnownDbgScope != TTD_INVALID_WELLKNOWN_TOKEN)
-                {
+                {LOGMEIN("TTSnapValues.cpp] 624\n");
                     dbgScope = ctx->TTDWellKnownInfo->LookupKnownDebuggerScopeFromPath(slotInfo->OptWellKnownDbgScope);
                 }
                 else
@@ -638,12 +638,12 @@ namespace TTD
 
                 //This is a doubly nested lookup so if the scope slot array is large this could be expensive
                 for(uint32 j = 0; j < slotInfo->SlotCount; j++)
-                {
+                {LOGMEIN("TTSnapValues.cpp] 640\n");
                     Js::PropertyId trgtPid = slotInfo->PIDArray[j];
                     for(uint32 i = 0; i < slotInfo->SlotCount; i++)
-                    {
+                    {LOGMEIN("TTSnapValues.cpp] 643\n");
                         if(trgtPid == dbgScope->GetPropertyIdForSlotIndex_TTD(i))
-                        {
+                        {LOGMEIN("TTSnapValues.cpp] 645\n");
                             Js::Var sval = inflator->InflateTTDVar(slotInfo->Slots[j]);
                             scopeSlots.Set(i, sval);
                             break;
@@ -656,7 +656,7 @@ namespace TTD
         }
 
         void EmitSlotArrayInfo(const SlotArrayInfo* slotInfo, FileWriter* writer, NSTokens::Separator separator)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 658\n");
             writer->WriteRecordStart(separator);
             writer->AdjustIndent(1);
 
@@ -665,14 +665,14 @@ namespace TTD
 
             writer->WriteBool(NSTokens::Key::isFunctionMetaData, slotInfo->isFunctionBodyMetaData, NSTokens::Separator::CommaSeparator);
             if(slotInfo->isFunctionBodyMetaData)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 667\n");
                 writer->WriteAddr(NSTokens::Key::functionBodyId, slotInfo->OptFunctionBodyId, NSTokens::Separator::CommaSeparator);
             }
             else
             {
                 writer->WriteBool(NSTokens::Key::isWellKnownToken, slotInfo->OptWellKnownDbgScope != TTD_INVALID_WELLKNOWN_TOKEN, NSTokens::Separator::CommaSeparator);
                 if(slotInfo->OptWellKnownDbgScope != TTD_INVALID_WELLKNOWN_TOKEN)
-                {
+                {LOGMEIN("TTSnapValues.cpp] 674\n");
                     writer->WriteWellKnownToken(NSTokens::Key::wellKnownToken, slotInfo->OptWellKnownDbgScope, NSTokens::Separator::CommaSeparator);
                 }
                 else
@@ -685,7 +685,7 @@ namespace TTD
             writer->WriteSequenceStart_DefaultKey(NSTokens::Separator::CommaAndBigSpaceSeparator);
             writer->AdjustIndent(1);
             for(uint32 i = 0; i < slotInfo->SlotCount; ++i)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 687\n");
                 writer->WriteRecordStart(i != 0 ? NSTokens::Separator::CommaAndBigSpaceSeparator : NSTokens::Separator::BigSpaceSeparator);
                 writer->WriteUInt32(NSTokens::Key::pid, slotInfo->PIDArray[i], NSTokens::Separator::NoSeparator);
                 writer->WriteKey(NSTokens::Key::entry, NSTokens::Separator::CommaSeparator);
@@ -702,7 +702,7 @@ namespace TTD
         }
 
         void ParseSlotArrayInfo(SlotArrayInfo* slotInfo, bool readSeperator, FileReader* reader, SlabAllocator& alloc)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 704\n");
             reader->ReadRecordStart(readSeperator);
 
             slotInfo->SlotId = reader->ReadAddr(NSTokens::Key::slotId);
@@ -714,14 +714,14 @@ namespace TTD
             slotInfo->OptWellKnownDbgScope = TTD_INVALID_WELLKNOWN_TOKEN;
 
             if(slotInfo->isFunctionBodyMetaData)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 716\n");
                 slotInfo->OptFunctionBodyId = reader->ReadAddr(NSTokens::Key::functionBodyId, true);
             }
             else
             {
                 bool isWellKnown = reader->ReadBool(NSTokens::Key::isWellKnownToken, true);
                 if(isWellKnown)
-                {
+                {LOGMEIN("TTSnapValues.cpp] 723\n");
                     slotInfo->OptWellKnownDbgScope = reader->ReadWellKnownToken(NSTokens::Key::wellKnownToken, alloc, true);
                 }
                 else
@@ -738,7 +738,7 @@ namespace TTD
             slotInfo->PIDArray = alloc.SlabAllocateArray<Js::PropertyId>(slotInfo->SlotCount);
 
             for(uint32 i = 0; i < slotInfo->SlotCount; ++i)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 740\n");
                 reader->ReadRecordStart(i != 0);
                 slotInfo->PIDArray[i] = (Js::PropertyId)reader->ReadUInt32(NSTokens::Key::pid);
                 reader->ReadKey(NSTokens::Key::entry, true);
@@ -754,12 +754,12 @@ namespace TTD
 
 #if ENABLE_SNAPSHOT_COMPARE
         void AssertSnapEquiv(const SlotArrayInfo* sai1, const SlotArrayInfo* sai2, TTDCompareMap& compareMap)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 756\n");
             compareMap.DiagnosticAssert(sai1->ScriptContextLogId == sai2->ScriptContextLogId);
 
             compareMap.DiagnosticAssert(sai1->isFunctionBodyMetaData == sai2->isFunctionBodyMetaData);
             if(sai1->isFunctionBodyMetaData)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 761\n");
                 compareMap.CheckConsistentAndAddPtrIdMapping_FunctionBody(sai1->OptFunctionBodyId, sai2->OptFunctionBodyId);
             }
             else
@@ -769,13 +769,13 @@ namespace TTD
 
             compareMap.DiagnosticAssert(sai1->SlotCount == sai2->SlotCount);
             for(uint32 i = 0; i < sai1->SlotCount; ++i)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 771\n");
                 Js::PropertyId id1 = sai1->PIDArray[i];
                 bool found = false;
                 for(uint32 j = 0; j < sai1->SlotCount; ++j)
-                {
+                {LOGMEIN("TTSnapValues.cpp] 775\n");
                     if(id1 == sai2->PIDArray[j])
-                    {
+                    {LOGMEIN("TTSnapValues.cpp] 777\n");
                         AssertSnapEquivTTDVar_SlotArray(sai1->Slots[i], sai2->Slots[j], compareMap, i);
                         found = true;
                         break;
@@ -789,26 +789,26 @@ namespace TTD
 #endif
 
         Js::FrameDisplay* InflateScriptFunctionScopeInfo(const ScriptFunctionScopeInfo* funcScopeInfo, InflateMap* inflator)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 791\n");
             Js::ScriptContext* ctx = inflator->LookupScriptContext(funcScopeInfo->ScriptContextLogId);
 
             Js::FrameDisplay* environment = RecyclerNewPlus(ctx->GetRecycler(), funcScopeInfo->ScopeCount * sizeof(Js::Var), Js::FrameDisplay, funcScopeInfo->ScopeCount);
 
             for(uint16 i = 0; i < funcScopeInfo->ScopeCount; ++i)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 797\n");
                 const ScopeInfoEntry& scp = funcScopeInfo->ScopeArray[i];
 
                 switch(scp.Tag)
-                {
+                {LOGMEIN("TTSnapValues.cpp] 801\n");
                 case Js::ScopeType::ScopeType_ActivationObject:
                 case Js::ScopeType::ScopeType_WithScope:
-                {
+                {LOGMEIN("TTSnapValues.cpp] 804\n");
                     Js::Var sval = inflator->LookupObject(scp.IDValue);
                     environment->SetItem(i, sval);
                     break;
                 }
                 case Js::ScopeType::ScopeType_SlotArray:
-                {
+                {LOGMEIN("TTSnapValues.cpp] 810\n");
                     Js::Var* saval = inflator->LookupSlotArray(scp.IDValue);
                     environment->SetItem(i, saval);
                     break;
@@ -823,7 +823,7 @@ namespace TTD
         }
 
         void EmitScriptFunctionScopeInfo(const ScriptFunctionScopeInfo* funcScopeInfo, FileWriter* writer, NSTokens::Separator separator)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 825\n");
             writer->WriteRecordStart(separator);
 
             writer->WriteAddr(NSTokens::Key::scopeId, funcScopeInfo->ScopeId);
@@ -833,7 +833,7 @@ namespace TTD
             writer->WriteSequenceStart_DefaultKey(NSTokens::Separator::CommaSeparator);
 
             for(uint32 i = 0; i < funcScopeInfo->ScopeCount; ++i)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 835\n");
                 writer->WriteRecordStart(i != 0 ? NSTokens::Separator::CommaSeparator : NSTokens::Separator::NoSeparator);
 
                 writer->WriteTag<Js::ScopeType>(NSTokens::Key::scopeType, funcScopeInfo->ScopeArray[i].Tag);
@@ -848,7 +848,7 @@ namespace TTD
         }
 
         void ParseScriptFunctionScopeInfo(ScriptFunctionScopeInfo* funcScopeInfo, bool readSeperator, FileReader* reader, SlabAllocator& alloc)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 850\n");
             reader->ReadRecordStart(readSeperator);
 
             funcScopeInfo->ScopeId = reader->ReadAddr(NSTokens::Key::scopeId);
@@ -859,7 +859,7 @@ namespace TTD
 
             funcScopeInfo->ScopeArray = alloc.SlabAllocateArray<ScopeInfoEntry>(funcScopeInfo->ScopeCount);
             for(uint32 i = 0; i < funcScopeInfo->ScopeCount; ++i)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 861\n");
                 reader->ReadRecordStart(i != 0);
 
                 funcScopeInfo->ScopeArray[i].Tag = reader->ReadTag<Js::ScopeType>(NSTokens::Key::scopeType);
@@ -875,12 +875,12 @@ namespace TTD
 
 #if ENABLE_SNAPSHOT_COMPARE
         void AssertSnapEquiv(const ScriptFunctionScopeInfo* funcScopeInfo1, const ScriptFunctionScopeInfo* funcScopeInfo2, TTDCompareMap& compareMap)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 877\n");
             compareMap.DiagnosticAssert(funcScopeInfo1->ScriptContextLogId == funcScopeInfo2->ScriptContextLogId);
 
             compareMap.DiagnosticAssert(funcScopeInfo1->ScopeCount == funcScopeInfo2->ScopeCount);
             for(uint32 i = 0; i < funcScopeInfo1->ScopeCount; ++i)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 882\n");
                 compareMap.DiagnosticAssert(funcScopeInfo1->ScopeArray[i].Tag == funcScopeInfo2->ScopeArray[i].Tag);
                 compareMap.CheckConsistentAndAddPtrIdMapping_Scope(funcScopeInfo1->ScopeArray[i].IDValue, funcScopeInfo2->ScopeArray[i].IDValue, i);
             }
@@ -890,9 +890,9 @@ namespace TTD
         //////////////////
 
         Js::JavascriptPromiseCapability* InflatePromiseCapabilityInfo(const SnapPromiseCapabilityInfo* capabilityInfo, Js::ScriptContext* ctx, InflateMap* inflator)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 892\n");
             if(!inflator->IsPromiseInfoDefined<Js::JavascriptPromiseCapability>(capabilityInfo->CapabilityId))
-            {
+            {LOGMEIN("TTSnapValues.cpp] 894\n");
                 Js::Var promise = inflator->InflateTTDVar(capabilityInfo->PromiseVar);
                 Js::Var resolve = inflator->InflateTTDVar(capabilityInfo->ResolveVar);
                 Js::Var reject = inflator->InflateTTDVar(capabilityInfo->RejectVar);
@@ -905,7 +905,7 @@ namespace TTD
         }
 
         void EmitPromiseCapabilityInfo(const SnapPromiseCapabilityInfo* capabilityInfo, FileWriter* writer, NSTokens::Separator separator)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 907\n");
             writer->WriteRecordStart(separator);
 
             writer->WriteAddr(NSTokens::Key::ptrIdVal, capabilityInfo->CapabilityId);
@@ -923,7 +923,7 @@ namespace TTD
         }
 
         void ParsePromiseCapabilityInfo(SnapPromiseCapabilityInfo* capabilityInfo, bool readSeperator, FileReader* reader, SlabAllocator& alloc)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 925\n");
             reader->ReadRecordStart(readSeperator);
 
             capabilityInfo->CapabilityId = reader->ReadAddr(NSTokens::Key::ptrIdVal);
@@ -943,7 +943,7 @@ namespace TTD
 
 #if ENABLE_SNAPSHOT_COMPARE
         void AssertSnapEquiv(const SnapPromiseCapabilityInfo* capabilityInfo1, const SnapPromiseCapabilityInfo* capabilityInfo2, TTDCompareMap& compareMap)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 945\n");
             compareMap.CheckConsistentAndAddPtrIdMapping_NoEnqueue(capabilityInfo1->CapabilityId, capabilityInfo2->CapabilityId);
 
             AssertSnapEquivTTDVar_Special(capabilityInfo1->PromiseVar, capabilityInfo2->PromiseVar, compareMap, _u("promiseVar"));
@@ -953,9 +953,9 @@ namespace TTD
 #endif
 
         Js::JavascriptPromiseReaction* InflatePromiseReactionInfo(const SnapPromiseReactionInfo* reactionInfo, Js::ScriptContext* ctx, InflateMap* inflator)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 955\n");
             if(!inflator->IsPromiseInfoDefined<Js::JavascriptPromiseReaction>(reactionInfo->PromiseReactionId))
-            {
+            {LOGMEIN("TTSnapValues.cpp] 957\n");
                 Js::RecyclableObject* handler = inflator->LookupObject(reactionInfo->HandlerObjId);
                 Js::JavascriptPromiseCapability* capabilities = InflatePromiseCapabilityInfo(&reactionInfo->Capabilities, ctx, inflator);
 
@@ -967,7 +967,7 @@ namespace TTD
         }
 
         void EmitPromiseReactionInfo(const SnapPromiseReactionInfo* reactionInfo, FileWriter* writer, NSTokens::Separator separator)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 969\n");
             writer->WriteRecordStart(separator);
 
             writer->WriteAddr(NSTokens::Key::ptrIdVal, reactionInfo->PromiseReactionId);
@@ -980,7 +980,7 @@ namespace TTD
         }
 
         void ParsePromiseReactionInfo(SnapPromiseReactionInfo* reactionInfo, bool readSeperator, FileReader* reader, SlabAllocator& alloc)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 982\n");
             reader->ReadRecordStart(readSeperator);
 
             reactionInfo->PromiseReactionId = reader->ReadAddr(NSTokens::Key::ptrIdVal);
@@ -994,7 +994,7 @@ namespace TTD
 
 #if ENABLE_SNAPSHOT_COMPARE
         void AssertSnapEquiv(const SnapPromiseReactionInfo* reactionInfo1, const SnapPromiseReactionInfo* reactionInfo2, TTDCompareMap& compareMap)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 996\n");
             compareMap.CheckConsistentAndAddPtrIdMapping_NoEnqueue(reactionInfo1->PromiseReactionId, reactionInfo2->PromiseReactionId);
 
             compareMap.CheckConsistentAndAddPtrIdMapping_Special(reactionInfo1->HandlerObjId, reactionInfo2->HandlerObjId, _u("handlerObjId"));
@@ -1005,17 +1005,17 @@ namespace TTD
         //////////////////
 
         void ExtractSnapFunctionBodyScopeChain(bool isWellKnownFunction, SnapFunctionBodyScopeChain& scopeChain, Js::FunctionBody* fb, SlabAllocator& alloc)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1007\n");
             scopeChain.ScopeCount = 0;
             scopeChain.ScopeArray = nullptr;
 
             if(!isWellKnownFunction && fb->GetScopeObjectChain() != nullptr)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1012\n");
                 Js::ScopeObjectChain* scChain = fb->GetScopeObjectChain();
                 scopeChain.ScopeCount = (uint32)scChain->pScopeChain->Count();
 
                 if(scopeChain.ScopeCount == 0)
-                {
+                {LOGMEIN("TTSnapValues.cpp] 1017\n");
                     scopeChain.ScopeArray = nullptr;
                 }
                 else
@@ -1023,7 +1023,7 @@ namespace TTD
                     scopeChain.ScopeArray = alloc.SlabAllocateArray<TTD_PTR_ID>(scopeChain.ScopeCount);
 
                     for(int32 i = 0; i < scChain->pScopeChain->Count(); ++i)
-                    {
+                    {LOGMEIN("TTSnapValues.cpp] 1025\n");
                         Js::DebuggerScope* dbgScope = scChain->pScopeChain->Item(i);
                         scopeChain.ScopeArray[i] = TTD_CONVERT_DEBUGSCOPE_TO_PTR_ID(dbgScope);
                     }
@@ -1032,13 +1032,13 @@ namespace TTD
         }
 
         void EmitSnapFunctionBodyScopeChain(const SnapFunctionBodyScopeChain& scopeChain, FileWriter* writer)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1034\n");
             writer->WriteRecordStart();
 
             writer->WriteLengthValue(scopeChain.ScopeCount);
             writer->WriteSequenceStart_DefaultKey(NSTokens::Separator::CommaSeparator);
             for(uint32 i = 0; i < scopeChain.ScopeCount; ++i)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1040\n");
                 writer->WriteNakedAddr(scopeChain.ScopeArray[i], (i != 0) ? NSTokens::Separator::CommaSeparator : NSTokens::Separator::NoSeparator);
             }
             writer->WriteSequenceEnd();
@@ -1047,7 +1047,7 @@ namespace TTD
         }
 
         void ParseSnapFunctionBodyScopeChain(SnapFunctionBodyScopeChain& scopeChain, FileReader* reader, SlabAllocator& alloc)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1049\n");
             reader->ReadRecordStart();
 
             scopeChain.ScopeCount = reader->ReadLengthValue();
@@ -1055,7 +1055,7 @@ namespace TTD
 
             reader->ReadSequenceStart_WDefaultKey(true);
             for(uint32 i = 0; i < scopeChain.ScopeCount; ++i)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1057\n");
                 scopeChain.ScopeArray[i] = reader->ReadNakedAddr(i != 0);
             }
             reader->ReadSequenceEnd();
@@ -1065,7 +1065,7 @@ namespace TTD
 
 #if ENABLE_SNAPSHOT_COMPARE
         void AssertSnapEquiv(const SnapFunctionBodyScopeChain& chain1, const SnapFunctionBodyScopeChain& chain2, TTDCompareMap& compareMap)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1067\n");
             compareMap.DiagnosticAssert(chain1.ScopeCount == chain2.ScopeCount);
 
             //Not sure if there is a way to compare the pointer ids in the two scopes
@@ -1075,7 +1075,7 @@ namespace TTD
         //////////////////
 
         void ExtractTopLevelCommonBodyResolveInfo(TopLevelCommonBodyResolveInfo* fbInfo, Js::FunctionBody* fb, uint64 topLevelCtr, Js::ModuleID moduleId, uint64 sourceContextId, bool isUtf8source, const byte* source, uint32 sourceLen, SlabAllocator& alloc)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1077\n");
             fbInfo->ScriptContextLogId = fb->GetScriptContext()->ScriptContextLogTag;
             fbInfo->TopLevelBodyCtr = topLevelCtr;
 
@@ -1097,7 +1097,7 @@ namespace TTD
         }
 
         void EmitTopLevelCommonBodyResolveInfo(const TopLevelCommonBodyResolveInfo* fbInfo, bool emitInline, ThreadContext* threadContext, FileWriter* writer, NSTokens::Separator separator)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1099\n");
             writer->WriteRecordStart(separator);
             writer->WriteUInt64(NSTokens::Key::functionBodyId, fbInfo->TopLevelBodyCtr);
             writer->WriteLogTag(NSTokens::Key::ctxTag, fbInfo->ScriptContextLogId, NSTokens::Separator::CommaSeparator);
@@ -1115,7 +1115,7 @@ namespace TTD
             EmitSnapFunctionBodyScopeChain(fbInfo->ScopeChainInfo, writer);
 
             if(emitInline || IsNullPtrTTString(fbInfo->SourceUri))
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1117\n");
                 TTDAssert(!fbInfo->IsUtf8, "Should only emit char16 encoded data in inline mode.");
 
                 writer->WriteInlineCode((char16*)fbInfo->SourceBuffer, fbInfo->ByteLength / sizeof(char16), NSTokens::Separator::CommaSeparator);
@@ -1127,7 +1127,7 @@ namespace TTD
         }
 
         void ParseTopLevelCommonBodyResolveInfo(TopLevelCommonBodyResolveInfo* fbInfo, bool readSeperator, bool parseInline, ThreadContext* threadContext, FileReader* reader, SlabAllocator& alloc)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1129\n");
             reader->ReadRecordStart(readSeperator);
             fbInfo->TopLevelBodyCtr = reader->ReadUInt64(NSTokens::Key::functionBodyId);
             fbInfo->ScriptContextLogId = reader->ReadLogTag(NSTokens::Key::ctxTag, true);
@@ -1146,7 +1146,7 @@ namespace TTD
             ParseSnapFunctionBodyScopeChain(fbInfo->ScopeChainInfo, reader, alloc);
 
             if(parseInline || IsNullPtrTTString(fbInfo->SourceUri))
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1148\n");
                 TTDAssert(!fbInfo->IsUtf8, "Should only emit char16 encoded data in inline mode.");
 
                 reader->ReadInlineCode((char16*)fbInfo->SourceBuffer, fbInfo->ByteLength / sizeof(char16), true);
@@ -1162,7 +1162,7 @@ namespace TTD
 
 #if ENABLE_SNAPSHOT_COMPARE
         void AssertSnapEquiv(const TopLevelCommonBodyResolveInfo* fbInfo1, const TopLevelCommonBodyResolveInfo* fbInfo2, TTDCompareMap& compareMap)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1164\n");
             compareMap.DiagnosticAssert(fbInfo1->ScriptContextLogId == fbInfo2->ScriptContextLogId);
             compareMap.DiagnosticAssert(fbInfo1->TopLevelBodyCtr == fbInfo2->TopLevelBodyCtr);
             compareMap.DiagnosticAssert(TTStringEQForDiagnostics(fbInfo1->FunctionName, fbInfo2->FunctionName));
@@ -1176,7 +1176,7 @@ namespace TTD
             compareMap.DiagnosticAssert(fbInfo1->ByteLength == fbInfo2->ByteLength);
 
             for(uint32 i = 0; i < fbInfo1->ByteLength; ++i)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1178\n");
                 compareMap.DiagnosticAssert(fbInfo1->SourceBuffer[i] == fbInfo2->SourceBuffer[i]);
             }
 
@@ -1188,14 +1188,14 @@ namespace TTD
         //Regular script-load functions
 
         void ExtractTopLevelLoadedFunctionBodyInfo(TopLevelScriptLoadFunctionBodyResolveInfo* fbInfo, Js::FunctionBody* fb, uint64 topLevelCtr, Js::ModuleID moduleId, uint64 sourceContextId, bool isUtf8, const byte* source, uint32 sourceLen, LoadScriptFlag loadFlag, SlabAllocator& alloc)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1190\n");
             NSSnapValues::ExtractTopLevelCommonBodyResolveInfo(&fbInfo->TopLevelBase, fb, topLevelCtr, moduleId, sourceContextId, isUtf8, source, sourceLen, alloc);
 
             fbInfo->LoadFlag = loadFlag;
         }
 
         Js::FunctionBody* InflateTopLevelLoadedFunctionBodyInfo(const TopLevelScriptLoadFunctionBodyResolveInfo* fbInfo, Js::ScriptContext* ctx)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1197\n");
             byte* script = fbInfo->TopLevelBase.SourceBuffer;
             uint32 scriptLength = fbInfo->TopLevelBase.ByteLength;
             uint64 sourceContext = fbInfo->TopLevelBase.SourceContextId;
@@ -1228,7 +1228,7 @@ namespace TTD
             Js::FunctionBody* globalBody = nullptr;
 
             if(fbInfo->TopLevelBase.DbgSerializedBytecodeSize != 0)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1230\n");
                 //
                 //TODO: Bytecode serializer does not support debug bytecode (StatementMaps vs Positions) so add this to serializer code.
                 //      Then we can add code do optimized bytecode reload here.
@@ -1250,7 +1250,7 @@ namespace TTD
             ////
             //We don't do this automatically in the load script helper so do it here
             BEGIN_JS_RUNTIME_CALL(ctx);
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1252\n");
                 ctx->TTDContextInfo->ProcessFunctionBodyOnLoad(globalBody, nullptr);
                 ctx->TTDContextInfo->RegisterLoadedScript(globalBody, fbInfo->TopLevelBase.TopLevelBodyCtr);
             }
@@ -1259,7 +1259,7 @@ namespace TTD
             bool isLibraryCode = ((fbInfo->LoadFlag & LoadScriptFlag_LibraryCode) == LoadScriptFlag_LibraryCode);
             const HostScriptContextCallbackFunctor& hostFunctor = ctx->TTDHostCallbackFunctor;
             if(hostFunctor.pfOnScriptLoadCallback != nullptr && !isLibraryCode)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1261\n");
                 hostFunctor.pfOnScriptLoadCallback(hostFunctor.HostData, scriptFunction, utf8SourceInfo, &se);
             }
             ////
@@ -1268,7 +1268,7 @@ namespace TTD
         }
 
         void EmitTopLevelLoadedFunctionBodyInfo(const TopLevelScriptLoadFunctionBodyResolveInfo* fbInfo, ThreadContext* threadContext, FileWriter* writer, NSTokens::Separator separator)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1270\n");
             NSSnapValues::EmitTopLevelCommonBodyResolveInfo(&fbInfo->TopLevelBase, false, threadContext, writer, separator);
 
             writer->WriteTag<LoadScriptFlag>(NSTokens::Key::loadFlag, fbInfo->LoadFlag, NSTokens::Separator::CommaSeparator);
@@ -1277,7 +1277,7 @@ namespace TTD
         }
 
         void ParseTopLevelLoadedFunctionBodyInfo(TopLevelScriptLoadFunctionBodyResolveInfo* fbInfo, bool readSeperator, ThreadContext* threadContext, FileReader* reader, SlabAllocator& alloc)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1279\n");
             NSSnapValues::ParseTopLevelCommonBodyResolveInfo(&fbInfo->TopLevelBase, readSeperator, false, threadContext, reader, alloc);
 
             fbInfo->LoadFlag = reader->ReadTag<LoadScriptFlag>(NSTokens::Key::loadFlag, true);
@@ -1287,7 +1287,7 @@ namespace TTD
 
 #if ENABLE_SNAPSHOT_COMPARE
         void AssertSnapEquiv(const TopLevelScriptLoadFunctionBodyResolveInfo* fbInfo1, const TopLevelScriptLoadFunctionBodyResolveInfo* fbInfo2, TTDCompareMap& compareMap)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1289\n");
             compareMap.DiagnosticAssert(fbInfo1->LoadFlag == fbInfo2->LoadFlag);
 
             AssertSnapEquiv(&(fbInfo1->TopLevelBase), &(fbInfo2->TopLevelBase), compareMap);
@@ -1298,12 +1298,12 @@ namespace TTD
         //'new Function(...)' functions
 
         void ExtractTopLevelNewFunctionBodyInfo(TopLevelNewFunctionBodyResolveInfo* fbInfo, Js::FunctionBody* fb, uint64 topLevelCtr, Js::ModuleID moduleId, const char16* source, uint32 sourceLen, SlabAllocator& alloc)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1300\n");
             NSSnapValues::ExtractTopLevelCommonBodyResolveInfo(&fbInfo->TopLevelBase, fb, topLevelCtr, moduleId, 0, false, (const byte*)source, sourceLen * sizeof(char16), alloc);
         }
 
         Js::FunctionBody* InflateTopLevelNewFunctionBodyInfo(const TopLevelNewFunctionBodyResolveInfo* fbInfo, Js::ScriptContext* ctx)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1305\n");
             // Bug 1105479. Get the module id from the caller
             Js::ModuleID moduleID = kmodGlobal;
             BOOL strictMode = FALSE;
@@ -1330,14 +1330,14 @@ namespace TTD
         }
 
         void EmitTopLevelNewFunctionBodyInfo(const TopLevelNewFunctionBodyResolveInfo* fbInfo, ThreadContext* threadContext, FileWriter* writer, NSTokens::Separator separator)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1332\n");
             NSSnapValues::EmitTopLevelCommonBodyResolveInfo(&fbInfo->TopLevelBase, true, threadContext, writer, separator);
 
             writer->WriteRecordEnd();
         }
 
         void ParseTopLevelNewFunctionBodyInfo(TopLevelNewFunctionBodyResolveInfo* fbInfo, bool readSeperator, ThreadContext* threadContext, FileReader* reader, SlabAllocator& alloc)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1339\n");
             NSSnapValues::ParseTopLevelCommonBodyResolveInfo(&fbInfo->TopLevelBase, readSeperator, false, threadContext, reader, alloc);
 
             reader->ReadRecordEnd();
@@ -1345,7 +1345,7 @@ namespace TTD
 
 #if ENABLE_SNAPSHOT_COMPARE
         void AssertSnapEquiv(const TopLevelNewFunctionBodyResolveInfo* fbInfo1, const TopLevelNewFunctionBodyResolveInfo* fbInfo2, TTDCompareMap& compareMap)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1347\n");
             AssertSnapEquiv(&(fbInfo1->TopLevelBase), &(fbInfo2->TopLevelBase), compareMap);
         }
 #endif
@@ -1354,7 +1354,7 @@ namespace TTD
         //'eval(...)' functions
 
         void ExtractTopLevelEvalFunctionBodyInfo(TopLevelEvalFunctionBodyResolveInfo* fbInfo, Js::FunctionBody* fb, uint64 topLevelCtr, Js::ModuleID moduleId, const char16* source, uint32 sourceLen, uint32 grfscr, bool registerDocument, BOOL isIndirect, BOOL strictMode, SlabAllocator& alloc)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1356\n");
             NSSnapValues::ExtractTopLevelCommonBodyResolveInfo(&fbInfo->TopLevelBase, fb, topLevelCtr, moduleId, 0, false, (const byte*)source, sourceLen * sizeof(char16), alloc);
 
             fbInfo->EvalFlags = grfscr;
@@ -1364,7 +1364,7 @@ namespace TTD
         }
 
         Js::FunctionBody* InflateTopLevelEvalFunctionBodyInfo(const TopLevelEvalFunctionBodyResolveInfo* fbInfo, Js::ScriptContext* ctx)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1366\n");
             uint32 grfscr = ((uint32)fbInfo->EvalFlags) | fscrReturnExpression | fscrEval | fscrEvalCode | fscrGlobalCode;
 
             char16* source = (char16*)fbInfo->TopLevelBase.SourceBuffer;
@@ -1385,7 +1385,7 @@ namespace TTD
         }
 
         void EmitTopLevelEvalFunctionBodyInfo(const TopLevelEvalFunctionBodyResolveInfo* fbInfo, ThreadContext* threadContext, FileWriter* writer, NSTokens::Separator separator)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1387\n");
             NSSnapValues::EmitTopLevelCommonBodyResolveInfo(&fbInfo->TopLevelBase, true, threadContext, writer, separator);
 
             writer->WriteUInt64(NSTokens::Key::u64Val, fbInfo->EvalFlags, NSTokens::Separator::CommaSeparator);
@@ -1396,7 +1396,7 @@ namespace TTD
         }
 
         void ParseTopLevelEvalFunctionBodyInfo(TopLevelEvalFunctionBodyResolveInfo* fbInfo, bool readSeperator, ThreadContext* threadContext, FileReader* reader, SlabAllocator& alloc)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1398\n");
             NSSnapValues::ParseTopLevelCommonBodyResolveInfo(&fbInfo->TopLevelBase, readSeperator, false, threadContext, reader, alloc);
 
             fbInfo->EvalFlags = reader->ReadUInt64(NSTokens::Key::u64Val, true);
@@ -1408,7 +1408,7 @@ namespace TTD
 
 #if ENABLE_SNAPSHOT_COMPARE
         void AssertSnapEquiv(const TopLevelEvalFunctionBodyResolveInfo* fbInfo1, const TopLevelEvalFunctionBodyResolveInfo* fbInfo2, TTDCompareMap& compareMap)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1410\n");
             compareMap.DiagnosticAssert(fbInfo1->EvalFlags == fbInfo2->EvalFlags);
             compareMap.DiagnosticAssert(fbInfo1->RegisterDocument == fbInfo2->RegisterDocument);
             compareMap.DiagnosticAssert(fbInfo1->IsIndirect == fbInfo2->IsIndirect);
@@ -1419,7 +1419,7 @@ namespace TTD
 #endif
 
         void ExtractFunctionBodyInfo(FunctionBodyResolveInfo* fbInfo, Js::FunctionBody* fb, bool isWellKnown, SlabAllocator& alloc)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1421\n");
             fbInfo->FunctionBodyId = TTD_CONVERT_FUNCTIONBODY_TO_PTR_ID(fb);
             fbInfo->ScriptContextLogId = fb->GetScriptContext()->ScriptContextLogTag;
 
@@ -1427,7 +1427,7 @@ namespace TTD
             TTDAssert(wcscmp(fbInfo->FunctionName.Contents, Js::Constants::GlobalCode) != 0, "Why are we snapshotting global code??");
 
             if(isWellKnown)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1429\n");
                 fbInfo->OptKnownPath = alloc.CopyRawNullTerminatedStringInto(fb->GetScriptContext()->TTDWellKnownInfo->ResolvePathForKnownFunctionBody(fb));
 
                 fbInfo->OptParentBodyId = TTD_INVALID_PTR_ID;
@@ -1450,9 +1450,9 @@ namespace TTD
         }
 
         void InflateFunctionBody(const FunctionBodyResolveInfo* fbInfo, InflateMap* inflator, const TTDIdentifierDictionary<TTD_PTR_ID, FunctionBodyResolveInfo*>& idToFbResolveMap)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1452\n");
             if(inflator->IsFunctionBodyAlreadyInflated(fbInfo->FunctionBodyId))
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1454\n");
                 return;
             }
 
@@ -1460,17 +1460,17 @@ namespace TTD
 
             Js::FunctionBody* resfb = nullptr;
             if(fbInfo->OptKnownPath != TTD_INVALID_WELLKNOWN_TOKEN)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1462\n");
                 resfb = ctx->TTDWellKnownInfo->LookupKnownFunctionBodyFromPath(fbInfo->OptKnownPath);
             }
             else
             {
                 resfb = inflator->FindReusableFunctionBodyIfExists(fbInfo->FunctionBodyId);
                 if(resfb == nullptr)
-                {
+                {LOGMEIN("TTSnapValues.cpp] 1469\n");
                     //Find and inflate the parent body
                     if(!inflator->IsFunctionBodyAlreadyInflated(fbInfo->OptParentBodyId))
-                    {
+                    {LOGMEIN("TTSnapValues.cpp] 1472\n");
                         const FunctionBodyResolveInfo* pBodyInfo = idToFbResolveMap.LookupKnownItem(fbInfo->OptParentBodyId);
                         InflateFunctionBody(pBodyInfo, inflator, idToFbResolveMap);
                     }
@@ -1483,12 +1483,12 @@ namespace TTD
                     //
                     uint32 blength = parentBody->GetNestedCount();
                     for(uint32 i = 0; i < blength; ++i)
-                    {
+                    {LOGMEIN("TTSnapValues.cpp] 1485\n");
                         Js::ParseableFunctionInfo* pfi = parentBody->GetNestedFunctionForExecution(i);
                         Js::FunctionBody* currfb = JsSupport::ForceAndGetFunctionBody(pfi);
 
                         if(fbInfo->OptLine == currfb->GetLineNumber() && fbInfo->OptColumn == currfb->GetColumnNumber())
-                        {
+                        {LOGMEIN("TTSnapValues.cpp] 1490\n");
                             resfb = currfb;
                             break;
                         }
@@ -1504,20 +1504,20 @@ namespace TTD
 
             bool updateName = false;
             if(fbInfo->FunctionName.Length != resfb->GetDisplayNameLength())
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1506\n");
                 updateName = true;
             }
             else
             {
                 const char16* fname = resfb->GetDisplayName();
                 for(uint32 i = 0; i < fbInfo->FunctionName.Length; ++i)
-                {
+                {LOGMEIN("TTSnapValues.cpp] 1513\n");
                     updateName |= (fbInfo->FunctionName.Contents[i] != fname[i]);
                 }
             }
 
             if(updateName)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1519\n");
                 uint32 suffixWDotPos = (fbInfo->FunctionName.Length - 4);
                 uint32 suffixPos = (fbInfo->FunctionName.Length - 3);
 
@@ -1530,7 +1530,7 @@ namespace TTD
         }
 
         void EmitFunctionBodyInfo(const FunctionBodyResolveInfo* fbInfo, FileWriter* writer, NSTokens::Separator separator)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1532\n");
             writer->WriteRecordStart(separator);
             writer->WriteAddr(NSTokens::Key::functionBodyId, fbInfo->FunctionBodyId);
             writer->WriteLogTag(NSTokens::Key::ctxTag, fbInfo->ScriptContextLogId, NSTokens::Separator::CommaSeparator);
@@ -1538,7 +1538,7 @@ namespace TTD
 
             writer->WriteBool(NSTokens::Key::isWellKnownToken, fbInfo->OptKnownPath != nullptr, NSTokens::Separator::CommaSeparator);
             if(fbInfo->OptKnownPath != TTD_INVALID_WELLKNOWN_TOKEN)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1540\n");
                 writer->WriteWellKnownToken(NSTokens::Key::wellKnownToken, fbInfo->OptKnownPath, NSTokens::Separator::CommaSeparator);
             }
             else
@@ -1555,7 +1555,7 @@ namespace TTD
         }
 
         void ParseFunctionBodyInfo(FunctionBodyResolveInfo* fbInfo, bool readSeperator, FileReader* reader, SlabAllocator& alloc)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1557\n");
             reader->ReadRecordStart(readSeperator);
 
             fbInfo->FunctionBodyId = reader->ReadAddr(NSTokens::Key::functionBodyId);
@@ -1564,7 +1564,7 @@ namespace TTD
 
             bool isWellKnown = reader->ReadBool(NSTokens::Key::isWellKnownToken, true);
             if(isWellKnown)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1566\n");
                 fbInfo->OptKnownPath = reader->ReadWellKnownToken(NSTokens::Key::wellKnownToken, alloc, true);
 
                 fbInfo->OptParentBodyId = TTD_INVALID_PTR_ID;
@@ -1588,13 +1588,13 @@ namespace TTD
 
 #if ENABLE_SNAPSHOT_COMPARE
         void AssertSnapEquiv(const FunctionBodyResolveInfo* fbInfo1, const FunctionBodyResolveInfo* fbInfo2, TTDCompareMap& compareMap)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1590\n");
             compareMap.DiagnosticAssert(fbInfo1->ScriptContextLogId == fbInfo2->ScriptContextLogId);
             compareMap.DiagnosticAssert(TTStringEQForDiagnostics(fbInfo1->FunctionName, fbInfo2->FunctionName));
 
             compareMap.DiagnosticAssert(TTD_DIAGNOSTIC_COMPARE_WELLKNOWN_TOKENS(fbInfo1->OptKnownPath, fbInfo2->OptKnownPath));
             if(fbInfo1->OptKnownPath == TTD_INVALID_WELLKNOWN_TOKEN)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1596\n");
                 compareMap.CheckConsistentAndAddPtrIdMapping_FunctionBody(fbInfo1->OptParentBodyId, fbInfo2->OptParentBodyId);
 
                 compareMap.DiagnosticAssert(fbInfo1->OptLine == fbInfo2->OptLine);
@@ -1608,7 +1608,7 @@ namespace TTD
         //////////////////
 
         void ExtractScriptContext(SnapContext* snapCtx, Js::ScriptContext* ctx, const JsUtil::BaseDictionary<Js::RecyclableObject*, TTD_LOG_PTR_ID, HeapAllocator>& objToLogIdMap, SlabAllocator& alloc)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1610\n");
             snapCtx->ScriptContextLogId = ctx->ScriptContextLogTag;
 
             snapCtx->IsPNRGSeeded = ctx->GetLibrary()->IsPRNGSeeded();
@@ -1624,42 +1624,42 @@ namespace TTD
 
             snapCtx->LoadedTopLevelScriptCount = topLevelScriptLoad.Count();
             if(snapCtx->LoadedTopLevelScriptCount == 0)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1626\n");
                 snapCtx->LoadedTopLevelScriptArray = nullptr;
             }
             else
             {
                 snapCtx->LoadedTopLevelScriptArray = alloc.SlabAllocateArray<TopLevelFunctionInContextRelation>(snapCtx->LoadedTopLevelScriptCount);
                 for(int32 i = 0; i < topLevelScriptLoad.Count(); ++i)
-                {
+                {LOGMEIN("TTSnapValues.cpp] 1633\n");
                     snapCtx->LoadedTopLevelScriptArray[i] = topLevelScriptLoad.Item(i);
                 }
             }
 
             snapCtx->NewFunctionTopLevelScriptCount = topLevelNewFunction.Count();
             if(snapCtx->NewFunctionTopLevelScriptCount == 0)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1640\n");
                 snapCtx->NewFunctionTopLevelScriptArray = nullptr;
             }
             else
             {
                 snapCtx->NewFunctionTopLevelScriptArray = alloc.SlabAllocateArray<TopLevelFunctionInContextRelation>(snapCtx->NewFunctionTopLevelScriptCount);
                 for(int32 i = 0; i < topLevelNewFunction.Count(); ++i)
-                {
+                {LOGMEIN("TTSnapValues.cpp] 1647\n");
                     snapCtx->NewFunctionTopLevelScriptArray[i] = topLevelNewFunction.Item(i);
                 }
             }
 
             snapCtx->EvalTopLevelScriptCount = topLevelEval.Count();
             if(snapCtx->EvalTopLevelScriptCount == 0)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1654\n");
                 snapCtx->EvalTopLevelScriptArray = nullptr;
             }
             else
             {
                 snapCtx->EvalTopLevelScriptArray = alloc.SlabAllocateArray<TopLevelFunctionInContextRelation>(snapCtx->EvalTopLevelScriptCount);
                 for(int32 i = 0; i < topLevelEval.Count(); ++i)
-                {
+                {LOGMEIN("TTSnapValues.cpp] 1661\n");
                     snapCtx->EvalTopLevelScriptArray[i] = topLevelEval.Item(i);
                 }
             }
@@ -1668,7 +1668,7 @@ namespace TTD
             const JsUtil::List<TTDPendingAsyncBufferModification, HeapAllocator>& pendingAsyncList = ctx->TTDContextInfo->GetPendingAsyncModListForSnapshot();
             snapCtx->PendingAsyncModCount = pendingAsyncList.Count();
             if(snapCtx->PendingAsyncModCount == 0)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1670\n");
                 snapCtx->PendingAsyncModArray = nullptr;
             }
             else
@@ -1676,7 +1676,7 @@ namespace TTD
                 snapCtx->PendingAsyncModArray = alloc.SlabAllocateArray<SnapPendingAsyncBufferModification>(snapCtx->PendingAsyncModCount);
 
                 for(int32 k = 0; k < pendingAsyncList.Count(); ++k)
-                {
+                {LOGMEIN("TTSnapValues.cpp] 1678\n");
                     const TTDPendingAsyncBufferModification& pk = pendingAsyncList.Item(k);
                     snapCtx->PendingAsyncModArray[k].LogId = objToLogIdMap.Item(Js::RecyclableObject::FromVar(pk.ArrayBufferVar));
                     snapCtx->PendingAsyncModArray[k].Index = pk.Index;
@@ -1688,7 +1688,7 @@ namespace TTD
             const TTDIdentifierDictionary<uint64, TopLevelScriptLoadFunctionBodyResolveInfo*>& topLevelLoadScriptMap,
             const TTDIdentifierDictionary<uint64, TopLevelNewFunctionBodyResolveInfo*>& topLevelNewScriptMap,
             const TTDIdentifierDictionary<uint64, TopLevelEvalFunctionBodyResolveInfo*>& topLevelEvalScriptMap)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1690\n");
             TTDAssert(wcscmp(snpCtx->ContextSRC.Contents, intoCtx->GetUrl()) == 0, "Make sure the src uri values are the same.");
 
             intoCtx->GetLibrary()->SetIsPRNGSeeded(snpCtx->IsPNRGSeeded);
@@ -1699,19 +1699,19 @@ namespace TTD
             intoCtx->TTDContextInfo->ClearLoadedSourcesForSnapshotRestore();
 
             if(intoCtx->HasRecordedException())
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1701\n");
                 intoCtx->GetAndClearRecordedException(nullptr);
             }
 
             for(uint32 i = 0; i < snpCtx->LoadedTopLevelScriptCount; ++i)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1706\n");
                 const TopLevelFunctionInContextRelation& cri = snpCtx->LoadedTopLevelScriptArray[i];
 
                 Js::FunctionBody* fb = inflator->FindReusableFunctionBodyIfExists(cri.ContextSpecificBodyPtrId);
                 const TopLevelScriptLoadFunctionBodyResolveInfo* fbInfo = topLevelLoadScriptMap.LookupKnownItem(cri.TopLevelBodyCtr);
 
                 if(fb == nullptr)
-                {
+                {LOGMEIN("TTSnapValues.cpp] 1713\n");
                     fb = NSSnapValues::InflateTopLevelLoadedFunctionBodyInfo(fbInfo, intoCtx);
                 }
                 else
@@ -1726,16 +1726,16 @@ namespace TTD
 
             //The inflation code for NewFunction and Eval uses the paths in the runtime (which assume they are in script) -- so enter here to make them happy
             BEGIN_ENTER_SCRIPT(intoCtx, true, true, true)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1728\n");
                 for(uint32 i = 0; i < snpCtx->NewFunctionTopLevelScriptCount; ++i)
-                {
+                {LOGMEIN("TTSnapValues.cpp] 1730\n");
                     const TopLevelFunctionInContextRelation& cri = snpCtx->NewFunctionTopLevelScriptArray[i];
 
                     Js::FunctionBody* fb = inflator->FindReusableFunctionBodyIfExists(cri.ContextSpecificBodyPtrId);
                     const TopLevelNewFunctionBodyResolveInfo* fbInfo = topLevelNewScriptMap.LookupKnownItem(cri.TopLevelBodyCtr);
 
                     if(fb == nullptr)
-                    {
+                    {LOGMEIN("TTSnapValues.cpp] 1737\n");
                         fb = NSSnapValues::InflateTopLevelNewFunctionBodyInfo(fbInfo, intoCtx);
                     }
                     else
@@ -1749,14 +1749,14 @@ namespace TTD
                 }
 
                 for(uint32 i = 0; i < snpCtx->EvalTopLevelScriptCount; ++i)
-                {
+                {LOGMEIN("TTSnapValues.cpp] 1751\n");
                     const TopLevelFunctionInContextRelation& cri = snpCtx->EvalTopLevelScriptArray[i];
 
                     Js::FunctionBody* fb = inflator->FindReusableFunctionBodyIfExists(cri.ContextSpecificBodyPtrId);
                     const TopLevelEvalFunctionBodyResolveInfo* fbInfo = topLevelEvalScriptMap.LookupKnownItem(cri.TopLevelBodyCtr);
 
                     if(fb == nullptr)
-                    {
+                    {LOGMEIN("TTSnapValues.cpp] 1758\n");
                         fb = NSSnapValues::InflateTopLevelEvalFunctionBodyInfo(fbInfo, intoCtx);
                     }
                     else
@@ -1773,11 +1773,11 @@ namespace TTD
         }
 
         void ResetPendingAsyncBufferModInfo(const SnapContext* snpCtx, Js::ScriptContext* intoCtx, InflateMap* inflator)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1775\n");
             intoCtx->TTDContextInfo->ClearPendingAsyncModListForSnapRestore();
 
             for(uint32 i = 0; i < snpCtx->PendingAsyncModCount; ++i)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1779\n");
                 Js::RecyclableObject* buff = intoCtx->GetThreadContext()->TTDContext->LookupObjectForLogID(snpCtx->PendingAsyncModArray[i].LogId);
                 uint32 index = snpCtx->PendingAsyncModArray[i].Index;
 
@@ -1787,7 +1787,7 @@ namespace TTD
         }
 
         void EmitSnapContext(const SnapContext* snapCtx, FileWriter* writer, NSTokens::Separator separator)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1789\n");
             writer->WriteRecordStart(separator);
 
             writer->WriteLogTag(NSTokens::Key::ctxTag, snapCtx->ScriptContextLogId);
@@ -1799,7 +1799,7 @@ namespace TTD
             writer->WriteLengthValue(snapCtx->LoadedTopLevelScriptCount, NSTokens::Separator::CommaSeparator);
             writer->WriteSequenceStart_DefaultKey(NSTokens::Separator::CommaSeparator);
             for(uint32 i = 0; i < snapCtx->LoadedTopLevelScriptCount; ++i)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1801\n");
                 const TopLevelFunctionInContextRelation* cri = snapCtx->LoadedTopLevelScriptArray + i;
                 NSTokens::Separator sep = (i != 0) ? NSTokens::Separator::CommaSeparator : NSTokens::Separator::NoSeparator;
 
@@ -1813,7 +1813,7 @@ namespace TTD
             writer->WriteLengthValue(snapCtx->NewFunctionTopLevelScriptCount, NSTokens::Separator::CommaSeparator);
             writer->WriteSequenceStart_DefaultKey(NSTokens::Separator::CommaSeparator);
             for(uint32 i = 0; i < snapCtx->NewFunctionTopLevelScriptCount; ++i)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1815\n");
                 const TopLevelFunctionInContextRelation* cri = snapCtx->NewFunctionTopLevelScriptArray + i;
                 NSTokens::Separator sep = (i != 0) ? NSTokens::Separator::CommaSeparator : NSTokens::Separator::NoSeparator;
 
@@ -1827,7 +1827,7 @@ namespace TTD
             writer->WriteLengthValue(snapCtx->EvalTopLevelScriptCount, NSTokens::Separator::CommaSeparator);
             writer->WriteSequenceStart_DefaultKey(NSTokens::Separator::CommaSeparator);
             for(uint32 i = 0; i < snapCtx->EvalTopLevelScriptCount; ++i)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1829\n");
                 const TopLevelFunctionInContextRelation* cri = snapCtx->EvalTopLevelScriptArray + i;
                 NSTokens::Separator sep = (i != 0) ? NSTokens::Separator::CommaSeparator : NSTokens::Separator::NoSeparator;
 
@@ -1841,7 +1841,7 @@ namespace TTD
             writer->WriteLengthValue(snapCtx->PendingAsyncModCount, NSTokens::Separator::CommaSeparator);
             writer->WriteSequenceStart_DefaultKey(NSTokens::Separator::CommaSeparator);
             for(uint32 i = 0; i < snapCtx->PendingAsyncModCount; ++i)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1843\n");
                 NSTokens::Separator sep = (i != 0) ? NSTokens::Separator::CommaSeparator : NSTokens::Separator::NoSeparator;
                 writer->WriteRecordStart(sep);
                 writer->WriteLogTag(NSTokens::Key::logTag, snapCtx->PendingAsyncModArray[i].LogId);
@@ -1854,7 +1854,7 @@ namespace TTD
         }
 
         void ParseSnapContext(SnapContext* intoCtx, bool readSeperator, FileReader* reader, SlabAllocator& alloc)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1856\n");
             reader->ReadRecordStart(readSeperator);
 
             intoCtx->ScriptContextLogId = reader->ReadLogTag(NSTokens::Key::ctxTag);
@@ -1867,7 +1867,7 @@ namespace TTD
             intoCtx->LoadedTopLevelScriptArray = (intoCtx->LoadedTopLevelScriptCount != 0) ? alloc.SlabAllocateArray<TopLevelFunctionInContextRelation>(intoCtx->LoadedTopLevelScriptCount) : nullptr;
             reader->ReadSequenceStart_WDefaultKey(true);
             for(uint32 i = 0; i < intoCtx->LoadedTopLevelScriptCount; ++i)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1869\n");
                 TopLevelFunctionInContextRelation* cri = intoCtx->LoadedTopLevelScriptArray + i;
 
                 reader->ReadRecordStart(i != 0);
@@ -1881,7 +1881,7 @@ namespace TTD
             intoCtx->NewFunctionTopLevelScriptArray = (intoCtx->NewFunctionTopLevelScriptCount != 0) ? alloc.SlabAllocateArray<TopLevelFunctionInContextRelation>(intoCtx->NewFunctionTopLevelScriptCount) : nullptr;
             reader->ReadSequenceStart_WDefaultKey(true);
             for(uint32 i = 0; i < intoCtx->NewFunctionTopLevelScriptCount; ++i)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1883\n");
                 TopLevelFunctionInContextRelation* cri = intoCtx->NewFunctionTopLevelScriptArray + i;
 
                 reader->ReadRecordStart(i != 0);
@@ -1895,7 +1895,7 @@ namespace TTD
             intoCtx->EvalTopLevelScriptArray = (intoCtx->EvalTopLevelScriptCount != 0) ? alloc.SlabAllocateArray<TopLevelFunctionInContextRelation>(intoCtx->EvalTopLevelScriptCount) : nullptr;
             reader->ReadSequenceStart_WDefaultKey(true);
             for(uint32 i = 0; i < intoCtx->EvalTopLevelScriptCount; ++i)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1897\n");
                 TopLevelFunctionInContextRelation* cri = intoCtx->EvalTopLevelScriptArray + i;
 
                 reader->ReadRecordStart(i != 0);
@@ -1910,7 +1910,7 @@ namespace TTD
 
             reader->ReadSequenceStart_WDefaultKey(true);
             for(uint32 i = 0; i < intoCtx->PendingAsyncModCount; ++i)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1912\n");
                 reader->ReadRecordStart(i != 0);
                 intoCtx->PendingAsyncModArray[i].LogId = reader->ReadLogTag(NSTokens::Key::logTag);
                 intoCtx->PendingAsyncModArray[i].Index = reader->ReadUInt32(NSTokens::Key::u32Val, true);
@@ -1923,7 +1923,7 @@ namespace TTD
 
 #if ENABLE_SNAPSHOT_COMPARE 
         void AssertSnapEquiv(const SnapContext* snapCtx1, const SnapContext* snapCtx2, const JsUtil::BaseDictionary<TTD_LOG_PTR_ID, TTD_PTR_ID, HeapAllocator>& allRootMap1, const JsUtil::BaseDictionary<TTD_LOG_PTR_ID, TTD_PTR_ID, HeapAllocator>& allRootMap2, TTDCompareMap& compareMap)
-        {
+        {LOGMEIN("TTSnapValues.cpp] 1925\n");
             compareMap.DiagnosticAssert(snapCtx1->ScriptContextLogId == snapCtx2->ScriptContextLogId);
 
             compareMap.DiagnosticAssert(snapCtx1->IsPNRGSeeded == snapCtx2->IsPNRGSeeded);
@@ -1948,7 +1948,7 @@ namespace TTD
             compareMap.DiagnosticAssert(snapCtx1->PendingAsyncModCount == snapCtx2->PendingAsyncModCount);
 
             for(uint32 i = 0; i < snapCtx1->PendingAsyncModCount; ++i)
-            {
+            {LOGMEIN("TTSnapValues.cpp] 1950\n");
                 const SnapPendingAsyncBufferModification& pendEntry1 = snapCtx1->PendingAsyncModArray[i];
                 const SnapPendingAsyncBufferModification& pendEntry2 = snapCtx2->PendingAsyncModArray[i];
 

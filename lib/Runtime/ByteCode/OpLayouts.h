@@ -28,34 +28,34 @@ namespace Js {
         Count  // Number of operations
     };
 
-    inline OpCode operator+(OpCode o1, OpCode o2) { return (OpCode)((uint)o1 + (uint)o2); }
-    inline uint operator+(OpCode o1, uint i) { return ((uint)o1 + i); }
-    inline uint operator+(uint i, OpCode &o2) { return (i + (uint)o2); }
-    inline OpCode operator++(OpCode &o) { return o = (OpCode)(o + 1U); }
-    inline OpCode operator++(OpCode &o, int) { OpCode prev_o = o;  o = (OpCode)(o + 1U); return prev_o; }
-    inline OpCode operator-(OpCode o1, OpCode o2) { return (OpCode)((uint)o1 - (uint)o2); }
-    inline uint operator-(OpCode o1, uint i) { return ((uint)o1 - i); }
-    inline uint operator-(uint i, OpCode &o2) { return (i - (uint)o2); }
-    inline OpCode operator--(OpCode &o) { return o = (OpCode)(o - 1U); }
-    inline OpCode operator--(OpCode &o, int) { return o = (OpCode)(o - 1U); }
-    inline uint operator<<(OpCode o1, uint i) { return ((uint)o1 << i); }
-    inline OpCode& operator+=(OpCode &o, uint i) { return (o = (OpCode)(o + i)); }
-    inline OpCode& operator-=(OpCode &o, uint i) { return (o = (OpCode)(o - i)); }
-    inline bool operator==(OpCode &o, uint i) { return ((uint)(o) == i); }
-    inline bool operator==(uint i, OpCode &o) { return (i == (uint)(o)); }
-    inline bool operator!=(OpCode &o, uint i) { return ((uint)(o) != i); }
-    inline bool operator!=(uint i, OpCode &o) { return (i != (uint)(o)); }
-    inline bool operator<(OpCode &o, uint i) { return ((uint)(o) < i); }
-    inline bool operator<(uint i, OpCode &o) { return (i < (uint)(o)); }
-    inline bool operator>(OpCode &o, uint i) { return ((uint)(o) > i); }
-    inline bool operator>(uint i, OpCode &o) { return (i > (uint)(o)); }
+    inline OpCode operator+(OpCode o1, OpCode o2) {LOGMEIN("OpLayouts.h] 30\n"); return (OpCode)((uint)o1 + (uint)o2); }
+    inline uint operator+(OpCode o1, uint i) {LOGMEIN("OpLayouts.h] 31\n"); return ((uint)o1 + i); }
+    inline uint operator+(uint i, OpCode &o2) {LOGMEIN("OpLayouts.h] 32\n"); return (i + (uint)o2); }
+    inline OpCode operator++(OpCode &o) {LOGMEIN("OpLayouts.h] 33\n"); return o = (OpCode)(o + 1U); }
+    inline OpCode operator++(OpCode &o, int) {LOGMEIN("OpLayouts.h] 34\n"); OpCode prev_o = o;  o = (OpCode)(o + 1U); return prev_o; }
+    inline OpCode operator-(OpCode o1, OpCode o2) {LOGMEIN("OpLayouts.h] 35\n"); return (OpCode)((uint)o1 - (uint)o2); }
+    inline uint operator-(OpCode o1, uint i) {LOGMEIN("OpLayouts.h] 36\n"); return ((uint)o1 - i); }
+    inline uint operator-(uint i, OpCode &o2) {LOGMEIN("OpLayouts.h] 37\n"); return (i - (uint)o2); }
+    inline OpCode operator--(OpCode &o) {LOGMEIN("OpLayouts.h] 38\n"); return o = (OpCode)(o - 1U); }
+    inline OpCode operator--(OpCode &o, int) {LOGMEIN("OpLayouts.h] 39\n"); return o = (OpCode)(o - 1U); }
+    inline uint operator<<(OpCode o1, uint i) {LOGMEIN("OpLayouts.h] 40\n"); return ((uint)o1 << i); }
+    inline OpCode& operator+=(OpCode &o, uint i) {LOGMEIN("OpLayouts.h] 41\n"); return (o = (OpCode)(o + i)); }
+    inline OpCode& operator-=(OpCode &o, uint i) {LOGMEIN("OpLayouts.h] 42\n"); return (o = (OpCode)(o - i)); }
+    inline bool operator==(OpCode &o, uint i) {LOGMEIN("OpLayouts.h] 43\n"); return ((uint)(o) == i); }
+    inline bool operator==(uint i, OpCode &o) {LOGMEIN("OpLayouts.h] 44\n"); return (i == (uint)(o)); }
+    inline bool operator!=(OpCode &o, uint i) {LOGMEIN("OpLayouts.h] 45\n"); return ((uint)(o) != i); }
+    inline bool operator!=(uint i, OpCode &o) {LOGMEIN("OpLayouts.h] 46\n"); return (i != (uint)(o)); }
+    inline bool operator<(OpCode &o, uint i) {LOGMEIN("OpLayouts.h] 47\n"); return ((uint)(o) < i); }
+    inline bool operator<(uint i, OpCode &o) {LOGMEIN("OpLayouts.h] 48\n"); return (i < (uint)(o)); }
+    inline bool operator>(OpCode &o, uint i) {LOGMEIN("OpLayouts.h] 49\n"); return ((uint)(o) > i); }
+    inline bool operator>(uint i, OpCode &o) {LOGMEIN("OpLayouts.h] 50\n"); return (i > (uint)(o)); }
 
 #if ENABLE_NATIVE_CODEGEN
-    inline bool IsSimd128Opcode(OpCode o) { return (o > Js::OpCode::Simd128_Start && o < Js::OpCode::Simd128_End) || (o > Js::OpCode::Simd128_Start_Extend && o < Js::OpCode::Simd128_End_Extend); }
-    inline uint Simd128OpcodeCount() { return (uint)(Js::OpCode::Simd128_End - Js::OpCode::Simd128_Start) + 1 + (uint)(Js::OpCode::Simd128_End_Extend - Js::OpCode::Simd128_Start_Extend) + 1; }
-    inline bool IsSimd128Load(OpCode o){ return o == Js::OpCode::Simd128_LdArr_I4 || o == Js::OpCode::Simd128_LdArr_F4; }
-    inline bool IsSimd128Store(OpCode o){ return o == Js::OpCode::Simd128_StArr_I4 || o == Js::OpCode::Simd128_StArr_F4; }
-    inline bool IsSimd128LoadStore(OpCode o) { return IsSimd128Load(o) || IsSimd128Store(o); }
+    inline bool IsSimd128Opcode(OpCode o) {LOGMEIN("OpLayouts.h] 53\n"); return (o > Js::OpCode::Simd128_Start && o < Js::OpCode::Simd128_End) || (o > Js::OpCode::Simd128_Start_Extend && o < Js::OpCode::Simd128_End_Extend); }
+    inline uint Simd128OpcodeCount() {LOGMEIN("OpLayouts.h] 54\n"); return (uint)(Js::OpCode::Simd128_End - Js::OpCode::Simd128_Start) + 1 + (uint)(Js::OpCode::Simd128_End_Extend - Js::OpCode::Simd128_Start_Extend) + 1; }
+    inline bool IsSimd128Load(OpCode o){LOGMEIN("OpLayouts.h] 55\n"); return o == Js::OpCode::Simd128_LdArr_I4 || o == Js::OpCode::Simd128_LdArr_F4; }
+    inline bool IsSimd128Store(OpCode o){LOGMEIN("OpLayouts.h] 56\n"); return o == Js::OpCode::Simd128_StArr_I4 || o == Js::OpCode::Simd128_StArr_F4; }
+    inline bool IsSimd128LoadStore(OpCode o) {LOGMEIN("OpLayouts.h] 57\n"); return IsSimd128Load(o) || IsSimd128Store(o); }
 #endif
 
     ///----------------------------------------------------------------------------

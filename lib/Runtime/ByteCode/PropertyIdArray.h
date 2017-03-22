@@ -21,9 +21,9 @@ namespace Js
             hadDuplicates(hadDuplicates),
             has__proto__(has__proto__),
             hasNonSimpleParams(hasNonSimpleParams)
-        {
+        {LOGMEIN("PropertyIdArray.h] 23\n");
         }
 
-        size_t GetDataSize() const { return sizeof(PropertyIdArray) + sizeof(PropertyId) * (count + extraSlots); }
+        size_t GetDataSize() const {LOGMEIN("PropertyIdArray.h] 26\n"); return sizeof(PropertyIdArray) + sizeof(PropertyId) * (count + extraSlots); }
     };
 };

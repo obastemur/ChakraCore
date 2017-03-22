@@ -21,7 +21,7 @@ namespace Js
     public:
         static GlobalObject * New(ScriptContext * scriptContext);
 
-        JavascriptLibrary* GetLibrary() const {return library; }
+        JavascriptLibrary* GetLibrary() const {LOGMEIN("GlobalObject.h] 23\n");return library; }
 
         void Initialize(ScriptContext * scriptContext);
 

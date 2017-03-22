@@ -21,19 +21,19 @@ private:
 public:
     LinearScanMD(Func *func);
 
-    bool        IsAllocatable(RegNum reg, Func *func) const { return true; }
+    bool        IsAllocatable(RegNum reg, Func *func) const {LOGMEIN("LinearScanMD.h] 23\n"); return true; }
     BitVector   FilterRegIntSizeConstraints(BitVector regsBv, BitVector sizeUsageBv) const;
     bool        FitRegIntSizeConstraints(RegNum reg, BitVector sizeUsageBv) const;
     bool        FitRegIntSizeConstraints(RegNum reg, IRType type) const;
-    uint        UnAllocatableRegCount(Func *func) const { return 2; }
+    uint        UnAllocatableRegCount(Func *func) const {LOGMEIN("LinearScanMD.h] 27\n"); return 2; }
     StackSym   *EnsureSpillSymForXmmReg(RegNum reg, Func *func, IRType type);
-    void        LegalizeDef(IR::Instr * instr) { /* This is a nop for x86 */ }
-    void        LegalizeUse(IR::Instr * instr, IR::Opnd * opnd) { /* A nop for x86 */ }
-    void        LegalizeConstantUse(IR::Instr * instr, IR::Opnd * opnd) { /* A nop for x86 */ }
+    void        LegalizeDef(IR::Instr * instr) {LOGMEIN("LinearScanMD.h] 29\n"); /* This is a nop for x86 */ }
+    void        LegalizeUse(IR::Instr * instr, IR::Opnd * opnd) {LOGMEIN("LinearScanMD.h] 30\n"); /* A nop for x86 */ }
+    void        LegalizeConstantUse(IR::Instr * instr, IR::Opnd * opnd) {LOGMEIN("LinearScanMD.h] 31\n"); /* A nop for x86 */ }
     void        GenerateBailOut(IR::Instr * instr, __in_ecount(registerSaveSymsCount) StackSym ** registerSaveSyms, uint registerSaveSymsCount);
     IR::Instr  *GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, BailOutInfo * bailOutInfo);
     void        InsertOpHelperSpillAndRestores(SList<OpHelperBlock> *opHelperBlockList);
-    void        EndOfHelperBlock(uint32 helperSpilledLiveranges) { /* NOP */ }
+    void        EndOfHelperBlock(uint32 helperSpilledLiveranges) {LOGMEIN("LinearScanMD.h] 35\n"); /* NOP */ }
 
 private:
     static void SaveAllRegisters(BailOutRecord *const bailOutRecord);
@@ -46,7 +46,7 @@ public:
 	static RegNum GetParamReg(IR::SymOpnd *symOpnd, Func *func);
 
 public:
-    static uint GetRegisterSaveSlotCount() {
+    static uint GetRegisterSaveSlotCount() {LOGMEIN("LinearScanMD.h] 48\n");
         return RegisterSaveSlotCount;
     }
 

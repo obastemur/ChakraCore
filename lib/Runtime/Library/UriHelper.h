@@ -27,17 +27,17 @@ namespace Js
         // Validate the array of character properties for URI handling. Each entry is a
         // bitwise OR of the flags defined above.
         static void ValidateURIProps(void)
-        {
+        {LOGMEIN("UriHelper.h] 29\n");
             static bool fChecked = false;
             if (fChecked)
                 return;
 
             for( int c = 0; c < 128; c++ )
-            {
+            {LOGMEIN("UriHelper.h] 35\n");
                 if (isalnum(c))
                     Assert(s_uriProps[c] & URIUnescaped);
                 switch(c)
-                {
+                {LOGMEIN("UriHelper.h] 39\n");
                 case '-':
                 case '_':
                 case '.':

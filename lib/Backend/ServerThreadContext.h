@@ -42,13 +42,13 @@ public:
     CustomHeap::OOPCodePageAllocators  * GetCodePageAllocators();
     SectionAllocWrapper * GetSectionAllocator();
     void UpdateNumericPropertyBV(BVSparseNode * newProps);
-    void SetWellKnownHostTypeId(Js::TypeId typeId) { this->wellKnownHostTypeHTMLAllCollectionTypeId = typeId; }
+    void SetWellKnownHostTypeId(Js::TypeId typeId) {LOGMEIN("ServerThreadContext.h] 44\n"); this->wellKnownHostTypeHTMLAllCollectionTypeId = typeId; }
     void AddRef();
     void Release();
     void Close();
     PageAllocator * GetForegroundPageAllocator();
 #ifdef STACK_BACK_TRACE
-    DWORD GetRuntimePid() { return m_pid; }
+    DWORD GetRuntimePid() {LOGMEIN("ServerThreadContext.h] 50\n"); return m_pid; }
 #endif
 
     intptr_t GetRuntimeChakraBaseAddress() const;
@@ -60,8 +60,8 @@ private:
     class AutoCloseHandle
     {
     public:
-        AutoCloseHandle(HANDLE handle) : handle(handle) { Assert(handle != GetCurrentProcess()); }
-        ~AutoCloseHandle() { CloseHandle(this->handle); }
+        AutoCloseHandle(HANDLE handle) : handle(handle) {LOGMEIN("ServerThreadContext.h] 62\n"); Assert(handle != GetCurrentProcess()); }
+        ~AutoCloseHandle() {LOGMEIN("ServerThreadContext.h] 63\n"); CloseHandle(this->handle); }
     private:
         HANDLE handle;
     };

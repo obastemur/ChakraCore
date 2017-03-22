@@ -17,14 +17,14 @@ CodeGenAllocators<TAlloc, TPreReservedAlloc>::CodeGenAllocators(AllocationPolicy
 
 template<typename TAlloc, typename TPreReservedAlloc>
 CodeGenAllocators<TAlloc, TPreReservedAlloc>::~CodeGenAllocators()
-{
+{LOGMEIN("CodeGenAllocators.cpp] 19\n");
 }
 
 #if DBG
 template<typename TAlloc, typename TPreReservedAlloc>
 void
 CodeGenAllocators<TAlloc, TPreReservedAlloc>::ClearConcurrentThreadId()
-{    
+{LOGMEIN("CodeGenAllocators.cpp] 26\n");    
     this->pageAllocator.ClearConcurrentThreadId();
 }
 #endif

@@ -25,7 +25,7 @@
     DECLARE_ARGS_VARARRAY_N(va, _count_args(__VA_ARGS__))
 
 inline Js::Var* _get_va(void* addrOfReturnAddress, int n)
-{
+{LOGMEIN("Arguments.h] 27\n");
     // All args are right after ReturnAddress by custom calling convention
     Js::Var* pArgs = reinterpret_cast<Js::Var*>(addrOfReturnAddress) + 1;
 #ifdef _ARM_
@@ -35,29 +35,29 @@ inline Js::Var* _get_va(void* addrOfReturnAddress, int n)
 }
 
 inline int _count_args(Js::CallInfo callInfo)
-{
+{LOGMEIN("Arguments.h] 37\n");
     // This is to support typical runtime "ARGUMENTS(args, callInfo)" usage.
     // Only "callInfo" listed, but we have 2 known args "function, callInfo".
     return 2;
 }
 template <class T1>
 inline int _count_args(const T1&, Js::CallInfo callInfo)
-{
+{LOGMEIN("Arguments.h] 44\n");
     return 2;
 }
 template <class T1, class T2>
 inline int _count_args(const T1&, const T2&, Js::CallInfo callInfo)
-{
+{LOGMEIN("Arguments.h] 49\n");
     return 3;
 }
 template <class T1, class T2, class T3>
 inline int _count_args(const T1&, const T2&, const T3&, Js::CallInfo callInfo)
-{
+{LOGMEIN("Arguments.h] 54\n");
     return 4;
 }
 template <class T1, class T2, class T3, class T4>
 inline int _count_args(const T1&, const T2&, const T3&, const T4&, Js::CallInfo callInfo)
-{
+{LOGMEIN("Arguments.h] 59\n");
     return 5;
 }
 #endif
@@ -112,18 +112,18 @@ namespace Js
     {
     public:
         Arguments(CallInfo callInfo, Var* values) :
-            Info(callInfo), Values(values) {}
+            Info(callInfo), Values(values) {LOGMEIN("Arguments.h] 114\n");}
 
         Arguments(ushort count, Var* values) :
-            Info(count), Values(values) {}
+            Info(count), Values(values) {LOGMEIN("Arguments.h] 117\n");}
 
-        Arguments(VirtualTableInfoCtorEnum v) : Info(v) {}
+        Arguments(VirtualTableInfoCtorEnum v) : Info(v) {LOGMEIN("Arguments.h] 119\n");}
 
-        Arguments(const Arguments& other) : Info(other.Info), Values(other.Values) {}
+        Arguments(const Arguments& other) : Info(other.Info), Values(other.Values) {LOGMEIN("Arguments.h] 121\n");}
 
-        Var operator [](int idxArg) { return const_cast<Var>(static_cast<const Arguments&>(*this)[idxArg]); }
+        Var operator [](int idxArg) {LOGMEIN("Arguments.h] 123\n"); return const_cast<Var>(static_cast<const Arguments&>(*this)[idxArg]); }
         const Var operator [](int idxArg) const
-        {
+        {LOGMEIN("Arguments.h] 125\n");
             AssertMsg((idxArg < (int)Info.Count) && (idxArg >= 0), "Ensure a valid argument index");
             return Values[idxArg];
         }
@@ -133,8 +133,8 @@ namespace Js
         FieldNoBarrier(CallInfo) Info;
         FieldNoBarrier(Var*) Values;
 
-        static uint32 GetCallInfoOffset() { return offsetof(Arguments, Info); }
-        static uint32 GetValuesOffset() { return offsetof(Arguments, Values); }
+        static uint32 GetCallInfoOffset() {LOGMEIN("Arguments.h] 135\n"); return offsetof(Arguments, Info); }
+        static uint32 GetValuesOffset() {LOGMEIN("Arguments.h] 136\n"); return offsetof(Arguments, Values); }
 
         // Prevent heap/recycler allocation, so we don't need write barrier for this
         static void* operator new   (size_t)    = delete;
@@ -147,16 +147,16 @@ namespace Js
     {
         ArgumentReader(CallInfo *callInfo, Var* values)
             : Arguments(*callInfo, values)
-        {
+        {LOGMEIN("Arguments.h] 149\n");
             AdjustArguments(callInfo);
         }
 
     private:
         void AdjustArguments(CallInfo *callInfo)
-        {
+        {LOGMEIN("Arguments.h] 155\n");
             AssertMsg(!(Info.Flags & Js::CallFlags_NewTarget) || (Info.Flags & Js::CallFlags_ExtraArg), "NewTarget flag must be used together with ExtraArg.");
             if (Info.Flags & Js::CallFlags_ExtraArg)
-            {
+            {LOGMEIN("Arguments.h] 158\n");
                 // If "calling eval" is set, then the last param is the frame display, which only
                 // the eval built-in should see.
                 Assert(Info.Count > 0);

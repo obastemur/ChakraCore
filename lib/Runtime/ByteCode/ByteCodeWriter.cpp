@@ -12,7 +12,7 @@ namespace Js
     const uint ByteCodeWriter::LongBranchSize = OpCodeUtil::EncodedSize(Js::OpCode::BrLong, SmallLayout) + sizeof(OpLayoutBrLong);
 
     void ByteCodeWriter::Create()
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 14\n");
         m_loopNest = 0;
         m_byteCodeCount = 0;
         m_byteCodeWithoutLDACount = 0;
@@ -26,7 +26,7 @@ namespace Js
     }
 
     void ByteCodeWriter::InitData(ArenaAllocator* alloc, int32 initCodeBufferSize)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 28\n");
         Assert(!isInUse);
         Assert(!isInitialized);
         DebugOnly(isInitialized = true);
@@ -67,7 +67,7 @@ namespace Js
     ///----------------------------------------------------------------------------
 
     void ByteCodeWriter::Begin(FunctionBody* functionWrite, ArenaAllocator* alloc, bool doJitLoopBodies, bool hasLoop, bool inDebugMode)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 69\n");
         Assert(!isInUse);
         AssertMsg(m_functionWrite == nullptr, "Cannot nest Begin() calls");
         AssertMsg(functionWrite != nullptr, "Must have valid function to write");
@@ -84,7 +84,7 @@ namespace Js
 
     template <typename T>
     void ByteCodeWriter::PatchJumpOffset(JsUtil::List<JumpInfo, ArenaAllocator> * jumpOffset, byte * byteBuffer, uint byteCount)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 86\n");
         jumpOffset->Map([=](int index, JumpInfo& jumpInfo)
         {
             //
@@ -202,9 +202,9 @@ namespace Js
         m_functionWrite->AllocateForInCache();
 
         if (!PHASE_OFF(Js::ScriptFunctionWithInlineCachePhase, m_functionWrite) && !PHASE_OFF(Js::InlineApplyTargetPhase, m_functionWrite))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 204\n");
             if (m_functionWrite->CanFunctionObjectHaveInlineCaches())
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 206\n");
                 m_functionWrite->SetInlineCachesOnFunctionObject(true);
             }
         }
@@ -212,7 +212,7 @@ namespace Js
         if (this->DoJitLoopBodies() &&
             !this->m_functionWrite->GetFunctionBody()->GetHasFinally() &&
             !(this->m_functionWrite->GetFunctionBody()->GetHasTry() && PHASE_OFF(Js::JITLoopBodyInTryCatchPhase, this->m_functionWrite)))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 214\n");
             AllocateLoopHeaders();
         }
 
@@ -231,7 +231,7 @@ namespace Js
 #ifdef LOG_BYTECODE_AST_RATIO
         // log the bytecode AST ratio
         if (currentAstSize == maxAstSize)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 233\n");
             float astBytecodeRatio = (float)currentAstSize / (float)byteCount;
             Output::Print(_u("\tAST Bytecode ratio: %f\n"), astBytecodeRatio);
         }
@@ -246,7 +246,7 @@ namespace Js
     }
 
     void ByteCodeWriter::AllocateLoopHeaders()
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 248\n");
         m_functionWrite->AllocateLoopHeaders();
         m_loopHeaders->Map([this](int index, ByteCodeWriter::LoopHeaderData& data)
         {
@@ -265,7 +265,7 @@ namespace Js
     ///----------------------------------------------------------------------------
 
     void ByteCodeWriter::Reset()
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 267\n");
         DebugOnly(isInUse = false);
         Assert(isInitialized);
         m_byteCodeData.Reset();
@@ -294,19 +294,19 @@ namespace Js
     }
 
     inline Js::RegSlot ByteCodeWriter::ConsumeReg(Js::RegSlot reg)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 296\n");
         CheckReg(reg);
         Assert(this->m_functionWrite);
         return this->m_functionWrite->MapRegSlot(reg);
     }
 
     void ByteCodeWriter::CheckOpen()
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 303\n");
         AssertMsg(m_functionWrite != nullptr, "Must Begin() a function to write byte-code into");
     }
 
     inline void ByteCodeWriter::CheckOp(OpCode op, OpLayoutType layoutType)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 308\n");
         AssertMsg(OpCodeUtil::IsValidByteCodeOpcode(op), "Ensure valid OpCode");
 #if ENABLE_NATIVE_CODEGEN
         AssertMsg(!OpCodeAttr::BackEndOnly(op), "Can't write back end only OpCode");
@@ -315,13 +315,13 @@ namespace Js
     }
 
     void ByteCodeWriter::CheckLabel(ByteCodeLabel labelID)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 317\n");
         AssertMsg(labelID < m_labelOffsets->Count(),
             "Label must be previously defined before being marked in the byte-code");
     }
 
     inline void ByteCodeWriter::CheckReg(RegSlot registerID)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 323\n");
         AssertMsg(registerID != Js::Constants::NoRegister, "bad register");
         if (registerID == Js::Constants::NoRegister)
             Js::Throw::InternalError();
@@ -337,17 +337,17 @@ namespace Js
 
 #define MULTISIZE_LAYOUT_WRITE(layout, ...) \
     if (!TryWrite##layout<SmallLayoutSizePolicy>(__VA_ARGS__) && !TryWrite##layout<MediumLayoutSizePolicy>(__VA_ARGS__)) \
-    { \
+    {LOGMEIN("ByteCodeWriter.cpp] 339\n"); \
         bool success = TryWrite##layout<LargeLayoutSizePolicy>(__VA_ARGS__); \
         Assert(success); \
     }
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteReg1(OpCode op, RegSlot R0)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 346\n");
         OpLayoutT_Reg1<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R0, R0))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 349\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -367,14 +367,14 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteReg2WithICIndex(OpCode op, RegSlot R0, RegSlot R1, uint32 inlineCacheIndex, bool isRootLoad)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 369\n");
         OpLayoutT_Reg2WithICIndex<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R0, R0) && SizePolicy::Assign(layout.R1, R1) && SizePolicy::Assign(layout.inlineCacheIndex, inlineCacheIndex))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 372\n");
             uint offset = m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
 
             if (isRootLoad)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 376\n");
                 Assert(m_byteCodeData.GetCurrentOffset() == offset + OpCodeUtil::EncodedSize(op, SizePolicy::LayoutEnum) + sizeof(OpLayoutT_Reg2WithICIndex<SizePolicy>));
                 uint inlineCacheOffset = offset + OpCodeUtil::EncodedSize(op, SizePolicy::LayoutEnum)
                     + offsetof(OpLayoutT_Reg2WithICIndex<SizePolicy>, inlineCacheIndex);
@@ -388,10 +388,10 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteReg2(OpCode op, RegSlot R0, RegSlot R1)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 390\n");
         OpLayoutT_Reg2<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R0, R0) && SizePolicy::Assign(layout.R1, R1))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 393\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -407,9 +407,9 @@ namespace Js
         if (DoDynamicProfileOpcode(CheckThisPhase) ||
             DoDynamicProfileOpcode(TypedArrayTypeSpecPhase) ||
             DoDynamicProfileOpcode(ArrayCheckHoistPhase))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 409\n");
             if (op == OpCode::StrictLdThis)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 411\n");
                 op = OpCode::ProfiledStrictLdThis;
             }
         }
@@ -429,7 +429,7 @@ namespace Js
 
         if (op == Js::OpCode::BeginSwitch && DoDynamicProfileOpcode(SwitchOptPhase) &&
             this->m_functionWrite->AllocProfiledSwitch(&profileId))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 431\n");
             OpCodeUtil::ConvertNonCallOpToProfiled(op);
             isProfiled = true;
         }
@@ -444,7 +444,7 @@ namespace Js
                 DoDynamicProfileOpcode(TypedArrayTypeSpecPhase) ||
                 DoDynamicProfileOpcode(ArrayCheckHoistPhase))
             && this->m_functionWrite->AllocProfiledLdElemId(&profileId))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 446\n");
             OpCodeUtil::ConvertNonCallOpToProfiled(op);
             isProfiled = true;
         }
@@ -459,10 +459,10 @@ namespace Js
         }
 
         if (isProfiled)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 461\n");
             m_byteCodeData.Encode(&profileId, sizeof(Js::ProfileId));
             if (isProfiled2)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 464\n");
                 m_byteCodeData.Encode(&profileId2, sizeof(Js::ProfileId));
             }
         }
@@ -470,10 +470,10 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteReg3(OpCode op, RegSlot R0, RegSlot R1, RegSlot R2)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 472\n");
         OpLayoutT_Reg3<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R0, R0) && SizePolicy::Assign(layout.R1, R1) && SizePolicy::Assign(layout.R2, R2))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 475\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -494,25 +494,25 @@ namespace Js
         bool isProfiled = false;
         if ((DoDynamicProfileOpcode(FloatTypeSpecPhase) && (op == Js::OpCode::Div_A || op == Js::OpCode::Rem_A)) &&
             this->m_functionWrite->AllocProfiledDivOrRem(&profileId))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 496\n");
             isProfiled = true;
             OpCodeUtil::ConvertNonCallOpToProfiled(op);
         }
 
         MULTISIZE_LAYOUT_WRITE(Reg3, op, R0, R1, R2);
         if (isProfiled)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 503\n");
             m_byteCodeData.Encode(&profileId, sizeof(Js::ProfileId));
         }
     }
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteReg3C(OpCode op, RegSlot R0, RegSlot R1, RegSlot R2, CacheId cacheId)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 510\n");
         OpLayoutT_Reg3C<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R0, R0) && SizePolicy::Assign(layout.R1, R1) && SizePolicy::Assign(layout.R2, R2)
             && SizePolicy::Assign(layout.inlineCacheIndex, cacheId))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 514\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -534,11 +534,11 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteReg4(OpCode op, RegSlot R0, RegSlot R1, RegSlot R2, RegSlot R3)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 536\n");
         OpLayoutT_Reg4<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R0, R0) && SizePolicy::Assign(layout.R1, R1) && SizePolicy::Assign(layout.R2, R2)
             && SizePolicy::Assign(layout.R3, R3))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 540\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -561,10 +561,10 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteReg2B1(OpCode op, RegSlot R0, RegSlot R1, uint8 B2)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 563\n");
         OpLayoutT_Reg2B1<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R0, R0) && SizePolicy::Assign(layout.R1, R1) && SizePolicy::Assign(layout.B2, B2))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 566\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -585,11 +585,11 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteReg3B1(OpCode op, RegSlot R0, RegSlot R1, RegSlot R2, uint8 B3)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 587\n");
         OpLayoutT_Reg3B1<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R0, R0) && SizePolicy::Assign(layout.R1, R1) && SizePolicy::Assign(layout.R2, R2)
             && SizePolicy::Assign(layout.B3, B3))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 591\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -611,11 +611,11 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteReg5(OpCode op, RegSlot R0, RegSlot R1, RegSlot R2, RegSlot R3, RegSlot R4)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 613\n");
         OpLayoutT_Reg5<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R0, R0) && SizePolicy::Assign(layout.R1, R1) && SizePolicy::Assign(layout.R2, R2)
             && SizePolicy::Assign(layout.R3, R3) && SizePolicy::Assign(layout.R4, R4))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 617\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -639,10 +639,10 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteUnsigned1(OpCode op, uint C1)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 641\n");
         OpLayoutT_Unsigned1<SizePolicy> layout;
         if (SizePolicy::Assign(layout.C1, C1))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 644\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -659,7 +659,7 @@ namespace Js
     }
 
     void ByteCodeWriter::ArgIn0(RegSlot reg)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 661\n");
         AssertMsg(0 < m_functionWrite->GetInParamsCount(),
             "Ensure source arg was declared in prologue");
 
@@ -671,10 +671,10 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteArg(OpCode op, ArgSlot arg, RegSlot reg)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 673\n");
         OpLayoutT_Arg<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Arg, arg) && SizePolicy::Assign(layout.Reg, reg))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 676\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -683,7 +683,7 @@ namespace Js
 
     template <bool isVar>
     void ByteCodeWriter::ArgOut(ArgSlot arg, RegSlot reg, ProfileId callSiteId)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 685\n");
         CheckOpen();
         Assert(OpCodeAttr::HasMultiSizeLayout(OpCode::ArgOut_A) && OpCodeAttr::HasMultiSizeLayout(OpCode::ArgOut_ANonVar));
 
@@ -692,7 +692,7 @@ namespace Js
 
         OpCode op;
         if (isVar)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 694\n");
             op = OpCode::ArgOut_A;
         }
         else
@@ -708,7 +708,7 @@ namespace Js
             && callSiteId != Js::Constants::NoProfileId
             && !m_isInDebugMode // We don't inline in debug mode, so no need to emit ProfiledArgOut_A
             )
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 710\n");
             Assert((reg > FunctionBody::FirstRegSlot && reg < m_functionWrite->GetConstantCount()));
             MULTISIZE_LAYOUT_WRITE(Arg, Js::OpCode::ProfiledArgOut_A, arg, reg);
             m_byteCodeData.Encode(&callSiteId, sizeof(Js::ProfileId));
@@ -722,10 +722,10 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteArgNoSrc(OpCode op, ArgSlot arg)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 724\n");
         OpLayoutT_ArgNoSrc<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Arg, arg))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 727\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -733,7 +733,7 @@ namespace Js
     }
 
     void ByteCodeWriter::ArgOutEnv(ArgSlot arg)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 735\n");
         CheckOpen();
         Assert(OpCodeAttr::HasMultiSizeLayout(OpCode::ArgOut_Env));
 
@@ -741,7 +741,7 @@ namespace Js
     }
 
     void ByteCodeWriter::Br(ByteCodeLabel labelID)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 743\n");
         Br(OpCode::Br, labelID);
     }
 
@@ -779,10 +779,10 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteBrReg1(OpCode op, ByteCodeLabel labelID, RegSlot R1)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 781\n");
         OpLayoutT_BrReg1<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R1, R1))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 784\n");
             size_t const offsetOfRelativeJumpOffsetFromEnd = sizeof(OpLayoutT_BrReg1<SizePolicy>) - offsetof(OpLayoutT_BrReg1<SizePolicy>, RelativeJumpOffset);
             layout.RelativeJumpOffset = offsetOfRelativeJumpOffsetFromEnd;
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
@@ -805,10 +805,10 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteBrReg1Unsigned1(OpCode op, ByteCodeLabel labelID, RegSlot R1, uint C2)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 807\n");
         OpLayoutT_BrReg1Unsigned1<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R1, R1) && SizePolicy::Assign(layout.C2, C2))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 810\n");
             size_t const offsetOfRelativeJumpOffsetFromEnd = sizeof(OpLayoutT_BrReg2<SizePolicy>) - offsetof(OpLayoutT_BrReg2<SizePolicy>, RelativeJumpOffset);
             layout.RelativeJumpOffset = offsetOfRelativeJumpOffsetFromEnd;
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
@@ -832,10 +832,10 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteBrReg2(OpCode op, ByteCodeLabel labelID, RegSlot R1, RegSlot R2)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 834\n");
         OpLayoutT_BrReg2<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R1, R1) && SizePolicy::Assign(layout.R2, R2))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 837\n");
             size_t const offsetOfRelativeJumpOffsetFromEnd = sizeof(OpLayoutT_BrReg2<SizePolicy>) - offsetof(OpLayoutT_BrReg2<SizePolicy>, RelativeJumpOffset);
             layout.RelativeJumpOffset = offsetOfRelativeJumpOffsetFromEnd;
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
@@ -911,16 +911,16 @@ namespace Js
     }
 
     bool ByteCodeWriter::DoDynamicProfileOpcode(Phase tag, bool noHeuristics) const
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 913\n");
 #if ENABLE_PROFILE_INFO
         if (!DynamicProfileInfo::IsEnabled(tag, this->m_functionWrite))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 916\n");
             return false;
         }
 
         // Other heuristics
         switch (tag)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 922\n");
         case Phase::InlinePhase:
             // Do profile opcode everywhere if we are an inline candidate
             // Otherwise, only in loops if the function has loop
@@ -939,11 +939,11 @@ namespace Js
     }
 
     bool ByteCodeWriter::ShouldIncrementCallSiteId(OpCode op)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 941\n");
         if ((DoProfileCallOp(op) && DoDynamicProfileOpcode(InlinePhase)) ||
             (DoProfileNewScObjArrayOp(op) && (DoDynamicProfileOpcode(NativeArrayPhase, true) || DoDynamicProfileOpcode(InlinePhase, true))) ||
             (DoProfileNewScObjectOp(op) && (DoDynamicProfileOpcode(InlinePhase, true) || DoDynamicProfileOpcode(FixedNewObjPhase, true))))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 945\n");
             return true;
         }
         return false;
@@ -961,12 +961,12 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteCallIExtended(OpCode op, RegSlot returnValueRegister, RegSlot functionRegister, ArgSlot givenArgCount, CallIExtendedOptions options, uint32 spreadArgsOffset)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 963\n");
         OpLayoutT_CallIExtended<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Return, returnValueRegister) && SizePolicy::Assign(layout.Function, functionRegister)
             && SizePolicy::Assign(layout.ArgCount, givenArgCount) && SizePolicy::Assign(layout.Options, options)
             && SizePolicy::Assign(layout.SpreadAuxOffset, spreadArgsOffset))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 968\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -975,16 +975,16 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteCallIExtendedWithICIndex(OpCode op, RegSlot returnValueRegister, RegSlot functionRegister, ArgSlot givenArgCount, InlineCacheIndex inlineCacheIndex, bool isRootLoad, CallIExtendedOptions options, uint32 spreadArgsOffset)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 977\n");
         OpLayoutT_CallIExtendedWithICIndex<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Return, returnValueRegister) && SizePolicy::Assign(layout.Function, functionRegister)
             && SizePolicy::Assign(layout.ArgCount, givenArgCount) && SizePolicy::Assign(layout.inlineCacheIndex, inlineCacheIndex)
             && SizePolicy::Assign(layout.Options, options) && SizePolicy::Assign(layout.SpreadAuxOffset, spreadArgsOffset))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 982\n");
             size_t offset = m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
 
             if (isRootLoad)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 986\n");
                 Assert(m_byteCodeData.GetCurrentOffset() == offset + OpCodeUtil::EncodedSize(op, SizePolicy::LayoutEnum) + sizeof(OpLayoutT_CallIExtendedWithICIndex<SizePolicy>));
                 size_t inlineCacheOffset = offset + OpCodeUtil::EncodedSize(op, SizePolicy::LayoutEnum)
                     + offsetof(OpLayoutT_CallIExtendedWithICIndex<SizePolicy>, inlineCacheIndex);
@@ -998,12 +998,12 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteCallIExtendedFlags(OpCode op, RegSlot returnValueRegister, RegSlot functionRegister, ArgSlot givenArgCount, CallIExtendedOptions options, uint32 spreadArgsOffset, CallFlags callFlags)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 1000\n");
         OpLayoutT_CallIExtendedFlags<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Return, returnValueRegister) && SizePolicy::Assign(layout.Function, functionRegister)
             && SizePolicy::Assign(layout.ArgCount, givenArgCount) && SizePolicy::Assign(layout.Options, options)
             && SizePolicy::Assign(layout.SpreadAuxOffset, spreadArgsOffset) && SizePolicy::Assign(layout.callFlags, callFlags))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1005\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1012,17 +1012,17 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteCallIExtendedFlagsWithICIndex(OpCode op, RegSlot returnValueRegister, RegSlot functionRegister, ArgSlot givenArgCount, InlineCacheIndex inlineCacheIndex, bool isRootLoad, CallIExtendedOptions options, uint32 spreadArgsOffset, CallFlags callFlags)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 1014\n");
         OpLayoutT_CallIExtendedFlagsWithICIndex<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Return, returnValueRegister) && SizePolicy::Assign(layout.Function, functionRegister)
             && SizePolicy::Assign(layout.ArgCount, givenArgCount) && SizePolicy::Assign(layout.inlineCacheIndex, inlineCacheIndex)
             && SizePolicy::Assign(layout.Options, options) && SizePolicy::Assign(layout.SpreadAuxOffset, spreadArgsOffset)
             && SizePolicy::Assign(layout.callFlags, callFlags))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1020\n");
             size_t offset = m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
 
             if (isRootLoad)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 1024\n");
                 Assert(m_byteCodeData.GetCurrentOffset() == offset + OpCodeUtil::EncodedSize(op, SizePolicy::LayoutEnum) + sizeof(OpLayoutT_CallIExtendedFlagsWithICIndex<SizePolicy>));
                 size_t inlineCacheOffset = offset + OpCodeUtil::EncodedSize(op, SizePolicy::LayoutEnum)
                     + offsetof(OpLayoutT_CallIExtendedFlagsWithICIndex<SizePolicy>, inlineCacheIndex);
@@ -1035,7 +1035,7 @@ namespace Js
     }
 
     void ByteCodeWriter::CallIExtended(OpCode op, RegSlot returnValueRegister, RegSlot functionRegister, ArgSlot givenArgCount, CallIExtendedOptions options, const void *buffer, uint byteCount, ProfileId callSiteId, CallFlags callFlags)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 1037\n");
         CheckOpen();
         bool hasCallFlags = !(callFlags == CallFlags_None);
         if (hasCallFlags)
@@ -1051,7 +1051,7 @@ namespace Js
         // givenArgCount could be <, ==, or > than Function's "InParams" count
 
         if (returnValueRegister != Js::Constants::NoRegister)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1053\n");
             returnValueRegister = ConsumeReg(returnValueRegister);
         }
         functionRegister = ConsumeReg(functionRegister);
@@ -1067,16 +1067,16 @@ namespace Js
         bool isCallWithICIndex = false;
 
         if (DoProfileCallOp(op))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1069\n");
             if (DoDynamicProfileOpcode(InlinePhase) &&
                 callSiteId != Js::Constants::NoProfileId)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 1072\n");
                 op = Js::OpCodeUtil::ConvertCallOpToProfiled(op);
                 isProfiled = true;
             }
             else if ((DoDynamicProfileOpcode(AggressiveIntTypeSpecPhase) || DoDynamicProfileOpcode(FloatTypeSpecPhase)) &&
                 this->m_functionWrite->AllocProfiledReturnTypeId(&profileId))
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 1078\n");
                 op = Js::OpCodeUtil::ConvertCallOpToProfiledReturnType(op);
                 isProfiled = true;
             }
@@ -1085,27 +1085,27 @@ namespace Js
             (DoDynamicProfileOpcode(NativeArrayPhase, true) || DoDynamicProfileOpcode(InlinePhase, true)) &&
             callSiteId != Js::Constants::NoProfileId &&
             this->m_functionWrite->AllocProfiledArrayCallSiteId(&profileId2))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1087\n");
             OpCodeUtil::ConvertNonCallOpToProfiled(op);
             isProfiled = true;
             isProfiled2 = true;
         }
         else if (DoProfileNewScObjectOp(op) && (DoDynamicProfileOpcode(InlinePhase, true) || DoDynamicProfileOpcode(FixedNewObjPhase, true)) &&
             callSiteId != Js::Constants::NoProfileId)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1094\n");
             OpCodeUtil::ConvertNonCallOpToProfiled(op);
             isProfiled = true;
         }
 
         uint spreadArgsOffset = 0;
         if (options & CallIExtended_SpreadArgs)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1101\n");
             Assert(buffer != nullptr && byteCount > 0);
             spreadArgsOffset = InsertAuxiliaryData(buffer, byteCount);
         }
 
         if (isCallWithICIndex)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1107\n");
             if (hasCallFlags == true)
             {
                 MULTISIZE_LAYOUT_WRITE(CallIExtendedFlagsWithICIndex, op, returnValueRegister, functionRegister, givenArgCount, unit.cacheId, unit.isRootObjectCache, options, spreadArgsOffset, callFlags);
@@ -1128,10 +1128,10 @@ namespace Js
         }
 
         if (isProfiled)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1130\n");
             m_byteCodeData.Encode(&profileId, sizeof(Js::ProfileId));
             if (isProfiled2)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 1133\n");
                 m_byteCodeData.Encode(&profileId2, sizeof(Js::ProfileId));
             }
         }
@@ -1139,15 +1139,15 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteCallIWithICIndex(OpCode op, RegSlot returnValueRegister, RegSlot functionRegister, ArgSlot givenArgCount, InlineCacheIndex inlineCacheIndex, bool isRootLoad)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 1141\n");
         OpLayoutT_CallIWithICIndex<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Return, returnValueRegister) && SizePolicy::Assign(layout.Function, functionRegister)
             && SizePolicy::Assign(layout.ArgCount, givenArgCount) && SizePolicy::Assign(layout.inlineCacheIndex, inlineCacheIndex))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1145\n");
             size_t offset = m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
 
             if (isRootLoad)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 1149\n");
                 Assert(m_byteCodeData.GetCurrentOffset() == offset + OpCodeUtil::EncodedSize(op, SizePolicy::LayoutEnum) + sizeof(OpLayoutT_CallIWithICIndex<SizePolicy>));
                 size_t inlineCacheOffset = offset + OpCodeUtil::EncodedSize(op, SizePolicy::LayoutEnum)
                     + offsetof(OpLayoutT_CallIWithICIndex<SizePolicy>, inlineCacheIndex);
@@ -1161,16 +1161,16 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteCallIFlagsWithICIndex(OpCode op, RegSlot returnValueRegister, RegSlot functionRegister, ArgSlot givenArgCount, InlineCacheIndex inlineCacheIndex, bool isRootLoad, CallFlags callFlags)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 1163\n");
         OpLayoutT_CallIFlagsWithICIndex<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Return, returnValueRegister) && SizePolicy::Assign(layout.Function, functionRegister)
             && SizePolicy::Assign(layout.ArgCount, givenArgCount) && SizePolicy::Assign(layout.inlineCacheIndex, inlineCacheIndex)
             && SizePolicy::Assign(layout.callFlags, callFlags))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1168\n");
             size_t offset = m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
 
             if (isRootLoad)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 1172\n");
                 Assert(m_byteCodeData.GetCurrentOffset() == offset + OpCodeUtil::EncodedSize(op, SizePolicy::LayoutEnum) + sizeof(OpLayoutT_CallIFlagsWithICIndex<SizePolicy>));
                 size_t inlineCacheOffset = offset + OpCodeUtil::EncodedSize(op, SizePolicy::LayoutEnum)
                     + offsetof(OpLayoutT_CallIFlagsWithICIndex<SizePolicy>, inlineCacheIndex);
@@ -1184,11 +1184,11 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteCallI(OpCode op, RegSlot returnValueRegister, RegSlot functionRegister, ArgSlot givenArgCount)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 1186\n");
         OpLayoutT_CallI<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Return, returnValueRegister) && SizePolicy::Assign(layout.Function, functionRegister)
             && SizePolicy::Assign(layout.ArgCount, givenArgCount))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1190\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1197,11 +1197,11 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteCallIFlags(OpCode op, RegSlot returnValueRegister, RegSlot functionRegister, ArgSlot givenArgCount, CallFlags callFlags)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 1199\n");
         OpLayoutT_CallIFlags<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Return, returnValueRegister) && SizePolicy::Assign(layout.Function, functionRegister)
             && SizePolicy::Assign(layout.ArgCount, givenArgCount) && SizePolicy::Assign(layout.callFlags, callFlags))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1203\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1209,7 +1209,7 @@ namespace Js
     }
 
     void ByteCodeWriter::RemoveEntryForRegSlotFromCacheIdMap(RegSlot regSlot)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 1211\n");
         regSlot = ConsumeReg(regSlot);
 
         CacheIdUnit unit;
@@ -1218,7 +1218,7 @@ namespace Js
     }
 
     void ByteCodeWriter::CallI(OpCode op, RegSlot returnValueRegister, RegSlot functionRegister, ArgSlot givenArgCount, ProfileId callSiteId, CallFlags callFlags)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 1220\n");
         CheckOpen();
 
         bool hasCallFlags = !(callFlags == CallFlags_None);
@@ -1235,7 +1235,7 @@ namespace Js
         // givenArgCount could be <, ==, or > than Function's "InParams" count
 
         if (returnValueRegister != Js::Constants::NoRegister)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1237\n");
             returnValueRegister = ConsumeReg(returnValueRegister);
         }
         functionRegister = ConsumeReg(functionRegister);
@@ -1250,12 +1250,12 @@ namespace Js
         unit.cacheId = Js::Constants::NoInlineCacheIndex;
         callRegToLdFldCacheIndexMap->TryGetValueAndRemove(functionRegister, &unit);
         if (DoProfileCallOp(op))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1252\n");
             if (DoDynamicProfileOpcode(InlinePhase) &&
                 callSiteId != Js::Constants::NoProfileId)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 1255\n");
                 if (unit.cacheId == Js::Constants::NoInlineCacheIndex)
-                {
+                {LOGMEIN("ByteCodeWriter.cpp] 1257\n");
                     op = Js::OpCodeUtil::ConvertCallOpToProfiled(op);
                     isProfiled = true;
                 }
@@ -1268,7 +1268,7 @@ namespace Js
             }
             else if ((DoDynamicProfileOpcode(AggressiveIntTypeSpecPhase) || DoDynamicProfileOpcode(FloatTypeSpecPhase)) &&
                 this->m_functionWrite->AllocProfiledReturnTypeId(&profileId))
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 1270\n");
                 op = Js::OpCodeUtil::ConvertCallOpToProfiledReturnType(op);
                 isProfiled = true;
             }
@@ -1277,7 +1277,7 @@ namespace Js
             (DoDynamicProfileOpcode(NativeArrayPhase, true) || DoDynamicProfileOpcode(InlinePhase, true)) &&
             callSiteId != Js::Constants::NoProfileId &&
             this->m_functionWrite->AllocProfiledArrayCallSiteId(&profileId2))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1279\n");
             OpCodeUtil::ConvertNonCallOpToProfiled(op);
             isProfiled = true;
             isProfiled2 = true;
@@ -1285,9 +1285,9 @@ namespace Js
         else if (DoProfileNewScObjectOp(op) &&
             (DoDynamicProfileOpcode(InlinePhase, true) || DoDynamicProfileOpcode(FixedNewObjPhase, true)) &&
             callSiteId != Js::Constants::NoProfileId)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1287\n");
             if (unit.cacheId == Js::Constants::NoInlineCacheIndex)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 1289\n");
                 OpCodeUtil::ConvertNonCallOpToProfiled(op);
                 isProfiled = true;
             }
@@ -1300,7 +1300,7 @@ namespace Js
         }
 
         if (isCallWithICIndex)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1302\n");
             if (hasCallFlags == true)
             {
                 MULTISIZE_LAYOUT_WRITE(CallIFlagsWithICIndex, op, returnValueRegister, functionRegister, givenArgCount, unit.cacheId, unit.isRootObjectCache, callFlags);
@@ -1322,10 +1322,10 @@ namespace Js
             }
         }
         if (isProfiled)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1324\n");
             m_byteCodeData.Encode(&profileId, sizeof(Js::ProfileId));
             if (isProfiled2)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 1327\n");
                 m_byteCodeData.Encode(&profileId2, sizeof(Js::ProfileId));
             }
         }
@@ -1333,11 +1333,11 @@ namespace Js
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementI(OpCode op, RegSlot Value, RegSlot Instance, RegSlot Element)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 1335\n");
         OpLayoutT_ElementI<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, Value) && SizePolicy::Assign(layout.Instance, Instance)
             && SizePolicy::Assign(layout.Element, Element))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1339\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1355,9 +1355,9 @@ namespace Js
         Element = ConsumeReg(Element);
 
         if (this->m_functionWrite->GetIsStrictMode())
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1357\n");
             if (op == OpCode::DeleteElemI_A)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 1359\n");
                 op = OpCode::DeleteElemIStrict_A;
             }
         }
@@ -1369,14 +1369,14 @@ namespace Js
             DoDynamicProfileOpcode(FloatTypeSpecPhase) ||
             DoDynamicProfileOpcode(TypedArrayTypeSpecPhase) ||
             DoDynamicProfileOpcode(ArrayCheckHoistPhase))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1371\n");
             OpCode newop;
             switch (op)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 1374\n");
             case OpCode::LdElemI_A:
                 newop = OpCode::ProfiledLdElemI_A;
                 if (this->m_functionWrite->AllocProfiledLdElemId(&profileId))
-                {
+                {LOGMEIN("ByteCodeWriter.cpp] 1378\n");
                     isProfiledLayout = true;
                     op = newop;
                 }
@@ -1390,7 +1390,7 @@ namespace Js
                 newop = OpCode::ProfiledStElemI_A_Strict;
 StoreCommon:
                 if (this->m_functionWrite->AllocProfiledStElemId(&profileId))
-                {
+                {LOGMEIN("ByteCodeWriter.cpp] 1392\n");
                     isProfiledLayout = true;
                     op = newop;
                 }
@@ -1400,7 +1400,7 @@ StoreCommon:
 
         MULTISIZE_LAYOUT_WRITE(ElementI, op, Value, Instance, Element);
         if (isProfiledLayout)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1402\n");
             Assert(profileId != Js::Constants::NoProfileId);
             m_byteCodeData.Encode(&profileId, sizeof(Js::ProfileId));
         }
@@ -1408,11 +1408,11 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementUnsigned1(OpCode op, RegSlot Value, RegSlot Instance, uint32 Element)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 1410\n");
         OpLayoutT_ElementUnsigned1<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, Value) && SizePolicy::Assign(layout.Instance, Instance)
             && SizePolicy::Assign(layout.Element, Element))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1414\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1433,11 +1433,11 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementScopedC(OpCode op, RegSlot value, PropertyIdIndexType propertyIdIndex)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 1435\n");
         OpLayoutT_ElementScopedC<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, value)
             && SizePolicy::Assign(layout.PropertyIdIndex, propertyIdIndex))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1439\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1454,7 +1454,7 @@ StoreCommon:
 
 #if DBG
         switch (op)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1456\n");
         case OpCode::ScopedDeleteFld:
         case OpCode::ScopedEnsureNoRedeclFld:
         case OpCode::ScopedInitFunc:
@@ -1468,9 +1468,9 @@ StoreCommon:
 #endif
 
         if (this->m_functionWrite->GetIsStrictMode())
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1470\n");
             if (op == OpCode::ScopedDeleteFld)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 1472\n");
                 op = OpCode::ScopedDeleteFldStrict;
             }
         }
@@ -1480,11 +1480,11 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementC(OpCode op, RegSlot value, RegSlot instance, PropertyIdIndexType propertyIdIndex)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 1482\n");
         OpLayoutT_ElementC<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, value) && SizePolicy::Assign(layout.Instance, instance)
             && SizePolicy::Assign(layout.PropertyIdIndex, propertyIdIndex))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1486\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1502,7 +1502,7 @@ StoreCommon:
 
 #if DBG
         switch (op)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1504\n");
         case OpCode::InitSetFld:
         case OpCode::InitGetFld:
         case OpCode::InitClassMemberGet:
@@ -1521,13 +1521,13 @@ StoreCommon:
 #endif
 
         if (this->m_functionWrite->GetIsStrictMode())
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1523\n");
             if (op == OpCode::DeleteFld)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 1525\n");
                 op = OpCode::DeleteFldStrict;
             }
             else if (op == OpCode::DeleteRootFld)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 1529\n");
                 // We will reach here when in the language service mode, since in that mode we have skipped that error.
                 op = OpCode::DeleteRootFldStrict;
             }
@@ -1538,11 +1538,11 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementSlot(OpCode op, RegSlot value, RegSlot instance, int32 slotId)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 1540\n");
         OpLayoutT_ElementSlot<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, value) && SizePolicy::Assign(layout.Instance, instance)
             && SizePolicy::Assign(layout.SlotIndex, slotId))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1544\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1560,7 +1560,7 @@ StoreCommon:
 
 #if DBG
         switch (op)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1562\n");
 #if ENABLE_NATIVE_CODEGEN
         case OpCode::LdSlotArr:
         case OpCode::StSlot:
@@ -1589,12 +1589,12 @@ StoreCommon:
         instance = ConsumeReg(instance);
 
         switch (op)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1591\n");
         case OpCode::LdSlot:
         case OpCode::LdObjSlot:
             if ((DoDynamicProfileOpcode(AggressiveIntTypeSpecPhase) || DoDynamicProfileOpcode(FloatTypeSpecPhase)) &&
                 profileId != Constants::NoProfileId)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 1596\n");
                 OpCodeUtil::ConvertNonCallOpToProfiled(op);
             }
             break;
@@ -1606,18 +1606,18 @@ StoreCommon:
 
         MULTISIZE_LAYOUT_WRITE(ElementSlot, op, value, instance, slotId);
         if (OpCodeAttr::IsProfiledOp(op))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1608\n");
             m_byteCodeData.Encode(&profileId, sizeof(Js::ProfileId));
         }
     }
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementSlotI1(OpCode op, RegSlot value, int32 slotId)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 1615\n");
         OpLayoutT_ElementSlotI1<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, value)
             && SizePolicy::Assign(layout.SlotIndex, slotId))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1619\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1634,13 +1634,13 @@ StoreCommon:
 
 #if DBG
         switch (op)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1636\n");
             case OpCode::LdEnvObj:
             case OpCode::StLocalSlot:
             case OpCode::StLocalObjSlot:
             case OpCode::StLocalSlotChkUndecl:
             case OpCode::StLocalObjSlotChkUndecl:
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 1642\n");
                 break;
             }
 
@@ -1664,14 +1664,14 @@ StoreCommon:
         value = ConsumeReg(value);
 
         switch (op)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1666\n");
             case OpCode::LdLocalSlot:
             case OpCode::LdParamSlot:
             case OpCode::LdLocalObjSlot:
             case OpCode::LdParamObjSlot:
                 if ((DoDynamicProfileOpcode(AggressiveIntTypeSpecPhase) || DoDynamicProfileOpcode(FloatTypeSpecPhase)) &&
                     profileId != Constants::NoProfileId)
-                {
+                {LOGMEIN("ByteCodeWriter.cpp] 1673\n");
                     OpCodeUtil::ConvertNonCallOpToProfiled(op);
                 }
                 break;
@@ -1684,19 +1684,19 @@ StoreCommon:
 
         MULTISIZE_LAYOUT_WRITE(ElementSlotI1, op, value, slotId);
         if (OpCodeAttr::IsProfiledOp(op))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1686\n");
             m_byteCodeData.Encode(&profileId, sizeof(Js::ProfileId));
         }
     }
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementSlotI2(OpCode op, RegSlot value, int32 slotId1, int32 slotId2)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 1693\n");
         OpLayoutT_ElementSlotI2<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, value)
             && SizePolicy::Assign(layout.SlotIndex1, slotId1)
             && SizePolicy::Assign(layout.SlotIndex2, slotId2))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1698\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1713,7 +1713,7 @@ StoreCommon:
 
 #if DBG
         switch (op)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1715\n");
             case OpCode::StInnerSlot:
             case OpCode::StInnerSlotChkUndecl:
             case OpCode::StInnerObjSlot:
@@ -1724,7 +1724,7 @@ StoreCommon:
             case OpCode::StEnvObjSlotChkUndecl:
             case OpCode::StModuleSlot:
             case OpCode::LdModuleSlot:
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 1726\n");
                 break;
             }
 
@@ -1748,7 +1748,7 @@ StoreCommon:
         value = ConsumeReg(value);
 
         switch (op)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1750\n");
             case OpCode::LdInnerSlot:
             case OpCode::LdInnerObjSlot:
             case OpCode::LdEnvSlot:
@@ -1756,7 +1756,7 @@ StoreCommon:
             case OpCode::LdModuleSlot:
                 if ((DoDynamicProfileOpcode(AggressiveIntTypeSpecPhase) || DoDynamicProfileOpcode(FloatTypeSpecPhase)) &&
                     profileId != Constants::NoProfileId)
-                {
+                {LOGMEIN("ByteCodeWriter.cpp] 1758\n");
                     OpCodeUtil::ConvertNonCallOpToProfiled(op);
                 }
                 break;
@@ -1770,17 +1770,17 @@ StoreCommon:
 
         MULTISIZE_LAYOUT_WRITE(ElementSlotI2, op, value, slotId1, slotId2);
         if (OpCodeAttr::IsProfiledOp(op))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1772\n");
             m_byteCodeData.Encode(&profileId, sizeof(Js::ProfileId));
         }
     }
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementU(OpCode op, RegSlot instance, PropertyIdIndexType index)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 1779\n");
         OpLayoutT_ElementU<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Instance, instance) && SizePolicy::Assign(layout.PropertyIdIndex, index))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1782\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1800,10 +1800,10 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementScopedU(OpCode op, PropertyIdIndexType index)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 1802\n");
         OpLayoutT_ElementScopedU<SizePolicy> layout;
         if (SizePolicy::Assign(layout.PropertyIdIndex, index))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1805\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1821,10 +1821,10 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementRootU(OpCode op, PropertyIdIndexType index)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 1823\n");
         OpLayoutT_ElementRootU<SizePolicy> layout;
         if (SizePolicy::Assign(layout.PropertyIdIndex, index))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1826\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1842,11 +1842,11 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementRootCP(OpCode op, RegSlot value, uint cacheId, bool isLoadMethod, bool isStore)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 1844\n");
         Assert(!isLoadMethod || !isStore);
         OpLayoutT_ElementRootCP<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, value) && SizePolicy::Assign(layout.inlineCacheIndex, cacheId))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1848\n");
             size_t offset = m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
 
             Assert(m_byteCodeData.GetCurrentOffset() == offset + OpCodeUtil::EncodedSize(op, SizePolicy::LayoutEnum) + sizeof(OpLayoutT_ElementRootCP<SizePolicy>));
@@ -1873,7 +1873,7 @@ StoreCommon:
         value = ConsumeReg(value);
 
         switch (op)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1875\n");
         case OpCode::LdRootFld:
         case OpCode::LdRootFldForTypeOf:
             if (DoDynamicProfileOpcode(AggressiveIntTypeSpecPhase) ||
@@ -1881,13 +1881,13 @@ StoreCommon:
                 DoDynamicProfileOpcode(ObjTypeSpecPhase) ||
                 DoDynamicProfileOpcode(InlinePhase) ||
                 DoDynamicProfileOpcode(ProfileBasedFldFastPathPhase))
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 1883\n");
                 OpCodeUtil::ConvertNonCallOpToProfiled(op);
             }
             break;
         case OpCode::LdRootMethodFld:
             if (registerCacheIdForCall)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 1889\n");
                 CacheIdUnit unit(cacheId, true);
                 Assert(!callRegToLdFldCacheIndexMap->TryGetValue(value, &unit));
                 callRegToLdFldCacheIndexMap->Add(value, unit);
@@ -1898,7 +1898,7 @@ StoreCommon:
             if (DoDynamicProfileOpcode(ProfileBasedFldFastPathPhase) ||
                 DoDynamicProfileOpcode(InlinePhase) ||
                 DoDynamicProfileOpcode(ObjTypeSpecPhase))
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 1900\n");
                 OpCodeUtil::ConvertNonCallOpToProfiled(op);
             }
             break;
@@ -1915,11 +1915,11 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementP(OpCode op, RegSlot value, CacheId cacheId)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 1917\n");
         OpLayoutT_ElementP<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, value)
             && SizePolicy::Assign(layout.inlineCacheIndex, cacheId))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1921\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -1934,7 +1934,7 @@ StoreCommon:
 
         value = ConsumeReg(value);
         switch (op)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 1936\n");
         case OpCode::ScopedLdFld:
         case OpCode::ScopedLdFldForTypeOf:
         case OpCode::ScopedStFld:
@@ -1944,9 +1944,9 @@ StoreCommon:
 
         case OpCode::LdLocalFld:
             if (isCtor) // The symbol loaded by this LdFld will be used as a constructor
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 1946\n");
                 if (registerCacheIdForCall)
-                {
+                {LOGMEIN("ByteCodeWriter.cpp] 1948\n");
                     CacheIdUnit unit(cacheId);
                     Assert(!callRegToLdFldCacheIndexMap->TryGetValue(value, &unit));
                     callRegToLdFldCacheIndexMap->Add(value, unit);
@@ -1957,14 +1957,14 @@ StoreCommon:
                 DoDynamicProfileOpcode(ObjTypeSpecPhase) ||
                 DoDynamicProfileOpcode(InlinePhase) ||
                 DoDynamicProfileOpcode(ProfileBasedFldFastPathPhase))
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 1959\n");
                 OpCodeUtil::ConvertNonCallOpToProfiled(op);
             }
             break;
 
         case OpCode::LdLocalMethodFld:
             if (registerCacheIdForCall)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 1966\n");
                 CacheIdUnit unit(cacheId);
                 Assert(!callRegToLdFldCacheIndexMap->TryGetValue(value, &unit));
                 callRegToLdFldCacheIndexMap->Add(value, unit);
@@ -1975,7 +1975,7 @@ StoreCommon:
             if (DoDynamicProfileOpcode(ProfileBasedFldFastPathPhase) ||
                 DoDynamicProfileOpcode(InlinePhase) ||
                 DoDynamicProfileOpcode(ObjTypeSpecPhase))
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 1977\n");
                 OpCodeUtil::ConvertNonCallOpToProfiled(op);
             }
             break;
@@ -1995,12 +1995,12 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementPIndexed(OpCode op, RegSlot value, uint32 scopeIndex, CacheId cacheId)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 1997\n");
         OpLayoutT_ElementPIndexed<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, value)
             && SizePolicy::Assign(layout.inlineCacheIndex, cacheId)
             && SizePolicy::Assign(layout.scopeIndex, scopeIndex))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2002\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -2015,7 +2015,7 @@ StoreCommon:
 
         value = ConsumeReg(value);
         switch (op)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2017\n");
         case OpCode::InitInnerFld:
         case OpCode::InitInnerLetFld:
         case OpCode::InitUndeclLetFld:
@@ -2034,11 +2034,11 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementCP(OpCode op, RegSlot value, RegSlot instance, CacheId cacheId)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2036\n");
         OpLayoutT_ElementCP<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, value) && SizePolicy::Assign(layout.Instance, instance)
             && SizePolicy::Assign(layout.inlineCacheIndex, cacheId))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2040\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -2055,13 +2055,13 @@ StoreCommon:
         instance = ConsumeReg(instance);
 
         switch (op)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2057\n");
         case OpCode::LdFldForTypeOf:
         case OpCode::LdFld:
             if (isCtor) // The symbol loaded by this LdFld will be used as a constructor
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 2061\n");
                 if (registerCacheIdForCall)
-                {
+                {LOGMEIN("ByteCodeWriter.cpp] 2063\n");
                     CacheIdUnit unit(cacheId);
                     Assert(!callRegToLdFldCacheIndexMap->TryGetValue(value, &unit));
                     callRegToLdFldCacheIndexMap->Add(value, unit);
@@ -2073,13 +2073,13 @@ StoreCommon:
                 DoDynamicProfileOpcode(ObjTypeSpecPhase) ||
                 DoDynamicProfileOpcode(InlinePhase) ||
                 DoDynamicProfileOpcode(ProfileBasedFldFastPathPhase))
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 2075\n");
                 OpCodeUtil::ConvertNonCallOpToProfiled(op);
             }
             break;
         case OpCode::LdMethodFld:
             if (registerCacheIdForCall)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 2081\n");
                 CacheIdUnit unit(cacheId);
                 Assert(!callRegToLdFldCacheIndexMap->TryGetValue(value, &unit));
                 callRegToLdFldCacheIndexMap->Add(value, unit);
@@ -2091,7 +2091,7 @@ StoreCommon:
             if (DoDynamicProfileOpcode(ProfileBasedFldFastPathPhase) ||
                 DoDynamicProfileOpcode(InlinePhase) ||
                 DoDynamicProfileOpcode(ObjTypeSpecPhase))
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 2093\n");
                 OpCodeUtil::ConvertNonCallOpToProfiled(op);
             }
             break;
@@ -2110,11 +2110,11 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementC2(OpCode op, RegSlot value, RegSlot instance, PropertyIdIndexType propertyIdIndex, RegSlot value2)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2112\n");
         OpLayoutT_ElementC2<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, value) && SizePolicy::Assign(layout.Instance, instance)
             && SizePolicy::Assign(layout.PropertyIdIndex, propertyIdIndex) && SizePolicy::Assign(layout.Value2, value2))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2116\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -2132,12 +2132,12 @@ StoreCommon:
         thisInstance = ConsumeReg(thisInstance);
 
         switch (op)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2134\n");
         case OpCode::LdSuperFld:
             if (isCtor) // The symbol loaded by this LdSuperFld will be used as a constructor
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 2137\n");
                 if (registerCacheIdForCall)
-                {
+                {LOGMEIN("ByteCodeWriter.cpp] 2139\n");
                     CacheIdUnit unit(cacheId);
                     Assert(!callRegToLdFldCacheIndexMap->TryGetValue(value, &unit));
                     callRegToLdFldCacheIndexMap->Add(value, unit);
@@ -2148,7 +2148,7 @@ StoreCommon:
                 DoDynamicProfileOpcode(ObjTypeSpecPhase) ||
                 DoDynamicProfileOpcode(InlinePhase) ||
                 DoDynamicProfileOpcode(ProfileBasedFldFastPathPhase))
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 2150\n");
                 OpCodeUtil::ConvertNonCallOpToProfiled(op);
             }
             break;
@@ -2156,7 +2156,7 @@ StoreCommon:
             if (DoDynamicProfileOpcode(ProfileBasedFldFastPathPhase) ||
                 DoDynamicProfileOpcode(InlinePhase) ||
                 DoDynamicProfileOpcode(ObjTypeSpecPhase))
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 2158\n");
                 OpCodeUtil::ConvertNonCallOpToProfiled(op);
             }
             break;
@@ -2170,11 +2170,11 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteElementScopedC2(OpCode op, RegSlot value, PropertyIdIndexType propertyIdIndex, RegSlot value2)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2172\n");
         OpLayoutT_ElementScopedC2<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Value, value)
             && SizePolicy::Assign(layout.PropertyIdIndex, propertyIdIndex) && SizePolicy::Assign(layout.Value2, value2))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2176\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -2191,7 +2191,7 @@ StoreCommon:
         value2 = ConsumeReg(value2);
 
         switch (op)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2193\n");
         case OpCode::ScopedLdInst:
             break;
 
@@ -2205,10 +2205,10 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteClass(OpCode op, RegSlot constructor, RegSlot extends)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2207\n");
         OpLayoutT_Class<SizePolicy> layout;
         if (SizePolicy::Assign(layout.Constructor, constructor) && SizePolicy::Assign(layout.Extends, extends))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2210\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -2216,7 +2216,7 @@ StoreCommon:
     }
 
     void ByteCodeWriter::InitClass(RegSlot constructor, RegSlot extends)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2218\n");
         Assert(OpCodeAttr::HasMultiSizeLayout(Js::OpCode::InitClass));
 
         CheckOpen();
@@ -2224,7 +2224,7 @@ StoreCommon:
         constructor = ConsumeReg(constructor);
 
         if (extends != Js::Constants::NoRegister)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2226\n");
             extends = ConsumeReg(extends);
         }
 
@@ -2232,7 +2232,7 @@ StoreCommon:
     }
 
     void ByteCodeWriter::NewFunction(RegSlot destinationRegister, uint index, bool isGenerator)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2234\n");
         CheckOpen();
 
         destinationRegister = ConsumeReg(destinationRegister);
@@ -2246,7 +2246,7 @@ StoreCommon:
     }
 
     void ByteCodeWriter::NewInnerFunction(RegSlot destinationRegister, uint index, RegSlot environmentRegister, bool isGenerator)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2248\n");
         CheckOpen();
 
         destinationRegister = ConsumeReg(destinationRegister);
@@ -2262,10 +2262,10 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteReg1Unsigned1(OpCode op, RegSlot R0, uint C1)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2264\n");
         OpLayoutT_Reg1Unsigned1<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R0, R0) && SizePolicy::Assign(layout.C1, C1))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2267\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -2288,12 +2288,12 @@ StoreCommon:
                 this->m_functionWrite->AllocProfiledForInLoopCount(&profileId));
 
         if (isProfiled)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2290\n");
             OpCodeUtil::ConvertNonCallOpToProfiled(op);
         }
         MULTISIZE_LAYOUT_WRITE(Reg1Unsigned1, op, R0, C1);
         if (isProfiled)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2295\n");
             m_byteCodeData.Encode(&profileId, sizeof(Js::ProfileId));
         }
     }
@@ -2326,10 +2326,10 @@ StoreCommon:
 
     template <typename SizePolicy>
     bool ByteCodeWriter::TryWriteReg2Int1(OpCode op, RegSlot R0, RegSlot R1, int C1)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2328\n");
         OpLayoutT_Reg2Int1<SizePolicy> layout;
         if (SizePolicy::Assign(layout.R0, R0) && SizePolicy::Assign(layout.R1, R1) && SizePolicy::Assign(layout.C1, C1))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2331\n");
             m_byteCodeData.EncodeT<SizePolicy::LayoutEnum>(op, &layout, sizeof(layout), this);
             return true;
         }
@@ -2345,9 +2345,9 @@ StoreCommon:
         if (DoDynamicProfileOpcode(CheckThisPhase) ||
             DoDynamicProfileOpcode(TypedArrayTypeSpecPhase) ||
             DoDynamicProfileOpcode(ArrayCheckHoistPhase))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2347\n");
             if (op == OpCode::LdThis)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 2349\n");
                 op = OpCode::ProfiledLdThis;
             }
         }
@@ -2368,7 +2368,7 @@ StoreCommon:
     }
 
     int ByteCodeWriter::AuxNoReg(OpCode op, const void* buffer, int byteCount, int C1)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2370\n");
         CheckOpen();
 
         //
@@ -2391,7 +2391,7 @@ StoreCommon:
     }
 
     void ByteCodeWriter::AuxNoReg(OpCode op, uint byteOffset, int C1)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2393\n");
         CheckOpen();
 
         //
@@ -2408,7 +2408,7 @@ StoreCommon:
     }
 
     int ByteCodeWriter::Auxiliary(OpCode op, RegSlot destinationRegister, const void* buffer, int byteCount, int C1)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2410\n");
         CheckOpen();
         destinationRegister = ConsumeReg(destinationRegister);
 
@@ -2427,7 +2427,7 @@ StoreCommon:
         if (DoProfileNewScArrayOp(op) &&
             DoDynamicProfileOpcode(NativeArrayPhase, true) &&
             this->m_functionWrite->AllocProfiledArrayCallSiteId(&profileId))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2429\n");
             OpCodeUtil::ConvertNonCallOpToProfiled(op);
 
             OpLayoutDynamicProfile<OpLayoutAuxiliary> data;
@@ -2452,7 +2452,7 @@ StoreCommon:
     }
 
     void ByteCodeWriter::Auxiliary(OpCode op, RegSlot destinationRegister, uint byteOffset, int C1)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2454\n");
         CheckOpen();
         destinationRegister = ConsumeReg(destinationRegister);
 
@@ -2471,7 +2471,7 @@ StoreCommon:
     }
 
     int ByteCodeWriter::Reg2Aux(OpCode op, RegSlot R0, RegSlot R1, const void* buffer, int byteCount, int C1)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2473\n");
         CheckOpen();
         R0 = ConsumeReg(R0);
         R1 = ConsumeReg(R1);
@@ -2498,7 +2498,7 @@ StoreCommon:
     }
 
     void ByteCodeWriter::Reg2Aux(OpCode op, RegSlot R0, RegSlot R1, uint byteOffset, int C1)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2500\n");
         CheckOpen();
         R0 = ConsumeReg(R0);
         R1 = ConsumeReg(R1);
@@ -2519,7 +2519,7 @@ StoreCommon:
     }
 
     void ByteCodeWriter::AuxiliaryContext(OpCode op, RegSlot destinationRegister, const void* buffer, int byteCount, Js::RegSlot C1)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2521\n");
         CheckOpen();
         destinationRegister = ConsumeReg(destinationRegister);
         C1 = ConsumeReg(C1);
@@ -2530,7 +2530,7 @@ StoreCommon:
 
         int currentOffset = m_auxContextData.GetCurrentOffset();
         if (byteCount > 0)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2532\n");
             m_auxContextData.Encode(buffer, byteCount);
         }
 
@@ -2547,10 +2547,10 @@ StoreCommon:
     }
 
     uint ByteCodeWriter::InsertAuxiliaryData(const void* buffer, uint byteCount)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2549\n");
         uint offset = m_auxiliaryData.GetCurrentOffset();
         if (byteCount > 0)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2552\n");
             m_auxiliaryData.Encode(buffer, byteCount);
         }
 
@@ -2558,10 +2558,10 @@ StoreCommon:
     }
 
     ByteCodeLabel ByteCodeWriter::DefineLabel()
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2560\n");
 #if defined(_M_X64_OR_ARM64)
         if (m_labelOffsets->Count() == INT_MAX)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2563\n");
             // Reach our limit
             Js::Throw::OutOfMemory();
         }
@@ -2580,13 +2580,13 @@ StoreCommon:
     }
 
     void ByteCodeWriter::MarkLabel(ByteCodeLabel labelID)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2582\n");
         CheckOpen();
         CheckLabel(labelID);
 
 #ifdef BYTECODE_BRANCH_ISLAND
         if (useBranchIsland)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2588\n");
             // If we are going to emit a branch island, it should be before the label.
             EnsureLongBranch(Js::OpCode::Label);
         }
@@ -2600,7 +2600,7 @@ StoreCommon:
     }
 
     void ByteCodeWriter::AddJumpOffset(Js::OpCode op, ByteCodeLabel labelId, uint fieldByteOffsetFromEnd) // Offset of "Offset" field in OpLayout, in bytes
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2602\n");
         AssertMsg(fieldByteOffsetFromEnd < 100, "Ensure valid field offset");
         CheckOpen();
         CheckLabel(labelId);
@@ -2608,7 +2608,7 @@ StoreCommon:
         uint jumpByteOffset = m_byteCodeData.GetCurrentOffset() - fieldByteOffsetFromEnd;
 #ifdef BYTECODE_BRANCH_ISLAND
         if (useBranchIsland)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2610\n");
             // Any Jump might need a long jump, account for that emit the branch island earlier.
             // Even if it is a back edge and we are going to emit a long jump, we will still
             // emit a branch around any way.
@@ -2616,12 +2616,12 @@ StoreCommon:
 
             uint labelOffset = m_labelOffsets->Item(labelId);
             if (labelOffset != UINT_MAX)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 2618\n");
                 // Back branch, see if it needs to be long
                 Assert(labelOffset < m_byteCodeData.GetCurrentOffset());
                 LongJumpOffset jumpOffset = labelOffset - m_byteCodeData.GetCurrentOffset();
                 if (jumpOffset < -GetBranchLimit())
-                {
+                {LOGMEIN("ByteCodeWriter.cpp] 2623\n");
                     // Create the long jump label and add the original jump offset to the list first
                     ByteCodeLabel longJumpLabel = this->DefineLabel();
                     JumpInfo jumpInfo = { longJumpLabel, jumpByteOffset };
@@ -2630,7 +2630,7 @@ StoreCommon:
                     // Emit the jump around (if necessary)
                     ByteCodeLabel jumpAroundLabel = (ByteCodeLabel)-1;
                     if (OpCodeAttr::HasFallThrough(op))
-                    {
+                    {LOGMEIN("ByteCodeWriter.cpp] 2632\n");
                         // emit jump around.
                         jumpAroundLabel = this->DefineLabel();
                         this->Br(jumpAroundLabel);
@@ -2641,7 +2641,7 @@ StoreCommon:
                     this->BrLong(Js::OpCode::BrLong, labelId);
 
                     if (jumpAroundLabel != (ByteCodeLabel)-1)
-                    {
+                    {LOGMEIN("ByteCodeWriter.cpp] 2643\n");
                         this->MarkLabel(jumpAroundLabel);
                     }
                     return;
@@ -2663,10 +2663,10 @@ StoreCommon:
 
 #ifdef BYTECODE_BRANCH_ISLAND
     int32 ByteCodeWriter::GetBranchLimit()
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2665\n");
 #ifdef BYTECODE_TESTING
         if (Js::Configuration::Global.flags.IsEnabled(Js::ByteCodeBranchLimitFlag))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2668\n");
             // minimum 64
             return min(max(Js::Configuration::Global.flags.ByteCodeBranchLimit, 64), SHRT_MAX + 1);
         }
@@ -2676,7 +2676,7 @@ StoreCommon:
     }
 
     void ByteCodeWriter::AddLongJumpOffset(ByteCodeLabel labelId, uint fieldByteOffsetFromEnd) // Offset of "Offset" field in OpLayout, in bytes
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2678\n");
         Assert(useBranchIsland);
         AssertMsg(fieldByteOffsetFromEnd < 100, "Ensure valid field offset");
 
@@ -2694,7 +2694,7 @@ StoreCommon:
     }
 
     void ByteCodeWriter::BrLong(OpCode op, ByteCodeLabel labelID)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2696\n");
         Assert(useBranchIsland);
         CheckOpen();
         CheckOp(op, OpLayoutType::BrLong);
@@ -2711,7 +2711,7 @@ StoreCommon:
 
 
     void ByteCodeWriter::UpdateNextBranchIslandOffset(uint firstUnknownJumpInfo, uint firstUnknownJumpOffset)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2713\n");
         this->firstUnknownJumpInfo = firstUnknownJumpInfo;
 
         // We will need to emit the next branch from the first branch + branch limit.
@@ -2722,13 +2722,13 @@ StoreCommon:
     }
 
     void ByteCodeWriter::EnsureLongBranch(Js::OpCode op)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2724\n");
         Assert(useBranchIsland);
         int currentOffset = this->m_byteCodeData.GetCurrentOffset();
 
         // See if we need to emit branch island yet, and avoid recursion.
         if (currentOffset < this->nextBranchIslandOffset || this->inEnsureLongBranch)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2730\n");
             lastOpcode = op;
             return;
         }
@@ -2742,7 +2742,7 @@ StoreCommon:
         // Except at label or StatementBoundary, we always want to emit before them.
         if ((needBranchAround && !OpCodeAttr::HasFallThrough(op))
             && op != Js::OpCode::StatementBoundary && op != Js::OpCode::Label)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2744\n");
             return;
         }
 
@@ -2763,7 +2763,7 @@ StoreCommon:
             // See if the label has bee marked yet.
             uint const labelByteOffset = m_labelOffsets->Item(labelID);
             if (labelByteOffset != UINT_MAX)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 2765\n");
                 // If a label is already defined, then it should be short
                 // (otherwise we should have emitted a branch island for it already).
                 Assert((int)labelByteOffset - (int)jumpByteOffset < GetBranchLimit()
@@ -2776,13 +2776,13 @@ StoreCommon:
             // as many jump around of branch island.
             int flushNextBranchIslandOffset = this->nextBranchIslandOffset - GetBranchLimit() / 2;
             if (currentOffset < flushNextBranchIslandOffset)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 2778\n");
                 // No need to for long branch yet. Terminate the loop.
                 return true;
             }
 
             if (labelID == branchAroundLabel)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 2784\n");
                 // Let's not flush the branchAroundLabel.
                 // Should happen very rarely and mostly when the branch limit is very small.
 
@@ -2804,7 +2804,7 @@ StoreCommon:
 
             // Emit the branch around if it hasn't been emitted already
             if (branchAroundLabel == (Js::ByteCodeLabel)-1 && needBranchAround)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 2806\n");
                 branchAroundLabel = this->DefineLabel();
                 this->Br(Js::OpCode::Br, branchAroundLabel);
 
@@ -2827,13 +2827,13 @@ StoreCommon:
         });
 
         if (!foundUnknown)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2829\n");
             // Nothing is found, just set the next branch island from the current offset
             this->UpdateNextBranchIslandOffset(this->m_jumpOffsets->Count(), currentOffset);
         }
 
         if (branchAroundLabel != (Js::ByteCodeLabel)-1)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2835\n");
             // Make the branch around label if we needed one
             this->MarkLabel(branchAroundLabel);
         }
@@ -2841,18 +2841,18 @@ StoreCommon:
 #endif
 
     void ByteCodeWriter::StartStatement(ParseNode* node, uint32 tmpRegCount)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2843\n");
         if (m_pMatchingNode)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2845\n");
             if (m_pMatchingNode == node)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 2847\n");
                 m_matchingNodeRefCount++;
             }
             return;
         }
 #ifdef BYTECODE_BRANCH_ISLAND
         if (useBranchIsland)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2854\n");
             // If we are going to emit a branch island, it should be before the statement start
             this->EnsureLongBranch(Js::OpCode::StatementBoundary);
         }
@@ -2861,7 +2861,7 @@ StoreCommon:
         m_beginCodeSpan = m_byteCodeData.GetCurrentOffset();
 
         if (m_isInDebugMode && m_tmpRegCount != tmpRegCount)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2863\n");
             Unsigned1(OpCode::EmitTmpRegCount, tmpRegCount);
             m_tmpRegCount = tmpRegCount;
         }
@@ -2871,23 +2871,23 @@ StoreCommon:
     {
         AssertMsg(m_pMatchingNode, "EndStatement unmatched to StartStatement");
         if (m_pMatchingNode != node)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2873\n");
             return;
         }
         else if (m_matchingNodeRefCount > 0)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2877\n");
             m_matchingNodeRefCount--;
             return;
         }
 
         if (m_byteCodeData.GetCurrentOffset() != m_beginCodeSpan)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2883\n");
             if (m_isInDebugMode)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 2885\n");
                 FunctionBody::StatementMap* pCurrentStatement = FunctionBody::StatementMap::New(this->m_functionWrite->GetScriptContext()->GetRecycler());
 
                 if (pCurrentStatement)
-                {
+                {LOGMEIN("ByteCodeWriter.cpp] 2889\n");
                     pCurrentStatement->sourceSpan.begin = node->ichMin;
                     pCurrentStatement->sourceSpan.end = node->ichLim;
 
@@ -2911,9 +2911,9 @@ StoreCommon:
     }
 
     void ByteCodeWriter::StartSubexpression(ParseNode* node)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2913\n");
         if (!m_isInDebugMode || !m_pMatchingNode) // Subexpression not in debug mode or not enclosed in regular statement
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2915\n");
             return;
         }
 #ifdef BYTECODE_BRANCH_ISLAND
@@ -2924,18 +2924,18 @@ StoreCommon:
     }
 
     void ByteCodeWriter::EndSubexpression(ParseNode* node)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2926\n");
         if (!m_isInDebugMode || m_subexpressionNodesStack->Empty() || m_subexpressionNodesStack->Peek().node != node)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2928\n");
             return;
         }
 
         if (m_byteCodeData.GetCurrentOffset() != m_beginCodeSpan)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2933\n");
             FunctionBody::StatementMap* pCurrentStatement = FunctionBody::StatementMap::New(this->m_functionWrite->GetScriptContext()->GetRecycler());
 
             if (pCurrentStatement)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 2937\n");
                 pCurrentStatement->sourceSpan.begin = node->ichMin;
                 pCurrentStatement->sourceSpan.end = node->ichLim;
 
@@ -2953,7 +2953,7 @@ StoreCommon:
     // what the current scope is for tracking of let/const initialization offsets (for detecting
     // dead zones).
     void ByteCodeWriter::PushDebuggerScope(Js::DebuggerScope* debuggerScope)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2955\n");
         Assert(debuggerScope);
 
         debuggerScope->SetParentScope(m_currentDebuggerScope);
@@ -2963,20 +2963,20 @@ StoreCommon:
 
     // Pops the current debugger scope from the stack.
     void ByteCodeWriter::PopDebuggerScope()
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2965\n");
         Assert(m_currentDebuggerScope);
 
         OUTPUT_VERBOSE_TRACE(Js::DebuggerPhase, _u("PopDebuggerScope() - Popped scope 0x%p of type %d.\n"), m_currentDebuggerScope, m_currentDebuggerScope->scopeType);
         if (m_currentDebuggerScope != nullptr)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2970\n");
             m_currentDebuggerScope = m_currentDebuggerScope->GetParentScope();
         }
     }
 
     DebuggerScope* ByteCodeWriter::RecordStartScopeObject(DiagExtraScopesType scopeType, RegSlot scopeLocation, int* index)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2976\n");
         if (scopeLocation != Js::Constants::NoRegister)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2978\n");
             scopeLocation = ConsumeReg(scopeLocation);
         }
         DebuggerScope* debuggerScope = m_functionWrite->RecordStartScopeObject(scopeType, m_byteCodeData.GetCurrentOffset(), scopeLocation, index);
@@ -2991,13 +2991,13 @@ StoreCommon:
         bool shouldConsumeRegister /*= true*/,
         DebuggerScopePropertyFlags flags /*= DebuggerScopePropertyFlags_None*/,
         bool isFunctionDeclaration /*= false*/)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 2993\n");
         Assert(debuggerScope);
 
         // Activation object doesn't use register and slot array location represents the
         // index in the array. Only need to consume for register slots.
         if (shouldConsumeRegister)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 2999\n");
             Assert(location != Js::Constants::NoRegister);
             location = ConsumeReg(location);
         }
@@ -3007,7 +3007,7 @@ StoreCommon:
         // Only need to update properties in debug mode (even for slot array, which is tracked in non-debug mode,
         // since the offset is only used for debugging).
         if (this->m_isInDebugMode && isFunctionDeclaration)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 3009\n");
             AssertMsg(this->m_currentDebuggerScope, "Function declarations can only be added in a block scope.");
             AssertMsg(debuggerScope == this->m_currentDebuggerScope
                 || debuggerScope == this->m_currentDebuggerScope->siblingScope,
@@ -3026,7 +3026,7 @@ StoreCommon:
     }
 
     void ByteCodeWriter::RecordEndScopeObject()
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 3028\n");
         Assert(this->m_currentDebuggerScope);
 
         m_functionWrite->RecordEndScopeObject(this->m_currentDebuggerScope, m_byteCodeData.GetCurrentOffset() - 1);
@@ -3040,7 +3040,7 @@ StoreCommon:
         bool shouldConsumeRegister/* = true*/,
         int byteCodeOffset/* = Constants::InvalidOffset*/,
         bool isFunctionDeclaration /*= false*/)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 3042\n");
 #if DBG
         bool isInDebugMode = m_isInDebugMode
 #if DBG_DUMP
@@ -3054,13 +3054,13 @@ StoreCommon:
         Assert(currentDebuggerScope);
 
         if (shouldConsumeRegister)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 3056\n");
             Assert(location != Js::Constants::NoRegister);
             location = ConsumeReg(location);
         }
 
         if (byteCodeOffset == Constants::InvalidOffset)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 3062\n");
             // Use the current offset if no offset is passed in.
             byteCodeOffset = this->m_byteCodeData.GetCurrentOffset();
         }
@@ -3068,9 +3068,9 @@ StoreCommon:
         // Search through the scope chain starting with the current up through the parents to see if the
         // property can be found and updated.
         while (currentDebuggerScope != nullptr)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 3070\n");
             if (currentDebuggerScope->UpdatePropertyInitializationOffset(location, propertyId, byteCodeOffset, isFunctionDeclaration))
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 3072\n");
                 break;
             }
 
@@ -3079,46 +3079,46 @@ StoreCommon:
     }
 
     void ByteCodeWriter::RecordFrameDisplayRegister(RegSlot slot)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 3081\n");
         slot = ConsumeReg(slot);
         m_functionWrite->RecordFrameDisplayRegister(slot);
     }
 
     void ByteCodeWriter::RecordObjectRegister(RegSlot slot)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 3087\n");
         slot = ConsumeReg(slot);
         m_functionWrite->RecordObjectRegister(slot);
     }
 
     void ByteCodeWriter::RecordStatementAdjustment(FunctionBody::StatementAdjustmentType type)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 3093\n");
         if (m_isInDebugMode)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 3095\n");
             m_functionWrite->RecordStatementAdjustment(m_byteCodeData.GetCurrentOffset(), type);
         }
     }
 
     void ByteCodeWriter::RecordCrossFrameEntryExitRecord(bool isEnterBlock)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 3101\n");
         if (m_isInDebugMode)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 3103\n");
             m_functionWrite->RecordCrossFrameEntryExitRecord(m_byteCodeData.GetCurrentOffset(), isEnterBlock);
         }
     }
 
     void ByteCodeWriter::RecordForInOrOfCollectionScope()
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 3109\n");
         if (m_isInDebugMode && this->m_currentDebuggerScope != nullptr)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 3111\n");
             this->m_currentDebuggerScope->UpdatePropertiesInForInOrOfCollectionScope();
         }
     }
 
     uint ByteCodeWriter::EnterLoop(Js::ByteCodeLabel loopEntrance)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 3117\n");
 #ifdef BYTECODE_BRANCH_ISLAND
         if (useBranchIsland)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 3120\n");
             // If we are going to emit a branch island, it should be before the loop header
             this->EnsureLongBranch(Js::OpCode::StatementBoundary);
         }
@@ -3134,7 +3134,7 @@ StoreCommon:
         Js::OpCode loopBodyOpcode = Js::OpCode::LoopBodyStart;
 #if ENABLE_PROFILE_INFO
         if (Js::DynamicProfileInfo::EnableImplicitCallFlags(GetFunctionWrite()))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 3136\n");
             this->Unsigned1(Js::OpCode::ProfiledLoopStart, loopId);
             loopBodyOpcode = Js::OpCode::ProfiledLoopBodyStart;
         }
@@ -3142,7 +3142,7 @@ StoreCommon:
 
         this->MarkLabel(loopEntrance);
         if (this->DoJitLoopBodies() || this->DoInterruptProbes())
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 3144\n");
             this->Unsigned1(loopBodyOpcode, loopId);
         }
 
@@ -3150,10 +3150,10 @@ StoreCommon:
     }
 
     void ByteCodeWriter::ExitLoop(uint loopId)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 3152\n");
 #if ENABLE_PROFILE_INFO
         if (Js::DynamicProfileInfo::EnableImplicitCallFlags(GetFunctionWrite()))
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 3155\n");
             this->Unsigned1(Js::OpCode::ProfiledLoopEnd, loopId);
         }
 #endif
@@ -3163,16 +3163,16 @@ StoreCommon:
     }
 
     void ByteCodeWriter::IncreaseByteCodeCount()
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 3165\n");
         m_byteCodeCount++;
         if (m_loopNest > 0)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 3168\n");
             m_byteCodeInLoopCount++;
         }
     }
 
     void ByteCodeWriter::Data::Create(uint initSize, ArenaAllocator* tmpAlloc)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 3174\n");
         //
         // Allocate the initial byte-code block to write into.
         //
@@ -3185,11 +3185,11 @@ StoreCommon:
     }
 
     void ByteCodeWriter::Data::Reset()
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 3187\n");
         currentOffset = 0;
         DataChunk* currentChunk = head;
         while (currentChunk)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 3191\n");
             // reset to the starting point
             currentChunk->Reset();
             currentChunk = currentChunk->nextChunk;
@@ -3199,19 +3199,19 @@ StoreCommon:
     }
 
     void ByteCodeWriter::Data::SetCurrent(uint offset, DataChunk* currChunk)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 3201\n");
         this->current = currChunk;
         this->currentOffset = offset;
     }
 
     /// Copies its contents to a final contiguous section of memory.
     void ByteCodeWriter::Data::Copy(Recycler* alloc, ByteBlock ** finalBlock)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 3208\n");
         AssertMsg(finalBlock != nullptr, "Must have valid storage");
 
         uint cbFinalData = GetCurrentOffset();
         if (cbFinalData == 0)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 3213\n");
             *finalBlock = nullptr;
         }
         else
@@ -3222,7 +3222,7 @@ StoreCommon:
             size_t bytesLeftToCopy = cbFinalData;
             byte* currentDest = finalByteCodeBlock->GetBuffer();
             while (true)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 3224\n");
                 if (bytesLeftToCopy <= currentChunk->GetSize())
                 {
                     js_memcpy_s(currentDest, bytesLeftToCopy, currentChunk->GetBuffer(), bytesLeftToCopy);
@@ -3245,10 +3245,10 @@ StoreCommon:
     void ByteCodeWriter::Data::EncodeOpCode<SmallLayout>(
         uint16 op,
         ByteCodeWriter* writer)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 3247\n");
         DebugOnly(const uint offset = currentOffset);
         if (op <= (uint16)Js::OpCode::MaxByteSizedOpcodes)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 3250\n");
             byte byteop = (byte)op;
             Write(&byteop, sizeof(byte));
         }
@@ -3264,12 +3264,12 @@ StoreCommon:
 
     template <LayoutSize layoutSize>
     void ByteCodeWriter::Data::EncodeOpCode(uint16 op, ByteCodeWriter* writer)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 3266\n");
         CompileAssert(layoutSize != SmallLayout);
         DebugOnly(const uint offset = currentOffset);
 
         if (op <= (uint16)Js::OpCode::MaxByteSizedOpcodes)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 3271\n");
             const byte exop = (byte)(layoutSize == LargeLayout ? Js::OpCode::LargeLayoutPrefix : Js::OpCode::MediumLayoutPrefix);
             Write(&exop, sizeof(byte));
             byte byteop = (byte)op;
@@ -3286,10 +3286,10 @@ StoreCommon:
 
     template <LayoutSize layoutSize>
     inline uint ByteCodeWriter::Data::EncodeT(OpCode op, ByteCodeWriter* writer)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 3288\n");
 #ifdef BYTECODE_BRANCH_ISLAND
         if (writer->useBranchIsland)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 3291\n");
             writer->EnsureLongBranch(op);
         }
 #endif
@@ -3302,7 +3302,7 @@ StoreCommon:
         EncodeOpCode<layoutSize>((uint16)op, writer);
 
         if (op != Js::OpCode::Ld_A)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 3304\n");
             writer->m_byteCodeWithoutLDACount++;
         }
         writer->IncreaseByteCodeCount();
@@ -3311,7 +3311,7 @@ StoreCommon:
 
     template <LayoutSize layoutSize>
     inline uint ByteCodeWriter::Data::EncodeT(OpCode op, const void* rawData, int byteSize, ByteCodeWriter* writer)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 3313\n");
         AssertMsg((rawData != nullptr) && (byteSize < 100), "Ensure valid data for opcode");
 
         uint offset = EncodeT<layoutSize>(op, writer);
@@ -3320,17 +3320,17 @@ StoreCommon:
     }
 
     inline void ByteCodeWriter::Data::Encode(const void* rawData, int byteSize)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 3322\n");
         AssertMsg(rawData != nullptr, "Ensure valid data for opcode");
         Write(rawData, byteSize);
     }
 
     void ByteCodeWriter::Data::Write(__in_bcount(byteSize) const void* data, __in uint byteSize)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 3328\n");
         // Simple case where the current chunk has enough space.
         uint bytesFree = current->RemainingBytes();
         if (bytesFree >= byteSize)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 3332\n");
             current->WriteUnsafe(data, byteSize);
         }
         else
@@ -3343,21 +3343,21 @@ StoreCommon:
 
     /// Requires buffer extension.
     _NOINLINE void ByteCodeWriter::Data::SlowWrite(__in_bcount(byteSize) const void* data, __in uint byteSize)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 3345\n");
         AssertMsg(byteSize > current->RemainingBytes(), "We should not need an extension if there is enough space in the current chunk");
         uint bytesLeftToWrite = byteSize;
         byte* dataToBeWritten = (byte*)data;
         // the next chunk may already be created in the case that we are patching bytecode.
         // If so, we want to move the pointer to the beginning of the buffer
         if (current->nextChunk)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 3352\n");
             current->nextChunk->SetCurrentOffset(0);
         }
         while (true)
-        {
+        {LOGMEIN("ByteCodeWriter.cpp] 3356\n");
             uint bytesFree = current->RemainingBytes();
             if (bytesFree >= bytesLeftToWrite)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 3359\n");
                 current->WriteUnsafe(dataToBeWritten, bytesLeftToWrite);
                 break;
             }
@@ -3368,7 +3368,7 @@ StoreCommon:
 
             // Create a new chunk when needed
             if (!current->nextChunk)
-            {
+            {LOGMEIN("ByteCodeWriter.cpp] 3370\n");
                 AddChunk(bytesLeftToWrite);
             }
             current = current->nextChunk;
@@ -3376,7 +3376,7 @@ StoreCommon:
     }
 
     void ByteCodeWriter::Data::AddChunk(uint byteSize)
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 3378\n");
         AssertMsg(current->nextChunk == nullptr, "Do we really need to grow?");
 
         // For some data elements i.e. bytecode we have a good initial size and
@@ -3389,17 +3389,17 @@ StoreCommon:
 
 #if DBG_DUMP
     uint ByteCodeWriter::ByteCodeDataSize()
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 3391\n");
         return m_byteCodeData.GetCurrentOffset();
     }
 
     uint ByteCodeWriter::AuxiliaryDataSize()
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 3396\n");
         return m_auxiliaryData.GetCurrentOffset();
     }
 
     uint ByteCodeWriter::AuxiliaryContextDataSize()
-    {
+    {LOGMEIN("ByteCodeWriter.cpp] 3401\n");
         return m_auxContextData.GetCurrentOffset();
     }
 

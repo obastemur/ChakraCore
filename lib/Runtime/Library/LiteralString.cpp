@@ -9,12 +9,12 @@ namespace Js
     DEFINE_RECYCLER_TRACKER_PERF_COUNTER(LiteralString);
 
     LiteralString::LiteralString(StaticType * type) : JavascriptString(type)
-    {
+    {LOGMEIN("LiteralString.cpp] 11\n");
     }
 
     LiteralString::LiteralString(StaticType * type, const char16* content, charcount_t charLength) :
         JavascriptString(type, charLength, content)
-    {
+    {LOGMEIN("LiteralString.cpp] 16\n");
 #if defined(DBG) && defined(_M_IX86)
         // Make sure content isn't on the stack by comparing to stack bounds in TIB
         AssertMsg(!ThreadContext::IsOnStack((void*)content),
@@ -32,19 +32,19 @@ namespace Js
     }
 
     LiteralString* LiteralString::New(StaticType* type, const char16* content, charcount_t charLength, Recycler* recycler)
-    {
+    {LOGMEIN("LiteralString.cpp] 34\n");
         return RecyclerNew(recycler, LiteralString, type, content, charLength);
     }
 
     LiteralString* LiteralString::CreateEmptyString(StaticType* type)
-    {
+    {LOGMEIN("LiteralString.cpp] 39\n");
         return RecyclerNew(type->GetScriptContext()->GetRecycler(), LiteralString, type, _u(""), 0);
     }
 
 
     ArenaLiteralString::ArenaLiteralString(StaticType * type, const char16* content, charcount_t charLength) :
       JavascriptString(type, charLength, content)
-    {
+    {LOGMEIN("LiteralString.cpp] 46\n");
 #if defined(DBG) && defined(_M_IX86)
         // Make sure content isn't on the stack by comparing to stack bounds in TIB
         AssertMsg(!ThreadContext::IsOnStack((void*)content),
@@ -60,17 +60,17 @@ namespace Js
     }
 
     ArenaLiteralString* ArenaLiteralString::New(StaticType* type, const char16* content, charcount_t charLength, Recycler* recycler)
-    {
+    {LOGMEIN("LiteralString.cpp] 62\n");
         return RecyclerNew(recycler, ArenaLiteralString, type, content, charLength);
     }
 
     ArenaLiteralString* ArenaLiteralString::New(StaticType* type, const char16* content, charcount_t charLength, ArenaAllocator* arena)
-    {
+    {LOGMEIN("LiteralString.cpp] 67\n");
         return Anew(arena, ArenaLiteralString, type, content, charLength);
     }
 
     RecyclableObject * ArenaLiteralString::CloneToScriptContext(ScriptContext* requestContext)
-    {
+    {LOGMEIN("LiteralString.cpp] 72\n");
         return JavascriptString::NewCopyBuffer(this->GetSz(), this->GetLength(), requestContext);
     }
 } // namespace Js

@@ -20,7 +20,7 @@ class Encoder
 {
     friend class EncoderMD;
 public:
-    Encoder(Func * func) : m_func(func), m_encoderMD(func), m_inlineeFrameMap(nullptr) {}
+    Encoder(Func * func) : m_func(func), m_encoderMD(func), m_inlineeFrameMap(nullptr) {LOGMEIN("Encoder.h] 22\n");}
 
     void            Encode();
     void            RecordInlineeFrame(Func* inlinee, uint32 currentOffset);

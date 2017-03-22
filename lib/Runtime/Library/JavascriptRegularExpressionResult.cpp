@@ -10,7 +10,7 @@ namespace Js
         void *const stackAllocationPointer,
         JavascriptString* input,
         ScriptContext* const scriptContext)
-    {
+    {LOGMEIN("JavascriptRegularExpressionResult.cpp] 12\n");
         JavascriptArray* arr = JavascriptArray::New<JavascriptArray, InlineSlotCount>(stackAllocationPointer, 0, scriptContext->GetLibrary()->GetRegexResultType()); // use default array capacity
 
         Assert(JavascriptRegularExpressionResult::Is(arr));
@@ -26,7 +26,7 @@ namespace Js
         const int numGroups,
         JavascriptString* input,
         ScriptContext* const scriptContext)
-    {
+    {LOGMEIN("JavascriptRegularExpressionResult.cpp] 28\n");
         Assert(numGroups > 0);
 
         JavascriptArray* arr = JavascriptArray::NewLiteral<JavascriptArray, InlineSlotCount>(stackAllocationPointer, numGroups, scriptContext->GetLibrary()->GetRegexResultType());
@@ -44,14 +44,14 @@ namespace Js
     // Check if a given JavascriptArray is actually JavascriptRegularExpressionResult.
     //
     bool JavascriptRegularExpressionResult::Is(JavascriptArray* arr)
-    {
+    {LOGMEIN("JavascriptRegularExpressionResult.cpp] 46\n");
         return arr->GetPropertyIndex(PropertyIds::input) == InputIndex
             && arr->GetPropertyIndex(PropertyIds::index) == IndexIndex;
     }
 #endif
 
     void JavascriptRegularExpressionResult::SetMatch(JavascriptArray* arr, const UnifiedRegex::GroupInfo match)
-    {
+    {LOGMEIN("JavascriptRegularExpressionResult.cpp] 53\n");
         Assert(JavascriptRegularExpressionResult::Is(arr));
         Assert(!match.IsUndefined());
 
@@ -60,7 +60,7 @@ namespace Js
     }
 
     void JavascriptRegularExpressionResult::InstantiateForceInlinedMembers()
-    {
+    {LOGMEIN("JavascriptRegularExpressionResult.cpp] 62\n");
         // Force-inlined functions defined in a translation unit need a reference from an extern non-force-inlined function in
         // the same translation unit to force an instantiation of the force-inlined function. Otherwise, if the force-inlined
         // function is not referenced in the same translation unit, it will not be generated and the linker is not able to find

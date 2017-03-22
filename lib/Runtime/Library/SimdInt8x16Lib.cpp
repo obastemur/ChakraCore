@@ -24,7 +24,7 @@ namespace Js
         int8 values[LANES];
 
         for (uint i = 0; i < LANES; i++)
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 26\n");
             values[i] = JavascriptConversion::ToInt8(args.Info.Count >= (i + 2) ? args[i + 1] : undefinedVar, scriptContext);
         }
         SIMDValue lanes = SIMDInt8x16Operation::OpInt8x16(values);
@@ -40,7 +40,7 @@ namespace Js
         ScriptContext* scriptContext = function->GetScriptContext();
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
         if (args.Info.Count >= 2 && JavascriptSIMDInt8x16::Is(args[1]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 42\n");
             return args[1];
         }
         JavascriptError::ThrowTypeError(scriptContext, JSERR_SimdInt8x16TypeMismatch, _u("Int8x16"));
@@ -74,7 +74,7 @@ namespace Js
 
         if (args.Info.Count >= 4 && JavascriptSIMDBool8x16::Is(args[1]) &&
             JavascriptSIMDInt8x16::Is(args[2]) && JavascriptSIMDInt8x16::Is(args[3]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 76\n");
             JavascriptSIMDBool8x16 *m = JavascriptSIMDBool8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *t  = JavascriptSIMDInt8x16::FromVar(args[2]);
             JavascriptSIMDInt8x16 *f  = JavascriptSIMDInt8x16::FromVar(args[3]);
@@ -103,7 +103,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDFloat32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 105\n");
             JavascriptSIMDFloat32x4 *instance = JavascriptSIMDFloat32x4::FromVar(args[1]);
             return SIMDUtils::SIMDConvertTypeFromBits<JavascriptSIMDFloat32x4, JavascriptSIMDInt8x16>(*instance, *scriptContext);
         }
@@ -120,7 +120,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDInt32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 122\n");
             JavascriptSIMDInt32x4 *instance = JavascriptSIMDInt32x4::FromVar(args[1]);
             return SIMDUtils::SIMDConvertTypeFromBits<JavascriptSIMDInt32x4, JavascriptSIMDInt8x16>(*instance, *scriptContext);
         }
@@ -137,7 +137,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDInt16x8::Is(args[1]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 139\n");
             JavascriptSIMDInt16x8 *instance = JavascriptSIMDInt16x8::FromVar(args[1]);
             return SIMDUtils::SIMDConvertTypeFromBits<JavascriptSIMDInt16x8, JavascriptSIMDInt8x16>(*instance, *scriptContext);
         }
@@ -154,7 +154,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDUint32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 156\n");
             JavascriptSIMDUint32x4 *instance = JavascriptSIMDUint32x4::FromVar(args[1]);
             return SIMDUtils::SIMDConvertTypeFromBits<JavascriptSIMDUint32x4, JavascriptSIMDInt8x16>(*instance, *scriptContext);
         }
@@ -171,7 +171,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDUint16x8::Is(args[1]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 173\n");
             JavascriptSIMDUint16x8 *instance = JavascriptSIMDUint16x8::FromVar(args[1]);
             return SIMDUtils::SIMDConvertTypeFromBits<JavascriptSIMDUint16x8, JavascriptSIMDInt8x16>(*instance, *scriptContext);
         }
@@ -189,7 +189,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDUint8x16::Is(args[1]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 191\n");
             JavascriptSIMDUint8x16 *instance = JavascriptSIMDUint8x16::FromVar(args[1]);
             return SIMDUtils::SIMDConvertTypeFromBits<JavascriptSIMDUint8x16, JavascriptSIMDInt8x16>(*instance, *scriptContext);
         }
@@ -207,7 +207,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDInt8x16::Is(args[1]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 209\n");
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             Assert(a);
 
@@ -233,7 +233,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDInt8x16::Is(args[1]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 235\n");
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             Assert(a);
 
@@ -260,7 +260,7 @@ namespace Js
 
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 262\n");
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -289,7 +289,7 @@ namespace Js
 
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 291\n");
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -318,7 +318,7 @@ namespace Js
 
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 320\n");
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -347,7 +347,7 @@ namespace Js
 
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 349\n");
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -376,7 +376,7 @@ namespace Js
 
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 378\n");
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -405,7 +405,7 @@ namespace Js
 
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 407\n");
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -434,7 +434,7 @@ namespace Js
 
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 436\n");
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -463,7 +463,7 @@ namespace Js
 
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 465\n");
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -492,7 +492,7 @@ namespace Js
 
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 494\n");
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -521,7 +521,7 @@ namespace Js
 
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 523\n");
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -551,7 +551,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 553\n");
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -582,7 +582,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 584\n");
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -613,7 +613,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 615\n");
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -644,7 +644,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 646\n");
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -675,7 +675,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 677\n");
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -706,7 +706,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 708\n");
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             JavascriptSIMDInt8x16 *b = JavascriptSIMDInt8x16::FromVar(args[2]);
             Assert(a && b);
@@ -735,7 +735,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 737\n");
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             Assert(a);
 
@@ -764,7 +764,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 766\n");
             JavascriptSIMDInt8x16 *a = JavascriptSIMDInt8x16::FromVar(args[1]);
             Assert(a);
 
@@ -795,7 +795,7 @@ namespace Js
         Var tarray;
         Var index;
         if (args.Info.Count > 1)
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 797\n");
             tarray = args[1];
         }
         else
@@ -803,7 +803,7 @@ namespace Js
             tarray = scriptContext->GetLibrary()->GetUndefined();
         }
         if (args.Info.Count > 2)
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 805\n");
             index = args[2];
         }
         else
@@ -825,7 +825,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 4 && JavascriptSIMDInt8x16::Is(args[3]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 827\n");
             SIMDUtils::SIMD128TypedArrayStore<JavascriptSIMDInt8x16>(args[1], args[2], args[3], 16 * INT8_SIZE, scriptContext);
             return JavascriptSIMDInt8x16::FromVar(args[3]);
         }
@@ -846,17 +846,17 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 2 && JavascriptSIMDInt8x16::Is(args[1]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 848\n");
             // type check on lane indices
             if (args.Info.Count < 18)
-            {
+            {LOGMEIN("SimdInt8x16Lib.cpp] 851\n");
                 // missing lane args
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedNumber, _u("Lane index"));
             }
 
             Var lanes[16];
             for (uint i = 0; i < 16; ++i)
-            {
+            {LOGMEIN("SimdInt8x16Lib.cpp] 858\n");
                 lanes[i] = args[i + 2];
             }
 
@@ -878,17 +878,17 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]) && JavascriptSIMDInt8x16::Is(args[2]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 880\n");
             // type check on lane indices
             if (args.Info.Count < 19)
-            {
+            {LOGMEIN("SimdInt8x16Lib.cpp] 883\n");
                 // missing lane args
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedNumber, _u("Lane index"));
             }
 
             Var lanes[16];
             for (uint i = 0; i < 16; ++i)
-            {
+            {LOGMEIN("SimdInt8x16Lib.cpp] 890\n");
                 lanes[i] = args[i + 3];
             }
             return SIMDUtils::SIMD128SlowShuffle<JavascriptSIMDInt8x16>(args[1], args[2], lanes, 16, 32, scriptContext);
@@ -910,7 +910,7 @@ namespace Js
 
         // first arg has to be of type Int8x16, so cannot be missing.
         if (args.Info.Count >= 3 && JavascriptSIMDInt8x16::Is(args[1]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 912\n");
             // if value arg is missing, then it is undefined.
             Var laneVar = args.Info.Count >= 3 ? args[2] : scriptContext->GetLibrary()->GetUndefined();
             int8 result = SIMDUtils::SIMD128ExtractLane<JavascriptSIMDInt8x16, 16, int8>(args[1], laneVar, scriptContext);
@@ -933,7 +933,7 @@ namespace Js
 
         // first arg has to be of type Int8x16, so cannot be missing.
         if (args.Info.Count >= 4 && JavascriptSIMDInt8x16::Is(args[1]))
-        {
+        {LOGMEIN("SimdInt8x16Lib.cpp] 935\n");
             // if value arg is missing, then it is undefined.
             Var laneVar = args.Info.Count >= 4 ? args[2] : scriptContext->GetLibrary()->GetUndefined();
             Var argVal = args.Info.Count >= 4 ? args[3] : scriptContext->GetLibrary()->GetUndefined();

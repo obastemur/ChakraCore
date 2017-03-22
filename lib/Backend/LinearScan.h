@@ -36,7 +36,7 @@ public:
     JsUtil::List<Func*, JitArenaAllocator>     inlineeStack;
 
     LoweredBasicBlock(JitArenaAllocator* allocator) : inlineeFrameLifetimes(allocator), inlineeStack(allocator), inlineeFrameSyms(allocator)
-    {
+    {LOGMEIN("LinearScan.h] 38\n");
     }
 
     static LoweredBasicBlock* New(JitArenaAllocator * allocator);
@@ -103,7 +103,7 @@ public:
         lastLabel(NULL), numInt32Regs(0), numFloatRegs(0), stackPackInUseLiveRanges(NULL), stackSlotsFreeList(NULL),
         totalOpHelperFullVisitedLength(0), curLoop(NULL), currentBlock(nullptr), currentRegion(nullptr), m_bailOutRecordCount(0),
         globalBailOutRecordTables(nullptr), lastUpdatedRowIndices(nullptr)
-    {
+    {LOGMEIN("LinearScan.h] 105\n");
     }
 
     void                RegAlloc();
@@ -155,8 +155,8 @@ private:
     bool                NeedsWriteThrough(StackSym * sym);
     bool                NeedsWriteThroughForEH(StackSym * sym);
 
-    bool                IsInLoop() { return this->loopNest != 0; }
-    bool                IsInHelperBlock() const { return this->currentOpHelperBlock != NULL; }
+    bool                IsInLoop() {LOGMEIN("LinearScan.h] 157\n"); return this->loopNest != 0; }
+    bool                IsInHelperBlock() const {LOGMEIN("LinearScan.h] 158\n"); return this->currentOpHelperBlock != NULL; }
     uint                HelperBlockStartInstrNumber() const;
     uint                HelperBlockEndInstrNumber() const;
     void                CheckOpHelper(IR::Instr * instr);

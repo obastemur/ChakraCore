@@ -110,7 +110,7 @@ public:
 
     template<class T>
     T* GetConstAsT(Js::RegSlot location) const
-    {
+    {LOGMEIN("JITTimeFunctionBody.h] 112\n");
         Assert(m_bodyData.constTableContent != nullptr);
         Assert(m_bodyData.constTableContent->content != nullptr);
         Assert(location < GetConstCount());
@@ -125,7 +125,7 @@ public:
 
     template<>
     Js::JavascriptNumber* GetConstAsT<Js::JavascriptNumber>(Js::RegSlot location) const
-    {
+    {LOGMEIN("JITTimeFunctionBody.h] 127\n");
         Assert(m_bodyData.constTableContent != nullptr);
         Assert(m_bodyData.constTableContent->content != nullptr);
         Assert(location < GetConstCount());
@@ -134,7 +134,7 @@ public:
 #if !FLOATVAR
         auto obj = m_bodyData.constTableContent->content[location - Js::FunctionBody::FirstRegSlot];
         if (!obj)
-        {
+        {LOGMEIN("JITTimeFunctionBody.h] 136\n");
 #endif
             Js::JavascriptNumber* num = (Js::JavascriptNumber*)GetConstantVar(location);
             Assert(Js::TaggedNumber::Is(num));

@@ -46,17 +46,17 @@ namespace Js
     public:
         PropertyCache const * GetPropertyCache() const;
         void ClearPropertyCache();
-        Js::PropertyRecord const * GetPropertyRecord() const { return m_propertyRecord; }
+        Js::PropertyRecord const * GetPropertyRecord() const {LOGMEIN("PropertyString.h] 48\n"); return m_propertyRecord; }
         static PropertyString* New(StaticType* type, const Js::PropertyRecord* propertyRecord, Recycler *recycler);
         static PropertyString* New(StaticType* type, const Js::PropertyRecord* propertyRecord, ArenaAllocator *arena);
         void UpdateCache(Type * type, uint16 dataSlotIndex, bool isInlineSlot, bool isStoreFieldEnabled);
-        void ClearCache() { propCache->type = nullptr; }
+        void ClearCache() {LOGMEIN("PropertyString.h] 52\n"); propCache->type = nullptr; }
 
         virtual void const * GetOriginalStringReference() override;
         virtual RecyclableObject * CloneToScriptContext(ScriptContext* requestContext) override;
-        virtual bool IsArenaAllocPropertyString() { return false; }
+        virtual bool IsArenaAllocPropertyString() {LOGMEIN("PropertyString.h] 56\n"); return false; }
 
-        static uint32 GetOffsetOfPropertyCache() { return offsetof(PropertyString, propCache); }
+        static uint32 GetOffsetOfPropertyCache() {LOGMEIN("PropertyString.h] 58\n"); return offsetof(PropertyString, propCache); }
 
 #if ENABLE_TTD
         //Get the associated property id for this string if there is on (e.g. it is a propertystring otherwise return Js::PropertyIds::_none)

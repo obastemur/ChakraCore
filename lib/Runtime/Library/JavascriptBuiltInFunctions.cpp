@@ -22,9 +22,9 @@ namespace Js
 
     FunctionInfo *
     JavascriptBuiltInFunction::GetFunctionInfo(Js::LocalFunctionId builtinId)
-    {
+    {LOGMEIN("JavascriptBuiltInFunctions.cpp] 24\n");
         if (IsValidId(builtinId))
-        {
+        {LOGMEIN("JavascriptBuiltInFunctions.cpp] 26\n");
             return builtInFunctionInfo[builtinId];
         }
         return nullptr;
@@ -32,13 +32,13 @@ namespace Js
 
     bool
     JavascriptBuiltInFunction::CanChangeEntryPoint(Js::LocalFunctionId builtInId)
-    {
+    {LOGMEIN("JavascriptBuiltInFunctions.cpp] 34\n");
         return IsValidId(builtInId);
     }
 
     bool
     JavascriptBuiltInFunction::IsValidId(Js::LocalFunctionId builtInId)
-    {
+    {LOGMEIN("JavascriptBuiltInFunctions.cpp] 40\n");
         return builtInId < MaxBuiltInEnum;
     }
 };

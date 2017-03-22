@@ -15,19 +15,19 @@ static const LegalInstrForms _InstrForms[] =
 
 
 static LegalForms LegalDstForms(IR::Instr * instr)
-{
+{LOGMEIN("LegalizeMD.cpp] 17\n");
     Assert(instr->IsLowered());
     return _InstrForms[instr->m_opcode - (Js::OpCode::MDStart+1)].dst;
 }
 
 static LegalForms LegalSrcForms(IR::Instr * instr, uint opndNum)
-{
+{LOGMEIN("LegalizeMD.cpp] 23\n");
     Assert(instr->IsLowered());
     return _InstrForms[instr->m_opcode - (Js::OpCode::MDStart+1)].src[opndNum-1];
 }
 
 void LegalizeMD::LegalizeInstr(IR::Instr * instr, bool fPostRegAlloc)
-{
+{LOGMEIN("LegalizeMD.cpp] 29\n");
     if (!instr->IsLowered())
     {
         AssertMsg(UNREACHED, "Unlowered instruction in m.d. legalizer");
@@ -40,12 +40,12 @@ void LegalizeMD::LegalizeInstr(IR::Instr * instr, bool fPostRegAlloc)
 }
 
 void LegalizeMD::LegalizeDst(IR::Instr * instr, bool fPostRegAlloc)
-{
+{LOGMEIN("LegalizeMD.cpp] 42\n");
     LegalForms forms = LegalDstForms(instr);
 
     IR::Opnd * opnd = instr->GetDst();
     if (opnd == NULL)
-    {
+    {LOGMEIN("LegalizeMD.cpp] 47\n");
 #ifdef DBG
         // No legalization possible, just report error.
         if (forms != 0)
@@ -57,7 +57,7 @@ void LegalizeMD::LegalizeDst(IR::Instr * instr, bool fPostRegAlloc)
     }
 
     switch (opnd->GetKind())
-    {
+    {LOGMEIN("LegalizeMD.cpp] 59\n");
     case IR::OpndKindReg:
 #ifdef DBG
         // No legalization possible, just report error.
@@ -69,14 +69,14 @@ void LegalizeMD::LegalizeDst(IR::Instr * instr, bool fPostRegAlloc)
         break;
 
     case IR::OpndKindMemRef:
-    {
+    {LOGMEIN("LegalizeMD.cpp] 71\n");
         // MemRefOpnd is a deference of the memory location.
         // So extract the location, load it to register, replace the MemRefOpnd with an IndirOpnd taking the
         // register as base, and fall through to legalize the IndirOpnd.
         intptr_t memLoc = opnd->AsMemRefOpnd()->GetMemLoc();
         IR::RegOpnd *newReg = IR::RegOpnd::New(TyMachPtr, instr->m_func);
         if (fPostRegAlloc)
-        {
+        {LOGMEIN("LegalizeMD.cpp] 78\n");
             newReg->SetReg(SCRATCH_REG);
         }
         IR::Instr *newInstr = IR::Instr::New(Js::OpCode::LDIMM, newReg,
@@ -89,7 +89,7 @@ void LegalizeMD::LegalizeDst(IR::Instr * instr, bool fPostRegAlloc)
     // FALL THROUGH
     case IR::OpndKindIndir:
         if (!(forms & L_IndirMask))
-        {
+        {LOGMEIN("LegalizeMD.cpp] 91\n");
             instr = LegalizeStore(instr, forms, fPostRegAlloc);
             forms = LegalDstForms(instr);
         }
@@ -98,7 +98,7 @@ void LegalizeMD::LegalizeDst(IR::Instr * instr, bool fPostRegAlloc)
 
     case IR::OpndKindSym:
         if (!(forms & L_SymMask))
-        {
+        {LOGMEIN("LegalizeMD.cpp] 100\n");
             instr = LegalizeStore(instr, forms, fPostRegAlloc);
             forms = LegalDstForms(instr);
         }
@@ -118,9 +118,9 @@ void LegalizeMD::LegalizeDst(IR::Instr * instr, bool fPostRegAlloc)
 }
 
 IR::Instr * LegalizeMD::LegalizeStore(IR::Instr *instr, LegalForms forms, bool fPostRegAlloc)
-{
+{LOGMEIN("LegalizeMD.cpp] 120\n");
     if (LowererMD::IsAssign(instr) && instr->GetSrc1()->IsRegOpnd())
-    {
+    {LOGMEIN("LegalizeMD.cpp] 122\n");
         // We can just change this to a store in place.
         instr->m_opcode = LowererMD::GetStoreOp(instr->GetSrc1()->GetType());
     }
@@ -137,10 +137,10 @@ IR::Instr * LegalizeMD::LegalizeStore(IR::Instr *instr, LegalForms forms, bool f
 }
 
 void LegalizeMD::LegalizeSrc(IR::Instr * instr, IR::Opnd * opnd, uint opndNum, bool fPostRegAlloc)
-{
+{LOGMEIN("LegalizeMD.cpp] 139\n");
     LegalForms forms = LegalSrcForms(instr, opndNum);
     if (opnd == NULL)
-    {
+    {LOGMEIN("LegalizeMD.cpp] 142\n");
 #ifdef DBG
         // No legalization possible, just report error.
         if (forms != 0)
@@ -152,7 +152,7 @@ void LegalizeMD::LegalizeSrc(IR::Instr * instr, IR::Opnd * opnd, uint opndNum, b
     }
 
     switch (opnd->GetKind())
-    {
+    {LOGMEIN("LegalizeMD.cpp] 154\n");
     case IR::OpndKindReg:
         // No legalization possible, just report error.
 #ifdef DBG
@@ -174,14 +174,14 @@ void LegalizeMD::LegalizeSrc(IR::Instr * instr, IR::Opnd * opnd, uint opndNum, b
         break;
 
     case IR::OpndKindMemRef:
-    {
+    {LOGMEIN("LegalizeMD.cpp] 176\n");
         // MemRefOpnd is a deference of the memory location.
         // So extract the location, load it to register, replace the MemRefOpnd with an IndirOpnd taking the
         // register as base, and fall through to legalize the IndirOpnd.
         intptr_t memLoc = opnd->AsMemRefOpnd()->GetMemLoc();
         IR::RegOpnd *newReg = IR::RegOpnd::New(TyMachPtr, instr->m_func);
         if (fPostRegAlloc)
-        {
+        {LOGMEIN("LegalizeMD.cpp] 183\n");
             newReg->SetReg(SCRATCH_REG);
         }
         IR::Instr *newInstr = IR::Instr::New(Js::OpCode::LDIMM, newReg, IR::AddrOpnd::New(memLoc, IR::AddrOpndKindDynamicMisc, instr->m_func), instr->m_func);
@@ -189,7 +189,7 @@ void LegalizeMD::LegalizeSrc(IR::Instr * instr, IR::Opnd * opnd, uint opndNum, b
         LegalizeMD::LegalizeInstr(newInstr, fPostRegAlloc);
         IR::IndirOpnd *indirOpnd = IR::IndirOpnd::New(newReg, 0, opnd->GetType(), instr->m_func);
         if (opndNum == 1)
-        {
+        {LOGMEIN("LegalizeMD.cpp] 191\n");
             opnd = instr->ReplaceSrc1(indirOpnd);
         }
         else
@@ -200,7 +200,7 @@ void LegalizeMD::LegalizeSrc(IR::Instr * instr, IR::Opnd * opnd, uint opndNum, b
     // FALL THROUGH
     case IR::OpndKindIndir:
         if (!(forms & L_IndirMask))
-        {
+        {LOGMEIN("LegalizeMD.cpp] 202\n");
             instr = LegalizeLoad(instr, opndNum, forms, fPostRegAlloc);
             forms = LegalSrcForms(instr, 1);
         }
@@ -209,7 +209,7 @@ void LegalizeMD::LegalizeSrc(IR::Instr * instr, IR::Opnd * opnd, uint opndNum, b
 
     case IR::OpndKindSym:
         if (!(forms & L_SymMask))
-        {
+        {LOGMEIN("LegalizeMD.cpp] 211\n");
             instr = LegalizeLoad(instr, opndNum, forms, fPostRegAlloc);
             forms = LegalSrcForms(instr, 1);
         }
@@ -229,9 +229,9 @@ void LegalizeMD::LegalizeSrc(IR::Instr * instr, IR::Opnd * opnd, uint opndNum, b
 }
 
 IR::Instr * LegalizeMD::LegalizeLoad(IR::Instr *instr, uint opndNum, LegalForms forms, bool fPostRegAlloc)
-{
+{LOGMEIN("LegalizeMD.cpp] 231\n");
     if (LowererMD::IsAssign(instr) && instr->GetDst()->IsRegOpnd())
-    {
+    {LOGMEIN("LegalizeMD.cpp] 233\n");
         // We can just change this to a load in place.
         instr->m_opcode = LowererMD::GetLoadOp(instr->GetDst()->GetType());
     }
@@ -239,7 +239,7 @@ IR::Instr * LegalizeMD::LegalizeLoad(IR::Instr *instr, uint opndNum, LegalForms 
     {
         // Hoist the memory opnd. The caller will verify the offset.
         if (opndNum == 1)
-        {
+        {LOGMEIN("LegalizeMD.cpp] 241\n");
             AssertMsg(!fPostRegAlloc || instr->GetSrc1()->GetType() == TyMachReg, "Post RegAlloc other types disallowed");
             instr = instr->HoistSrc1(LowererMD::GetLoadOp(instr->GetSrc1()->GetType()), fPostRegAlloc ? SCRATCH_REG : RegNOREG);
         }
@@ -254,9 +254,9 @@ IR::Instr * LegalizeMD::LegalizeLoad(IR::Instr *instr, uint opndNum, LegalForms 
 }
 
 void LegalizeMD::LegalizeIndirOffset(IR::Instr * instr, IR::IndirOpnd * indirOpnd, LegalForms forms, bool fPostRegAlloc)
-{
+{LOGMEIN("LegalizeMD.cpp] 256\n");
     if (forms & (L_VIndirI11))
-    {
+    {LOGMEIN("LegalizeMD.cpp] 258\n");
         // Vfp doesn't support register indirect operation
         LegalizeMD::LegalizeIndirOpndForVFP(instr, indirOpnd, fPostRegAlloc);
         return;
@@ -265,24 +265,24 @@ void LegalizeMD::LegalizeIndirOffset(IR::Instr * instr, IR::IndirOpnd * indirOpn
     int32 offset = indirOpnd->GetOffset();
 
     if (indirOpnd->GetIndexOpnd() != NULL && offset != 0)
-    {
+    {LOGMEIN("LegalizeMD.cpp] 267\n");
         IR::Instr *addInstr = instr->HoistIndirOffset(indirOpnd, fPostRegAlloc ? SCRATCH_REG : RegNOREG);
         LegalizeMD::LegalizeInstr(addInstr, fPostRegAlloc);
         return;
     }
 
     if (forms & (L_IndirI8 | L_IndirU12I8))
-    {
+    {LOGMEIN("LegalizeMD.cpp] 274\n");
         if (IS_CONST_INT8(offset))
-        {
+        {LOGMEIN("LegalizeMD.cpp] 276\n");
             return;
         }
     }
 
     if (forms & (L_IndirU12I8 | L_IndirU12))
-    {
+    {LOGMEIN("LegalizeMD.cpp] 282\n");
         if (IS_CONST_UINT12(offset))
-        {
+        {LOGMEIN("LegalizeMD.cpp] 284\n");
             return;
         }
     }
@@ -304,32 +304,32 @@ void LegalizeMD::LegalizeSymOffset(
     int32 offset;
 
     if (!symOpnd->m_sym->IsStackSym())
-    {
+    {LOGMEIN("LegalizeMD.cpp] 306\n");
         return;
     }
 
     EncoderMD::BaseAndOffsetFromSym(symOpnd, &baseReg, &offset, instr->m_func->GetTopFunc());
 
     if (forms & (L_SymU12I8 | L_SymU12))
-    {
+    {LOGMEIN("LegalizeMD.cpp] 313\n");
         if (IS_CONST_UINT12(offset))
-        {
+        {LOGMEIN("LegalizeMD.cpp] 315\n");
             return;
         }
     }
 
     if (forms & L_SymU12I8)
-    {
+    {LOGMEIN("LegalizeMD.cpp] 321\n");
         if (IS_CONST_INT8(offset))
-        {
+        {LOGMEIN("LegalizeMD.cpp] 323\n");
             return;
         }
     }
 
     if (forms & (L_VSymI11))
-    {
+    {LOGMEIN("LegalizeMD.cpp] 329\n");
         if (IS_CONST_UINT10((offset < 0? -offset: offset)))
-        {
+        {LOGMEIN("LegalizeMD.cpp] 331\n");
             return;
         }
 
@@ -341,7 +341,7 @@ void LegalizeMD::LegalizeSymOffset(
 
     IR::Instr * newInstr;
     if (instr->m_opcode == Js::OpCode::LEA)
-    {
+    {LOGMEIN("LegalizeMD.cpp] 343\n");
         instr->m_opcode = Js::OpCode::ADD;
         instr->ReplaceSrc1(IR::RegOpnd::New(NULL, baseReg, TyMachPtr, instr->m_func));
         instr->SetSrc2(IR::IntConstOpnd::New(offset, TyMachReg, instr->m_func));
@@ -363,19 +363,19 @@ void LegalizeMD::LegalizeImmed(
     IntConstType immed,
     LegalForms forms,
     bool fPostRegAlloc)
-{
+{LOGMEIN("LegalizeMD.cpp] 365\n");
     if (!(((forms & L_ImmModC12) && EncoderMD::CanEncodeModConst12(immed)) ||
           ((forms & L_ImmU5) && IS_CONST_UINT5(immed)) ||
           ((forms & L_ImmU12) && IS_CONST_UINT12(immed)) ||
           ((forms & L_ImmU16) && IS_CONST_UINT16(immed))))
-    {
+    {LOGMEIN("LegalizeMD.cpp] 370\n");
         if (instr->m_opcode != Js::OpCode::LDIMM)
-        {
+        {LOGMEIN("LegalizeMD.cpp] 372\n");
             instr = LegalizeMD::GenerateLDIMM(instr, opndNum, fPostRegAlloc ? SCRATCH_REG : RegNOREG);
         }
 
         if (fPostRegAlloc)
-        {
+        {LOGMEIN("LegalizeMD.cpp] 377\n");
             LegalizeMD::LegalizeLDIMM(instr, immed);
         }
     }
@@ -386,27 +386,27 @@ void LegalizeMD::LegalizeLabelOpnd(
     IR::Opnd * opnd,
     uint opndNum,
     bool fPostRegAlloc)
-{
+{LOGMEIN("LegalizeMD.cpp] 388\n");
     if (instr->m_opcode != Js::OpCode::LDIMM)
-    {
+    {LOGMEIN("LegalizeMD.cpp] 390\n");
         instr = LegalizeMD::GenerateLDIMM(instr, opndNum, fPostRegAlloc ? SCRATCH_REG : RegNOREG);
     }
     if (fPostRegAlloc)
-    {
+    {LOGMEIN("LegalizeMD.cpp] 394\n");
         LegalizeMD::LegalizeLdLabel(instr, opnd);
     }
 }
 
 IR::Instr * LegalizeMD::GenerateLDIMM(IR::Instr * instr, uint opndNum, RegNum scratchReg)
-{
+{LOGMEIN("LegalizeMD.cpp] 400\n");
     if (LowererMD::IsAssign(instr) && instr->GetDst()->IsRegOpnd())
-    {
+    {LOGMEIN("LegalizeMD.cpp] 402\n");
         instr->m_opcode = Js::OpCode::LDIMM;
     }
     else
     {
         if (opndNum == 1)
-        {
+        {LOGMEIN("LegalizeMD.cpp] 408\n");
             instr = instr->HoistSrc1(Js::OpCode::LDIMM, scratchReg);
         }
         else
@@ -419,12 +419,12 @@ IR::Instr * LegalizeMD::GenerateLDIMM(IR::Instr * instr, uint opndNum, RegNum sc
 }
 
 void LegalizeMD::LegalizeLDIMM(IR::Instr * instr, IntConstType immed)
-{
+{LOGMEIN("LegalizeMD.cpp] 421\n");
     // In case of inlined entry instruction, we don't know the offset till the encoding phase
     if (!instr->isInlineeEntryInstr)
-    {
+    {LOGMEIN("LegalizeMD.cpp] 424\n");
         if (IS_CONST_UINT16(immed) || EncoderMD::CanEncodeModConst12(immed))
-        {
+        {LOGMEIN("LegalizeMD.cpp] 426\n");
             instr->m_opcode = Js::OpCode::MOV;
             return;
         }
@@ -439,7 +439,7 @@ void LegalizeMD::LegalizeLDIMM(IR::Instr * instr, IntConstType immed)
         instr->m_opcode = Js::OpCode::MOVT;
 
         if (!fDontEncode)
-        {
+        {LOGMEIN("LegalizeMD.cpp] 441\n");
             LegalizeMD::ObfuscateLDIMM(instrMov, instr);
         }
     }
@@ -465,14 +465,14 @@ void LegalizeMD::LegalizeLDIMM(IR::Instr * instr, IntConstType immed)
 }
 
 void LegalizeMD::ObfuscateLDIMM(IR::Instr * instrMov, IR::Instr * instrMovt)
-{
+{LOGMEIN("LegalizeMD.cpp] 467\n");
     // Are security measures disabled?
 
     if (CONFIG_ISENABLED(Js::DebugFlag) ||
         CONFIG_ISENABLED(Js::BenchmarkFlag) ||
         PHASE_OFF(Js::EncodeConstantsPhase, instrMov->m_func->GetTopFunc())
         )
-    {
+    {LOGMEIN("LegalizeMD.cpp] 474\n");
         return;
     }
 
@@ -492,13 +492,13 @@ void LegalizeMD::ObfuscateLDIMM(IR::Instr * instrMov, IR::Instr * instrMovt)
 }
 
 void LegalizeMD::EmitRandomNopBefore(IR::Instr *insertInstr, UINT_PTR rand, RegNum targetReg)
-{
+{LOGMEIN("LegalizeMD.cpp] 494\n");
     // bits 0-3: reg to use in pre-LDIMM instr
     // bits 4: do/don't emit pre-LDIMM instr
     // bits 5-6: emit and/or/add/mov as pre-LDIMM instr
 
     if (!(rand & (1 << 4)) && !PHASE_FORCE(Js::EncodeConstantsPhase, insertInstr->m_func->GetTopFunc()))
-    {
+    {LOGMEIN("LegalizeMD.cpp] 500\n");
         return;
     }
 
@@ -512,7 +512,7 @@ void LegalizeMD::EmitRandomNopBefore(IR::Instr *insertInstr, UINT_PTR rand, RegN
     opnd1 = IR::RegOpnd::New(NULL, regNum, TyMachReg, insertInstr->m_func);
 
     if (regNum == RegSP || regNum == RegPC || regNum == targetReg) //skip sp & pc & the target reg
-    {
+    {LOGMEIN("LegalizeMD.cpp] 514\n");
         // ORR pc,pc,0 has unpredicted behavior.
         // AND sp,sp,sp has unpredicted behavior.
         // We avoid target reg to avoid pipeline stalls.
@@ -522,7 +522,7 @@ void LegalizeMD::EmitRandomNopBefore(IR::Instr *insertInstr, UINT_PTR rand, RegN
     }
 
     switch ((rand >> 5) & 3)
-    {
+    {LOGMEIN("LegalizeMD.cpp] 524\n");
     case 0:
         op = Js::OpCode::AND;
         opnd2 = opnd1;
@@ -542,14 +542,14 @@ void LegalizeMD::EmitRandomNopBefore(IR::Instr *insertInstr, UINT_PTR rand, RegN
 
     instr = IR::Instr::New(op, opnd1, opnd1, insertInstr->m_func);
     if (opnd2)
-    {
+    {LOGMEIN("LegalizeMD.cpp] 544\n");
         instr->SetSrc2(opnd2);
     }
     insertInstr->InsertBefore(instr);
 }
 
 void LegalizeMD::LegalizeLdLabel(IR::Instr * instr, IR::Opnd * opnd)
-{
+{LOGMEIN("LegalizeMD.cpp] 551\n");
     Assert(instr->m_opcode == Js::OpCode::LDIMM);
     Assert(opnd->IsLabelOpnd());
 
@@ -560,7 +560,7 @@ void LegalizeMD::LegalizeLdLabel(IR::Instr * instr, IR::Opnd * opnd)
 }
 
 bool LegalizeMD::LegalizeDirectBranch(IR::BranchInstr *branchInstr, uint32 branchOffset)
-{
+{LOGMEIN("LegalizeMD.cpp] 562\n");
     Assert(branchInstr->IsBranchInstr());
 
     uint32 labelOffset = branchInstr->GetTarget()->GetOffset();
@@ -571,12 +571,12 @@ bool LegalizeMD::LegalizeDirectBranch(IR::BranchInstr *branchInstr, uint32 branc
     AssertMsg(IS_CONST_INT24(offset >> 1), "Cannot encode more that 16 MB offset");
 
     if (LowererMD::IsUnconditionalBranch(branchInstr))
-    {
+    {LOGMEIN("LegalizeMD.cpp] 573\n");
         return false;
     }
 
     if (IS_CONST_INT21(offset))
-    {
+    {LOGMEIN("LegalizeMD.cpp] 578\n");
         return false;
     }
 
@@ -597,7 +597,7 @@ bool LegalizeMD::LegalizeDirectBranch(IR::BranchInstr *branchInstr, uint32 branc
 }
 
 void LegalizeMD::LegalizeIndirOpndForVFP(IR::Instr* insertInstr, IR::IndirOpnd *indirOpnd, bool fPostRegAlloc)
-{
+{LOGMEIN("LegalizeMD.cpp] 599\n");
     IR::RegOpnd *baseOpnd = indirOpnd->GetBaseOpnd();
     int32 offset = indirOpnd->GetOffset();
 
@@ -606,9 +606,9 @@ void LegalizeMD::LegalizeIndirOpndForVFP(IR::Instr* insertInstr, IR::IndirOpnd *
     IR::Instr *instr = NULL;
 
     if (indexOpnd)
-    {
+    {LOGMEIN("LegalizeMD.cpp] 608\n");
         if (scale > 0)
-        {
+        {LOGMEIN("LegalizeMD.cpp] 610\n");
             // There is no support for ADD instruction with barrel shifter in encoder, hence add an explicit instruction to left shift the index operand
             // Reason is this requires 4 operand in IR and there is no support for this yet.
             // If we encounter more such scenarios, its better to solve the root cause.
@@ -625,7 +625,7 @@ void LegalizeMD::LegalizeIndirOpndForVFP(IR::Instr* insertInstr, IR::IndirOpnd *
     }
 
     if (IS_CONST_UINT10((offset < 0? -offset: offset)))
-    {
+    {LOGMEIN("LegalizeMD.cpp] 627\n");
         return;
     }
     IR::Instr* instrAdd = insertInstr->HoistIndirOffsetAsAdd(indirOpnd, indirOpnd->GetBaseOpnd(), offset, fPostRegAlloc ? SCRATCH_REG : RegNOREG);

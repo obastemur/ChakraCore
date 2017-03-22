@@ -15,7 +15,7 @@ namespace Js
         DEFINE_VTABLE_CTOR_ABSTRACT(ArgumentsObject, DynamicObject);
     public:
         ArgumentsObject(DynamicType * type) : DynamicObject(type)
-        {
+        {LOGMEIN("ArgumentsObject.h] 17\n");
             Assert(type->GetTypeId() == TypeIds_Arguments);
         }
         Var GetCaller(ScriptContext * scriptContext);
@@ -91,7 +91,7 @@ namespace Js
 
         virtual uint32 GetNumberOfArguments() const override;
         virtual uint32 GetNextFormalArgIndex(uint32 index, BOOL enumNonEnumerable = FALSE, PropertyAttributes* attributes = nullptr) const override;
-        virtual Var GetHeapArguments() { return this; }
+        virtual Var GetHeapArguments() {LOGMEIN("ArgumentsObject.h] 93\n"); return this; }
         virtual void SetHeapArguments(HeapArgumentsObject *args)
         {
             AssertMsg(false, "Should never get here");
@@ -108,19 +108,19 @@ namespace Js
         virtual BOOL Freeze() override;
 
         uint32 GetFormalCount() const
-        {
+        {LOGMEIN("ArgumentsObject.h] 110\n");
             return this->formalCount;
         }
 
         void SetFormalCount(uint32 value)
-        {
+        {LOGMEIN("ArgumentsObject.h] 115\n");
             this->formalCount = value;
         }
 
         ES5HeapArgumentsObject* ConvertToUnmappedArgumentsObject(bool overwriteArgsUsingFrameObject = true);
-        const ActivationObject* const GetFrameObject() { return frameObject; }
+        const ActivationObject* const GetFrameObject() {LOGMEIN("ArgumentsObject.h] 120\n"); return frameObject; }
         void SetFrameObject(ActivationObject * value)
-        {
+        {LOGMEIN("ArgumentsObject.h] 122\n");
             AssertMsg(frameObject == nullptr, "Setting the frame object again?");
             frameObject = value;
         }
@@ -183,7 +183,7 @@ namespace Js
     public:
         ES5HeapArgumentsObject(Recycler *recycler, ActivationObject* obj, uint32 formalCount, DynamicType * type)
             : HeapArgumentsObject(recycler, obj, formalCount, type)
-        {
+        {LOGMEIN("ArgumentsObject.h] 185\n");
         }
 
         virtual BOOL SetConfigurable(PropertyId propertyId, BOOL value) override;

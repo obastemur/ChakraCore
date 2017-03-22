@@ -9,7 +9,7 @@
 namespace Js
 {
     void DeferredTypeHandlerBase::Convert(DynamicObject * instance, DynamicTypeHandler * typeHandler)
-    {
+    {LOGMEIN("DeferredTypeHandler.cpp] 11\n");
         Assert(instance->GetDynamicType()->GetTypeHandler() == this);
         Assert(this->inlineSlotCapacity == typeHandler->inlineSlotCapacity);
         Assert(this->offsetOfInlineSlots == typeHandler->offsetOfInlineSlots);
@@ -31,25 +31,25 @@ namespace Js
         const BigPropertyIndex propertyCount = typeHandler->GetPropertyCount();
         Assert(propertyCount <= typeHandler->GetSlotCapacity());
         for(BigPropertyIndex i = 0; i < propertyCount; ++i)
-        {
+        {LOGMEIN("DeferredTypeHandler.cpp] 33\n");
             typeHandler->SetSlotUnchecked(instance, i, undefined);
         }
 
         if (isProto)
-        {
+        {LOGMEIN("DeferredTypeHandler.cpp] 38\n");
             instance->GetDynamicType()->GetTypeHandler()->SetIsPrototype(instance);
         }
     }
 
     void DeferredTypeHandlerBase::Convert(DynamicObject * instance, DeferredInitializeMode mode, int initSlotCapacity, BOOL hasAccessor)
-    {
+    {LOGMEIN("DeferredTypeHandler.cpp] 44\n");
         Assert(instance->GetDynamicType()->GetTypeHandler() == this);
 
         BOOL isProto = (GetFlags() & IsPrototypeFlag);
         BOOL isSimple = !hasAccessor;
 
         switch (mode)
-        {
+        {LOGMEIN("DeferredTypeHandler.cpp] 51\n");
         case DeferredInitializeMode_Set:
             initSlotCapacity++;
             break;
@@ -64,7 +64,7 @@ namespace Js
         DynamicTypeHandler* newTypeHandler;
 
         if (isSimple)
-        {
+        {LOGMEIN("DeferredTypeHandler.cpp] 66\n");
             newTypeHandler = ConvertToSimpleDictionaryType(instance, initSlotCapacity, isProto);
         }
         else
@@ -77,7 +77,7 @@ namespace Js
 
     template <typename T>
     T* DeferredTypeHandlerBase::ConvertToTypeHandler(DynamicObject* instance, int initSlotCapacity, BOOL isProto)
-    {
+    {LOGMEIN("DeferredTypeHandler.cpp] 79\n");
         ScriptContext* scriptContext = instance->GetScriptContext();
         Recycler* recycler = scriptContext->GetRecycler();
 
@@ -90,12 +90,12 @@ namespace Js
         newTypeHandler->SetFlags(IsPrototypeFlag, this->GetFlags());
         newTypeHandler->SetPropertyTypes(PropertyTypesWritableDataOnly | PropertyTypesWritableDataOnlyDetection | PropertyTypesInlineSlotCapacityLocked , this->GetPropertyTypes());
         if (instance->HasReadOnlyPropertiesInvisibleToTypeHandler())
-        {
+        {LOGMEIN("DeferredTypeHandler.cpp] 92\n");
             newTypeHandler->ClearHasOnlyWritableDataProperties();
         }
 
         if (isProto)
-        {
+        {LOGMEIN("DeferredTypeHandler.cpp] 97\n");
             newTypeHandler->SetIsPrototype(instance);
         }
 
@@ -106,7 +106,7 @@ namespace Js
     }
 
     SimpleDictionaryTypeHandler* DeferredTypeHandlerBase::ConvertToSimpleDictionaryType(DynamicObject* instance, int initSlotCapacity, BOOL isProto)
-    {
+    {LOGMEIN("DeferredTypeHandler.cpp] 108\n");
         // DeferredTypeHandler is only used internally by the type system. "initSlotCapacity" should be a tiny number.
         Assert(initSlotCapacity <= SimpleDictionaryTypeHandler::MaxPropertyIndexSize);
 
@@ -119,7 +119,7 @@ namespace Js
     }
 
     DictionaryTypeHandler* DeferredTypeHandlerBase::ConvertToDictionaryType(DynamicObject* instance, int initSlotCapacity, BOOL isProto)
-    {
+    {LOGMEIN("DeferredTypeHandler.cpp] 121\n");
         // DeferredTypeHandler is only used internally by the type system. "initSlotCapacity" should be a tiny number.
         Assert(initSlotCapacity <= DictionaryTypeHandler::MaxPropertyIndexSize);
 
@@ -132,7 +132,7 @@ namespace Js
     }
 
     ES5ArrayTypeHandler* DeferredTypeHandlerBase::ConvertToES5ArrayType(DynamicObject* instance, int initSlotCapacity)
-    {
+    {LOGMEIN("DeferredTypeHandler.cpp] 134\n");
         // DeferredTypeHandler is only used internally by the type system. "initSlotCapacity" should be a tiny number.
         Assert(initSlotCapacity <= ES5ArrayTypeHandler::MaxPropertyIndexSize);
 

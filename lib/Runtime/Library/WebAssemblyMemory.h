@@ -39,7 +39,7 @@ namespace Js
         int32 GrowInternal(uint32 deltaPages);
         static int32 GrowHelper(Js::WebAssemblyMemory * memory, uint32 deltaPages);
 
-        static int GetOffsetOfArrayBuffer() { return offsetof(WebAssemblyMemory, m_buffer); }
+        static int GetOffsetOfArrayBuffer() {LOGMEIN("WebAssemblyMemory.h] 41\n"); return offsetof(WebAssemblyMemory, m_buffer); }
     private:
         WebAssemblyMemory(ArrayBuffer * buffer, uint32 initial, uint32 maximum, DynamicType * type);
 

@@ -62,10 +62,10 @@ public:
 
     void InitializeMemory(uint32 minSize, uint32 maxSize);
     WebAssemblyMemory * CreateMemory() const;
-    bool HasMemory() const { return m_hasMemory; }
-    bool HasMemoryImport() const { return m_memImport != nullptr; }
-    uint32 GetMemoryInitSize() const { return m_memoryInitSize; }
-    uint32 GetMemoryMaxSize() const { return m_memoryMaxSize; }
+    bool HasMemory() const {LOGMEIN("WebAssemblyModule.h] 64\n"); return m_hasMemory; }
+    bool HasMemoryImport() const {LOGMEIN("WebAssemblyModule.h] 65\n"); return m_memImport != nullptr; }
+    uint32 GetMemoryInitSize() const {LOGMEIN("WebAssemblyModule.h] 66\n"); return m_memoryInitSize; }
+    uint32 GetMemoryMaxSize() const {LOGMEIN("WebAssemblyModule.h] 67\n"); return m_memoryMaxSize; }
 
     Wasm::WasmSignature * GetSignatures() const;
     Wasm::WasmSignature* GetSignature(uint32 index) const;
@@ -76,8 +76,8 @@ public:
 
     void InitializeTable(uint32 minEntries, uint32 maxEntries);
     WebAssemblyTable * CreateTable() const;
-    bool HasTable() const { return m_hasTable; }
-    bool HasTableImport() const { return m_tableImport != nullptr; }
+    bool HasTable() const {LOGMEIN("WebAssemblyModule.h] 78\n"); return m_hasTable; }
+    bool HasTableImport() const {LOGMEIN("WebAssemblyModule.h] 79\n"); return m_tableImport != nullptr; }
     bool IsValidTableImport(const WebAssemblyTable * table) const;
 
     uint GetWasmFunctionCount() const;
@@ -85,7 +85,7 @@ public:
     Wasm::WasmFunctionInfo* GetWasmFunctionInfo(uint index) const;
 
     void AllocateFunctionExports(uint32 entries);
-    uint GetExportCount() const { return m_exportCount; }
+    uint GetExportCount() const {LOGMEIN("WebAssemblyModule.h] 87\n"); return m_exportCount; }
     void SetExport(uint32 iExport, uint32 funcIndex, const char16* exportName, uint32 nameLength, Wasm::ExternalKinds::ExternalKind kind);
     Wasm::WasmExport* GetExport(uint32 iExport) const;
 
@@ -95,9 +95,9 @@ public:
     void AddGlobalImport(const char16* modName, uint32 modNameLen, const char16* importName, uint32 importNameLen);
     void AddMemoryImport(const char16* modName, uint32 modNameLen, const char16* importName, uint32 importNameLen);
     void AddTableImport(const char16* modName, uint32 modNameLen, const char16* importName, uint32 importNameLen);
-    Wasm::WasmImport * GetMemoryImport() const { return m_memImport; }
-    Wasm::WasmImport * GetTableImport() const { return m_tableImport; }
-    uint32 GetImportedFunctionCount() const { return m_importedFunctionCount; }
+    Wasm::WasmImport * GetMemoryImport() const {LOGMEIN("WebAssemblyModule.h] 97\n"); return m_memImport; }
+    Wasm::WasmImport * GetTableImport() const {LOGMEIN("WebAssemblyModule.h] 98\n"); return m_tableImport; }
+    uint32 GetImportedFunctionCount() const {LOGMEIN("WebAssemblyModule.h] 99\n"); return m_importedFunctionCount; }
 
     uint GetOffsetFromInit(const Wasm::WasmNode& initExpr, const class WebAssemblyEnvironment* env) const;
     void ValidateInitExportForOffset(const Wasm::WasmNode& initExpr) const;
@@ -109,12 +109,12 @@ public:
     void AllocateDataSegs(uint32 count);
     void SetDataSeg(Wasm::WasmDataSegment* seg, uint32 index);
     Wasm::WasmDataSegment* GetDataSeg(uint32 index) const;
-    uint32 GetDataSegCount() const { return m_datasegCount; }
+    uint32 GetDataSegCount() const {LOGMEIN("WebAssemblyModule.h] 111\n"); return m_datasegCount; }
 
     void AllocateElementSegs(uint32 count);
     void SetElementSeg(Wasm::WasmElementSegment* seg, uint32 index);
     Wasm::WasmElementSegment* GetElementSeg(uint32 index) const;
-    uint32 GetElementSegCount() const { return m_elementsegCount; }
+    uint32 GetElementSegCount() const {LOGMEIN("WebAssemblyModule.h] 116\n"); return m_elementsegCount; }
 
     void SetStartFunction(uint32 i);
     uint32 GetStartFunction() const;
@@ -122,13 +122,13 @@ public:
     uint32 GetModuleEnvironmentSize() const;
 
     // elements at known offsets
-    static uint GetMemoryOffset() { return 0; }
-    static uint GetImportFuncOffset() { return GetMemoryOffset() + 1; }
+    static uint GetMemoryOffset() {LOGMEIN("WebAssemblyModule.h] 124\n"); return 0; }
+    static uint GetImportFuncOffset() {LOGMEIN("WebAssemblyModule.h] 125\n"); return GetMemoryOffset() + 1; }
 
     // elements at instance dependent offsets
-    uint GetFuncOffset() const { return GetImportFuncOffset() + GetImportedFunctionCount(); }
-    uint GetTableEnvironmentOffset() const { return GetFuncOffset() + GetWasmFunctionCount(); }
-    uint GetGlobalOffset() const { return GetTableEnvironmentOffset() + 1; }
+    uint GetFuncOffset() const {LOGMEIN("WebAssemblyModule.h] 128\n"); return GetImportFuncOffset() + GetImportedFunctionCount(); }
+    uint GetTableEnvironmentOffset() const {LOGMEIN("WebAssemblyModule.h] 129\n"); return GetFuncOffset() + GetWasmFunctionCount(); }
+    uint GetGlobalOffset() const {LOGMEIN("WebAssemblyModule.h] 130\n"); return GetTableEnvironmentOffset() + 1; }
     uint GetOffsetForGlobal(Wasm::WasmGlobal* global) const;
     uint AddGlobalByteSizeToOffset(Wasm::WasmTypes::WasmType type, uint32 offset) const;
     uint GetGlobalsByteSize() const;
@@ -137,7 +137,7 @@ public:
     uint32 GetCustomSectionCount() const;
     Wasm::CustomSection GetCustomSection(uint32 index) const;
 
-    Wasm::WasmBinaryReader* GetReader() const { return m_reader; }
+    Wasm::WasmBinaryReader* GetReader() const {LOGMEIN("WebAssemblyModule.h] 139\n"); return m_reader; }
 
     virtual void Finalize(bool isShutdown) override;
     virtual void Dispose(bool isShutdown) override;

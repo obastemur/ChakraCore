@@ -29,7 +29,7 @@ namespace Js
         template <typename TKey, typename TValue>
         class Entry : public JsUtil::SimpleDictionaryEntry<TKey, TValue> { };
 
-        static bool IsStringTypeHandler() { return false; };
+        static bool IsStringTypeHandler() {LOGMEIN("SimpleDictionaryTypeHandler.h] 31\n"); return false; };
     };
 
     template <>
@@ -38,7 +38,7 @@ namespace Js
         template <typename TKey, typename TValue>
         class Entry : public JsUtil::DictionaryEntry<TKey, TValue> { };
 
-        static bool IsStringTypeHandler() { return true; };
+        static bool IsStringTypeHandler() {LOGMEIN("SimpleDictionaryTypeHandler.h] 40\n"); return true; };
     };
 
     // Template parameters:
@@ -143,7 +143,7 @@ namespace Js
         virtual DescriptorFlags GetRootSetter(DynamicObject* instance, PropertyId propertyId, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext) override;
         virtual BOOL DeleteRootProperty(DynamicObject* instance, PropertyId propertyId, PropertyOperationFlags flags) override;
 
-        virtual BOOL IsSimpleDictionaryTypeHandler() const {return TRUE;}
+        virtual BOOL IsSimpleDictionaryTypeHandler() const {LOGMEIN("SimpleDictionaryTypeHandler.h] 145\n");return TRUE;}
 #if DBG
         virtual bool IsLetConstGlobal(DynamicObject* instance, PropertyId propertyId) override;
 #endif
@@ -173,7 +173,7 @@ namespace Js
         virtual void SetIsPrototype(DynamicObject* instance) override;
 
 #if DBG
-        virtual bool SupportsPrototypeInstances() const { return true; }
+        virtual bool SupportsPrototypeInstances() const {LOGMEIN("SimpleDictionaryTypeHandler.h] 175\n"); return true; }
 #endif
 
         virtual bool HasSingletonInstance() const override sealed;
@@ -227,7 +227,7 @@ namespace Js
 
 #if DBG
         bool HasSingletonInstanceOnlyIfNeeded() const
-        {
+        {LOGMEIN("SimpleDictionaryTypeHandler.h] 229\n");
             return AreSingletonInstancesNeeded() || this->singletonInstance == nullptr;
         }
 #endif

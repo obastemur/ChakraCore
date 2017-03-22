@@ -7,12 +7,12 @@
 namespace Js
 {
     JavascriptEnumerator::JavascriptEnumerator(ScriptContext* scriptContext) : RecyclableObject(scriptContext->GetLibrary()->GetEnumeratorType())
-    {
+    {LOGMEIN("JavascriptEnumerator.cpp] 9\n");
         Assert(scriptContext != NULL);
     }
 
     bool JavascriptEnumerator::Is(Var aValue)
-    {
+    {LOGMEIN("JavascriptEnumerator.cpp] 14\n");
         return JavascriptOperators::GetTypeId(aValue) == TypeIds_Enumerator;
     }
 

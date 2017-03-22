@@ -15,7 +15,7 @@ namespace Js
         : currentObject(initObject),
           firstPrototype(firstPrototype),
           propertyIds(recycler)
-    {
+    {LOGMEIN("ForInObjectEnumerator.cpp] 17\n");
     }
 
     ForInObjectEnumerator::ForInObjectEnumerator(RecyclableObject* object, ScriptContext * scriptContext, bool enumSymbols)
@@ -24,17 +24,17 @@ namespace Js
     }
 
     void ForInObjectEnumerator::Clear()
-    {
+    {LOGMEIN("ForInObjectEnumerator.cpp] 26\n");
         // Only clear stuff that are not useful for the next enumerator
         shadowData = nullptr;
     }
 
     void ForInObjectEnumerator::Initialize(RecyclableObject* initObject, ScriptContext * requestContext, bool enumSymbols, ForInCache * forInCache)
-    {
+    {LOGMEIN("ForInObjectEnumerator.cpp] 32\n");
         this->enumeratingPrototype = false;
 
         if (initObject == nullptr)
-        {
+        {LOGMEIN("ForInObjectEnumerator.cpp] 36\n");
             enumerator.Clear(EnumeratorFlags::None, requestContext);
             this->shadowData = nullptr;
             this->canUseJitFastPath = false;
@@ -48,7 +48,7 @@ namespace Js
         RecyclableObject * firstPrototype = nullptr;
         RecyclableObject * firstPrototypeWithEnumerableProperties = GetFirstPrototypeWithEnumerableProperties(initObject, &firstPrototype);
         if (firstPrototypeWithEnumerableProperties != nullptr)
-        {
+        {LOGMEIN("ForInObjectEnumerator.cpp] 50\n");
             Recycler *recycler = requestContext->GetRecycler();
             this->shadowData = RecyclerNew(recycler, ShadowData, initObject, firstPrototype, recycler);
             flags = EnumeratorFlags::UseCache | EnumeratorFlags::SnapShotSemantics | EnumeratorFlags::EnumNonEnumerable | (enumSymbols ? EnumeratorFlags::EnumSymbols : EnumeratorFlags::None);
@@ -61,7 +61,7 @@ namespace Js
         }
 
         if (InitializeCurrentEnumerator(initObject, flags, requestContext, forInCache))
-        {
+        {LOGMEIN("ForInObjectEnumerator.cpp] 63\n");
             canUseJitFastPath = this->enumerator.CanUseJITFastPath();
         }
         else
@@ -74,43 +74,43 @@ namespace Js
     }
 
     RecyclableObject* ForInObjectEnumerator::GetFirstPrototypeWithEnumerableProperties(RecyclableObject* object, RecyclableObject** pFirstPrototype)
-    {
+    {LOGMEIN("ForInObjectEnumerator.cpp] 76\n");
         RecyclableObject* firstPrototype = nullptr;
         RecyclableObject* firstPrototypeWithEnumerableProperties = nullptr;
 
         if (JavascriptOperators::GetTypeId(object) != TypeIds_HostDispatch)
-        {
+        {LOGMEIN("ForInObjectEnumerator.cpp] 81\n");
             firstPrototypeWithEnumerableProperties = object;
             while (true)
-            {
+            {LOGMEIN("ForInObjectEnumerator.cpp] 84\n");
                 firstPrototypeWithEnumerableProperties = firstPrototypeWithEnumerableProperties->GetPrototype();
 
                 if (firstPrototypeWithEnumerableProperties == nullptr)
-                {
+                {LOGMEIN("ForInObjectEnumerator.cpp] 88\n");
                     break;
                 }
 
                 if (JavascriptOperators::GetTypeId(firstPrototypeWithEnumerableProperties) == TypeIds_Null)
-                {
+                {LOGMEIN("ForInObjectEnumerator.cpp] 93\n");
                     firstPrototypeWithEnumerableProperties = nullptr;
                     break;
                 }
 
                 if (firstPrototype == nullptr)
-                {
+                {LOGMEIN("ForInObjectEnumerator.cpp] 99\n");
                     firstPrototype = firstPrototypeWithEnumerableProperties;
                 }
 
                 if (!DynamicType::Is(firstPrototypeWithEnumerableProperties->GetTypeId())
                     || !DynamicObject::FromVar(firstPrototypeWithEnumerableProperties)->GetHasNoEnumerableProperties())
-                {
+                {LOGMEIN("ForInObjectEnumerator.cpp] 105\n");
                     break;
                 }
             }
         }
 
         if (pFirstPrototype != nullptr)
-        {
+        {LOGMEIN("ForInObjectEnumerator.cpp] 112\n");
             *pFirstPrototype = firstPrototype;
         }
 
@@ -118,11 +118,11 @@ namespace Js
     }
 
     BOOL ForInObjectEnumerator::InitializeCurrentEnumerator(RecyclableObject * object, ForInCache * forInCache)
-    {
+    {LOGMEIN("ForInObjectEnumerator.cpp] 120\n");
         EnumeratorFlags flags = enumerator.GetFlags();
         RecyclableObject * prototype = object->GetPrototype();
         if (prototype == nullptr || prototype->GetTypeId() == TypeIds_Null)
-        {
+        {LOGMEIN("ForInObjectEnumerator.cpp] 124\n");
             // If this is the last object on the prototype chain, we don't need to get the non-enumerable properties any more to track shadowing
             flags &= ~EnumeratorFlags::EnumNonEnumerable;
         }
@@ -130,12 +130,12 @@ namespace Js
     }
 
     BOOL ForInObjectEnumerator::InitializeCurrentEnumerator(RecyclableObject * object, EnumeratorFlags flags,  ScriptContext * scriptContext, ForInCache * forInCache)
-    {
+    {LOGMEIN("ForInObjectEnumerator.cpp] 132\n");
         Assert(object);
         Assert(scriptContext);
 
         if (VirtualTableInfo<DynamicObject>::HasVirtualTable(object))
-        {
+        {LOGMEIN("ForInObjectEnumerator.cpp] 137\n");
             DynamicObject* dynamicObject = (DynamicObject*)object;
             return dynamicObject->DynamicObject::GetEnumerator(&enumerator, flags, scriptContext, forInCache);
         }
@@ -144,7 +144,7 @@ namespace Js
     }
 
     BOOL ForInObjectEnumerator::TestAndSetEnumerated(PropertyId propertyId)
-    {
+    {LOGMEIN("ForInObjectEnumerator.cpp] 146\n");
         Assert(this->shadowData != nullptr);
         Assert(!Js::IsInternalPropertyId(propertyId));
 
@@ -152,12 +152,12 @@ namespace Js
     }
 
     Var ForInObjectEnumerator::MoveAndGetNext(PropertyId& propertyId)
-    {        
+    {LOGMEIN("ForInObjectEnumerator.cpp] 154\n");        
         PropertyRecord const * propRecord;
         PropertyAttributes attributes = PropertyNone;
 
         while (true)
-        {
+        {LOGMEIN("ForInObjectEnumerator.cpp] 159\n");
             propertyId = Constants::NoProperty;
             Var currentIndex = enumerator.MoveAndGetNext(propertyId, &attributes);
 
@@ -169,9 +169,9 @@ namespace Js
             this->canUseJitFastPath = this->canUseJitFastPath && enumerator.CanUseJITFastPath();
 
             if (currentIndex)
-            {
+            {LOGMEIN("ForInObjectEnumerator.cpp] 171\n");
                 if (this->shadowData == nullptr)
-                {
+                {LOGMEIN("ForInObjectEnumerator.cpp] 173\n");
                     // There are no prototype that has enumerable properties,
                     // don't need to keep track of the propertyIds we visited.
 
@@ -183,14 +183,14 @@ namespace Js
 
                 // Property Id does not exist.
                 if (propertyId == Constants::NoProperty)
-                {
+                {LOGMEIN("ForInObjectEnumerator.cpp] 185\n");
                     if (!JavascriptString::Is(currentIndex)) //This can be undefined
-                    {
+                    {LOGMEIN("ForInObjectEnumerator.cpp] 187\n");
                         continue;
                     }
                     JavascriptString *pString = JavascriptString::FromVar(currentIndex);
                     if (VirtualTableInfo<Js::PropertyString>::HasVirtualTable(pString))
-                    {
+                    {LOGMEIN("ForInObjectEnumerator.cpp] 192\n");
                         // If we have a property string, it is assumed that the propertyId is being
                         // kept alive with the object
                         PropertyString * propertyString = (PropertyString *)pString;
@@ -211,21 +211,21 @@ namespace Js
 
                 if (TestAndSetEnumerated(propertyId) //checks if the property is already enumerated or not
                     && (attributes & PropertyEnumerable))
-                {
+                {LOGMEIN("ForInObjectEnumerator.cpp] 213\n");
                     return currentIndex;
                 }
             }
             else
             {
                 if (this->shadowData == nullptr)
-                {
+                {LOGMEIN("ForInObjectEnumerator.cpp] 220\n");
                     Assert(!this->enumeratingPrototype);
                     return nullptr;
                 }
 
                 RecyclableObject * object;
                 if (!this->enumeratingPrototype)
-                {  
+                {LOGMEIN("ForInObjectEnumerator.cpp] 227\n");  
                     this->enumeratingPrototype = true;
                     object = this->shadowData->firstPrototype;
                     this->shadowData->currentObject = object;
@@ -236,20 +236,20 @@ namespace Js
                     object = this->shadowData->currentObject->GetPrototype();
                     this->shadowData->currentObject = object;
                     if ((object == nullptr) || (JavascriptOperators::GetTypeId(object) == TypeIds_Null))
-                    {
+                    {LOGMEIN("ForInObjectEnumerator.cpp] 238\n");
                         return nullptr;
                     }
                 }
 
                 do
-                {
+                {LOGMEIN("ForInObjectEnumerator.cpp] 244\n");
                     if (!InitializeCurrentEnumerator(object))
-                    {
+                    {LOGMEIN("ForInObjectEnumerator.cpp] 246\n");
                         return nullptr;
                     }
 
                     if (!enumerator.IsNullEnumerator())
-                    {
+                    {LOGMEIN("ForInObjectEnumerator.cpp] 251\n");
                         break;
                     }
 
@@ -257,7 +257,7 @@ namespace Js
                     object = object->GetPrototype();
                     this->shadowData->currentObject = object;
                     if ((object == nullptr) || (JavascriptOperators::GetTypeId(object) == TypeIds_Null))
-                    {
+                    {LOGMEIN("ForInObjectEnumerator.cpp] 259\n");
                         return nullptr;
                     }
                 }

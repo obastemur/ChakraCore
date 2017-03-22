@@ -33,29 +33,29 @@ public:
     uint16 GetConstantArgInfo(Js::FunctionBody *const inliner, const Js::ProfileId profiledCallSiteId);
     bool HasCallSiteInfo(Js::FunctionBody *const inliner, const Js::ProfileId profiledCallSiteId);
     uint InlinePolymorphicCallSite(Js::FunctionBody *const inliner, const Js::ProfileId profiledCallSiteId, Js::FunctionBody** functionBodyArray, uint functionBodyArrayLength, bool* canInlineArray, uint recursiveInlineDepth = 0);
-    bool GetIsLoopBody() const { return isLoopBody;};
+    bool GetIsLoopBody() const {LOGMEIN("InliningDecider.h] 35\n"); return isLoopBody;};
     bool ContinueInliningUserDefinedFunctions(uint32 bytecodeInlinedCount) const;
     bool CanRecursivelyInline(Js::FunctionBody * inlinee, Js::FunctionBody * inliner, bool allowRecursiveInlining, uint recursiveInlineDepth);
     bool DeciderInlineIntoInliner(Js::FunctionBody * inlinee, Js::FunctionBody * inliner, bool isConstructorCall, bool isPolymorphicCall, uint16 constantArgInfo, uint recursiveInlineDepth, bool allowRecursiveInlining);
 
-    void SetAggressiveHeuristics() { this->threshold.SetAggressiveHeuristics(); }
-    void ResetInlineHeuristics() { this->threshold.Reset(); }
+    void SetAggressiveHeuristics() {LOGMEIN("InliningDecider.h] 40\n"); this->threshold.SetAggressiveHeuristics(); }
+    void ResetInlineHeuristics() {LOGMEIN("InliningDecider.h] 41\n"); this->threshold.Reset(); }
     void SetLimitOnInlineesWithLoop(uint countOfInlineesWithLoops)
-    {
+    {LOGMEIN("InliningDecider.h] 43\n");
         // If we have determined in TryAggressiveInlining phase there are too many inlinees with loop, just set the limit such that we don't inline them.
         if ((uint)this->threshold.maxNumberOfInlineesWithLoop <= countOfInlineesWithLoops)
-        {
+        {LOGMEIN("InliningDecider.h] 46\n");
             this->threshold.maxNumberOfInlineesWithLoop = 0;
         }
         return;
     }
     void ResetState()
-    {
+    {LOGMEIN("InliningDecider.h] 52\n");
         bytecodeInlinedCount = 0;
         numberOfInlineesWithLoop = 0;
     }
-    uint32 GetNumberOfInlineesWithLoop() { return numberOfInlineesWithLoop; }
-    void IncrementNumberOfInlineesWithLoop() { numberOfInlineesWithLoop++; }
+    uint32 GetNumberOfInlineesWithLoop() {LOGMEIN("InliningDecider.h] 56\n"); return numberOfInlineesWithLoop; }
+    void IncrementNumberOfInlineesWithLoop() {LOGMEIN("InliningDecider.h] 57\n"); numberOfInlineesWithLoop++; }
 
 
     static bool GetBuiltInInfo(
@@ -80,7 +80,7 @@ private:
         ValueType *const returnType);
 
     static bool IsInlineeLeaf(Js::FunctionBody * const inlinee)
-    {
+    {LOGMEIN("InliningDecider.h] 82\n");
         return inlinee->HasDynamicProfileInfo()
             && (!PHASE_OFF(Js::InlineBuiltInCallerPhase, inlinee) ? !inlinee->HasNonBuiltInCallee() : inlinee->GetProfiledCallSiteCount() == 0)
             && !inlinee->GetAnyDynamicProfileInfo()->HasLdFldCallSiteInfo();
@@ -91,42 +91,42 @@ private:
 #if ENABLE_DEBUG_CONFIG_OPTIONS
 #define INLINE_VERBOSE_TRACE(...) \
     if (Js::Configuration::Global.flags.Verbose && Js::Configuration::Global.flags.Trace.IsEnabled(Js::InlinePhase, this->topFunc->GetSourceContextId(), this->topFunc->GetLocalFunctionId())) \
-    { \
+    {LOGMEIN("InliningDecider.h] 93\n"); \
     Output::Print(__VA_ARGS__); \
     }
 #define INLINE_TRACE(...) \
     if (Js::Configuration::Global.flags.Trace.IsEnabled(Js::InlinePhase, topFunc->GetSourceContextId(), topFunc->GetLocalFunctionId())) \
-    { \
+    {LOGMEIN("InliningDecider.h] 98\n"); \
     Output::Print(__VA_ARGS__); \
     }
 #define INLINE_TESTTRACE(...) \
     if (Js::Configuration::Global.flags.TestTrace.IsEnabled(Js::InlinePhase, topFunc->GetSourceContextId(), topFunc->GetLocalFunctionId())) \
-    { \
+    {LOGMEIN("InliningDecider.h] 103\n"); \
     Output::Print(__VA_ARGS__); \
     Output::Flush(); \
     }
 #define INLINE_TESTTRACE_VERBOSE(...) \
     if (Js::Configuration::Global.flags.Verbose && Js::Configuration::Global.flags.TestTrace.IsEnabled(Js::InlinePhase, topFunc->GetSourceContextId(), topFunc->GetLocalFunctionId())) \
-    { \
+    {LOGMEIN("InliningDecider.h] 109\n"); \
     Output::Print(__VA_ARGS__); \
     Output::Flush(); \
     }
 
 #define POLYMORPHIC_INLINE_TESTTRACE(...) \
     if (Js::Configuration::Global.flags.TestTrace.IsEnabled(Js::PolymorphicInlinePhase)) \
-    { \
+    {LOGMEIN("InliningDecider.h] 116\n"); \
     Output::Print(__VA_ARGS__); \
     Output::Flush(); \
     }
 #define POLYMORPHIC_INLINE_FIXEDMETHODS_TESTTRACE(...) \
     if (Js::Configuration::Global.flags.TestTrace.IsEnabled(Js::PolymorphicInlineFixedMethodsPhase)) \
-    { \
+    {LOGMEIN("InliningDecider.h] 122\n"); \
     Output::Print(__VA_ARGS__); \
     Output::Flush(); \
     }
 #define INLINE_FLUSH() \
     if (Js::Configuration::Global.flags.Trace.IsEnabled(Js::InlinePhase,this->topFunc->GetSourceContextId() ,this->topFunc->GetLocalFunctionId()) || Js::Configuration::Global.flags.TestTrace.IsEnabled(Js::InlinePhase)) \
-    { \
+    {LOGMEIN("InliningDecider.h] 128\n"); \
     Output::Flush(); \
     }
 #else

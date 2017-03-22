@@ -38,41 +38,41 @@ public:
 #endif
 
     uint GetFunctionNumber() const
-    {
+    {LOGMEIN("CodeGenWorkItem.h] 40\n");
         return this->functionBody->GetFunctionNumber();
     }
 
     ExecutionMode GetJitMode() const
-    {
+    {LOGMEIN("CodeGenWorkItem.h] 45\n");
         return static_cast<ExecutionMode>(this->jitData.jitMode);
     }
 
     CodeGenWorkItemIDL * GetJITData()
-    {
+    {LOGMEIN("CodeGenWorkItem.h] 50\n");
         return &this->jitData;
     }
 
-    CodeGenWorkItemType Type() const { return static_cast<CodeGenWorkItemType>(this->jitData.type); }
+    CodeGenWorkItemType Type() const {LOGMEIN("CodeGenWorkItem.h] 54\n"); return static_cast<CodeGenWorkItemType>(this->jitData.type); }
 
     Js::ScriptContext* GetScriptContext()
-    {
+    {LOGMEIN("CodeGenWorkItem.h] 57\n");
         return functionBody->GetScriptContext();
     }
 
     Js::FunctionBody* GetFunctionBody() const
-    {
+    {LOGMEIN("CodeGenWorkItem.h] 62\n");
         return functionBody;
     }
 
-    void SetCodeAddress(size_t codeAddress) { this->codeAddress = codeAddress; }
-    size_t GetCodeAddress() { return codeAddress; }
+    void SetCodeAddress(size_t codeAddress) {LOGMEIN("CodeGenWorkItem.h] 66\n"); this->codeAddress = codeAddress; }
+    size_t GetCodeAddress() {LOGMEIN("CodeGenWorkItem.h] 67\n"); return codeAddress; }
 
-    void SetCodeSize(ptrdiff_t codeSize) { this->codeSize = codeSize; }
-    ptrdiff_t GetCodeSize() { return codeSize; }
+    void SetCodeSize(ptrdiff_t codeSize) {LOGMEIN("CodeGenWorkItem.h] 69\n"); this->codeSize = codeSize; }
+    ptrdiff_t GetCodeSize() {LOGMEIN("CodeGenWorkItem.h] 70\n"); return codeSize; }
 
 protected:
     virtual uint GetLoopNumber() const
-    {
+    {LOGMEIN("CodeGenWorkItem.h] 74\n");
         return Js::LoopHeader::NoLoop;
     }
 
@@ -97,9 +97,9 @@ public:
     Js::ScriptContext *irViewerRequestContext;  // keep track of the request context
 
     Js::DynamicObject * GetIRViewerOutput(Js::ScriptContext *scriptContext)
-    {
+    {LOGMEIN("CodeGenWorkItem.h] 99\n");
         if (!irViewerOutput)
-        {
+        {LOGMEIN("CodeGenWorkItem.h] 101\n");
             irViewerOutput = scriptContext->GetLibrary()->CreateObject();
         }
 
@@ -107,27 +107,27 @@ public:
     }
 
     void SetIRViewerOutput(Js::DynamicObject *output)
-    {
+    {LOGMEIN("CodeGenWorkItem.h] 109\n");
         irViewerOutput = output;
     }
 #endif
 private:
     // REVIEW: can we delete this?
-    EmitBufferAllocation<VirtualAllocWrapper, PreReservedVirtualAllocWrapper> *GetAllocation() { return allocation; }
+    EmitBufferAllocation<VirtualAllocWrapper, PreReservedVirtualAllocWrapper> *GetAllocation() {LOGMEIN("CodeGenWorkItem.h] 115\n"); return allocation; }
 
 public:
     Js::EntryPointInfo* GetEntryPoint() const
-    {
+    {LOGMEIN("CodeGenWorkItem.h] 119\n");
         return this->entryPointInfo;
     }
 
     Js::CodeGenRecyclableData *RecyclableData() const
-    {
+    {LOGMEIN("CodeGenWorkItem.h] 124\n");
         return recyclableData;
     }
 
     void SetRecyclableData(Js::CodeGenRecyclableData *const recyclableData)
-    {
+    {LOGMEIN("CodeGenWorkItem.h] 129\n");
         Assert(recyclableData);
         Assert(!this->recyclableData);
 
@@ -135,24 +135,24 @@ public:
     }
 
     void SetEntryPointInfo(Js::EntryPointInfo* entryPointInfo)
-    {
+    {LOGMEIN("CodeGenWorkItem.h] 137\n");
         this->entryPointInfo = entryPointInfo;
     }
 
 public:
     void ResetJitMode()
-    {
+    {LOGMEIN("CodeGenWorkItem.h] 143\n");
         this->jitData.jitMode = static_cast<uint8>(ExecutionMode::Interpreter);
     }
 
     void SetJitMode(const ExecutionMode jitMode)
-    {
+    {LOGMEIN("CodeGenWorkItem.h] 148\n");
         this->jitData.jitMode = static_cast<uint8>(jitMode);
         VerifyJitMode();
     }
 
     void VerifyJitMode() const
-    {
+    {LOGMEIN("CodeGenWorkItem.h] 154\n");
         Assert(GetJitMode() == ExecutionMode::SimpleJit || GetJitMode() == ExecutionMode::FullJit);
         Assert(GetJitMode() != ExecutionMode::SimpleJit || GetFunctionBody()->DoSimpleJit());
         Assert(GetJitMode() != ExecutionMode::FullJit || !PHASE_OFF(Js::FullJitPhase, GetFunctionBody()));
@@ -168,19 +168,19 @@ private:
 
 public:
     bool IsInJitQueue() const
-    {
+    {LOGMEIN("CodeGenWorkItem.h] 170\n");
         return isInJitQueue;
     }
 
     bool IsJitInDebugMode() const
-    {
+    {LOGMEIN("CodeGenWorkItem.h] 175\n");
         return jitData.isJitInDebugMode != 0;
     }
 
     void OnWorkItemProcessFail(NativeCodeGenerator *codeGen);
 
     void RecordNativeThrowMap(Js::SmallSpanSequenceIter& iter, uint32 nativeOffset, uint32 statementIndex)
-    {
+    {LOGMEIN("CodeGenWorkItem.h] 182\n");
         this->functionBody->RecordNativeThrowMap(iter, nativeOffset, statementIndex, this->GetEntryPoint(), GetLoopNumber());
     }
 
@@ -199,7 +199,7 @@ struct JsFunctionCodeGen sealed : public CodeGenWorkItem
         Js::EntryPointInfo* entryPointInfo,
         bool isJitInDebugMode)
         : CodeGenWorkItem(manager, functionBody, entryPointInfo, isJitInDebugMode, JsFunctionType)
-    {
+    {LOGMEIN("CodeGenWorkItem.h] 201\n");
         this->jitData.loopNumber = GetLoopNumber();
     }
 
@@ -215,7 +215,7 @@ public:
         size_t nameSizeInChars = wcslen(name) + 1;
         size_t sizeInBytes = nameSizeInChars * sizeof(WCHAR);
         if(displayName == NULL || sizeInChars < nameSizeInChars)
-        {
+        {LOGMEIN("CodeGenWorkItem.h] 217\n");
            return nameSizeInChars;
         }
         js_memcpy_s(displayName, sizeInChars * sizeof(WCHAR), name, sizeInBytes);
@@ -268,7 +268,7 @@ struct JsLoopBodyCodeGen sealed : public CodeGenWorkItem
         Js::EntryPointInfo* entryPointInfo, bool isJitInDebugMode, Js::LoopHeader * loopHeader) :
         CodeGenWorkItem(manager, functionBody, entryPointInfo, isJitInDebugMode, JsLoopBodyWorkItemType),
         loopHeader(loopHeader)
-    {
+    {LOGMEIN("CodeGenWorkItem.h] 270\n");
         this->jitData.loopNumber = GetLoopNumber();
     }
 
@@ -327,9 +327,9 @@ struct JsLoopBodyCodeGen sealed : public CodeGenWorkItem
     }
 
     ~JsLoopBodyCodeGen()
-    {
+    {LOGMEIN("CodeGenWorkItem.h] 329\n");
         if (this->jitData.symIdToValueTypeMap != nullptr)
-        {
+        {LOGMEIN("CodeGenWorkItem.h] 331\n");
             HeapDeleteArray(this->jitData.symIdToValueTypeMapCount, this->jitData.symIdToValueTypeMap);
             this->jitData.symIdToValueTypeMap = nullptr;
         }

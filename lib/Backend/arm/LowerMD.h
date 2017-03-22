@@ -14,7 +14,7 @@ class Lowerer;
 
 #ifdef DBG
 #define INSERTDEBUGBREAK(instrInsert)\
-    {\
+    {LOGMEIN("LowerMD.h] 16\n");\
         IR::Instr *int3 = IR::Instr::New(Js::OpCode::DEBUGBREAK, m_func);\
         instrInsert->InsertBefore(int3);\
     }
@@ -31,7 +31,7 @@ public:
         m_func(func),
         helperCallArgsCount(0),
         helperCallDoubleArgsCount(0)
-    {
+    {LOGMEIN("LowerMD.h] 33\n");
     }
 
     static  bool            IsUnconditionalBranch(const IR::Instr *instr);
@@ -99,13 +99,13 @@ public:
             bool            GenerateFastStringCheck(IR::Instr* instr, IR::RegOpnd *regSrc1, IR::RegOpnd *regSrc2, bool isEqual, bool isStrict, IR::LabelInstr *labelHelper, IR::LabelInstr *labelTarget, IR::LabelInstr *labelFail);
             bool            GenerateFastCmSrEqConst(IR::Instr *instr);
             bool            GenerateFastCmXxI4(IR::Instr *instr);
-            bool            GenerateFastCmXxR8(IR::Instr *instr) { Assert(UNREACHED); return nullptr; }
+            bool            GenerateFastCmXxR8(IR::Instr *instr) {LOGMEIN("LowerMD.h] 101\n"); Assert(UNREACHED); return nullptr; }
             bool            GenerateFastCmXxTaggedInt(IR::Instr *instr);
             IR::Instr *     GenerateConvBool(IR::Instr *instr);
             void            GenerateClz(IR::Instr * instr);
-            void            GenerateCtz(IR::Instr * instr) { Assert(UNREACHED); }
-            void            GeneratePopCnt(IR::Instr * instr) { Assert(UNREACHED); }
-            void            GenerateTruncWithCheck(IR::Instr * instr) { Assert(UNREACHED); }
+            void            GenerateCtz(IR::Instr * instr) {LOGMEIN("LowerMD.h] 105\n"); Assert(UNREACHED); }
+            void            GeneratePopCnt(IR::Instr * instr) {LOGMEIN("LowerMD.h] 106\n"); Assert(UNREACHED); }
+            void            GenerateTruncWithCheck(IR::Instr * instr) {LOGMEIN("LowerMD.h] 107\n"); Assert(UNREACHED); }
             void            GenerateFastDivByPow2(IR::Instr *instr);
             bool            GenerateFastAdd(IR::Instr * instrAdd);
             bool            GenerateFastSub(IR::Instr * instrSub);
@@ -120,7 +120,7 @@ public:
             void            GenerateFastBrS(IR::BranchInstr *brInstr);
             IR::IndirOpnd * GenerateFastElemIStringIndexCommon(IR::Instr * instr, bool isStore, IR::IndirOpnd *indirOpnd, IR::LabelInstr * labelHelper);
             void            GenerateFastInlineBuiltInCall(IR::Instr* instr, IR::JnHelperMethod helperMethod);
-            void            HelperCallForAsmMathBuiltin(IR::Instr* instr, IR::JnHelperMethod helperMethodFloat, IR::JnHelperMethod helperMethodDouble) { Assert(UNREACHED); } // only for asm.js
+            void            HelperCallForAsmMathBuiltin(IR::Instr* instr, IR::JnHelperMethod helperMethodFloat, IR::JnHelperMethod helperMethodDouble) {LOGMEIN("LowerMD.h] 122\n"); Assert(UNREACHED); } // only for asm.js
             IR::Opnd *      CreateStackArgumentsSlotOpnd();
             void            GenerateSmIntTest(IR::Opnd *opndSrc, IR::Instr *insertInstr, IR::LabelInstr *labelHelper, IR::Instr **instrFirst = nullptr, bool fContinueLabel = false);
             IR::RegOpnd *   LoadNonnegativeIndex(IR::RegOpnd *indexOpnd, const bool skipNegativeCheck, IR::LabelInstr *const notTaggedIntLabel, IR::LabelInstr *const negativeLabel, IR::Instr *const insertBeforeInstr);
@@ -145,7 +145,7 @@ public:
      static void            EmitPtrInstr(IR::Instr *instr);
             void            EmitLoadVar(IR::Instr *instr, bool isFromUint32 = false, bool isHelper = false);
             bool            EmitLoadInt32(IR::Instr *instr, bool conversionFromObjectAllowed);
-            IR::Instr *     LowerInt64Assign(IR::Instr * instr) { Assert(UNREACHED); return nullptr; }
+            IR::Instr *     LowerInt64Assign(IR::Instr * instr) {LOGMEIN("LowerMD.h] 147\n"); Assert(UNREACHED); return nullptr; }
 
      static void            LowerInt4NegWithBailOut(IR::Instr *const instr, const IR::BailOutKind bailOutKind, IR::LabelInstr *const bailOutLabel, IR::LabelInstr *const skipBailOutLabel);
      static void            LowerInt4AddWithBailOut(IR::Instr *const instr, const IR::BailOutKind bailOutKind, IR::LabelInstr *const bailOutLabel, IR::LabelInstr *const skipBailOutLabel);
@@ -183,20 +183,20 @@ public:
             IR::Instr *         LowerCallI(IR::Instr * callInstr, ushort callFlags, bool isHelper = false, IR::Instr* insertBeforeInstrForCFG = nullptr);
             IR::Instr *         LowerCallPut(IR::Instr * callInstr);
             int32               LowerCallArgs(IR::Instr * callInstr, IR::Instr * stackParamInsert, ushort callFlags, Js::ArgSlot extraParams = 1 /* for function object */, IR::IntConstOpnd **callInfoOpndRef = nullptr);
-            int32               LowerCallArgs(IR::Instr * callInstr, ushort callFlags, Js::ArgSlot extraParams = 1 /* for function object */, IR::IntConstOpnd **callInfoOpndRef = nullptr) { return LowerCallArgs(callInstr, callInstr, callFlags, extraParams, callInfoOpndRef); }
+            int32               LowerCallArgs(IR::Instr * callInstr, ushort callFlags, Js::ArgSlot extraParams = 1 /* for function object */, IR::IntConstOpnd **callInfoOpndRef = nullptr) {LOGMEIN("LowerMD.h] 185\n"); return LowerCallArgs(callInstr, callInstr, callFlags, extraParams, callInfoOpndRef); }
             IR::Instr *         LowerStartCall(IR::Instr * instr);
-            IR::Instr *         LowerAsmJsCallI(IR::Instr * callInstr) { Assert(UNREACHED); return nullptr; }
-            IR::Instr *         LowerAsmJsCallE(IR::Instr * callInstr) { Assert(UNREACHED); return nullptr; }
-            IR::Instr *         LowerAsmJsStElemHelper(IR::Instr * callInstr) { Assert(UNREACHED); return nullptr; }
-            IR::Instr *         LowerAsmJsLdElemHelper(IR::Instr * callInstr) { Assert(UNREACHED); return nullptr; }
+            IR::Instr *         LowerAsmJsCallI(IR::Instr * callInstr) {LOGMEIN("LowerMD.h] 187\n"); Assert(UNREACHED); return nullptr; }
+            IR::Instr *         LowerAsmJsCallE(IR::Instr * callInstr) {LOGMEIN("LowerMD.h] 188\n"); Assert(UNREACHED); return nullptr; }
+            IR::Instr *         LowerAsmJsStElemHelper(IR::Instr * callInstr) {LOGMEIN("LowerMD.h] 189\n"); Assert(UNREACHED); return nullptr; }
+            IR::Instr *         LowerAsmJsLdElemHelper(IR::Instr * callInstr) {LOGMEIN("LowerMD.h] 190\n"); Assert(UNREACHED); return nullptr; }
             IR::Instr *         LowerCallIDynamic(IR::Instr *callInstr, IR::Instr*saveThisArgOutInstr, IR::Opnd *argsLength, ushort callFlags, IR::Instr * insertBeforeInstrForCFG = nullptr);
             IR::Instr *         LoadHelperArgument(IR::Instr * instr, IR::Opnd * opndArg);
             IR::Instr *         LoadDynamicArgument(IR::Instr * instr, uint argNumber = 1);
             IR::Instr *         LoadDynamicArgumentUsingLength(IR::Instr *instr);
             IR::Instr *         LoadDoubleHelperArgument(IR::Instr * instr, IR::Opnd * opndArg);
-            IR::Instr *         LoadFloatHelperArgument(IR::Instr * instr, IR::Opnd * opndArg) { Assert(UNREACHED); return nullptr; } // only used for asm.js right now
+            IR::Instr *         LoadFloatHelperArgument(IR::Instr * instr, IR::Opnd * opndArg) {LOGMEIN("LowerMD.h] 196\n"); Assert(UNREACHED); return nullptr; } // only used for asm.js right now
             IR::Instr *         LowerToFloat(IR::Instr *instr);
-            IR::Instr *         LowerReinterpretPrimitive(IR::Instr* instr) { Assert(UNREACHED); return nullptr; }
+            IR::Instr *         LowerReinterpretPrimitive(IR::Instr* instr) {LOGMEIN("LowerMD.h] 198\n"); Assert(UNREACHED); return nullptr; }
      static IR::BranchInstr *   LowerFloatCondBranch(IR::BranchInstr *instrBranch, bool ignoreNaN = false);
             void                ConvertFloatToInt32(IR::Opnd* intOpnd, IR::Opnd* floatOpnd, IR::LabelInstr * labelHelper, IR::LabelInstr * labelDone, IR::Instr * instInsert);
             void                CheckOverflowOnFloatToInt32(IR::Instr* instr, IR::Opnd* intOpnd, IR::LabelInstr * labelHelper, IR::LabelInstr * labelDone);
@@ -204,8 +204,8 @@ public:
             void                EmitIntToFloat(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert);
             void                EmitUIntToFloat(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert);
             void                EmitFloatToInt(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert);
-            void                EmitFloat32ToFloat64(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert) { Assert(UNREACHED); }
-            void                EmitInt64toFloat(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert) {  Assert(UNREACHED); }
+            void                EmitFloat32ToFloat64(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert) {LOGMEIN("LowerMD.h] 206\n"); Assert(UNREACHED); }
+            void                EmitInt64toFloat(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert) {LOGMEIN("LowerMD.h] 207\n");  Assert(UNREACHED); }
             static IR::Instr *  InsertConvertFloat64ToInt32(const RoundMode roundMode, IR::Opnd *const dst, IR::Opnd *const src, IR::Instr *const insertBeforeInstr);
             void                EmitIntToLong(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert);
             void                EmitUIntToLong(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert);
@@ -217,8 +217,8 @@ public:
 
             IR::Instr *         LowerEntryInstr(IR::EntryInstr * entryInstr);
             IR::Instr *         LowerExitInstr(IR::ExitInstr * exitInstr);
-            IR::Instr *         LowerEntryInstrAsmJs(IR::EntryInstr * entryInstr) { Assert(UNREACHED); return nullptr; }
-            IR::Instr *         LowerExitInstrAsmJs(IR::ExitInstr * exitInstr) { Assert(UNREACHED); return nullptr; }
+            IR::Instr *         LowerEntryInstrAsmJs(IR::EntryInstr * entryInstr) {LOGMEIN("LowerMD.h] 219\n"); Assert(UNREACHED); return nullptr; }
+            IR::Instr *         LowerExitInstrAsmJs(IR::ExitInstr * exitInstr) {LOGMEIN("LowerMD.h] 220\n"); Assert(UNREACHED); return nullptr; }
             IR::Instr *         LoadNewScObjFirstArg(IR::Instr * instr, IR::Opnd * dst, ushort extraArgs = 0);
             IR::Instr *         LowerTry(IR::Instr *instr, IR::JnHelperMethod helperMethod);
             IR::Instr *         LowerLeave(IR::Instr *instr, IR::LabelInstr * targetInstr, bool fromFinalLower, bool isOrphanedLeave = false);
@@ -240,23 +240,23 @@ public:
             void                GenerateFastInlineBuiltInMathFloor(IR::Instr *callInstr);
             void                GenerateFastInlineBuiltInMathCeil(IR::Instr *callInstr);
             void                GenerateFastInlineBuiltInMathRound(IR::Instr *callInstr);
-            static RegNum       GetRegStackPointer() { return RegSP; }
-            static RegNum       GetRegFramePointer() { return RegR11; }
-            static RegNum       GetRegReturn(IRType type) { return IRType_IsFloat(type) ? RegNOREG : RegR0; }
-            static RegNum       GetRegArgI4(int32 argNum) { return RegNOREG; }
-            static RegNum       GetRegArgR8(int32 argNum) { return RegNOREG; }
-            static Js::OpCode   GetLoadOp(IRType type) { return type == TyFloat64? Js::OpCode::VLDR : ((type == TyFloat32)? Js::OpCode::VLDR32 : Js::OpCode::LDR); }
-            static Js::OpCode   GetStoreOp(IRType type) { return type == TyFloat64? Js::OpCode::VSTR : ((type == TyFloat32)? Js::OpCode::VSTR32 : Js::OpCode::STR); }
-            static Js::OpCode   GetMoveOp(IRType type) { return IRType_IsFloat(type) ? Js::OpCode::VMOV : Js::OpCode::MOV; }
+            static RegNum       GetRegStackPointer() {LOGMEIN("LowerMD.h] 242\n"); return RegSP; }
+            static RegNum       GetRegFramePointer() {LOGMEIN("LowerMD.h] 243\n"); return RegR11; }
+            static RegNum       GetRegReturn(IRType type) {LOGMEIN("LowerMD.h] 244\n"); return IRType_IsFloat(type) ? RegNOREG : RegR0; }
+            static RegNum       GetRegArgI4(int32 argNum) {LOGMEIN("LowerMD.h] 245\n"); return RegNOREG; }
+            static RegNum       GetRegArgR8(int32 argNum) {LOGMEIN("LowerMD.h] 246\n"); return RegNOREG; }
+            static Js::OpCode   GetLoadOp(IRType type) {LOGMEIN("LowerMD.h] 247\n"); return type == TyFloat64? Js::OpCode::VLDR : ((type == TyFloat32)? Js::OpCode::VLDR32 : Js::OpCode::LDR); }
+            static Js::OpCode   GetStoreOp(IRType type) {LOGMEIN("LowerMD.h] 248\n"); return type == TyFloat64? Js::OpCode::VSTR : ((type == TyFloat32)? Js::OpCode::VSTR32 : Js::OpCode::STR); }
+            static Js::OpCode   GetMoveOp(IRType type) {LOGMEIN("LowerMD.h] 249\n"); return IRType_IsFloat(type) ? Js::OpCode::VMOV : Js::OpCode::MOV; }
 
             static BYTE         GetDefaultIndirScale()
-            {
+            {LOGMEIN("LowerMD.h] 252\n");
                 return IndirScale4;
             }
 
             // -4 is to avoid alignment issues popping up, we are conservative here.
             // We might check for IsSmallStack first to push R4 register & then align.
-            static bool         IsSmallStack(uint32 size)   { return (size < (PAGESIZE - 4));}
+            static bool         IsSmallStack(uint32 size)   {LOGMEIN("LowerMD.h] 258\n"); return (size < (PAGESIZE - 4));}
 
             static void GenerateLoadTaggedType(IR::Instr * instrLdSt, IR::RegOpnd * opndType, IR::RegOpnd * opndTaggedType);
             static void GenerateLoadPolymorphicInlineCacheSlot(IR::Instr * instrLdSt, IR::RegOpnd * opndInlineCache, IR::RegOpnd * opndType, uint polymorphicInlineCacheSize);
@@ -273,8 +273,8 @@ public:
 
             static IR::Instr * ChangeToWriteBarrierAssign(IR::Instr * assignInstr, const Func* func);
 
-            int                 GetHelperArgsCount() { return this->helperCallArgsCount; }
-            void                ResetHelperArgsCount() { this->helperCallArgsCount = 0; }
+            int                 GetHelperArgsCount() {LOGMEIN("LowerMD.h] 275\n"); return this->helperCallArgsCount; }
+            void                ResetHelperArgsCount() {LOGMEIN("LowerMD.h] 276\n"); this->helperCallArgsCount = 0; }
 
             void                LowerInlineSpreadArgOutLoop(IR::Instr *callInstr, IR::RegOpnd *indexOpnd, IR::RegOpnd *arrayElementsStartOpnd);
             void                LowerTypeof(IR::Instr * typeOfInstr);

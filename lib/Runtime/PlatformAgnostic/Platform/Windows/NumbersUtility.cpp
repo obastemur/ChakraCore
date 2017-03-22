@@ -15,13 +15,13 @@ namespace Numbers
                                                 const size_t length,
                                                 WCHAR *buffer,
                                                 const size_t pre_allocated_buffer_size)
-    {
+    {LOGMEIN("NumbersUtility.cpp] 17\n");
         size_t count = GetNumberFormatEx(LOCALE_NAME_USER_DEFAULT, 0,
                                           number_string, NULL, NULL, 0);
 
         AssertMsg(count <= INT_MAX, "required buffer shouldn't be bigger than INTMAX");
         if (count != 0 && count <= pre_allocated_buffer_size)
-        {
+        {LOGMEIN("NumbersUtility.cpp] 23\n");
             AssertMsg(pre_allocated_buffer_size <= INT_MAX,
                      "pre_allocated_buffer_size shouldn't be this big!");
             return GetNumberFormatEx(LOCALE_NAME_USER_DEFAULT, 0, number_string,

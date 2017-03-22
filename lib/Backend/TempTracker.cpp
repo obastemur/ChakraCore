@@ -46,15 +46,15 @@
 
 JitArenaAllocator *
 TempTrackerBase::GetAllocator() const
-{
+{LOGMEIN("TempTracker.cpp] 48\n");
     return nonTempSyms.GetAllocator();
 }
 
 TempTrackerBase::TempTrackerBase(JitArenaAllocator * alloc, bool inLoop)
     : nonTempSyms(alloc), tempTransferredSyms(alloc)
-{
+{LOGMEIN("TempTracker.cpp] 54\n");
     if (inLoop)
-    {
+    {LOGMEIN("TempTracker.cpp] 56\n");
         tempTransferDependencies = HashTable<BVSparse<JitArenaAllocator> *>::New(alloc, 16);
     }
     else
@@ -64,9 +64,9 @@ TempTrackerBase::TempTrackerBase(JitArenaAllocator * alloc, bool inLoop)
 }
 
 TempTrackerBase::~TempTrackerBase()
-{
+{LOGMEIN("TempTracker.cpp] 66\n");
     if (this->tempTransferDependencies != nullptr)
-    {
+    {LOGMEIN("TempTracker.cpp] 68\n");
         JitArenaAllocator * alloc = this->GetAllocator();
         FOREACH_HASHTABLE_ENTRY(BVSparse<JitArenaAllocator> *, bucket, this->tempTransferDependencies)
         {
@@ -78,7 +78,7 @@ TempTrackerBase::~TempTrackerBase()
 }
 void
 TempTrackerBase::MergeData(TempTrackerBase * fromData, bool deleteData)
-{
+{LOGMEIN("TempTracker.cpp] 80\n");
     nonTempSyms.Or(&fromData->nonTempSyms);
     tempTransferredSyms.Or(&fromData->tempTransferredSyms);
     MergeDependencies(tempTransferDependencies, fromData->tempTransferDependencies, deleteData);
@@ -86,11 +86,11 @@ TempTrackerBase::MergeData(TempTrackerBase * fromData, bool deleteData)
 
 void
 TempTrackerBase::AddTransferDependencies(int sourceId, SymID dstSymID, HashTable<BVSparse<JitArenaAllocator> *> * dependencies)
-{
+{LOGMEIN("TempTracker.cpp] 88\n");
     // Add to the transfer dependencies set
     BVSparse<JitArenaAllocator> ** pBVSparse = dependencies->FindOrInsertNew(sourceId);
     if (*pBVSparse == nullptr)
-    {
+    {LOGMEIN("TempTracker.cpp] 92\n");
         *pBVSparse = JitAnew(this->GetAllocator(), BVSparse<JitArenaAllocator>, this->GetAllocator());
     }
     AddTransferDependencies(*pBVSparse, dstSymID);
@@ -98,13 +98,13 @@ TempTrackerBase::AddTransferDependencies(int sourceId, SymID dstSymID, HashTable
 
 void
 TempTrackerBase::AddTransferDependencies(BVSparse<JitArenaAllocator> * bv, SymID dstSymID)
-{
+{LOGMEIN("TempTracker.cpp] 100\n");
     bv->Set(dstSymID);
 
     // Add the indirect transfers (always from tempTransferDependencies)
     BVSparse<JitArenaAllocator> *dstBVSparse = this->tempTransferDependencies->GetAndClear(dstSymID);
     if (dstBVSparse != nullptr)
-    {
+    {LOGMEIN("TempTracker.cpp] 106\n");
         bv->Or(dstBVSparse);
         JitAdelete(this->GetAllocator(), dstBVSparse);
     }
@@ -113,48 +113,48 @@ TempTrackerBase::AddTransferDependencies(BVSparse<JitArenaAllocator> * bv, SymID
 template <typename T>
 TempTracker<T>::TempTracker(JitArenaAllocator * alloc, bool inLoop):
     T(alloc, inLoop)
-{
+{LOGMEIN("TempTracker.cpp] 115\n");
 }
 
 template <typename T>
 void
 TempTracker<T>::MergeData(TempTracker<T> * fromData, bool deleteData)
-{
+{LOGMEIN("TempTracker.cpp] 121\n");
     TempTrackerBase::MergeData(fromData, deleteData);
     T::MergeData(fromData, deleteData);
 
     if (deleteData)
-    {
+    {LOGMEIN("TempTracker.cpp] 126\n");
         JitAdelete(this->GetAllocator(), fromData);
     }
 }
 
 void
 TempTrackerBase::OrHashTableOfBitVector(HashTable<BVSparse<JitArenaAllocator> *> * toData, HashTable<BVSparse<JitArenaAllocator> *> *& fromData, bool deleteData)
-{
+{LOGMEIN("TempTracker.cpp] 133\n");
     Assert(toData != nullptr);
     Assert(fromData != nullptr);
     toData->Or(fromData,
         [=](BVSparse<JitArenaAllocator> * bv1, BVSparse<JitArenaAllocator> * bv2) -> BVSparse<JitArenaAllocator> *
     {
         if (bv1 == nullptr)
-        {
+        {LOGMEIN("TempTracker.cpp] 140\n");
             if (deleteData)
-            {
+            {LOGMEIN("TempTracker.cpp] 142\n");
                 return bv2;
             }
             return bv2->CopyNew(this->GetAllocator());
         }
         bv1->Or(bv2);
         if (deleteData)
-        {
+        {LOGMEIN("TempTracker.cpp] 149\n");
             JitAdelete(this->GetAllocator(), bv2);
         }
         return bv1;
     });
 
     if (deleteData)
-    {
+    {LOGMEIN("TempTracker.cpp] 156\n");
         fromData->Delete();
         fromData = nullptr;
     }
@@ -162,9 +162,9 @@ TempTrackerBase::OrHashTableOfBitVector(HashTable<BVSparse<JitArenaAllocator> *>
 
 void
 TempTrackerBase::MergeDependencies(HashTable<BVSparse<JitArenaAllocator> *> * toData, HashTable<BVSparse<JitArenaAllocator> *> *& fromData, bool deleteData)
-{
+{LOGMEIN("TempTracker.cpp] 164\n");
     if (fromData != nullptr)
-    {
+    {LOGMEIN("TempTracker.cpp] 166\n");
         if (toData != nullptr)
         {
             OrHashTableOfBitVector(toData, fromData, deleteData);
@@ -172,7 +172,7 @@ TempTrackerBase::MergeDependencies(HashTable<BVSparse<JitArenaAllocator> *> * to
         else if (deleteData)
         {
             FOREACH_HASHTABLE_ENTRY(BVSparse<JitArenaAllocator> *, bucket, fromData)
-            {
+            {LOGMEIN("TempTracker.cpp] 174\n");
                 JitAdelete(this->GetAllocator(), bucket.element);
             }
             NEXT_HASHTABLE_ENTRY;
@@ -185,13 +185,13 @@ TempTrackerBase::MergeDependencies(HashTable<BVSparse<JitArenaAllocator> *> * to
 #if DBG_DUMP
 void
 TempTrackerBase::Dump(char16 const * traceName)
-{
+{LOGMEIN("TempTracker.cpp] 187\n");
     Output::Print(_u("%s:        Non temp syms:"), traceName);
     this->nonTempSyms.Dump();
     Output::Print(_u("%s: Temp transferred syms:"), traceName);
     this->tempTransferredSyms.Dump();
     if (this->tempTransferDependencies != nullptr)
-    {
+    {LOGMEIN("TempTracker.cpp] 193\n");
         Output::Print(_u("%s: Temp transfer dependencies:\n"), traceName);
         this->tempTransferDependencies->Dump();
     }
@@ -201,10 +201,10 @@ TempTrackerBase::Dump(char16 const * traceName)
 template <typename T>
 void
 TempTracker<T>::ProcessUse(StackSym * sym, BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 203\n");
     // Don't care about type specialized syms
     if (!sym->IsVar())
-    {
+    {LOGMEIN("TempTracker.cpp] 206\n");
         return;
     }
     IR::Instr * instr = backwardPass->currentInstr;
@@ -212,12 +212,12 @@ TempTracker<T>::ProcessUse(StackSym * sym, BackwardPass * backwardPass)
     bool isTempPropertyTransferStore = T::IsTempPropertyTransferStore(instr, backwardPass);
     bool isTempUse = isTempPropertyTransferStore || T::IsTempUse(instr, sym, backwardPass);
     if (!isTempUse)
-    {
+    {LOGMEIN("TempTracker.cpp] 214\n");
         this->nonTempSyms.Set(usedSymID);
     }
 #if DBG
     if (T::DoTrace(backwardPass))
-    {
+    {LOGMEIN("TempTracker.cpp] 219\n");
         Output::Print(_u("%s: %8s%4sTemp Use (s%-3d): "), T::GetTraceName(),
             backwardPass->IsPrePass() ? _u("Prepass ") : _u(""), isTempUse ? _u("") : _u("Non "), usedSymID);
         instr->DumpSimple();
@@ -225,25 +225,25 @@ TempTracker<T>::ProcessUse(StackSym * sym, BackwardPass * backwardPass)
     }
 #endif
     if (T::IsTempTransfer(instr))
-    {
+    {LOGMEIN("TempTracker.cpp] 227\n");
         this->tempTransferredSyms.Set(usedSymID);
 
         // Track dependencies if we are in loop only
         if (this->tempTransferDependencies != nullptr)
-        {
+        {LOGMEIN("TempTracker.cpp] 232\n");
             IR::Opnd * dstOpnd = instr->GetDst();
             if (dstOpnd->IsRegOpnd())
-            {
+            {LOGMEIN("TempTracker.cpp] 235\n");
                 SymID dstSymID = dstOpnd->AsRegOpnd()->m_sym->m_id;
 
                 if (dstSymID != usedSymID)
-                {
+                {LOGMEIN("TempTracker.cpp] 239\n");
                     // Record that the usedSymID may propagate to dstSymID and all the symbols
                     // that it may propagate to as well
                     this->AddTransferDependencies(usedSymID, dstSymID, this->tempTransferDependencies);
 #if DBG_DUMP
                     if (T::DoTrace(backwardPass))
-                    {
+                    {LOGMEIN("TempTracker.cpp] 245\n");
                         Output::Print(_u("%s: %8s s%d -> s%d: "), T::GetTraceName(),
                             backwardPass->IsPrePass() ? _u("Prepass ") : _u(""), dstSymID, usedSymID);
                         (*this->tempTransferDependencies->Get(usedSymID))->Dump();
@@ -255,19 +255,19 @@ TempTracker<T>::ProcessUse(StackSym * sym, BackwardPass * backwardPass)
     }
 
     if (isTempPropertyTransferStore)
-    {
+    {LOGMEIN("TempTracker.cpp] 257\n");
         this->tempTransferredSyms.Set(usedSymID);
         PropertySym * propertySym = instr->GetDst()->AsSymOpnd()->m_sym->AsPropertySym();
         this->PropagateTempPropertyTransferStoreDependencies(usedSymID, propertySym, backwardPass);
 
 #if DBG_DUMP
         if (T::DoTrace(backwardPass) && this->tempTransferDependencies)
-        {
+        {LOGMEIN("TempTracker.cpp] 264\n");
             Output::Print(_u("%s: %8s (PropId:%d)+[] -> s%d: "), T::GetTraceName(),
                 backwardPass->IsPrePass() ? _u("Prepass ") : _u(""), propertySym->m_propertyId, usedSymID);
             BVSparse<JitArenaAllocator> ** transferDependencies = this->tempTransferDependencies->Get(usedSymID);
             if (transferDependencies)
-            {
+            {LOGMEIN("TempTracker.cpp] 269\n");
                 (*transferDependencies)->Dump();
             }
             else
@@ -282,7 +282,7 @@ TempTracker<T>::ProcessUse(StackSym * sym, BackwardPass * backwardPass)
 template <typename T>
 void
 TempTracker<T>::MarkTemp(StackSym * sym, BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 284\n");
     // Don't care about type specialized syms
     Assert(sym->IsVar());
 
@@ -297,13 +297,13 @@ TempTracker<T>::MarkTemp(StackSym * sym, BackwardPass * backwardPass)
         || T::IsTempIndirTransferLoad(instr, backwardPass);
 
     if (this->tempTransferDependencies != nullptr)
-    {
+    {LOGMEIN("TempTracker.cpp] 299\n");
         // Since we don't iterate "while (!changed)" in loops, we don't have complete accurate dataflow
         // for loop carried dependencies. So don't clear the dependency transfer info.  WOOB:1121525
 
         // Check if this dst is transferred (assigned) to another symbol
         if (isTransferOperation)
-        {
+        {LOGMEIN("TempTracker.cpp] 305\n");
             isTempTransferred = this->tempTransferredSyms.Test(sym->m_id);
         }
         else
@@ -314,15 +314,15 @@ TempTracker<T>::MarkTemp(StackSym * sym, BackwardPass * backwardPass)
         // We only need to look at the dependencies if we are in a loop because of the back edge
         // Also we don't need to if we are in pre pass
         if (isTempTransferred)
-        {
+        {LOGMEIN("TempTracker.cpp] 316\n");
             if (!backwardPass->IsPrePass())
-            {
+            {LOGMEIN("TempTracker.cpp] 318\n");
                 if (isTransferOperation)
-                {
+                {LOGMEIN("TempTracker.cpp] 320\n");
                     // Transfer operation, load but not clear the information
                     BVSparse<JitArenaAllocator> **pBv = this->tempTransferDependencies->Get(sym->m_id);
                     if (pBv)
-                    {
+                    {LOGMEIN("TempTracker.cpp] 324\n");
                         bvTempTransferDependencies = *pBv;
                     }
                 }
@@ -333,7 +333,7 @@ TempTracker<T>::MarkTemp(StackSym * sym, BackwardPass * backwardPass)
                 }
             }
             else if (!isTransferOperation)
-            {
+            {LOGMEIN("TempTracker.cpp] 335\n");
                 // In pre pass, and not a transfer operation (just an assign).  We can clear the dependency info
                 // and not look at it.
                 this->tempTransferDependencies->Clear(sym->m_id);
@@ -350,17 +350,17 @@ TempTracker<T>::MarkTemp(StackSym * sym, BackwardPass * backwardPass)
     bool dstIsTempTransferred = false;
 
     if (nonTemp)
-    {
+    {LOGMEIN("TempTracker.cpp] 352\n");
 #if DBG_DUMP
         if (T::DoTrace(backwardPass)  && !backwardPass->IsPrePass() && T::CanMarkTemp(instr, backwardPass))
-        {
+        {LOGMEIN("TempTracker.cpp] 355\n");
             Output::Print(_u("%s: Not temp (s%-03d):"), T::GetTraceName(), sym->m_id);
             instr->DumpSimple();
         }
 #endif
     }
     else if (backwardPass->IsPrePass())
-    {
+    {LOGMEIN("TempTracker.cpp] 362\n");
         // On pre pass, we don't have complete information about whether it is tempable or
         // not from the back edge.  If we already discovered that it is not a temp (above), then
         // we don't mark it, other wise, assume that it is okay to be tempable and have the
@@ -379,16 +379,16 @@ TempTracker<T>::MarkTemp(StackSym * sym, BackwardPass * backwardPass)
             || T::IsTempPropertyTransferLoad(instr, backwardPass)
             || T::IsTempIndirTransferLoad(instr, backwardPass));
         if (isTransferOperation)
-        {
+        {LOGMEIN("TempTracker.cpp] 381\n");
             dstIsTemp = true;
         }
     }
     else if (T::CanMarkTemp(instr, backwardPass))
-    {
+    {LOGMEIN("TempTracker.cpp] 386\n");
         dstIsTemp = true;
 
         if (isTempTransferred)
-        {
+        {LOGMEIN("TempTracker.cpp] 390\n");
             // Track whether the dst is transferred or not, and allocate separate stack slot for them
             // so that another dst will not overrides the value
             dstIsTempTransferred = true;
@@ -397,7 +397,7 @@ TempTracker<T>::MarkTemp(StackSym * sym, BackwardPass * backwardPass)
             // sym that is still live so that we won't mark them this symbol and destroy the value
 
             if (bvTempTransferDependencies != nullptr)
-            {
+            {LOGMEIN("TempTracker.cpp] 399\n");
                 // Inside a loop we need to track if any of the reg that we transferred to is still live
                 //      s1 = Add
                 //         = s2
@@ -410,7 +410,7 @@ TempTracker<T>::MarkTemp(StackSym * sym, BackwardPass * backwardPass)
 
 #if DBG_DUMP
                 if (T::DoTrace(backwardPass) && Js::Configuration::Global.flags.Verbose)
-                {
+                {LOGMEIN("TempTracker.cpp] 412\n");
                      Output::Print(_u("%s: Loop mark temp check instr:\n"), T::GetTraceName());
                      instr->DumpSimple();
                      Output::Print(_u("Transfer dependencies: "));
@@ -425,10 +425,10 @@ TempTracker<T>::MarkTemp(StackSym * sym, BackwardPass * backwardPass)
                 bool hasExposedDependencies = bvTempTransferDependencies->Test(upwardExposedUses)
                     || T::HasExposedFieldDependencies(bvTempTransferDependencies, backwardPass);
                 if (hasExposedDependencies)
-                {
+                {LOGMEIN("TempTracker.cpp] 427\n");
 #if DBG_DUMP
                     if (T::DoTrace(backwardPass))
-                    {
+                    {LOGMEIN("TempTracker.cpp] 430\n");
                         Output::Print(_u("%s: Not temp (s%-03d): "), T::GetTraceName(), sym->m_id);
                         instr->DumpSimple();
                         Output::Print(_u("       Transferred exposed uses: "));
@@ -441,7 +441,7 @@ TempTracker<T>::MarkTemp(StackSym * sym, BackwardPass * backwardPass)
                     dstIsTempTransferred = false;
 #if DBG
                     if (IsObjectTempVerify<T>())
-                    {
+                    {LOGMEIN("TempTracker.cpp] 443\n");
                         dstIsTemp = ObjectTempVerify::DependencyCheck(instr, bvTempTransferDependencies, backwardPass);
                     }
 #endif
@@ -457,31 +457,31 @@ TempTracker<T>::MarkTemp(StackSym * sym, BackwardPass * backwardPass)
 NumberTemp::NumberTemp(JitArenaAllocator * alloc, bool inLoop)
     : TempTrackerBase(alloc, inLoop), elemLoadDependencies(alloc), nonTempElemLoad(false),
       upwardExposedMarkTempObjectLiveFields(alloc), upwardExposedMarkTempObjectSymsProperties(nullptr)
-{
+{LOGMEIN("TempTracker.cpp] 459\n");
     propertyIdsTempTransferDependencies = inLoop ? HashTable<BVSparse<JitArenaAllocator> *>::New(alloc, 16) : nullptr;
 }
 
 void
 NumberTemp::MergeData(NumberTemp * fromData, bool deleteData)
-{
+{LOGMEIN("TempTracker.cpp] 465\n");
     nonTempElemLoad = nonTempElemLoad || fromData->nonTempElemLoad;
     if (!nonTempElemLoad)       // Don't bother merging other data if we already have a nonTempElemLoad
-    {
+    {LOGMEIN("TempTracker.cpp] 468\n");
         if (IsInLoop())
-        {
+        {LOGMEIN("TempTracker.cpp] 470\n");
             // in loop
             elemLoadDependencies.Or(&fromData->elemLoadDependencies);
         }
         MergeDependencies(propertyIdsTempTransferDependencies, fromData->propertyIdsTempTransferDependencies, deleteData);
 
         if (fromData->upwardExposedMarkTempObjectSymsProperties)
-        {
+        {LOGMEIN("TempTracker.cpp] 477\n");
             if (upwardExposedMarkTempObjectSymsProperties)
             {
                 OrHashTableOfBitVector(upwardExposedMarkTempObjectSymsProperties, fromData->upwardExposedMarkTempObjectSymsProperties, deleteData);
             }
             else if (deleteData)
-            {
+            {LOGMEIN("TempTracker.cpp] 483\n");
                 upwardExposedMarkTempObjectSymsProperties = fromData->upwardExposedMarkTempObjectSymsProperties;
                 fromData->upwardExposedMarkTempObjectSymsProperties = nullptr;
             }
@@ -498,15 +498,15 @@ NumberTemp::MergeData(NumberTemp * fromData, bool deleteData)
 
 bool
 NumberTemp::IsTempUse(IR::Instr * instr, Sym * sym, BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 500\n");
     Js::OpCode opcode = instr->m_opcode;
     if (OpCodeAttr::NonTempNumberSources(opcode)
         || (OpCodeAttr::TempNumberTransfer(opcode) && !instr->dstIsTempNumber))
-    {
+    {LOGMEIN("TempTracker.cpp] 504\n");
         // For TypedArray stores, we don't store the Var object, so MarkTemp is valid
         if (opcode != Js::OpCode::StElemI_A
             || !instr->GetDst()->AsIndirOpnd()->GetBaseOpnd()->GetValueType().IsLikelyOptimizedTypedArray())
-        {
+        {LOGMEIN("TempTracker.cpp] 508\n");
             // Mark the symbol as non-tempable if the instruction doesn't allow temp sources,
             // or it is transferred to a non-temp dst
             return false;
@@ -517,27 +517,27 @@ NumberTemp::IsTempUse(IR::Instr * instr, Sym * sym, BackwardPass * backwardPass)
 
 bool
 NumberTemp::IsTempTransfer(IR::Instr * instr)
-{
+{LOGMEIN("TempTracker.cpp] 519\n");
     return OpCodeAttr::TempNumberTransfer(instr->m_opcode);
 }
 
 bool
 NumberTemp::IsTempProducing(IR::Instr * instr)
-{
+{LOGMEIN("TempTracker.cpp] 525\n");
     Js::OpCode opcode = instr->m_opcode;
     if (OpCodeAttr::TempNumberProducing(opcode))
-    {
+    {LOGMEIN("TempTracker.cpp] 528\n");
         return true;
     }
 
     // Loads from float typedArrays usually require a conversion to Var, which we can MarkTemp.
     if (opcode == Js::OpCode::LdElemI_A)
-    {
+    {LOGMEIN("TempTracker.cpp] 534\n");
         const ValueType baseValueType(instr->GetSrc1()->AsIndirOpnd()->GetBaseOpnd()->GetValueType());
         if (baseValueType.IsLikelyObject()
             && (baseValueType.GetObjectType() == ObjectType::Float32Array
             || baseValueType.GetObjectType() == ObjectType::Float64Array))
-        {
+        {LOGMEIN("TempTracker.cpp] 539\n");
             return true;
         }
     }
@@ -547,21 +547,21 @@ NumberTemp::IsTempProducing(IR::Instr * instr)
 
 bool
 NumberTemp::CanMarkTemp(IR::Instr * instr, BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 549\n");
     if (IsTempTransfer(instr) || IsTempProducing(instr))
-    {
+    {LOGMEIN("TempTracker.cpp] 551\n");
         return true;
     }
 
     // REVIEW: this is added a long time ago, and I am not sure what this is for any more.
     if (OpCodeAttr::InlineCallInstr(instr->m_opcode))
-    {
+    {LOGMEIN("TempTracker.cpp] 557\n");
         return true;
     }
 
     if (NumberTemp::IsTempIndirTransferLoad(instr, backwardPass)
         || NumberTemp::IsTempPropertyTransferLoad(instr, backwardPass))
-    {
+    {LOGMEIN("TempTracker.cpp] 563\n");
         return true;
     }
 
@@ -572,10 +572,10 @@ NumberTemp::CanMarkTemp(IR::Instr * instr, BackwardPass * backwardPass)
 
 void
 NumberTemp::ProcessInstr(IR::Instr * instr, BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 574\n");
 #if DBG
     if (instr->m_opcode == Js::OpCode::BailOnNoProfile)
-    {
+    {LOGMEIN("TempTracker.cpp] 577\n");
         // If we see BailOnNoProfile, we shouldn't have any successor to have any non temp syms
         Assert(!this->nonTempElemLoad);
         Assert(this->nonTempSyms.IsEmpty());
@@ -587,45 +587,45 @@ NumberTemp::ProcessInstr(IR::Instr * instr, BackwardPass * backwardPass)
 
     // We don't get to process all dst in MarkTemp. Do it here for the upwardExposedMarkTempObjectLiveFields
     if (!this->DoMarkTempNumbersOnTempObjects(backwardPass))
-    {
+    {LOGMEIN("TempTracker.cpp] 589\n");
         return;
     }
 
     IR::Opnd * dst = instr->GetDst();
     if (dst == nullptr || !dst->IsRegOpnd())
-    {
+    {LOGMEIN("TempTracker.cpp] 595\n");
         return;
     }
     StackSym * dstSym = dst->AsRegOpnd()->m_sym;
     if (!dstSym->IsVar())
-    {
+    {LOGMEIN("TempTracker.cpp] 600\n");
         dstSym = dstSym->GetVarEquivSym(nullptr);
         if (dstSym == nullptr)
-        {
+        {LOGMEIN("TempTracker.cpp] 603\n");
             return;
         }
     }
 
     SymID dstSymId = dstSym->m_id;
     if (this->upwardExposedMarkTempObjectSymsProperties)
-    {
+    {LOGMEIN("TempTracker.cpp] 610\n");
         // We are assigning to dstSym, it no longer has upward exposed use, get the information and clear it from the hash table
         BVSparse<JitArenaAllocator> * dstBv = this->upwardExposedMarkTempObjectSymsProperties->GetAndClear(dstSymId);
         if (dstBv)
-        {
+        {LOGMEIN("TempTracker.cpp] 614\n");
             // Clear the upward exposed live fields of all the property sym id associated to dstSym
             this->upwardExposedMarkTempObjectLiveFields.Minus(dstBv);
             if (ObjectTemp::IsTempTransfer(instr) && instr->GetSrc1()->IsRegOpnd())
-            {
+            {LOGMEIN("TempTracker.cpp] 618\n");
                 // If it is transfer, copy the dst info to the src
                 SymID srcStackSymId = instr->GetSrc1()->AsRegOpnd()->m_sym->AsStackSym()->m_id;
 
                 SymTable * symTable = backwardPass->func->m_symTable;
                 FOREACH_BITSET_IN_SPARSEBV(index, dstBv)
-                {
+                {LOGMEIN("TempTracker.cpp] 624\n");
                     PropertySym * propertySym = symTable->FindPropertySym(srcStackSymId, index);
                     if (propertySym)
-                    {
+                    {LOGMEIN("TempTracker.cpp] 627\n");
                         this->upwardExposedMarkTempObjectLiveFields.Set(propertySym->m_id);
                     }
                 }
@@ -633,7 +633,7 @@ NumberTemp::ProcessInstr(IR::Instr * instr, BackwardPass * backwardPass)
 
                 BVSparse<JitArenaAllocator> ** srcBv = this->upwardExposedMarkTempObjectSymsProperties->FindOrInsert(dstBv, srcStackSymId);
                 if (srcBv)
-                {
+                {LOGMEIN("TempTracker.cpp] 635\n");
                     (*srcBv)->Or(dstBv);
                     JitAdelete(this->GetAllocator(), dstBv);
                 }
@@ -648,14 +648,14 @@ NumberTemp::ProcessInstr(IR::Instr * instr, BackwardPass * backwardPass)
 
 void
 NumberTemp::SetDstIsTemp(bool dstIsTemp, bool dstIsTempTransferred, IR::Instr * instr, BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 650\n");
     Assert(dstIsTemp || !dstIsTempTransferred);
     Assert(!instr->dstIsTempNumberTransferred);
     instr->dstIsTempNumber = dstIsTemp;
     instr->dstIsTempNumberTransferred = dstIsTempTransferred;
 #if DBG_DUMP
     if (!backwardPass->IsPrePass() && IsTempProducing(instr))
-    {
+    {LOGMEIN("TempTracker.cpp] 657\n");
         backwardPass->numMarkTempNumber += dstIsTemp;
         backwardPass->numMarkTempNumberTransferred += dstIsTempTransferred;
     }
@@ -664,17 +664,17 @@ NumberTemp::SetDstIsTemp(bool dstIsTemp, bool dstIsTempTransferred, IR::Instr * 
 
 bool
 NumberTemp::IsTempPropertyTransferLoad(IR::Instr * instr, BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 666\n");
     if (DoMarkTempNumbersOnTempObjects(backwardPass))
-    {
+    {LOGMEIN("TempTracker.cpp] 668\n");
         switch (instr->m_opcode)
-        {
+        {LOGMEIN("TempTracker.cpp] 670\n");
         case Js::OpCode::LdFld:
         case Js::OpCode::LdFldForTypeOf:
         case Js::OpCode::LdMethodFld:
         case Js::OpCode::LdFldForCallApplyTarget:
         case Js::OpCode::LdMethodFromFlags:
-            {
+            {LOGMEIN("TempTracker.cpp] 676\n");
                 // Only care about load from possible stack allocated object.
                 return instr->GetSrc1()->CanStoreTemp();
             }
@@ -691,19 +691,19 @@ NumberTemp::IsTempPropertyTransferLoad(IR::Instr * instr, BackwardPass * backwar
 
 bool
 NumberTemp::IsTempPropertyTransferStore(IR::Instr * instr, BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 693\n");
     if (DoMarkTempNumbersOnTempObjects(backwardPass))
-    {
+    {LOGMEIN("TempTracker.cpp] 695\n");
         switch (instr->m_opcode)
-        {
+        {LOGMEIN("TempTracker.cpp] 697\n");
         case Js::OpCode::InitFld:
         case Js::OpCode::StFld:
         case Js::OpCode::StFldStrict:
-            {
+            {LOGMEIN("TempTracker.cpp] 701\n");
                 IR::Opnd * dst = instr->GetDst();
                 Assert(dst->IsSymOpnd());
                 if (!dst->CanStoreTemp())
-                {
+                {LOGMEIN("TempTracker.cpp] 705\n");
                     return false;
                 }
                 // We don't mark temp store of numeric properties (e.g. object literal { 86: foo });
@@ -725,16 +725,16 @@ NumberTemp::IsTempPropertyTransferStore(IR::Instr * instr, BackwardPass * backwa
 
 bool
 NumberTemp::IsTempIndirTransferLoad(IR::Instr * instr, BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 727\n");
     if (DoMarkTempNumbersOnTempObjects(backwardPass))
-    {
+    {LOGMEIN("TempTracker.cpp] 729\n");
         if (instr->m_opcode == Js::OpCode::LdElemI_A)
-        {
+        {LOGMEIN("TempTracker.cpp] 731\n");
             // If the index is an int, then we don't care about the non-temp use
             IR::Opnd * src1Opnd = instr->GetSrc1();
             IR::RegOpnd * indexOpnd = src1Opnd->AsIndirOpnd()->GetIndexOpnd();
             if (indexOpnd && (indexOpnd->m_sym->m_isNotInt || !indexOpnd->GetValueType().IsInt()))
-            {
+            {LOGMEIN("TempTracker.cpp] 736\n");
                 return src1Opnd->CanStoreTemp();
             }
         }
@@ -749,12 +749,12 @@ NumberTemp::IsTempIndirTransferLoad(IR::Instr * instr, BackwardPass * backwardPa
 }
 void
 NumberTemp::PropagateTempPropertyTransferStoreDependencies(SymID usedSymID, PropertySym * propertySym, BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 751\n");
     Assert(!this->nonTempElemLoad);
     upwardExposedMarkTempObjectLiveFields.Clear(propertySym->m_id);
 
     if (!this->IsInLoop())
-    {
+    {LOGMEIN("TempTracker.cpp] 756\n");
         // Don't need to track dependencies outside of loop, as we already marked the
         // use as temp transfer already and we won't have a case where the "dst" is reused again (outside of loop)
         return;
@@ -769,9 +769,9 @@ NumberTemp::PropagateTempPropertyTransferStoreDependencies(SymID usedSymID, Prop
     BVSparse<JitArenaAllocator> ** pPropertyTransferDependencies = this->propertyIdsTempTransferDependencies->Get(storedPropertyId);
     BVSparse<JitArenaAllocator> * transferDependencies = nullptr;
     if (pPropertyTransferDependencies == nullptr)
-    {
+    {LOGMEIN("TempTracker.cpp] 771\n");
         if (elemLoadDependencies.IsEmpty())
-        {
+        {LOGMEIN("TempTracker.cpp] 773\n");
             // No dependencies to transfer
             return;
         }
@@ -785,7 +785,7 @@ NumberTemp::PropagateTempPropertyTransferStoreDependencies(SymID usedSymID, Prop
 
     BVSparse<JitArenaAllocator> ** pBVSparse = this->tempTransferDependencies->FindOrInsertNew(usedSymID);
     if (*pBVSparse == nullptr)
-    {
+    {LOGMEIN("TempTracker.cpp] 787\n");
         *pBVSparse = transferDependencies->CopyNew(this->GetAllocator());
     }
     else
@@ -794,7 +794,7 @@ NumberTemp::PropagateTempPropertyTransferStoreDependencies(SymID usedSymID, Prop
     }
 
     if (transferDependencies != &elemLoadDependencies)
-    {
+    {LOGMEIN("TempTracker.cpp] 796\n");
         // Always include the element load dependencies as well
         (*pBVSparse)->Or(&elemLoadDependencies);
     }
@@ -815,13 +815,13 @@ NumberTemp::PropagateTempPropertyTransferStoreDependencies(SymID usedSymID, Prop
 
 SymID
 NumberTemp::GetRepresentativePropertySymId(PropertySym * propertySym, BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 817\n");
     // Since we don't track alias with objects, all property accesses are all grouped together.
     // Use a single property sym id to represent a propertyId to track dependencies.
     SymID symId;
     Js::PropertyId propertyId = propertySym->m_propertyId;
     if (!backwardPass->numberTempRepresentativePropertySym->TryGetValue(propertyId, &symId))
-    {
+    {LOGMEIN("TempTracker.cpp] 823\n");
         symId = propertySym->m_id;
         backwardPass->numberTempRepresentativePropertySym->Add(propertyId, symId);
     }
@@ -830,20 +830,20 @@ NumberTemp::GetRepresentativePropertySymId(PropertySym * propertySym, BackwardPa
 
 void
 NumberTemp::ProcessIndirUse(IR::IndirOpnd * indirOpnd, IR::Instr * instr, BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 832\n");
     Assert(backwardPass->DoMarkTempNumbersOnTempObjects());
     if (!NumberTemp::IsTempIndirTransferLoad(instr, backwardPass))
-    {
+    {LOGMEIN("TempTracker.cpp] 835\n");
         return;
     }
 
     bool isTempUse = instr->dstIsTempNumber;
     if (!isTempUse)
-    {
+    {LOGMEIN("TempTracker.cpp] 841\n");
         nonTempElemLoad = true;
     }
     else if (this->IsInLoop())
-    {
+    {LOGMEIN("TempTracker.cpp] 845\n");
         // We didn't already detect non temp use of this property id. so we should track the dependencies in loops
         IR::Opnd * dstOpnd = instr->GetDst();
         Assert(dstOpnd->IsRegOpnd());
@@ -853,7 +853,7 @@ NumberTemp::ProcessIndirUse(IR::IndirOpnd * indirOpnd, IR::Instr * instr, Backwa
         AddTransferDependencies(&elemLoadDependencies, dstSymID);
 #if DBG_DUMP
         if (NumberTemp::DoTrace(backwardPass))
-        {
+        {LOGMEIN("TempTracker.cpp] 855\n");
             Output::Print(_u("%s: %8s s%d -> []: "), NumberTemp::GetTraceName(),
                 backwardPass->IsPrePass() ? _u("Prepass ") : _u(""), dstSymID);
             elemLoadDependencies.Dump();
@@ -863,7 +863,7 @@ NumberTemp::ProcessIndirUse(IR::IndirOpnd * indirOpnd, IR::Instr * instr, Backwa
 
 #if DBG_DUMP
     if (NumberTemp::DoTrace(backwardPass))
-    {
+    {LOGMEIN("TempTracker.cpp] 865\n");
         Output::Print(_u("%s: %8s%4sTemp Use ([] )"), NumberTemp::GetTraceName(),
             backwardPass->IsPrePass() ? _u("Prepass ") : _u(""), isTempUse ? _u("") : _u("Non "));
         instr->DumpSimple();
@@ -873,24 +873,24 @@ NumberTemp::ProcessIndirUse(IR::IndirOpnd * indirOpnd, IR::Instr * instr, Backwa
 
 void
 NumberTemp::ProcessPropertySymUse(IR::SymOpnd * symOpnd, IR::Instr * instr, BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 875\n");
     Assert(backwardPass->DoMarkTempNumbersOnTempObjects());
 
     // We only care about instruction that may transfer the property value
     if (!NumberTemp::IsTempPropertyTransferLoad(instr, backwardPass))
-    {
+    {LOGMEIN("TempTracker.cpp] 880\n");
         return;
     }
 
     PropertySym * propertySym = symOpnd->m_sym->AsPropertySym();
     upwardExposedMarkTempObjectLiveFields.Set(propertySym->m_id);
     if (upwardExposedMarkTempObjectSymsProperties == nullptr)
-    {
+    {LOGMEIN("TempTracker.cpp] 887\n");
         upwardExposedMarkTempObjectSymsProperties = HashTable<BVSparse<JitArenaAllocator> *>::New(this->GetAllocator(), 16);
     }
     BVSparse<JitArenaAllocator> ** bv = upwardExposedMarkTempObjectSymsProperties->FindOrInsertNew(propertySym->m_stackSym->m_id);
     if (*bv == nullptr)
-    {
+    {LOGMEIN("TempTracker.cpp] 892\n");
         *bv = JitAnew(this->GetAllocator(), BVSparse<JitArenaAllocator>, this->GetAllocator());
     }
     (*bv)->Set(propertySym->m_propertyId);
@@ -898,13 +898,13 @@ NumberTemp::ProcessPropertySymUse(IR::SymOpnd * symOpnd, IR::Instr * instr, Back
     SymID propertySymId = this->GetRepresentativePropertySymId(propertySym, backwardPass);
     bool isTempUse = instr->dstIsTempNumber;
     if (!isTempUse)
-    {
+    {LOGMEIN("TempTracker.cpp] 900\n");
         // Use of the value is non temp, track the property ID's property representative sym so we don't mark temp
         // assignment to this property on stack objects.
         this->nonTempSyms.Set(propertySymId);
     }
     else if (this->IsInLoop() && !this->nonTempSyms.Test(propertySymId))
-    {
+    {LOGMEIN("TempTracker.cpp] 906\n");
         // We didn't already detect non temp use of this property id. so we should track the dependencies in loops
         IR::Opnd * dstOpnd = instr->GetDst();
         Assert(dstOpnd->IsRegOpnd());
@@ -912,7 +912,7 @@ NumberTemp::ProcessPropertySymUse(IR::SymOpnd * symOpnd, IR::Instr * instr, Back
         AddTransferDependencies(propertySym->m_propertyId, dstSymID, this->propertyIdsTempTransferDependencies);
 #if DBG_DUMP
         if (NumberTemp::DoTrace(backwardPass))
-        {
+        {LOGMEIN("TempTracker.cpp] 914\n");
             Output::Print(_u("%s: %8s s%d -> PropId:%d: "), NumberTemp::GetTraceName(),
                 backwardPass->IsPrePass() ? _u("Prepass ") : _u(""), dstSymID, propertySym->m_propertyId);
             (*this->propertyIdsTempTransferDependencies->Get(propertySym->m_propertyId))->Dump();
@@ -922,7 +922,7 @@ NumberTemp::ProcessPropertySymUse(IR::SymOpnd * symOpnd, IR::Instr * instr, Back
 
 #if DBG_DUMP
     if (NumberTemp::DoTrace(backwardPass))
-    {
+    {LOGMEIN("TempTracker.cpp] 924\n");
         Output::Print(_u("%s: %8s%4sTemp Use (PropId:%d)"), NumberTemp::GetTraceName(),
             backwardPass->IsPrePass() ? _u("Prepass ") : _u(""), isTempUse ? _u("") : _u("Non "), propertySym->m_propertyId);
         instr->DumpSimple();
@@ -933,9 +933,9 @@ NumberTemp::ProcessPropertySymUse(IR::SymOpnd * symOpnd, IR::Instr * instr, Back
 
 bool
 NumberTemp::HasExposedFieldDependencies(BVSparse<JitArenaAllocator> * bvTempTransferDependencies, BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 935\n");
     if (!DoMarkTempNumbersOnTempObjects(backwardPass))
-    {
+    {LOGMEIN("TempTracker.cpp] 937\n");
         return false;
     }
     return bvTempTransferDependencies->Test(&upwardExposedMarkTempObjectLiveFields);
@@ -943,16 +943,16 @@ NumberTemp::HasExposedFieldDependencies(BVSparse<JitArenaAllocator> * bvTempTran
 
 bool
 NumberTemp::DoMarkTempNumbersOnTempObjects(BackwardPass * backwardPass) const
-{
+{LOGMEIN("TempTracker.cpp] 945\n");
     return backwardPass->DoMarkTempNumbersOnTempObjects() && !this->nonTempElemLoad;
 }
 
 #if DBG
 void
 NumberTemp::Dump(char16 const * traceName)
-{
+{LOGMEIN("TempTracker.cpp] 952\n");
     if (nonTempElemLoad)
-    {
+    {LOGMEIN("TempTracker.cpp] 954\n");
         Output::Print(_u("%s: Has Non Temp Elem Load\n"), traceName);
     }
     else
@@ -960,7 +960,7 @@ NumberTemp::Dump(char16 const * traceName)
         Output::Print(_u("%s: Non Temp Syms"), traceName);
         this->nonTempSyms.Dump();
         if (this->propertyIdsTempTransferDependencies != nullptr)
-        {
+        {LOGMEIN("TempTracker.cpp] 962\n");
             Output::Print(_u("%s: Temp transfer propertyId dependencies:\n"), traceName);
             this->propertyIdsTempTransferDependencies->Dump();
         }
@@ -972,7 +972,7 @@ NumberTemp::Dump(char16 const * traceName)
 //=================================================================================================
 bool
 ObjectTemp::IsTempUse(IR::Instr * instr, Sym * sym, BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 974\n");
     Js::OpCode opcode = instr->m_opcode;
 
     // If the opcode has implicit call and the profile say we have implicit call, then it is not a temp use
@@ -984,7 +984,7 @@ ObjectTemp::IsTempUse(IR::Instr * instr, Sym * sym, BackwardPass * backwardPass)
             !GlobOpt::ImplicitCallFlagsAllowOpts(backwardPass->func))
         || instr->CallsAccessor())
        )
-    {
+    {LOGMEIN("TempTracker.cpp] 986\n");
         return false;
     }
 
@@ -993,10 +993,10 @@ ObjectTemp::IsTempUse(IR::Instr * instr, Sym * sym, BackwardPass * backwardPass)
 
 bool
 ObjectTemp::IsTempUseOpCodeSym(IR::Instr * instr, Js::OpCode opcode, Sym * sym)
-{
+{LOGMEIN("TempTracker.cpp] 995\n");
     // Special case ArgOut_A which communicate information about CallDirect
     switch (opcode)
-    {
+    {LOGMEIN("TempTracker.cpp] 998\n");
     case Js::OpCode::LdLen_A:
         return instr->GetSrc1()->AsRegOpnd()->GetStackSym() == sym;
     case Js::OpCode::ArgOut_A:
@@ -1010,7 +1010,7 @@ ObjectTemp::IsTempUseOpCodeSym(IR::Instr * instr, Js::OpCode opcode, Sym * sym)
     case Js::OpCode::InitFld:
         if (Js::PropertyRecord::DefaultAttributesForPropertyId(
                 instr->GetDst()->AsPropertySymOpnd()->GetPropertySym()->m_propertyId, true) & PropertyDeleted)
-        {
+        {LOGMEIN("TempTracker.cpp] 1012\n");
             // If the property record is marked PropertyDeleted, the InitFld will cause a type handler conversion,
             // which may result in creation of a weak reference to the object itself.
             return false;
@@ -1040,7 +1040,7 @@ ObjectTemp::IsTempUseOpCodeSym(IR::Instr * instr, Js::OpCode opcode, Sym * sym)
     // TODO: Currently, when we disable implicit call, we still don't allow valueOf/toString that has no side effects
     // So we shouldn't mark them if we have use of the sym on opcode that does OpndHasImplicitCall yet.
     if (OpCodeAttr::OpndHasImplicitCall(opcode))
-    {
+    {LOGMEIN("TempTracker.cpp] 1042\n");
         return false;
     }
 
@@ -1052,16 +1052,16 @@ ObjectTemp::IsTempUseOpCodeSym(IR::Instr * instr, Js::OpCode opcode, Sym * sym)
 
 bool
 ObjectTemp::IsTempTransfer(IR::Instr * instr)
-{
+{LOGMEIN("TempTracker.cpp] 1054\n");
     return OpCodeAttr::TempObjectTransfer(instr->m_opcode);
 }
 
 bool
 ObjectTemp::IsTempProducing(IR::Instr * instr)
-{
+{LOGMEIN("TempTracker.cpp] 1060\n");
     Js::OpCode opcode = instr->m_opcode;
     if (OpCodeAttr::TempObjectProducing(opcode))
-    {
+    {LOGMEIN("TempTracker.cpp] 1063\n");
         return true;
     }
 
@@ -1071,7 +1071,7 @@ ObjectTemp::IsTempProducing(IR::Instr * instr)
 
 bool
 ObjectTemp::CanStoreTemp(IR::Instr * instr)
-{
+{LOGMEIN("TempTracker.cpp] 1073\n");
     // In order to allow storing temp number on temp objects,
     // We have to make sure that if the instr is marked as dstIsTempObject
     // we will always generate the code to allocate the object on the stack (so no helper call).
@@ -1083,18 +1083,18 @@ ObjectTemp::CanStoreTemp(IR::Instr * instr)
     // number inline slots)
     Js::OpCode opcode = instr->m_opcode;
     if (OpCodeAttr::TempObjectCanStoreTemp(opcode))
-    {
+    {LOGMEIN("TempTracker.cpp] 1085\n");
         // Special cases where stack allocation doesn't happen
 #if ENABLE_REGEX_CONFIG_OPTIONS
         if (opcode == Js::OpCode::NewRegEx && REGEX_CONFIG_FLAG(RegexTracing))
-        {
+        {LOGMEIN("TempTracker.cpp] 1089\n");
             return false;
         }
 #endif
         if (opcode == Js::OpCode::NewScObjectNoCtor)
-        {
+        {LOGMEIN("TempTracker.cpp] 1094\n");
             if (PHASE_OFF(Js::FixedNewObjPhase, instr->m_func) && PHASE_OFF(Js::ObjTypeSpecNewObjPhase, instr->m_func->GetTopFunc()))
-            {
+            {LOGMEIN("TempTracker.cpp] 1096\n");
                 return false;
             }
 
@@ -1110,14 +1110,14 @@ ObjectTemp::CanStoreTemp(IR::Instr * instr)
 
 bool
 ObjectTemp::CanMarkTemp(IR::Instr * instr, BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 1112\n");
     // We mark the ArgOut with the call in ProcessInstr, no need to do it here
     return IsTempProducing(instr) || IsTempTransfer(instr);
 }
 
 void
 ObjectTemp::ProcessBailOnNoProfile(IR::Instr * instr)
-{
+{LOGMEIN("TempTracker.cpp] 1119\n");
     Assert(instr->m_opcode == Js::OpCode::BailOnNoProfile);
 
     // ObjectTemp is done during Backward pass, which hasn't change all succ to BailOnNoProfile
@@ -1125,25 +1125,25 @@ ObjectTemp::ProcessBailOnNoProfile(IR::Instr * instr)
     this->nonTempSyms.ClearAll();
     this->tempTransferredSyms.ClearAll();
     if (this->tempTransferDependencies)
-    {
+    {LOGMEIN("TempTracker.cpp] 1127\n");
         this->tempTransferDependencies->ClearAll();
     }
 }
 
 void
 ObjectTemp::ProcessInstr(IR::Instr * instr)
-{
+{LOGMEIN("TempTracker.cpp] 1134\n");
     if (instr->m_opcode != Js::OpCode::CallDirect)
-    {
+    {LOGMEIN("TempTracker.cpp] 1136\n");
         return;
     }
 
     IR::HelperCallOpnd * helper = instr->GetSrc1()->AsHelperCallOpnd();
     switch (helper->m_fnHelper)
-    {
+    {LOGMEIN("TempTracker.cpp] 1142\n");
         case IR::JnHelperMethod::HelperString_Match:
         case IR::JnHelperMethod::HelperString_Replace:
-        {
+        {LOGMEIN("TempTracker.cpp] 1145\n");
             // First (non-this) parameter is either a regexp or search string.
             // It doesn't escape.
             IR::Instr * instrArgDef;
@@ -1153,7 +1153,7 @@ ObjectTemp::ProcessInstr(IR::Instr * instr)
         }
 
         case IR::JnHelperMethod::HelperRegExp_Exec:
-        {
+        {LOGMEIN("TempTracker.cpp] 1155\n");
             IR::Instr * instrArgDef;
             instr->FindCallArgumentOpnd(1, &instrArgDef);
             instrArgDef->dstIsTempObject = true;
@@ -1165,20 +1165,20 @@ ObjectTemp::ProcessInstr(IR::Instr * instr)
 
 void
 ObjectTemp::SetDstIsTemp(bool dstIsTemp, bool dstIsTempTransferred, IR::Instr * instr, BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 1167\n");
     Assert(dstIsTemp || !dstIsTempTransferred);
 
     // ArgOut_A are marked by CallDirect and don't need to be set
     if (instr->m_opcode == Js::OpCode::ArgOut_A)
-    {
+    {LOGMEIN("TempTracker.cpp] 1172\n");
         return;
     }
     instr->dstIsTempObject = dstIsTemp;
 
     if (!backwardPass->IsPrePass())
-    {
+    {LOGMEIN("TempTracker.cpp] 1178\n");
         if (OpCodeAttr::TempObjectProducing(instr->m_opcode))
-        {
+        {LOGMEIN("TempTracker.cpp] 1180\n");
             backwardPass->func->SetHasMarkTempObjects();
 #if DBG_DUMP
             backwardPass->numMarkTempObject += dstIsTemp;
@@ -1189,24 +1189,24 @@ ObjectTemp::SetDstIsTemp(bool dstIsTemp, bool dstIsTempTransferred, IR::Instr * 
 
 StackSym *
 ObjectTemp::GetStackSym(IR::Opnd * opnd, IR::PropertySymOpnd ** pPropertySymOpnd)
-{
+{LOGMEIN("TempTracker.cpp] 1191\n");
     StackSym * stackSym = nullptr;
     switch (opnd->GetKind())
-    {
+    {LOGMEIN("TempTracker.cpp] 1194\n");
         case IR::OpndKindReg:
             stackSym = opnd->AsRegOpnd()->m_sym;
             break;
         case IR::OpndKindSym:
-        {
+        {LOGMEIN("TempTracker.cpp] 1199\n");
             IR::SymOpnd * symOpnd = opnd->AsSymOpnd();
             if (symOpnd->IsPropertySymOpnd())
-            {
+            {LOGMEIN("TempTracker.cpp] 1202\n");
                 IR::PropertySymOpnd * propertySymOpnd = symOpnd->AsPropertySymOpnd();
                 *pPropertySymOpnd = propertySymOpnd;
                 stackSym = propertySymOpnd->GetObjectSym();
             }
             else if (symOpnd->m_sym->IsPropertySym())
-            {
+            {LOGMEIN("TempTracker.cpp] 1208\n");
                 stackSym = symOpnd->m_sym->AsPropertySym()->m_stackSym;
             }
             break;
@@ -1224,13 +1224,13 @@ ObjectTemp::GetStackSym(IR::Opnd * opnd, IR::PropertySymOpnd ** pPropertySymOpnd
 //=================================================================================================
 ObjectTempVerify::ObjectTempVerify(JitArenaAllocator * alloc, bool inLoop)
     : TempTrackerBase(alloc, inLoop), removedUpwardExposedUse(alloc)
-{
+{LOGMEIN("TempTracker.cpp] 1226\n");
 }
 
 
 bool
 ObjectTempVerify::IsTempUse(IR::Instr * instr, Sym * sym, BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 1232\n");
     Js::OpCode opcode = instr->m_opcode;
 
     // If the opcode has implicit call and the profile say we have implicit call, then it is not a temp use.
@@ -1243,12 +1243,12 @@ ObjectTempVerify::IsTempUse(IR::Instr * instr, Sym * sym, BackwardPass * backwar
             !GlobOpt::ImplicitCallFlagsAllowOpts(backwardPass->func))
         || instr->CallsAccessor())
        )
-    {
+    {LOGMEIN("TempTracker.cpp] 1245\n");
         return false;
     }
 
     if (!ObjectTemp::IsTempUseOpCodeSym(instr, opcode, sym))
-    {
+    {LOGMEIN("TempTracker.cpp] 1250\n");
         // the opcode and sym is not a temp use, just return
         return false;
     }
@@ -1257,13 +1257,13 @@ ObjectTempVerify::IsTempUse(IR::Instr * instr, Sym * sym, BackwardPass * backwar
     // if we have install sufficient bailout on implicit call
 
     if (isLandingPad || !GlobOpt::MayNeedBailOnImplicitCall(instr, nullptr, nullptr))
-    {
+    {LOGMEIN("TempTracker.cpp] 1259\n");
         // Implicit call would not happen, or we are in the landing pad where implicit call is disabled.
         return true;
     }
 
     if (instr->HasBailOutInfo())
-    {
+    {LOGMEIN("TempTracker.cpp] 1265\n");
         // make sure we have mark the bailout for mark temp object,
         // so that we won't optimize it away in DeadStoreImplicitCalls
         return ((instr->GetBailOutKind() & IR::BailOutMarkTempObject) != 0);
@@ -1273,7 +1273,7 @@ ObjectTempVerify::IsTempUse(IR::Instr * instr, Sym * sym, BackwardPass * backwar
     // access even if the operation is isolated.  Once we decide a given instruction is an object type spec candidate, we know it
     // will never need an implicit call, so we could basically do opnd->IsObjTypeSpecOptimized() here, instead.
     if (GlobOpt::IsTypeCheckProtected(instr))
-    {
+    {LOGMEIN("TempTracker.cpp] 1275\n");
         return true;
     }
 
@@ -1282,15 +1282,15 @@ ObjectTempVerify::IsTempUse(IR::Instr * instr, Sym * sym, BackwardPass * backwar
 
 bool
 ObjectTempVerify::IsTempTransfer(IR::Instr * instr)
-{
+{LOGMEIN("TempTracker.cpp] 1284\n");
     if (ObjectTemp::IsTempTransfer(instr)
         // Add the Ld_I4, and LdC_A_I4 as the forward pass might have changed Ld_A to these
         || instr->m_opcode == Js::OpCode::Ld_I4
         || instr->m_opcode == Js::OpCode::LdC_A_I4)
-    {
+    {LOGMEIN("TempTracker.cpp] 1289\n");
         if (!instr->dstIsTempObject && instr->GetDst() && instr->GetDst()->IsRegOpnd()
           && instr->GetDst()->AsRegOpnd()->GetValueType().IsNotObject())
-        {
+        {LOGMEIN("TempTracker.cpp] 1292\n");
             // Globopt has proved that dst is not an object, so this is not really an object transfer.
             // This prevents the case where glob opt turned a Conv_Num to Ld_A and expose additional
             // transfer.
@@ -1303,7 +1303,7 @@ ObjectTempVerify::IsTempTransfer(IR::Instr * instr)
 
 bool
 ObjectTempVerify::CanMarkTemp(IR::Instr * instr, BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 1305\n");
     // We mark the ArgOut with the call in ProcessInstr, no need to do it here
     return ObjectTemp::IsTempProducing(instr)
         || IsTempTransfer(instr);
@@ -1311,25 +1311,25 @@ ObjectTempVerify::CanMarkTemp(IR::Instr * instr, BackwardPass * backwardPass)
 
 void
 ObjectTempVerify::ProcessInstr(IR::Instr * instr, BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 1313\n");
     if (instr->m_opcode == Js::OpCode::InlineThrow)
-    {
+    {LOGMEIN("TempTracker.cpp] 1315\n");
         // We cannot accurately track mark temp for any upward exposed symbol here
         this->removedUpwardExposedUse.Or(backwardPass->currentBlock->byteCodeUpwardExposedUsed);
         return;
     }
 
     if (instr->m_opcode != Js::OpCode::CallDirect)
-    {
+    {LOGMEIN("TempTracker.cpp] 1322\n");
         return;
     }
 
     IR::HelperCallOpnd * helper = instr->GetSrc1()->AsHelperCallOpnd();
     switch (helper->m_fnHelper)
-    {
+    {LOGMEIN("TempTracker.cpp] 1328\n");
         case IR::JnHelperMethod::HelperString_Match:
         case IR::JnHelperMethod::HelperString_Replace:
-        {
+        {LOGMEIN("TempTracker.cpp] 1331\n");
             // First (non-this) parameter is either a regexp or search string
             // It doesn't escape
             IR::Instr * instrArgDef;
@@ -1339,7 +1339,7 @@ ObjectTempVerify::ProcessInstr(IR::Instr * instr, BackwardPass * backwardPass)
         }
 
         case IR::JnHelperMethod::HelperRegExp_Exec:
-        {
+        {LOGMEIN("TempTracker.cpp] 1341\n");
             IR::Instr * instrArgDef;
             instr->FindCallArgumentOpnd(1, &instrArgDef);
             Assert(instrArgDef->dstIsTempObject);
@@ -1351,28 +1351,28 @@ ObjectTempVerify::ProcessInstr(IR::Instr * instr, BackwardPass * backwardPass)
 
 void
 ObjectTempVerify::SetDstIsTemp(bool dstIsTemp, bool dstIsTempTransferred, IR::Instr * instr, BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 1353\n");
     Assert(dstIsTemp || !dstIsTempTransferred);
 
     // ArgOut_A are marked by CallDirect and don't need to be set
     if (instr->m_opcode == Js::OpCode::ArgOut_A)
-    {
+    {LOGMEIN("TempTracker.cpp] 1358\n");
         return;
     }
 
     if (OpCodeAttr::TempObjectProducing(instr->m_opcode))
-    {
+    {LOGMEIN("TempTracker.cpp] 1363\n");
         if (!backwardPass->IsPrePass())
-        {
+        {LOGMEIN("TempTracker.cpp] 1365\n");
             if (dstIsTemp)
-            {
+            {LOGMEIN("TempTracker.cpp] 1367\n");
                 // Don't assert if we have detected a removed upward exposed use that could
                 // expose a new mark temp object. Don't assert if it is set in removedUpwardExposedUse
                 bool isBailOnNoProfileUpwardExposedUse =
                     !!this->removedUpwardExposedUse.Test(instr->GetDst()->AsRegOpnd()->m_sym->m_id);
 #if DBG
                 if (DoTrace(backwardPass) && !instr->dstIsTempObject && !isBailOnNoProfileUpwardExposedUse)
-                {
+                {LOGMEIN("TempTracker.cpp] 1374\n");
                     Output::Print(_u("%s: Missed Mark Temp Object: "), GetTraceName());
                     instr->DumpSimple();
                     Output::Flush();
@@ -1390,7 +1390,7 @@ ObjectTempVerify::SetDstIsTemp(bool dstIsTemp, bool dstIsTempTransferred, IR::In
                 // temp now in the deadstore pass (whether there is BailOnNoProfile or not)
 #if DBG
                 if (DoTrace(backwardPass) && instr->dstIsTempObject)
-                {
+                {LOGMEIN("TempTracker.cpp] 1392\n");
                     Output::Print(_u("%s: Invalid Mark Temp Object: "), GetTraceName());
                     instr->DumpSimple();
                     Output::Flush();
@@ -1401,7 +1401,7 @@ ObjectTempVerify::SetDstIsTemp(bool dstIsTemp, bool dstIsTempTransferred, IR::In
         }
     }
     else if (IsTempTransfer(instr))
-    {
+    {LOGMEIN("TempTracker.cpp] 1403\n");
         // Only set the transfer
         instr->dstIsTempObject = dstIsTemp;
     }
@@ -1414,29 +1414,29 @@ ObjectTempVerify::SetDstIsTemp(bool dstIsTemp, bool dstIsTempTransferred, IR::In
     // clear or transfer the bailOnNoProfile upward exposed use
     if (this->removedUpwardExposedUse.TestAndClear(instr->GetDst()->AsRegOpnd()->m_sym->m_id)
         && IsTempTransfer(instr) && instr->GetSrc1()->IsRegOpnd())
-    {
+    {LOGMEIN("TempTracker.cpp] 1416\n");
         this->removedUpwardExposedUse.Set(instr->GetSrc1()->AsRegOpnd()->m_sym->m_id);
     }
 }
 
 void
 ObjectTempVerify::MergeData(ObjectTempVerify * fromData, bool deleteData)
-{
+{LOGMEIN("TempTracker.cpp] 1423\n");
     this->removedUpwardExposedUse.Or(&fromData->removedUpwardExposedUse);
 }
 
 void
 ObjectTempVerify::MergeDeadData(BasicBlock * block)
-{
+{LOGMEIN("TempTracker.cpp] 1429\n");
     MergeData(block->tempObjectVerifyTracker, false);
     if (!block->isDead)
-    {
+    {LOGMEIN("TempTracker.cpp] 1432\n");
         // If there was dead flow to a block that is not dead, it might expose
         // new mark temp object, so all its current used (upwardExposedUsed) and optimized
         // use (byteCodeupwardExposedUsed) might not be trace for "missed" mark temp object
         this->removedUpwardExposedUse.Or(block->upwardExposedUses);
         if (block->byteCodeUpwardExposedUsed)
-        {
+        {LOGMEIN("TempTracker.cpp] 1438\n");
             this->removedUpwardExposedUse.Or(block->byteCodeUpwardExposedUsed);
         }
     }
@@ -1444,10 +1444,10 @@ ObjectTempVerify::MergeDeadData(BasicBlock * block)
 
 void
 ObjectTempVerify::NotifyBailOutRemoval(IR:: Instr * instr, BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 1446\n");
     Js::OpCode opcode = instr->m_opcode;
     switch (opcode)
-    {
+    {LOGMEIN("TempTracker.cpp] 1449\n");
         case Js::OpCode::LdFld:
         case Js::OpCode::LdFldForTypeOf:
         case Js::OpCode::LdMethodFld:
@@ -1469,7 +1469,7 @@ ObjectTempVerify::NotifyBailOutRemoval(IR:: Instr * instr, BackwardPass * backwa
 
 void
 ObjectTempVerify::NotifyReverseCopyProp(IR::Instr * instr)
-{
+{LOGMEIN("TempTracker.cpp] 1471\n");
     Assert(instr->GetDst());
     SymID symId = instr->GetDst()->AsRegOpnd()->m_sym->m_id;
     this->removedUpwardExposedUse.Clear(symId);
@@ -1478,24 +1478,24 @@ ObjectTempVerify::NotifyReverseCopyProp(IR::Instr * instr)
 
 void
 ObjectTempVerify::NotifyDeadStore(IR::Instr * instr, BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 1480\n");
     // Even if we dead store, simulate the uses
     IR::Opnd * src1 = instr->GetSrc1();
     if (src1)
-    {
+    {LOGMEIN("TempTracker.cpp] 1484\n");
         IR::PropertySymOpnd * propertySymOpnd;
         StackSym * stackSym = ObjectTemp::GetStackSym(src1, &propertySymOpnd);
         if (stackSym)
-        {
+        {LOGMEIN("TempTracker.cpp] 1488\n");
             ((TempTracker<ObjectTempVerify> *)this)->ProcessUse(stackSym, backwardPass);
         }
 
         IR::Opnd * src2 = instr->GetSrc2();
         if (src2)
-        {
+        {LOGMEIN("TempTracker.cpp] 1494\n");
             stackSym = ObjectTemp::GetStackSym(src2, &propertySymOpnd);
             if (stackSym)
-            {
+            {LOGMEIN("TempTracker.cpp] 1497\n");
                 ((TempTracker<ObjectTempVerify> *)this)->ProcessUse(stackSym, backwardPass);
             }
         }
@@ -1504,9 +1504,9 @@ ObjectTempVerify::NotifyDeadStore(IR::Instr * instr, BackwardPass * backwardPass
 
 void
 ObjectTempVerify::NotifyDeadByteCodeUses(IR::Instr * instr)
-{
+{LOGMEIN("TempTracker.cpp] 1506\n");
     if (instr->GetDst())
-    {
+    {LOGMEIN("TempTracker.cpp] 1508\n");
         SymID symId = instr->GetDst()->AsRegOpnd()->m_sym->m_id;
         this->removedUpwardExposedUse.Clear(symId);
         this->nonTempSyms.Clear(symId);
@@ -1515,16 +1515,16 @@ ObjectTempVerify::NotifyDeadByteCodeUses(IR::Instr * instr)
     IR::ByteCodeUsesInstr *byteCodeUsesInstr = instr->AsByteCodeUsesInstr();
     const BVSparse<JitArenaAllocator> * byteCodeUpwardExposedUsed = byteCodeUsesInstr->GetByteCodeUpwardExposedUsed();
     if (byteCodeUpwardExposedUsed != nullptr)
-    {
+    {LOGMEIN("TempTracker.cpp] 1517\n");
         this->removedUpwardExposedUse.Or(byteCodeUpwardExposedUsed);
     }
 }
 
 bool
 ObjectTempVerify::DependencyCheck(IR::Instr * instr, BVSparse<JitArenaAllocator> * bvTempTransferDependencies, BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 1524\n");
     if (!instr->dstIsTempObject)
-    {
+    {LOGMEIN("TempTracker.cpp] 1526\n");
         // The instruction is not marked as temp object anyway, no need to do extra check
         return false;
     }
@@ -1577,17 +1577,17 @@ ObjectTempVerify::DependencyCheck(IR::Instr * instr, BVSparse<JitArenaAllocator>
     SymID markTempSymId = instr->GetDst()->AsRegOpnd()->m_sym->m_id;
     bool initial = true;
     while (true)
-    {
+    {LOGMEIN("TempTracker.cpp] 1579\n");
         while (currentInstr != currentBlock->GetFirstInstr())
-        {
+        {LOGMEIN("TempTracker.cpp] 1581\n");
             if (initial)
-            {
+            {LOGMEIN("TempTracker.cpp] 1583\n");
                 initial = false;
             }
             else if (currentInstr == instr)
-            {
+            {LOGMEIN("TempTracker.cpp] 1587\n");
                 if (dependentSyms->Test(markTempSymId))
-                {
+                {LOGMEIN("TempTracker.cpp] 1589\n");
                     // One of the dependent sym from the original set get it's value from the current marked temp dst.
                     // The dst definitely cannot be temp because it's lifetime overlaps across iterations.
                     return false;
@@ -1597,7 +1597,7 @@ ObjectTempVerify::DependencyCheck(IR::Instr * instr, BVSparse<JitArenaAllocator>
                 // It will produce the same result anyway.
                 dependentSyms->Minus(initialDependentSyms);
                 if (dependentSyms->IsEmpty())
-                {
+                {LOGMEIN("TempTracker.cpp] 1599\n");
                     break;
                 }
                 // Add in newly discovered dependentSym so we won't do it again when it come back here.
@@ -1605,28 +1605,28 @@ ObjectTempVerify::DependencyCheck(IR::Instr * instr, BVSparse<JitArenaAllocator>
             }
 
             if (currentInstr->GetDst() && currentInstr->GetDst()->IsRegOpnd())
-            {
+            {LOGMEIN("TempTracker.cpp] 1607\n");
                 // Clear the def and mark the src if it is transferred.
 
                 // If the dst sym is a type specialized sym, clear the var sym instead.
                 StackSym * dstSym = currentInstr->GetDst()->AsRegOpnd()->m_sym;
                 if (!dstSym->IsVar())
-                {
+                {LOGMEIN("TempTracker.cpp] 1613\n");
                     dstSym = dstSym->GetVarEquivSym(nullptr);
                 }
                 if (dstSym && dependentSyms->TestAndClear(dstSym->m_id) &&
                     IsTempTransfer(currentInstr) && currentInstr->GetSrc1()->IsRegOpnd())
-                {
+                {LOGMEIN("TempTracker.cpp] 1618\n");
                     // We only really care about var syms uses for object temp.
                     StackSym * srcSym = currentInstr->GetSrc1()->AsRegOpnd()->m_sym;
                     if (srcSym->IsVar())
-                    {
+                    {LOGMEIN("TempTracker.cpp] 1622\n");
                         dependentSyms->Set(srcSym->m_id);
                     }
                 }
 
                 if (dependentSyms->IsEmpty())
-                {
+                {LOGMEIN("TempTracker.cpp] 1628\n");
                     // No more dependent sym, we found the def of all of them we can move on to the next block.
                     break;
                 }
@@ -1635,12 +1635,12 @@ ObjectTempVerify::DependencyCheck(IR::Instr * instr, BVSparse<JitArenaAllocator>
         }
 
         if (currentBlock->isLoopHeader && !dependentSyms->IsEmpty())
-        {
+        {LOGMEIN("TempTracker.cpp] 1637\n");
             Assert(currentInstr == currentBlock->GetFirstInstr());
             // If we have try to propagate the symbol through the loop before, we don't need to propagate it again.
             BVSparse<JitArenaAllocator> * currentLoopProcessedSyms = processedSyms.Lookup(currentBlock, nullptr);
             if (currentLoopProcessedSyms == nullptr)
-            {
+            {LOGMEIN("TempTracker.cpp] 1642\n");
                 processedSyms.Add(currentBlock, dependentSyms->CopyNew());
             }
             else
@@ -1651,13 +1651,13 @@ ObjectTempVerify::DependencyCheck(IR::Instr * instr, BVSparse<JitArenaAllocator>
         }
 
         if (!dependentSyms->IsEmpty())
-        {
+        {LOGMEIN("TempTracker.cpp] 1653\n");
             Assert(currentInstr == currentBlock->GetFirstInstr());
 
             FOREACH_PREDECESSOR_BLOCK(predBlock, currentBlock)
-            {
+            {LOGMEIN("TempTracker.cpp] 1657\n");
                 if (predBlock->loop == nullptr)
-                {
+                {LOGMEIN("TempTracker.cpp] 1659\n");
                     // No need to track outside of loops.
                     continue;
                 }
@@ -1671,7 +1671,7 @@ ObjectTempVerify::DependencyCheck(IR::Instr * instr, BVSparse<JitArenaAllocator>
         JitAdelete(&tempAllocator, dependentSyms);
 
         if (blockStack.Empty())
-        {
+        {LOGMEIN("TempTracker.cpp] 1673\n");
             // No more blocks. We are done.
             break;
         }
@@ -1685,7 +1685,7 @@ ObjectTempVerify::DependencyCheck(IR::Instr * instr, BVSparse<JitArenaAllocator>
     // All the dependent sym doesn't get their value from the marked temp def, so it can really be marked temp.
 #if DBG
     if (DoTrace(backwardPass))
-    {
+    {LOGMEIN("TempTracker.cpp] 1687\n");
         Output::Print(_u("%s: Unrelated overlap mark temp (s%-3d): "), GetTraceName(), markTempSymId);
         instr->DumpSimple();
         Output::Flush();
@@ -1699,19 +1699,19 @@ ObjectTempVerify::DependencyCheck(IR::Instr * instr, BVSparse<JitArenaAllocator>
 #if DBG
 bool
 NumberTemp::DoTrace(BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 1701\n");
     return PHASE_TRACE(Js::MarkTempNumberPhase, backwardPass->func);
 }
 
 bool
 ObjectTemp::DoTrace(BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 1707\n");
     return PHASE_TRACE(Js::MarkTempObjectPhase, backwardPass->func);
 }
 
 bool
 ObjectTempVerify::DoTrace(BackwardPass * backwardPass)
-{
+{LOGMEIN("TempTracker.cpp] 1713\n");
     return PHASE_TRACE(Js::MarkTempObjectPhase, backwardPass->func);
 }
 #endif

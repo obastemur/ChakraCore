@@ -33,17 +33,17 @@ public:
     }
 
     bool operator!=(const AddPropertyCacheBucket& bucket) const
-    {
+    {LOGMEIN("FlowGraph.h] 35\n");
         return this->initialType != bucket.initialType || this->finalType != bucket.finalType;
     }
 
     bool operator==(const AddPropertyCacheBucket& bucket) const
-    {
+    {LOGMEIN("FlowGraph.h] 40\n");
         return this->initialType == bucket.initialType && this->finalType == bucket.finalType;
     }
 
     void Copy(AddPropertyCacheBucket *pNew) const
-    {
+    {LOGMEIN("FlowGraph.h] 45\n");
         pNew->initialType = this->initialType;
         pNew->finalType = this->finalType;
 #if DBG
@@ -52,10 +52,10 @@ public:
 #endif
     }
 
-    JITTypeHolder GetInitialType() const { return this->initialType; }
-    JITTypeHolder GetFinalType() const { return this->finalType; }
-    void SetInitialType(JITTypeHolder type) { this->initialType = type; }
-    void SetFinalType(JITTypeHolder type)  { this->finalType = type; }
+    JITTypeHolder GetInitialType() const {LOGMEIN("FlowGraph.h] 54\n"); return this->initialType; }
+    JITTypeHolder GetFinalType() const {LOGMEIN("FlowGraph.h] 55\n"); return this->finalType; }
+    void SetInitialType(JITTypeHolder type) {LOGMEIN("FlowGraph.h] 56\n"); this->initialType = type; }
+    void SetFinalType(JITTypeHolder type)  {LOGMEIN("FlowGraph.h] 57\n"); this->finalType = type; }
 
 #if DBG_DUMP
     void Dump() const;
@@ -74,26 +74,26 @@ private:
     JITTypeHolder                    monoGuardType;
 
 public:
-    ObjTypeGuardBucket() : guardedPropertyOps(nullptr), monoGuardType(nullptr) {}
+    ObjTypeGuardBucket() : guardedPropertyOps(nullptr), monoGuardType(nullptr) {LOGMEIN("FlowGraph.h] 76\n");}
 
     ObjTypeGuardBucket(BVSparse<JitArenaAllocator>* guardedPropertyOps) : monoGuardType(nullptr)
-    {
+    {LOGMEIN("FlowGraph.h] 79\n");
         this->guardedPropertyOps = (guardedPropertyOps != nullptr ? guardedPropertyOps->CopyNew() : nullptr);
     }
 
     void Copy(ObjTypeGuardBucket *pNew) const
-    {
+    {LOGMEIN("FlowGraph.h] 84\n");
         pNew->guardedPropertyOps = this->guardedPropertyOps ? this->guardedPropertyOps->CopyNew() : nullptr;
         pNew->monoGuardType = this->monoGuardType;
     }
 
-    BVSparse<JitArenaAllocator> *GetGuardedPropertyOps() const  { return this->guardedPropertyOps; }
-    void SetGuardedPropertyOps(BVSparse<JitArenaAllocator> *guardedPropertyOps) { this->guardedPropertyOps = guardedPropertyOps; }
-    void AddToGuardedPropertyOps(uint propertyOpId) { Assert(this->guardedPropertyOps != nullptr); this->guardedPropertyOps->Set(propertyOpId); }
+    BVSparse<JitArenaAllocator> *GetGuardedPropertyOps() const  {LOGMEIN("FlowGraph.h] 89\n"); return this->guardedPropertyOps; }
+    void SetGuardedPropertyOps(BVSparse<JitArenaAllocator> *guardedPropertyOps) {LOGMEIN("FlowGraph.h] 90\n"); this->guardedPropertyOps = guardedPropertyOps; }
+    void AddToGuardedPropertyOps(uint propertyOpId) {LOGMEIN("FlowGraph.h] 91\n"); Assert(this->guardedPropertyOps != nullptr); this->guardedPropertyOps->Set(propertyOpId); }
 
-    bool NeedsMonoCheck() const { return this->monoGuardType != nullptr; }
-    void SetMonoGuardType(JITTypeHolder type) { this->monoGuardType = type; }
-    JITTypeHolder GetMonoGuardType() const { return this->monoGuardType; }
+    bool NeedsMonoCheck() const {LOGMEIN("FlowGraph.h] 93\n"); return this->monoGuardType != nullptr; }
+    void SetMonoGuardType(JITTypeHolder type) {LOGMEIN("FlowGraph.h] 94\n"); this->monoGuardType = type; }
+    JITTypeHolder GetMonoGuardType() const {LOGMEIN("FlowGraph.h] 95\n"); return this->monoGuardType; }
 
 #if DBG_DUMP
     void Dump() const;
@@ -106,18 +106,18 @@ private:
     BVSparse<JitArenaAllocator>* writeGuards;
 
 public:
-    ObjWriteGuardBucket() : writeGuards(nullptr) {}
+    ObjWriteGuardBucket() : writeGuards(nullptr) {LOGMEIN("FlowGraph.h] 108\n");}
 
-    ObjWriteGuardBucket(BVSparse<JitArenaAllocator>* writeGuards) { this->writeGuards = (writeGuards != nullptr ? writeGuards->CopyNew() : nullptr); }
+    ObjWriteGuardBucket(BVSparse<JitArenaAllocator>* writeGuards) {LOGMEIN("FlowGraph.h] 110\n"); this->writeGuards = (writeGuards != nullptr ? writeGuards->CopyNew() : nullptr); }
 
     void Copy(ObjWriteGuardBucket *pNew) const
-    {
+    {LOGMEIN("FlowGraph.h] 113\n");
         pNew->writeGuards = this->writeGuards ? this->writeGuards->CopyNew() : nullptr;
     }
 
-    BVSparse<JitArenaAllocator> *GetWriteGuards() const  { return this->writeGuards; }
-    void SetWriteGuards(BVSparse<JitArenaAllocator> *writeGuards) { this->writeGuards = writeGuards; }
-    void AddToWriteGuards(uint writeGuardId) { Assert(this->writeGuards != nullptr); this->writeGuards->Set(writeGuardId); }
+    BVSparse<JitArenaAllocator> *GetWriteGuards() const  {LOGMEIN("FlowGraph.h] 117\n"); return this->writeGuards; }
+    void SetWriteGuards(BVSparse<JitArenaAllocator> *writeGuards) {LOGMEIN("FlowGraph.h] 118\n"); this->writeGuards = writeGuards; }
+    void AddToWriteGuards(uint writeGuardId) {LOGMEIN("FlowGraph.h] 119\n"); Assert(this->writeGuards != nullptr); this->writeGuards->Set(writeGuardId); }
 
 #if DBG_DUMP
     void Dump() const;
@@ -142,7 +142,7 @@ public:
         hasBackwardPassInfo(false),
         hasLoop(false),
         implicitCallFlags(Js::ImplicitCall_HasNoInfo)
-    {
+    {LOGMEIN("FlowGraph.h] 144\n");
     }
 
     void Build(void);
@@ -162,7 +162,7 @@ public:
     IR::Instr *  RemoveInstr(IR::Instr *instr, GlobOpt * globOpt);
     void         RemoveBlock(BasicBlock *block, GlobOpt * globOpt = nullptr, bool tailDuping = false);
     BasicBlock * SetBlockTargetAndLoopFlag(IR::LabelInstr * labelInstr);
-    Func*        GetFunc() { return func;};
+    Func*        GetFunc() {LOGMEIN("FlowGraph.h] 164\n"); return func;};
     static void  SafeRemoveInstr(IR::Instr *instr);
     void         SortLoopLists();
     FlowEdge *   FindEdge(BasicBlock *predBlock, BasicBlock *succBlock);
@@ -232,20 +232,20 @@ public:
     void InvertBranch(IR::BranchInstr *branch);
 
     IR::Instr * GetFirstInstr(void) const
-    {
+    {LOGMEIN("FlowGraph.h] 234\n");
         return firstInstr;
     }
 
     void SetFirstInstr(IR::Instr * instr)
-    {
+    {LOGMEIN("FlowGraph.h] 239\n");
         firstInstr = instr;
     }
 
     IR::Instr * GetLastInstr(void)
-    {
+    {LOGMEIN("FlowGraph.h] 244\n");
         BasicBlock *blNext = this->next;
         if (blNext)
-        {
+        {LOGMEIN("FlowGraph.h] 247\n");
             return blNext->firstInstr->m_prev;
         }
         else
@@ -255,45 +255,45 @@ public:
     }
 
     void SetLastInstr(IR::Instr * instr)
-    {
+    {LOGMEIN("FlowGraph.h] 257\n");
         // Intentionally empty
     }
 
     SListBaseCounted<FlowEdge *> * GetPredList(void)
-    {
+    {LOGMEIN("FlowGraph.h] 262\n");
         return &predList;
     }
 
     SListBaseCounted<FlowEdge *> * GetSuccList(void)
-    {
+    {LOGMEIN("FlowGraph.h] 267\n");
         return &succList;
     }
 
     SListBaseCounted<FlowEdge *> * GetDeadPredList(void)
-    {
+    {LOGMEIN("FlowGraph.h] 272\n");
         return &deadPredList;
     }
 
     SListBaseCounted<FlowEdge *> * GetDeadSuccList(void)
-    {
+    {LOGMEIN("FlowGraph.h] 277\n");
         return &deadSuccList;
     }
 
     unsigned int GetBlockNum(void) const
-    {
+    {LOGMEIN("FlowGraph.h] 282\n");
         return number;
     }
 
     void SetBlockNum(unsigned int num)
-    {
+    {LOGMEIN("FlowGraph.h] 287\n");
         number = num;
     }
 
     BasicBlock * GetPrev()
-    {
+    {LOGMEIN("FlowGraph.h] 292\n");
         BasicBlock *block = this;
 
-        do {
+        do {LOGMEIN("FlowGraph.h] 295\n");
             block = block->prev;
         } while (block->isDeleted);
 
@@ -301,30 +301,30 @@ public:
     }
 
     BasicBlock * GetNext()
-    {
+    {LOGMEIN("FlowGraph.h] 303\n");
         BasicBlock *block = this;
 
-        do {
+        do {LOGMEIN("FlowGraph.h] 306\n");
             block = block->next;
         } while (block && block->isDeleted);
 
         return block;
     }
     uint IncrementDataUseCount()
-    {
+    {LOGMEIN("FlowGraph.h] 313\n");
          return ++this->dataUseCount;
     }
     uint DecrementDataUseCount()
-    {
+    {LOGMEIN("FlowGraph.h] 317\n");
         Assert(this->dataUseCount != 0);
          return --this->dataUseCount;
     }
     uint GetDataUseCount()
-    {
+    {LOGMEIN("FlowGraph.h] 322\n");
          return this->dataUseCount;
     }
     void SetDataUseCount(uint count)
-    {
+    {LOGMEIN("FlowGraph.h] 326\n");
          this->dataUseCount = count;
     }
 
@@ -435,7 +435,7 @@ private:
         intOverflowDoesNotMatterRange(nullptr),
         func(func),
         globOptData(func)
-    {
+    {LOGMEIN("FlowGraph.h] 437\n");
     }
 
     void RemovePred(BasicBlock *block, FlowGraph * graph, bool doCleanSucc, bool moveToDead = false);
@@ -468,40 +468,40 @@ public:
         predBlock(nullptr),
         succBlock(nullptr),
         pathDependentInfo(nullptr)
-    {
+    {LOGMEIN("FlowGraph.h] 470\n");
     }
 
     BasicBlock * GetPred(void) const
-    {
+    {LOGMEIN("FlowGraph.h] 474\n");
         return predBlock;
     }
 
     void SetPred(BasicBlock * block)
-    {
+    {LOGMEIN("FlowGraph.h] 479\n");
         predBlock = block;
     }
 
     BasicBlock * GetSucc(void) const
-    {
+    {LOGMEIN("FlowGraph.h] 484\n");
         return succBlock;
     }
 
     void SetSucc(BasicBlock * block)
-    {
+    {LOGMEIN("FlowGraph.h] 489\n");
         succBlock = block;
     }
 
     PathDependentInfo * GetPathDependentInfo() const
-    {
+    {LOGMEIN("FlowGraph.h] 494\n");
         return pathDependentInfo;
     }
 
     void SetPathDependentInfo(const PathDependentInfo &info, JitArenaAllocator *const alloc)
-    {
+    {LOGMEIN("FlowGraph.h] 499\n");
         Assert(info.HasInfo());
 
         if (!pathDependentInfo)
-        {
+        {LOGMEIN("FlowGraph.h] 503\n");
             pathDependentInfo = JitAnew(alloc, PathDependentInfo, info);
         }
         else
@@ -611,13 +611,13 @@ public:
             MEMSET,
             MEMCOPY
         } type;
-        bool IsMemSet() const { return type == MEMSET; }
-        bool IsMemCopy() const { return type == MEMCOPY; }
+        bool IsMemSet() const {LOGMEIN("FlowGraph.h] 613\n"); return type == MEMSET; }
+        bool IsMemCopy() const {LOGMEIN("FlowGraph.h] 614\n"); return type == MEMCOPY; }
         struct Loop::MemCopyCandidate* AsMemCopy();
         struct Loop::MemSetCandidate* AsMemSet();
         MemOpCandidate(MemOpType type) :
             type(type)
-        {
+        {LOGMEIN("FlowGraph.h] 619\n");
         }
     };
 
@@ -626,7 +626,7 @@ public:
         BailoutConstantValue constant;
         StackSym* srcSym;
 
-        MemSetCandidate() : MemOpCandidate(MemOpCandidate::MEMSET), srcSym(nullptr) {}
+        MemSetCandidate() : MemOpCandidate(MemOpCandidate::MEMSET), srcSym(nullptr) {LOGMEIN("FlowGraph.h] 628\n");}
     };
 
     struct MemCopyCandidate : public MemOpCandidate
@@ -634,7 +634,7 @@ public:
         SymID ldBase;
         StackSym* transferSym;
         byte ldCount;
-        MemCopyCandidate() : MemOpCandidate(MemOpCandidate::MEMCOPY) {}
+        MemCopyCandidate() : MemOpCandidate(MemOpCandidate::MEMCOPY) {LOGMEIN("FlowGraph.h] 636\n");}
     };
 
 #define FOREACH_MEMOP_CANDIDATES_EDITING(data, loop, iterator) FOREACH_SLISTCOUNTED_ENTRY_EDITING(Loop::MemOpCandidate*, data, loop->memOpInfo->candidates, iterator)
@@ -642,7 +642,7 @@ public:
 #define FOREACH_MEMOP_CANDIDATES(data, loop) FOREACH_SLISTCOUNTED_ENTRY(Loop::MemOpCandidate*, data, loop->memOpInfo->candidates)
 #define NEXT_MEMOP_CANDIDATE NEXT_SLISTCOUNTED_ENTRY
 
-#define MEMOP_CANDIDATE_TYPE_CHECK(candidate, data, type) if(candidate->Is ## type()) {Loop:: ## type ## Candidate* data = candidate->As## type();
+#define MEMOP_CANDIDATE_TYPE_CHECK(candidate, data, type) if(candidate->Is ## type()) {LOGMEIN("FlowGraph.h] 644\n");Loop:: ## type ## Candidate* data = candidate->As## type();
 
 #define FOREACH_MEMCOPY_CANDIDATES_EDITING(data, loop, iterator) {FOREACH_MEMOP_CANDIDATES_EDITING(_memopCandidate, loop, iterator) {MEMOP_CANDIDATE_TYPE_CHECK(_memopCandidate, data, MemCopy)
 #define NEXT_MEMCOPY_CANDIDATE_EDITING }}NEXT_MEMOP_CANDIDATE_EDITING}
@@ -723,29 +723,29 @@ public:
         isLeaf(true),
         isProcessed(false),
         initialValueFieldMap(alloc)
-    {
+    {LOGMEIN("FlowGraph.h] 725\n");
         this->loopNumber = ++func->loopCount;
     }
 
-    void                SetHeadBlock(BasicBlock *block) { headBlock = block; }
-    BasicBlock *        GetHeadBlock() const { Assert(headBlock == blockList.Head()); return headBlock; }
+    void                SetHeadBlock(BasicBlock *block) {LOGMEIN("FlowGraph.h] 729\n"); headBlock = block; }
+    BasicBlock *        GetHeadBlock() const {LOGMEIN("FlowGraph.h] 730\n"); Assert(headBlock == blockList.Head()); return headBlock; }
     bool                IsDescendentOrSelf(Loop const * loop) const;
 
     void                EnsureMemOpVariablesInitialized();
 
     Js::ImplicitCallFlags GetImplicitCallFlags();
     void                SetImplicitCallFlags(Js::ImplicitCallFlags flags);
-    Js::LoopFlags GetLoopFlags() const { return loopFlags; }
-    void SetLoopFlags(Js::LoopFlags val) { loopFlags = val; }
+    Js::LoopFlags GetLoopFlags() const {LOGMEIN("FlowGraph.h] 737\n"); return loopFlags; }
+    void SetLoopFlags(Js::LoopFlags val) {LOGMEIN("FlowGraph.h] 738\n"); loopFlags = val; }
     bool                CanHoistInvariants();
     bool                CanDoFieldCopyProp();
     bool                CanDoFieldHoist();
     void                SetHasCall();
     IR::LabelInstr *    GetLoopTopInstr() const;
     void                SetLoopTopInstr(IR::LabelInstr * loopTop);
-    Func *              GetFunc() const { return GetLoopTopInstr()->m_func; }
+    Func *              GetFunc() const {LOGMEIN("FlowGraph.h] 745\n"); return GetLoopTopInstr()->m_func; }
 #if DBG_DUMP
-    bool                GetHasCall() const { return hasCall; }
+    bool                GetHasCall() const {LOGMEIN("FlowGraph.h] 747\n"); return hasCall; }
     uint                GetLoopNumber() const;
 #endif
 private:
@@ -808,21 +808,21 @@ struct MemCopyEmitData : public MemOpEmitData
     for (BasicBlock *block = graph->blockList;\
         block != nullptr;\
         block = block->next)\
-    {
+    {LOGMEIN("FlowGraph.h] 810\n");
 
 #define NEXT_BLOCK_ALL \
     }
 
 #define FOREACH_BLOCK(block, graph)\
     FOREACH_BLOCK_ALL(block, graph) \
-        if (block->isDeleted) { continue; }
+        if (block->isDeleted) {LOGMEIN("FlowGraph.h] 817\n"); continue; }
 
 #define NEXT_BLOCK \
     NEXT_BLOCK_ALL
 
 #define FOREACH_BLOCK_DEAD_OR_ALIVE(block, graph)\
     FOREACH_BLOCK_ALL(block, graph) \
-        if (block->isDeleted && !block->isDead) { continue; }
+        if (block->isDeleted && !block->isDead) {LOGMEIN("FlowGraph.h] 824\n"); continue; }
 
 #define NEXT_BLOCK_DEAD_OR_ALIVE \
     NEXT_BLOCK_ALL
@@ -840,31 +840,31 @@ struct MemCopyEmitData : public MemOpEmitData
     NEXT_BLOCK_BACKWARD_IN_RANGE_DEAD_OR_ALIVE
 
 #define FOREACH_BLOCK_BACKWARD_IN_RANGE_ALL(block, blockList, blockLast)\
-{\
+{LOGMEIN("FlowGraph.h] 842\n");\
     BasicBlock * blockStop = blockLast? ((BasicBlock *)blockLast)->prev : nullptr; \
     for (BasicBlock *block = blockList;\
         block != blockStop;\
         block = block->prev)\
-    {
+    {LOGMEIN("FlowGraph.h] 847\n");
 
 #define NEXT_BLOCK_BACKWARD_IN_RANGE_ALL \
     }}
 
 #define FOREACH_BLOCK_BACKWARD_IN_RANGE(block, blockList, blockLast) \
     FOREACH_BLOCK_BACKWARD_IN_RANGE_ALL(block, blockList, blockLast) \
-        if (block->isDeleted) { continue; }
+        if (block->isDeleted) {LOGMEIN("FlowGraph.h] 854\n"); continue; }
 
 #define NEXT_BLOCK_BACKWARD_IN_RANGE \
     NEXT_BLOCK_BACKWARD_IN_RANGE_ALL
 
 #define FOREACH_BLOCK_BACKWARD_IN_RANGE_ALL_EDITING(block, blockList, blockLast, blockPrev)\
-{\
+{LOGMEIN("FlowGraph.h] 860\n");\
     BasicBlock *blockPrev;\
     BasicBlock * blockStop = blockLast? ((BasicBlock *)blockLast)->prev : nullptr; \
     for (BasicBlock *block = blockList;\
         block != blockStop;\
         block = blockPrev)\
-    {\
+    {LOGMEIN("FlowGraph.h] 866\n");\
         blockPrev = block->prev;
 
 #define NEXT_BLOCK_BACKWARD_IN_RANGE_ALL_EDITING \
@@ -872,46 +872,46 @@ struct MemCopyEmitData : public MemOpEmitData
 
 #define FOREACH_BLOCK_BACKWARD_IN_RANGE_EDITING(block, blockList, blockLast, blockPrev) \
     FOREACH_BLOCK_BACKWARD_IN_RANGE_ALL_EDITING(block, blockList, blockLast, blockPrev) \
-        if (block->isDeleted) { continue; }
+        if (block->isDeleted) {LOGMEIN("FlowGraph.h] 874\n"); continue; }
 
 #define NEXT_BLOCK_BACKWARD_IN_RANGE_EDITING \
     NEXT_BLOCK_BACKWARD_IN_RANGE_ALL_EDITING
 
 #define FOREACH_BLOCK_BACKWARD_IN_RANGE_DEAD_OR_ALIVE(block, blockList, blockLast) \
     FOREACH_BLOCK_BACKWARD_IN_RANGE_ALL(block, blockList, blockLast) \
-        if (block->isDeleted && !block->isDead) { continue; }
+        if (block->isDeleted && !block->isDead) {LOGMEIN("FlowGraph.h] 881\n"); continue; }
 
 #define NEXT_BLOCK_BACKWARD_IN_RANGE_DEAD_OR_ALIVE \
     NEXT_BLOCK_BACKWARD_IN_RANGE_ALL
 
 #define FOREACH_BLOCK_EDITING(block, graph)\
-    {\
+    {LOGMEIN("FlowGraph.h] 887\n");\
         BasicBlock *blockNext;\
         for (BasicBlock *block = graph->blockList;\
             block != nullptr;\
             block = blockNext)\
-        {\
+        {LOGMEIN("FlowGraph.h] 892\n");\
             blockNext = block->next; \
-            if (block->isDeleted) { continue; }
+            if (block->isDeleted) {LOGMEIN("FlowGraph.h] 894\n"); continue; }
 #define NEXT_BLOCK_EDITING \
 }}
 
 #define FOREACH_BLOCK_BACKWARD_EDITING(block, graph)\
-    {\
+    {LOGMEIN("FlowGraph.h] 899\n");\
         BasicBlock *blockPrev;\
         for (BasicBlock *block = graph->tailBlock;\
             block != nullptr;\
             block = blockPrev)\
-        {\
+        {LOGMEIN("FlowGraph.h] 904\n");\
             blockPrev = block->prev; \
-            if (block->isDeleted) { continue; }
+            if (block->isDeleted) {LOGMEIN("FlowGraph.h] 906\n"); continue; }
 #define NEXT_BLOCK_BACKWARD_EDITING \
 }}
 
 #define FOREACH_BLOCK_IN_LIST(block, list)\
     FOREACH_SLIST_ENTRY(BasicBlock*, block, list)\
-    {\
-        if (block->isDeleted) { continue; }
+    {LOGMEIN("FlowGraph.h] 912\n");\
+        if (block->isDeleted) {LOGMEIN("FlowGraph.h] 913\n"); continue; }
 
 #define NEXT_BLOCK_IN_LIST \
     NEXT_SLIST_ENTRY \
@@ -919,8 +919,8 @@ struct MemCopyEmitData : public MemOpEmitData
 
 #define FOREACH_BLOCK_IN_LIST_EDITING(block, list, iter)\
     FOREACH_SLIST_ENTRY_EDITING(BasicBlock*, block, list, iter)\
-    {\
-        if (block->isDeleted) { continue; }
+    {LOGMEIN("FlowGraph.h] 921\n");\
+        if (block->isDeleted) {LOGMEIN("FlowGraph.h] 922\n"); continue; }
 
 #define NEXT_BLOCK_IN_LIST_EDITING \
     NEXT_SLIST_ENTRY_EDITING \
@@ -948,20 +948,20 @@ struct MemCopyEmitData : public MemOpEmitData
 
 #define FOREACH_EDGE_IN_LIST(edge, list)\
     FOREACH_SLISTBASECOUNTED_ENTRY(FlowEdge*, edge, list)\
-    {
+    {LOGMEIN("FlowGraph.h] 950\n");
 #define NEXT_EDGE_IN_LIST\
     NEXT_SLISTBASECOUNTED_ENTRY }
 
 #define FOREACH_EDGE_IN_LIST_EDITING(edge, list, iter)\
     FOREACH_SLISTBASECOUNTED_ENTRY_EDITING(FlowEdge*, edge, list, iter)\
-    {\
+    {LOGMEIN("FlowGraph.h] 956\n");\
 
 #define NEXT_EDGE_IN_LIST_EDITING\
     NEXT_SLISTBASECOUNTED_ENTRY_EDITING }
 
 #define FOREACH_SUCCESSOR_BLOCK(blockSucc, block)\
     FOREACH_EDGE_IN_LIST(__edge, block->GetSuccList())\
-    {\
+    {LOGMEIN("FlowGraph.h] 963\n");\
         BasicBlock * blockSucc = __edge->GetSucc(); \
         AnalysisAssert(blockSucc);
 
@@ -971,7 +971,7 @@ struct MemCopyEmitData : public MemOpEmitData
 
 #define FOREACH_SUCCESSOR_BLOCK_EDITING(blockSucc, block, iter)\
     FOREACH_EDGE_IN_LIST_EDITING(__edge, block->GetSuccList(), iter)\
-    {\
+    {LOGMEIN("FlowGraph.h] 973\n");\
         BasicBlock * blockSucc = __edge->GetSucc(); \
         AnalysisAssert(blockSucc);
 
@@ -981,7 +981,7 @@ struct MemCopyEmitData : public MemOpEmitData
 
 #define FOREACH_DEAD_SUCCESSOR_BLOCK(blockSucc, block)\
     FOREACH_EDGE_IN_LIST(__edge, block->GetDeadSuccList())\
-    {\
+    {LOGMEIN("FlowGraph.h] 983\n");\
         BasicBlock * blockSucc = __edge->GetSucc(); \
         AnalysisAssert(blockSucc);
 
@@ -991,7 +991,7 @@ struct MemCopyEmitData : public MemOpEmitData
 
 #define FOREACH_PREDECESSOR_BLOCK(blockPred, block)\
     FOREACH_EDGE_IN_LIST(__edge, block->GetPredList())\
-    {\
+    {LOGMEIN("FlowGraph.h] 993\n");\
         BasicBlock * blockPred = __edge->GetPred(); \
         AnalysisAssert(blockPred);
 
@@ -1001,7 +1001,7 @@ struct MemCopyEmitData : public MemOpEmitData
 
 #define FOREACH_DEAD_PREDECESSOR_BLOCK(blockPred, block)\
     FOREACH_EDGE_IN_LIST(__edge, block->GetDeadPredList())\
-    {\
+    {LOGMEIN("FlowGraph.h] 1003\n");\
         BasicBlock * blockPred = __edge->GetPred(); \
         AnalysisAssert(blockPred);
 
@@ -1026,12 +1026,12 @@ struct MemCopyEmitData : public MemOpEmitData
     NEXT_LOOP_EDITING;
 
 #define FOREACH_LOOP_EDITING(loop, graph)\
-        {\
+        {LOGMEIN("FlowGraph.h] 1028\n");\
         Loop* loopNext;\
         for (Loop* loop = graph->loopList;\
             loop != nullptr;\
             loop = loopNext)\
-                {\
+                {LOGMEIN("FlowGraph.h] 1033\n");\
             loopNext = loop->next;
 #define NEXT_LOOP_EDITING \
 }}

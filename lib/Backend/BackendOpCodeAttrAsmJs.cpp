@@ -39,10 +39,10 @@ namespace OpCodeAttrAsmJs
 
 
     static const int GetOpCodeAttributes( Js::OpCodeAsmJs op )
-    {
+    {LOGMEIN("BackendOpCodeAttrAsmJs.cpp] 41\n");
         uint opIndex = (uint)op;
         if (opIndex <= (uint)Js::OpCodeAsmJs::MaxByteSizedOpcodes)
-        {
+        {LOGMEIN("BackendOpCodeAttrAsmJs.cpp] 44\n");
             AnalysisAssert(opIndex < _countof(OpcodeAttributesAsmJs));
             return OpcodeAttributesAsmJs[opIndex];
         }
@@ -56,12 +56,12 @@ namespace OpCodeAttrAsmJs
 
 
     bool HasFallThrough( Js::OpCodeAsmJs opcode )
-    {
+    {LOGMEIN("BackendOpCodeAttrAsmJs.cpp] 58\n");
         return CheckNoHasFlag( OpNoFallThrough );
     }
 
     bool HasMultiSizeLayout( Js::OpCodeAsmJs opcode )
-    {
+    {LOGMEIN("BackendOpCodeAttrAsmJs.cpp] 63\n");
         return CheckHasFlag( OpHasMultiSizeLayout );
     }
 

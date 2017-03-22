@@ -25,31 +25,31 @@ namespace Js
         emptyStrings(0),
         singleCharStrings(0),
         stringConcatMetrics(&allocator, 43)
-    {
+    {LOGMEIN("ProfileString.cpp] 27\n");
     }
 
     bool StringProfiler::IsOnWrongThread() const
-    {
+    {LOGMEIN("ProfileString.cpp] 31\n");
         return GetCurrentThreadContextId() != this->mainThreadId;
     }
 
     void StringProfiler::RecordNewString( const char16* sz, uint length )
-    {
+    {LOGMEIN("ProfileString.cpp] 36\n");
         if( IsOnWrongThread() )
-        {
+        {LOGMEIN("ProfileString.cpp] 38\n");
             ::InterlockedIncrement(&discardedWrongThread);
             return;
         }
         RequiredEncoding encoding = ASCII7bit;
         if(sz)
-        {
+        {LOGMEIN("ProfileString.cpp] 44\n");
             encoding = GetRequiredEncoding(sz, length);
         }
 
         StringMetrics metrics = {};
 
         if( stringLengthMetrics.TryGetValue(length, &metrics) )
-        {
+        {LOGMEIN("ProfileString.cpp] 51\n");
             metrics.Accumulate(encoding);
             stringLengthMetrics.Item(length,metrics);
         }
@@ -60,10 +60,10 @@ namespace Js
         }
 
         if(sz)
-        {
+        {LOGMEIN("ProfileString.cpp] 62\n");
             uint embeddedNULs = CountEmbeddedNULs(sz, length);
             if( embeddedNULs != 0 )
-            {
+            {LOGMEIN("ProfileString.cpp] 65\n");
 
                 this->embeddedNULChars += embeddedNULs;
                 this->embeddedNULStrings++;
@@ -72,19 +72,19 @@ namespace Js
     }
 
     /*static*/ StringProfiler::RequiredEncoding StringProfiler::GetRequiredEncoding( const char16* sz, uint length )
-    {
+    {LOGMEIN("ProfileString.cpp] 74\n");
         RequiredEncoding encoding = ASCII7bit;
 
         for( uint i = 0; i != length; ++i )
-        {
+        {LOGMEIN("ProfileString.cpp] 78\n");
             unsigned short ch = static_cast< unsigned short >(sz[i]);
             if( ch >= 0x100 )
-            {
+            {LOGMEIN("ProfileString.cpp] 81\n");
                 encoding = Unicode16bit;
                 break; // no need to look further
             }
             else if( ch >= 0x80 )
-            {
+            {LOGMEIN("ProfileString.cpp] 86\n");
                 encoding = ASCII8bit;
             }
         }
@@ -93,10 +93,10 @@ namespace Js
     }
 
     /*static*/ uint StringProfiler::CountEmbeddedNULs( const char16* sz, uint length )
-    {
+    {LOGMEIN("ProfileString.cpp] 95\n");
         uint result = 0;
         for( uint i = 0; i != length; ++i )
-        {
+        {LOGMEIN("ProfileString.cpp] 98\n");
             if( sz[i] == _u('\0') ) ++result;
         }
 
@@ -104,31 +104,31 @@ namespace Js
     }
 
     StringProfiler::HistogramIndex::HistogramIndex( ArenaAllocator* allocator, uint size )
-    {
+    {LOGMEIN("ProfileString.cpp] 106\n");
         this->index = AnewArray(allocator, UintUintPair, size);
         this->count = 0;
     }
 
     void StringProfiler::HistogramIndex::Add( uint len, uint freq )
-    {
+    {LOGMEIN("ProfileString.cpp] 112\n");
         index[count].first = len;
         index[count].second = freq;
         count++;
     }
 
     uint StringProfiler::HistogramIndex::Get( uint i ) const
-    {
+    {LOGMEIN("ProfileString.cpp] 119\n");
         Assert( i < count );
         return index[i].first;
     }
 
     uint StringProfiler::HistogramIndex::Count() const
-    {
+    {LOGMEIN("ProfileString.cpp] 125\n");
         return count;
     }
 
     /*static*/ int StringProfiler::HistogramIndex::CompareDescending( const void* lhs, const void* rhs )
-    {
+    {LOGMEIN("ProfileString.cpp] 130\n");
         // Compare on frequency (second)
         const UintUintPair* lhsPair = static_cast< const UintUintPair* >(lhs);
         const UintUintPair* rhsPair = static_cast< const UintUintPair* >(rhs);
@@ -138,7 +138,7 @@ namespace Js
     }
 
     void StringProfiler::HistogramIndex::SortDescending()
-    {
+    {LOGMEIN("ProfileString.cpp] 140\n");
         qsort(this->index, this->count, sizeof(UintUintPair), CompareDescending);
     }
 
@@ -147,7 +147,7 @@ namespace Js
         StringMetrics metrics,
         uint totalCount
         )
-    {
+    {LOGMEIN("ProfileString.cpp] 149\n");
         Output::Print(_u("%10u %10u %10u %10u %10u (%.1f%%)\n"),
                 len,
                 metrics.count7BitASCII,
@@ -159,9 +159,9 @@ namespace Js
     }
 
     /*static*/ void StringProfiler::PrintUintOrLarge( uint val )
-    {
+    {LOGMEIN("ProfileString.cpp] 161\n");
         if( val >= k_MaxConcatLength )
-        {
+        {LOGMEIN("ProfileString.cpp] 163\n");
             Output::Print(_u(" Large"), k_MaxConcatLength);
         }
         else
@@ -171,7 +171,7 @@ namespace Js
     }
 
     /*static*/ void StringProfiler::PrintOneConcat( UintUintPair const& key, const ConcatMetrics& metrics)
-    {
+    {LOGMEIN("ProfileString.cpp] 173\n");
         PrintUintOrLarge(key.first);
         Output::Print(_u(" "));
         PrintUintOrLarge(key.second);
@@ -183,7 +183,7 @@ namespace Js
     }
 
     void StringProfiler::PrintAll()
-    {
+    {LOGMEIN("ProfileString.cpp] 185\n");
         Output::Print(_u("=============================================================\n"));
         Output::Print(_u("String Statistics\n"));
         Output::Print(_u("-------------------------------------------------------------\n"));
@@ -205,7 +205,7 @@ namespace Js
         uint maxLength = 0;
 
         for(uint i = 0; i != index.Count(); ++i )
-        {
+        {LOGMEIN("ProfileString.cpp] 207\n");
             uint length = index.Get(i);
 
             // UintHashMap::Lookup doesn't work with value-types (it returns NULL
@@ -228,7 +228,7 @@ namespace Js
             cumulative.Total() );
 
         if(discardedWrongThread>0)
-        {
+        {LOGMEIN("ProfileString.cpp] 230\n");
             Output::Print(_u("WARNING: %u strings were not counted because they were allocated on a background thread\n"),discardedWrongThread);
         }
         Output::Print(_u("\n"));
@@ -236,7 +236,7 @@ namespace Js
         Output::Print(_u("%u empty strings (Literals or BufferString) were requested\n"), emptyStrings);
         Output::Print(_u("%u single char strings (Literals or BufferString) were requested\n"), singleCharStrings);
         if( this->embeddedNULStrings == 0 )
-        {
+        {LOGMEIN("ProfileString.cpp] 238\n");
             Output::Print(_u("No embedded NULs were detected\n"));
         }
         else
@@ -246,7 +246,7 @@ namespace Js
         Output::Print(_u("\n"));
 
         if(stringConcatMetrics.Count() == 0)
-        {
+        {LOGMEIN("ProfileString.cpp] 248\n");
             Output::Print(_u("No string concatenations were performed\n"));
         }
         else
@@ -278,9 +278,9 @@ namespace Js
     }
 
     void StringProfiler::RecordConcatenation( uint lenLeft, uint lenRight, ConcatType type )
-    {
+    {LOGMEIN("ProfileString.cpp] 280\n");
         if( IsOnWrongThread() )
-        {
+        {LOGMEIN("ProfileString.cpp] 282\n");
             return;
         }
 
@@ -290,7 +290,7 @@ namespace Js
         UintUintPair key = { lenLeft, lenRight };
         ConcatMetrics* metrics;
         if(!stringConcatMetrics.TryGetReference(key, &metrics))
-        {
+        {LOGMEIN("ProfileString.cpp] 292\n");
             stringConcatMetrics.Add(key, ConcatMetrics(type));
         }
         else
@@ -300,37 +300,37 @@ namespace Js
     }
 
     /*static*/ void StringProfiler::RecordNewString( ScriptContext* scriptContext, const char16* sz, uint length )
-    {
+    {LOGMEIN("ProfileString.cpp] 302\n");
         StringProfiler* stringProfiler = scriptContext->GetStringProfiler();
         if( stringProfiler )
-        {
+        {LOGMEIN("ProfileString.cpp] 305\n");
             stringProfiler->RecordNewString(sz, length);
         }
     }
 
     /*static*/ void StringProfiler::RecordConcatenation( ScriptContext* scriptContext, uint lenLeft, uint lenRight, ConcatType type)
-    {
+    {LOGMEIN("ProfileString.cpp] 311\n");
         StringProfiler* stringProfiler = scriptContext->GetStringProfiler();
         if( stringProfiler )
-        {
+        {LOGMEIN("ProfileString.cpp] 314\n");
             stringProfiler->RecordConcatenation(lenLeft, lenRight, type);
         }
     }
 
     /*static*/ void StringProfiler::RecordEmptyStringRequest( ScriptContext* scriptContext )
-    {
+    {LOGMEIN("ProfileString.cpp] 320\n");
         StringProfiler* stringProfiler = scriptContext->GetStringProfiler();
         if( stringProfiler )
-        {
+        {LOGMEIN("ProfileString.cpp] 323\n");
             ::InterlockedIncrement( &stringProfiler->emptyStrings );
         }
     }
 
     /*static*/ void StringProfiler::RecordSingleCharStringRequest( ScriptContext* scriptContext )
-    {
+    {LOGMEIN("ProfileString.cpp] 329\n");
         StringProfiler* stringProfiler = scriptContext->GetStringProfiler();
         if( stringProfiler )
-        {
+        {LOGMEIN("ProfileString.cpp] 332\n");
             ::InterlockedIncrement( &stringProfiler->singleCharStrings );
         }
     }

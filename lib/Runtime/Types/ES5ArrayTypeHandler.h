@@ -16,12 +16,12 @@ namespace Js
         IndexPropertyDescriptor(PropertyAttributes attributes = PropertyDynamicTypeDefaults,
             Var getter = NULL, Var setter = NULL)
             : Attributes(attributes), Getter(getter), Setter(setter)
-        {
+        {LOGMEIN("ES5ArrayTypeHandler.h] 18\n");
         }
 
         IndexPropertyDescriptor(Var getter, Var setter)
             : Attributes(PropertyDynamicTypeDefaults), Getter(getter), Setter(setter)
-        {
+        {LOGMEIN("ES5ArrayTypeHandler.h] 23\n");
         }
     };
 
@@ -54,29 +54,29 @@ namespace Js
         uint32 DeleteDownTo(uint32 firstKey);
 
         int Count() const
-        {
+        {LOGMEIN("ES5ArrayTypeHandler.h] 56\n");
             return indexPropertyMap->Count();
         }
         uint32 GetKeyAt(int i) const
-        {
+        {LOGMEIN("ES5ArrayTypeHandler.h] 60\n");
             return indexPropertyMap->GetKeyAt(i);
         }
         IndexPropertyDescriptor* GetReferenceAt(int i) const
-        {
+        {LOGMEIN("ES5ArrayTypeHandler.h] 64\n");
             return indexPropertyMap->GetReferenceAt(i);
         }
         bool ContainsKey(uint32 key) const
-        {
+        {LOGMEIN("ES5ArrayTypeHandler.h] 68\n");
             return indexPropertyMap->ContainsKey(key);
         }
         bool TryGetReference(uint32 key, IndexPropertyDescriptor** value) const
-        {
+        {LOGMEIN("ES5ArrayTypeHandler.h] 72\n");
             return indexPropertyMap->TryGetReference(key, value);
         }
 
     private:
         static int __cdecl CompareIndex(const void* left, const void* right)
-        {
+        {LOGMEIN("ES5ArrayTypeHandler.h] 78\n");
             return *static_cast<const uint32*>(left) - *static_cast<const uint32*>(right);
         }
     };
@@ -120,7 +120,7 @@ namespace Js
             indexPropertyMap(typeHandler->indexPropertyMap),
             dataItemAttributes(typeHandler->dataItemAttributes),
             lengthWritable(typeHandler->lengthWritable)
-        {
+        {LOGMEIN("ES5ArrayTypeHandler.h] 122\n");
         }
 
         void SetInstanceTypeHandler(DynamicObject * instance, bool hasChanged = true);

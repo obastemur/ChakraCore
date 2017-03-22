@@ -116,16 +116,16 @@ namespace Js
         void PopulateLookupPropertyId(ScriptContext * scriptContext, int realArrayOffset);
 
         ByteCodeBufferReader* GetReader()
-        {
+        {LOGMEIN("ByteCodeSerializer.h] 118\n");
             return reader;
         }
 
         // Convert a serialized propertyID into a real one.
         inline PropertyId LookupPropertyId(PropertyId obscuredIdInCache) const
-        {
+        {LOGMEIN("ByteCodeSerializer.h] 124\n");
             auto unobscured = obscuredIdInCache ^ SERIALIZER_OBSCURE_PROPERTY_ID;
             if (unobscured < builtInPropertyCount || unobscured==/*nil*/0xffffffff)
-            {
+            {LOGMEIN("ByteCodeSerializer.h] 127\n");
                 return unobscured; // This is a built in property id
             }
             auto realOffset = unobscured - builtInPropertyCount;
@@ -136,7 +136,7 @@ namespace Js
 
         // Convert a serialized propertyID into a real one.
         inline PropertyId LookupNonBuiltinPropertyId(PropertyId obscuredIdInCache) const
-        {
+        {LOGMEIN("ByteCodeSerializer.h] 138\n");
             auto realOffset = obscuredIdInCache ^ SERIALIZER_OBSCURE_NONBUILTIN_PROPERTY_ID;
             Assert(realOffset<propertyCount);
             Assert(propertyIds[realOffset]!=-1);
@@ -145,7 +145,7 @@ namespace Js
 
         // Get the raw byte code buffer.
         inline const byte * GetBuffer() const
-        {
+        {LOGMEIN("ByteCodeSerializer.h] 147\n");
             return raw;
         }
     };

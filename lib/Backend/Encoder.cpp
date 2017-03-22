@@ -15,22 +15,22 @@
 ///----------------------------------------------------------------------------
 void
 Encoder::Encode()
-{
+{LOGMEIN("Encoder.cpp] 17\n");
     NoRecoverMemoryArenaAllocator localArena(_u("BE-Encoder"), m_func->m_alloc->GetPageAllocator(), Js::Throw::OutOfMemory);
     m_tempAlloc = &localArena;
 
 #if ENABLE_OOP_NATIVE_CODEGEN
     class AutoLocalAlloc {
     public:
-        AutoLocalAlloc(Func * func) : localXdataAddr(nullptr), localAddress(nullptr), segment(nullptr), func(func) { }
+        AutoLocalAlloc(Func * func) : localXdataAddr(nullptr), localAddress(nullptr), segment(nullptr), func(func) {LOGMEIN("Encoder.cpp] 24\n"); }
         ~AutoLocalAlloc()
-        {
+        {LOGMEIN("Encoder.cpp] 26\n");
             if (localAddress)
-            {
+            {LOGMEIN("Encoder.cpp] 28\n");
                 this->func->GetOOPThreadContext()->GetCodePageAllocators()->FreeLocal(this->localAddress, this->segment);
             }
             if (localXdataAddr)
-            {
+            {LOGMEIN("Encoder.cpp] 32\n");
                 this->func->GetOOPThreadContext()->GetCodePageAllocators()->FreeLocal(this->localXdataAddr, this->segment);
             }
         }
@@ -57,7 +57,7 @@ Encoder::Encode()
 
     m_pragmaInstrToRecordMap = Anew(m_tempAlloc, PragmaInstrList, m_tempAlloc);
     if (DoTrackAllStatementBoundary())
-    {
+    {LOGMEIN("Encoder.cpp] 59\n");
         // Create a new list, if we are tracking all statement boundaries.
         m_pragmaInstrToRecordOffset = Anew(m_tempAlloc, PragmaInstrList, m_tempAlloc);
     }
@@ -90,18 +90,18 @@ Encoder::Encode()
     errno_t err = rand_s(&initialCRCSeed);
 
     if (err != 0)
-    {
+    {LOGMEIN("Encoder.cpp] 92\n");
         Fatal();
     }
 
     uint bufferCRC = initialCRCSeed;
 
     FOREACH_INSTR_IN_FUNC(instr, m_func)
-    {
+    {LOGMEIN("Encoder.cpp] 99\n");
         Assert(Lowerer::ValidOpcodeAfterLower(instr, m_func));
 
         if (GetCurrentOffset() + MachMaxInstrSize < m_encodeBufferSize)
-        {
+        {LOGMEIN("Encoder.cpp] 103\n");
             ptrdiff_t count;
 
 #if DBG_DUMP
@@ -110,9 +110,9 @@ Encoder::Encode()
             m_offsetBuffer[m_instrNumber++] = GetCurrentOffset();
 #endif
             if (instr->IsPragmaInstr())
-            {
+            {LOGMEIN("Encoder.cpp] 112\n");
                 switch (instr->m_opcode)
-                {
+                {LOGMEIN("Encoder.cpp] 114\n");
 #ifdef _M_X64
                 case Js::OpCode::PrologStart:
                     m_func->m_prologEncoder.Begin(m_pc - m_encodeBuffer);
@@ -131,7 +131,7 @@ Encoder::Encode()
 
                     // will record after BR shortening with adjusted offsets
                     if (DoTrackAllStatementBoundary())
-                    {
+                    {LOGMEIN("Encoder.cpp] 133\n");
                         m_pragmaInstrToRecordOffset->Add(pragmaInstr);
                     }
 
@@ -142,16 +142,16 @@ Encoder::Encode()
                 }
             }
             else if (instr->IsBranchInstr() && instr->AsBranchInstr()->IsMultiBranch())
-            {
+            {LOGMEIN("Encoder.cpp] 144\n");
                 Assert(instr->GetSrc1() && instr->GetSrc1()->IsRegOpnd());
                 IR::MultiBranchInstr * multiBranchInstr = instr->AsBranchInstr()->AsMultiBrInstr();
 
                 if (multiBranchInstr->m_isSwitchBr &&
                     (multiBranchInstr->m_kind == IR::MultiBranchInstr::IntJumpTable || multiBranchInstr->m_kind == IR::MultiBranchInstr::SingleCharStrJumpTable))
-                {
+                {LOGMEIN("Encoder.cpp] 150\n");
                     BranchJumpTableWrapper * branchJumpTableWrapper = multiBranchInstr->GetBranchJumpTable();
                     if (jumpTableListForSwitchStatement == nullptr)
-                    {
+                    {LOGMEIN("Encoder.cpp] 153\n");
                         jumpTableListForSwitchStatement = Anew(m_tempAlloc, JmpTableList, m_tempAlloc);
                     }
                     jumpTableListForSwitchStatement->Add(branchJumpTableWrapper);
@@ -177,36 +177,36 @@ Encoder::Encode()
             {
                 isCallInstr = LowererMD::IsCall(instr);
                 if (pragmaInstr && (instr->isInlineeEntryInstr || isCallInstr))
-                {
+                {LOGMEIN("Encoder.cpp] 179\n");
                     // will record throw map after BR shortening with adjusted offsets
                     m_pragmaInstrToRecordMap->Add(pragmaInstr);
                     pragmaInstr = nullptr; // Only once per pragma instr -- do we need to make this record?
                 }
 
                 if (instr->HasBailOutInfo())
-                {
+                {LOGMEIN("Encoder.cpp] 186\n");
                     Assert(this->m_func->hasBailout);
                     Assert(LowererMD::IsCall(instr));
                     instr->GetBailOutInfo()->FinalizeBailOutRecord(this->m_func);
                 }
 
                 if (instr->isInlineeEntryInstr)
-                {
+                {LOGMEIN("Encoder.cpp] 193\n");
 
                     m_encoderMD.EncodeInlineeCallInfo(instr, GetCurrentOffset());
                 }
 
                 if (instr->m_opcode == Js::OpCode::InlineeStart)
-                {
+                {LOGMEIN("Encoder.cpp] 199\n");
                     Assert(!instr->isInlineeEntryInstr);
                     if (pragmaInstr)
-                    {
+                    {LOGMEIN("Encoder.cpp] 202\n");
                         m_pragmaInstrToRecordMap->Add(pragmaInstr);
                         pragmaInstr = nullptr;
                     }
                     Func* inlinee = instr->m_func;
                     if (inlinee->frameInfo && inlinee->frameInfo->record)
-                    {
+                    {LOGMEIN("Encoder.cpp] 208\n");
                         inlinee->frameInfo->record->Finalize(inlinee, GetCurrentOffset());
 
 #if defined(_M_IX86) || defined(_M_X64)
@@ -225,11 +225,11 @@ Encoder::Encode()
 
 #if DBG_DUMP
             if (PHASE_TRACE(Js::EncoderPhase, this->m_func))
-            {
+            {LOGMEIN("Encoder.cpp] 227\n");
                 instr->Dump((IRDumpFlags)(IRDumpFlags_SimpleForm | IRDumpFlags_SkipEndLine | IRDumpFlags_SkipByteCodeOffset));
                 Output::SkipToColumn(80);
                 for (BYTE * current = m_pc; current < m_pc + count; current++)
-                {
+                {LOGMEIN("Encoder.cpp] 231\n");
                     Output::Print(_u("%02X "), *current);
                 }
                 Output::Print(_u("\n"));
@@ -248,12 +248,12 @@ Encoder::Encode()
                 m_encoderMD.AppendRelocEntry(RelocType::RelocTypeInlineeEntryOffset, (void*)(m_pc - MachPtr));
 #endif
             if (isCallInstr)
-            {
+            {LOGMEIN("Encoder.cpp] 250\n");
                 isCallInstr = false;
                 this->RecordInlineeFrame(instr->m_func, GetCurrentOffset());
             }
             if (instr->HasBailOutInfo() && Lowerer::DoLazyBailout(this->m_func))
-            {
+            {LOGMEIN("Encoder.cpp] 255\n");
                 this->RecordBailout(instr, (uint32)(m_pc - m_encodeBuffer));
             }
         }
@@ -270,21 +270,21 @@ Encoder::Encode()
 #if defined(_M_IX86) || defined(_M_X64)
     // Shorten branches. ON by default
     if (!PHASE_OFF(Js::BrShortenPhase, m_func))
-    {
+    {LOGMEIN("Encoder.cpp] 272\n");
         uint brShortenedbufferCRC = initialCRCSeed;
         isSuccessBrShortAndLoopAlign = ShortenBranchesAndLabelAlign(&m_encodeBuffer, &codeSize, &brShortenedbufferCRC, bufferCRC, totalJmpTableSizeInBytes);
         if (isSuccessBrShortAndLoopAlign)
-        {
+        {LOGMEIN("Encoder.cpp] 276\n");
             bufferCRC = brShortenedbufferCRC;
         }
     }
 #endif
 #if DBG_DUMP | defined(VTUNE_PROFILING)
     if (this->m_func->DoRecordNativeMap())
-    {
+    {LOGMEIN("Encoder.cpp] 283\n");
         // Record PragmaInstr offsets and throw maps
         for (int32 i = 0; i < m_pragmaInstrToRecordOffset->Count(); i++)
-        {
+        {LOGMEIN("Encoder.cpp] 286\n");
             IR::PragmaInstr *inst = m_pragmaInstrToRecordOffset->Item(i);
             inst->Record(inst->m_offsetInBuffer);
         }
@@ -292,13 +292,13 @@ Encoder::Encode()
 #endif
 
     if (m_pragmaInstrToRecordMap->Count() > 0)
-    {
+    {LOGMEIN("Encoder.cpp] 294\n");
         if (m_func->IsOOPJIT())
-        {
+        {LOGMEIN("Encoder.cpp] 296\n");
             int allocSize = m_pragmaInstrToRecordMap->Count();
             Js::ThrowMapEntry * throwMap = NativeCodeDataNewArrayNoFixup(m_func->GetNativeCodeDataAllocator(), Js::ThrowMapEntry, allocSize);
             for (int i = 0; i < allocSize; i++)
-            {
+            {LOGMEIN("Encoder.cpp] 300\n");
                 IR::PragmaInstr *inst = m_pragmaInstrToRecordMap->Item(i);
                 throwMap[i].nativeBufferOffset = inst->m_offsetInBuffer;
                 throwMap[i].statementIndex = inst->m_statementIndex;
@@ -311,7 +311,7 @@ Encoder::Encode()
             auto functionBody = entryPointInfo->GetFunctionBody();
             Js::SmallSpanSequenceIter iter;
             for (int32 i = 0; i < m_pragmaInstrToRecordMap->Count(); i++)
-            {
+            {LOGMEIN("Encoder.cpp] 313\n");
                 IR::PragmaInstr *inst = m_pragmaInstrToRecordMap->Item(i);
                 functionBody->RecordNativeThrowMap(iter, inst->m_offsetInBuffer, inst->m_statementIndex, entryPointInfo, Js::LoopHeader::NoLoop);
             }
@@ -355,7 +355,7 @@ Encoder::Encode()
         localAddress = m_func->GetOOPThreadContext()->GetCodePageAllocators()->AllocLocal(allocation->address, alloc->bytesCommitted, localAlloc.segment);
         localAlloc.localAddress = localAddress;
         if (localAddress == nullptr)
-        {
+        {LOGMEIN("Encoder.cpp] 357\n");
             Js::Throw::OutOfMemory();
         }
     }
@@ -369,7 +369,7 @@ Encoder::Encode()
     }
 
     if (!inPrereservedRegion)
-    {
+    {LOGMEIN("Encoder.cpp] 371\n");
         m_func->GetThreadContextInfo()->ResetIsAllJITCodeInPreReservedRegion();
     }
 
@@ -385,7 +385,7 @@ Encoder::Encode()
 
 #if defined(_M_IX86) || defined(_M_X64)
     if (!JITManager::GetJITManager()->IsJITServer())
-    {
+    {LOGMEIN("Encoder.cpp] 387\n");
         ValidateCRCOnFinalBuffer((BYTE *)allocation->address, codeSize, totalJmpTableSizeInBytes, m_encodeBuffer, initialCRCSeed, bufferCRC, isSuccessBrShortAndLoopAlign);
     }
 #endif
@@ -397,11 +397,11 @@ Encoder::Encode()
     char * localXdataAddr = nullptr;
 #if ENABLE_OOP_NATIVE_CODEGEN
     if (JITManager::GetJITManager()->IsJITServer())
-    {
+    {LOGMEIN("Encoder.cpp] 399\n");
         localXdataAddr = m_func->GetOOPThreadContext()->GetCodePageAllocators()->AllocLocal((char*)allocation->xdata.address, XDATA_SIZE, localAlloc.segment);
         localAlloc.localXdataAddr = localXdataAddr;
         if (localXdataAddr == nullptr)
-        {
+        {LOGMEIN("Encoder.cpp] 403\n");
             Js::Throw::OutOfMemory();
         }
     }
@@ -418,7 +418,7 @@ Encoder::Encode()
 #elif _M_ARM
     m_func->m_unwindInfo.EmitUnwindInfo(m_func->GetJITOutput(), allocation);
     if (m_func->IsOOPJIT())
-    {
+    {LOGMEIN("Encoder.cpp] 420\n");
         size_t allocSize = XDataAllocator::GetAllocSize(allocation->xdata.pdataCount, allocation->xdata.xdataSize);
         BYTE * xprocXdata = NativeCodeDataNewArrayNoFixup(m_func->GetNativeCodeDataAllocator(), BYTE, allocSize);
         memcpy_s(xprocXdata, allocSize, allocation->xdata.address, allocSize);
@@ -434,7 +434,7 @@ Encoder::Encode()
 #endif
 
     if (CONFIG_FLAG(OOPCFGRegistration))
-    {
+    {LOGMEIN("Encoder.cpp] 436\n");
         m_func->GetThreadContextInfo()->SetValidCallTargetForCFG((PVOID)m_func->GetJITOutput()->GetCodeAddress());
     }
 
@@ -442,9 +442,9 @@ Encoder::Encode()
 
     if (this->m_inlineeFrameMap->Count() > 0 &&
         !(this->m_inlineeFrameMap->Count() == 1 && this->m_inlineeFrameMap->Item(0).record == nullptr))
-    {
+    {LOGMEIN("Encoder.cpp] 444\n");
         if (!m_func->IsOOPJIT()) // in-proc JIT
-        {
+        {LOGMEIN("Encoder.cpp] 446\n");
             m_func->GetInProcJITEntryPointInfo()->RecordInlineeFrameMap(m_inlineeFrameMap);
         }
         else // OOP JIT
@@ -455,7 +455,7 @@ Encoder::Encode()
             {
                 pairs[i].offset = p.offset;
                 if (p.record)
-                {
+                {LOGMEIN("Encoder.cpp] 457\n");
                     pairs[i].recordOffset = NativeCodeData::GetDataChunk(p.record)->offset;
                 }
                 else
@@ -469,21 +469,21 @@ Encoder::Encode()
     }
 
     if (this->m_bailoutRecordMap->Count() > 0)
-    {
+    {LOGMEIN("Encoder.cpp] 471\n");
         m_func->GetInProcJITEntryPointInfo()->RecordBailOutMap(m_bailoutRecordMap);
     }
 
     if (this->m_func->pinnedTypeRefs != nullptr)
-    {
+    {LOGMEIN("Encoder.cpp] 476\n");
         Assert(!isSimpleJit);
         int pinnedTypeRefCount = this->m_func->pinnedTypeRefs->Count();
         PinnedTypeRefsIDL* pinnedTypeRefs = nullptr;
 
         if (this->m_func->IsOOPJIT())
-        {
+        {LOGMEIN("Encoder.cpp] 482\n");
             pinnedTypeRefs = (PinnedTypeRefsIDL*)midl_user_allocate(offsetof(PinnedTypeRefsIDL, typeRefs) + sizeof(void*)*pinnedTypeRefCount);
             if (!pinnedTypeRefs)
-            {
+            {LOGMEIN("Encoder.cpp] 485\n");
                 Js::Throw::OutOfMemory();
             }
             __analysis_assume(pinnedTypeRefs);
@@ -506,7 +506,7 @@ Encoder::Encode()
         });
 
         if (PHASE_TRACE(Js::TracePinnedTypesPhase, this->m_func))
-        {
+        {LOGMEIN("Encoder.cpp] 508\n");
             char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
             Output::Print(_u("PinnedTypes: function %s(%s) pinned %d types.\n"),
                 this->m_func->GetJITFunctionBody()->GetDisplayName(), this->m_func->GetDebugNumberSet(debugStringBuffer), pinnedTypeRefCount);
@@ -514,25 +514,25 @@ Encoder::Encode()
         }
 
         if (!this->m_func->IsOOPJIT())
-        {
+        {LOGMEIN("Encoder.cpp] 516\n");
             m_func->GetInProcJITEntryPointInfo()->GetJitTransferData()->SetRuntimeTypeRefs(pinnedTypeRefs);
         }
     }
 
     // Save all equivalent type guards in a fixed size array on the JIT transfer data
     if (this->m_func->equivalentTypeGuards != nullptr)
-    {
+    {LOGMEIN("Encoder.cpp] 523\n");
         AssertMsg(!PHASE_OFF(Js::EquivObjTypeSpecPhase, this->m_func), "Why do we have equivalent type guards if we don't do equivalent object type spec?");
 
         int equivalentTypeGuardsCount = this->m_func->equivalentTypeGuards->Count();
 
         if (this->m_func->IsOOPJIT())
-        {
+        {LOGMEIN("Encoder.cpp] 529\n");
             auto& equivalentTypeGuardOffsets = this->m_func->GetJITOutput()->GetOutputData()->equivalentTypeGuardOffsets;
             size_t allocSize = offsetof(EquivalentTypeGuardOffsets, guards) + equivalentTypeGuardsCount * sizeof(EquivalentTypeGuardIDL);
             equivalentTypeGuardOffsets = (EquivalentTypeGuardOffsets*)midl_user_allocate(allocSize);
             if (equivalentTypeGuardOffsets == nullptr)
-            {
+            {LOGMEIN("Encoder.cpp] 534\n");
                 Js::Throw::OutOfMemory();
             }
 
@@ -551,7 +551,7 @@ Encoder::Encode()
                 equivalentTypeGuardOffsets->guards[i].cache.record.propertyCount = cache->record.propertyCount;
                 equivalentTypeGuardOffsets->guards[i].cache.record.propertyOffset = NativeCodeData::GetDataTotalOffset(cache->record.properties);
                 for (int j = 0; j < EQUIVALENT_TYPE_CACHE_SIZE; j++)
-                {
+                {LOGMEIN("Encoder.cpp] 553\n");
                     equivalentTypeGuardOffsets->guards[i].cache.types[j] = (intptr_t)PointerValue(cache->types[j]);
                 }
                 i++;
@@ -571,7 +571,7 @@ Encoder::Encode()
     }
 
     if (this->m_func->lazyBailoutProperties.Count() > 0)
-    {
+    {LOGMEIN("Encoder.cpp] 573\n");
         int count = this->m_func->lazyBailoutProperties.Count();
         Js::PropertyId* lazyBailoutProperties = HeapNewArrayZ(Js::PropertyId, count);
         Js::PropertyId* dstProperties = lazyBailoutProperties;
@@ -585,7 +585,7 @@ Encoder::Encode()
     // Save all property guards on the JIT transfer data in a map keyed by property ID. We will use this map when installing the entry
     // point to register each guard for invalidation.
     if (this->m_func->propertyGuardsByPropertyId != nullptr)
-    {
+    {LOGMEIN("Encoder.cpp] 587\n");
         Assert(!isSimpleJit);
         AssertMsg(!(PHASE_OFF(Js::ObjTypeSpecPhase, this->m_func) && PHASE_OFF(Js::FixedMethodsPhase, this->m_func)),
             "Why do we have type guards if we don't do object type spec or fixed methods?");
@@ -599,7 +599,7 @@ Encoder::Encode()
 
 
         if (!this->m_func->IsOOPJIT())
-        {
+        {LOGMEIN("Encoder.cpp] 601\n");
             int propertyCount = this->m_func->propertyGuardsByPropertyId->Count();
             Assert(propertyCount > 0);
 
@@ -653,7 +653,7 @@ Encoder::Encode()
                 auto count = srcSet->Count();
                 (*entry) = (TypeGuardTransferEntryIDL*)midl_user_allocate(offsetof(TypeGuardTransferEntryIDL, guardOffsets) + count*sizeof(int));
                 if (!*entry)
-                {
+                {LOGMEIN("Encoder.cpp] 655\n");
                     Js::Throw::OutOfMemory();
                 }
                 __analysis_assume(*entry);
@@ -677,7 +677,7 @@ Encoder::Encode()
     // Save all constructor caches on the JIT transfer data in a map keyed by property ID. We will use this map when installing the entry
     // point to register each cache for invalidation.
     if (this->m_func->ctorCachesByPropertyId != nullptr)
-    {
+    {LOGMEIN("Encoder.cpp] 679\n");
         Assert(!isSimpleJit);
 
         AssertMsg(!(PHASE_OFF(Js::ObjTypeSpecPhase, this->m_func) && PHASE_OFF(Js::FixedMethodsPhase, this->m_func)),
@@ -693,13 +693,13 @@ Encoder::Encode()
         });
 
         if (m_func->IsOOPJIT())
-        {
+        {LOGMEIN("Encoder.cpp] 695\n");
             Func* func = this->m_func;
             m_func->GetJITOutput()->GetOutputData()->ctorCachesCount = propertyCount;
             m_func->GetJITOutput()->GetOutputData()->ctorCacheEntries = (CtorCacheTransferEntryIDL**)midl_user_allocate(propertyCount * sizeof(CtorCacheTransferEntryIDL*));
             CtorCacheTransferEntryIDL** entries = m_func->GetJITOutput()->GetOutputData()->ctorCacheEntries;
             if (!entries)
-            {
+            {LOGMEIN("Encoder.cpp] 701\n");
                 Js::Throw::OutOfMemory();
             }
             __analysis_assume(entries);
@@ -709,7 +709,7 @@ Encoder::Encode()
             {
                 entries[propIndex] = (CtorCacheTransferEntryIDL*)midl_user_allocate(srcCacheSet->Count() * sizeof(intptr_t) + sizeof(CtorCacheTransferEntryIDL));
                 if (!entries[propIndex])
-                {
+                {LOGMEIN("Encoder.cpp] 711\n");
                     Js::Throw::OutOfMemory();
                 }
                 __analysis_assume(entries[propIndex]);
@@ -772,7 +772,7 @@ Encoder::Encode()
 
     m_func->m_codeSize = codeSize;
     if (PHASE_DUMP(Js::EncoderPhase, m_func) || PHASE_DUMP(Js::BackEndPhase, m_func))
-    {
+    {LOGMEIN("Encoder.cpp] 774\n");
         bool dumpIRAddressesValue = Js::Configuration::Global.flags.DumpIRAddresses;
         Js::Configuration::Global.flags.DumpIRAddresses = true;
 
@@ -780,7 +780,7 @@ Encoder::Encode()
 
         m_instrNumber = 0;
         FOREACH_INSTR_IN_FUNC(instr, m_func)
-        {
+        {LOGMEIN("Encoder.cpp] 782\n");
             __analysis_assume(m_instrNumber < instrCount);
             instr->DumpGlobOptInstrString();
 #ifdef _WIN64
@@ -796,7 +796,7 @@ Encoder::Encode()
     }
 
     if (PHASE_DUMP(Js::EncoderPhase, m_func) && Js::Configuration::Global.flags.Verbose && !m_func->IsOOPJIT())
-    {
+    {LOGMEIN("Encoder.cpp] 798\n");
         m_func->GetInProcJITEntryPointInfo()->DumpNativeOffsetMaps();
         m_func->GetInProcJITEntryPointInfo()->DumpNativeThrowSpanSequence();
         this->DumpInlineeFrameMap(m_func->GetJITOutput()->GetCodeAddress());
@@ -806,7 +806,7 @@ Encoder::Encode()
 }
 
 bool Encoder::DoTrackAllStatementBoundary() const
-{
+{LOGMEIN("Encoder.cpp] 808\n");
 #if DBG_DUMP | defined(VTUNE_PROFILING)
     return this->m_func->DoRecordNativeMap();
 #else
@@ -815,9 +815,9 @@ bool Encoder::DoTrackAllStatementBoundary() const
 }
 
 void Encoder::TryCopyAndAddRelocRecordsForSwitchJumpTableEntries(BYTE *codeStart, size_t codeSize, JmpTableList * jumpTableListForSwitchStatement, size_t totalJmpTableSizeInBytes)
-{
+{LOGMEIN("Encoder.cpp] 817\n");
     if (jumpTableListForSwitchStatement == nullptr)
-    {
+    {LOGMEIN("Encoder.cpp] 819\n");
         return;
     }
 
@@ -838,7 +838,7 @@ void Encoder::TryCopyAndAddRelocRecordsForSwitchJumpTableEntries(BYTE *codeStart
         memcpy(jmpTableStartAddress, srcJmpTable, jmpTableSizeInBytes);
 
         for (int i = 0; i < branchJumpTableWrapper->tableSize; i++)
-        {
+        {LOGMEIN("Encoder.cpp] 840\n");
             void * addressOfJmpTableEntry = jmpTableStartAddress + (i * sizeof(void*));
             Assert((ptrdiff_t) addressOfJmpTableEntry - (ptrdiff_t) jmpTableStartAddress < (ptrdiff_t) jmpTableSizeInBytes);
 #if defined(_M_ARM32_OR_ARM64)
@@ -856,30 +856,30 @@ void Encoder::TryCopyAndAddRelocRecordsForSwitchJumpTableEntries(BYTE *codeStart
 }
 
 uint32 Encoder::GetCurrentOffset() const
-{
+{LOGMEIN("Encoder.cpp] 858\n");
     Assert(m_pc - m_encodeBuffer <= UINT_MAX);      // encode buffer size is uint32
     return static_cast<uint32>(m_pc - m_encodeBuffer);
 }
 
 void Encoder::RecordInlineeFrame(Func* inlinee, uint32 currentOffset)
-{
+{LOGMEIN("Encoder.cpp] 864\n");
     // The only restriction for not supporting loop bodies is that inlinee frame map is created on FunctionEntryPointInfo & not
     // the base class EntryPointInfo.
     if (!(this->m_func->IsLoopBody() && PHASE_OFF(Js::InlineInJitLoopBodyPhase, this->m_func)) && !this->m_func->IsSimpleJit())
-    {
+    {LOGMEIN("Encoder.cpp] 868\n");
         InlineeFrameRecord* record = nullptr;
         if (inlinee->frameInfo && inlinee->m_hasInlineArgsOpt)
-        {
+        {LOGMEIN("Encoder.cpp] 871\n");
             record = inlinee->frameInfo->record;
             Assert(record != nullptr);
         }
         if (m_inlineeFrameMap->Count() > 0)
-        {
+        {LOGMEIN("Encoder.cpp] 876\n");
             // update existing record if the entry is the same.
             NativeOffsetInlineeFramePair& lastPair = m_inlineeFrameMap->Item(m_inlineeFrameMap->Count() - 1);
 
             if (lastPair.record == record)
-            {
+            {LOGMEIN("Encoder.cpp] 881\n");
                 lastPair.offset = currentOffset;
                 return;
             }
@@ -898,7 +898,7 @@ void Encoder::RecordInlineeFrame(Func* inlinee, uint32 currentOffset)
 *       - The version of CRC that we are validating with, doesn't have Relocs applied but the final buffer does - So we have to make adjustments while calculating the final buffer's CRC.
 */
 void Encoder::ValidateCRCOnFinalBuffer(_In_reads_bytes_(finalCodeSize) BYTE * finalCodeBufferStart, size_t finalCodeSize, size_t jumpTableSize, _In_reads_bytes_(finalCodeSize) BYTE * oldCodeBufferStart, uint initialCrcSeed, uint bufferCrcToValidate, BOOL isSuccessBrShortAndLoopAlign)
-{
+{LOGMEIN("Encoder.cpp] 900\n");
     RelocList * relocList = m_encoderMD.GetRelocList();
 
     BYTE * currentStartAddress = finalCodeBufferStart;
@@ -912,19 +912,19 @@ void Encoder::ValidateCRCOnFinalBuffer(_In_reads_bytes_(finalCodeSize) BYTE * fi
     BYTE * oldPtr = nullptr;
 
     if (relocList != nullptr)
-    {
+    {LOGMEIN("Encoder.cpp] 914\n");
         for (int index = 0; index < relocList->Count(); index++)
-        {
+        {LOGMEIN("Encoder.cpp] 916\n");
             EncodeRelocAndLabels * relocTuple = &relocList->Item(index);
 
             //We will deal with the jump table and dictionary entries along with other reloc records in ApplyRelocs()
             if ((BYTE*)m_encoderMD.GetRelocBufferAddress(relocTuple) >= oldCodeBufferStart && (BYTE*)m_encoderMD.GetRelocBufferAddress(relocTuple) < (oldCodeBufferStart + finalCodeSizeWithoutJumpTable))
-            {
+            {LOGMEIN("Encoder.cpp] 921\n");
                 BYTE* finalBufferRelocTuplePtr = (BYTE*)m_encoderMD.GetRelocBufferAddress(relocTuple) - oldCodeBufferStart + finalCodeBufferStart;
                 Assert(finalBufferRelocTuplePtr >= finalCodeBufferStart && finalBufferRelocTuplePtr < (finalCodeBufferStart + finalCodeSizeWithoutJumpTable));
                 uint relocDataSize = m_encoderMD.GetRelocDataSize(relocTuple);
                 if (relocDataSize != 0)
-                {
+                {LOGMEIN("Encoder.cpp] 926\n");
                     AssertMsg(oldPtr == nullptr || oldPtr < finalBufferRelocTuplePtr, "Assumption here is that the reloc list is strictly increasing in terms of bufferAddress");
                     oldPtr = finalBufferRelocTuplePtr;
 
@@ -935,7 +935,7 @@ void Encoder::ValidateCRCOnFinalBuffer(_In_reads_bytes_(finalCodeSize) BYTE * fi
 
                     finalBufferCRC = CalculateCRC(finalBufferCRC, crcSizeToCompute, currentStartAddress);
                     for (uint i = 0; i < relocDataSize; i++)
-                    {
+                    {LOGMEIN("Encoder.cpp] 937\n");
                         finalBufferCRC = CalculateCRC(finalBufferCRC, 0);
                     }
                     currentStartAddress = currentEndAddress + relocDataSize;
@@ -955,7 +955,7 @@ void Encoder::ValidateCRCOnFinalBuffer(_In_reads_bytes_(finalCodeSize) BYTE * fi
     m_encoderMD.ApplyRelocs((size_t)finalCodeBufferStart, finalCodeSize, &finalBufferCRC, isSuccessBrShortAndLoopAlign, true);
 
     if (finalBufferCRC != bufferCrcToValidate)
-    {
+    {LOGMEIN("Encoder.cpp] 957\n");
         Assert(false);
         Fatal();
     }
@@ -969,13 +969,13 @@ void Encoder::ValidateCRCOnFinalBuffer(_In_reads_bytes_(finalCodeSize) BYTE * fi
 *       - For absolute addressing, Target = direct address
 */
 void Encoder::EnsureRelocEntryIntegrity(size_t newBufferStartAddress, size_t codeSize, size_t oldBufferAddress, size_t relocAddress, uint offsetBytes, ptrdiff_t opndData, bool isRelativeAddr)
-{
+{LOGMEIN("Encoder.cpp] 971\n");
     size_t targetBrAddress = 0;
     size_t newBufferEndAddress = newBufferStartAddress + codeSize;
 
     //Handle Dictionary addresses here - The target address will be in the dictionary.
     if (relocAddress < oldBufferAddress || relocAddress >= (oldBufferAddress + codeSize))
-    {
+    {LOGMEIN("Encoder.cpp] 977\n");
         targetBrAddress = (size_t)(*(size_t*)relocAddress);
     }
     else
@@ -983,7 +983,7 @@ void Encoder::EnsureRelocEntryIntegrity(size_t newBufferStartAddress, size_t cod
         size_t newBufferRelocAddr = relocAddress - oldBufferAddress + newBufferStartAddress;
 
         if (isRelativeAddr)
-        {
+        {LOGMEIN("Encoder.cpp] 985\n");
             targetBrAddress = (size_t)newBufferRelocAddr + offsetBytes + opndData;
         }
         else  // Absolute Address
@@ -993,23 +993,23 @@ void Encoder::EnsureRelocEntryIntegrity(size_t newBufferStartAddress, size_t cod
     }
 
     if (targetBrAddress < newBufferStartAddress || targetBrAddress >= newBufferEndAddress)
-    {
+    {LOGMEIN("Encoder.cpp] 995\n");
         Assert(false);
         Fatal();
     }
 }
 
 uint Encoder::CalculateCRC(uint bufferCRC, size_t data)
-{
+{LOGMEIN("Encoder.cpp] 1002\n");
 #if defined(_WIN32) || defined(__SSE4_2__)
 #if defined(_M_IX86)
     if (AutoSystemInfo::Data.SSE4_2Available())
-    {
+    {LOGMEIN("Encoder.cpp] 1006\n");
         return _mm_crc32_u32(bufferCRC, data);
     }
 #elif defined(_M_X64)
     if (AutoSystemInfo::Data.SSE4_2Available())
-    {
+    {LOGMEIN("Encoder.cpp] 1011\n");
         //CRC32 always returns a 32-bit result
         return (uint)_mm_crc32_u64(bufferCRC, data);
     }
@@ -1019,22 +1019,22 @@ uint Encoder::CalculateCRC(uint bufferCRC, size_t data)
 }
 
 uint Encoder::CalculateCRC(uint bufferCRC, size_t count, _In_reads_bytes_(count) void * buffer)
-{
+{LOGMEIN("Encoder.cpp] 1021\n");
     for (uint index = 0; index < count; index++)
-    {
+    {LOGMEIN("Encoder.cpp] 1023\n");
         bufferCRC = CalculateCRC(bufferCRC, *((BYTE*)buffer + index));
     }
     return bufferCRC;
 }
 
 void Encoder::ValidateCRC(uint bufferCRC, uint initialCRCSeed, _In_reads_bytes_(count) void* buffer, size_t count)
-{
+{LOGMEIN("Encoder.cpp] 1030\n");
     uint validationCRC = initialCRCSeed;
 
     validationCRC = CalculateCRC(validationCRC, count, buffer);
 
     if (validationCRC != bufferCRC)
-    {
+    {LOGMEIN("Encoder.cpp] 1036\n");
         //TODO: This throws internal error. Is this error type, Fine?
         Fatal();
     }
@@ -1050,7 +1050,7 @@ void Encoder::ValidateCRC(uint bufferCRC, uint initialCRCSeed, _In_reads_bytes_(
 ///----------------------------------------------------------------------------
 BOOL
 Encoder::ShortenBranchesAndLabelAlign(BYTE **codeStart, ptrdiff_t *codeSize, uint * pShortenedBufferCRC, uint bufferCrcToValidate, size_t jumpTableSize)
-{
+{LOGMEIN("Encoder.cpp] 1052\n");
 #ifdef  ENABLE_DEBUG_CONFIG_OPTIONS
     static uint32 globalTotalBytesSaved = 0, globalTotalBytesWithoutShortening = 0;
     static uint32 globalTotalBytesInserted = 0; // loop alignment nops
@@ -1066,7 +1066,7 @@ Encoder::ShortenBranchesAndLabelAlign(BYTE **codeStart, ptrdiff_t *codeSize, uin
     RelocList* relocList = m_encoderMD.GetRelocList();
 
     if (relocList == nullptr)
-    {
+    {LOGMEIN("Encoder.cpp] 1068\n");
         return false;
     }
 
@@ -1094,7 +1094,7 @@ Encoder::ShortenBranchesAndLabelAlign(BYTE **codeStart, ptrdiff_t *codeSize, uin
 
     // loop over all BRs, find the ones we can convert to short form
     for (int32 j = 0; j < relocList->Count(); j++)
-    {
+    {LOGMEIN("Encoder.cpp] 1096\n");
         IR::LabelInstr *targetLabel;
         int32 relOffset;
         uint32 bytesSaved = 0;
@@ -1105,12 +1105,12 @@ Encoder::ShortenBranchesAndLabelAlign(BYTE **codeStart, ptrdiff_t *codeSize, uin
 
         // If not a long branch, just fix the reloc entry and skip.
         if (!reloc.isLongBr())
-        {
+        {LOGMEIN("Encoder.cpp] 1107\n");
             // if loop alignment is required, total bytes saved can change
             int32 newTotalBytesSaved = m_encoderMD.FixRelocListEntry(j, totalBytesSaved, buffStart, buffEnd);
 
             if (newTotalBytesSaved != totalBytesSaved)
-            {
+            {LOGMEIN("Encoder.cpp] 1112\n");
                 AssertMsg(reloc.isAlignedLabel(), "Expecting aligned label.");
                 // we aligned a loop, fix maps
                 m_encoderMD.FixMaps((uint32)(reloc.getLabelOrigPC() - buffStart), totalBytesSaved, &inlineeFrameRecordsIndex, &inlineeFrameMapIndex, &pragmaInstToRecordOffsetIndex, &offsetBuffIndex);
@@ -1132,11 +1132,11 @@ Encoder::ShortenBranchesAndLabelAlign(BYTE **codeStart, ptrdiff_t *codeSize, uin
         shortBrPtr = fixedBrPtr = (BYTE*)reloc.m_ptr - totalBytesSaved;
 
         if (*opcodeByte == 0xe9 /* JMP rel32 */)
-        {
+        {LOGMEIN("Encoder.cpp] 1134\n");
             bytesSaved = 3;
         }
         else if (*opcodeByte >= 0x80 && *opcodeByte < 0x90 /* Jcc rel32 */)
-        {
+        {LOGMEIN("Encoder.cpp] 1138\n");
             Assert(*(opcodeByte - 1) == 0x0f);
             bytesSaved = 4;
             // Jcc rel8 is one byte shorter in opcode, fix Br ptr to point to start of rel8
@@ -1149,7 +1149,7 @@ Encoder::ShortenBranchesAndLabelAlign(BYTE **codeStart, ptrdiff_t *codeSize, uin
 
         // compute current distance to label
         if (labelPc >= (BYTE*) reloc.m_ptr)
-        {
+        {LOGMEIN("Encoder.cpp] 1151\n");
             // forward Br. We compare using the unfixed m_ptr, because the label is ahead and its Pc is not fixed it.
             relOffset = (int32)(labelPc - ((BYTE*)reloc.m_ptr + 4));
         }
@@ -1165,7 +1165,7 @@ Encoder::ShortenBranchesAndLabelAlign(BYTE **codeStart, ptrdiff_t *codeSize, uin
 
         // can we shorten ?
         if (relOffset >= -128 && relOffset <= 127)
-        {
+        {LOGMEIN("Encoder.cpp] 1167\n");
             uint32 brOffset;
 
             brShortenedCount++;
@@ -1189,7 +1189,7 @@ Encoder::ShortenBranchesAndLabelAlign(BYTE **codeStart, ptrdiff_t *codeSize, uin
 
     // Fix the rest of the maps, if needed.
     if (totalBytesSaved != 0)
-    {
+    {LOGMEIN("Encoder.cpp] 1191\n");
         m_encoderMD.FixMaps((uint32) -1, totalBytesSaved, &inlineeFrameRecordsIndex, &inlineeFrameMapIndex, &pragmaInstToRecordOffsetIndex, &offsetBuffIndex);
         codeChange = true;
         newCodeSize -= totalBytesSaved;
@@ -1204,7 +1204,7 @@ Encoder::ShortenBranchesAndLabelAlign(BYTE **codeStart, ptrdiff_t *codeSize, uin
     globalTotalBytesSaved += (uint32)(*codeSize - newCodeSize);
 
     if (PHASE_TRACE(Js::BrShortenPhase, this->m_func))
-    {
+    {LOGMEIN("Encoder.cpp] 1206\n");
         OUTPUT_VERBOSE_TRACE(Js::BrShortenPhase, _u("func: %s, bytes saved: %d, bytes saved %%:%.2f, total bytes saved: %d, total bytes saved%%: %.2f, BR shortened: %d\n"),
             this->m_func->GetJITFunctionBody()->GetDisplayName(), (*codeSize - newCodeSize), ((float)*codeSize - newCodeSize) / *codeSize * 100,
             globalTotalBytesSaved, ((float)globalTotalBytesSaved) / globalTotalBytesWithoutShortening * 100 , brShortenedCount);
@@ -1226,11 +1226,11 @@ Encoder::ShortenBranchesAndLabelAlign(BYTE **codeStart, ptrdiff_t *codeSize, uin
     size_t dst_size = newCodeSize;
     size_t src_size;
     for (int32 i = 0; i < relocList->Count(); i++)
-    {
+    {LOGMEIN("Encoder.cpp] 1228\n");
         EncodeRelocAndLabels &reloc = relocList->Item(i);
         // shorten BR and copy
         if (reloc.isShortBr())
-        {
+        {LOGMEIN("Encoder.cpp] 1232\n");
             // validate that short BR offset is within 1 byte offset range.
             // This handles the rare case with loop alignment breaks br shortening.
             // Consider:
@@ -1259,11 +1259,11 @@ Encoder::ShortenBranchesAndLabelAlign(BYTE **codeStart, ptrdiff_t *codeSize, uin
             BYTE *opcodeByte = (BYTE*)reloc.m_origPtr - 1;
 
             if (*opcodeByte == 0xe9 /* JMP rel32 */)
-            {
+            {LOGMEIN("Encoder.cpp] 1261\n");
                 to = opcodeByte - 1;
             }
             else if (*opcodeByte >= 0x80 && *opcodeByte < 0x90 /* Jcc rel32 */)
-            {
+            {LOGMEIN("Encoder.cpp] 1265\n");
                 Assert(*(opcodeByte - 1) == 0x0f);
                 to = opcodeByte - 2;
             }
@@ -1295,7 +1295,7 @@ Encoder::ShortenBranchesAndLabelAlign(BYTE **codeStart, ptrdiff_t *codeSize, uin
             from = (BYTE*)reloc.m_origPtr + 4;
         }
         else if (reloc.m_type == RelocTypeInlineeEntryOffset)
-        {
+        {LOGMEIN("Encoder.cpp] 1297\n");
             to = (BYTE*)reloc.m_origPtr - 1;
             CopyPartialBufferAndCalculateCRC(&dst_p, dst_size, from, to, pShortenedBufferCRC);
 
@@ -1312,7 +1312,7 @@ Encoder::ShortenBranchesAndLabelAlign(BYTE **codeStart, ptrdiff_t *codeSize, uin
         }
         // insert NOPs for aligned labels
         else if ((!PHASE_OFF(Js::LoopAlignPhase, m_func) && reloc.isAlignedLabel()) && reloc.getLabelNopCount() > 0)
-        {
+        {LOGMEIN("Encoder.cpp] 1314\n");
             IR::LabelInstr *label = reloc.getLabel();
             BYTE nop_count = reloc.getLabelNopCount();
 
@@ -1326,7 +1326,7 @@ Encoder::ShortenBranchesAndLabelAlign(BYTE **codeStart, ptrdiff_t *codeSize, uin
 
 #ifdef  ENABLE_DEBUG_CONFIG_OPTIONS
             if (PHASE_TRACE(Js::LoopAlignPhase, this->m_func))
-            {
+            {LOGMEIN("Encoder.cpp] 1328\n");
                 globalTotalBytesInserted += nop_count;
 
                 OUTPUT_VERBOSE_TRACE(Js::LoopAlignPhase, _u("func: %s, bytes inserted: %d, bytes inserted %%:%.4f, total bytes inserted:%d, total bytes inserted %%:%.4f\n"),
@@ -1351,7 +1351,7 @@ Encoder::ShortenBranchesAndLabelAlign(BYTE **codeStart, ptrdiff_t *codeSize, uin
     m_encoderMD.UpdateRelocListWithNewBuffer(relocList, tmpBuffer, buffStart, buffEnd);
 
     if (srcBufferCrc != bufferCrcToValidate)
-    {
+    {LOGMEIN("Encoder.cpp] 1353\n");
         Assert(false);
         Fatal();
     }
@@ -1364,12 +1364,12 @@ Encoder::ShortenBranchesAndLabelAlign(BYTE **codeStart, ptrdiff_t *codeSize, uin
 }
 
 BYTE Encoder::FindNopCountFor16byteAlignment(size_t address)
-{
+{LOGMEIN("Encoder.cpp] 1366\n");
     return (16 - (BYTE) (address & 0xf)) % 16;
 }
 
 void Encoder::CopyPartialBufferAndCalculateCRC(BYTE ** ptrDstBuffer, size_t &dstSize, BYTE * srcStart, BYTE * srcEnd, uint* pBufferCRC, size_t jumpTableSize)
-{
+{LOGMEIN("Encoder.cpp] 1371\n");
     BYTE * destBuffer = *ptrDstBuffer;
 
     size_t srcSize = srcEnd - srcStart + 1;
@@ -1386,19 +1386,19 @@ void Encoder::CopyPartialBufferAndCalculateCRC(BYTE ** ptrDstBuffer, size_t &dst
 }
 
 void Encoder::InsertNopsForLabelAlignment(int nopCount, BYTE ** ptrDstBuffer)
-{
+{LOGMEIN("Encoder.cpp] 1388\n");
     // write NOPs
     for (int32 i = 0; i < nopCount; i++, (*ptrDstBuffer)++)
-    {
+    {LOGMEIN("Encoder.cpp] 1391\n");
         **ptrDstBuffer = 0x90;
     }
 }
 void Encoder::revertRelocList()
-{
+{LOGMEIN("Encoder.cpp] 1396\n");
     RelocList* relocList = m_encoderMD.GetRelocList();
 
     for (int32 i = 0; i < relocList->Count(); i++)
-    {
+    {LOGMEIN("Encoder.cpp] 1400\n");
         relocList->Item(i).revert();
     }
 }
@@ -1409,14 +1409,14 @@ void Encoder::CopyMaps(OffsetList **m_origInlineeFrameRecords
     , OffsetList **m_origPragmaInstrToRecordOffset
     , OffsetList **m_origOffsetBuffer
     )
-{
+{LOGMEIN("Encoder.cpp] 1411\n");
     InlineeFrameRecords *recList = m_inlineeFrameRecords;
     InlineeFrameMap *mapList = m_inlineeFrameMap;
     PragmaInstrList *pInstrList = m_pragmaInstrToRecordOffset;
 
     OffsetList *origRecList, *origMapList, *origPInstrList;
     if (!restore)
-    {
+    {LOGMEIN("Encoder.cpp] 1418\n");
         Assert(*m_origInlineeFrameRecords == nullptr);
         Assert(*m_origInlineeFrameMap == nullptr);
         Assert(*m_origPragmaInstrToRecordOffset == nullptr);
@@ -1447,9 +1447,9 @@ void Encoder::CopyMaps(OffsetList **m_origInlineeFrameRecords
     }
 
     for (int i = 0; i < recList->Count(); i++)
-    {
+    {LOGMEIN("Encoder.cpp] 1449\n");
         if (!restore)
-        {
+        {LOGMEIN("Encoder.cpp] 1451\n");
             origRecList->Add(recList->Item(i)->inlineeStartOffset);
         }
         else
@@ -1459,9 +1459,9 @@ void Encoder::CopyMaps(OffsetList **m_origInlineeFrameRecords
     }
 
     for (int i = 0; i < mapList->Count(); i++)
-    {
+    {LOGMEIN("Encoder.cpp] 1461\n");
         if (!restore)
-        {
+        {LOGMEIN("Encoder.cpp] 1463\n");
             origMapList->Add(mapList->Item(i).offset);
         }
         else
@@ -1471,9 +1471,9 @@ void Encoder::CopyMaps(OffsetList **m_origInlineeFrameRecords
     }
 
     for (int i = 0; i < pInstrList->Count(); i++)
-    {
+    {LOGMEIN("Encoder.cpp] 1473\n");
         if (!restore)
-        {
+        {LOGMEIN("Encoder.cpp] 1475\n");
             origPInstrList->Add(pInstrList->Item(i)->m_offsetInBuffer);
         }
         else
@@ -1483,7 +1483,7 @@ void Encoder::CopyMaps(OffsetList **m_origInlineeFrameRecords
     }
 
     if (restore)
-    {
+    {LOGMEIN("Encoder.cpp] 1485\n");
         (*m_origInlineeFrameRecords)->Delete();
         (*m_origInlineeFrameMap)->Delete();
         (*m_origPragmaInstrToRecordOffset)->Delete();
@@ -1494,9 +1494,9 @@ void Encoder::CopyMaps(OffsetList **m_origInlineeFrameRecords
 
 #if DBG_DUMP
     for (uint i = 0; i < m_instrNumber; i++)
-    {
+    {LOGMEIN("Encoder.cpp] 1496\n");
         if (!restore)
-        {
+        {LOGMEIN("Encoder.cpp] 1498\n");
             (*m_origOffsetBuffer)->Add(m_offsetBuffer[i]);
         }
         else
@@ -1506,7 +1506,7 @@ void Encoder::CopyMaps(OffsetList **m_origInlineeFrameRecords
     }
 
     if (restore)
-    {
+    {LOGMEIN("Encoder.cpp] 1508\n");
         (*m_origOffsetBuffer)->Delete();
         (*m_origOffsetBuffer) = nullptr;
     }
@@ -1516,15 +1516,15 @@ void Encoder::CopyMaps(OffsetList **m_origInlineeFrameRecords
 #endif
 
 void Encoder::RecordBailout(IR::Instr* instr, uint32 currentOffset)
-{
+{LOGMEIN("Encoder.cpp] 1518\n");
     BailOutInfo* bailoutInfo = instr->GetBailOutInfo();
     if (bailoutInfo->bailOutRecord == nullptr)
-    {
+    {LOGMEIN("Encoder.cpp] 1521\n");
         return;
     }
 #if DBG_DUMP
     if (PHASE_DUMP(Js::LazyBailoutPhase, m_func))
-    {
+    {LOGMEIN("Encoder.cpp] 1526\n");
         Output::Print(_u("Offset: %u Instr: "), currentOffset);
         instr->Dump();
         Output::Print(_u("Bailout label: "));
@@ -1538,14 +1538,14 @@ void Encoder::RecordBailout(IR::Instr* instr, uint32 currentOffset)
 
 #if DBG_DUMP
 void Encoder::DumpInlineeFrameMap(size_t baseAddress)
-{
+{LOGMEIN("Encoder.cpp] 1540\n");
     Output::Print(_u("Inlinee frame info mapping\n"));
     Output::Print(_u("---------------------------------------\n"));
     m_inlineeFrameMap->Map([=](uint index, NativeOffsetInlineeFramePair& pair) {
         Output::Print(_u("%Ix"), baseAddress + pair.offset);
         Output::SkipToColumn(20);
         if (pair.record)
-        {
+        {LOGMEIN("Encoder.cpp] 1547\n");
             pair.record->Dump();
         }
         else

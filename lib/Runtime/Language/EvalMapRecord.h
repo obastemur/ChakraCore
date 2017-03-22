@@ -13,14 +13,14 @@ namespace Js
     struct FastEvalMapStringComparer
     {
         static bool Equals(T left, T right)
-        {
+        {LOGMEIN("EvalMapRecord.h] 15\n");
             return (left.hash == right.hash) &&
                 (left.moduleID == right.moduleID) &&
                 (left.IsStrict() == right.IsStrict());
         }
 
         static hash_t GetHashCode(T t)
-        {
+        {LOGMEIN("EvalMapRecord.h] 22\n");
             return (hash_t)t;
         }
     };
@@ -35,18 +35,18 @@ namespace Js
             singleValue(true), value(newValue) {}
 
         TwoLevelHashRecord() :
-            singleValue(true), value(nullptr) {}
+            singleValue(true), value(nullptr) {LOGMEIN("EvalMapRecord.h] 37\n");}
 
         SecondaryDictionary* GetDictionary()
-        {
+        {LOGMEIN("EvalMapRecord.h] 40\n");
             Assert(!singleValue);
             return nestedMap;
         }
 
         bool TryGetValue(TKey& key, TValue* value)
-        {
+        {LOGMEIN("EvalMapRecord.h] 46\n");
             if (IsValue())
-            {
+            {LOGMEIN("EvalMapRecord.h] 48\n");
                 *value = GetValue();
                 return true;
             }
@@ -54,21 +54,21 @@ namespace Js
         }
 
         void Add(const TKey& key, const TValue& newValue)
-        {
+        {LOGMEIN("EvalMapRecord.h] 56\n");
             Assert(!singleValue);
             NestedKey nestedKey;
             ConvertKey(key, nestedKey);
             nestedMap->Item(nestedKey, newValue);
 #ifdef PROFILE_EVALMAP
             if (Configuration::Global.flags.ProfileEvalMap)
-            {
+            {LOGMEIN("EvalMapRecord.h] 63\n");
                 Output::Print(_u("EvalMap fastcache collision:\t key = %d count = %d\n"), (hash_t)key, nestedMap->Count());
             }
 #endif
         }
 
         void Remove(const TKey& key)
-        {
+        {LOGMEIN("EvalMapRecord.h] 70\n");
             Assert(!singleValue);
             NestedKey nestedKey;
             ConvertKey(key, nestedKey);
@@ -76,7 +76,7 @@ namespace Js
         }
 
         void ConvertToDictionary(TKey& key, Recycler* recycler)
-        {
+        {LOGMEIN("EvalMapRecord.h] 78\n");
             Assert(singleValue);
             SecondaryDictionary* dictionary = RecyclerNew(recycler, SecondaryDictionary, recycler);
             auto newValue = value;
@@ -85,9 +85,9 @@ namespace Js
             Add(key, newValue);
         }
 
-        bool IsValue() const { return singleValue; }
-        TValue GetValue() const { Assert(singleValue); return value; }
-        bool IsDictionaryEntry() const { return !singleValue; }
+        bool IsValue() const {LOGMEIN("EvalMapRecord.h] 87\n"); return singleValue; }
+        TValue GetValue() const {LOGMEIN("EvalMapRecord.h] 88\n"); Assert(singleValue); return value; }
+        bool IsDictionaryEntry() const {LOGMEIN("EvalMapRecord.h] 89\n"); return !singleValue; }
 
     private:
         Field(bool) singleValue;
@@ -109,11 +109,11 @@ namespace Js
         public:
             AutoRestoreSetInAdd(T* instance, Value value) :
                 instance(instance), value(value)
-            {
+            {LOGMEIN("EvalMapRecord.h] 111\n");
                 instance->SetIsInAdd(value);
             }
             ~AutoRestoreSetInAdd()
-            {
+            {LOGMEIN("EvalMapRecord.h] 115\n");
                 instance->SetIsInAdd(!value);
             }
 
@@ -126,23 +126,23 @@ namespace Js
         TwoLevelHashDictionary(TopLevelDictionary* cache, Recycler* recycler) :
             dictionary(cache),
             recycler(recycler)
-        {
+        {LOGMEIN("EvalMapRecord.h] 128\n");
         }
 
         bool TryGetValue(const Key& key, Value* value)
-        {
+        {LOGMEIN("EvalMapRecord.h] 132\n");
             EntryRecord* const * entryRecord;
             Key cachedKey;
             int index;
             bool success = dictionary->TryGetReference(key, &entryRecord, &index);
             if (success && ((*entryRecord) != nullptr))
-            {
+            {LOGMEIN("EvalMapRecord.h] 138\n");
                 cachedKey = dictionary->GetKeyAt(index);
                 if ((*entryRecord)->IsValue())
-                {
+                {LOGMEIN("EvalMapRecord.h] 141\n");
                     success = (cachedKey == key);
                     if (success)
-                    {
+                    {LOGMEIN("EvalMapRecord.h] 144\n");
                         *value = (*entryRecord)->GetValue();
                     }
                 }
@@ -160,14 +160,14 @@ namespace Js
             return success;
         }
 
-        TopLevelDictionary* GetDictionary() const { return dictionary; }
+        TopLevelDictionary* GetDictionary() const {LOGMEIN("EvalMapRecord.h] 162\n"); return dictionary; }
         void NotifyAdd(const Key& key)
-        {
+        {LOGMEIN("EvalMapRecord.h] 164\n");
             dictionary->NotifyAdd(key);
         }
 
         void Add(const Key& key, Value value)
-        {
+        {LOGMEIN("EvalMapRecord.h] 169\n");
             EntryRecord* const * entryRecord;
             int index;
             bool success = dictionary->TryGetReference(key, &entryRecord, &index);
@@ -175,7 +175,7 @@ namespace Js
             {
                 AutoRestoreSetInAdd<TopLevelDictionary, bool> autoRestoreSetInAdd(this->dictionary, true);
                 if ((*entryRecord)->IsValue())
-                {
+                {LOGMEIN("EvalMapRecord.h] 177\n");
                     Key oldKey = dictionary->GetKeyAt(index);
                     (*entryRecord)->ConvertToDictionary(oldKey, recycler);
                 }
@@ -187,7 +187,7 @@ namespace Js
                 dictionary->Add(key, newRecord);
 #ifdef PROFILE_EVALMAP
                 if (Configuration::Global.flags.ProfileEvalMap)
-                {
+                {LOGMEIN("EvalMapRecord.h] 189\n");
                     Output::Print(_u("EvalMap fastcache set:\t key = %d \n"), (hash_t)key);
                 }
 #endif

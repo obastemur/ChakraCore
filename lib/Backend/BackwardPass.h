@@ -127,8 +127,8 @@ private:
     bool IsTraceEnabled() const;
 #endif
 
-    bool IsCollectionPass() const { return isCollectionPass; }
-    bool IsPrePass() const { return this->currentPrePassLoop != nullptr; }
+    bool IsCollectionPass() const {LOGMEIN("BackwardPass.h] 129\n"); return isCollectionPass; }
+    bool IsPrePass() const {LOGMEIN("BackwardPass.h] 130\n"); return this->currentPrePassLoop != nullptr; }
 
     void DeleteBlockData(BasicBlock * block);
 
@@ -193,33 +193,33 @@ private:
 
     public:
         FloatSymEquivalenceClass(JitArenaAllocator *const allocator) : bv(allocator), requiresBailOnNotNumber(false)
-        {
+        {LOGMEIN("BackwardPass.h] 195\n");
         }
 
         BVSparse<JitArenaAllocator> *Bv()
-        {
+        {LOGMEIN("BackwardPass.h] 199\n");
             return &bv;
         }
 
         bool RequiresBailOnNotNumber() const
-        {
+        {LOGMEIN("BackwardPass.h] 204\n");
             return requiresBailOnNotNumber;
         }
 
         void Set(const StackSym *const sym)
-        {
+        {LOGMEIN("BackwardPass.h] 209\n");
             bv.Set(sym->m_id);
             if(sym->m_requiresBailOnNotNumber)
-            {
+            {LOGMEIN("BackwardPass.h] 212\n");
                 requiresBailOnNotNumber = true;
             }
         }
 
         void Or(const FloatSymEquivalenceClass *const other)
-        {
+        {LOGMEIN("BackwardPass.h] 218\n");
             bv.Or(&other->bv);
             if(other->requiresBailOnNotNumber)
-            {
+            {LOGMEIN("BackwardPass.h] 221\n");
                 requiresBailOnNotNumber = true;
             }
         }

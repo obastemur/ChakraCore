@@ -33,7 +33,7 @@ namespace Js
         static Var EntrySymbolIterator(RecyclableObject* function, CallInfo callInfo, ...);
         void Initialize();
         ListForListIterator* EnsureSortedExportedNames();
-        static ModuleNamespace* FromVar(Var obj) { Assert(JavascriptOperators::GetTypeId(obj) == TypeIds_ModuleNamespace); return static_cast<ModuleNamespace*>(obj); }
+        static ModuleNamespace* FromVar(Var obj) {LOGMEIN("ModuleNamespace.h] 35\n"); Assert(JavascriptOperators::GetTypeId(obj) == TypeIds_ModuleNamespace); return static_cast<ModuleNamespace*>(obj); }
 
         virtual PropertyId GetPropertyId(BigPropertyIndex index) override;
         virtual BOOL HasProperty(PropertyId propertyId) override;
@@ -67,7 +67,7 @@ namespace Js
         virtual BOOL IsEnumerable(PropertyId propertyId) override { return true; }
         virtual BOOL SetEnumerable(PropertyId propertyId, BOOL value) override { return false; }
         virtual BOOL SetWritable(PropertyId propertyId, BOOL value) override { return false; }
-        virtual BOOL IsProtoImmutable() const { return true; }
+        virtual BOOL IsProtoImmutable() const {LOGMEIN("ModuleNamespace.h] 69\n"); return true; }
         virtual BOOL SetConfigurable(PropertyId propertyId, BOOL value) override { return false; }
         virtual BOOL SetAttributes(PropertyId propertyId, PropertyAttributes attributes) override { return false; }
         virtual BOOL IsExtensible() override { return false; };
@@ -90,10 +90,10 @@ namespace Js
         Field(ListForListIterator*) sortedExportedNames;   // sorted exported names for both local and indirect exports; excludes symbols.
         Field(Field(Var)*) nsSlots;
 
-        void SetNSSlotsForModuleNS(Field(Var)* nsSlot) { this->nsSlots = nsSlot; }
+        void SetNSSlotsForModuleNS(Field(Var)* nsSlot) {LOGMEIN("ModuleNamespace.h] 92\n"); this->nsSlots = nsSlot; }
         Var GetNSSlot(BigPropertyIndex propertyIndex);
         void AddUnambiguousNonLocalExport(PropertyId exportId, ModuleNameRecord* nonLocalExportNameRecord);
-        UnambiguousExportMap* GetUnambiguousNonLocalExports() const { return unambiguousNonLocalExports; }
+        UnambiguousExportMap* GetUnambiguousNonLocalExports() const {LOGMEIN("ModuleNamespace.h] 95\n"); return unambiguousNonLocalExports; }
 
         // Methods used by NamespaceEnumerator;
         BOOL FindNextProperty(BigPropertyIndex& index, JavascriptString** propertyString, PropertyId* propertyId, PropertyAttributes* attributes, ScriptContext * requestContext) const;

@@ -13,7 +13,7 @@ const ValueType ValueType::AnyNumber(
     Bits::Int | Bits::IntCanBeUntagged | Bits::IntIsLikelyUntagged | Bits::Float | Bits::Number);
 
 void ValueType::Initialize()
-{
+{LOGMEIN("ValueType.cpp] 15\n");
     InitializeTypeIdToBitsMap();
 #if DBG
     RunUnitTests();
@@ -21,7 +21,7 @@ void ValueType::Initialize()
 }
 
 inline ValueType::Bits ValueType::BitPattern(const TSize onCount)
-{
+{LOGMEIN("ValueType.cpp] 23\n");
     CompileAssert(sizeof(TSize) <= sizeof(size_t));
     Assert(onCount && onCount <= sizeof(TSize) * 8);
 
@@ -34,7 +34,7 @@ inline ValueType::Bits ValueType::BitPattern(const TSize onCount)
 }
 
 inline ValueType::Bits ValueType::BitPattern(const TSize onCount, const TSize offCount)
-{
+{LOGMEIN("ValueType.cpp] 36\n");
     Assert(onCount && onCount <= sizeof(TSize) * 8);
     Assert(offCount && offCount <= sizeof(TSize) * 8);
 
@@ -42,12 +42,12 @@ inline ValueType::Bits ValueType::BitPattern(const TSize onCount, const TSize of
 }
 
 ValueType ValueType::GetTaggedInt()
-{
+{LOGMEIN("ValueType.cpp] 44\n");
     return Verify(Int);
 }
 
 ValueType ValueType::GetInt(const bool isLikelyTagged)
-{
+{LOGMEIN("ValueType.cpp] 49\n");
     Bits intBits = Bits::Int | Bits::IntCanBeUntagged | Bits::CanBeTaggedValue;
     if(!isLikelyTagged)
         intBits |= Bits::IntIsLikelyUntagged;
@@ -55,16 +55,16 @@ ValueType ValueType::GetInt(const bool isLikelyTagged)
 }
 
 ValueType ValueType::GetNumberAndLikelyInt(const bool isLikelyTagged)
-{
+{LOGMEIN("ValueType.cpp] 57\n");
     return Verify(GetInt(isLikelyTagged).bits | Bits::Number);
 }
 
 ValueType ValueType::GetObject(const ObjectType objectType)
-{
+{LOGMEIN("ValueType.cpp] 62\n");
     ValueType valueType(UninitializedObject);
     valueType.SetObjectType(objectType);
     if(objectType == ObjectType::Array || objectType == ObjectType::ObjectWithArray)
-    {
+    {LOGMEIN("ValueType.cpp] 66\n");
         // Default to the most conservative array-specific information. This just a safeguard to guarantee that the returned
         // value type has a valid set of array-specific information. Callers should not rely on these defaults, and should
         // instead always set each piece of information explicitly.
@@ -74,13 +74,13 @@ ValueType ValueType::GetObject(const ObjectType objectType)
 }
 
 ValueType ValueType::GetSimd128(const ObjectType objectType)
-{
+{LOGMEIN("ValueType.cpp] 76\n");
     Assert(objectType >= ObjectType::Simd128Float32x4 && objectType <= ObjectType::Simd128Float64x2);
     return GetObject(objectType);
 }
 
 inline ValueType ValueType::GetArray(const ObjectType objectType)
-{
+{LOGMEIN("ValueType.cpp] 82\n");
     // Should typically use GetObject instead. This function should only be used for performance, when the array info is
     // guaranteed to be updated correctly by the caller.
 
@@ -92,22 +92,22 @@ inline ValueType ValueType::GetArray(const ObjectType objectType)
 }
 
 ValueType::ValueType() : bits(Uninitialized.bits)
-{
+{LOGMEIN("ValueType.cpp] 94\n");
     CompileAssert(sizeof(ValueType) == sizeof(TSize));
     CompileAssert(sizeof(ObjectType) == sizeof(TSize));
 }
 
 ValueType::ValueType(const Bits bits) : bits(bits)
-{
+{LOGMEIN("ValueType.cpp] 100\n");
 }
 
 ValueType ValueType::Verify(const Bits bits)
-{
+{LOGMEIN("ValueType.cpp] 104\n");
     return Verify(ValueType(bits));
 }
 
 ValueType ValueType::Verify(const ValueType valueType)
-{
+{LOGMEIN("ValueType.cpp] 109\n");
     Assert(valueType.bits);
     Assert(!valueType.OneOn(Bits::Object) || valueType.GetObjectType() < ObjectType::Count);
     Assert(
@@ -122,55 +122,55 @@ ValueType ValueType::Verify(const ValueType valueType)
 }
 
 bool ValueType::OneOn(const Bits b) const
-{
+{LOGMEIN("ValueType.cpp] 124\n");
     return AnyOn(b);
 }
 
 bool ValueType::AnyOn(const Bits b) const
-{
+{LOGMEIN("ValueType.cpp] 129\n");
     Assert(b);
     return !!(bits & b);
 }
 
 bool ValueType::AllEqual(const Bits b, const Bits e) const
-{
+{LOGMEIN("ValueType.cpp] 135\n");
     Assert(b);
     return (bits & b) == e;
 }
 
 bool ValueType::AllOn(const Bits b) const
-{
+{LOGMEIN("ValueType.cpp] 141\n");
     return AllEqual(b, b);
 }
 
 bool ValueType::OneOnOneOff(const Bits on, const Bits off) const
-{
+{LOGMEIN("ValueType.cpp] 146\n");
     return AllOnAllOff(on, off);
 }
 
 bool ValueType::AllOnAllOff(const Bits on, const Bits off) const
-{
+{LOGMEIN("ValueType.cpp] 151\n");
     return AllEqual(on | off, on);
 }
 
 bool ValueType::OneOnOthersOff(const Bits b) const
-{
+{LOGMEIN("ValueType.cpp] 156\n");
     return AllOnOthersOff(b);
 }
 
 bool ValueType::OneOnOthersOff(const Bits b, const Bits ignore) const
-{
+{LOGMEIN("ValueType.cpp] 161\n");
     return AllOnOthersOff(b, ignore);
 }
 
 bool ValueType::AnyOnOthersOff(const Bits b) const
-{
+{LOGMEIN("ValueType.cpp] 166\n");
     Assert(b);
     return !(bits & ~b);
 }
 
 bool ValueType::AnyOnOthersOff(const Bits b, const Bits ignore) const
-{
+{LOGMEIN("ValueType.cpp] 172\n");
     Assert(b);
     Assert(ignore);
     Assert(!(b & ignore)); // not necessary for this function to work correctly, but generally not expected
@@ -179,13 +179,13 @@ bool ValueType::AnyOnOthersOff(const Bits b, const Bits ignore) const
 }
 
 bool ValueType::AllOnOthersOff(const Bits b) const
-{
+{LOGMEIN("ValueType.cpp] 181\n");
     Assert(b);
     return bits == b;
 }
 
 bool ValueType::AllOnOthersOff(const Bits b, const Bits ignore) const
-{
+{LOGMEIN("ValueType.cpp] 187\n");
     Assert(b);
     Assert(ignore);
     Assert(!(b & ignore));
@@ -194,66 +194,66 @@ bool ValueType::AllOnOthersOff(const Bits b, const Bits ignore) const
 }
 
 bool ValueType::AnyOnExcept(const Bits b) const
-{
+{LOGMEIN("ValueType.cpp] 196\n");
     Assert(!!b && !!~b);
     return !AnyOn(b);
 }
 
 bool ValueType::IsUninitialized() const
-{
+{LOGMEIN("ValueType.cpp] 202\n");
     return AllOnOthersOff(Bits::Likely, Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsDefinite() const
-{
+{LOGMEIN("ValueType.cpp] 207\n");
     return !OneOn(Bits::Likely);
 }
 
 bool ValueType::IsTaggedInt() const
-{
+{LOGMEIN("ValueType.cpp] 212\n");
     return AllOnOthersOff(Bits::Int | Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsIntAndLikelyTagged() const
-{
+{LOGMEIN("ValueType.cpp] 217\n");
     return AllOnOthersOff(Bits::Int | Bits::CanBeTaggedValue, Bits::IntCanBeUntagged);
 }
 
 bool ValueType::IsLikelyTaggedInt() const
-{
+{LOGMEIN("ValueType.cpp] 222\n");
     return AllOnOthersOff(Bits::Int | Bits::CanBeTaggedValue, Bits::Likely | Bits::IntCanBeUntagged | Bits::Number);
 }
 
 bool ValueType::HasBeenUntaggedInt() const
-{
+{LOGMEIN("ValueType.cpp] 227\n");
     return OneOnOneOff(Bits::IntIsLikelyUntagged, Bits::Object);
 }
 
 bool ValueType::IsIntAndLikelyUntagged() const
-{
+{LOGMEIN("ValueType.cpp] 232\n");
     return AllOnOthersOff(Bits::Int | Bits::IntCanBeUntagged | Bits::IntIsLikelyUntagged, Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsLikelyUntaggedInt() const
-{
+{LOGMEIN("ValueType.cpp] 237\n");
     return AllOnOthersOff(Bits::Int | Bits::IntCanBeUntagged | Bits::IntIsLikelyUntagged,
                           Bits::Likely | Bits::Number | Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsNotTaggedValue() const
-{
+{LOGMEIN("ValueType.cpp] 243\n");
     return IsNotNumber() || !OneOn(Bits::CanBeTaggedValue);
 }
 
 bool ValueType::CanBeTaggedValue() const
-{
+{LOGMEIN("ValueType.cpp] 248\n");
     return !IsNotTaggedValue();
 }
 
 ValueType ValueType::SetCanBeTaggedValue(const bool b) const
-{
+{LOGMEIN("ValueType.cpp] 253\n");
     if (b)
-    {
+    {LOGMEIN("ValueType.cpp] 255\n");
         Assert(!IsNotNumber());
         return Verify(bits | Bits::CanBeTaggedValue);
     }
@@ -261,42 +261,42 @@ ValueType ValueType::SetCanBeTaggedValue(const bool b) const
 }
 
 bool ValueType::HasBeenInt() const
-{
+{LOGMEIN("ValueType.cpp] 263\n");
     return OneOnOneOff(Bits::Int, Bits::Object);
 }
 
 bool ValueType::IsInt() const
-{
+{LOGMEIN("ValueType.cpp] 268\n");
     return OneOnOthersOff(Bits::Int, Bits::IntCanBeUntagged | Bits::IntIsLikelyUntagged | Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsLikelyInt() const
-{
+{LOGMEIN("ValueType.cpp] 273\n");
     return OneOnOthersOff(
         Bits::Int,
         Bits::Likely | Bits::IntCanBeUntagged | Bits::IntIsLikelyUntagged | Bits::Number | Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsNotInt() const
-{
+{LOGMEIN("ValueType.cpp] 280\n");
     return
         AnyOnExcept(Bits::Likely | Bits::Object | Bits::Int | Bits::CanBeTaggedValue | Bits::Float | Bits::Number) ||
         OneOnOneOff(Bits::Object, Bits::Likely);
 }
 
 bool ValueType::IsNotNumber() const
-{
+{LOGMEIN("ValueType.cpp] 287\n");
     // These are the same for now.
     return IsNotInt();
 }
 
 bool ValueType::HasBeenFloat() const
-{
+{LOGMEIN("ValueType.cpp] 293\n");
     return OneOnOneOff(Bits::Float, Bits::Object);
 }
 
 bool ValueType::IsFloat() const
-{
+{LOGMEIN("ValueType.cpp] 298\n");
     // TODO: Require that the int bits are off. We can then use (!IsFloat() && IsNumber()) to determine that a tagged int check
     // needs to be done but not a JavascriptNumber/TaggedFloat check.
     return
@@ -312,7 +312,7 @@ bool ValueType::IsFloat() const
 }
 
 bool ValueType::IsLikelyFloat() const
-{
+{LOGMEIN("ValueType.cpp] 314\n");
     return
         OneOnOthersOff(
             Bits::Float,
@@ -328,18 +328,18 @@ bool ValueType::IsLikelyFloat() const
 }
 
 bool ValueType::HasBeenNumber() const
-{
+{LOGMEIN("ValueType.cpp] 330\n");
     return !OneOn(Bits::Object) && AnyOn(Bits::Int | Bits::Float | Bits::Number);
 }
 
 bool ValueType::IsNumber() const
-{
+{LOGMEIN("ValueType.cpp] 335\n");
     return AnyOnOthersOff(Bits::Int | Bits::Float | Bits::Number,
                           Bits::IntCanBeUntagged | Bits::IntIsLikelyUntagged | Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsLikelyNumber() const
-{
+{LOGMEIN("ValueType.cpp] 341\n");
     return
         AnyOnOthersOff(
             Bits::Int | Bits::Float | Bits::Number,
@@ -347,116 +347,116 @@ bool ValueType::IsLikelyNumber() const
 }
 
 bool ValueType::HasBeenUnknownNumber() const
-{
+{LOGMEIN("ValueType.cpp] 349\n");
     return OneOnOneOff(Bits::Number, Bits::Object);
 }
 
 bool ValueType::IsUnknownNumber() const
-{
+{LOGMEIN("ValueType.cpp] 354\n");
     // Equivalent to IsNumber() && !IsLikelyInt() && !IsLikelyFloat()
     return OneOnOthersOff(Bits::Number, Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsLikelyUnknownNumber() const
-{
+{LOGMEIN("ValueType.cpp] 360\n");
     // If true, equivalent to IsLikelyNumber() && !IsLikelyInt() && !IsLikelyFloat()
     return OneOnOthersOff(Bits::Number, Bits::Likely | Bits::Undefined | Bits::CanBeTaggedValue);
 }
 
 bool ValueType::HasBeenUndefined() const
-{
+{LOGMEIN("ValueType.cpp] 366\n");
     return OneOn(Bits::Undefined);
 }
 
 bool ValueType::IsUndefined() const
-{
+{LOGMEIN("ValueType.cpp] 371\n");
     return OneOnOthersOff(Bits::Undefined, Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsLikelyUndefined() const
-{
+{LOGMEIN("ValueType.cpp] 376\n");
     return OneOnOthersOff(Bits::Undefined, Bits::Likely | Bits::CanBeTaggedValue);
 }
 
 bool ValueType::HasBeenNull() const
-{
+{LOGMEIN("ValueType.cpp] 381\n");
     return OneOn(Bits::Null);
 }
 
 bool ValueType::IsNull() const
-{
+{LOGMEIN("ValueType.cpp] 386\n");
     return OneOnOthersOff(Bits::Null, Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsLikelyNull() const
-{
+{LOGMEIN("ValueType.cpp] 391\n");
     return OneOnOthersOff(Bits::Null, Bits::Likely | Bits::CanBeTaggedValue);
 }
 
 bool ValueType::HasBeenBoolean() const
-{
+{LOGMEIN("ValueType.cpp] 396\n");
     return OneOnOneOff(Bits::Boolean, Bits::Object);
 }
 
 bool ValueType::IsBoolean() const
-{
+{LOGMEIN("ValueType.cpp] 401\n");
     return OneOnOthersOff(Bits::Boolean, Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsLikelyBoolean() const
-{
+{LOGMEIN("ValueType.cpp] 406\n");
     return OneOnOthersOff(Bits::Boolean, Bits::Likely | Bits::CanBeTaggedValue);
 }
 
 bool ValueType::HasBeenString() const
-{
+{LOGMEIN("ValueType.cpp] 411\n");
     return OneOnOneOff(Bits::String, Bits::Object);
 }
 
 bool ValueType::IsString() const
-{
+{LOGMEIN("ValueType.cpp] 416\n");
     return OneOnOthersOff(Bits::String, Bits::CanBeTaggedValue);
 }
 
 bool ValueType::HasHadStringTag() const
-{
+{LOGMEIN("ValueType.cpp] 421\n");
     return !!(bits & Bits::String);
 }
 
 bool ValueType::IsLikelyString() const
-{
+{LOGMEIN("ValueType.cpp] 426\n");
     return OneOnOthersOff(Bits::String, Bits::Likely | Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsNotString() const
-{
+{LOGMEIN("ValueType.cpp] 431\n");
     return AnyOnExcept(Bits::Likely | Bits::Object | Bits::String | Bits::CanBeTaggedValue)
         || OneOnOneOff(Bits::Object, Bits::Likely);
 }
 
 bool ValueType::HasBeenSymbol() const
-{
+{LOGMEIN("ValueType.cpp] 437\n");
     return OneOnOneOff(Bits::Symbol, Bits::Object);
 }
 
 bool ValueType::IsSymbol() const
-{
+{LOGMEIN("ValueType.cpp] 442\n");
     return OneOnOthersOff(Bits::Symbol, Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsLikelySymbol() const
-{
+{LOGMEIN("ValueType.cpp] 447\n");
     return OneOnOthersOff(Bits::Symbol, Bits::Likely | Bits::CanBeTaggedValue);
 }
 
 bool ValueType::IsNotSymbol() const
-{
+{LOGMEIN("ValueType.cpp] 452\n");
     return AnyOnExcept(Bits::Likely | Bits::Object | Bits::Symbol | Bits::CanBeTaggedValue)
         || OneOnOneOff(Bits::Object, Bits::Likely);
 }
 
 bool ValueType::HasBeenPrimitive() const
-{
+{LOGMEIN("ValueType.cpp] 458\n");
     return
         OneOn(Bits::Object)
             ?
@@ -476,7 +476,7 @@ bool ValueType::HasBeenPrimitive() const
 }
 
 bool ValueType::IsPrimitive() const
-{
+{LOGMEIN("ValueType.cpp] 478\n");
     bool result =
         AnyOnOthersOff(
             Bits::Undefined | Bits::Null | Bits::Int | Bits::Float | Bits::Number | Bits::Boolean | Bits::String | Bits::Symbol,
@@ -490,7 +490,7 @@ bool ValueType::IsPrimitive() const
 }
 
 bool ValueType::IsLikelyPrimitive() const
-{
+{LOGMEIN("ValueType.cpp] 492\n");
     bool result =
         AnyOnOthersOff(
             Bits::Undefined | Bits::Null | Bits::Int | Bits::Float | Bits::Number | Bits::Boolean | Bits::String | Bits::Symbol,
@@ -505,17 +505,17 @@ bool ValueType::IsLikelyPrimitive() const
 
 
 bool ValueType::HasBeenObject() const
-{
+{LOGMEIN("ValueType.cpp] 507\n");
     return AnyOn(Bits::Object | Bits::PrimitiveOrObject);
 }
 
 bool ValueType::IsObject() const
-{
+{LOGMEIN("ValueType.cpp] 512\n");
     return AllOnAllOff(Bits::Object, Bits::Likely | Bits::Undefined | Bits::Null);
 }
 
 bool ValueType::IsLikelyObject() const
-{
+{LOGMEIN("ValueType.cpp] 517\n");
     // For syms that are typically used as objects, they often also have Undefined or Null values, and they are used as objects
     // only after checking for Undefined or Null. So, for the purpose of determining whether a value type is likely object, the
     // Undefined and Null bits are ignored.
@@ -523,75 +523,75 @@ bool ValueType::IsLikelyObject() const
 }
 
 bool ValueType::IsNotObject() const
-{
+{LOGMEIN("ValueType.cpp] 525\n");
     return AnyOnExcept(Bits::Likely | Bits::Object | Bits::PrimitiveOrObject);
 }
 
 bool ValueType::CanMergeToObject() const
-{
+{LOGMEIN("ValueType.cpp] 530\n");
     Assert(!IsLikelyObject());
     return AnyOnExcept(BitPattern(VALUE_TYPE_NONOBJECT_BIT_COUNT, VALUE_TYPE_COMMON_BIT_COUNT));
 }
 
 bool ValueType::CanMergeToSpecificObjectType() const
-{
+{LOGMEIN("ValueType.cpp] 536\n");
     return IsLikelyObject() ? GetObjectType() == ObjectType::UninitializedObject : CanMergeToObject();
 }
 
 bool ValueType::IsRegExp() const
-{
+{LOGMEIN("ValueType.cpp] 541\n");
     return IsObject() && GetObjectType() == ObjectType::RegExp;
 }
 
 bool ValueType::IsLikelyRegExp() const
-{
+{LOGMEIN("ValueType.cpp] 546\n");
     return IsLikelyObject() && GetObjectType() == ObjectType::RegExp;
 }
 
 bool ValueType::IsArray() const
-{
+{LOGMEIN("ValueType.cpp] 551\n");
     return IsObject() && GetObjectType() == ObjectType::Array;
 }
 
 bool ValueType::IsLikelyArray() const
-{
+{LOGMEIN("ValueType.cpp] 556\n");
     return IsLikelyObject() && GetObjectType() == ObjectType::Array;
 }
 
 bool ValueType::IsNotArray() const
-{
+{LOGMEIN("ValueType.cpp] 561\n");
     return IsNotObject() || (IsObject() && GetObjectType() > ObjectType::Object && GetObjectType() != ObjectType::Array);
 }
 
 bool ValueType::IsArrayOrObjectWithArray() const
-{
+{LOGMEIN("ValueType.cpp] 566\n");
     return IsObject() && (GetObjectType() == ObjectType::ObjectWithArray || GetObjectType() == ObjectType::Array);
 }
 
 bool ValueType::IsLikelyArrayOrObjectWithArray() const
-{
+{LOGMEIN("ValueType.cpp] 571\n");
     return IsLikelyObject() && (GetObjectType() == ObjectType::ObjectWithArray || GetObjectType() == ObjectType::Array);
 }
 
 bool ValueType::IsNotArrayOrObjectWithArray() const
-{
+{LOGMEIN("ValueType.cpp] 576\n");
     return
         IsNotObject() ||
         (IsObject() && GetObjectType() != ObjectType::ObjectWithArray && GetObjectType() != ObjectType::Array);
 }
 
 bool ValueType::IsNativeArray() const
-{
+{LOGMEIN("ValueType.cpp] 583\n");
     return IsArrayOrObjectWithArray() && !HasVarElements();
 }
 
 bool ValueType::IsLikelyNativeArray() const
-{
+{LOGMEIN("ValueType.cpp] 588\n");
     return IsLikelyArrayOrObjectWithArray() && !HasVarElements();
 }
 
 bool ValueType::IsNotNativeArray() const
-{
+{LOGMEIN("ValueType.cpp] 593\n");
     return
         IsNotObject() ||
         (
@@ -601,71 +601,71 @@ bool ValueType::IsNotNativeArray() const
 }
 
 bool ValueType::IsNativeIntArray() const
-{
+{LOGMEIN("ValueType.cpp] 603\n");
     return IsArrayOrObjectWithArray() && HasIntElements();
 }
 
 bool ValueType::IsLikelyNativeIntArray() const
-{
+{LOGMEIN("ValueType.cpp] 608\n");
     return IsLikelyArrayOrObjectWithArray() && HasIntElements();
 }
 
 bool ValueType::IsNativeFloatArray() const
-{
+{LOGMEIN("ValueType.cpp] 613\n");
     return IsArrayOrObjectWithArray() && HasFloatElements();
 }
 
 bool ValueType::IsLikelyNativeFloatArray() const
-{
+{LOGMEIN("ValueType.cpp] 618\n");
     return IsLikelyArrayOrObjectWithArray() && HasFloatElements();
 }
 
 bool ValueType::IsTypedIntArray() const
-{
+{LOGMEIN("ValueType.cpp] 623\n");
     return IsObject() && GetObjectType() >= ObjectType::Int8Array && GetObjectType() <= ObjectType::Uint32Array;
 }
 
 bool ValueType::IsLikelyTypedIntArray() const
-{
+{LOGMEIN("ValueType.cpp] 628\n");
     return IsLikelyObject() && GetObjectType() >= ObjectType::Int8Array && GetObjectType() <= ObjectType::Uint32Array;
 }
 
 bool ValueType::IsTypedArray() const
-{
+{LOGMEIN("ValueType.cpp] 633\n");
     return IsObject() && GetObjectType() >= ObjectType::Int8Array && GetObjectType() <= ObjectType::CharArray;
 }
 
 bool ValueType::IsLikelyTypedArray() const
-{
+{LOGMEIN("ValueType.cpp] 638\n");
     return IsLikelyObject() && GetObjectType() >= ObjectType::Int8Array && GetObjectType() <= ObjectType::CharArray;
 }
 
 bool ValueType::IsTypedIntOrFloatArray() const
-{
+{LOGMEIN("ValueType.cpp] 643\n");
     return IsObject() && ((GetObjectType() >= ObjectType::Int8Array  && GetObjectType() <= ObjectType::Float64Array));
 }
 
 bool ValueType::IsOptimizedTypedArray() const
-{
+{LOGMEIN("ValueType.cpp] 648\n");
     return IsObject() && ((GetObjectType() >= ObjectType::Int8Array  && GetObjectType() <= ObjectType::Float64MixedArray));
 }
 
 bool ValueType::IsLikelyOptimizedTypedArray() const
-{
+{LOGMEIN("ValueType.cpp] 653\n");
     return IsLikelyObject() && ((GetObjectType() >= ObjectType::Int8Array  &&  GetObjectType() <= ObjectType::Float64MixedArray));
 }
 
 bool ValueType::IsLikelyOptimizedVirtualTypedArray() const
-{
+{LOGMEIN("ValueType.cpp] 658\n");
     return IsLikelyObject() && (GetObjectType() >= ObjectType::Int8VirtualArray && GetObjectType() <= ObjectType::Float64VirtualArray);
 }
 
 bool ValueType::IsAnyArrayWithNativeFloatValues() const
-{
+{LOGMEIN("ValueType.cpp] 663\n");
     if(!IsObject())
         return false;
     switch(GetObjectType())
-    {
+    {LOGMEIN("ValueType.cpp] 667\n");
         case ObjectType::ObjectWithArray:
         case ObjectType::Array:
             return HasFloatElements();
@@ -682,11 +682,11 @@ bool ValueType::IsAnyArrayWithNativeFloatValues() const
 }
 
 bool ValueType::IsLikelyAnyArrayWithNativeFloatValues() const
-{
+{LOGMEIN("ValueType.cpp] 684\n");
     if(!IsLikelyObject())
         return false;
     switch(GetObjectType())
-    {
+    {LOGMEIN("ValueType.cpp] 688\n");
         case ObjectType::ObjectWithArray:
         case ObjectType::Array:
             return HasFloatElements();
@@ -703,27 +703,27 @@ bool ValueType::IsLikelyAnyArrayWithNativeFloatValues() const
 }
 
 bool ValueType::IsAnyArray() const
-{
+{LOGMEIN("ValueType.cpp] 705\n");
     return IsObject() && GetObjectType() >= ObjectType::ObjectWithArray && GetObjectType() <= ObjectType::CharArray;
 }
 
 bool ValueType::IsLikelyAnyArray() const
-{
+{LOGMEIN("ValueType.cpp] 710\n");
     return IsLikelyObject() && GetObjectType() >= ObjectType::ObjectWithArray && GetObjectType() <= ObjectType::CharArray;
 }
 
 bool ValueType::IsAnyOptimizedArray() const
-{
+{LOGMEIN("ValueType.cpp] 715\n");
     return IsObject() && ((GetObjectType() >= ObjectType::ObjectWithArray &&  GetObjectType() <= ObjectType::Float64MixedArray));
 }
 
 bool ValueType::IsLikelyAnyOptimizedArray() const
-{
+{LOGMEIN("ValueType.cpp] 720\n");
     return IsLikelyObject() && ((GetObjectType() >= ObjectType::ObjectWithArray && GetObjectType() <= ObjectType::Float64MixedArray));
 }
 
 bool ValueType::IsLikelyAnyUnOptimizedArray() const
-{
+{LOGMEIN("ValueType.cpp] 725\n");
     return IsLikelyObject() && GetObjectType() >= ObjectType::Int64Array && GetObjectType() <= ObjectType::CharArray;
 }
 
@@ -731,14 +731,14 @@ bool ValueType::IsLikelyAnyUnOptimizedArray() const
 // Simd128 values
 // Note that SIMD types are primitives
 bool ValueType::IsSimd128() const
-{
+{LOGMEIN("ValueType.cpp] 733\n");
     return IsObject() && (GetObjectType() >= ObjectType::Simd128Float32x4 && GetObjectType() <= ObjectType::Simd128Float64x2);
 }
 
 bool ValueType::IsSimd128(IRType type) const
-{
+{LOGMEIN("ValueType.cpp] 738\n");
     switch (type)
-    {
+    {LOGMEIN("ValueType.cpp] 740\n");
     case TySimd128F4:
         return IsSimd128Float32x4();
     case TySimd128I4:
@@ -762,94 +762,94 @@ bool ValueType::IsSimd128(IRType type) const
 }
 
 bool ValueType::IsSimd128Float32x4() const
-{
+{LOGMEIN("ValueType.cpp] 764\n");
     return IsObject() && GetObjectType() == ObjectType::Simd128Float32x4;
 }
 
 bool ValueType::IsSimd128Int32x4() const
-{
+{LOGMEIN("ValueType.cpp] 769\n");
     return IsObject() && GetObjectType() == ObjectType::Simd128Int32x4;
 }
 
 bool ValueType::IsSimd128Int16x8() const
-{
+{LOGMEIN("ValueType.cpp] 774\n");
     return IsObject() && GetObjectType() == ObjectType::Simd128Int16x8;
 }
 
 bool ValueType::IsSimd128Int8x16() const
-{
+{LOGMEIN("ValueType.cpp] 779\n");
     return IsObject() && GetObjectType() == ObjectType::Simd128Int8x16;
 }
 
 bool ValueType::IsSimd128Uint32x4() const
-{
+{LOGMEIN("ValueType.cpp] 784\n");
     return IsObject() && GetObjectType() == ObjectType::Simd128Uint32x4;
 }
 
 bool ValueType::IsSimd128Uint16x8() const
-{
+{LOGMEIN("ValueType.cpp] 789\n");
     return IsObject() && GetObjectType() == ObjectType::Simd128Uint16x8;
 }
 
 bool ValueType::IsSimd128Uint8x16() const
-{
+{LOGMEIN("ValueType.cpp] 794\n");
     return IsObject() && GetObjectType() == ObjectType::Simd128Uint8x16;
 }
 
 bool ValueType::IsSimd128Float64x2() const
-{
+{LOGMEIN("ValueType.cpp] 799\n");
     return IsObject() && GetObjectType() == ObjectType::Simd128Float64x2;
 }
 
 bool ValueType::IsLikelySimd128() const
-{
+{LOGMEIN("ValueType.cpp] 804\n");
     return IsLikelyObject() && (GetObjectType() >= ObjectType::Simd128Float32x4 && GetObjectType() <= ObjectType::Simd128Float64x2);
 }
 
 bool ValueType::IsLikelySimd128Float32x4() const
-{
+{LOGMEIN("ValueType.cpp] 809\n");
     return IsLikelyObject() && GetObjectType() == ObjectType::Simd128Float32x4;
 }
 
 bool ValueType::IsLikelySimd128Int32x4() const
-{
+{LOGMEIN("ValueType.cpp] 814\n");
     return IsLikelyObject() && GetObjectType() == ObjectType::Simd128Int32x4;
 }
 
 bool ValueType::IsLikelySimd128Int16x8() const
-{
+{LOGMEIN("ValueType.cpp] 819\n");
     return IsLikelyObject() && GetObjectType() == ObjectType::Simd128Int16x8;
 }
 
 bool ValueType::IsLikelySimd128Int8x16() const
-{
+{LOGMEIN("ValueType.cpp] 824\n");
     return IsLikelyObject() && GetObjectType() == ObjectType::Simd128Int8x16;
 }
 
 bool ValueType::IsLikelySimd128Uint16x8() const
-{
+{LOGMEIN("ValueType.cpp] 829\n");
     return IsLikelyObject() && GetObjectType() == ObjectType::Simd128Uint16x8;
 }
 
 bool ValueType::IsLikelySimd128Uint8x16() const
-{
+{LOGMEIN("ValueType.cpp] 834\n");
     return IsLikelyObject() && GetObjectType() == ObjectType::Simd128Uint8x16;
 }
 
 bool ValueType::IsLikelySimd128Float64x2() const
-{
+{LOGMEIN("ValueType.cpp] 839\n");
     return IsLikelyObject() && GetObjectType() == ObjectType::Simd128Float64x2;
 }
 #endif
 
 ObjectType ValueType::GetObjectType() const
-{
+{LOGMEIN("ValueType.cpp] 845\n");
     Assert(OneOn(Bits::Object));
     return _objectType;
 }
 
 void ValueType::SetObjectType(const ObjectType objectType)
-{
+{LOGMEIN("ValueType.cpp] 851\n");
     Assert(OneOn(Bits::Object));
     Assert(objectType < ObjectType::Count);
 
@@ -857,7 +857,7 @@ void ValueType::SetObjectType(const ObjectType objectType)
 }
 
 ValueType ValueType::SetIsNotAnyOf(const ValueType other) const
-{
+{LOGMEIN("ValueType.cpp] 859\n");
     Assert(other.IsDefinite());
     Assert(!other.HasBeenObject());
 
@@ -865,13 +865,13 @@ ValueType ValueType::SetIsNotAnyOf(const ValueType other) const
 }
 
 bool ValueType::HasNoMissingValues() const
-{
+{LOGMEIN("ValueType.cpp] 867\n");
     Assert(IsLikelyArrayOrObjectWithArray());
     return OneOn(Bits::NoMissingValues);
 }
 
 ValueType ValueType::SetHasNoMissingValues(const bool noMissingValues) const
-{
+{LOGMEIN("ValueType.cpp] 873\n");
     Assert(IsLikelyArrayOrObjectWithArray());
 
     if(noMissingValues)
@@ -880,37 +880,37 @@ ValueType ValueType::SetHasNoMissingValues(const bool noMissingValues) const
 }
 
 bool ValueType::HasNonInts() const
-{
+{LOGMEIN("ValueType.cpp] 882\n");
     Assert(IsLikelyArrayOrObjectWithArray());
     return OneOn(Bits::NonInts);
 }
 
 bool ValueType::HasNonFloats() const
-{
+{LOGMEIN("ValueType.cpp] 888\n");
     Assert(IsLikelyArrayOrObjectWithArray());
     return OneOn(Bits::NonFloats);
 }
 
 bool ValueType::HasIntElements() const
-{
+{LOGMEIN("ValueType.cpp] 894\n");
     Assert(IsLikelyArrayOrObjectWithArray());
     return !OneOn(Bits::NonInts);
 }
 
 bool ValueType::HasFloatElements() const
-{
+{LOGMEIN("ValueType.cpp] 900\n");
     Assert(IsLikelyArrayOrObjectWithArray());
     return OneOnOneOff(Bits::NonInts, Bits::NonFloats);
 }
 
 bool ValueType::HasVarElements() const
-{
+{LOGMEIN("ValueType.cpp] 906\n");
     Assert(IsLikelyArrayOrObjectWithArray());
     return AllOn(Bits::NonInts | Bits::NonFloats);
 }
 
 ValueType ValueType::SetArrayTypeId(const Js::TypeId typeId) const
-{
+{LOGMEIN("ValueType.cpp] 912\n");
     using namespace Js;
     Assert(IsLikelyArrayOrObjectWithArray());
     Assert(JavascriptArray::Is(typeId));
@@ -918,7 +918,7 @@ ValueType ValueType::SetArrayTypeId(const Js::TypeId typeId) const
 
     Bits newBits = bits & ~(Bits::NonInts | Bits::NonFloats);
     switch(typeId)
-    {
+    {LOGMEIN("ValueType.cpp] 920\n");
         case TypeIds_Array:
             newBits |= Bits::NonFloats;
             // fall through
@@ -936,13 +936,13 @@ bool ValueType::IsSubsetOf(
     const bool isFloatSpecEnabled,
     const bool isArrayMissingValueCheckHoistEnabled,
     const bool isNativeArrayEnabled) const
-{
+{LOGMEIN("ValueType.cpp] 938\n");
     if(IsUninitialized())
         return other.IsUninitialized();
     if(other.IsUninitialized())
         return true;
     if(IsLikelyNumber() && other.IsLikelyNumber())
-    {
+    {LOGMEIN("ValueType.cpp] 944\n");
         // Special case for numbers since there are multiple combinations of bits and a bit-subset produces incorrect results in
         // some cases
 
@@ -953,7 +953,7 @@ bool ValueType::IsSubsetOf(
         // specialization.
         if(other.IsUnknownNumber() &&
             ((isAggressiveIntTypeSpecEnabled && IsLikelyInt()) || (isFloatSpecEnabled && IsLikelyFloat())))
-        {
+        {LOGMEIN("ValueType.cpp] 955\n");
             return true;
         }
 
@@ -986,7 +986,7 @@ bool ValueType::IsSubsetOf(
     if(!!commonBits && !other.AllOn(commonBits))
         return false;
     if(OneOn(Bits::Object))
-    {
+    {LOGMEIN("ValueType.cpp] 988\n");
         if(!other.OneOn(Bits::Object))
             return other.OneOn(Bits::PrimitiveOrObject) || (!other.IsDefinite() && other.CanMergeToObject());
     }
@@ -1002,7 +1002,7 @@ bool ValueType::IsSubsetOf(
         return false;
     if((!OneOn(Bits::Likely) && other.OneOn(Bits::Likely)) ||
         (other.GetObjectType() != ObjectType::ObjectWithArray && other.GetObjectType() != ObjectType::Array))
-    {
+    {LOGMEIN("ValueType.cpp] 1004\n");
         return true;
     }
 
@@ -1020,13 +1020,13 @@ bool ValueType::IsSubsetOf(
 }
 
 ValueType ValueType::ToDefinite() const
-{
+{LOGMEIN("ValueType.cpp] 1022\n");
     Assert(!IsUninitialized());
     return Verify(bits & ~Bits::Likely);
 }
 
 ValueType ValueType::ToLikelyUntaggedInt() const
-{
+{LOGMEIN("ValueType.cpp] 1028\n");
     Assert(IsLikelyInt());
     Assert(!IsInt());
 
@@ -1034,12 +1034,12 @@ ValueType ValueType::ToLikelyUntaggedInt() const
 }
 
 ValueType ValueType::ToDefiniteNumber_PreferFloat() const
-{
+{LOGMEIN("ValueType.cpp] 1036\n");
     return IsNumber() ? *this : ToDefiniteAnyFloat();
 }
 
 ValueType ValueType::ToDefiniteAnyFloat() const
-{
+{LOGMEIN("ValueType.cpp] 1041\n");
     // Not asserting on expected value type because float specialization allows specializing values of arbitrary types, even
     // values that are definitely not float
     return
@@ -1050,13 +1050,13 @@ ValueType ValueType::ToDefiniteAnyFloat() const
 }
 
 ValueType ValueType::ToDefiniteNumber() const
-{
+{LOGMEIN("ValueType.cpp] 1052\n");
     Assert(IsLikelyNumber());
     return IsNumber() ? *this : ToDefiniteAnyNumber();
 }
 
 ValueType ValueType::ToDefiniteAnyNumber() const
-{
+{LOGMEIN("ValueType.cpp] 1058\n");
     // Not asserting on expected value type because Conv_Num allows converting values of arbitrary types to number
     if(OneOn(Bits::Object))
         return Verify(Bits::Number | Bits::CanBeTaggedValue);
@@ -1076,7 +1076,7 @@ ValueType ValueType::ToDefiniteAnyNumber() const
 }
 
 ValueType ValueType::ToDefinitePrimitiveSubset() const
-{
+{LOGMEIN("ValueType.cpp] 1078\n");
     // This function does not do a safe conversion of an arbitrary type to a definitely-primitive type. It only obtains the
     // primitive subset of bits from the type.
 
@@ -1107,7 +1107,7 @@ ValueType ValueType::ToDefinitePrimitiveSubset() const
 }
 
 ValueType ValueType::ToDefiniteObject() const
-{
+{LOGMEIN("ValueType.cpp] 1109\n");
     // When Undefined (or Null) merge with Object, the resulting value type is still likely Object (IsLikelyObject() returns
     // true). ToDefinite() on the merged type would return a type that is definitely Undefined or Object. Usually, that type is
     // not interesting and a test for the Object type may have been done to ensure the Object type. ToDefiniteObject() removes
@@ -1117,12 +1117,12 @@ ValueType ValueType::ToDefiniteObject() const
 }
 
 ValueType ValueType::ToLikely() const
-{
+{LOGMEIN("ValueType.cpp] 1119\n");
     return Verify(bits | Bits::Likely | Bits::CanBeTaggedValue);
 }
 
 ValueType ValueType::ToArray() const
-{
+{LOGMEIN("ValueType.cpp] 1124\n");
     Assert(GetObjectType() == ObjectType::ObjectWithArray);
 
     ValueType valueType(*this);
@@ -1131,7 +1131,7 @@ ValueType ValueType::ToArray() const
 }
 
 ValueType ValueType::ToPrimitiveOrObject() const
-{
+{LOGMEIN("ValueType.cpp] 1133\n");
     // When an object type is merged with a non-object type, the PrimitiveOrObject bit is set in the merged type by converting
     // the object type to a PrimitiveOrObject type (preserving only the common bits other than Object) and merging it with the
     // non-object type. The PrimitiveOrObject type will not have the Object bit set, so that it can still be queried for whether
@@ -1141,23 +1141,23 @@ ValueType ValueType::ToPrimitiveOrObject() const
 }
 
 ValueType ValueType::MergeWithObject(const ValueType other) const
-{
+{LOGMEIN("ValueType.cpp] 1143\n");
     ValueType merged(bits | other.bits);
     Assert(merged.OneOn(Bits::Object));
 
     if(ValueType(bits & other.bits).OneOn(Bits::Object)) // both have the Object bit set
-    {
+    {LOGMEIN("ValueType.cpp] 1148\n");
         if (GetObjectType() == other.GetObjectType())
             return Verify(merged);
         const ObjectType typedArrayMergedObjectType =
             TypedArrayMergeMap[static_cast<uint16>(GetObjectType())][static_cast<uint16>(other.GetObjectType())];
         if (typedArrayMergedObjectType != ObjectType::UninitializedObject)
-        {
+        {LOGMEIN("ValueType.cpp] 1154\n");
             merged.SetObjectType(typedArrayMergedObjectType);
             return Verify(merged);
         }
         if(GetObjectType() != ObjectType::UninitializedObject && other.GetObjectType() != ObjectType::UninitializedObject)
-        {
+        {LOGMEIN("ValueType.cpp] 1159\n");
             // Any two different specific object types (excludes UninitializedObject and Object, which don't indicate any
             // specific type of object) merge to Object since the resulting type is not guaranteed to indicate any specific type
             merged.SetObjectType(ObjectType::Object);
@@ -1179,7 +1179,7 @@ ValueType ValueType::MergeWithObject(const ValueType other) const
     }
 
     if(OneOn(Bits::Object))
-    {
+    {LOGMEIN("ValueType.cpp] 1181\n");
         if(other.CanMergeToObject())
             return Verify(merged);
         return Verify(ToPrimitiveOrObject().bits | other.bits); // see ToPrimitiveOrObject
@@ -1191,14 +1191,14 @@ ValueType ValueType::MergeWithObject(const ValueType other) const
 }
 
 ValueType ValueType::Merge(const Js::Var var) const
-{
+{LOGMEIN("ValueType.cpp] 1193\n");
     using namespace Js;
     Assert(var);
 
     if(TaggedInt::Is(var))
         return Merge(GetTaggedInt());
     if(JavascriptNumber::Is_NoTaggedIntCheck(var))
-    {
+    {LOGMEIN("ValueType.cpp] 1200\n");
         return
             Merge(
                 (IsUninitialized() || IsLikelyInt()) && JavascriptNumber::IsInt32_NoChecks(var)
@@ -1218,26 +1218,26 @@ ObjectType ValueType::MixedTypedToVirtualTypedArray[(uint16)ObjectType::Count];
 
 
 void ValueType::InitializeTypeIdToBitsMap()
-{
+{LOGMEIN("ValueType.cpp] 1220\n");
     using namespace Js;
 
     // Initialize all static types to Uninitialized first, so that a zero will indicate that it's a dynamic type
     for (TypeId typeId = static_cast<TypeId>(0); typeId <= TypeIds_LastStaticType; typeId = static_cast<TypeId>(typeId + 1))
-    {
+    {LOGMEIN("ValueType.cpp] 1225\n");
         TypeIdToBits[typeId] = ValueType::Uninitialized.bits;
         VirtualTypeIdToBits[typeId] = ValueType::Uninitialized.bits;
         TypeIdToVtable[typeId] = (INT_PTR)nullptr;
     }
 
     for (ObjectType objType = static_cast<ObjectType>(0); objType <ObjectType::Count; objType = static_cast<ObjectType>((uint16)(objType) + 1))
-    {
+    {LOGMEIN("ValueType.cpp] 1232\n");
         VirtualTypedArrayPair[(uint16)objType] = ObjectType::UninitializedObject;
         MixedTypedArrayPair[(uint16)objType] = ObjectType::UninitializedObject;
         MixedTypedToVirtualTypedArray[(uint16)objType] = ObjectType::UninitializedObject;
     }
 
     for (ObjectType objType = static_cast<ObjectType>(0); objType < ObjectType::Count; objType = static_cast<ObjectType>((uint16)(objType)+1))
-    {
+    {LOGMEIN("ValueType.cpp] 1239\n");
         for (ObjectType objTypeInner = static_cast<ObjectType>(0); objTypeInner < ObjectType::Count; objTypeInner = static_cast<ObjectType>((uint16)(objTypeInner)+1))
             TypedArrayMergeMap[(uint16)objType][(uint16)objTypeInner] = ObjectType::UninitializedObject;
     }
@@ -1408,20 +1408,20 @@ void ValueType::InitializeTypeIdToBitsMap()
 }
 
 INT_PTR ValueType::GetVirtualTypedArrayVtable(const Js::TypeId typeId)
-{
+{LOGMEIN("ValueType.cpp] 1410\n");
     if (typeId < _countof(TypeIdToVtable))
-    {
+    {LOGMEIN("ValueType.cpp] 1412\n");
         return TypeIdToVtable[typeId];
     }
     return NULL;
 }
 
 ValueType ValueType::FromTypeId(const Js::TypeId typeId, bool useVirtual)
-{
+{LOGMEIN("ValueType.cpp] 1419\n");
     if(typeId < _countof(TypeIdToBits))
-    {
+    {LOGMEIN("ValueType.cpp] 1421\n");
         if (useVirtual)
-        {
+        {LOGMEIN("ValueType.cpp] 1423\n");
             const Bits bits = VirtualTypeIdToBits[typeId];
             if (!!bits)
                 return bits;
@@ -1437,15 +1437,15 @@ ValueType ValueType::FromTypeId(const Js::TypeId typeId, bool useVirtual)
 }
 
 ValueType ValueType::FromObject(Js::RecyclableObject *const recyclableObject)
-{
+{LOGMEIN("ValueType.cpp] 1439\n");
     using namespace Js;
     Assert(recyclableObject);
     const TypeId typeId = recyclableObject->GetTypeId();
     if (typeId < _countof(TypeIdToBits))
-    {
+    {LOGMEIN("ValueType.cpp] 1444\n");
         const Bits bits = TypeIdToBits[typeId];
         if (!!bits)
-        {
+        {LOGMEIN("ValueType.cpp] 1447\n");
             const ValueType valueType = Verify(bits);
             if (!valueType.IsLikelyOptimizedTypedArray())
                 return valueType;
@@ -1458,7 +1458,7 @@ ValueType ValueType::FromObject(Js::RecyclableObject *const recyclableObject)
     Assert(DynamicType::Is(typeId)); // all static type IDs have nonzero values in TypeIdToBits
 
     if(!JavascriptArray::Is(typeId))
-    {
+    {LOGMEIN("ValueType.cpp] 1460\n");
         // TODO: Once the issue with loop bodies and uninitialized interpreter local slots is fixed, use FromVar
         DynamicObject *const object = static_cast<DynamicObject *>(recyclableObject);
         if(!VirtualTableInfo<DynamicObject>::HasVirtualTable(object) || !object->HasObjectArray())
@@ -1470,7 +1470,7 @@ ValueType ValueType::FromObject(Js::RecyclableObject *const recyclableObject)
 }
 
 ValueType ValueType::FromObjectWithArray(Js::DynamicObject *const object)
-{
+{LOGMEIN("ValueType.cpp] 1472\n");
     using namespace Js;
     Assert(object);
     Assert(VirtualTableInfo<DynamicObject>::HasVirtualTable(object));
@@ -1485,7 +1485,7 @@ ValueType ValueType::FromObjectWithArray(Js::DynamicObject *const object)
 }
 
 ValueType ValueType::FromObjectArray(Js::JavascriptArray *const objectArray)
-{
+{LOGMEIN("ValueType.cpp] 1487\n");
     using namespace Js;
     Assert(objectArray);
 
@@ -1496,7 +1496,7 @@ ValueType ValueType::FromArray(
     const ObjectType objectType,
     Js::JavascriptArray *const array,
     const Js::TypeId arrayTypeId)
-{
+{LOGMEIN("ValueType.cpp] 1498\n");
     Assert(array);
     Assert(array->GetTypeId() == arrayTypeId);
 
@@ -1509,17 +1509,17 @@ ValueType ValueType::FromArray(
 }
 
 bool ValueType::operator ==(const ValueType other) const
-{
+{LOGMEIN("ValueType.cpp] 1511\n");
     return bits == other.bits;
 }
 
 bool ValueType::operator !=(const ValueType other) const
-{
+{LOGMEIN("ValueType.cpp] 1516\n");
     return !(*this == other);
 }
 
 uint ValueType::GetHashCode() const
-{
+{LOGMEIN("ValueType.cpp] 1521\n");
     return static_cast<uint>(bits);
 }
 
@@ -1538,7 +1538,7 @@ const char *const ObjectTypeNames[] =
 };
 
 size_t ValueType::GetLowestBitIndex(const Bits b)
-{
+{LOGMEIN("ValueType.cpp] 1540\n");
     Assert(b);
 
     DWORD i;
@@ -1547,7 +1547,7 @@ size_t ValueType::GetLowestBitIndex(const Bits b)
 }
 
 void ValueType::ToVerboseString(char (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
-{
+{LOGMEIN("ValueType.cpp] 1549\n");
     if(IsUninitialized())
     {
         strcpy_s(str, "Uninitialized");
@@ -1556,7 +1556,7 @@ void ValueType::ToVerboseString(char (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
 
     Bits b = bits;
     if(OneOn(Bits::Object))
-    {
+    {LOGMEIN("ValueType.cpp] 1558\n");
         // Exclude the object type for enumerating bits, and exclude bits specific to a different object type
         b = _objectBits;
         if(IsLikelyArrayOrObjectWithArray())
@@ -1570,13 +1570,13 @@ void ValueType::ToVerboseString(char (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
     bool addUnderscore = false;
     size_t nameIndexOffset = 0;
     do
-    {
+    {LOGMEIN("ValueType.cpp] 1572\n");
         const char *name;
         switch(b & -b) // bit to be printed
-        {
+        {LOGMEIN("ValueType.cpp] 1575\n");
             case Bits::Object:
                 if(IsLikelyNativeArray())
-                {
+                {LOGMEIN("ValueType.cpp] 1578\n");
                     Assert(GetObjectType() == ObjectType::Array || GetObjectType() == ObjectType::ObjectWithArray);
                     Assert(HasIntElements() || HasFloatElements());
                     name =
@@ -1590,14 +1590,14 @@ void ValueType::ToVerboseString(char (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
 
             case Bits::Int:
                 if(!CONFIG_FLAG(Verbose) && !OneOn(Bits::Object))
-                {
+                {LOGMEIN("ValueType.cpp] 1592\n");
                     if(AnyOnExcept(Bits::Likely | Bits::IntCanBeUntagged | Bits::CanBeTaggedValue))
-                    {
+                    {LOGMEIN("ValueType.cpp] 1594\n");
                         name = "TaggedInt";
                         break;
                     }
                     if(OneOn(Bits::IntIsLikelyUntagged))
-                    {
+                    {LOGMEIN("ValueType.cpp] 1599\n");
                         name = "IntAndLikelyUntagged";
                         break;
                     }
@@ -1618,7 +1618,7 @@ void ValueType::ToVerboseString(char (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
             break;
 
         if(addUnderscore)
-        {
+        {LOGMEIN("ValueType.cpp] 1620\n");
             str[length++] = '_';
             --nameLength;
         }
@@ -1638,11 +1638,11 @@ void ValueType::ToVerboseString(char (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
 }
 
 void ValueType::ToString(wchar (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
-{
+{LOGMEIN("ValueType.cpp] 1640\n");
     char charStr[VALUE_TYPE_MAX_STRING_SIZE];
     ToString(charStr);
     for(int i = 0; i < VALUE_TYPE_MAX_STRING_SIZE; ++i)
-    {
+    {LOGMEIN("ValueType.cpp] 1644\n");
         str[i] = charStr[i];
         if(!charStr[i])
             break;
@@ -1650,9 +1650,9 @@ void ValueType::ToString(wchar (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
 }
 
 void ValueType::ToString(char (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
-{
+{LOGMEIN("ValueType.cpp] 1652\n");
     if(IsUninitialized() || CONFIG_FLAG(Verbose))
-    {
+    {LOGMEIN("ValueType.cpp] 1654\n");
         ToVerboseString(str);
         return;
     }
@@ -1665,7 +1665,7 @@ void ValueType::ToString(char (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
     else if(definiteType.IsFloat())
         generalizedType = Float;
     else if(definiteType.IsNumber())
-    {
+    {LOGMEIN("ValueType.cpp] 1667\n");
         generalizedType = Number;
         if(definiteType.IsLikelyInt())
             generalizedType = generalizedType.Merge(GetInt(definiteType.IsLikelyTaggedInt()));
@@ -1686,7 +1686,7 @@ void ValueType::ToString(char (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
         return;
     }
     else if(definiteType.IsLikelyObject())
-    {
+    {LOGMEIN("ValueType.cpp] 1688\n");
         generalizedType = definiteType.ToDefiniteObject();
         if(!definiteType.IsObject())
             generalizedType = generalizedType.ToLikely();
@@ -1705,7 +1705,7 @@ void ValueType::ToString(char (&str)[VALUE_TYPE_MAX_STRING_SIZE]) const
 #if ENABLE_DEBUG_CONFIG_OPTIONS
 
 void ValueType::ToStringDebug(__out_ecount(strSize) char *const str, const size_t strSize) const
-{
+{LOGMEIN("ValueType.cpp] 1707\n");
     Assert(str);
 
     if(strSize == 0)
@@ -1719,9 +1719,9 @@ void ValueType::ToStringDebug(__out_ecount(strSize) char *const str, const size_
 
     const size_t generalizedStrLength = strlen(generalizedStr);
     if(strcmp(generalizedStr, verboseStr) == 0)
-    {
+    {LOGMEIN("ValueType.cpp] 1721\n");
         if(generalizedStrLength >= strSize)
-        {
+        {LOGMEIN("ValueType.cpp] 1723\n");
             str[0] = '\0';
             return;
         }
@@ -1731,7 +1731,7 @@ void ValueType::ToStringDebug(__out_ecount(strSize) char *const str, const size_
 
     const size_t verboseStrLength = strlen(verboseStr);
     if(generalizedStrLength + verboseStrLength + 3 >= strSize)
-    {
+    {LOGMEIN("ValueType.cpp] 1733\n");
         str[0] = '\0';
         return;
     }
@@ -1741,14 +1741,14 @@ void ValueType::ToStringDebug(__out_ecount(strSize) char *const str, const size_
 #endif
 
 bool ValueType::FromString(const wchar *const str, ValueType *valueType)
-{
+{LOGMEIN("ValueType.cpp] 1743\n");
     Assert(str);
     Assert(valueType);
 
     char charStr[VALUE_TYPE_MAX_STRING_SIZE];
     int i = 0;
     for(; i < VALUE_TYPE_MAX_STRING_SIZE - 1 && str[i]; ++i)
-    {
+    {LOGMEIN("ValueType.cpp] 1750\n");
         Assert(static_cast<wchar>(static_cast<char>(str[i])) == str[i]);
         charStr[i] = static_cast<char>(str[i]);
     }
@@ -1757,7 +1757,7 @@ bool ValueType::FromString(const wchar *const str, ValueType *valueType)
 }
 
 bool ValueType::FromString(const char *const str, ValueType *valueType)
-{
+{LOGMEIN("ValueType.cpp] 1759\n");
     Assert(str);
     Assert(valueType);
 
@@ -1776,29 +1776,29 @@ bool ValueType::FromString(const char *const str, ValueType *valueType)
 }
 
 ValueType::TSize ValueType::GetRawData() const
-{
+{LOGMEIN("ValueType.cpp] 1778\n");
     return static_cast<TSize>(bits);
 }
 
 ValueType ValueType::FromRawData(const TSize rawData)
-{
+{LOGMEIN("ValueType.cpp] 1783\n");
     return Verify(static_cast<Bits>(rawData));
 }
 
 // Virtual and Mixed Typed Array Methods
 
 bool ValueType::IsVirtualTypedArrayPair(const ObjectType other) const
-{
+{LOGMEIN("ValueType.cpp] 1790\n");
     return (VirtualTypedArrayPair[(int)GetObjectType()] == other);
 }
 
 bool ValueType::IsLikelyMixedTypedArrayType() const
-{
+{LOGMEIN("ValueType.cpp] 1795\n");
     return (IsLikelyObject() && GetObjectType() >= ObjectType::Int8MixedArray && GetObjectType() <= ObjectType::Float64MixedArray);
 }
 
 bool ValueType::IsMixedTypedArrayPair(const ValueType other) const
-{
+{LOGMEIN("ValueType.cpp] 1800\n");
     return ( IsLikelyObject() && other.IsLikelyObject() &&
              (    (MixedTypedArrayPair[(int)GetObjectType()] == other.GetObjectType()) ||
                   (MixedTypedArrayPair[(int)other.GetObjectType()] == GetObjectType()) ||
@@ -1808,7 +1808,7 @@ bool ValueType::IsMixedTypedArrayPair(const ValueType other) const
 }
 
 ValueType ValueType::ChangeToMixedTypedArrayType() const
-{
+{LOGMEIN("ValueType.cpp] 1810\n");
     ObjectType objType = MixedTypedArrayPair[(int)GetObjectType()];
     Assert(objType);
     ValueType valueType(bits);
@@ -1818,12 +1818,12 @@ ValueType ValueType::ChangeToMixedTypedArrayType() const
 
 
 ObjectType ValueType::GetMixedTypedArrayObjectType() const
-{
+{LOGMEIN("ValueType.cpp] 1820\n");
     return MixedTypedArrayPair[(int)GetObjectType()];
 }
 
 ObjectType ValueType::GetMixedToVirtualTypedArrayObjectType() const
-{
+{LOGMEIN("ValueType.cpp] 1825\n");
     return MixedTypedToVirtualTypedArray[(int)GetObjectType()];
 }
 
@@ -1831,7 +1831,7 @@ ObjectType ValueType::GetMixedToVirtualTypedArrayObjectType() const
 #if DBG
 
 void ValueType::RunUnitTests()
-{
+{LOGMEIN("ValueType.cpp] 1833\n");
     Assert(Uninitialized.bits == (Bits::Likely | Bits::CanBeTaggedValue));
     Assert(!ObjectType::UninitializedObject); // this is assumed in Merge
 
@@ -1968,7 +1968,7 @@ void ValueType::RunUnitTests()
     Assert(UninitializedObject.IsNotInt());
     Assert(!UninitializedObject.ToLikely().IsNotInt());
 
-    {
+    {LOGMEIN("ValueType.cpp] 1970\n");
         const ValueType m(IntAndLikelyUntagged.Merge(Null));
         Assert(m.IsPrimitive());
         Assert(m.IsLikelyPrimitive());
@@ -1976,7 +1976,7 @@ void ValueType::RunUnitTests()
         Assert(!m.IsSubsetOf(IntAndLikelyUntagged, true, true, true, true));
     }
 
-    {
+    {LOGMEIN("ValueType.cpp] 1978\n");
         const ValueType m(IntAndLikelyUntagged.Merge(UninitializedObject));
         Assert(m.HasBeenInt());
         Assert(!m.IsLikelyPrimitive());
@@ -1984,14 +1984,14 @@ void ValueType::RunUnitTests()
         Assert(!m.IsLikelyObject());
     }
 
-    {
+    {LOGMEIN("ValueType.cpp] 1986\n");
         const ValueType m(Uninitialized.Merge(IntAndLikelyTagged));
         Assert(!m.IsPrimitive());
         Assert(!m.IsDefinite());
         Assert(m.IsLikelyTaggedInt());
     }
 
-    {
+    {LOGMEIN("ValueType.cpp] 1993\n");
         const ValueType m(UninitializedObject.Merge(Null));
         Assert(UninitializedObject.IsSubsetOf(m, true, true, true, true));
         Assert(!m.IsSubsetOf(UninitializedObject, true, true, true, true));
@@ -2020,12 +2020,12 @@ void ValueType::RunUnitTests()
             Assert(m.IsUninitialized() == (t0.IsUninitialized() && t1.IsUninitialized()));
             const bool isSubsetWithTypeSpecEnabled = t0.IsSubsetOf(t1, true, true, true, true);
             if(t0.IsUninitialized())
-            {
+            {LOGMEIN("ValueType.cpp] 2022\n");
                 Assert(isSubsetWithTypeSpecEnabled == t1.IsUninitialized());
                 return false;
             }
             else if(t1.IsUninitialized())
-            {
+            {LOGMEIN("ValueType.cpp] 2027\n");
                 Assert(isSubsetWithTypeSpecEnabled);
                 return false;
             }
@@ -2057,7 +2057,7 @@ void ValueType::RunUnitTests()
                     ) &&                                                                                    // one has an uninitialized object type
                     (t0.GetObjectType() > ObjectType::Object || t1.GetObjectType() > ObjectType::Object)    // one has a specific object type
                 ))                                                                                          // then the resulting object type is not guaranteed
-            {
+            {LOGMEIN("ValueType.cpp] 2059\n");
                 Assert(m.IsNotInt() == (t0.IsNotInt() && t1.IsNotInt()));
             }
 
@@ -2102,7 +2102,7 @@ void ValueType::RunUnitTests()
                     ) &&                                                                                    // one has an uninitialized object type
                     (t0.GetObjectType() > ObjectType::Object || t1.GetObjectType() > ObjectType::Object)    // one has a specific object type
                 ))                                                                                          // then the resulting object type is not guaranteed
-            {
+            {LOGMEIN("ValueType.cpp] 2104\n");
                 Assert(m.IsObject() == (t0.IsObject() && t1.IsObject()));
             }
             Assert(
@@ -2114,13 +2114,13 @@ void ValueType::RunUnitTests()
                 ));
 
             if(t1.IsUnknownNumber())
-            {
+            {LOGMEIN("ValueType.cpp] 2116\n");
                 Assert(isSubsetWithTypeSpecEnabled == (t0.IsNumber() || t0.IsLikelyInt() || t0.IsLikelyFloat()));
                 Assert(t0.IsSubsetOf(t1, false, true, true, true) == (t0.IsNumber() || t0.IsLikelyFloat()));
                 Assert(t0.IsSubsetOf(t1, true, false, true, true) == (t0.IsNumber() || t0.IsLikelyInt()));
             }
             else if(t0.IsLikelyInt() && t1.IsLikelyInt())
-            {
+            {LOGMEIN("ValueType.cpp] 2122\n");
                 Assert(
                     isSubsetWithTypeSpecEnabled ==
                     (
@@ -2133,11 +2133,11 @@ void ValueType::RunUnitTests()
                     ));
             }
             else if(t0.IsLikelyFloat() && t1.IsLikelyFloat())
-            {
+            {LOGMEIN("ValueType.cpp] 2135\n");
                 Assert(isSubsetWithTypeSpecEnabled == (t0.IsDefinite() || !t1.IsDefinite()));
             }
             else if(t0.IsLikelyNumber() && t1.IsLikelyNumber())
-            {
+            {LOGMEIN("ValueType.cpp] 2139\n");
                 Assert(
                     isSubsetWithTypeSpecEnabled ==
                     (
@@ -2150,24 +2150,24 @@ void ValueType::RunUnitTests()
                     ));
             }
             else if(t0.IsLikelyObject() && (t1.IsLikelyUndefined() || t1.IsLikelyNull()))
-            {
+            {LOGMEIN("ValueType.cpp] 2152\n");
                 Assert(isSubsetWithTypeSpecEnabled);
             }
             else if(t0.IsLikelyObject() && t1.IsLikelyObject())
-            {
+            {LOGMEIN("ValueType.cpp] 2156\n");
                 if(t1.GetObjectType() == ObjectType::UninitializedObject &&
                     t0.GetObjectType() != ObjectType::UninitializedObject)
-                {
+                {LOGMEIN("ValueType.cpp] 2159\n");
                     Assert(isSubsetWithTypeSpecEnabled);
                 }
                 else if((!t0.IsDefinite() && t1.IsDefinite()) || t0.GetObjectType() != t1.GetObjectType())
-                {
+                {LOGMEIN("ValueType.cpp] 2163\n");
                     Assert(!isSubsetWithTypeSpecEnabled);
                 }
                 else if(
                     (t0.IsDefinite() && !t1.IsDefinite()) ||
                     (t0.GetObjectType() != ObjectType::ObjectWithArray && t0.GetObjectType() != ObjectType::Array))
-                {
+                {LOGMEIN("ValueType.cpp] 2169\n");
                     Assert(isSubsetWithTypeSpecEnabled);
                 }
                 else
@@ -2208,7 +2208,7 @@ void ValueType::RunUnitTests()
 #endif
 
 void ValueType::InstantiateForceInlinedMembers()
-{
+{LOGMEIN("ValueType.cpp] 2210\n");
     // Force-inlined functions defined in a translation unit need a reference from an extern non-force-inlined function in the
     // same translation unit to force an instantiation of the force-inlined function. Otherwise, if the force-inlined function
     // is not referenced in the same translation unit, it will not be generated and the linker is not able to find the
@@ -2223,11 +2223,11 @@ void ValueType::InstantiateForceInlinedMembers()
 }
 
 bool ValueTypeComparer::Equals(const ValueType t0, const ValueType t1)
-{
+{LOGMEIN("ValueType.cpp] 2225\n");
     return t0 == t1;
 }
 
 uint ValueTypeComparer::GetHashCode(const ValueType t)
-{
+{LOGMEIN("ValueType.cpp] 2230\n");
     return t.GetHashCode();
 }

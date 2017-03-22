@@ -79,7 +79,7 @@ public:
     OOPEmitBufferManager * GetEmitBufferManager(bool asmJsManager);
     void DecommitEmitBufferManager(bool asmJsManager);
     Js::ScriptContextProfiler *  GetCodeGenProfiler() const;
-    ServerThreadContext* GetThreadContext() { return threadContextHolder.threadContextInfo; }
+    ServerThreadContext* GetThreadContext() {LOGMEIN("ServerScriptContext.h] 81\n"); return threadContextHolder.threadContextInfo; }
 
     ArenaAllocator * GetSourceCodeArena();
     void Close();

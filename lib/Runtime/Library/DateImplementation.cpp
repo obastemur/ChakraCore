@@ -10,10 +10,10 @@
 namespace Js {
 
     static double ConvertToInteger(double dbl)
-    {
+    {LOGMEIN("DateImplementation.cpp] 12\n");
         Assert(Js::NumberUtilities::IsFinite(dbl));
         if (Js::NumberUtilities::LuHiDbl(dbl) & 0x80000000)
-        {
+        {LOGMEIN("DateImplementation.cpp] 15\n");
             Js::NumberUtilities::LuHiDbl(dbl) &= 0x7FFFFFFF;
             dbl = floor(dbl);
             Js::NumberUtilities::LuHiDbl(dbl) |= 0x80000000;
@@ -120,7 +120,7 @@ namespace Js {
     ///----------------------------------------------------------------------------
 
     DateImplementation::DateImplementation(double value, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("DateImplementation.cpp] 122\n");
         // Assume DateImplementation is allocated in the recycler and is zero initialized
         // Do not stack allocate of this struct, as it doesn't initialize all fields.
         // If the stack allocated struct is copied in to recycler allocated ones, it
@@ -137,33 +137,33 @@ namespace Js {
 
     double
     DateImplementation::GetMilliSeconds()
-    {
+    {LOGMEIN("DateImplementation.cpp] 139\n");
         return m_tvUtc;
     }
 
     double
     DateImplementation::NowFromHiResTimer(ScriptContext* scriptContext)
-    {
+    {LOGMEIN("DateImplementation.cpp] 145\n");
         // Use current time.
         return scriptContext->GetThreadContext()->GetHiResTimer()->Now();
     }
 
     double
     DateImplementation::NowInMilliSeconds(ScriptContext * scriptContext)
-    {
+    {LOGMEIN("DateImplementation.cpp] 152\n");
         return DoubleToTvUtc(DateImplementation::NowFromHiResTimer(scriptContext));
     }
 
     JavascriptString*
     DateImplementation::GetString(DateStringFormat dsf, DateTimeFlag noDateTime)
-    {
+    {LOGMEIN("DateImplementation.cpp] 158\n");
         if (JavascriptNumber::IsNan(m_tvUtc))
-        {
+        {LOGMEIN("DateImplementation.cpp] 160\n");
             return m_scriptContext->GetLibrary()->GetInvalidDateString();
         }
 
         switch (dsf)
-         {
+         {LOGMEIN("DateImplementation.cpp] 165\n");
             default:
                 EnsureYmdLcl();
                 return GetDateDefaultString(&m_ymdLcl, &m_tzd, noDateTime, m_scriptContext);
@@ -173,13 +173,13 @@ namespace Js {
                 EnsureYmdLcl();
 
                 if( m_ymdLcl.year > 1600 && m_ymdLcl.year < 10000 )
-                {
+                {LOGMEIN("DateImplementation.cpp] 175\n");
                     // The year falls in the range which can be handled by both the Win32
                     // function GetDateFormat and the COM+ date type
                     // - the latter is for forward compatibility with JS 7.
                     JavascriptString *bs = GetDateLocaleString(&m_ymdLcl, &m_tzd, noDateTime, m_scriptContext);
                     if (bs != nullptr)
-                    {
+                    {LOGMEIN("DateImplementation.cpp] 181\n");
                         return bs;
                     }
                     else
@@ -201,10 +201,10 @@ namespace Js {
 
     JavascriptString*
     DateImplementation::GetISOString()
-    {
+    {LOGMEIN("DateImplementation.cpp] 203\n");
         // ES5 15.9.5.43: throw RangeError if time value is not a finite number
         if (!Js::NumberUtilities::IsFinite(m_tvUtc))
-        {
+        {LOGMEIN("DateImplementation.cpp] 206\n");
             JavascriptError::ThrowRangeError(m_scriptContext, JSERR_NeedNumber);
         }
 
@@ -239,28 +239,28 @@ namespace Js {
 
     void
     DateImplementation::GetDateComponent(CompoundString *bs, DateData componentType, int adjust)
-    {
+    {LOGMEIN("DateImplementation.cpp] 241\n");
         double value = this->GetDateData(componentType, true /* fUTC */, m_scriptContext);
         if(Js::NumberUtilities::IsFinite(value))
-        {
+        {LOGMEIN("DateImplementation.cpp] 244\n");
             const int ival = (int)value + adjust;
             const int ivalAbs = ival < 0 ? -ival : ival;
 
             switch(componentType)
-            {
+            {LOGMEIN("DateImplementation.cpp] 249\n");
                 case DateData::FullYear:
                     if(ival < 0 || ival > 9999)
-                    {
+                    {LOGMEIN("DateImplementation.cpp] 252\n");
                         // ES5 spec section 15.9.1.15.1 states that for years outside the range 0-9999, the expanded year
                         // representation should:
                         //     - always include the sign
                         //     - have 2 extra digits (6 digits total)
                         bs->AppendChars(ival < 0 ? _u('-') : _u('+'));
                         if(ivalAbs < 100000)
-                        {
+                        {LOGMEIN("DateImplementation.cpp] 259\n");
                             bs->AppendChars(_u('0'));
                             if(ivalAbs < 10000)
-                            {
+                            {LOGMEIN("DateImplementation.cpp] 262\n");
                                 bs->AppendChars(_u('0'));
                             }
                         }
@@ -268,7 +268,7 @@ namespace Js {
 
                     // Years are zero-padded to at least 4 digits in ES5
                     if(ivalAbs < 1000)
-                    {
+                    {LOGMEIN("DateImplementation.cpp] 270\n");
                         bs->AppendChars(_u('0'));
                         // will fall through to next case for additional padding
                     }
@@ -280,7 +280,7 @@ namespace Js {
 
                 case DateData::Milliseconds:
                     if (ivalAbs < 100)
-                    {
+                    {LOGMEIN("DateImplementation.cpp] 282\n");
                         bs->AppendChars(_u('0'));
                         // will fall through to next case for additional padding
                     }
@@ -292,7 +292,7 @@ namespace Js {
 
                 default:
                     if (ivalAbs < 10)
-                    {
+                    {LOGMEIN("DateImplementation.cpp] 294\n");
                         bs->AppendChars(_u('0'));
                     }
             }
@@ -317,16 +317,16 @@ namespace Js {
 
     void
     DateImplementation::SetTvUtc(double tv)
-    {
+    {LOGMEIN("DateImplementation.cpp] 319\n");
         m_grfval = 0;
         m_tvUtc = DoubleToTvUtc(tv);
     }
 
     double
     DateImplementation::DoubleToTvUtc(double tv)
-    {
+    {LOGMEIN("DateImplementation.cpp] 326\n");
         if (JavascriptNumber::IsNan(tv) || tv < ktvMin || tv > ktvMax)
-        {
+        {LOGMEIN("DateImplementation.cpp] 328\n");
             return JavascriptNumber::NaN;
         }
         return CONFIG_FLAG(HighPrecisionDate)? tv : ConvertToInteger(tv);
@@ -340,21 +340,21 @@ namespace Js {
 
     void
     DateImplementation::SetTvLcl(double tv)
-    {
+    {LOGMEIN("DateImplementation.cpp] 342\n");
         m_grfval = 0;
         m_tvUtc  = GetTvUtc(tv, m_scriptContext);
     }
 
     JavascriptString*
     DateImplementation::ConvertVariantDateToString(double dbl, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("DateImplementation.cpp] 349\n");
         Js::DateImplementation::TZD tzd;
         DateTime::YMD ymd;
         double tv = Js::DateImplementation::GetTvUtc(Js::DateImplementation::JsLocalTimeFromVarDate(dbl), scriptContext);
 
         tv = Js::DateImplementation::GetTvLcl(tv, scriptContext, &tzd);
         if (Js::JavascriptNumber::IsNan(tv))
-        {
+        {LOGMEIN("DateImplementation.cpp] 356\n");
             return JavascriptNumber::ToStringNan(scriptContext);
         }
 
@@ -365,7 +365,7 @@ namespace Js {
 
     JavascriptString*
     DateImplementation::GetDateDefaultString(DateTime::YMD *pymd, TZD *ptzd,DateTimeFlag noDateTime,ScriptContext* scriptContext)
-    {
+    {LOGMEIN("DateImplementation.cpp] 367\n");
         return GetDateDefaultString<CompoundString>(pymd, ptzd, noDateTime, scriptContext,
             [=](CharCount capacity) -> CompoundString*
         {
@@ -375,19 +375,19 @@ namespace Js {
 
     JavascriptString*
     DateImplementation::GetDateGmtString(DateTime::YMD *pymd,ScriptContext* scriptContext)
-    {
+    {LOGMEIN("DateImplementation.cpp] 377\n");
         // toUTCString() or toGMTString() will return for example:
         //  "Thu, 02 Feb 2012 09:02:03 GMT" for versions IE11 or above
 
         CompoundString *const bs = CompoundString::NewWithCharCapacity(30, scriptContext->GetLibrary());
 
         const auto ConvertUInt16ToString_ZeroPad_2 = [](const uint16 value, char16 *const buffer, const CharCount charCapacity)
-        {
+        {LOGMEIN("DateImplementation.cpp] 384\n");
             const charcount_t cchWritten = NumberUtilities::UInt16ToString(value, buffer, charCapacity, 2);
             Assert(cchWritten != 0);
         };
         const auto ConvertLongToString = [](const int32 value, char16 *const buffer, const CharCount charCapacity)
-        {
+        {LOGMEIN("DateImplementation.cpp] 389\n");
             const errno_t err = _ltow_s(value, buffer, charCapacity, 10);
             Assert(err == 0);
         };
@@ -402,7 +402,7 @@ namespace Js {
 
         // Add the year.
         if (pymd->year > 0)
-        {
+        {LOGMEIN("DateImplementation.cpp] 404\n");
             bs->AppendChars(pymd->year, 10, ConvertLongToString);
         }
         else
@@ -431,7 +431,7 @@ namespace Js {
 #ifdef ENABLE_GLOBALIZATION
     JavascriptString*
     DateImplementation::GetDateLocaleString(DateTime::YMD *pymd, TZD *ptzd, DateTimeFlag noDateTime,ScriptContext* scriptContext)
-    {
+    {LOGMEIN("DateImplementation.cpp] 433\n");
         SYSTEMTIME st;
         int cch;
         int count = 0;
@@ -454,20 +454,20 @@ namespace Js {
 
         LCID lcid = GetUserDefaultLCID();
         if( !(noDateTime & DateTimeFlag::NoDate))
-        {
+        {LOGMEIN("DateImplementation.cpp] 456\n");
             DWORD dwFormat = DATE_LONGDATE;
 
             if ((PRIMARYLANGID(LANGIDFROMLCID(lcid)) == LANG_ARABIC) ||
                 (PRIMARYLANGID(LANGIDFROMLCID(lcid)) == LANG_HEBREW))
-            {
+            {LOGMEIN("DateImplementation.cpp] 461\n");
                 dwFormat |= DATE_RTLREADING;
             }
             int c = GetDateFormatW( lcid, dwFormat, &st, NULL, NULL, 0 );
 
             if( c <= 0 )
-            {
+            {LOGMEIN("DateImplementation.cpp] 467\n");
                 if (PRIMARYLANGID(LANGIDFROMLCID(lcid)) == LANG_HEBREW)
-                {
+                {LOGMEIN("DateImplementation.cpp] 469\n");
                     // Can't support some Hebrew dates - current limit is 1 Jan AD 2240
                     Js::JavascriptError::ThrowRangeError(scriptContext, VBSERR_CantDisplayDate);
                 }
@@ -479,7 +479,7 @@ namespace Js {
         }
 
         if( !(noDateTime & DateTimeFlag::NoTime))
-        {
+        {LOGMEIN("DateImplementation.cpp] 481\n");
             int c = GetTimeFormatW( lcid, 0, &st, NULL, NULL, 0 );
             if( c <= 0 )
             {
@@ -491,10 +491,10 @@ namespace Js {
         cch++; // For the space between the date and the time.
 
         if( cch > kcchMax )
-        {
+        {LOGMEIN("DateImplementation.cpp] 493\n");
             pwszBuf = pToBeFreed = (WCHAR *)malloc( cch * sizeof(WCHAR) );
             if(!pwszBuf)
-            {
+            {LOGMEIN("DateImplementation.cpp] 496\n");
                 Js::JavascriptError::ThrowOutOfMemoryError(scriptContext);
             }
         }
@@ -508,20 +508,20 @@ namespace Js {
         p = pwszBuf;
 
         if( !(noDateTime & DateTimeFlag::NoDate))
-        {
+        {LOGMEIN("DateImplementation.cpp] 510\n");
             DWORD dwFormat = DATE_LONGDATE;
 
             if ((PRIMARYLANGID(LANGIDFROMLCID(lcid)) == LANG_ARABIC) ||
                 (PRIMARYLANGID(LANGIDFROMLCID(lcid)) == LANG_HEBREW))
-            {
+            {LOGMEIN("DateImplementation.cpp] 515\n");
                 dwFormat |= DATE_RTLREADING;
             }
             int c = GetDateFormatW( lcid, dwFormat, &st, NULL, p, cch );
 
             if( c <= 0 || c > cch)
-            {
+            {LOGMEIN("DateImplementation.cpp] 521\n");
                 if (PRIMARYLANGID(LANGIDFROMLCID(lcid)) == LANG_HEBREW)
-                {
+                {LOGMEIN("DateImplementation.cpp] 523\n");
                     // Can't support some Hebrew dates - current limit is 1 Jan AD 2240
                     Js::JavascriptError::ThrowRangeError(scriptContext, VBSERR_CantDisplayDate);
                 }
@@ -533,7 +533,7 @@ namespace Js {
             p += (c-1);
             cch -= (c-1);
             if( !(noDateTime & DateTimeFlag::NoTime))
-            {
+            {LOGMEIN("DateImplementation.cpp] 535\n");
                 *p++ = _u(' ');
                 cch--;
             }
@@ -541,7 +541,7 @@ namespace Js {
         }
 
         if( !(noDateTime & DateTimeFlag::NoTime))
-        {
+        {LOGMEIN("DateImplementation.cpp] 543\n");
             int c = GetTimeFormatW( lcid, 0, &st, NULL, p, cch );
             Assert( c > 0 );
             if( c <= 0 )
@@ -564,17 +564,17 @@ Error:
 
     double
     DateImplementation::GetDateData(DateData dd, bool fUtc, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("DateImplementation.cpp] 566\n");
         DateTime::YMD *pymd;
         double value = 0;
 
         if (JavascriptNumber::IsNan(m_tvUtc))
-        {
+        {LOGMEIN("DateImplementation.cpp] 571\n");
             return m_tvUtc;
         }
 
         if (fUtc)
-        {
+        {LOGMEIN("DateImplementation.cpp] 576\n");
             EnsureYmdUtc();
             pymd = &m_ymdUtc;
         }
@@ -585,7 +585,7 @@ Error:
         }
 
         switch (dd)
-        {
+        {LOGMEIN("DateImplementation.cpp] 587\n");
         case DateData::Year:
             Assert(scriptContext);
 
@@ -631,13 +631,13 @@ Error:
 
     inline bool
     DateImplementation::FBig(char16 ch)
-    {
+    {LOGMEIN("DateImplementation.cpp] 633\n");
         return (unsigned int)ch >= 128;
     }
 
     inline bool
     DateImplementation::FDateDelimiter(char16 ch)
-    {
+    {LOGMEIN("DateImplementation.cpp] 639\n");
         return (ch == '/' || ch == '-');
     }
 
@@ -650,18 +650,18 @@ Error:
     ///------------------------------------------------------------------------------
 
     double DateImplementation::UtcTimeFromStr(ScriptContext *scriptContext, JavascriptString *pParseString)
-    {
+    {LOGMEIN("DateImplementation.cpp] 652\n");
         Assert(pParseString != nullptr);
         double dbl;
         if (scriptContext->GetLastUtcTimeFromStr(pParseString, dbl))
-        {
+        {LOGMEIN("DateImplementation.cpp] 656\n");
             return dbl;
         }
         unsigned int ulength = pParseString->GetLength();
         const char16 *psz =  pParseString->GetSz();
 
         if(UtcTimeFromStrCore(psz, ulength, dbl, scriptContext))
-        {
+        {LOGMEIN("DateImplementation.cpp] 663\n");
             scriptContext->SetLastUtcTimeFromStr(pParseString, dbl);
             return dbl;
         }
@@ -675,7 +675,7 @@ Error:
         const size_t startIndex,
         const size_t numDigits,
         int &value)
-    {
+    {LOGMEIN("DateImplementation.cpp] 677\n");
         Assert(str);
         Assert(length);
         Assert(startIndex <= length);
@@ -692,7 +692,7 @@ Error:
         // Parse remaining digits
         int v = 0;
         for(; i < numDigits; ++i)
-        {
+        {LOGMEIN("DateImplementation.cpp] 694\n");
             const unsigned short d = str[startIndex + i] - _u('0');
             if(d > 9)
                 break;
@@ -715,7 +715,7 @@ Error:
         const size_t startIndex,
         int &value,
         size_t &foundDigits)
-    {
+    {LOGMEIN("DateImplementation.cpp] 717\n");
         const size_t minNumDigits = 1;
 
         Assert(str);
@@ -734,7 +734,7 @@ Error:
         // Parse remaining digits
         int v = 0;
         for(; i < allDigits ; ++i)
-        {
+        {LOGMEIN("DateImplementation.cpp] 736\n");
             const unsigned short d = str[startIndex + i] - _u('0');
             if(d > 9)
                 break;
@@ -762,7 +762,7 @@ Error:
         const size_t startIndex,
         int &value,
         bool canHaveTrailingDigit /* = false */)
-    {
+    {LOGMEIN("DateImplementation.cpp] 764\n");
         Assert(str);
         Assert(length);
         Assert(startIndex <= length);
@@ -785,7 +785,7 @@ Error:
     }
 
     bool DateImplementation::TryParseIsoString(const char16 *const str, const size_t length, double &timeValue, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("DateImplementation.cpp] 787\n");
         Assert(str);
 
         size_t i = 0;
@@ -801,7 +801,7 @@ Error:
         // YYYY|(+|-)YYYYYY
         int year;
         switch(str[i])
-        {
+        {LOGMEIN("DateImplementation.cpp] 803\n");
             case _u('+'):
                 ++i;
                 if(!TryParseDecimalDigits(str, length, i, 6, year))
@@ -846,9 +846,9 @@ Error:
         bool isLocalTime = false;
 
         do // while(false);
-        {
+        {LOGMEIN("DateImplementation.cpp] 848\n");
             do // while(false);
-            {
+            {LOGMEIN("DateImplementation.cpp] 850\n");
                 // -MM
                 if(i >= length || str[i] != _u('-'))
                     break;
@@ -903,7 +903,7 @@ Error:
             i += classifier->SkipBiDirectionalChars(str, i, length);
 
             do // while(false);
-            {
+            {LOGMEIN("DateImplementation.cpp] 905\n");
                 // :ss
                 if(i >= length || str[i] != _u(':'))
                     break;
@@ -933,18 +933,18 @@ Error:
 
             // Z|(+|-)HH:mm
             if(i >= length)
-            {
+            {LOGMEIN("DateImplementation.cpp] 935\n");
                 isLocalTime = true;
                 break;
             }
             const char16 utcOffsetSign = str[i];
             if(utcOffsetSign == _u('Z'))
-            {
+            {LOGMEIN("DateImplementation.cpp] 941\n");
                 ++i;
                 break;
             }
             if(utcOffsetSign != _u('+') && utcOffsetSign != _u('-'))
-            {
+            {LOGMEIN("DateImplementation.cpp] 946\n");
                 isLocalTime = true;
                 break;
             }
@@ -962,7 +962,7 @@ Error:
                 return false;
             // The ':' is optional in ISO 8601
             if (str[i] == _u(':'))
-            {
+            {LOGMEIN("DateImplementation.cpp] 964\n");
                 ++i;
             }
             if(!TryParseTwoDecimalDigits(str, length, i, t) || t > 59)
@@ -990,7 +990,7 @@ Error:
         // Compute the time value
         timeValue = TvFromDate(year, month, day, timePortionMilliseconds - utcOffsetMilliseconds);
         if (isLocalTime)
-        {
+        {LOGMEIN("DateImplementation.cpp] 992\n");
             // Compatibility note:
             // In ES5, it was unspecified how to handle date strings without the trailing time zone offset "Z|(+|-)HH:mm".
             // In ES5.1, an absent time zone offset defaulted to "Z", which contradicted ISO8601:2004(E).
@@ -1005,24 +1005,24 @@ Error:
         unsigned int ulength,
         double &retVal,
         ScriptContext *const scriptContext)
-    {
+    {LOGMEIN("DateImplementation.cpp] 1007\n");
         Assert(scriptContext);
 
         if (ulength >= 0x7fffffff)
-        {
+        {LOGMEIN("DateImplementation.cpp] 1011\n");
             //Prevent unreasonable requests from causing overflows.
             return false;
         }
 
         if (nullptr == psz)
-        {
+        {LOGMEIN("DateImplementation.cpp] 1017\n");
             retVal = JavascriptNumber::NaN;
             return true;
         }
 
         // Try to parse the string as the ISO format first
         if(TryParseIsoString(psz, ulength, retVal, scriptContext))
-        {
+        {LOGMEIN("DateImplementation.cpp] 1024\n");
             return true;
         }
 
@@ -1078,27 +1078,27 @@ Error:
         const Js::CharClassifier *classifier = scriptContext->GetCharClassifier();
         #pragma prefast(suppress: __WARNING_INCORRECT_VALIDATION, "pch is guaranteed to be null terminated by __in_z on psz and js_memcpy_s copying the null byte")
         for (pch = pszSrc; 0 != (ch = classifier->SkipBiDirectionalChars(pch));)
-        {
+        {LOGMEIN("DateImplementation.cpp] 1080\n");
             pch++;
             if (ch <= ' ')
-            {
+            {LOGMEIN("DateImplementation.cpp] 1083\n");
                 continue;
             }
 
             switch (ch)
-            {
+            {LOGMEIN("DateImplementation.cpp] 1088\n");
                 case '(':
-                {
+                {LOGMEIN("DateImplementation.cpp] 1090\n");
                     // skip stuff in parens
                     for (depth = 1; 0 != (ch = *pch); )
-                    {
+                    {LOGMEIN("DateImplementation.cpp] 1093\n");
                         pch++;
                         if (ch == '(')
-                        {
+                        {LOGMEIN("DateImplementation.cpp] 1096\n");
                             depth++;
                         }
                         else if (ch == ')' && --depth <= 0)
-                        {
+                        {LOGMEIN("DateImplementation.cpp] 1100\n");
                             break;
                         }
                     }
@@ -1107,22 +1107,22 @@ Error:
                 case ',':
                 case ':':
                 case '/':
-                {
+                {LOGMEIN("DateImplementation.cpp] 1109\n");
                     // ignore these
                     continue;
                 }
                 case '+':
-                {
+                {LOGMEIN("DateImplementation.cpp] 1114\n");
                     if (lwNil != lwTime)
-                    {
+                    {LOGMEIN("DateImplementation.cpp] 1116\n");
                         ss = ssAddOffset;
                     }
                     continue;
                 }
                 case '-':
-                {
+                {LOGMEIN("DateImplementation.cpp] 1122\n");
                     if (lwNil != lwTime)
-                    {
+                    {LOGMEIN("DateImplementation.cpp] 1124\n");
                         ss = ssSubOffset;
                     }
                     continue;
@@ -1132,27 +1132,27 @@ Error:
 
             pchBase = pch - 1;
             if (!FBig(ch) && isalpha(ch))
-            {
+            {LOGMEIN("DateImplementation.cpp] 1134\n");
                 for ( ; !FBig(*pch) && (isalpha(*pch) || '.' == *pch); pch++)
                     ;
 
                 cch = (int32)(pch - pchBase);
 
                 if ('.' == pchBase[cch - 1])
-                {
+                {LOGMEIN("DateImplementation.cpp] 1141\n");
                     cch--;
                 }
                 //Assert(cch > 0);
 
                 // skip to the next real character
                 while (0 != (*pch) && (*pch <= ' ' || classifier->IsBiDirectionalChar(*pch)))
-                {
+                {LOGMEIN("DateImplementation.cpp] 1148\n");
                     pch++;
                 }
 
                 // have an alphabetic token - look it up
                 if (cch == 1)
-                {
+                {LOGMEIN("DateImplementation.cpp] 1154\n");
                     AssertMsg(isNextFieldDateNegativeVersion5 == false, "isNextFieldDateNegativeVersion5 == false");
 
                     // military version of time zone
@@ -1161,23 +1161,23 @@ Error:
                     // a to m are -1 to -12
                     // n to y are 1 to 12
                     if (lwNil != lwZone)
-                    {
+                    {LOGMEIN("DateImplementation.cpp] 1163\n");
                         goto LError;
                     }
                     if (ch <= 'm')
-                    {
+                    {LOGMEIN("DateImplementation.cpp] 1167\n");
                         if (ch == 'j' || ch < 'a')
-                        {
+                        {LOGMEIN("DateImplementation.cpp] 1169\n");
                             goto LError;
                         }
                         lwZone = -(int32)(ch - 'a' + (ch < 'j')) * 60;
                     }
                     else if (ch <= 'y')
-                    {
+                    {LOGMEIN("DateImplementation.cpp] 1175\n");
                         lwZone = (int32)(ch - 'm') * 60;
                     }
                     else if (ch == 'z')
-                    {
+                    {LOGMEIN("DateImplementation.cpp] 1179\n");
                         lwZone = 0;
                     }
                     else
@@ -1193,49 +1193,49 @@ Error:
 
                 // look for a token
                 for (pszs = g_rgszs + kcszs; ; )
-                {
+                {LOGMEIN("DateImplementation.cpp] 1195\n");
                     if (pszs-- <= g_rgszs)
                         goto LError;
                     if (cch <= pszs->cch &&
                         0 == memcmp(pchBase, pszs->psz, cch * sizeof(char16)))
-                    {
+                    {LOGMEIN("DateImplementation.cpp] 1200\n");
                         break;
                     }
                 }
 
                 switch (pszs->szst)
-                {
+                {LOGMEIN("DateImplementation.cpp] 1206\n");
                     case ParseStringTokenType::BcAd:
-                    {
+                    {LOGMEIN("DateImplementation.cpp] 1208\n");
                         if (tBcAd != 0)
-                        {
+                        {LOGMEIN("DateImplementation.cpp] 1210\n");
                             goto LError;
                         }
                         tBcAd = (int)pszs->lwVal;
                         break;
                     }
                     case ParseStringTokenType::AmPm:
-                    {
+                    {LOGMEIN("DateImplementation.cpp] 1217\n");
                         if (tAmPm != 0)
-                        {
+                        {LOGMEIN("DateImplementation.cpp] 1219\n");
                             goto LError;
                         }
                         tAmPm = (int)pszs->lwVal;
                         break;
                     }
                     case ParseStringTokenType::Month:
-                    {
+                    {LOGMEIN("DateImplementation.cpp] 1226\n");
                         if (lwNil != lwMonth)
-                        {
+                        {LOGMEIN("DateImplementation.cpp] 1228\n");
                             goto LError;
                         }
                         lwMonth = pszs->lwVal;
                         break;
                     }
                     case ParseStringTokenType::Zone:
-                    {
+                    {LOGMEIN("DateImplementation.cpp] 1235\n");
                         if (lwNil != lwZone)
-                        {
+                        {LOGMEIN("DateImplementation.cpp] 1237\n");
                             goto LError;
                         }
                         lwZone = pszs->lwVal;
@@ -1250,32 +1250,32 @@ Error:
             }
 
             if (FBig(ch) || !isdigit(ch))
-            {
+            {LOGMEIN("DateImplementation.cpp] 1252\n");
                 goto LError;
             }
 
             for (lwT = ch - '0'; !FBig(*pch) && isdigit(*pch); pch++)
-            {
+            {LOGMEIN("DateImplementation.cpp] 1257\n");
                 lwT = lwT * 10 + *pch - '0';
             }
 
             // to avoid overflow
             if (pch - pchBase > 6)
-            {
+            {LOGMEIN("DateImplementation.cpp] 1263\n");
                 goto LError;
             }
 
             // skip to the next real character
             while (0 != (ch = *pch) && (ch <= ' ' || classifier->IsBiDirectionalChar(ch)))
-            {
+            {LOGMEIN("DateImplementation.cpp] 1269\n");
                 pch++;
             }
 
             switch (ss)
-            {
+            {LOGMEIN("DateImplementation.cpp] 1274\n");
                 case ssAddOffset:
                 case ssSubOffset:
-                {
+                {LOGMEIN("DateImplementation.cpp] 1277\n");
                     AssertMsg(isNextFieldDateNegativeVersion5 == false, "isNextFieldDateNegativeVersion5 == false");
 
                     if (lwNil != lwOffset)
@@ -1289,7 +1289,7 @@ Error:
                     break;
                 }
                 case ssMinutes:
-                {
+                {LOGMEIN("DateImplementation.cpp] 1291\n");
                     AssertMsg(isNextFieldDateNegativeVersion5 == false, "isNextFieldDateNegativeVersion5 == false");
 
                     if (lwT >= 60)
@@ -1299,7 +1299,7 @@ Error:
                     break;
                 }
                 case ssSeconds:
-                {
+                {LOGMEIN("DateImplementation.cpp] 1301\n");
                     AssertMsg(isNextFieldDateNegativeVersion5 == false, "isNextFieldDateNegativeVersion5 == false");
 
                     if (lwT >= 60)
@@ -1309,7 +1309,7 @@ Error:
                     break;
                 }
                 case ssDate:
-                {
+                {LOGMEIN("DateImplementation.cpp] 1311\n");
                     AssertMsg(isNextFieldDateNegativeVersion5 == false, "isNextFieldDateNegativeVersion5 == false");
 
                     if (lwNil != lwDate)
@@ -1317,7 +1317,7 @@ Error:
                     lwDate = lwT;
 
                     if ((lwNil == lwYear) && FDateDelimiter(ch))
-                    {
+                    {LOGMEIN("DateImplementation.cpp] 1319\n");
                         // We have already parsed the year if the date is specified as YYYY/MM/DD,
                         // but not when it is specified as MM/DD/YYYY.
                         ss = ssYear;
@@ -1330,18 +1330,18 @@ Error:
                     break;
                 }
                 case ssMonth:
-                {
+                {LOGMEIN("DateImplementation.cpp] 1332\n");
                     AssertMsg(isNextFieldDateNegativeVersion5 == false, "isNextFieldDateNegativeVersion5 == false");
 
                     if (lwNil != lwMonth)
-                    {
+                    {LOGMEIN("DateImplementation.cpp] 1336\n");
                         goto LError;
                     }
 
                     lwMonth = lwT - 1;
 
                     if (FDateDelimiter(ch))
-                    {
+                    {LOGMEIN("DateImplementation.cpp] 1343\n");
                         // Mark the next token as the date so that it won't be confused with another token.
                         // For example, if the next character is '-' as in "2015-1-1", then it'd be used as
                         // the time offset without this.
@@ -1352,7 +1352,7 @@ Error:
                     break;
                 }
                 case ssYear:
-                {
+                {LOGMEIN("DateImplementation.cpp] 1354\n");
                     AssertMsg(isNextFieldDateNegativeVersion5 == false, "isNextFieldDateNegativeVersion5 == false");
 
                     if (lwNil != lwYear)
@@ -1369,7 +1369,7 @@ Error:
                     //    - an absolute value greater or equal than 70 (thus not hour!)
                     //    - wasn't preceded by negative sign for -version:5 year format
                     if (lwT >= 70 || isNextFieldDateNegativeVersion5)
-                    {
+                    {LOGMEIN("DateImplementation.cpp] 1371\n");
                         // assume it's a year - this is used particularly as version:5 year parsing
                         if (lwNil != lwYear)
                             goto LError;
@@ -1379,7 +1379,7 @@ Error:
                         isNextFieldDateNegativeVersion5 = false;
 
                         if (FDateDelimiter(ch))
-                        {
+                        {LOGMEIN("DateImplementation.cpp] 1381\n");
                             // Mark the next token as the month so that it won't be confused with another token.
                             // For example, if the next character is '-' as in "2015-1-1", then it'd be used as
                             // the time offset without this.
@@ -1391,9 +1391,9 @@ Error:
                     }
 
                     switch (ch)
-                    {
+                    {LOGMEIN("DateImplementation.cpp] 1393\n");
                         case ':':
-                        {
+                        {LOGMEIN("DateImplementation.cpp] 1395\n");
                             // hour
                             if (lwNil != lwTime)
                                 goto LError;
@@ -1406,13 +1406,13 @@ Error:
                         }
                         case '/':
                         case '-':
-                        {
+                        {LOGMEIN("DateImplementation.cpp] 1408\n");
                             // month
                             if (lwNil != lwMonth)
-                            {
+                            {LOGMEIN("DateImplementation.cpp] 1411\n");
                                 // can be year
                                 if (lwNil != lwYear)
-                                {
+                                {LOGMEIN("DateImplementation.cpp] 1414\n");
                                     // both were already parsed!
                                     goto LError;
                                 }
@@ -1451,36 +1451,36 @@ Error:
         }
 
         if (lwNil == lwYear || lwNil == lwMonth || lwNil == lwDate)
-        {
+        {LOGMEIN("DateImplementation.cpp] 1453\n");
             goto LError;
         }
 
         if (tBcAd != 0)
-        {
+        {LOGMEIN("DateImplementation.cpp] 1458\n");
             if (tBcAd < 0)
-            {
+            {LOGMEIN("DateImplementation.cpp] 1460\n");
                 // BC. Note that 1 BC is year 0 and 2 BC is year -1.
                 lwYear = -lwYear + 1;
             }
         }
         else if (lwYear < 100 && isDateNegativeVersion5 == false)
-        {
+        {LOGMEIN("DateImplementation.cpp] 1466\n");
             lwYear += 1900;
         }
 
 
         if (tAmPm != 0)
-        {
+        {LOGMEIN("DateImplementation.cpp] 1472\n");
             if (lwNil == lwTime)
-            {
+            {LOGMEIN("DateImplementation.cpp] 1474\n");
                 goto LError;
             }
             if (lwTime >= 12 * 3600L && lwTime < 13 * 3600L)
-            {
+            {LOGMEIN("DateImplementation.cpp] 1478\n");
                 // In the 12:00 hour. AM means subtract 12 hours and PM means
                 // do nothing.
                 if (tAmPm < 0)
-                {
+                {LOGMEIN("DateImplementation.cpp] 1482\n");
                     lwTime -= 12 * 3600L;
                 }
             }
@@ -1489,9 +1489,9 @@ Error:
                 // Not in the 12:00 hour. AM means do nothing and PM means
                 // add 12 hours.
                 if (tAmPm > 0)
-                {
+                {LOGMEIN("DateImplementation.cpp] 1491\n");
                     if (lwTime >= 12 * 3600L)
-                    {
+                    {LOGMEIN("DateImplementation.cpp] 1493\n");
                         goto LError;
                     }
                     lwTime += 12 * 3600L;
@@ -1499,12 +1499,12 @@ Error:
             }
         }
         else if (lwNil == lwTime)
-        {
+        {LOGMEIN("DateImplementation.cpp] 1501\n");
             lwTime = 0;
         }
 
         if (lwNil != lwZone)
-        {
+        {LOGMEIN("DateImplementation.cpp] 1506\n");
             lwTime -= lwZone * 60;
             fUtc = TRUE;
         }
@@ -1513,14 +1513,14 @@ Error:
             fUtc = FALSE;
         }
         if (lwNil != lwOffset)
-        {
+        {LOGMEIN("DateImplementation.cpp] 1515\n");
             lwTime -= lwOffset * 60;
         }
 
         // Rebuild time.
         tv = TvFromDate(lwYear, lwMonth, lwDate - 1, (double)lwTime * 1000);
         if (!fUtc)
-        {
+        {LOGMEIN("DateImplementation.cpp] 1522\n");
             tv = GetTvUtc(tv, scriptContext);
         }
 
@@ -1534,7 +1534,7 @@ LError:
     //Convert a utc time to a variant date.
     //------------------------------------
     double DateImplementation::VarDateFromJsUtcTime(double dbl, ScriptContext * scriptContext)
-    {
+    {LOGMEIN("DateImplementation.cpp] 1536\n");
         Assert(scriptContext);
 
         // Convert to local time.
@@ -1549,7 +1549,7 @@ LError:
         // Convert this to a true Automation-style date.
 
         if (dbl < 0.0)
-        {
+        {LOGMEIN("DateImplementation.cpp] 1551\n");
             // This works around a bug in OLE Automation.
             // If a date is negative _and_ less than 500
             // milliseconds before midnight then Automation will
@@ -1567,14 +1567,14 @@ LError:
     }
 
     double DateImplementation::JsUtcTimeFromVarDate(double dbl, ScriptContext * scriptContext)
-    {
+    {LOGMEIN("DateImplementation.cpp] 1569\n");
         Assert(scriptContext);
 
         return GetTvUtc(JsLocalTimeFromVarDate(dbl), scriptContext);
     }
 
     double DateImplementation::DateFncUTC(ScriptContext* scriptContext, Arguments args)
-    {
+    {LOGMEIN("DateImplementation.cpp] 1576\n");
         const int kcvarMax = 7;
         double rgdbl[kcvarMax];
         double tv;
@@ -1585,28 +1585,28 @@ LError:
         // Date.UTC should return NaN with 0 arguments.
         // args.Info.Count includes an implicit first parameter, so we check for Count <= 1.
         if (args.Info.Count <= 1)
-        {
+        {LOGMEIN("DateImplementation.cpp] 1587\n");
             return JavascriptNumber::NaN;
         }
 
         for (ivar = 0; (ivar < (args.Info.Count-1)) && ivar < kcvarMax; ++ivar)
-        {
+        {LOGMEIN("DateImplementation.cpp] 1592\n");
             rgdbl[ivar] = JavascriptConversion::ToNumber(args[ivar+1],scriptContext);
 
         }
         for (ivar = 0; ivar < kcvarMax; ivar++)
-        {
+        {LOGMEIN("DateImplementation.cpp] 1597\n");
             // Unspecified parameters are treated like zero, except date, which
             // is treated as 1.
             if (ivar >= (args.Info.Count - 1))
-            {
+            {LOGMEIN("DateImplementation.cpp] 1601\n");
                 rgdbl[ivar] = (ivar == 2);
                 continue;
             }
 #pragma prefast(suppress:6001, "rgdbl index ivar < args.Info.Count - 1 are initialized")
             dblT = rgdbl[ivar];
             if (!Js::NumberUtilities::IsFinite(dblT))
-            {
+            {LOGMEIN("DateImplementation.cpp] 1608\n");
                 return JavascriptNumber::NaN;
             }
             rgdbl[ivar] = ConvertToInteger(dblT);
@@ -1614,7 +1614,7 @@ LError:
 
         // adjust the year
         if (rgdbl[0] < 100 && rgdbl[0] >= 0)
-        {
+        {LOGMEIN("DateImplementation.cpp] 1616\n");
             rgdbl[0] += 1900;
         }
 
@@ -1643,7 +1643,7 @@ LError:
     };
 
     double DateImplementation::SetDateData(Arguments args, DateData dd, bool fUtc, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("DateImplementation.cpp] 1645\n");
         // This must accommodate the largest cvar in mpddcvar.
         double rgdbl[5];
 
@@ -1671,7 +1671,7 @@ LError:
         // arg[0] would be the date object itself
         //
         for (ivar = 0; (ivar < (args.Info.Count-1)) && ivar < cvarMax; ++ivar)
-        {
+        {LOGMEIN("DateImplementation.cpp] 1673\n");
             rgdbl[ivar] = JavascriptConversion::ToNumber(args[ivar+1],scriptContext);
 
             if (!Js::NumberUtilities::IsFinite(rgdbl[ivar]))
@@ -1681,19 +1681,19 @@ LError:
         }
 
         if ((count = ivar) < 1)
-        {
+        {LOGMEIN("DateImplementation.cpp] 1683\n");
             goto LSetNan;
         }
 
         if (JavascriptNumber::IsNan(m_tvUtc))
-        {
+        {LOGMEIN("DateImplementation.cpp] 1688\n");
 
 
             // If the current time is not finite, the only way we can end up
             // with non-NaN is for setFullYear/setYear.
             // See ES5 15.9.5.40, ES5 B.2.5.
             if (!(DateData::FullYear == dd || DateData::Year == dd))
-            {
+            {LOGMEIN("DateImplementation.cpp] 1695\n");
                 goto LSetNan;
             }
             pymd = &emptyYMD;           // We need mon, mday, time to be 0.
@@ -1702,7 +1702,7 @@ LError:
         else
         {
             if (fUtc)
-            {
+            {LOGMEIN("DateImplementation.cpp] 1704\n");
                 EnsureYmdUtc();
                 pymd = &m_ymdUtc;
                 tv = m_tvUtc;
@@ -1717,7 +1717,7 @@ LError:
 
         ivar = 0;
         switch (dd)
-        {
+        {LOGMEIN("DateImplementation.cpp] 1719\n");
         case DateData::Year:
             if (rgdbl[0] < 100 && rgdbl[0] >= 0)
                 rgdbl[0] += 1900;
@@ -1725,11 +1725,11 @@ LError:
         case DateData::FullYear:
     LFullYear:
             if (count < 3)
-            {
+            {LOGMEIN("DateImplementation.cpp] 1727\n");
                 // Only {year} or {year, month} is specified. Day is not specified.
                 rgdbl[2] = pymd->mday + 1;
                 if (count < 2)
-                {
+                {LOGMEIN("DateImplementation.cpp] 1731\n");
                     // Month is not specified.
                     rgdbl[1] = pymd->mon;
                 }
@@ -1744,28 +1744,28 @@ LError:
         case DateData::Date:
             tv += (rgdbl[ivar] - pymd->mday - 1) * 86400000;
             if (++ivar >= count)
-            {
+            {LOGMEIN("DateImplementation.cpp] 1746\n");
                 break;
             }
             // fall-through
         case DateData::Hours:
             tv += (rgdbl[ivar] - (pymd->time / 3600000)) * 3600000;
             if (++ivar >= count)
-            {
+            {LOGMEIN("DateImplementation.cpp] 1753\n");
                 break;
             }
             // fall-through
         case DateData::Minutes:
             tv += (rgdbl[ivar] - (pymd->time / 60000) % 60) * 60000;
             if (++ivar >= count)
-            {
+            {LOGMEIN("DateImplementation.cpp] 1760\n");
                 break;
             }
             // fall-through
         case DateData::Seconds:
             tv += (rgdbl[ivar] - (pymd->time / 1000) % 60) * 1000;
             if (++ivar >= count)
-            {
+            {LOGMEIN("DateImplementation.cpp] 1767\n");
                 break;
             }
             // fall-through
@@ -1777,7 +1777,7 @@ LError:
         }
 
         if (fUtc)
-        {
+        {LOGMEIN("DateImplementation.cpp] 1779\n");
             SetTvUtc(tv);
         }
         else

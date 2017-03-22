@@ -7,7 +7,7 @@
 namespace Js
 {
     char16* BufferStringBuilder::WritableString::SafeCopyAndAdvancePtr(__out_ecount(cchDst) char16* dst, charcount_t& cchDst, __in_ecount(cch) const char16* ptr, charcount_t cch)
-    {
+    {LOGMEIN("BufferStringBuilder.cpp] 9\n");
         Assert( IsValidCharCount(cch) );
         Assert( dst != nullptr);
         Assert( ptr != nullptr);
@@ -22,7 +22,7 @@ namespace Js
             const char16* prefix, charcount_t cchPrefix,
             const char16* content, charcount_t cchContent,
             const char16* suffix, charcount_t cchSuffix)
-    {
+    {LOGMEIN("BufferStringBuilder.cpp] 24\n");
         char16* dst = GetWritableBuffer();
 
         charcount_t cchRemain = GetLength();
@@ -32,7 +32,7 @@ namespace Js
     }
 
     BufferStringBuilder::WritableString* BufferStringBuilder::WritableString::New(charcount_t length, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("BufferStringBuilder.cpp] 34\n");
         Recycler* recycler = scriptContext->GetRecycler();
 
         // Allocate recycler memory to store the string plus a terminating NUL
@@ -49,7 +49,7 @@ namespace Js
     }
 
     JavascriptString* BufferStringBuilder::ToString()
-    {
+    {LOGMEIN("BufferStringBuilder.cpp] 51\n");
         DbgAssertNotFrozen();
 
         char16* buffer = DangerousGetWritableBuffer();
@@ -60,7 +60,7 @@ namespace Js
 #if 0
 
         for( charcount_t i = 0; i != length; ++i )
-        {
+        {LOGMEIN("BufferStringBuilder.cpp] 62\n");
             // This could be tripped if the buffer actually contains a char
             // with the debug fill value. In that case, this assert may
             // need to be downgraded to a warning.

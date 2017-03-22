@@ -10,7 +10,7 @@
         ScriptContext* scriptContext = function->GetScriptContext(); \
         Assert(!(callInfo.Flags & CallFlags_New)); \
         if (args.Info.Count <= length) \
-        { \
+        {LOGMEIN("AtomicsObject.cpp] 12\n"); \
             JavascriptError::ThrowRangeError(scriptContext, JSERR_WinRTFunction_TooFewArguments, _u(methodName)); \
         } \
 
@@ -18,16 +18,16 @@
 namespace Js
 {
     Var AtomicsObject::ValidateSharedIntegerTypedArray(Var typedArray, ScriptContext *scriptContext, bool onlyInt32)
-    {
+    {LOGMEIN("AtomicsObject.cpp] 20\n");
         if (!TypedArrayBase::Is(typedArray))
-        {
+        {LOGMEIN("AtomicsObject.cpp] 22\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedTypedArrayObject);
         }
 
         if (onlyInt32)
-        {
+        {LOGMEIN("AtomicsObject.cpp] 27\n");
             if (!Int32Array::Is(typedArray))
-            {
+            {LOGMEIN("AtomicsObject.cpp] 29\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_InvalidOperationOnTypedArray);
             }
         }
@@ -35,7 +35,7 @@ namespace Js
         {
             if (!(Int8Array::Is(typedArray) || Uint8Array::Is(typedArray) || Int16Array::Is(typedArray) ||
                 Uint16Array::Is(typedArray) || Int32Array::Is(typedArray) || Uint32Array::Is(typedArray)))
-            {
+            {LOGMEIN("AtomicsObject.cpp] 37\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_InvalidOperationOnTypedArray);
             }
         }
@@ -43,7 +43,7 @@ namespace Js
         TypedArrayBase *typedArrayBase = TypedArrayBase::FromVar(typedArray);
         ArrayBufferBase* arrayBuffer = typedArrayBase->GetArrayBuffer();
         if (arrayBuffer == nullptr || !ArrayBufferBase::Is(arrayBuffer) || !arrayBuffer->IsSharedArrayBuffer())
-        {
+        {LOGMEIN("AtomicsObject.cpp] 45\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedSharedArrayBufferObject);
         }
 
@@ -51,10 +51,10 @@ namespace Js
     }
 
     uint32 AtomicsObject::ValidateAtomicAccess(Var typedArray, Var requestIndex, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("AtomicsObject.cpp] 53\n");
         int32 accessIndex = -1;
         if (TaggedInt::Is(requestIndex))
-        {
+        {LOGMEIN("AtomicsObject.cpp] 56\n");
             accessIndex = TaggedInt::ToInt32(requestIndex);
         }
         else
@@ -62,7 +62,7 @@ namespace Js
             accessIndex = JavascriptConversion::ToInt32_Full(requestIndex, scriptContext);
             double dblValue = JavascriptConversion::ToNumber(requestIndex, scriptContext);
             if (dblValue != accessIndex)
-            {
+            {LOGMEIN("AtomicsObject.cpp] 64\n");
                 JavascriptError::ThrowRangeError(scriptContext, JSERR_InvalidTypedArrayIndex);
             }
         }
@@ -70,7 +70,7 @@ namespace Js
         Assert(TypedArrayBase::Is(typedArray));
         
         if (accessIndex < 0 || accessIndex >= (int32)TypedArrayBase::FromVar(typedArray)->GetLength())
-        {
+        {LOGMEIN("AtomicsObject.cpp] 72\n");
             JavascriptError::ThrowRangeError(scriptContext, JSERR_InvalidTypedArrayIndex);
         }
 
@@ -82,7 +82,7 @@ namespace Js
         ValidateSharedIntegerTypedArray(typedArray, scriptContext, onlyInt32);
         uint32 i = ValidateAtomicAccess(typedArray, index, scriptContext);
         if (accessIndex != nullptr)
-        {
+        {LOGMEIN("AtomicsObject.cpp] 84\n");
             *accessIndex = i;
         }
 
@@ -181,17 +181,17 @@ namespace Js
         uint32 timeout = INFINITE;
 
         if (args.Info.Count > 4 && !JavascriptOperators::IsUndefinedObject(args[4]))
-        {
+        {LOGMEIN("AtomicsObject.cpp] 183\n");
             double t =JavascriptConversion::ToNumber(args[4], scriptContext);
             if (!(NumberUtilities::IsNan(t) || JavascriptNumber::IsPosInf(t)))
-            {
+            {LOGMEIN("AtomicsObject.cpp] 186\n");
                 int32 t1 = JavascriptConversion::ToInt32(t);
                 timeout = (uint32)max(0, t1);
             }
         }
 
         if (!AgentOfBuffer::AgentCanSuspend(scriptContext))
-        {
+        {LOGMEIN("AtomicsObject.cpp] 193\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_CannotSuspendBuffer);
         }
 
@@ -209,7 +209,7 @@ namespace Js
 
             int32 w = JavascriptConversion::ToInt32(typedArrayBase->DirectGetItem(accessIndex), scriptContext);
             if (value != w)
-            {
+            {LOGMEIN("AtomicsObject.cpp] 211\n");
                 return scriptContext->GetLibrary()->CreateStringFromCppLiteral(_u("not-equal"));
             }
 
@@ -231,10 +231,10 @@ namespace Js
         TypedArrayBase *typedArrayBase = ValidateAndGetTypedArray(args[1], args[2], &accessIndex, scriptContext, true /*onlyInt32*/);
         int32 count = INT_MAX;
         if (args.Info.Count > 3 && !JavascriptOperators::IsUndefinedObject(args[3]))
-        {
+        {LOGMEIN("AtomicsObject.cpp] 233\n");
             double d = JavascriptConversion::ToInteger(args[3], scriptContext);
             if (!(NumberUtilities::IsNan(d) || JavascriptNumber::IsPosInf(d)))
-            {
+            {LOGMEIN("AtomicsObject.cpp] 236\n");
                 int32 c = JavascriptConversion::ToInt32(d);
                 count = max(0, c);
             }

@@ -7,7 +7,7 @@
 class SimpleLayout
 {
 public:
-    SimpleLayout(Func * func) : func(func), currentStatement(NULL) {}
+    SimpleLayout(Func * func) : func(func), currentStatement(NULL) {LOGMEIN("SimpleLayout.h] 9\n");}
     void Layout();
 
 private:

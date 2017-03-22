@@ -12,22 +12,22 @@ namespace PlatformAgnostic
     SystemInfo::PlatformData SystemInfo::data;
 
     SystemInfo::PlatformData::PlatformData()
-    {
+    {LOGMEIN("SystemInfo.cpp] 14\n");
         // Get Total Ram
         int totalRamHW [] = { CTL_HW, HW_MEMSIZE };
 
         size_t length = sizeof(size_t);
         if(sysctl(totalRamHW, 2, &totalRam, &length, NULL, 0) == -1)
-        {
+        {LOGMEIN("SystemInfo.cpp] 20\n");
             totalRam = 0;
         }
     }
 
     bool SystemInfo::GetMaxVirtualMemory(size_t *totalAS)
-    {
+    {LOGMEIN("SystemInfo.cpp] 26\n");
         struct rlimit limit;
         if (getrlimit(RLIMIT_AS, &limit) != 0)
-        {
+        {LOGMEIN("SystemInfo.cpp] 29\n");
             return false;
         }
 

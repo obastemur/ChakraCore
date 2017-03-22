@@ -25,7 +25,7 @@ protected:
             ValueStructureKind::IntBounded),
         bounds(bounds),
         wasNegativeZeroPreventedByBailout(wasNegativeZeroPreventedByBailout)
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 27\n");
         Assert(type.IsLikelyInt());
         Assert(Type().IsLikelyInt());
         Assert(Type().IsInt() == type.IsInt());
@@ -46,25 +46,25 @@ public:
         const IntBounds *const bounds,
         const bool wasNegativeZeroPreventedByBailout,
         JitArenaAllocator *const allocator)
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 48\n");
         Assert(allocator);
         return JitAnew(allocator, IntBoundedValueInfo, type, bounds, wasNegativeZeroPreventedByBailout);
     }
 
     IntBoundedValueInfo *Copy(JitArenaAllocator *const allocator) const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 54\n");
         Assert(allocator);
         return JitAnew(allocator, IntBoundedValueInfo, *this);
     }
 
 public:
     const IntBounds *Bounds() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 61\n");
         return bounds;
     }
 
     bool WasNegativeZeroPreventedByBailout() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 66\n");
         return wasNegativeZeroPreventedByBailout;
     }
 };
@@ -87,7 +87,7 @@ private:
 public:
     LoopCount(StackSym *const leftSym, StackSym *const rightSym, const int offset, const int minMagnitudeChange)
         : leftSym(leftSym), rightSym(rightSym), offset(offset), minMagnitudeChange(minMagnitudeChange), hasBeenGenerated(false), loopCountSym(nullptr)
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 89\n");
         Assert(leftSym || rightSym);
         Assert(!leftSym || leftSym->GetType() == TyInt32 || leftSym->GetType() == TyUint32);
         Assert(!rightSym || rightSym->GetType() == TyInt32 || rightSym->GetType() == TyUint32);
@@ -95,7 +95,7 @@ public:
     }
 
     LoopCount(StackSym *const loopCountMinusOneSym) : loopCountMinusOneSym(loopCountMinusOneSym), hasBeenGenerated(true), loopCountSym(nullptr)
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 97\n");
         Assert(loopCountMinusOneSym);
     }
 
@@ -103,66 +103,66 @@ public:
         loopCountMinusOneSym(loopCountMinusOneSym),
         loopCountSym(loopCountSym),
         hasBeenGenerated(true)
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 105\n");
         Assert(loopCountMinusOneSym);
     }
 
     LoopCount(const int loopCountMinusOneConstantValue)
         : loopCountMinusOneSym(nullptr), loopCountMinusOneConstantValue(loopCountMinusOneConstantValue), hasBeenGenerated(true), loopCountSym(nullptr)
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 111\n");
         Assert(loopCountMinusOneConstantValue >= 0);
     }
 
 public:
     bool HasBeenGenerated() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 117\n");
         return hasBeenGenerated;
     }
 
     bool HasGeneratedLoopCountSym() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 122\n");
         // Consider loop count sym generated if there is no loopCountMinusOneSym and it has been generated
         return hasBeenGenerated && (loopCountSym != nullptr || loopCountMinusOneSym == nullptr);
     }
 
     StackSym *LeftSym() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 128\n");
         Assert(!HasBeenGenerated());
         return leftSym;
     }
 
     StackSym *RightSym() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 134\n");
         Assert(!HasBeenGenerated());
         return rightSym;
     }
 
     int Offset() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 140\n");
         Assert(!HasBeenGenerated());
         return offset;
     }
 
     int MinMagnitudeChange() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 146\n");
         Assert(!HasBeenGenerated());
         return minMagnitudeChange;
     }
 
     StackSym *LoopCountMinusOneSym() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 152\n");
         Assert(HasBeenGenerated());
         return loopCountMinusOneSym;
     }
 
     StackSym *LoopCountSym() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 158\n");
         Assert(HasGeneratedLoopCountSym());
         return loopCountSym;
     }
 
     void SetLoopCountSym(StackSym *const loopCountSym)
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 164\n");
         Assert(HasBeenGenerated());
         Assert(loopCountSym);
 
@@ -170,7 +170,7 @@ public:
     }
 
     void SetLoopCountMinusOneSym(StackSym *const loopCountMinusOneSym)
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 172\n");
         Assert(!HasBeenGenerated());
         Assert(loopCountMinusOneSym);
 
@@ -179,7 +179,7 @@ public:
     }
 
     int LoopCountMinusOneConstantValue() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 181\n");
         Assert(!LoopCountMinusOneSym());
         return loopCountMinusOneConstantValue;
     }
@@ -195,35 +195,35 @@ private:
 
 public:
     AddSubConstantInfo() : srcSym(nullptr)
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 197\n");
     }
 
 public:
     bool HasInfo() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 202\n");
         return !!srcSym;
     }
 
     StackSym *SrcSym() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 207\n");
         Assert(HasInfo());
         return srcSym;
     }
 
     Value *SrcValue() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 213\n");
         Assert(HasInfo());
         return srcValue;
     }
 
     bool SrcValueIsLikelyConstant() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 219\n");
         Assert(HasInfo());
         return srcValueIsLikelyConstant;
     }
 
     int32 Offset() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 225\n");
         Assert(HasInfo());
         return offset;
     }
@@ -254,78 +254,78 @@ protected:
 
 public:
     ArrayLowerBoundCheckHoistInfo() : compatibleBoundCheckBlock(nullptr), loop(nullptr)
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 256\n");
     }
 
 public:
     bool HasAnyInfo() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 261\n");
         return CompatibleBoundCheckBlock() || Loop();
     }
 
     BasicBlock *CompatibleBoundCheckBlock() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 266\n");
         Assert(!(compatibleBoundCheckBlock && loop));
         return compatibleBoundCheckBlock;
     }
 
     Loop *Loop() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 272\n");
         Assert(!(compatibleBoundCheckBlock && loop));
         return loop;
     }
 
     StackSym *IndexSym() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 278\n");
         Assert(HasAnyInfo());
         return indexSym;
     }
 
     int Offset() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 284\n");
         Assert(HasAnyInfo());
         return offset;
     }
 
     void UpdateOffset(int newOffset)
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 290\n");
         Assert(HasAnyInfo());
         offset = newOffset;
     }
 
     ValueNumber IndexValueNumber() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 296\n");
         Assert(HasAnyInfo());
         Assert(IndexSym());
         return indexValueNumber;
     }
 
     Value *IndexValue() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 303\n");
         Assert(Loop());
         return indexValue;
     }
 
     const IntConstantBounds &IndexConstantBounds() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 309\n");
         Assert(Loop() || CompatibleBoundCheckBlock() && !IndexSym());
         return indexConstantBounds;
     }
 
     bool IsLoopCountBasedBound() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 315\n");
         Assert(Loop());
         return isLoopCountBasedBound;
     }
 
     LoopCount *LoopCount() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 321\n");
         Assert(Loop());
         return loopCount;
     }
 
     int MaxMagnitudeChange() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 327\n");
         Assert(LoopCount());
         return maxMagnitudeChange;
     }
@@ -364,13 +364,13 @@ public:
 
 public:
     Value *HeadSegmentLengthValue() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 366\n");
         Assert(Loop());
         return headSegmentLengthValue;
     }
 
     const IntConstantBounds &HeadSegmentLengthConstantBounds() const
-    {
+    {LOGMEIN("GlobOptIntBounds.h] 372\n");
         Assert(Loop());
         return headSegmentLengthConstantBounds;
     }

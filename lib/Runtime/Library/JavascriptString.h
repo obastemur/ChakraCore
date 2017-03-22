@@ -82,22 +82,22 @@ namespace Js
         double ToDouble();
         bool ToDouble(double * result);
 
-        static const char16* GetSzHelper(JavascriptString *str) { return str->GetSz(); }
+        static const char16* GetSzHelper(JavascriptString *str) {LOGMEIN("JavascriptString.h] 84\n"); return str->GetSz(); }
         virtual const char16* GetSz();     // Get string, NULL terminated
         virtual void const * GetOriginalStringReference();  // Get the original full string (Same as GetString() unless it is a SubString);
 
 #if ENABLE_TTD
         //Get the associated property id for this string if there is on (e.g. it is a propertystring otherwise return Js::PropertyIds::_none)
-        virtual Js::PropertyId TryGetAssociatedPropertyId() const { return Js::PropertyIds::_none; }
+        virtual Js::PropertyId TryGetAssociatedPropertyId() const {LOGMEIN("JavascriptString.h] 90\n"); return Js::PropertyIds::_none; }
 #endif
 
     public:
         template <typename StringType>
         void Copy(__out_ecount(bufLen) char16 *const buffer, const charcount_t bufLen);
         void Copy(__out_xcount(m_charLength) char16 *const buffer, StringCopyInfoStack &nestedStringTreeCopyInfos, const byte recursionDepth)
-        {
+        {LOGMEIN("JavascriptString.h] 97\n");
             if (this->IsFinalized())
-            {
+            {LOGMEIN("JavascriptString.h] 99\n");
                 // If we have the buffer already, just copy it
                 const CharCount copyCharLength = this->GetLength();
                 CopyHelper(buffer, this->GetString(), copyCharLength);
@@ -113,8 +113,8 @@ namespace Js
         void FinishCopy(__inout_xcount(m_charLength) char16 *const buffer, StringCopyInfoStack &nestedStringTreeCopyInfos);
 
     public:
-        virtual int GetRandomAccessItemsFromConcatString(Js::JavascriptString * const *& items) const { return -1; }
-        virtual bool IsTree() const { return false; }
+        virtual int GetRandomAccessItemsFromConcatString(Js::JavascriptString * const *& items) const {LOGMEIN("JavascriptString.h] 115\n"); return -1; }
+        virtual bool IsTree() const {LOGMEIN("JavascriptString.h] 116\n"); return false; }
 
         virtual BOOL SetItem(uint32 index, Var value, PropertyOperationFlags propertyOperationFlags) override;
         virtual BOOL DeleteItem(uint32 index, PropertyOperationFlags propertyOperationFlags) override;
@@ -183,7 +183,7 @@ namespace Js
         charcount_t SafeSzSize() const; // Throws on overflow
 
     public:
-        bool IsFinalized() const { return this->UnsafeGetBuffer() != NULL; }
+        bool IsFinalized() const {LOGMEIN("JavascriptString.h] 185\n"); return this->UnsafeGetBuffer() != NULL; }
 
     public:
         static JavascriptString* NewWithSz(__in_z const char16 * content, ScriptContext* scriptContext);
@@ -219,12 +219,12 @@ namespace Js
 
     public:
         static uint32 GetOffsetOfpszValue()
-        {
+        {LOGMEIN("JavascriptString.h] 221\n");
             return offsetof(JavascriptString, m_pszValue);
         }
 
         static uint32 GetOffsetOfcharLength()
-        {
+        {LOGMEIN("JavascriptString.h] 226\n");
             return offsetof(JavascriptString, m_charLength);
         }
 
@@ -330,8 +330,8 @@ namespace Js
         static Var SubstringCore(JavascriptString* str, int start, int span, ScriptContext* scriptContext);
         static charcount_t GetBufferLength(const char16 *content);
         static charcount_t GetBufferLength(const char16 *content, int charLengthOrMinusOne);
-        static bool IsASCII7BitChar(char16 ch) { return ch < 0x0080; }
-        static char ToASCII7BitChar(char16 ch) { Assert(IsASCII7BitChar(ch)); return static_cast<char>(ch); }
+        static bool IsASCII7BitChar(char16 ch) {LOGMEIN("JavascriptString.h] 332\n"); return ch < 0x0080; }
+        static char ToASCII7BitChar(char16 ch) {LOGMEIN("JavascriptString.h] 333\n"); Assert(IsASCII7BitChar(ch)); return static_cast<char>(ch); }
 
     private:
         static int IndexOf(ArgumentReader& args, ScriptContext* scriptContext, const char16* apiNameForErrorMsg, bool isRegExpAnAllowedArg);
@@ -373,31 +373,31 @@ namespace Js
     struct PropertyRecordStringHashComparer<JavascriptString *>
     {
         inline static bool Equals(JavascriptString * str1, JavascriptString * str2)
-        {
+        {LOGMEIN("JavascriptString.h] 375\n");
             return (str1->GetLength() == str2->GetLength() &&
                 JsUtil::CharacterBuffer<WCHAR>::StaticEquals(str1->GetString(), str2->GetString(), str1->GetLength()));
         }
 
         inline static bool Equals(JavascriptString * str1, JsUtil::CharacterBuffer<WCHAR> const & str2)
-        {
+        {LOGMEIN("JavascriptString.h] 381\n");
             return (str1->GetLength() == str2.GetLength() &&
                 JsUtil::CharacterBuffer<WCHAR>::StaticEquals(str1->GetString(), str2.GetBuffer(), str1->GetLength()));
         }
 
         inline static bool Equals(JavascriptString * str1, PropertyRecord const * str2)
-        {
+        {LOGMEIN("JavascriptString.h] 387\n");
             return (str1->GetLength() == str2->GetLength() && !Js::IsInternalPropertyId(str2->GetPropertyId()) &&
                 JsUtil::CharacterBuffer<WCHAR>::StaticEquals(str1->GetString(), str2->GetBuffer(), str1->GetLength()));
         }
 
         inline static uint GetHashCode(JavascriptString * str)
-        {
+        {LOGMEIN("JavascriptString.h] 393\n");
             return JsUtil::CharacterBuffer<WCHAR>::StaticGetHashCode(str->GetString(), str->GetLength());
         }
     };
 
     inline bool PropertyRecordStringHashComparer<PropertyRecord const *>::Equals(PropertyRecord const * str1, JavascriptString * str2)
-    {
+    {LOGMEIN("JavascriptString.h] 399\n");
         return (str1->GetLength() == str2->GetLength() && !Js::IsInternalPropertyId(str1->GetPropertyId()) &&
             JsUtil::CharacterBuffer<WCHAR>::StaticEquals(str1->GetBuffer(), str2->GetString(), str1->GetLength()));
     }
@@ -414,12 +414,12 @@ template <>
 struct DefaultComparer<Js::JavascriptString*>
 {
     inline static bool Equals(Js::JavascriptString * x, Js::JavascriptString * y)
-    {
+    {LOGMEIN("JavascriptString.h] 416\n");
         return Js::JavascriptString::Equals(x, y);
     }
 
     inline static uint GetHashCode(Js::JavascriptString * pStr)
-    {
+    {LOGMEIN("JavascriptString.h] 421\n");
         return JsUtil::CharacterBuffer<char16>::StaticGetHashCode(pStr->GetString(), pStr->GetLength());
     }
 };

@@ -8,19 +8,19 @@ namespace Js
 {
     ScriptFunctionType::ScriptFunctionType(ScriptFunctionType * type)
         : DynamicType(type), entryPointInfo(type->GetEntryPointInfo())
-    {}
+    {LOGMEIN("ScriptFunctionType.cpp] 10\n");}
 
     ScriptFunctionType::ScriptFunctionType(ScriptContext* scriptContext, RecyclableObject* prototype,
         JavascriptMethod entryPoint, ProxyEntryPointInfo * entryPointInfo, DynamicTypeHandler * typeHandler,
         bool isLocked, bool isShared)
         : DynamicType(scriptContext, TypeIds_Function, prototype, entryPoint, typeHandler, isLocked, isShared),
         entryPointInfo(entryPointInfo)
-    {
+    {LOGMEIN("ScriptFunctionType.cpp] 17\n");
 
     }
 
     ScriptFunctionType * ScriptFunctionType::New(FunctionProxy * proxy, bool isShared)
-    {
+    {LOGMEIN("ScriptFunctionType.cpp] 22\n");
         Assert(proxy->GetFunctionInfo()->GetFunctionProxy() == proxy);
         ScriptContext * scriptContext = proxy->GetScriptContext();
         JavascriptLibrary * library = scriptContext->GetLibrary();

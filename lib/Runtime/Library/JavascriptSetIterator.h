@@ -38,6 +38,6 @@ namespace Js
         static Var EntryNext(RecyclableObject* function, CallInfo callInfo, ...);
 
     public:
-        JavascriptSet* GetSetForHeapEnum() { return m_set; }
+        JavascriptSet* GetSetForHeapEnum() {LOGMEIN("JavascriptSetIterator.h] 40\n"); return m_set; }
     };
 } // namespace Js

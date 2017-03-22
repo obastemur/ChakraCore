@@ -222,7 +222,7 @@ namespace Js {
         AsmJsSIMDFunction *LookupSimdTypeCheck(PropertyName name);
         AsmJsSIMDFunction *LookupSimdOperation(PropertyName name);
 
-        void AddSimdBuiltinUse(int index){ mAsmSimdBuiltinUsedBV.Set(index); }
+        void AddSimdBuiltinUse(int index){LOGMEIN("AsmJsModule.h] 224\n"); mAsmSimdBuiltinUsedBV.Set(index); }
         // adds SIMD constant var to module
         bool AddSimdValueVar(PropertyName name, ParseNode* pnode, AsmJsSIMDFunction* simdFunc);
 
@@ -234,18 +234,18 @@ namespace Js {
         void PrintCompileTrace() const;
 
         // A valid module may have a NULL name
-        inline PropertyName GetModuleFunctionName() const{return mModuleFunctionName;}
-        inline ParseNode *GetModuleFunctionNode() const{return mModuleFunctionNode;}
+        inline PropertyName GetModuleFunctionName() const{LOGMEIN("AsmJsModule.h] 236\n");return mModuleFunctionName;}
+        inline ParseNode *GetModuleFunctionNode() const{LOGMEIN("AsmJsModule.h] 237\n");return mModuleFunctionNode;}
 
-        inline ArenaAllocator* GetAllocator() {return &mAllocator;}
-        inline int32 GetMaxAstSize() const{return mMaxAstSize;}
-        inline void UpdateMaxAstSize( int32 val ){mMaxAstSize = val>mMaxAstSize?val:mMaxAstSize;}
+        inline ArenaAllocator* GetAllocator() {LOGMEIN("AsmJsModule.h] 239\n");return &mAllocator;}
+        inline int32 GetMaxAstSize() const{LOGMEIN("AsmJsModule.h] 240\n");return mMaxAstSize;}
+        inline void UpdateMaxAstSize( int32 val ){LOGMEIN("AsmJsModule.h] 241\n");mMaxAstSize = val>mMaxAstSize?val:mMaxAstSize;}
 
         //Mutable interface
-        inline void InitModuleName( PropertyName name ){mModuleFunctionName = name;}
-        inline void InitModuleNode( AsmJSParser &parser ){mModuleFunctionNode = parser;}
-        inline AsmJSParser& GetCurrentParserNode(){return mCurrentParserNode;}
-        inline void SetCurrentParseNode( AsmJSParser & val ){mCurrentParserNode = val;}
+        inline void InitModuleName( PropertyName name ){LOGMEIN("AsmJsModule.h] 244\n");mModuleFunctionName = name;}
+        inline void InitModuleNode( AsmJSParser &parser ){LOGMEIN("AsmJsModule.h] 245\n");mModuleFunctionNode = parser;}
+        inline AsmJSParser& GetCurrentParserNode(){LOGMEIN("AsmJsModule.h] 246\n");return mCurrentParserNode;}
+        inline void SetCurrentParseNode( AsmJSParser & val ){LOGMEIN("AsmJsModule.h] 247\n");mCurrentParserNode = val;}
 
         void InitStdLibArgName( PropertyName n );
         void InitForeignArgName( PropertyName n );
@@ -254,9 +254,9 @@ namespace Js {
         PropertyName GetForeignArgName() const;
         PropertyName GetStdLibArgName()  const;
         BVStatic<ASMMATH_BUILTIN_SIZE> GetAsmMathBuiltinUsedBV();
-        void AddMathBuiltinUse(int index){ mAsmMathBuiltinUsedBV.Set(index); }
+        void AddMathBuiltinUse(int index){LOGMEIN("AsmJsModule.h] 256\n"); mAsmMathBuiltinUsedBV.Set(index); }
         BVStatic<ASMARRAY_BUILTIN_SIZE> GetAsmArrayBuiltinUsedBV();
-        void AddArrayBuiltinUse(int index){ mAsmArrayBuiltinUsedBV.Set(index); }
+        void AddArrayBuiltinUse(int index){LOGMEIN("AsmJsModule.h] 258\n"); mAsmArrayBuiltinUsedBV.Set(index); }
         bool LookupStandardLibraryMathName(PropertyName name, MathBuiltin *mathBuiltin) const;
         bool LookupStandardLibraryArrayName(PropertyName name, TypedArrayBuiltin *builtin) const;
 
@@ -283,11 +283,11 @@ namespace Js {
         bool Fail( ParseNode* usepn, const wchar *error );
 
         bool AreAllFuncTableDefined();
-        bool UsesChangeHeap() { return mUsesChangeHeap; }
-        bool UsesHeapBuffer() { return mUsesHeapBuffer; }
-        void SetUsesHeapBuffer(bool val) { mUsesHeapBuffer = val; }
+        bool UsesChangeHeap() {LOGMEIN("AsmJsModule.h] 285\n"); return mUsesChangeHeap; }
+        bool UsesHeapBuffer() {LOGMEIN("AsmJsModule.h] 286\n"); return mUsesHeapBuffer; }
+        void SetUsesHeapBuffer(bool val) {LOGMEIN("AsmJsModule.h] 287\n"); mUsesHeapBuffer = val; }
         void UpdateMaxHeapAccess(uint index);
-        uint GetMaxHeapAccess() { return mMaxHeapAccess; }
+        uint GetMaxHeapAccess() {LOGMEIN("AsmJsModule.h] 289\n"); return mMaxHeapAccess; }
         // Compile/Validate function name and arguments (define their types)
         bool CompileFunction(AsmJsFunc * func, int funcIndex);
         bool CompileAllFunctions();
@@ -300,16 +300,16 @@ namespace Js {
 
 
         void InitMemoryOffsets           ();
-        inline int32 GetIntOffset        () const{return mModuleMemory.mIntOffset;}
-        inline int32 GetFloatOffset        () const{return mModuleMemory.mFloatOffset;}
-        inline int32 GetFuncPtrOffset    () const{return mModuleMemory.mFuncPtrOffset;}
-        inline int32 GetFFIOffset        () const{return mModuleMemory.mFFIOffset;}
-        inline int32 GetFuncOffset       () const{return mModuleMemory.mFuncOffset;}
-        inline int32 GetDoubleOffset     () const{return mModuleMemory.mDoubleOffset; }
-        inline int32 GetSimdOffset       () const{ return mModuleMemory.mSimdOffset;  }
+        inline int32 GetIntOffset        () const{LOGMEIN("AsmJsModule.h] 302\n");return mModuleMemory.mIntOffset;}
+        inline int32 GetFloatOffset        () const{LOGMEIN("AsmJsModule.h] 303\n");return mModuleMemory.mFloatOffset;}
+        inline int32 GetFuncPtrOffset    () const{LOGMEIN("AsmJsModule.h] 304\n");return mModuleMemory.mFuncPtrOffset;}
+        inline int32 GetFFIOffset        () const{LOGMEIN("AsmJsModule.h] 305\n");return mModuleMemory.mFFIOffset;}
+        inline int32 GetFuncOffset       () const{LOGMEIN("AsmJsModule.h] 306\n");return mModuleMemory.mFuncOffset;}
+        inline int32 GetDoubleOffset     () const{LOGMEIN("AsmJsModule.h] 307\n");return mModuleMemory.mDoubleOffset; }
+        inline int32 GetSimdOffset       () const{LOGMEIN("AsmJsModule.h] 308\n"); return mModuleMemory.mSimdOffset;  }
 
-        inline int32 GetFuncPtrTableCount() const{return mFuncPtrTableCount;}
-        inline void SetFuncPtrTableCount ( int32 val ){mFuncPtrTableCount = val;}
+        inline int32 GetFuncPtrTableCount() const{LOGMEIN("AsmJsModule.h] 310\n");return mFuncPtrTableCount;}
+        inline void SetFuncPtrTableCount ( int32 val ){LOGMEIN("AsmJsModule.h] 311\n");mFuncPtrTableCount = val;}
 
     private:
         void RevertFunction(int funcIndex);
@@ -322,7 +322,7 @@ namespace Js {
         bool AddStandardLibraryArrayName(PropertyId id, AsmJsTypedArrayFunction * func, AsmJSTypedArrayBuiltinFunction mathLibFunctionName);
         bool CheckByteLengthCall(ParseNode * node, ParseNode * newBufferDecl);
         bool ValidateSimdConstructor(ParseNode* pnode, AsmJsSIMDFunction* simdFunc, AsmJsSIMDValue& value);
-        bool IsSimdjsEnabled() { return GetScriptContext()->GetConfig()->IsSimdjsEnabled(); }
+        bool IsSimdjsEnabled() {LOGMEIN("AsmJsModule.h] 324\n"); return GetScriptContext()->GetConfig()->IsSimdjsEnabled(); }
     };
 
     struct AsmJsSlot
@@ -431,191 +431,191 @@ namespace Js {
             , mUsesChangeHeap(false)
             , mIsProcessed(false)
             , mSlotMap(nullptr)
-        {
+        {LOGMEIN("AsmJsModule.h] 433\n");
 
         }
 
         ModuleVar& GetVar( int i )
-        {
+        {LOGMEIN("AsmJsModule.h] 438\n");
             Assert( i < mVarCount );
             return mVars[i];
         }
 
         void SetVar(int i, ModuleVar var)
-        {
+        {LOGMEIN("AsmJsModule.h] 444\n");
             Assert(i < mVarCount);
             mVars[i] = var;
         }
 
         ModuleVarImport& GetVarImport( int i )
-        {
+        {LOGMEIN("AsmJsModule.h] 450\n");
             Assert( i < mVarImportCount );
             return mVarImports[i];
         }
 
         void SetVarImport(int i, ModuleVarImport var)
-        {
+        {LOGMEIN("AsmJsModule.h] 456\n");
             Assert(i < mVarImportCount);
             mVarImports[i] = var;
         }
 
         ModuleFunctionImport& GetFunctionImport( int i )
-        {
+        {LOGMEIN("AsmJsModule.h] 462\n");
             Assert( i < mFunctionImportCount );
             return mFunctionImports[i];
         }
         void SetFunctionImport(int i, ModuleFunctionImport var)
-        {
+        {LOGMEIN("AsmJsModule.h] 467\n");
             Assert(i < mFunctionImportCount);
             mFunctionImports[i] = var;
         }
         ModuleFunction& GetFunction( int i )
-        {
+        {LOGMEIN("AsmJsModule.h] 472\n");
             Assert( i < mFunctionCount );
             return mFunctions[i];
         }
         void SetFunction(int i, ModuleFunction var)
-        {
+        {LOGMEIN("AsmJsModule.h] 477\n");
             Assert(i < mFunctionCount);
             mFunctions[i] = var;
         }
         ModuleFunctionTable& GetFunctionTable( int i )
-        {
+        {LOGMEIN("AsmJsModule.h] 482\n");
             Assert( i < mFunctionTableCount );
             return mFunctionTables[i];
         }
         void SetFunctionTable(int i, ModuleFunctionTable var)
-        {
+        {LOGMEIN("AsmJsModule.h] 487\n");
             Assert(i < mFunctionTableCount);
             mFunctionTables[i] = var;
         }
         void SetFunctionTableSize( int index, uint size );
         ModuleExport GetExport( int i )
-        {
+        {LOGMEIN("AsmJsModule.h] 493\n");
             ModuleExport ex;
             ex.id = &mExports->elements[i];
             ex.location = &mExportsFunctionLocation[i];
             return ex;
         }
         RegSlot* GetExportsFunctionLocation() const
-        {
+        {LOGMEIN("AsmJsModule.h] 500\n");
             return mExportsFunctionLocation;
         }
         PropertyIdArray* GetExportsIdArray() const
-        {
+        {LOGMEIN("AsmJsModule.h] 504\n");
             return mExports;
         }
 
         AsmJsSlotMap* GetAsmJsSlotMap()
-        {
+        {LOGMEIN("AsmJsModule.h] 509\n");
             return mSlotMap;
         }
 
         // Accessors
     public:
-        inline Js::RegSlot GetExportFunctionIndex() const{return mExportFunctionIndex;}
-        inline void SetExportFunctionIndex( Js::RegSlot val ){mExportFunctionIndex = val;}
+        inline Js::RegSlot GetExportFunctionIndex() const{LOGMEIN("AsmJsModule.h] 515\n");return mExportFunctionIndex;}
+        inline void SetExportFunctionIndex( Js::RegSlot val ){LOGMEIN("AsmJsModule.h] 516\n");mExportFunctionIndex = val;}
         void SetExportsCount(int count);
         inline int GetExportsCount()const
-        {
+        {LOGMEIN("AsmJsModule.h] 519\n");
             return mExportsCount;
         }
         inline int GetArgInCount() const
-        {
+        {LOGMEIN("AsmJsModule.h] 523\n");
             return mArgInCount;
         }
         inline void SetArgInCount( int val )
-        {
+        {LOGMEIN("AsmJsModule.h] 527\n");
             mArgInCount = val;
         }
         inline int GetFunctionCount() const
-        {
+        {LOGMEIN("AsmJsModule.h] 531\n");
             return mFunctionCount;
         }
         void SetFunctionCount( int val );
         inline int GetFunctionTableCount() const
-        {
+        {LOGMEIN("AsmJsModule.h] 536\n");
             return mFunctionTableCount;
         }
         void SetFunctionTableCount( int val );
         inline int GetFunctionImportCount() const
-        {
+        {LOGMEIN("AsmJsModule.h] 541\n");
             return mFunctionImportCount;
         }
         void SetFunctionImportCount( int val );
         inline int GetVarImportCount() const
-        {
+        {LOGMEIN("AsmJsModule.h] 546\n");
             return mVarImportCount;
         }
         void SetVarImportCount( int val );
         inline int GetVarCount() const
-        {
+        {LOGMEIN("AsmJsModule.h] 551\n");
             return mVarCount;
         }
         void SetVarCount( int val );
 
         inline int GetSlotsCount() const
-        {
+        {LOGMEIN("AsmJsModule.h] 557\n");
             return mSlotsCount;
         }
         void InitializeSlotMap(int val);
         inline bool IsRuntimeProcessed() const
-        {
+        {LOGMEIN("AsmJsModule.h] 562\n");
             return mIsProcessed;
         }
         void SetIsRuntimeProcessed(bool val)
-        {
+        {LOGMEIN("AsmJsModule.h] 566\n");
             mIsProcessed = val;
         }
         inline AsmJsModuleMemory& GetModuleMemory()
-        {
+        {LOGMEIN("AsmJsModule.h] 570\n");
             return mModuleMemory;
         }
         inline void SetModuleMemory( const AsmJsModuleMemory& val )
-        {
+        {LOGMEIN("AsmJsModule.h] 574\n");
             mModuleMemory = val;
         }
         inline void SetAsmMathBuiltinUsed(const BVStatic<ASMMATH_BUILTIN_SIZE> val)
-        {
+        {LOGMEIN("AsmJsModule.h] 578\n");
             mAsmMathBuiltinUsed = val;
         }
         inline BVStatic<ASMMATH_BUILTIN_SIZE> GetAsmMathBuiltinUsed()const
-        {
+        {LOGMEIN("AsmJsModule.h] 582\n");
             return mAsmMathBuiltinUsed;
         }
         inline void SetAsmArrayBuiltinUsed(const BVStatic<ASMARRAY_BUILTIN_SIZE> val)
-        {
+        {LOGMEIN("AsmJsModule.h] 586\n");
             mAsmArrayBuiltinUsed = val;
         }
         inline BVStatic<ASMARRAY_BUILTIN_SIZE> GetAsmArrayBuiltinUsed()const
-        {
+        {LOGMEIN("AsmJsModule.h] 590\n");
             return mAsmArrayBuiltinUsed;
         }
         void SetUsesChangeHeap(bool val)
-        {
+        {LOGMEIN("AsmJsModule.h] 594\n");
             mUsesChangeHeap = val;
         }
         inline bool GetUsesChangeHeap() const
-        {
+        {LOGMEIN("AsmJsModule.h] 598\n");
             return mUsesChangeHeap;
         }
         void SetMaxHeapAccess(uint val)
-        {
+        {LOGMEIN("AsmJsModule.h] 602\n");
             mMaxHeapAccess = val;
         }
         inline uint GetMaxHeapAccess() const
-        {
+        {LOGMEIN("AsmJsModule.h] 606\n");
             return mMaxHeapAccess;
         }
 
-        inline void SetSimdRegCount(int val) { mSimdRegCount = val;  }
-        inline int GetSimdRegCount() const   { return mSimdRegCount; }
+        inline void SetSimdRegCount(int val) {LOGMEIN("AsmJsModule.h] 610\n"); mSimdRegCount = val;  }
+        inline int GetSimdRegCount() const   {LOGMEIN("AsmJsModule.h] 611\n"); return mSimdRegCount; }
         inline void SetAsmSimdBuiltinUsed(const BVStatic<ASMSIMD_BUILTIN_SIZE> val)
-        {
+        {LOGMEIN("AsmJsModule.h] 613\n");
             mAsmSimdBuiltinUsed = val;
         }
         inline BVStatic<ASMSIMD_BUILTIN_SIZE> GetAsmSimdBuiltinUsed()const
-        {
+        {LOGMEIN("AsmJsModule.h] 617\n");
             return mAsmSimdBuiltinUsed;
         }
 

@@ -12,9 +12,9 @@ namespace Js
 {
     ExecutionFlags
     SourceDynamicProfileManager::IsFunctionExecuted(Js::LocalFunctionId functionId)
-    {
+    {LOGMEIN("SourceDynamicProfileManager.cpp] 14\n");
         if (cachedStartupFunctions == nullptr || cachedStartupFunctions->Length() <= functionId)
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 16\n");
             return ExecutionFlags_HasNoInfo;
         }
         return (ExecutionFlags)cachedStartupFunctions->Test(functionId);
@@ -22,19 +22,19 @@ namespace Js
 
     DynamicProfileInfo *
     SourceDynamicProfileManager::GetDynamicProfileInfo(FunctionBody * functionBody)
-    {
+    {LOGMEIN("SourceDynamicProfileManager.cpp] 24\n");
         Js::LocalFunctionId functionId = functionBody->GetLocalFunctionId();
         DynamicProfileInfo * dynamicProfileInfo = nullptr;
         if (dynamicProfileInfoMap.Count() > 0 && dynamicProfileInfoMap.TryGetValue(functionId, &dynamicProfileInfo))
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 28\n");
             if (dynamicProfileInfo->MatchFunctionBody(functionBody))
-            {
+            {LOGMEIN("SourceDynamicProfileManager.cpp] 30\n");
                 return dynamicProfileInfo;
             }
 
 #if DBG_DUMP
             if (Js::Configuration::Global.flags.Trace.IsEnabled(Js::DynamicProfilePhase))
-            {
+            {LOGMEIN("SourceDynamicProfileManager.cpp] 36\n");
                 Output::Print(_u("TRACE: DynamicProfile: Profile data rejected for function %d in %s\n"),
                     functionId, functionBody->GetSourceContextInfo()->url);
                 Output::Flush();
@@ -46,28 +46,28 @@ namespace Js
     }
 
     void SourceDynamicProfileManager::UpdateDynamicProfileInfo(LocalFunctionId functionId, DynamicProfileInfo * dynamicProfileInfo)
-    {
+    {LOGMEIN("SourceDynamicProfileManager.cpp] 48\n");
         Assert(dynamicProfileInfo != nullptr);
 
         dynamicProfileInfoMap.Item(functionId, dynamicProfileInfo);
     }
 
     void SourceDynamicProfileManager::MarkAsExecuted(LocalFunctionId functionId)
-    {
+    {LOGMEIN("SourceDynamicProfileManager.cpp] 55\n");
         Assert(startupFunctions != nullptr);
         Assert(functionId <= startupFunctions->Length());
         startupFunctions->Set(functionId);
     }
 
     void SourceDynamicProfileManager::EnsureStartupFunctions(uint numberOfFunctions)
-    {
+    {LOGMEIN("SourceDynamicProfileManager.cpp] 62\n");
         Assert(numberOfFunctions != 0);
         if(!startupFunctions || numberOfFunctions > startupFunctions->Length())
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 65\n");
             BVFixed* oldStartupFunctions = this->startupFunctions;
             startupFunctions = BVFixed::New(numberOfFunctions, this->GetRecycler());
             if(oldStartupFunctions)
-            {
+            {LOGMEIN("SourceDynamicProfileManager.cpp] 69\n");
                 this->startupFunctions->Copy(oldStartupFunctions);
             }
         }
@@ -78,7 +78,7 @@ namespace Js
     // previous script contexts list of startup functions are transferred over as input to this new script context.
     //
     void SourceDynamicProfileManager::Reuse()
-    {
+    {LOGMEIN("SourceDynamicProfileManager.cpp] 80\n");
         AssertMsg(profileDataCache == nullptr, "Persisted profiles cannot be re-used");
         cachedStartupFunctions = startupFunctions;
     }
@@ -87,7 +87,7 @@ namespace Js
     // Loads the profile from the WININET cache
     //
     bool SourceDynamicProfileManager::LoadFromProfileCache(IActiveScriptDataCache* profileDataCache, LPCWSTR url)
-    {
+    {LOGMEIN("SourceDynamicProfileManager.cpp] 89\n");
     #ifdef ENABLE_WININET_PROFILE_DATA_CACHE
         AssertMsg(CONFIG_FLAG(WininetProfileCache), "Profile caching should be enabled for us to get here");
         Assert(profileDataCache);
@@ -100,44 +100,44 @@ namespace Js
         IStream* readStream;
         HRESULT hr = profileDataCache->GetReadDataStream(&readStream);
         if(SUCCEEDED(hr))
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 102\n");
             Assert(readStream != nullptr);
             // stream reader owns the stream and will close it on destruction
             SimpleStreamReader streamReader(readStream);
             DWORD jscriptMajorVersion;
             DWORD jscriptMinorVersion;
             if(FAILED(AutoSystemInfo::GetJscriptFileVersion(&jscriptMajorVersion, &jscriptMinorVersion)))
-            {
+            {LOGMEIN("SourceDynamicProfileManager.cpp] 109\n");
                 return false;
             }
 
             DWORD majorVersion;
             if(!streamReader.Read(&majorVersion) || majorVersion != jscriptMajorVersion)
-            {
+            {LOGMEIN("SourceDynamicProfileManager.cpp] 115\n");
                 return false;
             }
 
             DWORD minorVersion;
             if(!streamReader.Read(&minorVersion) || minorVersion != jscriptMinorVersion)
-            {
+            {LOGMEIN("SourceDynamicProfileManager.cpp] 121\n");
                 return false;
             }
 
             uint numberOfFunctions;
             if(!streamReader.Read(&numberOfFunctions) || numberOfFunctions > MAX_FUNCTION_COUNT)
-            {
+            {LOGMEIN("SourceDynamicProfileManager.cpp] 127\n");
                 return false;
             }
             BVFixed* functions = BVFixed::New(numberOfFunctions, this->recycler);
             if(!streamReader.ReadArray(functions->GetData(), functions->WordCount()))
-            {
+            {LOGMEIN("SourceDynamicProfileManager.cpp] 132\n");
                 return false;
             }
             this->cachedStartupFunctions = functions;
             OUTPUT_TRACE(Js::DynamicProfilePhase, _u("Profile load succeeded. Function count: %d  %s\n"), numberOfFunctions, url);
 #if DBG_DUMP
             if(PHASE_TRACE1(Js::DynamicProfilePhase) && Js::Configuration::Global.flags.Verbose)
-            {
+            {LOGMEIN("SourceDynamicProfileManager.cpp] 139\n");
                 OUTPUT_VERBOSE_TRACE(Js::DynamicProfilePhase, _u("Profile loaded:\n"));
                 functions->Dump();
             }
@@ -145,7 +145,7 @@ namespace Js
             return true;
         }
         else if (hr == HRESULT_FROM_WIN32(ERROR_WRITE_PROTECT))
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 147\n");
             this->isNonCachableScript = true;
             OUTPUT_VERBOSE_TRACE(Js::DynamicProfilePhase, _u("Profile load failed. Non-cacheable resource. %s\n"), url);
         }
@@ -161,19 +161,19 @@ namespace Js
     // Saves the profile to the WININET cache and returns the bytes written
     //
     uint SourceDynamicProfileManager::SaveToProfileCacheAndRelease(SourceContextInfo* info)
-    {
+    {LOGMEIN("SourceDynamicProfileManager.cpp] 163\n");
         uint bytesWritten = 0;
 #ifdef ENABLE_WININET_PROFILE_DATA_CACHE
         if(profileDataCache)
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 167\n");
             if(ShouldSaveToProfileCache(info))
-            {
+            {LOGMEIN("SourceDynamicProfileManager.cpp] 169\n");
                 OUTPUT_TRACE(Js::DynamicProfilePhase, _u("Saving profile. Number of functions: %d Url: %s...\n"), startupFunctions->Length(), info->url);
 
                 bytesWritten = SaveToProfileCache();
 
                 if(bytesWritten == 0)
-                {
+                {LOGMEIN("SourceDynamicProfileManager.cpp] 175\n");
                     OUTPUT_TRACE(Js::DynamicProfilePhase, _u("Profile saving FAILED\n"));
                 }
             }
@@ -199,7 +199,7 @@ namespace Js
         IStream* writeStream;
         HRESULT hr = profileDataCache->GetWriteDataStream(&writeStream);
         if(FAILED(hr))
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 201\n");
             return 0;
         }
         Assert(writeStream != nullptr);
@@ -209,29 +209,29 @@ namespace Js
         DWORD jscriptMajorVersion;
         DWORD jscriptMinorVersion;
         if(FAILED(AutoSystemInfo::GetJscriptFileVersion(&jscriptMajorVersion, &jscriptMinorVersion)))
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 211\n");
             return 0;
         }
 
         if(!streamWriter.Write(jscriptMajorVersion))
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 216\n");
             return 0;
         }
 
         if(!streamWriter.Write(jscriptMinorVersion))
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 221\n");
             return 0;
         }
 
         if(!streamWriter.Write(startupFunctions->Length()))
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 226\n");
             return 0;
         }
         if(streamWriter.WriteArray(startupFunctions->GetData(), startupFunctions->WordCount()))
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 230\n");
             STATSTG stats;
             if(SUCCEEDED(writeStream->Stat(&stats, STATFLAG_NONAME)))
-            {
+            {LOGMEIN("SourceDynamicProfileManager.cpp] 233\n");
                 bytesWritten = stats.cbSize.LowPart;
                 Assert(stats.cbSize.LowPart > 0);
                 AssertMsg(stats.cbSize.HighPart == 0, "We should not be writing such long data that the high part is non-zero");
@@ -239,12 +239,12 @@ namespace Js
 
             hr = profileDataCache->SaveWriteDataStream(writeStream);
             if(FAILED(hr))
-            {
+            {LOGMEIN("SourceDynamicProfileManager.cpp] 241\n");
                 return 0;
             }
 #if DBG_DUMP
             if(PHASE_TRACE1(Js::DynamicProfilePhase) && Js::Configuration::Global.flags.Verbose)
-            {
+            {LOGMEIN("SourceDynamicProfileManager.cpp] 246\n");
                 OUTPUT_VERBOSE_TRACE(Js::DynamicProfilePhase, _u("Saved profile:\n"));
                 startupFunctions->Dump();
             }
@@ -261,26 +261,26 @@ namespace Js
     //      - If there is not substantial difference in number of functions executed.
     //
     bool SourceDynamicProfileManager::ShouldSaveToProfileCache(SourceContextInfo* info) const
-    {
+    {LOGMEIN("SourceDynamicProfileManager.cpp] 263\n");
         if(isNonCachableScript)
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 265\n");
             OUTPUT_VERBOSE_TRACE(Js::DynamicProfilePhase, _u("Skipping save of profile. Non-cacheable resource. %s\n"), info->url);
             return false;
         }
 
         if(!startupFunctions || startupFunctions->Length() <= DEFAULT_CONFIG_MinProfileCacheSize)
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 271\n");
             OUTPUT_VERBOSE_TRACE(Js::DynamicProfilePhase, _u("Skipping save of profile. Small number of functions. %s\n"), info->url);
             return false;
         }
 
         if(cachedStartupFunctions)
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 277\n");
             AssertMsg(cachedStartupFunctions != startupFunctions, "Ensure they are not shallow copies of each other - Reuse() does this for dynamic sources. We should not be invoked for dynamic sources");
             uint numberOfBitsDifferent = cachedStartupFunctions->DiffCount(startupFunctions);
             uint saveThreshold = (cachedStartupFunctions->Length() * DEFAULT_CONFIG_ProfileDifferencePercent) / 100;
             if(numberOfBitsDifferent <= saveThreshold)
-            {
+            {LOGMEIN("SourceDynamicProfileManager.cpp] 282\n");
                 OUTPUT_VERBOSE_TRACE(Js::DynamicProfilePhase, _u("Skipping save of profile. Number of functions different: %d %s\n"), numberOfBitsDifferent, info->url);
                 return false;
             }
@@ -294,13 +294,13 @@ namespace Js
 
     SourceDynamicProfileManager *
     SourceDynamicProfileManager::LoadFromDynamicProfileStorage(SourceContextInfo* info, ScriptContext* scriptContext, IActiveScriptDataCache* profileDataCache)
-    {
+    {LOGMEIN("SourceDynamicProfileManager.cpp] 296\n");
         SourceDynamicProfileManager* manager = nullptr;
         Recycler* recycler = scriptContext->GetRecycler();
 
 #ifdef DYNAMIC_PROFILE_STORAGE
         if(DynamicProfileStorage::IsEnabled() && info->url != nullptr)
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 302\n");
             manager = DynamicProfileStorage::Load(info->url, [recycler](char const * buffer, uint length) -> SourceDynamicProfileManager *
             {
                 BufferReader reader(buffer, length);
@@ -309,14 +309,14 @@ namespace Js
         }
 #endif
         if(manager == nullptr)
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 311\n");
             manager = RecyclerNew(recycler, SourceDynamicProfileManager, recycler);
         }
         if(profileDataCache != nullptr)
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 315\n");
             bool profileLoaded = manager->LoadFromProfileCache(profileDataCache, info->url);
             if(profileLoaded)
-            {
+            {LOGMEIN("SourceDynamicProfileManager.cpp] 318\n");
                 JS_ETW(EventWriteJSCRIPT_PROFILE_LOAD(info->dwHostSourceContext, scriptContext));
             }
         }
@@ -325,12 +325,12 @@ namespace Js
 
 #ifdef DYNAMIC_PROFILE_STORAGE
     void SourceDynamicProfileManager::ClearSavingData()
-    {
+    {LOGMEIN("SourceDynamicProfileManager.cpp] 327\n");
         dynamicProfileInfoMapSaving.Reset();
     }
 
     void SourceDynamicProfileManager::CopySavingData()
-    {
+    {LOGMEIN("SourceDynamicProfileManager.cpp] 332\n");
         dynamicProfileInfoMap.Map([&](LocalFunctionId functionId, DynamicProfileInfo *info)
         {
             dynamicProfileInfoMapSaving.Item(functionId, info);
@@ -339,7 +339,7 @@ namespace Js
 
     void
     SourceDynamicProfileManager::SaveDynamicProfileInfo(LocalFunctionId functionId, DynamicProfileInfo * dynamicProfileInfo)
-    {
+    {LOGMEIN("SourceDynamicProfileManager.cpp] 341\n");
         Assert(dynamicProfileInfo->GetFunctionBody()->HasExecutionDynamicProfileInfo());
         dynamicProfileInfoMapSaving.Item(functionId, dynamicProfileInfo);
     }
@@ -347,24 +347,24 @@ namespace Js
     template <typename T>
     SourceDynamicProfileManager *
     SourceDynamicProfileManager::Deserialize(T * reader, Recycler* recycler)
-    {
+    {LOGMEIN("SourceDynamicProfileManager.cpp] 349\n");
         uint functionCount;
         if (!reader->Peek(&functionCount))
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 352\n");
             return nullptr;
         }
 
         BVFixed * startupFunctions = BVFixed::New(functionCount, recycler);
         if (!reader->ReadArray(((char *)startupFunctions),
             BVFixed::GetAllocSize(functionCount)))
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 359\n");
             return nullptr;
         }
 
         uint profileCount;
 
         if (!reader->Read(&profileCount))
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 366\n");
             return nullptr;
         }
 
@@ -376,18 +376,18 @@ namespace Js
 
 #if DBG_DUMP
         if(Configuration::Global.flags.Dump.IsEnabled(DynamicProfilePhase))
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 378\n");
             Output::Print(_u("Loaded: Startup functions bit vector:"));
             startupFunctions->Dump();
         }
 #endif
 
         for (uint i = 0; i < profileCount; i++)
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 385\n");
             Js::LocalFunctionId functionId;
             DynamicProfileInfo * dynamicProfileInfo = DynamicProfileInfo::Deserialize(reader, recycler, &functionId);
             if (dynamicProfileInfo == nullptr || functionId >= functionCount)
-            {
+            {LOGMEIN("SourceDynamicProfileManager.cpp] 389\n");
                 return nullptr;
             }
             sourceDynamicProfileManager->dynamicProfileInfoMap.Add(functionId, dynamicProfileInfo);
@@ -398,23 +398,23 @@ namespace Js
     template <typename T>
     bool
     SourceDynamicProfileManager::Serialize(T * writer)
-    {
+    {LOGMEIN("SourceDynamicProfileManager.cpp] 400\n");
         // To simulate behavior of in memory profile cache - let's keep functions marked as executed if they were loaded
         // to be so from the profile - this helps with ensure inlined functions are marked as executed.
         if(!this->startupFunctions)
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 404\n");
             this->startupFunctions = const_cast<BVFixed*>(static_cast<const BVFixed*>(this->cachedStartupFunctions));
         }
         else if(cachedStartupFunctions && this->cachedStartupFunctions->Length() == this->startupFunctions->Length())
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 408\n");
             this->startupFunctions->Or(cachedStartupFunctions);
         }
 
         if(this->startupFunctions)
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 413\n");
 #if DBG_DUMP
              if(Configuration::Global.flags.Dump.IsEnabled(DynamicProfilePhase))
-            {
+            {LOGMEIN("SourceDynamicProfileManager.cpp] 416\n");
                 Output::Print(_u("Saving: Startup functions bit vector:"));
                 this->startupFunctions->Dump();
             }
@@ -423,21 +423,21 @@ namespace Js
             size_t bvSize = BVFixed::GetAllocSize(this->startupFunctions->Length()) ;
             if (!writer->WriteArray((char *)static_cast<BVFixed*>(this->startupFunctions), bvSize)
                 || !writer->Write(this->dynamicProfileInfoMapSaving.Count()))
-            {
+            {LOGMEIN("SourceDynamicProfileManager.cpp] 425\n");
                 return false;
             }
         }
 
         for (int i = 0; i < this->dynamicProfileInfoMapSaving.Count(); i++)
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 431\n");
             DynamicProfileInfo * dynamicProfileInfo = this->dynamicProfileInfoMapSaving.GetValueAt(i);
             if (dynamicProfileInfo == nullptr || !dynamicProfileInfo->HasFunctionBody())
-            {
+            {LOGMEIN("SourceDynamicProfileManager.cpp] 434\n");
                 continue;
             }
 
             if (!dynamicProfileInfo->Serialize(writer))
-            {
+            {LOGMEIN("SourceDynamicProfileManager.cpp] 439\n");
                 return false;
             }
         }
@@ -446,16 +446,16 @@ namespace Js
 
     void
     SourceDynamicProfileManager::SaveToDynamicProfileStorage(char16 const * url)
-    {
+    {LOGMEIN("SourceDynamicProfileManager.cpp] 448\n");
         Assert(DynamicProfileStorage::IsEnabled());
         BufferSizeCounter counter;
         if (!this->Serialize(&counter))
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 452\n");
             return;
         }
 
         if (counter.GetByteCount() > UINT_MAX)
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 457\n");
             // too big
             return;
         }
@@ -463,14 +463,14 @@ namespace Js
         char * record = DynamicProfileStorage::AllocRecord(static_cast<DWORD>(counter.GetByteCount()));
 #if DBG_DUMP
         if (PHASE_STATS1(DynamicProfilePhase))
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 465\n");
             Output::Print(_u("%-180s : %d bytes\n"), url, counter.GetByteCount());
         }
 #endif
 
         BufferWriter writer(DynamicProfileStorage::GetRecordBuffer(record), counter.GetByteCount());
         if (!this->Serialize(&writer))
-        {
+        {LOGMEIN("SourceDynamicProfileManager.cpp] 472\n");
             Assert(false);
             DynamicProfileStorage::DeleteRecord(record);
         }

@@ -140,12 +140,12 @@ namespace Js
     public:
         JavascriptPromiseResolveThenableTaskFunction(DynamicType* type, FunctionInfo* functionInfo, JavascriptPromise* promise, RecyclableObject* thenable, RecyclableObject* thenFunction)
             : RuntimeFunction(type, functionInfo), promise(promise), thenable(thenable), thenFunction(thenFunction)
-        { }
+        {LOGMEIN("JavascriptPromise.h] 142\n"); }
 
         inline static bool Is(Var var)
-        {
+        {LOGMEIN("JavascriptPromise.h] 145\n");
             if (JavascriptFunction::Is(var))
-            {
+            {LOGMEIN("JavascriptPromise.h] 147\n");
                 JavascriptFunction* obj = JavascriptFunction::FromVar(var);
 
                 return VirtualTableInfo<JavascriptPromiseResolveThenableTaskFunction>::HasVirtualTable(obj)
@@ -156,7 +156,7 @@ namespace Js
         }
 
         inline static JavascriptPromiseResolveThenableTaskFunction* FromVar(Var var)
-        {
+        {LOGMEIN("JavascriptPromise.h] 158\n");
             Assert(JavascriptPromiseResolveThenableTaskFunction::Is(var));
 
             return static_cast<JavascriptPromiseResolveThenableTaskFunction*>(var);
@@ -190,12 +190,12 @@ namespace Js
     public:
         JavascriptPromiseReactionTaskFunction(DynamicType* type, FunctionInfo* functionInfo, JavascriptPromiseReaction* reaction, Var argument)
             : RuntimeFunction(type, functionInfo), reaction(reaction), argument(argument)
-        { }
+        {LOGMEIN("JavascriptPromise.h] 192\n"); }
 
         inline static bool Is(Var var)
-        {
+        {LOGMEIN("JavascriptPromise.h] 195\n");
             if (JavascriptFunction::Is(var))
-            {
+            {LOGMEIN("JavascriptPromise.h] 197\n");
                 JavascriptFunction* obj = JavascriptFunction::FromVar(var);
 
                 return VirtualTableInfo<JavascriptPromiseReactionTaskFunction>::HasVirtualTable(obj)
@@ -206,7 +206,7 @@ namespace Js
         }
 
         inline static JavascriptPromiseReactionTaskFunction* FromVar(Var var)
-        {
+        {LOGMEIN("JavascriptPromise.h] 208\n");
             Assert(JavascriptPromiseReactionTaskFunction::Is(var));
 
             return static_cast<JavascriptPromiseReactionTaskFunction*>(var);
@@ -276,7 +276,7 @@ namespace Js
     private:
         JavascriptPromiseCapability(Var promise, Var resolve, Var reject)
             : promise(promise), resolve(resolve), reject(reject)
-        { }
+        {LOGMEIN("JavascriptPromise.h] 278\n"); }
 
     public:
         static JavascriptPromiseCapability* New(Var promise, Var resolve, Var reject, ScriptContext* scriptContext);
@@ -292,11 +292,11 @@ namespace Js
     public:
         // Finalizable support
         virtual void Finalize(bool isShutdown)
-        {
+        {LOGMEIN("JavascriptPromise.h] 294\n");
         }
 
         virtual void Dispose(bool isShutdown)
-        {
+        {LOGMEIN("JavascriptPromise.h] 298\n");
         }
 
         virtual void Mark(Recycler *recycler) override
@@ -326,7 +326,7 @@ namespace Js
     private:
         JavascriptPromiseReaction(JavascriptPromiseCapability* capabilities, RecyclableObject* handler)
             : capabilities(capabilities), handler(handler)
-        { }
+        {LOGMEIN("JavascriptPromise.h] 328\n"); }
 
     public:
         static JavascriptPromiseReaction* New(JavascriptPromiseCapability* capabilities, RecyclableObject* handler, ScriptContext* scriptContext);
@@ -337,11 +337,11 @@ namespace Js
     public:
         // Finalizable support
         virtual void Finalize(bool isShutdown)
-        {
+        {LOGMEIN("JavascriptPromise.h] 339\n");
         }
 
         virtual void Dispose(bool isShutdown)
-        {
+        {LOGMEIN("JavascriptPromise.h] 343\n");
         }
 
         virtual void Mark(Recycler *recycler) override
@@ -453,8 +453,8 @@ namespace Js
             PromiseStatusCode_HasRejection
         };
 
-        PromiseStatus GetStatus() const { return status; }
-        Var GetResult() const { return result; }
+        PromiseStatus GetStatus() const {LOGMEIN("JavascriptPromise.h] 455\n"); return status; }
+        Var GetResult() const {LOGMEIN("JavascriptPromise.h] 456\n"); return result; }
 
     protected:
         Var ResolveHelper(Var resolution, bool isRejecting, ScriptContext* scriptContext);

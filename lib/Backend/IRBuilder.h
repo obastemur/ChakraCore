@@ -17,7 +17,7 @@ class BranchReloc
 public:
     BranchReloc(IR::BranchInstr * instr, uint32 branchOffset, uint32 offs)
         : branchInstr(instr), branchOffset(branchOffset), offset(offs), isNotBackEdge(false)
-    { }
+    {LOGMEIN("IRBuilder.h] 19\n"); }
 
 private:
     IR::BranchInstr * branchInstr;
@@ -27,27 +27,27 @@ private:
     uint32            branchOffset;
 public:
     IR::BranchInstr * GetBranchInstr()
-    {
+    {LOGMEIN("IRBuilder.h] 29\n");
         return this->branchInstr;
     }
 
     uint32 GetOffset() const
-    {
+    {LOGMEIN("IRBuilder.h] 34\n");
         return this->offset;
     }
 
     uint32 GetBranchOffset() const
-    {
+    {LOGMEIN("IRBuilder.h] 39\n");
         return this->branchOffset;
     }
 
     bool IsNotBackEdge() const
-    {
+    {LOGMEIN("IRBuilder.h] 44\n");
         return this->isNotBackEdge;
     }
 
     void SetNotBackEdge()
-    {
+    {LOGMEIN("IRBuilder.h] 49\n");
         this->isNotBackEdge = true;
     }
 };
@@ -84,7 +84,7 @@ public:
 #endif
     {
         auto loopCount = func->GetJITFunctionBody()->GetLoopCount();
-        if (loopCount > 0) {
+        if (loopCount > 0) {LOGMEIN("IRBuilder.h] 86\n");
             m_saveLoopImplicitCallFlags = (IR::Opnd**)func->m_alloc->Alloc(sizeof(IR::Opnd*) * loopCount);
 #if DBG
             memset(m_saveLoopImplicitCallFlags, 0, sizeof(IR::Opnd*) * loopCount);
@@ -95,9 +95,9 @@ public:
         func->m_workItem->InitializeReader(&m_jnReader, &m_statementReader, func->m_alloc);
     };
 
-    ~IRBuilder() {
+    ~IRBuilder() {LOGMEIN("IRBuilder.h] 97\n");
         Assert(m_func->GetJITFunctionBody()->GetLoopCount() == 0 || m_saveLoopImplicitCallFlags);
-        if (m_saveLoopImplicitCallFlags) {
+        if (m_saveLoopImplicitCallFlags) {LOGMEIN("IRBuilder.h] 99\n");
             m_func->m_alloc->Free(m_saveLoopImplicitCallFlags, sizeof(IR::Opnd*) * m_func->GetJITFunctionBody()->GetLoopCount());
         }
     }
@@ -220,7 +220,7 @@ private:
     IR::Instr *         BuildProfiledSlotLoad(Js::OpCode loadOp, IR::RegOpnd *dstOpnd, IR::SymOpnd *srcOpnd, Js::ProfileId profileId, bool *pUnprofiled);
 
     SymID               GetMappedTemp(Js::RegSlot reg)
-    {
+    {LOGMEIN("IRBuilder.h] 222\n");
         AssertMsg(this->RegIsTemp(reg), "Processing non-temp reg as a temp?");
         AssertMsg(this->tempMap, "Processing non-temp reg without a temp map?");
 
@@ -228,7 +228,7 @@ private:
     }
 
     void                SetMappedTemp(Js::RegSlot reg, SymID tempId)
-    {
+    {LOGMEIN("IRBuilder.h] 230\n");
         AssertMsg(this->RegIsTemp(reg), "Processing non-temp reg as a temp?");
         AssertMsg(this->tempMap, "Processing non-temp reg without a temp map?");
 
@@ -236,7 +236,7 @@ private:
     }
 
     BOOL                GetTempUsed(Js::RegSlot reg)
-    {
+    {LOGMEIN("IRBuilder.h] 238\n");
         AssertMsg(this->RegIsTemp(reg), "Processing non-temp reg as a temp?");
         AssertMsg(this->fbvTempUsed, "Processing non-temp reg without a used BV?");
 
@@ -244,12 +244,12 @@ private:
     }
 
     void                SetTempUsed(Js::RegSlot reg, BOOL used)
-    {
+    {LOGMEIN("IRBuilder.h] 246\n");
         AssertMsg(this->RegIsTemp(reg), "Processing non-temp reg as a temp?");
         AssertMsg(this->fbvTempUsed, "Processing non-temp reg without a used BV?");
 
         if (used)
-        {
+        {LOGMEIN("IRBuilder.h] 251\n");
             this->fbvTempUsed->Set(reg - this->firstTemp);
         }
         else
@@ -259,12 +259,12 @@ private:
     }
 
     BOOL                RegIsTemp(Js::RegSlot reg)
-    {
+    {LOGMEIN("IRBuilder.h] 261\n");
         return reg >= this->firstTemp;
     }
 
     BOOL                RegIsConstant(Js::RegSlot reg)
-    {
+    {LOGMEIN("IRBuilder.h] 266\n");
         return reg > 0 && reg < m_func->GetJITFunctionBody()->GetConstCount();
     }
 

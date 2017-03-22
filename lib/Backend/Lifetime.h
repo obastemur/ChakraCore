@@ -17,7 +17,7 @@ public:
         isSimd128D2(false), isSimd128B4(false), isSimd128B8(false), isSimd128B16(false), cantSpill(false), dontAllocate(false), isSecondChanceAllocated(false), isCheapSpill(false), spillStackSlot(NULL),
           totalOpHelperLengthByEnd(0), needsStoreCompensation(false), alloc(alloc), regionUseCount(NULL), regionUseCountAdjust(NULL),
           cantStackPack(false)
-    {
+    {LOGMEIN("Lifetime.h] 19\n");
         intUsageBv.ClearAll();
         regPreference.ClearAll();
     }
@@ -70,7 +70,7 @@ public:
     uint8               cantStackPack : 1;
 
     bool isSimd128()
-    {
+    {LOGMEIN("Lifetime.h] 72\n");
         bool result = isSimd128F4;
         result |= isSimd128I4;
         result |= isSimd128I8;
@@ -87,44 +87,44 @@ public:
     }
 
     void AddToUseCount(uint32 newUseValue, Loop *loop, Func *func)
-    {
+    {LOGMEIN("Lifetime.h] 89\n");
         Assert((this->useCount + newUseValue) >= this->useCount);
         this->useCount += newUseValue;
 
         if (loop)
-        {
+        {LOGMEIN("Lifetime.h] 94\n");
             if (!this->regionUseCount)
-            {
+            {LOGMEIN("Lifetime.h] 96\n");
                 this->regionUseCount = AnewArrayZ(this->alloc, uint32, func->loopCount+1);
                 this->regionUseCountAdjust = AnewArrayZ(this->alloc, uint32, func->loopCount+1);
             }
             while (loop)
-            {
+            {LOGMEIN("Lifetime.h] 101\n");
                 this->regionUseCount[loop->loopNumber] += newUseValue;
                 loop = loop->parent;
             }
         }
     }
     void SubFromUseCount(uint32 newUseValue, Loop *loop)
-    {
+    {LOGMEIN("Lifetime.h] 108\n");
         Assert((this->useCount - newUseValue) <= this->useCount);
         this->useCount -= newUseValue;
 
         Assert(!loop || this->regionUseCount);
 
         while (loop)
-        {
+        {LOGMEIN("Lifetime.h] 115\n");
             Assert((this->regionUseCount[loop->loopNumber] - newUseValue) <= this->regionUseCount[loop->loopNumber]);
             this->regionUseCount[loop->loopNumber] -= newUseValue;
             loop = loop->parent;
         }
     }
     uint32 GetRegionUseCount(Loop *loop)
-    {
+    {LOGMEIN("Lifetime.h] 122\n");
         if (loop && !PHASE_OFF1(Js::RegionUseCountPhase))
-        {
+        {LOGMEIN("Lifetime.h] 124\n");
             if (this->regionUseCount)
-            {
+            {LOGMEIN("Lifetime.h] 126\n");
                 return this->regionUseCount[loop->loopNumber];
             }
             else
@@ -138,34 +138,34 @@ public:
         }
     }
     void AddToUseCountAdjust(uint32 newUseValue, Loop *loop, Func *func)
-    {
+    {LOGMEIN("Lifetime.h] 140\n");
         Assert((this->useCountAdjust + newUseValue) >= this->useCountAdjust);
         this->useCountAdjust += newUseValue;
 
         if (loop)
-        {
+        {LOGMEIN("Lifetime.h] 145\n");
             if (!this->regionUseCount)
-            {
+            {LOGMEIN("Lifetime.h] 147\n");
                 this->regionUseCount = AnewArrayZ(this->alloc, uint32, func->loopCount+1);
                 this->regionUseCountAdjust = AnewArrayZ(this->alloc, uint32, func->loopCount+1);
             }
             do
-            {
+            {LOGMEIN("Lifetime.h] 152\n");
                 this->regionUseCountAdjust[loop->loopNumber] += newUseValue;
                 loop = loop->parent;
             } while (loop);
         }
     }
     void ApplyUseCountAdjust(Loop *loop)
-    {
+    {LOGMEIN("Lifetime.h] 159\n");
         Assert((this->useCount + this->useCountAdjust) >= this->useCount);
         this->useCount -= this->useCountAdjust;
         this->useCountAdjust = 0;
 
         if (loop && this->regionUseCount)
-        {
+        {LOGMEIN("Lifetime.h] 165\n");
             do
-            {
+            {LOGMEIN("Lifetime.h] 167\n");
                 Assert((this->regionUseCount[loop->loopNumber] - this->regionUseCountAdjust[loop->loopNumber]) <= this->regionUseCount[loop->loopNumber]);
                 this->regionUseCount[loop->loopNumber] -= this->regionUseCountAdjust[loop->loopNumber];
                 this->regionUseCountAdjust[loop->loopNumber] = 0;

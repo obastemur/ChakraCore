@@ -27,7 +27,7 @@ namespace Js
     public:
         static BoundFunction* New(ScriptContext* scriptContext, ArgumentReader args);
 
-        static bool Is(Var func){ return JavascriptFunction::Is(func) && JavascriptFunction::FromVar(func)->IsBoundFunction(); }
+        static bool Is(Var func){LOGMEIN("BoundFunction.h] 29\n"); return JavascriptFunction::Is(func) && JavascriptFunction::FromVar(func)->IsBoundFunction(); }
         static Var NewInstance(RecyclableObject* function, CallInfo callInfo, ...);
         virtual JavascriptString* GetDisplayNameImpl() const override;
         virtual BOOL HasProperty(PropertyId propertyId) override;
@@ -52,11 +52,11 @@ namespace Js
         virtual inline BOOL IsConstructor() const override;
 
         // Below functions are used by debugger to identify and emit event handler information
-        virtual bool IsBoundFunction() const { return true; }
+        virtual bool IsBoundFunction() const {LOGMEIN("BoundFunction.h] 54\n"); return true; }
         JavascriptFunction * GetTargetFunction() const;
         // Below functions are used by heap enumerator
-        uint GetArgsCountForHeapEnum() { return count;}
-        Field(Var)* GetArgsForHeapEnum() { return boundArgs;}
+        uint GetArgsCountForHeapEnum() {LOGMEIN("BoundFunction.h] 57\n"); return count;}
+        Field(Var)* GetArgsForHeapEnum() {LOGMEIN("BoundFunction.h] 58\n"); return boundArgs;}
         RecyclableObject* GetBoundThis();
 
 #if ENABLE_TTD

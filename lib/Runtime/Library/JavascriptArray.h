@@ -107,7 +107,7 @@ namespace Js
             Field(SparseArraySegmentBase*) lastUsedSegment;
             Field(SegmentBTreeRoot*) segmentBTreeRoot;
 
-            SegmentUnionType() {}
+            SegmentUnionType() {LOGMEIN("JavascriptArray.h] 109\n");}
         };
         Field(SegmentUnionType) segmentUnion;
     public:
@@ -137,7 +137,7 @@ namespace Js
         static const Var MissingItem;
         template<typename T> static T GetMissingItem();
 
-        SparseArraySegmentBase * GetHead() const { return head; }
+        SparseArraySegmentBase * GetHead() const {LOGMEIN("JavascriptArray.h] 139\n"); return head; }
         SparseArraySegmentBase * GetLastUsedSegment() const;
     public:
         JavascriptArray(DynamicType * type);
@@ -192,8 +192,8 @@ namespace Js
         template<typename T> bool DirectSetItemAtRangeFull(uint32 startIndex, uint32 length, T newValue);
         template<typename T> bool DirectSetItemAtRangeFromArray(uint32 startIndex, uint32 length, JavascriptArray *fromArray, uint32 fromStartIndex);
 #if DBG
-        template <typename T> void VerifyNotNeedMarshal(T value) {};
-        template <> void VerifyNotNeedMarshal<Var>(Var value) { Assert(value == JavascriptArray::MissingItem || !CrossSite::NeedMarshalVar(value, this->GetScriptContext())); }
+        template <typename T> void VerifyNotNeedMarshal(T value) {LOGMEIN("JavascriptArray.h] 194\n");};
+        template <> void VerifyNotNeedMarshal<Var>(Var value) {LOGMEIN("JavascriptArray.h] 195\n"); Assert(value == JavascriptArray::MissingItem || !CrossSite::NeedMarshalVar(value, this->GetScriptContext())); }
 #endif
         void DirectSetItemIfNotExist(uint32 index, Var newValue);
 
@@ -372,11 +372,11 @@ namespace Js
 
         template<typename Func>
         void WalkExisting(Func func)
-        {
+        {LOGMEIN("JavascriptArray.h] 374\n");
             Assert(!JavascriptNativeIntArray::Is(this) && !JavascriptNativeFloatArray::Is(this));
             ArrayElementEnumerator e(this, 0);
             while(e.MoveNext<Var>())
-            {
+            {LOGMEIN("JavascriptArray.h] 378\n");
                 func(e.GetIndex(), e.GetItem<Var>());
             }
         }
@@ -449,11 +449,11 @@ namespace Js
         virtual bool IsMissingHeadSegmentItem(const uint32 index) const;
 
         static VTableValue VtableHelper()
-        {
+        {LOGMEIN("JavascriptArray.h] 451\n");
             return VTableValue::VtableJavascriptArray;
         }
         static LibraryValue InitialTypeHelper()
-        {
+        {LOGMEIN("JavascriptArray.h] 455\n");
             return LibraryValue::ValueJavascriptArrayType;
         }
         static DynamicType * GetInitialType(ScriptContext * scriptContext);
@@ -602,29 +602,29 @@ namespace Js
         static void ForEachOwnMissingArrayIndexOfObject(JavascriptArray *baseArr, JavascriptArray *destArray, RecyclableObject* obj, uint32 startIndex, uint32 limitIndex, T destIndex, Fn fn);
 
         // NativeArrays may change it's content type, but not others
-        template <typename T> static bool MayChangeType() { return false; }
+        template <typename T> static bool MayChangeType() {LOGMEIN("JavascriptArray.h] 604\n"); return false; }
 
         template<typename T, typename P>
         static BOOL TryTemplatedGetItem(T *arr, P index, Var *element, ScriptContext *scriptContext, bool checkHasItem = true)
-        {
+        {LOGMEIN("JavascriptArray.h] 608\n");
             return T::Is(arr) ? JavascriptArray::TemplatedGetItem(arr, index, element, scriptContext, checkHasItem) :
                 JavascriptOperators::GetItem(arr, index, element, scriptContext);
         }
 
         template <bool hasSideEffect, typename T, typename Fn>
         static void TemplatedForEachItemInRange(T * arr, uint32 startIndex, uint32 limitIndex, Var missingItem, ScriptContext * scriptContext, Fn fn)
-        {
+        {LOGMEIN("JavascriptArray.h] 615\n");
             for (uint32 i = startIndex; i < limitIndex; i++)
-            {
+            {LOGMEIN("JavascriptArray.h] 617\n");
                 Var element;
                 fn(i, TryTemplatedGetItem(arr, i, &element, scriptContext) ? element : missingItem);
 
                 if (hasSideEffect && MayChangeType<T>() && !T::Is(arr))
-                {
+                {LOGMEIN("JavascriptArray.h] 622\n");
                     // The function has changed, go to another ForEachItemInRange. It is possible that the array might have changed to 
                     // an ES5Array, in such cases we don't need to call the JavascriptArray specific implementation.
                     if (JavascriptArray::Is(arr))
-                    {
+                    {LOGMEIN("JavascriptArray.h] 626\n");
                         JavascriptArray::FromVar(arr)->template ForEachItemInRange<true>(i + 1, limitIndex, missingItem, scriptContext, fn);
                         return;
                     }
@@ -638,20 +638,20 @@ namespace Js
 
         template <bool hasSideEffect, typename T, typename P, typename Fn>
         static void TemplatedForEachItemInRange(T * arr, P startIndex, P limitIndex, ScriptContext * scriptContext, Fn fn)
-        {
+        {LOGMEIN("JavascriptArray.h] 640\n");
             for (P i = startIndex; i < limitIndex; i++)
-            {
+            {LOGMEIN("JavascriptArray.h] 642\n");
                 Var element;
                 if (TryTemplatedGetItem(arr, i, &element, scriptContext))
                 {
                     fn(i, element);
 
                     if (hasSideEffect && MayChangeType<T>() && !T::Is(arr))
-                    {
+                    {LOGMEIN("JavascriptArray.h] 649\n");
                         // The function has changed, go to another ForEachItemInRange. It is possible that the array might have changed to 
                         // an ES5Array, in such cases we don't need to call the JavascriptArray specific implementation.
                         if (JavascriptArray::Is(arr))
-                        {
+                        {LOGMEIN("JavascriptArray.h] 653\n");
                             JavascriptArray::FromVar(arr)->template ForEachItemInRange<true>(i + 1, limitIndex, scriptContext, fn);
                             return;
                         }
@@ -667,15 +667,15 @@ namespace Js
 
         template <bool hasSideEffect, typename Fn>
         void ForEachItemInRange(uint64 startIndex, uint64 limitIndex, ScriptContext * scriptContext, Fn fn)
-        {
+        {LOGMEIN("JavascriptArray.h] 669\n");
             Assert(false);
             Throw::InternalError();
         }
         template <bool hasSideEffect, typename Fn>
         void ForEachItemInRange(uint32 startIndex, uint32 limitIndex, ScriptContext * scriptContext, Fn fn)
-        {
+        {LOGMEIN("JavascriptArray.h] 675\n");
             switch (this->GetTypeId())
-            {
+            {LOGMEIN("JavascriptArray.h] 677\n");
             case TypeIds_Array:
                 TemplatedForEachItemInRange<hasSideEffect>(this, startIndex, limitIndex, scriptContext, fn);
                 break;
@@ -693,9 +693,9 @@ namespace Js
 
         template <bool hasSideEffect, typename Fn>
         void ForEachItemInRange(uint32 startIndex, uint32 limitIndex, Var missingItem, ScriptContext * scriptContext, Fn fn)
-        {
+        {LOGMEIN("JavascriptArray.h] 695\n");
             switch (this->GetTypeId())
-            {
+            {LOGMEIN("JavascriptArray.h] 697\n");
             case TypeIds_Array:
                 TemplatedForEachItemInRange<hasSideEffect>(this, startIndex, limitIndex, missingItem, scriptContext, fn);
                 break;
@@ -785,10 +785,10 @@ namespace Js
             BOOL DeleteItem(RecyclableObject* obj, PropertyOperationFlags flags = PropertyOperation_None) const;
         };
 
-        BOOL DirectGetItemAt(const BigIndex& index, Var* outVal) { return index.GetItem(this, outVal); }
-        void DirectSetItemAt(const BigIndex& index, Var newValue) { index.SetItem(this, newValue); }
-        void DirectSetItemIfNotExist(const BigIndex& index, Var newValue) { index.SetItemIfNotExist(this, newValue); }
-        void DirectAppendItem(Var newValue) { BigIndex(this->GetLength()).SetItem(this, newValue); }
+        BOOL DirectGetItemAt(const BigIndex& index, Var* outVal) {LOGMEIN("JavascriptArray.h] 787\n"); return index.GetItem(this, outVal); }
+        void DirectSetItemAt(const BigIndex& index, Var newValue) {LOGMEIN("JavascriptArray.h] 788\n"); index.SetItem(this, newValue); }
+        void DirectSetItemIfNotExist(const BigIndex& index, Var newValue) {LOGMEIN("JavascriptArray.h] 789\n"); index.SetItemIfNotExist(this, newValue); }
+        void DirectAppendItem(Var newValue) {LOGMEIN("JavascriptArray.h] 790\n"); BigIndex(this->GetLength()).SetItem(this, newValue); }
         void TruncateToProperties(const BigIndex& index, uint32 start);
 
         template<typename T>
@@ -828,7 +828,7 @@ namespace Js
     private:
         template<typename T=uint32>
         static RecyclableObject* ArraySpeciesCreate(Var pThisArray, T length, ScriptContext* scriptContext, bool *pIsIntArray = nullptr, bool *pIsFloatArray = nullptr, bool *pIsBuiltinArrayCtor = nullptr);
-        template <typename T, typename R> static R ConvertToIndex(T idxDest, ScriptContext* scriptContext) { Throw::InternalError(); return 0; }
+        template <typename T, typename R> static R ConvertToIndex(T idxDest, ScriptContext* scriptContext) {LOGMEIN("JavascriptArray.h] 830\n"); Throw::InternalError(); return 0; }
         static BOOL SetArrayLikeObjects(RecyclableObject* pDestObj, uint32 idxDest, Var aItem);
         static BOOL SetArrayLikeObjects(RecyclableObject* pDestObj, BigIndex idxDest, Var aItem);
         static void ConcatArgsCallingHelper(RecyclableObject* pDestObj, TypeId* remoteTypeIds, Js::Arguments& args, ScriptContext* scriptContext, ::Math::RecordOverflowPolicy &destLengthOverflow);
@@ -852,9 +852,9 @@ namespace Js
         static JavascriptString* GetLocaleSeparator(ScriptContext* scriptContext);
 
     public:
-        static uint32 GetOffsetOfArrayFlags() { return offsetof(JavascriptArray, arrayFlags); }
-        static uint32 GetOffsetOfHead() { return offsetof(JavascriptArray, head); }
-        static uint32 GetOffsetOfLastUsedSegmentOrSegmentMap() { return offsetof(JavascriptArray, segmentUnion.lastUsedSegment); }
+        static uint32 GetOffsetOfArrayFlags() {LOGMEIN("JavascriptArray.h] 854\n"); return offsetof(JavascriptArray, arrayFlags); }
+        static uint32 GetOffsetOfHead() {LOGMEIN("JavascriptArray.h] 855\n"); return offsetof(JavascriptArray, head); }
+        static uint32 GetOffsetOfLastUsedSegmentOrSegmentMap() {LOGMEIN("JavascriptArray.h] 856\n"); return offsetof(JavascriptArray, segmentUnion.lastUsedSegment); }
         static Var SpreadArrayArgs(Var arrayToSpread, const Js::AuxArray<uint32> *spreadIndices, ScriptContext *scriptContext);
         static uint32 GetSpreadArgLen(Var spreadArg, ScriptContext *scriptContext);
 
@@ -889,7 +889,7 @@ namespace Js
         PCWSTR m_functionName;
 
     public:
-        ThrowTypeErrorOnFailureHelper(ScriptContext *scriptContext, PCWSTR functionName) : m_scriptContext(scriptContext), m_functionName(functionName) {}
+        ThrowTypeErrorOnFailureHelper(ScriptContext *scriptContext, PCWSTR functionName) : m_scriptContext(scriptContext), m_functionName(functionName) {LOGMEIN("JavascriptArray.h] 891\n");}
         inline void ThrowTypeErrorOnFailure(BOOL operationSucceeded);
         inline void ThrowTypeErrorOnFailure();
         inline BOOL IsThrowTypeError(BOOL operationSucceeded);
@@ -906,12 +906,12 @@ namespace Js
     public:
         JavascriptNativeArray(DynamicType * type) :
             JavascriptArray(type), weakRefToFuncBody(nullptr)
-        {
+        {LOGMEIN("JavascriptArray.h] 908\n");
         }
 
     protected:
         JavascriptNativeArray(uint32 length, DynamicType * type) :
-            JavascriptArray(length, type), weakRefToFuncBody(nullptr) {}
+            JavascriptArray(length, type), weakRefToFuncBody(nullptr) {LOGMEIN("JavascriptArray.h] 913\n");}
 
         // For BoxStackInstance
         JavascriptNativeArray(JavascriptNativeArray * instance);
@@ -924,14 +924,14 @@ namespace Js
         static JavascriptNativeArray* FromVar(Var aValue);
 
         void SetArrayCallSite(ProfileId index, RecyclerWeakReference<FunctionBody> *weakRef)
-        {
+        {LOGMEIN("JavascriptArray.h] 926\n");
             Assert(weakRef);
             Assert(!weakRefToFuncBody);
             SetArrayCallSiteIndex(index);
             weakRefToFuncBody = weakRef;
         }
         void ClearArrayCallSiteIndex()
-        {
+        {LOGMEIN("JavascriptArray.h] 933\n");
             weakRefToFuncBody = nullptr;
         }
 
@@ -939,8 +939,8 @@ namespace Js
         ArrayCallSiteInfo *GetArrayCallSiteInfo();
 #endif
 
-        static uint32 GetOffsetOfArrayCallSiteIndex() { return offsetof(JavascriptNativeArray, arrayCallSiteIndex); }
-        static uint32 GetOffsetOfWeakFuncRef() { return offsetof(JavascriptNativeArray, weakRefToFuncBody); }
+        static uint32 GetOffsetOfArrayCallSiteIndex() {LOGMEIN("JavascriptArray.h] 941\n"); return offsetof(JavascriptNativeArray, arrayCallSiteIndex); }
+        static uint32 GetOffsetOfWeakFuncRef() {LOGMEIN("JavascriptArray.h] 942\n"); return offsetof(JavascriptNativeArray, weakRefToFuncBody); }
 
 #if ENABLE_PROFILE_INFO
         void SetArrayProfileInfo(RecyclerWeakReference<FunctionBody> *weakRef, ArrayCallSiteInfo *arrayInfo);
@@ -971,7 +971,7 @@ namespace Js
 
     protected:
         JavascriptNativeIntArray(uint32 length, DynamicType * type) :
-            JavascriptNativeArray(length, type) {}
+            JavascriptNativeArray(length, type) {LOGMEIN("JavascriptArray.h] 973\n");}
 
         // For BoxStackInstance
         JavascriptNativeIntArray(JavascriptNativeIntArray * instance, bool boxHead);
@@ -1024,11 +1024,11 @@ namespace Js
         virtual bool IsMissingHeadSegmentItem(const uint32 index) const override;
 
         static VTableValue VtableHelper()
-        {
+        {LOGMEIN("JavascriptArray.h] 1026\n");
             return VTableValue::VtableNativeIntArray;
         }
         static LibraryValue InitialTypeHelper()
-        {
+        {LOGMEIN("JavascriptArray.h] 1030\n");
             return LibraryValue::ValueNativeIntArrayType;
         }
         static DynamicType * GetInitialType(ScriptContext * scriptContext);
@@ -1067,9 +1067,9 @@ namespace Js
 
     public:
         JavascriptCopyOnAccessNativeIntArray(uint32 length, DynamicType * type) :
-            JavascriptNativeIntArray(length, type) {}
+            JavascriptNativeIntArray(length, type) {LOGMEIN("JavascriptArray.h] 1069\n");}
 
-        virtual BOOL IsCopyOnAccessArray() { return TRUE; }
+        virtual BOOL IsCopyOnAccessArray() {LOGMEIN("JavascriptArray.h] 1071\n"); return TRUE; }
 
         static bool Is(Var aValue);
         static bool Is(TypeId typeId);
@@ -1082,7 +1082,7 @@ namespace Js
         BOOL DirectGetItemAt(uint32 index, int* outVal);
 
         static VTableValue VtableHelper()
-        {
+        {LOGMEIN("JavascriptArray.h] 1084\n");
             return VTableValue::VtableCopyOnAccessNativeIntArray;
         }
 
@@ -1121,7 +1121,7 @@ namespace Js
 
     private:
         JavascriptNativeFloatArray(uint32 length, DynamicType * type) :
-            JavascriptNativeArray(length, type) {}
+            JavascriptNativeArray(length, type) {LOGMEIN("JavascriptArray.h] 1123\n");}
 
         // For BoxStackInstance
         JavascriptNativeFloatArray(JavascriptNativeFloatArray * instance, bool boxHead);
@@ -1176,11 +1176,11 @@ namespace Js
         virtual bool IsMissingHeadSegmentItem(const uint32 index) const override;
 
         static VTableValue VtableHelper()
-        {
+        {LOGMEIN("JavascriptArray.h] 1178\n");
             return VTableValue::VtableNativeFloatArray;
         }
         static LibraryValue InitialTypeHelper()
-        {
+        {LOGMEIN("JavascriptArray.h] 1182\n");
             return LibraryValue::ValueNativeFloatArrayType;
         }
         static DynamicType * GetInitialType(ScriptContext * scriptContext);
@@ -1209,11 +1209,11 @@ namespace Js
     };
 
     template <>
-    inline bool JavascriptArray::MayChangeType<JavascriptNativeIntArray>() { return true; }
+    inline bool JavascriptArray::MayChangeType<JavascriptNativeIntArray>() {LOGMEIN("JavascriptArray.h] 1211\n"); return true; }
     template <>
-    inline bool JavascriptArray::MayChangeType<JavascriptNativeFloatArray>() { return true; }
+    inline bool JavascriptArray::MayChangeType<JavascriptNativeFloatArray>() {LOGMEIN("JavascriptArray.h] 1213\n"); return true; }
 
     template <>
-    inline uint32 JavascriptArray::ConvertToIndex<uint32, uint32>(uint32 idxDest, ScriptContext* scriptContext) { return idxDest; }
+    inline uint32 JavascriptArray::ConvertToIndex<uint32, uint32>(uint32 idxDest, ScriptContext* scriptContext) {LOGMEIN("JavascriptArray.h] 1216\n"); return idxDest; }
 
 } // namespace Js

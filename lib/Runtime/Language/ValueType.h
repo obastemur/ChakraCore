@@ -360,7 +360,7 @@ struct DefaultComparer<ValueType> : public ValueTypeComparer
 };
 
 __forceinline ValueType ValueType::Merge(const ValueType other) const
-{
+{LOGMEIN("ValueType.h] 362\n");
     Verify(*this);
     Verify(other);
 
@@ -378,7 +378,7 @@ __forceinline ValueType ValueType::Merge(const ValueType other) const
 // Template function definitions
 
 template<class F> void ValueType::MapInitialDefiniteValueTypesUntil(const F f)
-{
+{LOGMEIN("ValueType.h] 380\n");
     size_t i = 0;
 
     // Enumerate variations of Int types
@@ -397,7 +397,7 @@ template<class F> void ValueType::MapInitialDefiniteValueTypesUntil(const F f)
         #undef BASE_VALUE_TYPE
     };
     for(size_t j = 0; j < sizeof(BaseValueTypes) / sizeof(BaseValueTypes[0]); ++j)
-    {
+    {LOGMEIN("ValueType.h] 399\n");
         if(BaseValueTypes[j] == Uninitialized || BaseValueTypes[j] == Int || BaseValueTypes[j] == UninitializedObject)
             continue;
         if(f(BaseValueTypes[j], i++))
@@ -406,7 +406,7 @@ template<class F> void ValueType::MapInitialDefiniteValueTypesUntil(const F f)
 
     // Enumerate object types
     for(ObjectType objectType = ObjectType::UninitializedObject; objectType < ObjectType::Count; ++objectType)
-    {
+    {LOGMEIN("ValueType.h] 408\n");
         if(objectType != ObjectType::ObjectWithArray && objectType != ObjectType::Array)
         {
             if(f(GetObject(objectType), i++))
@@ -418,11 +418,11 @@ template<class F> void ValueType::MapInitialDefiniteValueTypesUntil(const F f)
         for(Js::TypeId arrayTypeId = Js::TypeIds_ArrayFirst;
             arrayTypeId <= Js::TypeIds_ArrayLast;
             arrayTypeId = static_cast<Js::TypeId>(arrayTypeId + 1))
-        {
+        {LOGMEIN("ValueType.h] 420\n");
             if(objectType == ObjectType::ObjectWithArray && arrayTypeId != Js::TypeIds_Array) // objects with native arrays are currently not supported
                 continue;
             for(TSize noMissingValues = 0; noMissingValues < 2; ++noMissingValues)
-            {
+            {LOGMEIN("ValueType.h] 424\n");
                 const ValueType valueType(
                     ValueType::GetObject(objectType)
                         .SetHasNoMissingValues(!!noMissingValues)

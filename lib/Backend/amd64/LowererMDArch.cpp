@@ -13,31 +13,31 @@ extern const IRType RegTypes[RegNumCount];
 
 BYTE
 LowererMDArch::GetDefaultIndirScale()
-{
+{LOGMEIN("LowererMDArch.cpp] 15\n");
     return IndirScale8;
 }
 
 RegNum
 LowererMDArch::GetRegShiftCount()
-{
+{LOGMEIN("LowererMDArch.cpp] 21\n");
     return RegRCX;
 }
 
 RegNum
 LowererMDArch::GetRegReturn(IRType type)
-{
+{LOGMEIN("LowererMDArch.cpp] 27\n");
     return ( IRType_IsFloat(type) || IRType_IsSimd128(type) ) ? RegXMM0 : RegRAX;
 }
 
 RegNum
 LowererMDArch::GetRegReturnAsmJs(IRType type)
-{
+{LOGMEIN("LowererMDArch.cpp] 33\n");
     if (IRType_IsFloat(type))
-    {
+    {LOGMEIN("LowererMDArch.cpp] 35\n");
         return RegXMM0;
     }
     else if (IRType_IsSimd128(type))
-    {
+    {LOGMEIN("LowererMDArch.cpp] 39\n");
         return RegXMM0;
     }
     else
@@ -48,58 +48,58 @@ LowererMDArch::GetRegReturnAsmJs(IRType type)
 
 RegNum
 LowererMDArch::GetRegStackPointer()
-{
+{LOGMEIN("LowererMDArch.cpp] 50\n");
     return RegRSP;
 }
 
 RegNum
 LowererMDArch::GetRegBlockPointer()
-{
+{LOGMEIN("LowererMDArch.cpp] 56\n");
     return RegRBP;
 }
 
 RegNum
 LowererMDArch::GetRegFramePointer()
-{
+{LOGMEIN("LowererMDArch.cpp] 62\n");
     return RegRBP;
 }
 
 RegNum
 LowererMDArch::GetRegChkStkParam()
-{
+{LOGMEIN("LowererMDArch.cpp] 68\n");
     return RegRAX;
 }
 
 RegNum
 LowererMDArch::GetRegIMulDestLower()
-{
+{LOGMEIN("LowererMDArch.cpp] 74\n");
     return RegRAX;
 }
 
 RegNum
 LowererMDArch::GetRegIMulHighDestLower()
-{
+{LOGMEIN("LowererMDArch.cpp] 80\n");
     return RegRDX;
 }
 RegNum
 LowererMDArch::GetRegArgI4(int32 argNum)
-{
+{LOGMEIN("LowererMDArch.cpp] 85\n");
     // TODO: decide on registers to use for int
     return RegNOREG;
 }
 
 RegNum
 LowererMDArch::GetRegArgR8(int32 argNum)
-{
+{LOGMEIN("LowererMDArch.cpp] 92\n");
     // TODO: decide on registers to use for double
     return RegNOREG;
 }
 
 Js::OpCode
 LowererMDArch::GetAssignOp(IRType type)
-{
+{LOGMEIN("LowererMDArch.cpp] 99\n");
     switch (type)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 101\n");
     case TyFloat64:
         return Js::OpCode::MOVSD;
     case TyFloat32:
@@ -123,7 +123,7 @@ LowererMDArch::GetAssignOp(IRType type)
 
 void
 LowererMDArch::Init(LowererMD *lowererMD)
-{
+{LOGMEIN("LowererMDArch.cpp] 125\n");
     this->lowererMD                 = lowererMD;
     this->helperCallArgsCount       = 0;
 }
@@ -139,9 +139,9 @@ LowererMDArch::Init(LowererMD *lowererMD)
 
 IR::Instr *
 LowererMDArch::LoadInputParamPtr(IR::Instr *instrInsert, IR::RegOpnd *optionalDstOpnd /* = nullptr */)
-{
+{LOGMEIN("LowererMDArch.cpp] 141\n");
     if (this->m_func->GetJITFunctionBody()->IsCoroutine())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 143\n");
         IR::RegOpnd * argPtrRegOpnd = Lowerer::LoadGeneratorArgsPtr(instrInsert);
         IR::IndirOpnd * indirOpnd = IR::IndirOpnd::New(argPtrRegOpnd, 1 * MachPtr, TyMachPtr, this->m_func);
         IR::RegOpnd * dstOpnd = optionalDstOpnd != nullptr ? optionalDstOpnd : IR::RegOpnd::New(TyMachPtr, this->m_func);
@@ -162,7 +162,7 @@ LowererMDArch::LoadInputParamPtr(IR::Instr *instrInsert, IR::RegOpnd *optionalDs
 
 IR::Instr *
 LowererMDArch::LoadStackArgPtr(IR::Instr * instrArgPtr)
-{
+{LOGMEIN("LowererMDArch.cpp] 164\n");
     // Get the args pointer relative to the frame pointer.
     // NOTE: This code is sufficient for the apply-args optimization, but not for StackArguments,
     // if and when that is enabled.
@@ -177,18 +177,18 @@ LowererMDArch::LoadStackArgPtr(IR::Instr * instrArgPtr)
 
 IR::Instr *
 LowererMDArch::LoadHeapArgsCached(IR::Instr *instrArgs)
-{
+{LOGMEIN("LowererMDArch.cpp] 179\n");
     ASSERT_INLINEE_FUNC(instrArgs);
     Func *func = instrArgs->m_func;
     IR::Instr *instrPrev = instrArgs->m_prev;
 
     if (instrArgs->m_func->IsStackArgsEnabled())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 185\n");
         instrArgs->m_opcode = Js::OpCode::MOV;
         instrArgs->ReplaceSrc1(IR::AddrOpnd::NewNull(func));
 
         if (PHASE_TRACE1(Js::StackArgFormalsOptPhase) && func->GetJITFunctionBody()->GetInParamsCount() > 1)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 190\n");
             Output::Print(_u("StackArgFormals : %s (%d) :Removing Heap Arguments object creation in Lowerer. \n"), instrArgs->m_func->GetJITFunctionBody()->GetDisplayName(), instrArgs->m_func->GetFunctionNumber());
             Output::Flush();
         }
@@ -216,7 +216,7 @@ LowererMDArch::LoadHeapArgsCached(IR::Instr *instrArgs)
         this->LoadHelperArgument(instrArgs, frameObj);
 
         if (func->IsInlinee())
-        {
+        {LOGMEIN("LowererMDArch.cpp] 218\n");
             // s4 = address of first actual argument (after "this").
             StackSym *firstRealArgSlotSym = func->GetInlineeArgvSlotOpnd()->m_sym->AsStackSym();
             this->m_func->SetArgOffset(firstRealArgSlotSym, firstRealArgSlotSym->m_offset + MachPtr);
@@ -292,17 +292,17 @@ LowererMDArch::LoadHeapArgsCached(IR::Instr *instrArgs)
 
 IR::Instr *
 LowererMDArch::LoadHeapArguments(IR::Instr *instrArgs)
-{
+{LOGMEIN("LowererMDArch.cpp] 294\n");
     ASSERT_INLINEE_FUNC(instrArgs);
     Func *func = instrArgs->m_func;
 
     IR::Instr *instrPrev = instrArgs->m_prev;
     if (func->IsStackArgsEnabled())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 300\n");
         instrArgs->m_opcode = Js::OpCode::MOV;
         instrArgs->ReplaceSrc1(IR::AddrOpnd::NewNull(func));
         if (PHASE_TRACE1(Js::StackArgFormalsOptPhase) && func->GetJITFunctionBody()->GetInParamsCount() > 1)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 304\n");
             Output::Print(_u("StackArgFormals : %s (%d) :Removing Heap Arguments object creation in Lowerer. \n"), instrArgs->m_func->GetJITFunctionBody()->GetDisplayName(), instrArgs->m_func->GetFunctionNumber());
             Output::Flush();
         }
@@ -327,7 +327,7 @@ LowererMDArch::LoadHeapArguments(IR::Instr *instrArgs)
         // s5 = array of property ID's
         intptr_t formalsPropIdArray = instrArgs->m_func->GetJITFunctionBody()->GetFormalsPropIdArrayAddr();
         if (!formalsPropIdArray)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 329\n");
             formalsPropIdArray = instrArgs->m_func->GetScriptContextInfo()->GetNullAddr();
         }
 
@@ -339,7 +339,7 @@ LowererMDArch::LoadHeapArguments(IR::Instr *instrArgs)
         this->LoadHelperArgument(instrArgs, frameObj);
 
         if (func->IsInlinee())
-        {
+        {LOGMEIN("LowererMDArch.cpp] 341\n");
             // s3 = address of first actual argument (after "this").
             StackSym *firstRealArgSlotSym = func->GetInlineeArgvSlotOpnd()->m_sym->AsStackSym();
             this->m_func->SetArgOffset(firstRealArgSlotSym, firstRealArgSlotSym->m_offset + MachPtr);
@@ -385,7 +385,7 @@ LowererMDArch::LoadHeapArguments(IR::Instr *instrArgs)
             IR::Opnd * srcOpnd = IR::SymOpnd::New(paramSym, TyMachReg, func);
 
             if (this->m_func->GetJITFunctionBody()->IsCoroutine())
-            {
+            {LOGMEIN("LowererMDArch.cpp] 387\n");
                 // the function object for generator calls is a GeneratorVirtualScriptFunction object
                 // and we need to pass the real JavascriptGeneratorFunction object so grab it instead
                 IR::RegOpnd *tmpOpnd = IR::RegOpnd::New(TyMachReg, func);
@@ -418,13 +418,13 @@ LowererMDArch::LoadHeapArguments(IR::Instr *instrArgs)
 
 IR::Instr *
 LowererMDArch::LoadFuncExpression(IR::Instr *instrFuncExpr)
-{
+{LOGMEIN("LowererMDArch.cpp] 420\n");
     ASSERT_INLINEE_FUNC(instrFuncExpr);
     Func *func = instrFuncExpr->m_func;
 
     IR::Opnd *paramOpnd = nullptr;
     if (func->IsInlinee())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 426\n");
         paramOpnd = func->GetInlineeFunctionObjectSlotOpnd();
     }
     else
@@ -435,7 +435,7 @@ LowererMDArch::LoadFuncExpression(IR::Instr *instrFuncExpr)
     }
 
     if (instrFuncExpr->m_func->GetJITFunctionBody()->IsCoroutine())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 437\n");
         // the function object for generator calls is a GeneratorVirtualScriptFunction object
         // and we need to return the real JavascriptGeneratorFunction object so grab it before
         // assigning to the dst
@@ -458,7 +458,7 @@ LowererMDArch::LoadFuncExpression(IR::Instr *instrFuncExpr)
 
 IR::Instr *
 LowererMDArch::LoadNewScObjFirstArg(IR::Instr * instr, IR::Opnd * dst, ushort extraArgs)
-{
+{LOGMEIN("LowererMDArch.cpp] 460\n");
     // Spread moves down the argument slot by one.
     IR::Opnd *      argOpnd         = this->GetArgSlotOpnd(3 + extraArgs);
     IR::Instr *     argInstr        = LowererMD::CreateAssign(argOpnd, dst, instr);
@@ -467,13 +467,13 @@ LowererMDArch::LoadNewScObjFirstArg(IR::Instr * instr, IR::Opnd * dst, ushort ex
 }
 
 inline static RegNum GetRegFromArgPosition(const bool isFloatArg, const uint16 argPosition)
-{
+{LOGMEIN("LowererMDArch.cpp] 469\n");
     RegNum reg = RegNOREG;
 
     if (!isFloatArg && argPosition <= IntArgRegsCount)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 473\n");
         switch (argPosition)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 475\n");
 #define REG_INT_ARG(Index, Name)    \
 case ((Index) + 1):         \
 reg = Reg ## Name;      \
@@ -484,9 +484,9 @@ break;
         }
     }
     else if (isFloatArg && argPosition <= XmmArgRegsCount)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 486\n");
         switch (argPosition)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 488\n");
 #define REG_XMM_ARG(Index, Name)    \
 case ((Index) + 1):         \
 reg = Reg ## Name;      \
@@ -502,7 +502,7 @@ break;
 
 int32
 LowererMDArch::LowerCallArgs(IR::Instr *callInstr, ushort callFlags, Js::ArgSlot extraParams, IR::IntConstOpnd **callInfoOpndRef /* = nullptr */)
-{
+{LOGMEIN("LowererMDArch.cpp] 504\n");
     AssertMsg(this->helperCallArgsCount == 0, "We don't support nested helper calls yet");
 
     const Js::ArgSlot       argOffset       = 1;
@@ -518,7 +518,7 @@ LowererMDArch::LowerCallArgs(IR::Instr *callInstr, ushort callFlags, Js::ArgSlot
 #endif
 
     while (src2->IsSymOpnd())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 520\n");
         IR::SymOpnd *   argLinkOpnd = src2->AsSymOpnd();
         StackSym *      argLinkSym  = argLinkOpnd->m_sym->AsStackSym();
         AssertMsg(argLinkSym->IsArgSlotSym() && argLinkSym->m_isSingleDef, "Arg tree not single def...");
@@ -534,12 +534,12 @@ LowererMDArch::LowerCallArgs(IR::Instr *callInstr, ushort callFlags, Js::ArgSlot
         Js::ArgSlot     argPosition = argInstr->GetDst()->AsSymOpnd()->m_sym->AsStackSym()->GetArgSlotNum();
         Js::ArgSlot     index       = argOffset + argPosition;
         if(index < argPosition)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 536\n");
             Js::Throw::OutOfMemory();
         }
         index += extraParams;
         if(index < extraParams)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 541\n");
             Js::Throw::OutOfMemory();
         }
 
@@ -547,7 +547,7 @@ LowererMDArch::LowerCallArgs(IR::Instr *callInstr, ushort callFlags, Js::ArgSlot
 
 #ifndef _WIN32
         if (index <= XmmArgRegsCount + 1)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 549\n");
             Assert(this->preparedArgListCount < XmmArgRegsCount);
             preparedArgList[preparedArgListCount++] = argLinkSym->GetType();
         }
@@ -582,7 +582,7 @@ LowererMDArch::LowerCallArgs(IR::Instr *callInstr, ushort callFlags, Js::ArgSlot
         callInstr->m_opcode == Js::OpCode::NewScObjectLiteral ||
         callInstr->m_opcode == Js::OpCode::NewScObjArray ||
         callInstr->m_opcode == Js::OpCode::NewScObjArraySpread)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 584\n");
         // These push an extra arg.
         argCount++;
     }
@@ -600,11 +600,11 @@ LowererMDArch::LowerCallArgs(IR::Instr *callInstr, ushort callFlags, Js::ArgSlot
     //
 
     if (callInstr->m_opcode != Js::OpCode::AsmJsCallI && callInstr->m_opcode != Js::OpCode::AsmJsEntryTracing)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 602\n");
         // Push argCount
         IR::IntConstOpnd *argCountOpnd = Lowerer::MakeCallInfoConst(callFlags, argCount, m_func);
         if (callInfoOpndRef)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 606\n");
             argCountOpnd->Use(m_func);
             *callInfoOpndRef = argCountOpnd;
         }
@@ -616,10 +616,10 @@ LowererMDArch::LowerCallArgs(IR::Instr *callInstr, ushort callFlags, Js::ArgSlot
     this->m_func->m_argSlotsForFunctionsCalled = max(this->m_func->m_argSlotsForFunctionsCalled, argSlots);
 
     if (m_func->GetJITFunctionBody()->IsAsmJsMode())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 618\n");
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
         if (callInstr->m_opcode == Js::OpCode::AsmJsEntryTracing)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 621\n");
             callInstr = this->lowererMD->ChangeToHelperCall(callInstr, IR::HelperTraceAsmJsArgIn);
         }
         else
@@ -635,10 +635,10 @@ LowererMDArch::LowerCallArgs(IR::Instr *callInstr, ushort callFlags, Js::ArgSlot
 
 void
 LowererMDArch::SetMaxArgSlots(Js::ArgSlot actualCount /*including this*/)
-{
+{LOGMEIN("LowererMDArch.cpp] 637\n");
     Js::ArgSlot offset = 3;//For function object & callInfo & this
     if (this->m_func->m_argSlotsForFunctionsCalled < (uint32) (actualCount + offset))
-    {
+    {LOGMEIN("LowererMDArch.cpp] 640\n");
         this->m_func->m_argSlotsForFunctionsCalled = (uint32)(actualCount + offset);
     }
     return;
@@ -646,13 +646,13 @@ LowererMDArch::SetMaxArgSlots(Js::ArgSlot actualCount /*including this*/)
 
 IR::Instr *
 LowererMDArch::LowerCallIDynamic(IR::Instr *callInstr, IR::Instr*saveThisArgOutInstr, IR::Opnd *argsLength, ushort callFlags, IR::Instr * insertBeforeInstrForCFG)
-{
+{LOGMEIN("LowererMDArch.cpp] 648\n");
     callInstr->InsertBefore(saveThisArgOutInstr); //Move this Argout next to call;
     this->LoadDynamicArgument(saveThisArgOutInstr, 3); //this pointer is the 3rd argument
 
     /*callInfo*/
     if (callInstr->m_func->IsInlinee())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 654\n");
         Assert(argsLength->AsIntConstOpnd()->GetValue() == callInstr->m_func->actualCount);
         this->SetMaxArgSlots((Js::ArgSlot)callInstr->m_func->actualCount);
     }
@@ -679,7 +679,7 @@ LowererMDArch::LowerCallIDynamic(IR::Instr *callInstr, IR::Instr*saveThisArgOutI
 
 void
 LowererMDArch::GenerateFunctionObjectTest(IR::Instr * callInstr, IR::RegOpnd  *functionObjOpnd, bool isHelper, IR::LabelInstr* continueAfterExLabel /* = nullptr */)
-{
+{LOGMEIN("LowererMDArch.cpp] 681\n");
     AssertMsg(!m_func->IsJitInDebugMode() || continueAfterExLabel, "When jit is in debug mode, continueAfterExLabel must be provided otherwise continue after exception may cause AV.");
 
     IR::RegOpnd *functionObjRegOpnd = functionObjOpnd->AsRegOpnd();
@@ -687,10 +687,10 @@ LowererMDArch::GenerateFunctionObjectTest(IR::Instr * callInstr, IR::RegOpnd  *f
 
     // Need check and error if we are calling a tagged int.
     if (!functionObjRegOpnd->IsNotTaggedValue())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 689\n");
         IR::LabelInstr * helperLabel = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
         if (this->lowererMD->GenerateObjectTest(functionObjRegOpnd, callInstr, helperLabel))
-        {
+        {LOGMEIN("LowererMDArch.cpp] 692\n");
 
             IR::LabelInstr * callLabel = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, isHelper);
             IR::Instr* instr = IR::BranchInstr::New(Js::OpCode::JMP, callLabel, this->m_func);
@@ -703,7 +703,7 @@ LowererMDArch::GenerateFunctionObjectTest(IR::Instr * callInstr, IR::RegOpnd  *f
             lowererMD->m_lowerer->GenerateRuntimeError(insertBeforeInstr, JSERR_NeedFunction);
 
             if (continueAfterExLabel)
-            {
+            {LOGMEIN("LowererMDArch.cpp] 705\n");
                 // Under debugger the RuntimeError (exception) can be ignored, generate branch to jmp to safe place
                 // (which would normally be debugger bailout check).
                 IR::BranchInstr* continueAfterEx = IR::BranchInstr::New(LowererMD::MDUncondBranchOpcode, continueAfterExLabel, this->m_func);
@@ -715,16 +715,16 @@ LowererMDArch::GenerateFunctionObjectTest(IR::Instr * callInstr, IR::RegOpnd  *f
 
 void
 LowererMDArch::GeneratePreCall(IR::Instr * callInstr, IR::Opnd  *functionObjOpnd, IR::Instr * insertBeforeInstrForCFGCheck)
-{
+{LOGMEIN("LowererMDArch.cpp] 717\n");
     if (insertBeforeInstrForCFGCheck == nullptr)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 719\n");
         insertBeforeInstrForCFGCheck = callInstr;
     }
 
     IR::RegOpnd * functionTypeRegOpnd = nullptr;
     IR::IndirOpnd * entryPointIndirOpnd = nullptr;
     if (callInstr->m_opcode == Js::OpCode::AsmJsCallI)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 726\n");
         functionTypeRegOpnd = IR::RegOpnd::New(TyMachReg, m_func);
 
         IR::IndirOpnd* functionInfoIndirOpnd = IR::IndirOpnd::New(functionObjOpnd->AsRegOpnd(), Js::RecyclableObject::GetOffsetOfType(), TyMachReg, m_func);
@@ -746,16 +746,16 @@ LowererMDArch::GeneratePreCall(IR::Instr * callInstr, IR::Opnd  *functionObjOpnd
         // For calls to fixed functions we load the function's type directly from the known (hard-coded) function object address.
         // For other calls, we need to load it from the function object stored in a register operand.
         if (functionObjOpnd->IsAddrOpnd() && functionObjOpnd->AsAddrOpnd()->m_isFunction)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 748\n");
             functionTypeRegOpnd = this->lowererMD->m_lowerer->GenerateFunctionTypeFromFixedFunctionObject(insertBeforeInstrForCFGCheck, functionObjOpnd);
         }
         else if (functionObjOpnd->IsRegOpnd())
-        {
+        {LOGMEIN("LowererMDArch.cpp] 752\n");
             AssertMsg(functionObjOpnd->AsRegOpnd()->m_sym->IsStackSym(), "Expected call target to be a stack symbol.");
 
             functionTypeRegOpnd = IR::RegOpnd::New(TyMachReg, m_func);
             // functionTypeRegOpnd(RAX) = MOV function->type
-            {
+            {LOGMEIN("LowererMDArch.cpp] 757\n");
                 IR::IndirOpnd * functionTypeIndirOpnd = IR::IndirOpnd::New(functionObjOpnd->AsRegOpnd(),
                     Js::DynamicObject::GetOffsetOfType(), TyMachReg, m_func);
                 IR::Instr * mov = IR::Instr::New(Js::OpCode::MOV, functionTypeRegOpnd, functionTypeIndirOpnd, m_func);
@@ -782,7 +782,7 @@ LowererMDArch::GeneratePreCall(IR::Instr * callInstr, IR::Opnd  *functionObjOpnd
 #if defined(_CONTROL_FLOW_GUARD)
     // verify that the call target is valid (CFG Check)
     if (!PHASE_OFF(Js::CFGInJitPhase, this->m_func))
-    {
+    {LOGMEIN("LowererMDArch.cpp] 784\n");
         this->lowererMD->GenerateCFGCheck(entryPointRegOpnd, insertBeforeInstrForCFGCheck);
     }
 #endif
@@ -794,7 +794,7 @@ LowererMDArch::GeneratePreCall(IR::Instr * callInstr, IR::Opnd  *functionObjOpnd
 
 IR::Instr *
 LowererMDArch::LowerCallI(IR::Instr * callInstr, ushort callFlags, bool isHelper, IR::Instr * insertBeforeInstrForCFG)
-{
+{LOGMEIN("LowererMDArch.cpp] 796\n");
     AssertMsg(this->helperCallArgsCount == 0, "We don't support nested helper calls yet");
 
     IR::Opnd * functionObjOpnd = callInstr->UnlinkSrc1();
@@ -804,13 +804,13 @@ LowererMDArch::LowerCallI(IR::Instr * callInstr, ushort callFlags, bool isHelper
     // which checks if the function operand is a real function or not, don't need to add a check again
     // If this is a call to a fixed function, we've already verified that the target is, indeed, a function.
     if (callInstr->m_opcode != Js::OpCode::CallIFixed && !(callFlags & Js::CallFlags_New))
-    {
+    {LOGMEIN("LowererMDArch.cpp] 806\n");
         Assert(functionObjOpnd->IsRegOpnd());
         IR::LabelInstr* continueAfterExLabel = Lowerer::InsertContinueAfterExceptionLabelForDebugger(m_func, callInstr, isHelper);
         GenerateFunctionObjectTest(callInstr, functionObjOpnd->AsRegOpnd(), isHelper, continueAfterExLabel);
     }
     else if (insertBeforeInstrForCFG != nullptr)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 812\n");
         RegNum dstReg = insertBeforeInstrForCFG->GetDst()->AsRegOpnd()->GetReg();
         AssertMsg(dstReg == RegArg2 || dstReg == RegArg3, "NewScObject should insert the first Argument in RegArg2/RegArg3 only based on Spread call or not.");
         insertBeforeInstrForCFGCheck = insertBeforeInstrForCFG;
@@ -830,7 +830,7 @@ LowererMDArch::LowerCallI(IR::Instr * callInstr, ushort callFlags, bool isHelper
 
     IR::AutoReuseOpnd autoReuseSavedFunctionObjOpnd;
     if (callInstr->IsJitProfilingInstr())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 832\n");
         Assert(callInstr->m_func->IsSimpleJit());
         Assert(!CONFIG_FLAG(NewSimpleJit));
 
@@ -838,7 +838,7 @@ LowererMDArch::LowerCallI(IR::Instr * callInstr, ushort callFlags, bool isHelper
             finalDst->IsRegOpnd() &&
             functionObjOpnd->IsRegOpnd() &&
             finalDst->AsRegOpnd()->m_sym == functionObjOpnd->AsRegOpnd()->m_sym)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 840\n");
             // The function object sym is going to be overwritten, so save it in a temp for profiling
             IR::RegOpnd *const savedFunctionObjOpnd = IR::RegOpnd::New(functionObjOpnd->GetType(), callInstr->m_func);
             autoReuseSavedFunctionObjOpnd.Initialize(savedFunctionObjOpnd, callInstr->m_func);
@@ -871,11 +871,11 @@ LowererMDArch::LowerCallPut(IR::Instr *callInstr)
 }
 
 static inline IRType ExtendHelperArg(IRType type)
-{
+{LOGMEIN("LowererMDArch.cpp] 873\n");
 #ifdef __clang__
     // clang expects caller to extend arg size to int
     switch (type)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 877\n");
         case TyInt8:
         case TyInt16:
             return TyInt32;
@@ -889,7 +889,7 @@ static inline IRType ExtendHelperArg(IRType type)
 
 IR::Instr *
 LowererMDArch::LowerCall(IR::Instr * callInstr, uint32 argCount)
-{
+{LOGMEIN("LowererMDArch.cpp] 891\n");
     UNREFERENCED_PARAMETER(argCount);
     IR::Instr *retInstr = callInstr;
     callInstr->m_opcode = Js::OpCode::CALL;
@@ -898,7 +898,7 @@ LowererMDArch::LowerCall(IR::Instr * callInstr, uint32 argCount)
     callInstr->m_func->SetHasCalls();
 
     if (callInstr->GetDst())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 900\n");
         IR::Opnd *       dstOpnd;
 
         this->lowererMD->ForceDstToReg(callInstr);
@@ -907,7 +907,7 @@ LowererMDArch::LowerCall(IR::Instr * callInstr, uint32 argCount)
         Js::OpCode       assignOp = GetAssignOp(dstType);
 
         if (callInstr->GetSrc1()->IsHelperCallOpnd())
-        {
+        {LOGMEIN("LowererMDArch.cpp] 909\n");
             // Truncate the result of a conversion to 32-bit int, because the C++ code doesn't.
             IR::HelperCallOpnd *helperOpnd = callInstr->GetSrc1()->AsHelperCallOpnd();
             if (helperOpnd->m_fnHelper == IR::HelperConv_ToInt32 ||
@@ -916,7 +916,7 @@ LowererMDArch::LowerCall(IR::Instr * callInstr, uint32 argCount)
                 helperOpnd->m_fnHelper == IR::HelperConv_ToUInt32 ||
                 helperOpnd->m_fnHelper == IR::HelperConv_ToUInt32_Full ||
                 helperOpnd->m_fnHelper == IR::HelperConv_ToUInt32Core)
-            {
+            {LOGMEIN("LowererMDArch.cpp] 918\n");
                 assignOp = Js::OpCode::MOV_TRUNC;
             }
         }
@@ -949,13 +949,13 @@ LowererMDArch::LowerCall(IR::Instr * callInstr, uint32 argCount)
     {
         uint16 intIndex = 1, doubleIndex = 1, stackIndex = IntArgRegsCount + 1;
         for (int i = 0; i < this->helperCallArgsCount; i++)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 951\n");
             IR::Opnd * helperSrc = this->helperCallArgs[this->helperCallArgsCount - 1 - i];
             IRType type = helperSrc->GetType();
             if (IRType_IsFloat(type) || IRType_IsSimd128(type))
-            {
+            {LOGMEIN("LowererMDArch.cpp] 955\n");
                 if (doubleIndex <= XmmArgRegsCount)
-                {
+                {LOGMEIN("LowererMDArch.cpp] 957\n");
                     _vindex[i] = doubleIndex++;
                 }
                 else
@@ -966,7 +966,7 @@ LowererMDArch::LowerCall(IR::Instr * callInstr, uint32 argCount)
             else
             {
                 if (intIndex <= IntArgRegsCount)
-                {
+                {LOGMEIN("LowererMDArch.cpp] 968\n");
                     _vindex[i] = intIndex++;
                 }
                 else
@@ -987,7 +987,7 @@ LowererMDArch::LowerCall(IR::Instr * callInstr, uint32 argCount)
     const bool shouldHomeParams = argCount > 0;
 
     while (argsLeft > 0)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 989\n");
         IR::Opnd * helperSrc = this->helperCallArgs[this->helperCallArgsCount - argsLeft];
         uint16 index = _V_ARG_INDEX(argsLeft);
         StackSym * helperSym = m_func->m_symTable->GetArgSlotSym(index);
@@ -1002,17 +1002,17 @@ LowererMDArch::LowerCall(IR::Instr * callInstr, uint32 argCount)
 #ifndef _WIN32
     // Manually home args
     if (shouldHomeParams)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 1004\n");
         const int callArgCount = this->helperCallArgsCount + static_cast<int>(argCount);
         this->preparedArgListCount = min(this->preparedArgListCount, static_cast<int>(XmmArgRegsCount));
 
         int floatCount = 0, intCount = 0;
 
         for (int i = this->preparedArgListCount - 1; i >= 0; i--)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 1011\n");
             IRType type = this->preparedArgList[i];
             if (IRType_IsFloat(type) || IRType_IsSimd128(type))
-            {
+            {LOGMEIN("LowererMDArch.cpp] 1014\n");
                 floatCount++;
             }
         }
@@ -1022,19 +1022,19 @@ LowererMDArch::LowerCall(IR::Instr * callInstr, uint32 argCount)
         int argRegs = intCount + floatCount;
 
         for (int i = argRegs; i > 0; i--)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 1024\n");
             StackSym * sym = this->m_func->m_symTable->GetArgSlotSym(static_cast<uint16>(i));
             IRType type;
             RegNum reg;
             bool isFloatArg = false;
             if (i <= this->preparedArgListCount)
-            {
+            {LOGMEIN("LowererMDArch.cpp] 1030\n");
                 type = this->preparedArgList[this->preparedArgListCount - i];
                 isFloatArg = IRType_IsFloat(type) || IRType_IsSimd128(type);
             }
 
             if (!isFloatArg)
-            {
+            {LOGMEIN("LowererMDArch.cpp] 1036\n");
                 Assert(intCount);
                 type = TyMachReg;
                 reg = GetRegFromArgPosition(false, intCount--);
@@ -1067,7 +1067,7 @@ LowererMDArch::LowerCall(IR::Instr * callInstr, uint32 argCount)
     // calls in lower.
 
     if (callInstr->GetSrc1()->IsHelperCallOpnd() && !callInstr->HasBailOutInfo())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 1069\n");
         IR::RegOpnd *targetOpnd = IR::RegOpnd::New(StackSym::New(TyMachPtr,m_func), RegRAX, TyMachPtr, this->m_func);
         IR::Instr   *movInstr   = IR::Instr::New(Js::OpCode::MOV, targetOpnd, callInstr->GetSrc1(),  this->m_func);
         targetOpnd->m_isCallArg = true;
@@ -1093,7 +1093,7 @@ LowererMDArch::LowerCall(IR::Instr * callInstr, uint32 argCount)
 //
 IR::Opnd *
 LowererMDArch::GetArgSlotOpnd(uint16 index, StackSym * argSym, bool isHelper /*= false*/)
-{
+{LOGMEIN("LowererMDArch.cpp] 1095\n");
     Assert(index != 0);
 
     uint16 argPosition = index;
@@ -1104,14 +1104,14 @@ LowererMDArch::GetArgSlotOpnd(uint16 index, StackSym * argSym, bool isHelper /*=
         m_func->GetJITFunctionBody()->IsAsmJsMode() &&
         argSym != nullptr &&
         argSym->m_argPosition != 0)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 1106\n");
         argPosition = (uint16)argSym->m_argPosition;
     }
 
     IR::Opnd *argSlotOpnd = nullptr;
 
     if (argSym != nullptr)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 1113\n");
         argSym->m_offset = (index - 1) * MachPtr;
         argSym->m_allocated = true;
     }
@@ -1121,7 +1121,7 @@ LowererMDArch::GetArgSlotOpnd(uint16 index, StackSym * argSym, bool isHelper /*=
     RegNum reg = GetRegFromArgPosition(isFloatArg, argPosition);
 
     if (reg != RegNOREG)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 1123\n");
         IR::RegOpnd *regOpnd = IR::RegOpnd::New(argSym, reg, type, m_func);
         regOpnd->m_isCallArg = true;
 
@@ -1130,14 +1130,14 @@ LowererMDArch::GetArgSlotOpnd(uint16 index, StackSym * argSym, bool isHelper /*=
     else
     {
         if (argSym == nullptr)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 1132\n");
             argSym = this->m_func->m_symTable->GetArgSlotSym(index);
         }
 
 #ifndef _WIN32
         // helper does not home args, adjust stack offset
         if (isHelper)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 1139\n");
             const uint16 argIndex = index - IntArgRegsCount;
             argSym->m_offset = (argIndex - 1) * MachPtr;
         }
@@ -1151,7 +1151,7 @@ LowererMDArch::GetArgSlotOpnd(uint16 index, StackSym * argSym, bool isHelper /*=
 
 IR::Instr *
 LowererMDArch::LowerAsmJsCallE(IR::Instr *callInstr)
-{
+{LOGMEIN("LowererMDArch.cpp] 1153\n");
     IR::IntConstOpnd *callInfo;
     int32 argCount = this->LowerCallArgs(callInstr, Js::CallFlags_Value, 1, &callInfo);
 
@@ -1162,7 +1162,7 @@ LowererMDArch::LowerAsmJsCallE(IR::Instr *callInstr)
 
 IR::Instr *
 LowererMDArch::LowerAsmJsCallI(IR::Instr * callInstr)
-{
+{LOGMEIN("LowererMDArch.cpp] 1164\n");
     int32 argCount = this->LowerCallArgs(callInstr, Js::CallFlags_Value, 0);
 
     IR::Instr* ret = this->LowerCall(callInstr, argCount);
@@ -1172,10 +1172,10 @@ LowererMDArch::LowerAsmJsCallI(IR::Instr * callInstr)
 
 IR::Instr *
 LowererMDArch::LowerWasmMemOp(IR::Instr * instr, IR::Opnd *addrOpnd)
-{
+{LOGMEIN("LowererMDArch.cpp] 1174\n");
 #if ENABLE_FAST_ARRAYBUFFER
     if (CONFIG_FLAG(WasmFastArray))
-    {
+    {LOGMEIN("LowererMDArch.cpp] 1177\n");
         return instr;
     }
 #endif
@@ -1201,7 +1201,7 @@ LowererMDArch::LowerWasmMemOp(IR::Instr * instr, IR::Opnd *addrOpnd)
 
 IR::Instr*
 LowererMDArch::LowerAsmJsLdElemHelper(IR::Instr * instr, bool isSimdLoad /*= false*/, bool checkEndOffset /*= false*/)
-{
+{LOGMEIN("LowererMDArch.cpp] 1203\n");
     IR::Instr* done;
     IR::Opnd * src1 = instr->UnlinkSrc1();
     IRType type = src1->GetType();
@@ -1217,13 +1217,13 @@ LowererMDArch::LowerAsmJsLdElemHelper(IR::Instr * instr, bool isSimdLoad /*= fal
     // xplat: Always do bound check. We don't support out-of-bound access violation recovery.
     if (true)
 #endif
-    {
+    {LOGMEIN("LowererMDArch.cpp] 1219\n");
         IR::LabelInstr * helperLabel = Lowerer::InsertLabel(true, instr);
         IR::LabelInstr * loadLabel = Lowerer::InsertLabel(false, instr);
         IR::LabelInstr * doneLabel = Lowerer::InsertLabel(false, instr);
         IR::Opnd *cmpOpnd;
         if (indexOpnd)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 1225\n");
             cmpOpnd = indexOpnd;
         }
         else
@@ -1233,7 +1233,7 @@ LowererMDArch::LowerAsmJsLdElemHelper(IR::Instr * instr, bool isSimdLoad /*= fal
 
         // if dataWidth != byte per element, we need to check end offset
         if (checkEndOffset)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 1235\n");
             IR::RegOpnd *tmp = IR::RegOpnd::New(cmpOpnd->GetType(), m_func);
             // MOV tmp, cmpOnd
             Lowerer::InsertMove(tmp, cmpOpnd, helperLabel);
@@ -1250,13 +1250,13 @@ LowererMDArch::LowerAsmJsLdElemHelper(IR::Instr * instr, bool isSimdLoad /*= fal
         Lowerer::InsertBranch(Js::OpCode::Br, loadLabel, helperLabel);
 
         if (isSimdLoad)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 1252\n");
             lowererMD->m_lowerer->GenerateRuntimeError(loadLabel, JSERR_ArgumentOutOfRange, IR::HelperOp_RuntimeRangeError);
         }
         else
         {
             if (IRType_IsFloat(type))
-            {
+            {LOGMEIN("LowererMDArch.cpp] 1258\n");
                 Lowerer::InsertMove(instr->UnlinkDst(), IR::FloatConstOpnd::New(Js::NumberConstants::NaN, type, m_func), loadLabel);
             }
             else
@@ -1278,7 +1278,7 @@ LowererMDArch::LowerAsmJsLdElemHelper(IR::Instr * instr, bool isSimdLoad /*= fal
 
 IR::Instr*
 LowererMDArch::LowerAsmJsStElemHelper(IR::Instr * instr, bool isSimdStore /*= false*/, bool checkEndOffset /*= false*/)
-{
+{LOGMEIN("LowererMDArch.cpp] 1280\n");
     IR::Instr* done;
     IR::Opnd * dst = instr->UnlinkDst();
     IR::RegOpnd * indexOpnd = dst->AsIndirOpnd()->GetIndexOpnd();
@@ -1293,13 +1293,13 @@ LowererMDArch::LowerAsmJsStElemHelper(IR::Instr * instr, bool isSimdStore /*= fa
     // xplat: Always do bound check. We don't support out-of-bound access violation recovery.
     if (true)
 #endif
-    {
+    {LOGMEIN("LowererMDArch.cpp] 1295\n");
         IR::LabelInstr * helperLabel = Lowerer::InsertLabel(true, instr);
         IR::LabelInstr * storeLabel = Lowerer::InsertLabel(false, instr);
         IR::LabelInstr * doneLabel = Lowerer::InsertLabel(false, instr);
         IR::Opnd * cmpOpnd;
         if (indexOpnd)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 1301\n");
             cmpOpnd = dst->AsIndirOpnd()->GetIndexOpnd();
         }
         else
@@ -1309,7 +1309,7 @@ LowererMDArch::LowerAsmJsStElemHelper(IR::Instr * instr, bool isSimdStore /*= fa
 
         // if dataWidth != byte per element, we need to check end offset
         if (checkEndOffset)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 1311\n");
             IR::RegOpnd *tmp = IR::RegOpnd::New(cmpOpnd->GetType(), m_func);
             // MOV tmp, cmpOnd
             Lowerer::InsertMove(tmp, cmpOpnd, helperLabel);
@@ -1326,7 +1326,7 @@ LowererMDArch::LowerAsmJsStElemHelper(IR::Instr * instr, bool isSimdStore /*= fa
         Lowerer::InsertBranch(Js::OpCode::Br, storeLabel, helperLabel);
 
         if (isSimdStore)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 1328\n");
             lowererMD->m_lowerer->GenerateRuntimeError(storeLabel, JSERR_ArgumentOutOfRange, IR::HelperOp_RuntimeRangeError);
         }
 
@@ -1351,14 +1351,14 @@ LowererMDArch::LowerAsmJsStElemHelper(IR::Instr * instr, bool isSimdStore /*= fa
 
 IR::Instr *
 LowererMDArch::LowerStartCall(IR::Instr * startCallInstr)
-{
+{LOGMEIN("LowererMDArch.cpp] 1353\n");
     startCallInstr->m_opcode = Js::OpCode::LoweredStartCall;
     return startCallInstr;
 }
 
 IR::Instr *
 LowererMDArch::LoadInt64HelperArgument(IR::Instr * instrInsert, IR::Opnd * opndArg)
-{
+{LOGMEIN("LowererMDArch.cpp] 1360\n");
     return LoadHelperArgument(instrInsert, opndArg);
 }
 
@@ -1372,11 +1372,11 @@ LowererMDArch::LoadInt64HelperArgument(IR::Instr * instrInsert, IR::Opnd * opndA
 
 IR::Instr *
 LowererMDArch::LoadHelperArgument(IR::Instr *instr, IR::Opnd *opndArg)
-{
+{LOGMEIN("LowererMDArch.cpp] 1374\n");
     IR::Opnd *destOpnd;
     IR::Instr *instrToReturn;
     if(opndArg->IsImmediateOpnd())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 1378\n");
         destOpnd = opndArg;
         instrToReturn = instr;
     }
@@ -1397,7 +1397,7 @@ LowererMDArch::LoadHelperArgument(IR::Instr *instr, IR::Opnd *opndArg)
 
 IR::Instr *
 LowererMDArch::LoadDynamicArgument(IR::Instr *instr, uint argNumber)
-{
+{LOGMEIN("LowererMDArch.cpp] 1399\n");
     Assert(instr->m_opcode == Js::OpCode::ArgOut_A_Dynamic);
     Assert(instr->GetSrc2() == nullptr);
 
@@ -1406,7 +1406,7 @@ LowererMDArch::LoadDynamicArgument(IR::Instr *instr, uint argNumber)
     instr->SetDst(dst);
 
     if (!dst->IsRegOpnd())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 1408\n");
         //TODO: Move it to legalizer.
         IR::RegOpnd *tempOpnd = IR::RegOpnd::New(TyMachReg, instr->m_func);
         instr->InsertBefore(IR::Instr::New(Js::OpCode::MOV, tempOpnd, instr->GetSrc1(), instr->m_func));
@@ -1417,7 +1417,7 @@ LowererMDArch::LoadDynamicArgument(IR::Instr *instr, uint argNumber)
 
 IR::Instr *
 LowererMDArch::LoadDynamicArgumentUsingLength(IR::Instr *instr)
-{
+{LOGMEIN("LowererMDArch.cpp] 1419\n");
     Assert(instr->m_opcode == Js::OpCode::ArgOut_A_Dynamic);
     IR::RegOpnd* src2 = instr->UnlinkSrc2()->AsRegOpnd();
 
@@ -1436,10 +1436,10 @@ LowererMDArch::LoadDynamicArgumentUsingLength(IR::Instr *instr)
 
 IR::Instr *
 LowererMDArch::LoadDoubleHelperArgument(IR::Instr * instrInsert, IR::Opnd * opndArg)
-{
+{LOGMEIN("LowererMDArch.cpp] 1438\n");
     IR::Opnd * float64Opnd;
     if (opndArg->GetType() == TyFloat32)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 1441\n");
         float64Opnd = IR::RegOpnd::New(TyFloat64, m_func);
         IR::Instr * instr = IR::Instr::New(Js::OpCode::CVTSS2SD, float64Opnd, opndArg, this->m_func);
         instrInsert->InsertBefore(instr);
@@ -1456,7 +1456,7 @@ LowererMDArch::LoadDoubleHelperArgument(IR::Instr * instrInsert, IR::Opnd * opnd
 
 IR::Instr *
 LowererMDArch::LoadFloatHelperArgument(IR::Instr * instrInsert, IR::Opnd * opndArg)
-{
+{LOGMEIN("LowererMDArch.cpp] 1458\n");
     Assert(opndArg->IsFloat32());
     return LoadHelperArgument(instrInsert, opndArg);
 }
@@ -1467,7 +1467,7 @@ LowererMDArch::LoadFloatHelperArgument(IR::Instr * instrInsert, IR::Opnd * opndA
 //
 void
 LowererMDArch::GenerateStackAllocation(IR::Instr *instr, uint32 size)
-{
+{LOGMEIN("LowererMDArch.cpp] 1469\n");
     Assert(size > 0);
 
     IR::RegOpnd *       rspOpnd         = IR::RegOpnd::New(nullptr, RegRSP, TyMachReg, this->m_func);
@@ -1477,7 +1477,7 @@ LowererMDArch::GenerateStackAllocation(IR::Instr *instr, uint32 size)
     IR::IntConstOpnd *  stackSizeOpnd   = IR::IntConstOpnd::New(size, TyMachReg, this->m_func);
 
     if (size <= PAGESIZE)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 1479\n");
         // Generate SUB RSP, stackSize
 
         IR::Instr * subInstr = IR::Instr::New(Js::OpCode::SUB,
@@ -1507,7 +1507,7 @@ LowererMDArch::GenerateStackAllocation(IR::Instr *instr, uint32 size)
 
         this->LowerCall(callInstr, 0);
 
-        {
+        {LOGMEIN("LowererMDArch.cpp] 1509\n");
             IR::Instr   *movHelperAddrInstr = IR::Instr::New(
                 Js::OpCode::MOV,
                 rcxOpnd,
@@ -1523,7 +1523,7 @@ LowererMDArch::GenerateStackAllocation(IR::Instr *instr, uint32 size)
 
 void
 LowererMDArch::MovArgFromReg2Stack(IR::Instr * instr, RegNum reg, uint16 slotNumber, IRType type)
-{
+{LOGMEIN("LowererMDArch.cpp] 1525\n");
     StackSym *          slotSym   = this->m_func->m_symTable->GetArgSlotSym(slotNumber + 1);
     slotSym->m_type = type;
     IR::SymOpnd *       dst       = IR::SymOpnd::New(slotSym, type,  this->m_func);
@@ -1541,7 +1541,7 @@ LowererMDArch::MovArgFromReg2Stack(IR::Instr * instr, RegNum reg, uint16 slotNum
 ///----------------------------------------------------------------------------
 IR::Instr *
 LowererMDArch::LowerEntryInstr(IR::EntryInstr * entryInstr)
-{
+{LOGMEIN("LowererMDArch.cpp] 1543\n");
     /*
      * push   rbp
      * mov    rbp,                       rsp
@@ -1570,14 +1570,14 @@ LowererMDArch::LowerEntryInstr(IR::EntryInstr * entryInstr)
     // PDATA doesn't seem to like two consecutive "SUB RSP, size" instructions. Temporarily save and
     // restore RBX always so that the pattern doesn't occur in the prolog.
     for (RegNum reg = (RegNum)(RegNOREG + 1); reg < RegNumCount; reg = (RegNum)(reg + 1))
-    {
+    {LOGMEIN("LowererMDArch.cpp] 1572\n");
         if (LinearScan::IsCalleeSaved(reg) && (this->m_func->HasTry() || this->m_func->m_regsUsed.Test(reg)))
-        {
+        {LOGMEIN("LowererMDArch.cpp] 1574\n");
             IRType       type      = RegTypes[reg];
             IR::RegOpnd *regOpnd   = IR::RegOpnd::New(nullptr, reg, type, this->m_func);
 
             if (type == TyFloat64)
-            {
+            {LOGMEIN("LowererMDArch.cpp] 1579\n");
                 IR::Instr *saveInstr = IR::Instr::New(Js::OpCode::MOVAPS,
                                                       IR::IndirOpnd::New(stackPointer,
                                                                          xmmOffset,
@@ -1612,7 +1612,7 @@ LowererMDArch::LowerEntryInstr(IR::EntryInstr * entryInstr)
     uint32 argSlotsForFunctionsCalled = this->m_func->m_argSlotsForFunctionsCalled;
 
     if (Lowerer::IsArgSaveRequired(this->m_func))
-    {
+    {LOGMEIN("LowererMDArch.cpp] 1614\n");
         if (argSlotsForFunctionsCalled < IntArgRegsCount)
             argSlotsForFunctionsCalled = IntArgRegsCount;
     }
@@ -1631,7 +1631,7 @@ LowererMDArch::LowerEntryInstr(IR::EntryInstr * entryInstr)
 
     uint32 stackLocalsSize  = this->m_func->m_localStackHeight;
     if(xmmOffset != 0)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 1633\n");
         // Xmm registers need to be saved to 16-byte-aligned addresses. The stack locals size is aligned here and the total
         // size will be aligned below, which guarantees that the offset from rsp will be 16-byte-aligned.
         stackLocalsSize = ::Math::Align(stackLocalsSize + xmmOffset, static_cast<uint32>(MachDouble * 2));
@@ -1651,7 +1651,7 @@ LowererMDArch::LowerEntryInstr(IR::EntryInstr * entryInstr)
 
     totalStackSize += alignmentPadding;
     if(totalStackSize > (1u << 20)) // 1 MB
-    {
+    {LOGMEIN("LowererMDArch.cpp] 1653\n");
         // Total stack size is > 1 MB, let's just bail. There are things that need to be changed to allow using large stack
         // sizes, for instance in the unwind info, the offset to saved xmm registers can be (1 MB - 16) at most for the op-code
         // we're currently using (UWOP_SAVE_XMM128). To support larger offsets, we need to use a FAR version of the op-code.
@@ -1659,7 +1659,7 @@ LowererMDArch::LowerEntryInstr(IR::EntryInstr * entryInstr)
     }
 
     if (this->m_func->GetMaxInlineeArgOutCount())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 1661\n");
         this->m_func->GetJITOutput()->SetFrameHeight(this->m_func->m_localStackHeight);
     }
 
@@ -1673,7 +1673,7 @@ LowererMDArch::LowerEntryInstr(IR::EntryInstr * entryInstr)
     this->m_func->SetSpillSize(stackLocalsSize);
 
     if (secondInstr == entryInstr->m_next)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 1675\n");
         // There is no register save at all, just combine the stack allocation
         uint combineStackAllocationSize = stackArgsSize + stackLocalsSize;
         this->GenerateStackAllocation(secondInstr->m_prev, combineStackAllocationSize);
@@ -1686,7 +1686,7 @@ LowererMDArch::LowerEntryInstr(IR::EntryInstr * entryInstr)
 
         // Allocate frame.
         if (stackLocalsSize)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 1688\n");
             this->GenerateStackAllocation(entryInstr, stackLocalsSize);
             m_func->m_prologEncoder.RecordAlloca(stackLocalsSize);
         }
@@ -1711,7 +1711,7 @@ LowererMDArch::LowerEntryInstr(IR::EntryInstr * entryInstr)
         || Js::Configuration::Global.flags.IsEnabled(Js::BailOutByteCodeFlag)
 #endif
         )
-    {
+    {LOGMEIN("LowererMDArch.cpp] 1713\n");
         // TODO: Support mov [rbp - n], IMM64
         raxOpnd = IR::RegOpnd::New(nullptr, RegRAX, TyUint32, this->m_func);
         movRax0 = IR::Instr::New(Js::OpCode::XOR, raxOpnd, raxOpnd, raxOpnd, this->m_func);
@@ -1724,9 +1724,9 @@ LowererMDArch::LowerEntryInstr(IR::EntryInstr * entryInstr)
 
     // Zero initialize the first inlinee frames argc.
     if (this->m_func->GetMaxInlineeArgOutCount())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 1726\n");
         if(!movRax0)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 1728\n");
             raxOpnd = IR::RegOpnd::New(nullptr, RegRAX, TyUint32, this->m_func);
             movRax0 = IR::Instr::New(Js::OpCode::XOR, raxOpnd, raxOpnd, raxOpnd, this->m_func);
             secondInstr->m_prev->InsertAfter(movRax0);
@@ -1767,13 +1767,13 @@ LowererMDArch::LowerEntryInstr(IR::EntryInstr * entryInstr)
     // Now store all the arguments in the register in the stack slots
     //
     if (m_func->GetJITFunctionBody()->IsAsmJsMode() && !m_func->IsLoopBody())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 1769\n");
         uint16 offset = 2;
         this->MovArgFromReg2Stack(entryInstr, RegRCX, 1);
         for (uint16 i = 0; i < m_func->GetJITFunctionBody()->GetAsmJsInfo()->GetArgCount() && i < 3; i++)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 1773\n");
             switch (m_func->GetJITFunctionBody()->GetAsmJsInfo()->GetArgType(i))
-            {
+            {LOGMEIN("LowererMDArch.cpp] 1775\n");
             case Js::AsmJsVarType::Int:
                 this->MovArgFromReg2Stack(entryInstr, i == 0 ? RegRDX : i == 1 ? RegR8 : RegR9, offset, TyInt32);
                 offset++;
@@ -1841,7 +1841,7 @@ LowererMDArch::LowerEntryInstr(IR::EntryInstr * entryInstr)
         }
     }
     else if (argSlotsForFunctionsCalled)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 1843\n");
         this->MovArgFromReg2Stack(entryInstr, RegRCX, 1);
         this->MovArgFromReg2Stack(entryInstr, RegRDX, 2);
         this->MovArgFromReg2Stack(entryInstr, RegR8, 3);
@@ -1857,7 +1857,7 @@ LowererMDArch::LowerEntryInstr(IR::EntryInstr * entryInstr)
 
 void
 LowererMDArch::GeneratePrologueStackProbe(IR::Instr *entryInstr, IntConstType frameSize)
-{
+{LOGMEIN("LowererMDArch.cpp] 1859\n");
     //
     // Generate a stack overflow check. Since ProbeCurrentStack throws an exception it needs
     // an unwindable stack. Should we need to call ProbeCurrentStack, instead of creating a new frame here,
@@ -1903,7 +1903,7 @@ LowererMDArch::GeneratePrologueStackProbe(IR::Instr *entryInstr, IntConstType fr
     // Do not insert stack probe for leaf functions which have low stack footprint
     if (this->m_func->IsTrueLeaf() &&
         frameSize - Js::Constants::MinStackJIT < Js::Constants::MaxStackSizeForNoProbe)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 1905\n");
         return;
     }
 
@@ -1916,9 +1916,9 @@ LowererMDArch::GeneratePrologueStackProbe(IR::Instr *entryInstr, IntConstType fr
     // MOV rax, ThreadContext::scriptStackLimit + frameSize
     stackLimitOpnd = IR::RegOpnd::New(nullptr, RegRAX, TyMachReg, this->m_func);
     if (doInterruptProbe || !m_func->GetThreadContextInfo()->IsThreadBound())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 1918\n");
         // Load the current stack limit from the ThreadContext and add the current frame size.
-        {
+        {LOGMEIN("LowererMDArch.cpp] 1920\n");
             intptr_t pLimit = m_func->GetThreadContextInfo()->GetThreadStackLimitAddr();
             IR::RegOpnd *baseOpnd = IR::RegOpnd::New(nullptr, RegRAX, TyMachReg, this->m_func);
             this->lowererMD->CreateAssign(baseOpnd, IR::AddrOpnd::New(pLimit, IR::AddrOpndKindDynamicMisc, this->m_func), insertInstr);
@@ -1932,7 +1932,7 @@ LowererMDArch::GeneratePrologueStackProbe(IR::Instr *entryInstr, IntConstType fr
         insertInstr->InsertBefore(instr);
 
         if (doInterruptProbe)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 1934\n");
             // If the add overflows, call the probe helper.
             instr = IR::BranchInstr::New(Js::OpCode::JO, helperLabel, this->m_func);
             insertInstr->InsertBefore(instr);
@@ -1954,7 +1954,7 @@ LowererMDArch::GeneratePrologueStackProbe(IR::Instr *entryInstr, IntConstType fr
 
     IR::LabelInstr * doneLabel = nullptr;
     if (!PHASE_OFF(Js::LayoutPhase, this->m_func))
-    {
+    {LOGMEIN("LowererMDArch.cpp] 1956\n");
         // JLE $helper
         instr = IR::BranchInstr::New(Js::OpCode::JLE, helperLabel, m_func);
         insertInstr->InsertBefore(instr);
@@ -1998,7 +1998,7 @@ LowererMDArch::GeneratePrologueStackProbe(IR::Instr *entryInstr, IntConstType fr
     insertInstr->InsertBefore(instr);
 
     if (doneLabel)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2000\n");
         // $done:
         insertInstr->InsertBefore(doneLabel);
         Security::InsertRandomFunctionPad(doneLabel);
@@ -2016,7 +2016,7 @@ LowererMDArch::GeneratePrologueStackProbe(IR::Instr *entryInstr, IntConstType fr
 
 IR::Instr *
 LowererMDArch::LowerExitInstr(IR::ExitInstr * exitInstr)
-{
+{LOGMEIN("LowererMDArch.cpp] 2018\n");
     uint32 savedRegSize = 0;
 
     // POP used callee-saved registers
@@ -2029,14 +2029,14 @@ LowererMDArch::LowerExitInstr(IR::ExitInstr * exitInstr)
     unsigned xmmOffset = 0;
 
     for (RegNum reg = (RegNum)(RegNOREG + 1); reg < RegNumCount; reg = (RegNum)(reg+1))
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2031\n");
         if (LinearScan::IsCalleeSaved(reg) && (this->m_func->HasTry() || this->m_func->m_regsUsed.Test(reg)))
-        {
+        {LOGMEIN("LowererMDArch.cpp] 2033\n");
             IRType       type    = RegTypes[reg];
             IR::RegOpnd *regOpnd = IR::RegOpnd::New(nullptr, reg, type, this->m_func);
 
             if (type == TyFloat64)
-            {
+            {LOGMEIN("LowererMDArch.cpp] 2038\n");
                 IR::Instr *restoreInstr = IR::Instr::New(Js::OpCode::MOVAPS,
                                                          regOpnd,
                                                          IR::IndirOpnd::New(stackPointer,
@@ -2066,7 +2066,7 @@ LowererMDArch::LowerExitInstr(IR::ExitInstr * exitInstr)
     uint32 stackArgsSize = this->m_func->GetArgsSize();
     Assert(stackArgsSize);
     if (savedRegSize || xmmOffset)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2068\n");
         IR::IntConstOpnd *stackSizeOpnd = IR::IntConstOpnd::New(stackArgsSize, TyMachReg, this->m_func);
         IR::Instr *addInstr = IR::Instr::New(Js::OpCode::ADD, stackPointer, stackPointer, stackSizeOpnd, this->m_func);
         exitPrevInstr->InsertAfter(addInstr);
@@ -2094,9 +2094,9 @@ LowererMDArch::LowerExitInstr(IR::ExitInstr * exitInstr)
     IR::IntConstOpnd * intSrc = IR::IntConstOpnd::New(0, TyInt32, this->m_func);
     IR::RegOpnd *retReg = nullptr;
     if (m_func->GetJITFunctionBody()->IsAsmJsMode() && !m_func->IsLoopBody())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2096\n");
         switch (m_func->GetJITFunctionBody()->GetAsmJsInfo()->GetRetType())
-        {
+        {LOGMEIN("LowererMDArch.cpp] 2098\n");
         case Js::AsmJsRetType::Double:
         case Js::AsmJsRetType::Float:
             retReg = IR::RegOpnd::New(nullptr, this->GetRegReturnAsmJs(TyMachDouble), TyMachDouble, this->m_func);
@@ -2159,31 +2159,31 @@ LowererMDArch::LowerExitInstr(IR::ExitInstr * exitInstr)
 
 IR::Instr *
 LowererMDArch::LowerEntryInstrAsmJs(IR::EntryInstr * entryInstr)
-{
+{LOGMEIN("LowererMDArch.cpp] 2161\n");
     // prologue is almost identical on x64, except for loading args
     return LowerEntryInstr(entryInstr);
 }
 
 IR::Instr *
 LowererMDArch::LowerExitInstrAsmJs(IR::ExitInstr * exitInstr)
-{
+{LOGMEIN("LowererMDArch.cpp] 2168\n");
     // epilogue is almost identical on x64, except for return register
     return LowerExitInstr(exitInstr);
 }
 
 IR::Instr *
 LowererMDArch::LowerInt64Assign(IR::Instr * instr)
-{
+{LOGMEIN("LowererMDArch.cpp] 2175\n");
     this->lowererMD->ChangeToAssign(instr);
     return instr;
 }
 
 void
 LowererMDArch::EmitPtrInstr(IR::Instr *instr)
-{
+{LOGMEIN("LowererMDArch.cpp] 2182\n");
     bool legalize = false;
     switch (instr->m_opcode)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2185\n");
     case Js::OpCode::Add_Ptr:
         LowererMD::ChangeToAdd(instr, false /* needFlags */);
         legalize = true;
@@ -2195,7 +2195,7 @@ LowererMDArch::EmitPtrInstr(IR::Instr *instr)
     // OpEq's
 
     if (legalize)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2197\n");
         LowererMD::Legalize(instr);
     }
     else
@@ -2206,7 +2206,7 @@ LowererMDArch::EmitPtrInstr(IR::Instr *instr)
 
 void
 LowererMDArch::EmitInt4Instr(IR::Instr *instr, bool signExtend /* = false */)
-{
+{LOGMEIN("LowererMDArch.cpp] 2208\n");
     IR::Opnd *dst       = instr->GetDst();
     IR::Opnd *src1      = instr->GetSrc1();
     IR::Opnd *src2      = instr->GetSrc2();
@@ -2216,17 +2216,17 @@ LowererMDArch::EmitInt4Instr(IR::Instr *instr, bool signExtend /* = false */)
     bool legalize = false;
     bool isInt64Instr = instr->AreAllOpndInt64();
     if (!isInt64Instr)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2218\n");
         if (dst && !dst->IsUInt32())
-        {
+        {LOGMEIN("LowererMDArch.cpp] 2220\n");
             dst->SetType(TyInt32);
         }
         if (!src1->IsUInt32())
-        {
+        {LOGMEIN("LowererMDArch.cpp] 2224\n");
             src1->SetType(TyInt32);
         }
         if (src2 && !src2->IsUInt32())
-        {
+        {LOGMEIN("LowererMDArch.cpp] 2228\n");
             src2->SetType(TyInt32);
         }
     }
@@ -2236,7 +2236,7 @@ LowererMDArch::EmitInt4Instr(IR::Instr *instr, bool signExtend /* = false */)
     }
 
     switch (instr->m_opcode)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2238\n");
     case Js::OpCode::Neg_I4:
         instr->m_opcode = Js::OpCode::NEG;
         break;
@@ -2265,10 +2265,10 @@ LowererMDArch::EmitInt4Instr(IR::Instr *instr, bool signExtend /* = false */)
     case Js::OpCode::Rem_I4:
         instr->SinkDst(Js::OpCode::MOV, RegRDX);
 idiv_common:
-        {
+        {LOGMEIN("LowererMDArch.cpp] 2267\n");
             bool isUnsigned = instr->GetSrc1()->IsUnsigned();
             if (isUnsigned)
-            {
+            {LOGMEIN("LowererMDArch.cpp] 2270\n");
                 Assert(instr->GetSrc2()->IsUnsigned());
                 instr->m_opcode = Js::OpCode::DIV;
             }
@@ -2281,7 +2281,7 @@ idiv_common:
             regEDX = IR::RegOpnd::New(src1->GetType(), instr->m_func);
             regEDX->SetReg(RegRDX);
             if (isUnsigned)
-            {
+            {LOGMEIN("LowererMDArch.cpp] 2283\n");
                 // we need to ensure that register allocator doesn't muck about with rdx
                 instr->HoistSrc2(Js::OpCode::MOV, RegRCX);
 
@@ -2294,7 +2294,7 @@ idiv_common:
             else
             {
                 if (instr->GetSrc2()->IsImmediateOpnd())
-                {
+                {LOGMEIN("LowererMDArch.cpp] 2296\n");
                     instr->HoistSrc2(Js::OpCode::MOV);
                 }
                 instr->InsertBefore(IR::Instr::New(isInt64Instr ? Js::OpCode::CQO : Js::OpCode::CDQ, regEDX, instr->m_func));
@@ -2388,7 +2388,7 @@ br2_Common:
     }
 
     if (signExtend)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2390\n");
         Assert(instr->GetDst());
         IR::Opnd *dst64 = instr->GetDst()->Copy(instr->m_func);
         dst64->SetType(TyMachReg);
@@ -2396,7 +2396,7 @@ br2_Common:
     }
 
     if(legalize)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2398\n");
         LowererMD::Legalize(instr);
     }
     else
@@ -2409,7 +2409,7 @@ br2_Common:
 #if !FLOATVAR
 void
 LowererMDArch::EmitLoadVar(IR::Instr *instrLoad, bool isFromUint32, bool isHelper)
-{
+{LOGMEIN("LowererMDArch.cpp] 2411\n");
     //    e1  = MOV e_src1
     //    e1  = SHL e1, Js::VarTag_Shift
     //          JO $ToVar
@@ -2436,16 +2436,16 @@ LowererMDArch::EmitLoadVar(IR::Instr *instrLoad, bool isFromUint32, bool isHelpe
     src1->SetType(TyInt32);
 
     if (src1->IsTaggedInt())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2438\n");
         isInt = true;
     }
     else if (src1->IsNotInt())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2442\n");
         isNotInt = true;
     }
 
     if (!isNotInt)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2447\n");
         // e1 = MOV e_src1
         IR::RegOpnd *e1 = IR::RegOpnd::New(TyInt32, m_func);
         instrLoad->InsertBefore(IR::Instr::New(Js::OpCode::MOV, e1, instrLoad->GetSrc1(), m_func));
@@ -2458,13 +2458,13 @@ LowererMDArch::EmitLoadVar(IR::Instr *instrLoad, bool isFromUint32, bool isHelpe
 
 
         if (!isInt)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 2460\n");
             // JO $ToVar
             toVar = IR::LabelInstr::New(Js::OpCode::Label, m_func, true);
             instrLoad->InsertBefore(IR::BranchInstr::New(Js::OpCode::JO, toVar, m_func));
 
             if (isFromUint32)
-            {
+            {LOGMEIN("LowererMDArch.cpp] 2466\n");
                 //       JB  $ToVar     [isFromUint32]
                 instrLoad->InsertBefore(IR::BranchInstr::New(Js::OpCode::JB, toVar, this->m_func));
             }
@@ -2477,7 +2477,7 @@ LowererMDArch::EmitLoadVar(IR::Instr *instrLoad, bool isFromUint32, bool isHelpe
         instrLoad->InsertBefore(IR::Instr::New(Js::OpCode::MOVSXD, dst, e1, m_func));
 
         if (!isInt)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 2479\n");
             // JMP $done
             done = IR::LabelInstr::New(Js::OpCode::Label, m_func, isHelper);
             instrLoad->InsertBefore(IR::BranchInstr::New(Js::OpCode::JMP, done, m_func));
@@ -2486,10 +2486,10 @@ LowererMDArch::EmitLoadVar(IR::Instr *instrLoad, bool isFromUint32, bool isHelpe
 
     IR::Instr *insertInstr = instrLoad;
     if (!isInt)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2488\n");
         // $toVar:
         if (toVar)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 2491\n");
             instrLoad->InsertBefore(toVar);
         }
 
@@ -2498,7 +2498,7 @@ LowererMDArch::EmitLoadVar(IR::Instr *instrLoad, bool isFromUint32, bool isHelpe
     }
 
     if (done)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2500\n");
         instrLoad->InsertAfter(done);
     }
 
@@ -2508,7 +2508,7 @@ LowererMDArch::EmitLoadVar(IR::Instr *instrLoad, bool isFromUint32, bool isHelpe
 
 void
 LowererMDArch::EmitLoadVar(IR::Instr *instrLoad, bool isFromUint32, bool isHelper)
-{
+{LOGMEIN("LowererMDArch.cpp] 2510\n");
     //    MOV_TRUNC e1, e_src1
     //    CMP e1, 0             [uint32]
     //    JLT $Helper           [uint32]  -- overflows?
@@ -2533,11 +2533,11 @@ LowererMDArch::EmitLoadVar(IR::Instr *instrLoad, bool isFromUint32, bool isHelpe
     src1->SetType(TyInt32);
 
     if (src1->IsTaggedInt())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2535\n");
         isInt = true;
     }
     else if (src1->IsNotInt())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2539\n");
         // ToVar()
         this->lowererMD->EmitLoadVarNoCheck(dst->AsRegOpnd(), src1, instrLoad, isFromUint32, isHelper);
         return;
@@ -2555,7 +2555,7 @@ LowererMDArch::EmitLoadVar(IR::Instr *instrLoad, bool isFromUint32, bool isHelpe
         m_func));
 
     if (!isInt && isFromUint32)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2557\n");
         // CMP e1, 0
         IR::Instr *instr = IR::Instr::New(Js::OpCode::CMP, m_func);
         instr->SetSrc1(e1);
@@ -2583,7 +2583,7 @@ LowererMDArch::EmitLoadVar(IR::Instr *instrLoad, bool isFromUint32, bool isHelpe
         m_func));
 
     if (labelHelper)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2585\n");
         Assert(isFromUint32);
 
         // JMP $done
@@ -2605,11 +2605,11 @@ LowererMDArch::EmitLoadVar(IR::Instr *instrLoad, bool isFromUint32, bool isHelpe
 
 void
 LowererMDArch::EmitIntToFloat(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert)
-{
+{LOGMEIN("LowererMDArch.cpp] 2607\n");
     Assert(dst->IsRegOpnd() && dst->IsFloat());
     Assert(src->IsRegOpnd() && src->IsInt32());
     if (dst->IsFloat64())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2611\n");
         // Use MOVD to make sure we sign extended the 32-bit src
         instrInsert->InsertBefore(IR::Instr::New(Js::OpCode::MOVD, dst, src, this->m_func));
 
@@ -2625,7 +2625,7 @@ LowererMDArch::EmitIntToFloat(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInse
 
 void
 LowererMDArch::EmitIntToLong(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert)
-{
+{LOGMEIN("LowererMDArch.cpp] 2627\n");
     Assert(dst->IsRegOpnd() && dst->IsInt64());
     Assert(src->IsInt32());
 
@@ -2634,7 +2634,7 @@ LowererMDArch::EmitIntToLong(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInser
 
 void
 LowererMDArch::EmitUIntToLong(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert)
-{
+{LOGMEIN("LowererMDArch.cpp] 2636\n");
     Assert(dst->IsRegOpnd() && dst->IsInt64());
     Assert(src->IsUInt32());
 
@@ -2643,7 +2643,7 @@ LowererMDArch::EmitUIntToLong(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInse
 
 void
 LowererMDArch::EmitLongToInt(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert)
-{
+{LOGMEIN("LowererMDArch.cpp] 2645\n");
     Assert(dst->IsRegOpnd() && dst->IsInt32());
     Assert(src->IsInt64());
 
@@ -2652,7 +2652,7 @@ LowererMDArch::EmitLongToInt(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInser
 
 void
 LowererMDArch::EmitUIntToFloat(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert)
-{
+{LOGMEIN("LowererMDArch.cpp] 2654\n");
     Assert(dst->IsRegOpnd() && dst->IsFloat());
     Assert(src->IsRegOpnd() && (src->IsInt32() || src->IsUInt32()));
 
@@ -2667,7 +2667,7 @@ LowererMDArch::EmitUIntToFloat(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrIns
 
 bool
 LowererMDArch::EmitLoadInt32(IR::Instr *instrLoad, bool conversionFromObjectAllowed)
-{
+{LOGMEIN("LowererMDArch.cpp] 2669\n");
     //
     //    r1 = MOV src1
     // rtest = MOV src1
@@ -2697,16 +2697,16 @@ LowererMDArch::EmitLoadInt32(IR::Instr *instrLoad, bool conversionFromObjectAllo
     IR::LabelInstr *done   = nullptr;
 
     if (src1->IsTaggedInt())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2699\n");
         isInt = true;
     }
     else if (src1->IsNotInt())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2703\n");
         isNotInt = true;
     }
 
     if (src1->IsEqual(instrLoad->GetDst()) == false)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2708\n");
         // r1 = MOV src1
         IR::RegOpnd *r1 = IR::RegOpnd::New(TyVar, instrLoad->m_func);
         r1->SetValueType(src1->GetValueType());
@@ -2720,11 +2720,11 @@ LowererMDArch::EmitLoadInt32(IR::Instr *instrLoad, bool conversionFromObjectAllo
                 !(instrLoad->HasBailOutInfo() && (instrLoad->GetBailOutKind() == IR::BailOutIntOnly || instrLoad->GetBailOutKind() == IR::BailOutExpectingInteger));
 
     if (!isNotInt)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2722\n");
         if (!isInt)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 2724\n");
             if(doFloatToIntFastPath)
-            {
+            {LOGMEIN("LowererMDArch.cpp] 2726\n");
                 labelFloat = IR::LabelInstr::New(Js::OpCode::Label, instrLoad->m_func, false);
             }
             else
@@ -2761,7 +2761,7 @@ LowererMDArch::EmitLoadInt32(IR::Instr *instrLoad, bool conversionFromObjectAllo
                                                instrLoad->m_func));
 #endif
         if (!isInt)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 2763\n");
             // JMP $done
             done = instrLoad->GetOrCreateContinueLabel();
             instrLoad->InsertBefore(IR::BranchInstr::New(Js::OpCode::JMP, done, m_func));
@@ -2769,20 +2769,20 @@ LowererMDArch::EmitLoadInt32(IR::Instr *instrLoad, bool conversionFromObjectAllo
     }
 
     if (!isInt)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2771\n");
         if(doFloatToIntFastPath)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 2773\n");
             if(labelFloat)
-            {
+            {LOGMEIN("LowererMDArch.cpp] 2775\n");
                 instrLoad->InsertBefore(labelFloat);
             }
             if(!helper)
-            {
+            {LOGMEIN("LowererMDArch.cpp] 2779\n");
                 helper = IR::LabelInstr::New(Js::OpCode::Label, instrLoad->m_func, true);
             }
 
             if(!done)
-            {
+            {LOGMEIN("LowererMDArch.cpp] 2784\n");
                 done = instrLoad->GetOrCreateContinueLabel();
             }
 #if FLOATVAR
@@ -2796,11 +2796,11 @@ LowererMDArch::EmitLoadInt32(IR::Instr *instrLoad, bool conversionFromObjectAllo
 
         // $helper:
         if (helper)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 2798\n");
             instrLoad->InsertBefore(helper);
         }
         if(instrLoad->HasBailOutInfo() && (instrLoad->GetBailOutKind() == IR::BailOutIntOnly || instrLoad->GetBailOutKind() == IR::BailOutExpectingInteger))
-        {
+        {LOGMEIN("LowererMDArch.cpp] 2802\n");
             // Avoid bailout if we have a JavascriptNumber whose value is a signed 32-bit integer
             lowererMD->m_lowerer->LoadInt32FromUntaggedVar(instrLoad);
 
@@ -2809,7 +2809,7 @@ LowererMDArch::EmitLoadInt32(IR::Instr *instrLoad, bool conversionFromObjectAllo
         }
 
         if (conversionFromObjectAllowed)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 2811\n");
             lowererMD->m_lowerer->LowerUnaryHelperMem(instrLoad, IR::HelperConv_ToInt32);
         }
         else
@@ -2827,7 +2827,7 @@ LowererMDArch::EmitLoadInt32(IR::Instr *instrLoad, bool conversionFromObjectAllo
 
 IR::Instr *
 LowererMDArch::LoadCheckedFloat(IR::RegOpnd *opndOrig, IR::RegOpnd *opndFloat, IR::LabelInstr *labelInline, IR::LabelInstr *labelHelper, IR::Instr *instrInsert, const bool checkForNullInLoopBody)
-{
+{LOGMEIN("LowererMDArch.cpp] 2829\n");
     //
     //   if (TaggedInt::Is(opndOrig))
     //       s1        = MOVSXD opndOrig_32
@@ -2853,7 +2853,7 @@ LowererMDArch::LoadCheckedFloat(IR::RegOpnd *opndOrig, IR::RegOpnd *opndFloat, I
     lowererMD->GenerateSmIntTest(opndOrig, instrInsert, labelOpndIsNotInt, &instrFirst);
 
     if (opndOrig->GetValueType().IsLikelyFloat())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2855\n");
         // Make this path helper if value is likely a float
         instrInsert->InsertBefore(IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true));
     }
@@ -2897,37 +2897,37 @@ LowererMDArch::LoadCheckedFloat(IR::RegOpnd *opndOrig, IR::RegOpnd *opndFloat, I
 
 IR::LabelInstr *
 LowererMDArch::GetBailOutStackRestoreLabel(BailOutInfo * bailOutInfo, IR::LabelInstr * exitTargetInstr)
-{
+{LOGMEIN("LowererMDArch.cpp] 2899\n");
     return exitTargetInstr;
 }
 
 bool LowererMDArch::GenerateFastAnd(IR::Instr * instrAnd)
-{
+{LOGMEIN("LowererMDArch.cpp] 2904\n");
     return true;
 }
 
 bool LowererMDArch::GenerateFastXor(IR::Instr * instrXor)
-{
+{LOGMEIN("LowererMDArch.cpp] 2909\n");
     return true;
 }
 
 bool LowererMDArch::GenerateFastOr(IR::Instr * instrOr)
-{
+{LOGMEIN("LowererMDArch.cpp] 2914\n");
     return true;
 }
 
 bool LowererMDArch::GenerateFastNot(IR::Instr * instrNot)
-{
+{LOGMEIN("LowererMDArch.cpp] 2919\n");
     return true;
 }
 
 bool LowererMDArch::GenerateFastShiftLeft(IR::Instr * instrShift)
-{
+{LOGMEIN("LowererMDArch.cpp] 2924\n");
     return true;
 }
 
 bool LowererMDArch::GenerateFastShiftRight(IR::Instr * instrShift)
-{
+{LOGMEIN("LowererMDArch.cpp] 2929\n");
     // Given:
     //
     // dst = Shr/ShrU src1, src2
@@ -2962,20 +2962,20 @@ bool LowererMDArch::GenerateFastShiftRight(IR::Instr * instrShift)
 
     // Not int?
     if (opndSrc1->IsRegOpnd() && opndSrc1->AsRegOpnd()->IsNotInt())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2964\n");
         return true;
     }
     if (opndSrc2->IsRegOpnd() && opndSrc2->AsRegOpnd()->IsNotInt())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2968\n");
         return true;
     }
 
     // Tagged ints?
     bool isTaggedInts = false;
     if (opndSrc1->IsTaggedInt())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2975\n");
         if (opndSrc2->IsTaggedInt())
-        {
+        {LOGMEIN("LowererMDArch.cpp] 2977\n");
             isTaggedInts = true;
         }
     }
@@ -2984,12 +2984,12 @@ bool LowererMDArch::GenerateFastShiftRight(IR::Instr * instrShift)
     bool src2IsIntConst = false;
 
     if (isUnsigned)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 2986\n");
         if (opndSrc2->IsRegOpnd())
-        {
+        {LOGMEIN("LowererMDArch.cpp] 2988\n");
             src2IsIntConst = opndSrc2->AsRegOpnd()->m_sym->IsTaggableIntConst();
             if (src2IsIntConst)
-            {
+            {LOGMEIN("LowererMDArch.cpp] 2991\n");
                 s2Value = opndSrc2->AsRegOpnd()->m_sym->GetIntConstValue();
             }
         }
@@ -3006,7 +3006,7 @@ bool LowererMDArch::GenerateFastShiftRight(IR::Instr * instrShift)
 
         // Unsigned shift by 0 could yield a value not encodable as a tagged int.
         if (isUnsigned && src2IsIntConst && s2Value == 0)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 3008\n");
             return true;
         }
     }
@@ -3015,7 +3015,7 @@ bool LowererMDArch::GenerateFastShiftRight(IR::Instr * instrShift)
     labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
 
     if (!isTaggedInts)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 3017\n");
         // (If not 2 Int31's, jump to $helper.)
 
         this->lowererMD->GenerateSmIntPairTest(instrShift, opndSrc1, opndSrc2, labelHelper);
@@ -3023,7 +3023,7 @@ bool LowererMDArch::GenerateFastShiftRight(IR::Instr * instrShift)
 
     opndSrc1    = opndSrc1->UseWithNewType(TyInt32, this->m_func);
     if (src2IsIntConst)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 3025\n");
         opndSrc2 = IR::IntConstOpnd::New(s2Value, TyInt32, this->m_func);
     }
     else
@@ -3038,7 +3038,7 @@ bool LowererMDArch::GenerateFastShiftRight(IR::Instr * instrShift)
     }
 
     if (!src2IsIntConst && isUnsigned)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 3040\n");
         //      TEST RCX, 0x1F             [unsigned only]  // Bail if unsigned and not shifting,
         instr = IR::Instr::New(Js::OpCode::TEST, this->m_func);
         instr->SetSrc1(opndSrc2);
@@ -3064,7 +3064,7 @@ bool LowererMDArch::GenerateFastShiftRight(IR::Instr * instrShift)
     //
 
     if(TyMachReg != opndReg->GetType())
-    {
+    {LOGMEIN("LowererMDArch.cpp] 3066\n");
         opndReg = opndReg->UseWithNewType(TyMachPtr, this->m_func);
     }
 
@@ -3094,13 +3094,13 @@ bool LowererMDArch::GenerateFastShiftRight(IR::Instr * instrShift)
 
 void
 LowererMDArch::FinalLower()
-{
+{LOGMEIN("LowererMDArch.cpp] 3096\n");
     IR::IntConstOpnd *intOpnd;
 
     FOREACH_INSTR_BACKWARD_EDITING_IN_RANGE(instr, instrPrev, this->m_func->m_tailInstr, this->m_func->m_headInstr)
-    {
+    {LOGMEIN("LowererMDArch.cpp] 3100\n");
         switch (instr->m_opcode)
-        {
+        {LOGMEIN("LowererMDArch.cpp] 3102\n");
         case Js::OpCode::LdArgSize:
             Assert(this->m_func->HasTry());
             instr->m_opcode = Js::OpCode::MOV;
@@ -3140,7 +3140,7 @@ LowererMDArch::FinalLower()
         case Js::OpCode::CMOVS:
             // Get rid of fake src1.
             if (instr->GetSrc2())
-            {
+            {LOGMEIN("LowererMDArch.cpp] 3142\n");
                 // CMOV inserted before regalloc have a dummy src1 to simulate the fact that
                 // CMOV is not a definite def of the dst.
                 instr->SwapOpnds();
@@ -3153,19 +3153,19 @@ LowererMDArch::FinalLower()
 
 IR::Opnd*
 LowererMDArch::GenerateArgOutForStackArgs(IR::Instr* callInstr, IR::Instr* stackArgsInstr)
-{
+{LOGMEIN("LowererMDArch.cpp] 3155\n");
     return this->lowererMD->m_lowerer->GenerateArgOutForStackArgs(callInstr, stackArgsInstr);
 }
 
 void
 LowererMDArch::LowerInlineSpreadArgOutLoop(IR::Instr *callInstr, IR::RegOpnd *indexOpnd, IR::RegOpnd *arrayElementsStartOpnd)
-{
+{LOGMEIN("LowererMDArch.cpp] 3161\n");
     this->lowererMD->m_lowerer->LowerInlineSpreadArgOutLoopUsingRegisters(callInstr, indexOpnd, arrayElementsStartOpnd);
 }
 
 IR::Instr *
 LowererMDArch::LowerEHRegionReturn(IR::Instr * insertBeforeInstr, IR::Opnd * targetOpnd)
-{
+{LOGMEIN("LowererMDArch.cpp] 3167\n");
     IR::RegOpnd *retReg = IR::RegOpnd::New(StackSym::New(TyMachReg, this->m_func), GetRegReturn(TyMachReg), TyMachReg, this->m_func);
 
     // Load the continuation address into the return register.

@@ -20,12 +20,12 @@ namespace JSON
             ::Js::ScriptContext* sc, const char16* current, ArenaAllocator* allocator);
 
         void Finalizer();
-        char16* GetCurrentString() { return currentString; } 
-        uint GetCurrentStringLen() { return currentIndex; }
-        uint GetScanPosition() { return uint(currentChar - inputText); }
+        char16* GetCurrentString() {LOGMEIN("JSONScanner.h] 22\n"); return currentString; } 
+        uint GetCurrentStringLen() {LOGMEIN("JSONScanner.h] 23\n"); return currentIndex; }
+        uint GetScanPosition() {LOGMEIN("JSONScanner.h] 24\n"); return uint(currentChar - inputText); }
 
         void __declspec(noreturn) ThrowSyntaxError(int wErr)
-        {
+        {LOGMEIN("JSONScanner.h] 27\n");
             char16 scanPos[16];
             ::_itow_s(GetScanPosition(), scanPos, _countof(scanPos) / sizeof(char16), 10);
             Js::JavascriptError::ThrowSyntaxError(scriptContext, wErr, scanPos);
@@ -39,8 +39,8 @@ namespace JSON
             uint m_rangeStart;
             uint m_rangeLength;
             char16 m_char;
-            RangeCharacterPair() {}
-            RangeCharacterPair(uint rangeStart, uint rangeLength, char16 ch) : m_rangeStart(rangeStart), m_rangeLength(rangeLength), m_char(ch) {}
+            RangeCharacterPair() {LOGMEIN("JSONScanner.h] 41\n");}
+            RangeCharacterPair(uint rangeStart, uint rangeLength, char16 ch) : m_rangeStart(rangeStart), m_rangeLength(rangeLength), m_char(ch) {LOGMEIN("JSONScanner.h] 42\n");}
         };
 
         typedef JsUtil::List<RangeCharacterPair, ArenaAllocator> RangeCharacterPairList;
@@ -54,12 +54,12 @@ namespace JSON
         RangeCharacterPairList* GetCurrentRangeCharacterPairList(void);
 
         inline char16 ReadNextChar(void)
-        {
+        {LOGMEIN("JSONScanner.h] 56\n");
             return *currentChar++;
         }
 
         inline char16 PeekNextChar(void)
-        {
+        {LOGMEIN("JSONScanner.h] 61\n");
             return *currentChar;
         }
 

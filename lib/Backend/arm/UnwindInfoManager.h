@@ -27,7 +27,7 @@ public:
         xdataTotal(0),
         pdataIndex(0),
         savedScratchReg(false)
-    {
+    {LOGMEIN("UnwindInfoManager.h] 29\n");
     }
 
     void Init(Func * func);
@@ -35,99 +35,99 @@ public:
     DWORD EmitLongUnwindInfoChunk(DWORD remainingLength);
 
     void SetFunc(Func *func)
-    {
+    {LOGMEIN("UnwindInfoManager.h] 37\n");
         Assert(this->func == NULL);
         this->func = func;
     }
     Func * GetFunc() const
-    {
+    {LOGMEIN("UnwindInfoManager.h] 42\n");
         return this->func;
     }
 
     void SetFragmentStart(size_t pStart)
-    {
+    {LOGMEIN("UnwindInfoManager.h] 47\n");
         this->fragmentStart = pStart;
     }
     size_t GetFragmentStart() const
-    {
+    {LOGMEIN("UnwindInfoManager.h] 51\n");
         return this->fragmentStart;
     }
 
     void SetEpilogEndOffset(DWORD offset)
-    {
+    {LOGMEIN("UnwindInfoManager.h] 56\n");
         Assert(this->epilogEndOffset == 0);
         this->epilogEndOffset = offset;
     }
     DWORD GetEpilogEndOffset() const
-    {
+    {LOGMEIN("UnwindInfoManager.h] 61\n");
         return this->epilogEndOffset;
     }
 
     void SetPrologOffset(DWORD offset)
-    {
+    {LOGMEIN("UnwindInfoManager.h] 66\n");
         Assert(this->prologOffset == 0);
         this->prologOffset = offset;
     }
     DWORD GetPrologOffset() const
-    {
+    {LOGMEIN("UnwindInfoManager.h] 71\n");
         return this->prologOffset;
     }
 
     void SetFragmentLength(DWORD length)
-    {
+    {LOGMEIN("UnwindInfoManager.h] 76\n");
         this->fragmentLength = length;
     }
     DWORD GetFragmentLength() const
-    {
+    {LOGMEIN("UnwindInfoManager.h] 80\n");
         return this->fragmentLength;
     }
 
     void SetHomedParamCount(BYTE count)
-    {
+    {LOGMEIN("UnwindInfoManager.h] 85\n");
         Assert(this->homedParamCount == 0);
         this->homedParamCount = count;
     }
     DWORD GetHomedParamCount() const
-    {
+    {LOGMEIN("UnwindInfoManager.h] 90\n");
         return this->homedParamCount;
     }
 
     void SetStackDepth(DWORD depth)
-    {
+    {LOGMEIN("UnwindInfoManager.h] 95\n");
         Assert(this->stackDepth == 0);
         this->stackDepth = depth;
     }
     DWORD GetStackDepth() const
-    {
+    {LOGMEIN("UnwindInfoManager.h] 100\n");
         return this->stackDepth;
     }
 
     void SetHasCalls(bool has)
-    {
+    {LOGMEIN("UnwindInfoManager.h] 105\n");
         this->hasCalls = has;
     }
     bool GetHasCalls() const
-    {
+    {LOGMEIN("UnwindInfoManager.h] 109\n");
         return this->hasCalls;
     }
 
     void SetPrologStartLabel(DWORD id)
-    {
+    {LOGMEIN("UnwindInfoManager.h] 114\n");
         Assert(this->prologLabelId == 0);
         this->prologLabelId = id;
     }
     DWORD GetPrologStartLabel() const
-    {
+    {LOGMEIN("UnwindInfoManager.h] 119\n");
         return this->prologLabelId;
     }
 
     void SetEpilogEndLabel(DWORD id)
-    {
+    {LOGMEIN("UnwindInfoManager.h] 124\n");
         Assert(this->epilogEndLabelId == 0);
         this->epilogEndLabelId = id;
     }
     DWORD GetEpilogEndLabel() const
-    {
+    {LOGMEIN("UnwindInfoManager.h] 129\n");
         return this->epilogEndLabelId;
     }
 
@@ -142,8 +142,8 @@ public:
     static BYTE GetLastSavedReg(DWORD mask);
     static BYTE GetFirstSavedReg(DWORD mask);
 
-    void SetSavedScratchReg(bool value) { savedScratchReg = value; }
-    bool GetSavedScratchReg() { return savedScratchReg; }
+    void SetSavedScratchReg(bool value) {LOGMEIN("UnwindInfoManager.h] 144\n"); savedScratchReg = value; }
+    bool GetSavedScratchReg() {LOGMEIN("UnwindInfoManager.h] 145\n"); return savedScratchReg; }
 
 private:
 

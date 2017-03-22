@@ -10,7 +10,7 @@ namespace Js
 
     inline SubString::SubString(void const * originalFullStringReference, const char16* subString, charcount_t length, ScriptContext *scriptContext) :
         JavascriptString(scriptContext->GetLibrary()->GetStringTypeStatic())
-    {
+    {LOGMEIN("SubString.cpp] 12\n");
         this->SetBuffer(subString);
         this->originalFullStringReference = originalFullStringReference;
         this->SetLength(length);
@@ -27,7 +27,7 @@ namespace Js
 
         ScriptContext *scriptContext = string->GetScriptContext();
         if (!length)
-        {
+        {LOGMEIN("SubString.cpp] 29\n");
             return scriptContext->GetLibrary()->GetEmptyString();
         }
 
@@ -46,7 +46,7 @@ namespace Js
         AssertMsg( IsValidCharCount(length), "length is out of range" );
 
         if (!length)
-        {
+        {LOGMEIN("SubString.cpp] 48\n");
             return scriptContext->GetLibrary()->GetEmptyString();
         }
 
@@ -55,9 +55,9 @@ namespace Js
     }
 
     const char16* SubString::GetSz()
-    {
+    {LOGMEIN("SubString.cpp] 57\n");
         if (originalFullStringReference)
-        {
+        {LOGMEIN("SubString.cpp] 59\n");
             Recycler* recycler = this->GetScriptContext()->GetRecycler();
             char16 * newInstance = AllocateLeafAndCopySz(recycler, UnsafeGetBuffer(), GetLength());
             this->SetBuffer(newInstance);
@@ -70,27 +70,27 @@ namespace Js
     }
 
     const void * SubString::GetOriginalStringReference()
-    {
+    {LOGMEIN("SubString.cpp] 72\n");
         if (originalFullStringReference != nullptr)
-        {
+        {LOGMEIN("SubString.cpp] 74\n");
             return originalFullStringReference;
         }
         return __super::GetOriginalStringReference();
     }
 
     size_t SubString::GetAllocatedByteCount() const
-    {
+    {LOGMEIN("SubString.cpp] 81\n");
         if (originalFullStringReference)
-        {
+        {LOGMEIN("SubString.cpp] 83\n");
             return 0;
         }
         return __super::GetAllocatedByteCount();
     }
 
     bool SubString::IsSubstring() const
-    {
+    {LOGMEIN("SubString.cpp] 90\n");
         if (originalFullStringReference)
-        {
+        {LOGMEIN("SubString.cpp] 92\n");
             return true;
         }
         return false;

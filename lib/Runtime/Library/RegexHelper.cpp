@@ -21,11 +21,11 @@ namespace Js
     // See also:
     //    UnifiedRegex::Parser::Options(...)
     bool RegexHelper::GetFlags(Js::ScriptContext* scriptContext, __in_ecount(strLen) const char16* str, CharCount strLen, UnifiedRegex::RegexFlags &flags)
-    {
+    {LOGMEIN("RegexHelper.cpp] 23\n");
         for (CharCount i = 0; i < strLen; i++)
-        {
+        {LOGMEIN("RegexHelper.cpp] 25\n");
             switch (str[i])
-            {
+            {LOGMEIN("RegexHelper.cpp] 27\n");
             case 'i':
                 if ((flags & UnifiedRegex::IgnoreCaseRegexFlag) != 0)
                     return false;
@@ -43,7 +43,7 @@ namespace Js
                 break;
             case 'u':
                 if (scriptContext->GetConfig()->IsES6UnicodeExtensionsEnabled())
-                {
+                {LOGMEIN("RegexHelper.cpp] 45\n");
                     if((flags & UnifiedRegex::UnicodeRegexFlag) != 0)
                         return false;
                     flags = (UnifiedRegex::RegexFlags)(flags | UnifiedRegex::UnicodeRegexFlag);
@@ -52,7 +52,7 @@ namespace Js
                 return false;
             case 'y':
                 if (scriptContext->GetConfig()->IsES6RegExStickyEnabled())
-                {
+                {LOGMEIN("RegexHelper.cpp] 54\n");
                     if ((flags & UnifiedRegex::StickyRegexFlag) != 0)
                         return false;
                     flags = (UnifiedRegex::RegexFlags)(flags | UnifiedRegex::StickyRegexFlag);
@@ -68,7 +68,7 @@ namespace Js
     }
 
     UnifiedRegex::RegexPattern* RegexHelper::CompileDynamic(ScriptContext *scriptContext, const char16* psz, CharCount csz, const char16* pszOpts, CharCount cszOpts, bool isLiteralSource)
-    {
+    {LOGMEIN("RegexHelper.cpp] 70\n");
         Assert(psz != 0 && psz[csz] == 0);
         Assert(pszOpts != 0 || cszOpts == 0);
         Assert(pszOpts == 0 || pszOpts[cszOpts] == 0);
@@ -86,7 +86,7 @@ namespace Js
         }
 
         if(isLiteralSource)
-        {
+        {LOGMEIN("RegexHelper.cpp] 88\n");
             // The source is from a literal regex, so we're cloning a literal regex. Don't use the dynamic regex MRU map since
             // these literal regex patterns' lifetimes are tied with the function body.
             return PrimCompileDynamic(scriptContext, psz, csz, pszOpts, cszOpts, isLiteralSource);
@@ -96,7 +96,7 @@ namespace Js
         UnifiedRegex::RegexPattern* pattern;
         RegexPatternMruMap* dynamicRegexMap = scriptContext->GetDynamicRegexMap();
         if (!dynamicRegexMap->TryGetValue(lookupKey, &pattern))
-        {
+        {LOGMEIN("RegexHelper.cpp] 98\n");
             pattern = PrimCompileDynamic(scriptContext, psz, csz, pszOpts, cszOpts, isLiteralSource);
 
             // WARNING: Must calculate key again so that dictionary has copy of source associated with the pattern
@@ -109,7 +109,7 @@ namespace Js
 
     UnifiedRegex::RegexPattern* RegexHelper::CompileDynamic(
         ScriptContext *scriptContext, const char16* psz, CharCount csz, UnifiedRegex::RegexFlags flags, bool isLiteralSource)
-    {
+    {LOGMEIN("RegexHelper.cpp] 111\n");
         //
         // Regex compilations are mostly string parsing based. To avoid duplicating validation rules,
         // generate a trivial options string right here on the stack and delegate to the string parsing
@@ -120,24 +120,24 @@ namespace Js
 
         CharCount i = 0;
         if (flags & UnifiedRegex::IgnoreCaseRegexFlag)
-        {
+        {LOGMEIN("RegexHelper.cpp] 122\n");
             opts[i++] = _u('i');
         }
         if (flags & UnifiedRegex::GlobalRegexFlag)
-        {
+        {LOGMEIN("RegexHelper.cpp] 126\n");
             opts[i++] = _u('g');
         }
         if (flags & UnifiedRegex::MultilineRegexFlag)
-        {
+        {LOGMEIN("RegexHelper.cpp] 130\n");
             opts[i++] = _u('m');
         }
         if (flags & UnifiedRegex::UnicodeRegexFlag)
-        {
+        {LOGMEIN("RegexHelper.cpp] 134\n");
             Assert(scriptContext->GetConfig()->IsES6UnicodeExtensionsEnabled());
             opts[i++] = _u('u');
         }
         if (flags & UnifiedRegex::StickyRegexFlag)
-        {
+        {LOGMEIN("RegexHelper.cpp] 139\n");
             Assert(scriptContext->GetConfig()->IsES6RegExStickyEnabled());
             opts[i++] = _u('y');
         }
@@ -165,7 +165,7 @@ namespace Js
         UnifiedRegex::RegexFlags flags = UnifiedRegex::NoRegexFlags;
 
         if(csz == 0 && cszOpts == 0)
-        {
+        {LOGMEIN("RegexHelper.cpp] 167\n");
             // Fast path for compiling the empty regex with empty flags, for the RegExp constructor object and other cases.
             // These empty regexes are dynamic regexes and so this fast path only exists for dynamic regex compilation. The
             // standard chars in particular, do not need to be initialized to compile this regex.
@@ -204,7 +204,7 @@ namespace Js
 #endif
             );
         try
-        {
+        {LOGMEIN("RegexHelper.cpp] 206\n");
             root = parser.ParseDynamic(psz, psz + csz, pszOpts, pszOpts + cszOpts, flags);
         }
         catch (UnifiedRegex::ParseError e)
@@ -225,12 +225,12 @@ namespace Js
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
         if (REGEX_CONFIG_FLAG(RegexProfile))
-        {
+        {LOGMEIN("RegexHelper.cpp] 227\n");
             stats = scriptContext->GetRegexStatsDatabase()->GetRegexStats(pattern);
             scriptContext->GetRegexStatsDatabase()->EndProfile(stats, UnifiedRegex::RegexStats::Parse);
         }
         if (REGEX_CONFIG_FLAG(RegexTracing))
-        {
+        {LOGMEIN("RegexHelper.cpp] 232\n");
             UnifiedRegex::DebugWriter* tw = scriptContext->GetRegexDebugWriter();
             tw->Print(_u("// REGEX COMPILE "));
             pattern->Print(tw);
@@ -283,19 +283,19 @@ namespace Js
         const CharCount inputLength,
         const char16 *const replace = 0,
         const CharCount replaceLength = 0)
-    {
+    {LOGMEIN("RegexHelper.cpp] 285\n");
         Assert(regExp);
         Assert(input);
 
         if (REGEX_CONFIG_FLAG(RegexProfile))
-        {
+        {LOGMEIN("RegexHelper.cpp] 290\n");
             UnifiedRegex::RegexStats* stats =
                 scriptContext->GetRegexStatsDatabase()->GetRegexStats(regExp->GetPattern());
             stats->useCounts[use]++;
             stats->inputLength += inputLength;
         }
         if (REGEX_CONFIG_FLAG(RegexTracing))
-        {
+        {LOGMEIN("RegexHelper.cpp] 297\n");
             UnifiedRegex::DebugWriter* w = scriptContext->GetRegexDebugWriter();
             w->Print(_u("%s("), UnifiedRegex::RegexStats::UseNames[use]);
             regExp->GetPattern()->Print(w);
@@ -305,7 +305,7 @@ namespace Js
             else
                 w->PrintQuotedString(input, inputLength);
             if (replace != 0)
-            {
+            {LOGMEIN("RegexHelper.cpp] 307\n");
                 Assert(use == UnifiedRegex::RegexStats::Replace);
                 w->Print(_u(", "));
                 if (!CONFIG_FLAG(Verbose) && replaceLength > 1024)
@@ -319,7 +319,7 @@ namespace Js
     }
 
     static void RegexHelperTrace(ScriptContext* scriptContext, UnifiedRegex::RegexStats::Use use, JavascriptRegExp* regExp, JavascriptString* input)
-    {
+    {LOGMEIN("RegexHelper.cpp] 321\n");
         Assert(regExp);
         Assert(input);
 
@@ -327,7 +327,7 @@ namespace Js
     }
 
     static void RegexHelperTrace(ScriptContext* scriptContext, UnifiedRegex::RegexStats::Use use, JavascriptRegExp* regExp, JavascriptString* input, JavascriptString* replace)
-    {
+    {LOGMEIN("RegexHelper.cpp] 329\n");
         Assert(regExp);
         Assert(input);
         Assert(replace);
@@ -349,7 +349,7 @@ namespace Js
 
     template <bool updateHistory>
     Var RegexHelper::RegexMatchImpl(ScriptContext* scriptContext, RecyclableObject *thisObj, JavascriptString *input, bool noResult, void *const stackAllocationPointer)
-    {
+    {LOGMEIN("RegexHelper.cpp] 351\n");
         ScriptConfiguration const * scriptConfig = scriptContext->GetConfig();
 
         // Normally, this check would be done in JavascriptRegExp::EntrySymbolMatch. However,
@@ -357,7 +357,7 @@ namespace Js
         // the check then would be bypassed. That's the reason we do the check here.
         if (scriptConfig->IsES6RegExSymbolsEnabled()
             && IsRegexSymbolMatchObservable(thisObj, scriptContext))
-        {
+        {LOGMEIN("RegexHelper.cpp] 359\n");
             // We don't need to pass "updateHistory" here since the call to "exec" will handle it.
             return RegexEs6MatchImpl(scriptContext, thisObj, input, noResult, stackAllocationPointer);
         }
@@ -372,7 +372,7 @@ namespace Js
     }
 
     bool RegexHelper::IsRegexSymbolMatchObservable(RecyclableObject* instance, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("RegexHelper.cpp] 374\n");
         DynamicObject* regexPrototype = scriptContext->GetLibrary()->GetRegExpPrototype();
         return !JavascriptRegExp::HasOriginalRegExType(instance)
             || JavascriptRegExp::HasObservableExec(regexPrototype)
@@ -381,11 +381,11 @@ namespace Js
     }
 
     Var RegexHelper::RegexEs6MatchImpl(ScriptContext* scriptContext, RecyclableObject *thisObj, JavascriptString *input, bool noResult, void *const stackAllocationPointer)
-    {
+    {LOGMEIN("RegexHelper.cpp] 383\n");
         PCWSTR const varName = _u("RegExp.prototype[Symbol.match]");
 
         if (!JavascriptRegExp::GetGlobalProperty(thisObj, scriptContext))
-        {
+        {LOGMEIN("RegexHelper.cpp] 387\n");
             return JavascriptRegExp::CallExec(thisObj, input, varName, scriptContext);
         }
         else
@@ -397,10 +397,10 @@ namespace Js
             JavascriptArray* arrayResult = nullptr;
 
             do
-            {
+            {LOGMEIN("RegexHelper.cpp] 399\n");
                 Var result = JavascriptRegExp::CallExec(thisObj, input, varName, scriptContext);
                 if (JavascriptOperators::IsNull(result))
-                {
+                {LOGMEIN("RegexHelper.cpp] 402\n");
                     break;
                 }
 
@@ -408,7 +408,7 @@ namespace Js
                 JavascriptString* matchStr = GetMatchStrFromResult(resultObj, scriptContext);
 
                 if (arrayResult == nullptr)
-                {
+                {LOGMEIN("RegexHelper.cpp] 410\n");
                     arrayResult = scriptContext->GetLibrary()->CreateArray();
                 }
 
@@ -427,7 +427,7 @@ namespace Js
     // String.prototype.match (ES5 15.5.4.10)
     template <bool updateHistory>
     Var RegexHelper::RegexEs5MatchImpl(ScriptContext* scriptContext, JavascriptRegExp *regularExpression, JavascriptString *input, bool noResult, void *const stackAllocationPointer)
-    {
+    {LOGMEIN("RegexHelper.cpp] 429\n");
         UnifiedRegex::RegexPattern* pattern = regularExpression->GetPattern();
         const char16* inputStr = input->GetString();
         CharCount inputLength = input->GetLength();
@@ -443,14 +443,14 @@ namespace Js
         UnifiedRegex::TrigramAlphabet* trigramAlphabet = scriptContext->GetTrigramAlphabet();
         UnifiedRegex::TrigramInfo* trigramInfo= pattern->rep.unified.trigramInfo;
         if (trigramAlphabet!=NULL && inputLength>=MinTrigramInputLength && trigramInfo!=NULL)
-        {
+        {LOGMEIN("RegexHelper.cpp] 445\n");
             if (trigramAlphabet->input==NULL)
                 trigramAlphabet->MegaMatch((char16*)inputStr,inputLength);
 
             if (trigramInfo->isTrigramPattern)
-            {
+            {LOGMEIN("RegexHelper.cpp] 450\n");
                 if (trigramInfo->resultCount > 0)
-                {
+                {LOGMEIN("RegexHelper.cpp] 452\n");
                     lastSuccessfulMatch.offset=trigramInfo->offsets[trigramInfo->resultCount-1];
                     lastSuccessfulMatch.length=UnifiedRegex::TrigramInfo::PatternLength;
                 }
@@ -469,11 +469,11 @@ namespace Js
                 FinalizeMatchResult(scriptContext, /* isGlobal */ true, arrayResult, lastSuccessfulMatch);
 
                 if (trigramInfo->resultCount > 0)
-                {
+                {LOGMEIN("RegexHelper.cpp] 471\n");
                     if (trigramInfo->hasCachedResultString)
-                    {
+                    {LOGMEIN("RegexHelper.cpp] 473\n");
                         for (int k = 0; k < trigramInfo->resultCount; k++)
-                        {
+                        {LOGMEIN("RegexHelper.cpp] 475\n");
                             arrayResult->DirectSetItemAt(k,
                                 static_cast<Js::JavascriptString*>(trigramInfo->cachedResult[k]));
                         }
@@ -481,7 +481,7 @@ namespace Js
                     else
                     {
                         for (int k = 0;  k < trigramInfo->resultCount; k++)
-                        {
+                        {LOGMEIN("RegexHelper.cpp] 483\n");
                             JavascriptString * str = SubString::New(input, trigramInfo->offsets[k], UnifiedRegex::TrigramInfo::PatternLength);
                             trigramInfo->cachedResult[k] = str;
                             arrayResult->DirectSetItemAt(k, str);
@@ -511,7 +511,7 @@ namespace Js
         // If global = false and sticky = true, set offset = lastIndex, else set offset = 0
         CharCount offset = 0;
         if (!isGlobal && isSticky)
-        {
+        {LOGMEIN("RegexHelper.cpp] 513\n");
             offset = regularExpression->GetLastIndex();
         }
 
@@ -519,9 +519,9 @@ namespace Js
         PrimBeginMatch(state, scriptContext, pattern, inputStr, inputLength, false);
 
         do
-        {
+        {LOGMEIN("RegexHelper.cpp] 521\n");
             if (offset > inputLength)
-            {
+            {LOGMEIN("RegexHelper.cpp] 523\n");
                 lastActualMatch.Reset();
                 break;
             }
@@ -531,14 +531,14 @@ namespace Js
                 break;
             lastSuccessfulMatch = lastActualMatch;
             if (!noResult)
-            {
+            {LOGMEIN("RegexHelper.cpp] 533\n");
                 if (arrayResult == 0)
                     arrayResult = CreateMatchResult(stackAllocationPointer, scriptContext, isGlobal, pattern->NumGroups(), input);
                 JavascriptString *const matchedString = SubString::New(input, lastActualMatch.offset, lastActualMatch.length);
                 if(isGlobal)
                     arrayResult->DirectSetItemAt(globalIndex, matchedString);
                 else
-                {
+                {LOGMEIN("RegexHelper.cpp] 540\n");
                     // The array's head segment up to length - 1 may not be filled. Write to the head segment element directly
                     // instead of calling a helper that expects the segment to be pre-filled.
                     Assert(globalIndex < arrayResult->GetHead()->length);
@@ -555,20 +555,20 @@ namespace Js
         }
 
         if (arrayResult == 0)
-        {
+        {LOGMEIN("RegexHelper.cpp] 557\n");
             return scriptContext->GetLibrary()->GetNull();
         }
 
         const int numGroups = pattern->NumGroups();
         if (!isGlobal)
-        {
+        {LOGMEIN("RegexHelper.cpp] 563\n");
             if (numGroups > 1)
-            {
+            {LOGMEIN("RegexHelper.cpp] 565\n");
                 // Overall match already captured in index 0 by above, so just grab the groups
                 Var nonMatchValue = NonMatchValue(scriptContext, false);
                 Field(Var) *elements = ((SparseArraySegment<Var>*)arrayResult->GetHead())->elements;
                 for (uint groupId = 1; groupId < (uint)numGroups; groupId++)
-                {
+                {LOGMEIN("RegexHelper.cpp] 570\n");
                     Assert(groupId < arrayResult->GetHead()->left + arrayResult->GetHead()->length);
                     elements[groupId] = GetGroup(scriptContext, pattern, input, nonMatchValue, groupId);
                 }
@@ -585,7 +585,7 @@ namespace Js
 
     // RegExp.prototype.exec (ES5 15.10.6.2)
     Var RegexHelper::RegexExecImpl(ScriptContext* scriptContext, JavascriptRegExp* regularExpression, JavascriptString* input, bool noResult, void *const stackAllocationPointer)
-    {
+    {LOGMEIN("RegexHelper.cpp] 587\n");
         UnifiedRegex::RegexPattern* pattern = regularExpression->GetPattern();
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
@@ -597,13 +597,13 @@ namespace Js
         CharCount offset;
         CharCount inputLength = input->GetLength();
         if (!GetInitialOffset(isGlobal, isSticky, regularExpression, inputLength, offset))
-        {
+        {LOGMEIN("RegexHelper.cpp] 599\n");
             return scriptContext->GetLibrary()->GetNull();
         }
 
         UnifiedRegex::GroupInfo match; // initially undefined
         if (offset <= inputLength)
-        {
+        {LOGMEIN("RegexHelper.cpp] 605\n");
             const char16* inputStr = input->GetString();
             match = SimpleMatch(scriptContext, pattern, inputStr, inputLength, offset);
         }
@@ -612,7 +612,7 @@ namespace Js
         PropagateLastMatch(scriptContext, isGlobal, isSticky, regularExpression, input, match, match, true, true);
 
         if (noResult || match.IsUndefined())
-        {
+        {LOGMEIN("RegexHelper.cpp] 614\n");
             return scriptContext->GetLibrary()->GetNull();
         }
 
@@ -622,7 +622,7 @@ namespace Js
         Var nonMatchValue = NonMatchValue(scriptContext, false);
         Field(Var) *elements = ((SparseArraySegment<Var>*)result->GetHead())->elements;
         for (uint groupId = 0; groupId < (uint)numGroups; groupId++)
-        {
+        {LOGMEIN("RegexHelper.cpp] 624\n");
             Assert(groupId < result->GetHead()->left + result->GetHead()->length);
             elements[groupId] = GetGroup(scriptContext, pattern, input, nonMatchValue, groupId);
         }
@@ -630,10 +630,10 @@ namespace Js
     }
 
     Var RegexHelper::RegexTest(ScriptContext* scriptContext, RecyclableObject* thisObj, JavascriptString *input)
-    {
+    {LOGMEIN("RegexHelper.cpp] 632\n");
         if (scriptContext->GetConfig()->IsES6RegExSymbolsEnabled()
             && IsRegexTestObservable(thisObj, scriptContext))
-        {
+        {LOGMEIN("RegexHelper.cpp] 635\n");
             return RegexEs6TestImpl(scriptContext, thisObj, input);
         }
         else
@@ -645,21 +645,21 @@ namespace Js
     }
 
     bool RegexHelper::IsRegexTestObservable(RecyclableObject* instance, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("RegexHelper.cpp] 647\n");
         DynamicObject* regexPrototype = scriptContext->GetLibrary()->GetRegExpPrototype();
         return !JavascriptRegExp::HasOriginalRegExType(instance)
             || JavascriptRegExp::HasObservableExec(regexPrototype);
     }
 
     Var RegexHelper::RegexEs6TestImpl(ScriptContext* scriptContext, RecyclableObject* thisObj, JavascriptString *input)
-    {
+    {LOGMEIN("RegexHelper.cpp] 654\n");
         Var match = JavascriptRegExp::CallExec(thisObj, input, _u("RegExp.prototype.test"), scriptContext);
         return JavascriptBoolean::ToVar(!JavascriptOperators::IsNull(match), scriptContext);
     }
 
     // RegExp.prototype.test (ES5 15.10.6.3)
     Var RegexHelper::RegexEs5TestImpl(ScriptContext* scriptContext, JavascriptRegExp *regularExpression, JavascriptString *input)
-    {
+    {LOGMEIN("RegexHelper.cpp] 661\n");
         UnifiedRegex::RegexPattern* pattern = regularExpression->GetPattern();
         const char16* inputStr = input->GetString();
         CharCount inputLength = input->GetLength();
@@ -675,7 +675,7 @@ namespace Js
             return scriptContext->GetLibrary()->GetFalse();
 
         if (offset <= inputLength)
-        {
+        {LOGMEIN("RegexHelper.cpp] 677\n");
             match = SimpleMatch(scriptContext, pattern, inputStr, inputLength, offset);
         }
 
@@ -697,7 +697,7 @@ namespace Js
         , int substitutions
         , __in_ecount(substitutions) CharCount* substitutionOffsets
         , CompoundString::Builder<64 * sizeof(void *) / sizeof(char16)>& concatenated )
-    {
+    {LOGMEIN("RegexHelper.cpp] 699\n");
         Var nonMatchValue = NonMatchValue(scriptContext, false);
         const CharCount inputLength = input->GetLength();
         const char16* replaceStr = replace->GetString();
@@ -705,23 +705,23 @@ namespace Js
 
         CharCount offset = 0;
         for (int i = 0; i < substitutions; i++)
-        {
+        {LOGMEIN("RegexHelper.cpp] 707\n");
             CharCount substitutionOffset = substitutionOffsets[i];
             concatenated.Append(replace, offset, substitutionOffset - offset);
             char16 currentChar = replaceStr[substitutionOffset + 1];
             if (currentChar >= _u('0') && currentChar <= _u('9'))
-            {
+            {LOGMEIN("RegexHelper.cpp] 712\n");
                 int captureIndex = (int)(currentChar - _u('0'));
                 offset = substitutionOffset + 2;
 
                 if (offset < replaceLength)
-                {
+                {LOGMEIN("RegexHelper.cpp] 717\n");
                     currentChar = replaceStr[substitutionOffset + 2];
                     if (currentChar >= _u('0') && currentChar <= _u('9'))
-                    {
+                    {LOGMEIN("RegexHelper.cpp] 720\n");
                         int tempCaptureIndex = (10 * captureIndex) + (int)(currentChar - _u('0'));
                         if (tempCaptureIndex < numGroups)
-                        {
+                        {LOGMEIN("RegexHelper.cpp] 723\n");
                             captureIndex = tempCaptureIndex;
                             offset = substitutionOffset + 3;
                         }
@@ -729,7 +729,7 @@ namespace Js
                 }
 
                 if (captureIndex < numGroups && (captureIndex != 0))
-                {
+                {LOGMEIN("RegexHelper.cpp] 731\n");
                     Var group = getGroup(captureIndex, nonMatchValue);
                     if (JavascriptString::Is(group))
                         concatenated.Append(JavascriptString::FromVar(group));
@@ -742,7 +742,7 @@ namespace Js
             else
             {
                 switch (currentChar)
-                {
+                {LOGMEIN("RegexHelper.cpp] 744\n");
                 case _u('$'): // literal '$' character
                     concatenated.Append(_u('$'));
                     offset = substitutionOffset + 2;

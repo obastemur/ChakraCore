@@ -16,21 +16,21 @@ namespace Js
     JavascriptExternalFunction::JavascriptExternalFunction(ExternalMethod entryPoint, DynamicType* type)
         : RuntimeFunction(type, &EntryInfo::ExternalFunctionThunk), nativeMethod(entryPoint), signature(nullptr), callbackState(nullptr), initMethod(nullptr),
         oneBit(1), typeSlots(0), hasAccessors(0), prototypeTypeId(-1), flags(0)
-    {
+    {LOGMEIN("JavascriptExternalFunction.cpp] 18\n");
         DebugOnly(VerifyEntryPoint());
     }
 
     JavascriptExternalFunction::JavascriptExternalFunction(ExternalMethod entryPoint, DynamicType* type, InitializeMethod method, unsigned short deferredSlotCount, bool accessors)
         : RuntimeFunction(type, &EntryInfo::ExternalFunctionThunk), nativeMethod(entryPoint), signature(nullptr), callbackState(nullptr), initMethod(method),
         oneBit(1), typeSlots(deferredSlotCount), hasAccessors(accessors),prototypeTypeId(-1), flags(0)
-    {
+    {LOGMEIN("JavascriptExternalFunction.cpp] 25\n");
         DebugOnly(VerifyEntryPoint());
     }
 
     JavascriptExternalFunction::JavascriptExternalFunction(DynamicType* type, InitializeMethod method, unsigned short deferredSlotCount, bool accessors)
         : RuntimeFunction(type, &EntryInfo::DefaultExternalFunctionThunk), nativeMethod(nullptr), signature(nullptr), callbackState(nullptr), initMethod(method),
         oneBit(1), typeSlots(deferredSlotCount), hasAccessors(accessors), prototypeTypeId(-1), flags(0)
-    {
+    {LOGMEIN("JavascriptExternalFunction.cpp] 32\n");
         DebugOnly(VerifyEntryPoint());
     }
 
@@ -38,26 +38,26 @@ namespace Js
     JavascriptExternalFunction::JavascriptExternalFunction(JavascriptExternalFunction* entryPoint, DynamicType* type)
         : RuntimeFunction(type, &EntryInfo::WrappedFunctionThunk), wrappedMethod(entryPoint), callbackState(nullptr), initMethod(nullptr),
         oneBit(1), typeSlots(0), hasAccessors(0), prototypeTypeId(-1), flags(0)
-    {
+    {LOGMEIN("JavascriptExternalFunction.cpp] 40\n");
         DebugOnly(VerifyEntryPoint());
     }
 
     JavascriptExternalFunction::JavascriptExternalFunction(StdCallJavascriptMethod entryPoint, DynamicType* type)
         : RuntimeFunction(type, &EntryInfo::StdCallExternalFunctionThunk), stdCallNativeMethod(entryPoint), signature(nullptr), callbackState(nullptr), initMethod(nullptr),
         oneBit(1), typeSlots(0), hasAccessors(0), prototypeTypeId(-1), flags(0)
-    {
+    {LOGMEIN("JavascriptExternalFunction.cpp] 47\n");
         DebugOnly(VerifyEntryPoint());
     }
 
     JavascriptExternalFunction::JavascriptExternalFunction(DynamicType *type)
         : RuntimeFunction(type, &EntryInfo::ExternalFunctionThunk), nativeMethod(nullptr), signature(nullptr), callbackState(nullptr), initMethod(nullptr),
         oneBit(1), typeSlots(0), hasAccessors(0), prototypeTypeId(-1), flags(0)
-    {
+    {LOGMEIN("JavascriptExternalFunction.cpp] 54\n");
         DebugOnly(VerifyEntryPoint());
     }
 
     void __cdecl JavascriptExternalFunction::DeferredInitializer(DynamicObject* instance, DeferredTypeHandlerBase* typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("JavascriptExternalFunction.cpp] 59\n");
         JavascriptExternalFunction* object = static_cast<JavascriptExternalFunction*>(instance);
         HRESULT hr = E_FAIL;
 
@@ -65,14 +65,14 @@ namespace Js
         AnalysisAssert(scriptContext);
         // Don't call the implicit call if disable implicit call
         if (scriptContext->GetThreadContext()->IsDisableImplicitCall())
-        {
+        {LOGMEIN("JavascriptExternalFunction.cpp] 67\n");
             scriptContext->GetThreadContext()->AddImplicitCallFlags(ImplicitCall_External);
             //we will return if we get call further into implicitcalls.
             return;
         }
 
         if (scriptContext->IsClosed() || scriptContext->IsInvalidatedForHostObjects())
-        {
+        {LOGMEIN("JavascriptExternalFunction.cpp] 74\n");
             Js::JavascriptError::MapAndThrowError(scriptContext, E_ACCESSDENIED);
         }
         ThreadContext* threadContext = scriptContext->GetThreadContext();
@@ -80,7 +80,7 @@ namespace Js
         typeHandler->Convert(instance, mode, object->typeSlots, object->hasAccessors);
 
         BEGIN_LEAVE_SCRIPT_INTERNAL(scriptContext)
-        {
+        {LOGMEIN("JavascriptExternalFunction.cpp] 82\n");
             ASYNC_HOST_OPERATION_START(threadContext);
 
             hr = object->initMethod(instance);
@@ -90,21 +90,21 @@ namespace Js
         END_LEAVE_SCRIPT_INTERNAL(scriptContext);
 
         if (FAILED(hr))
-        {
+        {LOGMEIN("JavascriptExternalFunction.cpp] 92\n");
             Js::JavascriptError::MapAndThrowError(scriptContext, hr);
         }
 
         JavascriptString * functionName = nullptr;
         if (scriptContext->GetConfig()->IsES6FunctionNameEnabled() &&
             object->GetFunctionName(&functionName))
-        {
+        {LOGMEIN("JavascriptExternalFunction.cpp] 99\n");
             object->SetPropertyWithAttributes(PropertyIds::name, functionName, PropertyConfigurable, nullptr);
         }
 
     }
 
     void JavascriptExternalFunction::PrepareExternalCall(Js::Arguments * args)
-    {
+    {LOGMEIN("JavascriptExternalFunction.cpp] 106\n");
         ScriptContext * scriptContext = this->type->GetScriptContext();
         Assert(!scriptContext->GetThreadContext()->IsDisableImplicitException());
         scriptContext->VerifyAlive();
@@ -112,7 +112,7 @@ namespace Js
         Assert(scriptContext->GetThreadContext()->IsScriptActive());
 
         if (args->Info.Count == 0)
-        {
+        {LOGMEIN("JavascriptExternalFunction.cpp] 114\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NullOrUndefined);
         }
 
@@ -122,7 +122,7 @@ namespace Js
 
         Js::RecyclableObject* directHostObject = nullptr;
         switch(typeId)
-        {
+        {LOGMEIN("JavascriptExternalFunction.cpp] 124\n");
         case TypeIds_Integer:
 #if FLOATVAR
         case TypeIds_Number:
@@ -130,7 +130,7 @@ namespace Js
             Assert(!Js::RecyclableObject::Is(thisVar));
             break;
         default:
-            {
+            {LOGMEIN("JavascriptExternalFunction.cpp] 132\n");
                 Assert(Js::RecyclableObject::Is(thisVar));
 
                 ScriptContext* scriptContextThisVar = Js::RecyclableObject::FromVar(thisVar)->GetScriptContext();
@@ -141,14 +141,14 @@ namespace Js
 
                 // translate direct host for fastDOM.
                 switch(typeId)
-                {
+                {LOGMEIN("JavascriptExternalFunction.cpp] 143\n");
                 case Js::TypeIds_GlobalObject:
-                    {
+                    {LOGMEIN("JavascriptExternalFunction.cpp] 145\n");
                         Js::GlobalObject* srcGlobalObject = (Js::GlobalObject*)(void*)(thisVar);
                         directHostObject = srcGlobalObject->GetDirectHostObject();
                         // For jsrt, direct host object can be null. If thats the case don't change it.
                         if (directHostObject != nullptr)
-                        {
+                        {LOGMEIN("JavascriptExternalFunction.cpp] 150\n");
                             thisVar = directHostObject;
                         }
 
@@ -156,14 +156,14 @@ namespace Js
                     break;
                 case Js::TypeIds_Undefined:
                 case Js::TypeIds_Null:
-                    {
+                    {LOGMEIN("JavascriptExternalFunction.cpp] 158\n");
                         // Call to DOM function with this as "undefined" or "null"
                         // This should be converted to Global object
                         Js::GlobalObject* srcGlobalObject = scriptContextThisVar->GetGlobalObject() ;
                         directHostObject = srcGlobalObject->GetDirectHostObject();
                         // For jsrt, direct host object can be null. If thats the case don't change it.
                         if (directHostObject != nullptr)
-                        {
+                        {LOGMEIN("JavascriptExternalFunction.cpp] 165\n");
                             thisVar = directHostObject;
                         }
                     }
@@ -191,13 +191,13 @@ namespace Js
         Var result = nullptr;
 
         if(scriptContext->ShouldPerformRecordOrReplayAction())
-        {
+        {LOGMEIN("JavascriptExternalFunction.cpp] 193\n");
             result = JavascriptExternalFunction::HandleRecordReplayExternalFunction_Thunk(externalFunction, callInfo, args, scriptContext);
         }
         else
         {
             BEGIN_LEAVE_SCRIPT_WITH_EXCEPTION(scriptContext)
-            {
+            {LOGMEIN("JavascriptExternalFunction.cpp] 199\n");
                 // Don't do stack probe since BEGIN_LEAVE_SCRIPT_WITH_EXCEPTION does that for us already
                 result = externalFunction->nativeMethod(function, callInfo, args.Values);
             }
@@ -206,7 +206,7 @@ namespace Js
 #else
         Var result = nullptr;
         BEGIN_LEAVE_SCRIPT_WITH_EXCEPTION(scriptContext)
-        {
+        {LOGMEIN("JavascriptExternalFunction.cpp] 208\n");
             // Don't do stack probe since BEGIN_LEAVE_SCRIPT_WITH_EXCEPTION does that for us already
             result = externalFunction->nativeMethod(function, callInfo, args.Values);
         }
@@ -214,7 +214,7 @@ namespace Js
 #endif
 
         if (result == nullptr)
-        {
+        {LOGMEIN("JavascriptExternalFunction.cpp] 216\n");
 #pragma warning(push)
 #pragma warning(disable:6011) // scriptContext cannot be null here
             result = scriptContext->GetLibrary()->GetUndefined();
@@ -265,29 +265,29 @@ namespace Js
 
 #if ENABLE_TTD
         if(scriptContext->ShouldPerformRecordOrReplayAction())
-        {
+        {LOGMEIN("JavascriptExternalFunction.cpp] 267\n");
             result = JavascriptExternalFunction::HandleRecordReplayExternalFunction_StdThunk(function, callInfo, args, scriptContext);
         }
         else
         {
             BEGIN_LEAVE_SCRIPT(scriptContext)
-            {
+            {LOGMEIN("JavascriptExternalFunction.cpp] 273\n");
                 result = externalFunction->stdCallNativeMethod(function, ((callInfo.Flags & CallFlags_New) != 0), args.Values, args.Info.Count, externalFunction->callbackState);
             }
             END_LEAVE_SCRIPT(scriptContext);
         }
 #else
         BEGIN_LEAVE_SCRIPT(scriptContext)
-        {
+        {LOGMEIN("JavascriptExternalFunction.cpp] 280\n");
             result = externalFunction->stdCallNativeMethod(function, ((callInfo.Flags & CallFlags_New) != 0), args.Values, args.Info.Count, externalFunction->callbackState);
         }
         END_LEAVE_SCRIPT(scriptContext);
 #endif
 
         if (result != nullptr && !Js::TaggedNumber::Is(result))
-        {
+        {LOGMEIN("JavascriptExternalFunction.cpp] 287\n");
             if (!Js::RecyclableObject::Is(result))
-            {
+            {LOGMEIN("JavascriptExternalFunction.cpp] 289\n");
                 Js::Throw::InternalError();
             }
 
@@ -296,20 +296,20 @@ namespace Js
             // For JSRT, we could get result marshalled in different context.
             bool isJSRT = scriptContext->GetThreadContext()->IsJSRT();
             if (!isJSRT && obj->GetScriptContext() != scriptContext)
-            {
+            {LOGMEIN("JavascriptExternalFunction.cpp] 298\n");
                 Js::Throw::InternalError();
             }
         }
 
         if (scriptContext->HasRecordedException())
-        {
+        {LOGMEIN("JavascriptExternalFunction.cpp] 304\n");
             bool considerPassingToDebugger = false;
             JavascriptExceptionObject* recordedException = scriptContext->GetAndClearRecordedException(&considerPassingToDebugger);
             if (recordedException != nullptr)
-            {
+            {LOGMEIN("JavascriptExternalFunction.cpp] 308\n");
                 // If this is script termination, then throw ScriptAbortExceptio, else throw normal Exception object.
                 if (recordedException == scriptContext->GetThreadContext()->GetPendingTerminatedErrorObject())
-                {
+                {LOGMEIN("JavascriptExternalFunction.cpp] 311\n");
                     throw Js::ScriptAbortException();
                 }
                 else
@@ -320,7 +320,7 @@ namespace Js
         }
 
         if (result == nullptr)
-        {
+        {LOGMEIN("JavascriptExternalFunction.cpp] 322\n");
             result = scriptContext->GetLibrary()->GetUndefined();
         }
         else
@@ -332,30 +332,30 @@ namespace Js
     }
 
     BOOL JavascriptExternalFunction::SetLengthProperty(Var length)
-    {
+    {LOGMEIN("JavascriptExternalFunction.cpp] 334\n");
         return DynamicObject::SetPropertyWithAttributes(PropertyIds::length, length, PropertyConfigurable, NULL, PropertyOperation_None, SideEffects_None);
     }
 
 #if ENABLE_TTD
     TTD::NSSnapObjects::SnapObjectType JavascriptExternalFunction::GetSnapTag_TTD() const
-    {
+    {LOGMEIN("JavascriptExternalFunction.cpp] 340\n");
         return TTD::NSSnapObjects::SnapObjectType::SnapExternalFunctionObject;
     }
 
     void JavascriptExternalFunction::ExtractSnapObjectDataInto(TTD::NSSnapObjects::SnapObject* objData, TTD::SlabAllocator& alloc)
-    {
+    {LOGMEIN("JavascriptExternalFunction.cpp] 345\n");
         TTD::TTDVar fnameId = TTD_CONVERT_JSVAR_TO_TTDVAR(this->functionNameId);
         TTD::NSSnapObjects::StdExtractSetKindSpecificInfo<TTD::TTDVar, TTD::NSSnapObjects::SnapObjectType::SnapExternalFunctionObject>(objData, fnameId);
     }
 
     Var JavascriptExternalFunction::HandleRecordReplayExternalFunction_Thunk(Js::JavascriptFunction* function, CallInfo& callInfo, Arguments& args, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptExternalFunction.cpp] 351\n");
         JavascriptExternalFunction* externalFunction = static_cast<JavascriptExternalFunction*>(function);
 
         Var result = nullptr;
 
         if(scriptContext->ShouldPerformReplayAction())
-        {
+        {LOGMEIN("JavascriptExternalFunction.cpp] 357\n");
             TTD::TTDNestingDepthAutoAdjuster logPopper(scriptContext->GetThreadContext());
             scriptContext->GetThreadContext()->TTDLog->ReplayExternalCallEvent(externalFunction, args.Info.Count, args.Values, &result);
         }
@@ -369,7 +369,7 @@ namespace Js
             TTD::NSLogEvents::EventLogEntry* callEvent = elog->RecordExternalCallEvent(externalFunction, scriptContext->GetThreadContext()->TTDRootNestingCount, args.Info.Count, args.Values, false);
 
             BEGIN_LEAVE_SCRIPT_WITH_EXCEPTION(scriptContext)
-            {
+            {LOGMEIN("JavascriptExternalFunction.cpp] 371\n");
                 // Don't do stack probe since BEGIN_LEAVE_SCRIPT_WITH_EXCEPTION does that for us already
                 result = externalFunction->nativeMethod(function, callInfo, args.Values);
             }
@@ -383,13 +383,13 @@ namespace Js
     }
 
     Var JavascriptExternalFunction::HandleRecordReplayExternalFunction_StdThunk(Js::RecyclableObject* function, CallInfo& callInfo, Arguments& args, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptExternalFunction.cpp] 385\n");
         JavascriptExternalFunction* externalFunction = static_cast<JavascriptExternalFunction*>(function);
 
         Var result = nullptr;
 
         if(scriptContext->ShouldPerformReplayAction())
-        {
+        {LOGMEIN("JavascriptExternalFunction.cpp] 391\n");
             TTD::TTDNestingDepthAutoAdjuster logPopper(scriptContext->GetThreadContext());
             scriptContext->GetThreadContext()->TTDLog->ReplayExternalCallEvent(externalFunction, args.Info.Count, args.Values, &result);
         }
@@ -403,7 +403,7 @@ namespace Js
             TTD::NSLogEvents::EventLogEntry* callEvent = elog->RecordExternalCallEvent(externalFunction, scriptContext->GetThreadContext()->TTDRootNestingCount, args.Info.Count, args.Values, true);
 
             BEGIN_LEAVE_SCRIPT(scriptContext)
-            {
+            {LOGMEIN("JavascriptExternalFunction.cpp] 405\n");
                 result = externalFunction->stdCallNativeMethod(function, ((callInfo.Flags & CallFlags_New) != 0), args.Values, args.Info.Count, externalFunction->callbackState);
             }
             END_LEAVE_SCRIPT(scriptContext);
@@ -415,7 +415,7 @@ namespace Js
     }
 
     Var __stdcall JavascriptExternalFunction::TTDReplayDummyExternalMethod(Js::Var callee, bool isConstructCall, Var *args, USHORT cargs, void *callbackState)
-    {
+    {LOGMEIN("JavascriptExternalFunction.cpp] 417\n");
         JavascriptExternalFunction* externalFunction = static_cast<JavascriptExternalFunction*>(callee);
 
         ScriptContext* scriptContext = externalFunction->type->GetScriptContext();

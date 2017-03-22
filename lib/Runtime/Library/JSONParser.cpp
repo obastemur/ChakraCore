@@ -12,20 +12,20 @@ namespace JSON
 {
     // -------- Parser implementation ------------//
     void JSONParser::Finalizer()
-    {
+    {LOGMEIN("JSONParser.cpp] 14\n");
         m_scanner.Finalizer();
         if(arenaAllocatorObject)
-        {
+        {LOGMEIN("JSONParser.cpp] 17\n");
             this->scriptContext->ReleaseTemporaryGuestAllocator(arenaAllocatorObject);
         }
     }
 
     Js::Var JSONParser::Parse(LPCWSTR str, int length)
-    {
+    {LOGMEIN("JSONParser.cpp] 23\n");
         if (length > MIN_CACHE_LENGTH)
-        {
+        {LOGMEIN("JSONParser.cpp] 25\n");
             if (!this->arenaAllocatorObject)
-            {
+            {LOGMEIN("JSONParser.cpp] 27\n");
                 this->arenaAllocatorObject = scriptContext->GetTemporaryGuestAllocator(_u("JSONParse"));
                 this->arenaAllocator = arenaAllocatorObject->GetAllocator();
             }
@@ -34,14 +34,14 @@ namespace JSON
         Scan();
         Js::Var ret = ParseObject();
         if (m_token.tk != tkEOF)
-        {
+        {LOGMEIN("JSONParser.cpp] 36\n");
             m_scanner.ThrowSyntaxError(JSERR_JsonSyntax);
         }
         return ret;
     }
 
     Js::Var JSONParser::Parse(Js::JavascriptString* input)
-    {
+    {LOGMEIN("JSONParser.cpp] 43\n");
         return Parse(input->GetSz(), input->GetLength());
     }
 
@@ -54,7 +54,7 @@ namespace JSON
         Js::RecyclableObject *undefined = scriptContext->GetLibrary()->GetUndefined();
 
         if (Js::DynamicObject::IsAnyArray(holder))
-        {
+        {LOGMEIN("JSONParser.cpp] 56\n");
             // when called from an array the key is NULL and the keyId is the index.
             value = Js::JavascriptArray::FromAnyArray(holder)->DirectGetItem(id);
             name = scriptContext->GetIntegerString(id);
@@ -65,16 +65,16 @@ namespace JSON
             AssertMsg(Js::JavascriptOperators::GetTypeId(holder) == Js::TypeIds_Object || Js::JavascriptOperators::GetTypeId(holder) == Js::TypeIds_Arguments,
                 "The holder argument in a JSON::Walk function must be an object or an array");
             if (id == Constants::NoProperty)
-            {
+            {LOGMEIN("JSONParser.cpp] 67\n");
                 if (!Js::RecyclableObject::FromVar(holder)->GetItem(holder, index, &value, scriptContext))
-                {
+                {LOGMEIN("JSONParser.cpp] 69\n");
                     value = undefined;
                 }
             }
             else
             {
                 if (!Js::RecyclableObject::FromVar(holder)->GetProperty(holder, id, &value, NULL, scriptContext))
-                {
+                {LOGMEIN("JSONParser.cpp] 76\n");
                     value = undefined;
                 }
             }
@@ -82,17 +82,17 @@ namespace JSON
 
         // this is a post order walk. Visit the children before calling walk on this object
         if (Js::DynamicObject::IsAnyArray(value))
-        {
+        {LOGMEIN("JSONParser.cpp] 84\n");
             Js::JavascriptArray* arrayVal = JavascriptArray::EnsureNonNativeArray(Js::JavascriptArray::FromAnyArray(value));
             Assert(!Js::JavascriptNativeIntArray::Is(arrayVal) && !Js::JavascriptNativeFloatArray::Is(arrayVal));
             uint length = arrayVal->GetLength();
             if (!arrayVal->IsCrossSiteObject())
-            {
+            {LOGMEIN("JSONParser.cpp] 89\n");
                 for(uint k = 0; k < length; k++)
-                {
+                {LOGMEIN("JSONParser.cpp] 91\n");
                     Js::Var newElement = Walk(0, k, value);
                     if(Js::JavascriptOperators::IsUndefinedObject(newElement, undefined))
-                    {
+                    {LOGMEIN("JSONParser.cpp] 94\n");
                         arrayVal->DirectDeleteItemAt<Js::Var>(k);
                     }
                     else
@@ -104,10 +104,10 @@ namespace JSON
             else
             {
                 for(uint k = 0; k < length; k++)
-                {
+                {LOGMEIN("JSONParser.cpp] 106\n");
                     Js::Var newElement = Walk(0, k, value);
                     if(Js::JavascriptOperators::IsUndefinedObject(newElement, undefined))
-                    {
+                    {LOGMEIN("JSONParser.cpp] 109\n");
                         arrayVal->DirectDeleteItemAt<Js::Var>(k);
                     }
                     else
@@ -121,21 +121,21 @@ namespace JSON
         {
             Js::TypeId typeId = Js::JavascriptOperators::GetTypeId(value);
             if (typeId == Js::TypeIds_Object || typeId == Js::TypeIds_Arguments)
-            {
+            {LOGMEIN("JSONParser.cpp] 123\n");
                 Js::JavascriptStaticEnumerator enumerator;
 
                 // normally we should have a JSON object here and the enumerator should be always be successful. However, the objects can be
                 // modified by user code. It is better to skip a damaged object. ES5 spec doesn't specify an error here.
                 if(Js::RecyclableObject::FromVar(value)->GetEnumerator(&enumerator, EnumeratorFlags::SnapShotSemantics, scriptContext))
-                {
+                {LOGMEIN("JSONParser.cpp] 129\n");
                     Js::Var propertyNameVar;
 
                     while (true)
-                    {
+                    {LOGMEIN("JSONParser.cpp] 133\n");
                         Js::PropertyId idMember = Js::Constants::NoProperty;
                         propertyNameVar = enumerator.MoveAndGetNext(idMember);
                         if (propertyNameVar == nullptr)
-                        {
+                        {LOGMEIN("JSONParser.cpp] 137\n");
                             break;
                         }
 
@@ -144,10 +144,10 @@ namespace JSON
                         AssertMsg(Js::JavascriptString::Is(propertyNameVar) , "bad enumeration on a JSON Object");
 
                         if (idMember != Js::Constants::NoProperty)
-                        {
+                        {LOGMEIN("JSONParser.cpp] 146\n");
                             Js::Var newElement = Walk(Js::JavascriptString::FromVar(propertyNameVar), idMember, value);
                             if (Js::JavascriptOperators::IsUndefinedObject(newElement, undefined))
-                            {
+                            {LOGMEIN("JSONParser.cpp] 149\n");
                                 Js::JavascriptOperators::DeleteProperty(Js::RecyclableObject::FromVar(value), idMember);
                             }
                             else
@@ -163,7 +163,7 @@ namespace JSON
                             AssertMsg(Js::JavascriptArray::InvalidIndex != propertyIndex, "Not a numeric type");
                             Js::Var newElement = Walk(Js::JavascriptString::FromVar(propertyNameVar), idMember, value, propertyIndex);
                             if (Js::JavascriptOperators::IsUndefinedObject(newElement, undefined))
-                            {
+                            {LOGMEIN("JSONParser.cpp] 165\n");
                                 Js::JavascriptOperators::DeleteItem(Js::RecyclableObject::FromVar(value), propertyIndex);
 
                             }
@@ -194,7 +194,7 @@ namespace JSON
         Js::Var retVal;
 
         switch (m_token.tk)
-        {
+        {LOGMEIN("JSONParser.cpp] 196\n");
 
         case tkFltCon:
             retVal = Js::JavascriptNumber::ToVarIntCheck(m_token.GetDouble(), scriptContext);
@@ -202,7 +202,7 @@ namespace JSON
             return retVal;
 
         case tkStrCon:
-            {
+            {LOGMEIN("JSONParser.cpp] 204\n");
                 // will auto-null-terminate the string (as length=len+1)
                 uint len = m_scanner.GetCurrentStringLen();
                 retVal = Js::JavascriptString::NewCopyBuffer(m_scanner.GetCurrentString(), len, scriptContext);
@@ -228,7 +228,7 @@ namespace JSON
         case tkSub:  // unary minus
 
             if (Scan() == tkFltCon)
-            {
+            {LOGMEIN("JSONParser.cpp] 230\n");
                 retVal = Js::JavascriptNumber::ToVarIntCheck(-m_token.GetDouble(), scriptContext);
                 Scan();
                 return retVal;
@@ -239,7 +239,7 @@ namespace JSON
             }
 
         case tkLBrack:
-            {
+            {LOGMEIN("JSONParser.cpp] 241\n");
 
                 Js::JavascriptArray* arrayObj = scriptContext->GetLibrary()->CreateArray(0);
 
@@ -249,9 +249,9 @@ namespace JSON
                 //iterate over the array members, get JSON objects and add them in the pArrayMemberList
                 uint k = 0;
                 while (true)
-                {
+                {LOGMEIN("JSONParser.cpp] 251\n");
                     if(tkRBrack == m_token.tk)
-                    {
+                    {LOGMEIN("JSONParser.cpp] 253\n");
                         break;
                     }
                     Js::Var value = ParseObject();
@@ -262,7 +262,7 @@ namespace JSON
                         break;
                     Scan();
                     if(tkRBrack == m_token.tk)
-                    {
+                    {LOGMEIN("JSONParser.cpp] 264\n");
                         m_scanner.ThrowSyntaxError(JSERR_JsonIllegalChar);
                     }
                 }
@@ -273,13 +273,13 @@ namespace JSON
             }
 
         case tkLCurly:
-            {
+            {LOGMEIN("JSONParser.cpp] 275\n");
 
                 // Parse an object, "{"name1" : ObjMember1, "name2" : ObjMember2, ...} "
                 if(IsCaching())
-                {
+                {LOGMEIN("JSONParser.cpp] 279\n");
                     if(!typeCacheList)
-                    {
+                    {LOGMEIN("JSONParser.cpp] 281\n");
                         typeCacheList = Anew(this->arenaAllocator, JsonTypeCacheList, this->arenaAllocator, 8);
                     }
                 }
@@ -289,7 +289,7 @@ namespace JSON
                 JS_ETW(EventWriteJSCRIPT_RECYCLER_ALLOCATE_OBJECT(object));
 #if ENABLE_DEBUG_CONFIG_OPTIONS
                 if (Js::Configuration::Global.flags.IsEnabled(Js::autoProxyFlag))
-                {
+                {LOGMEIN("JSONParser.cpp] 291\n");
                     object = DynamicObject::FromVar(JavascriptProxy::AutoProxyWrapper(object));
                 }
 #endif
@@ -299,7 +299,7 @@ namespace JSON
 
                 //if empty object "{}" return;
                 if(tkRCurly == m_token.tk)
-                {
+                {LOGMEIN("JSONParser.cpp] 301\n");
                     Scan();
                     return object;
                 }
@@ -307,13 +307,13 @@ namespace JSON
                 JsonTypeCache* currentCache = nullptr;
                 //parse the list of members
                 while(true)
-                {
+                {LOGMEIN("JSONParser.cpp] 309\n");
                     // parse a list member:  "name" : ObjMember
                     // and add it to the object.
 
                     //pick "name"
                     if(tkStrCon != m_token.tk)
-                    {
+                    {LOGMEIN("JSONParser.cpp] 315\n");
                         m_scanner.ThrowSyntaxError(JSERR_JsonIllegalChar);
                     }
 
@@ -323,18 +323,18 @@ namespace JSON
 
                     DynamicType* typeWithoutProperty = object->GetDynamicType();
                     if(IsCaching())
-                    {
+                    {LOGMEIN("JSONParser.cpp] 325\n");
                         if(!previousCache)
-                        {
+                        {LOGMEIN("JSONParser.cpp] 327\n");
                             // This is the first property in the list - see if we have an existing cache for it.
                             currentCache = typeCacheList->LookupWithKey(Js::HashedCharacterBuffer<WCHAR>(currentStr, currentStrLength), nullptr);
                         }
                         if(currentCache && currentCache->typeWithoutProperty == typeWithoutProperty &&
                             currentCache->propertyRecord->Equals(JsUtil::CharacterBuffer<WCHAR>(currentStr, currentStrLength)))
-                        {
+                        {LOGMEIN("JSONParser.cpp] 333\n");
                             //check and consume ":"
                             if(Scan() != tkColon )
-                            {
+                            {LOGMEIN("JSONParser.cpp] 336\n");
                                 m_scanner.ThrowSyntaxError(JSERR_JsonNoColon);
                             }
                             Scan();
@@ -367,7 +367,7 @@ namespace JSON
 
                     //check and consume ":"
                     if(Scan() != tkColon )
-                    {
+                    {LOGMEIN("JSONParser.cpp] 369\n");
                         m_scanner.ThrowSyntaxError(JSERR_JsonNoColon);
                     }
                     Scan();
@@ -377,17 +377,17 @@ namespace JSON
 
                     DynamicType* typeWithProperty = object->GetDynamicType();
                     if(IsCaching() && !propertyRecord->IsNumeric() && !info.IsNoCache() && typeWithProperty->GetIsShared() && typeWithProperty->GetTypeHandler()->IsPathTypeHandler())
-                    {
+                    {LOGMEIN("JSONParser.cpp] 379\n");
                         PropertyIndex propertyIndex = info.GetPropertyIndex();
 
                         if(!previousCache)
-                        {
+                        {LOGMEIN("JSONParser.cpp] 383\n");
                             // This is the first property in the set add it to the dictionary.
                             currentCache = JsonTypeCache::New(this->arenaAllocator, propertyRecord, typeWithoutProperty, typeWithProperty, propertyIndex);
                             typeCacheList->AddNew(propertyRecord, currentCache);
                         }
                         else if(!currentCache)
-                        {
+                        {LOGMEIN("JSONParser.cpp] 389\n");
                             currentCache = JsonTypeCache::New(this->arenaAllocator, propertyRecord, typeWithoutProperty, typeWithProperty, propertyIndex);
                             previousCache->next = currentCache;
                         }

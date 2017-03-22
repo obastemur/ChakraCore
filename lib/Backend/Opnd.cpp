@@ -19,14 +19,14 @@ namespace IR
 
 Opnd*
 Opnd::UseWithNewType(IRType type, Func * func)
-{
+{LOGMEIN("Opnd.cpp] 21\n");
     Opnd * res = this->Use(func);
     res->SetType(type);
     StackSym* sym = res->GetStackSym();
     if (sym)
-    {
+    {LOGMEIN("Opnd.cpp] 26\n");
         if (TySize[sym->GetType()] < TySize[type])
-        {
+        {LOGMEIN("Opnd.cpp] 28\n");
             Assert(!sym->IsAllocated());
             sym->m_type = type;
         }
@@ -36,13 +36,13 @@ Opnd::UseWithNewType(IRType type, Func * func)
 
 bool
 Opnd::IsTaggedInt() const
-{
+{LOGMEIN("Opnd.cpp] 38\n");
     return GetValueType().IsTaggedInt();
 }
 
 bool
 Opnd::IsTaggedValue() const
-{
+{LOGMEIN("Opnd.cpp] 44\n");
     CompileAssert(!FLOATVAR || INT32VAR);
 #if FLOATVAR
     return GetValueType().IsNumber();
@@ -53,22 +53,22 @@ Opnd::IsTaggedValue() const
 
 bool
 Opnd::IsNotNumber() const
-{
+{LOGMEIN("Opnd.cpp] 55\n");
     if (this->GetValueType().IsNotNumber())
-    {
+    {LOGMEIN("Opnd.cpp] 57\n");
         return true;
     }
     if (this->IsRegOpnd())
-    {
+    {LOGMEIN("Opnd.cpp] 61\n");
         const IR::RegOpnd* regOpnd = this->AsRegOpnd();
 
         if (regOpnd->m_sym == nullptr)
-        {
+        {LOGMEIN("Opnd.cpp] 65\n");
             return true;
         }
 
         if (regOpnd->m_sym->m_isNotInt)
-        {
+        {LOGMEIN("Opnd.cpp] 70\n");
             // m_isNotInt actually means "is not number". It should not be set to true for definitely-float values.
             return true;
         }
@@ -78,15 +78,15 @@ Opnd::IsNotNumber() const
 
 bool
 Opnd::IsNotInt() const
-{
+{LOGMEIN("Opnd.cpp] 80\n");
     return IsNotNumber() || IsFloat();
 }
 
 bool
 Opnd::IsNotTaggedValue() const
-{
+{LOGMEIN("Opnd.cpp] 86\n");
     if (!PHASE_OFF1(Js::OptTagChecksPhase) && this->GetValueType().IsNotTaggedValue())
-    {
+    {LOGMEIN("Opnd.cpp] 88\n");
         return true;
     }
     return this->IsNotNumber();
@@ -94,29 +94,29 @@ Opnd::IsNotTaggedValue() const
 
 bool
 Opnd::IsWriteBarrierTriggerableValue()
-{
+{LOGMEIN("Opnd.cpp] 96\n");
     // Determines whether if an operand is used as a source in a store instruction, whether the store needs a write barrier
 
     // If it's a tagged value, we don't need a write barrier
     if (this->IsTaggedValue())
-    {
+    {LOGMEIN("Opnd.cpp] 101\n");
         return false;
     }
 
     // If this operand is known address, then it doesn't need a write barrier, the address is either not a GC address or is pinned
     if (this->IsAddrOpnd() && static_cast<AddrOpndKind>(this->AsAddrOpnd()->GetKind()) == AddrOpndKindDynamicVar)
-    {
+    {LOGMEIN("Opnd.cpp] 107\n");
         return false;
     }
 
     if (TySize[this->GetType()] != sizeof(void*))
-    {
+    {LOGMEIN("Opnd.cpp] 112\n");
         return false;
     }
 
 #if DBG
     if (CONFIG_FLAG(ForceSoftwareWriteBarrier) && CONFIG_FLAG(VerifyBarrierBit))
-    {
+    {LOGMEIN("Opnd.cpp] 118\n");
         return true; // No further optimization if we are in verification
     }
 #endif
@@ -130,7 +130,7 @@ Opnd::IsWriteBarrierTriggerableValue()
 */
 
 OpndKind Opnd::GetKind() const
-{
+{LOGMEIN("Opnd.cpp] 132\n");
     return this->m_kind;
 }
 
@@ -140,19 +140,19 @@ OpndKind Opnd::GetKind() const
 
 Opnd *
 Opnd::CloneDef(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 142\n");
     switch (this->m_kind)
-    {
+    {LOGMEIN("Opnd.cpp] 144\n");
     case OpndKindSym:
         if ((*static_cast<SymOpnd*>(this)).IsPropertySymOpnd())
-        {
+        {LOGMEIN("Opnd.cpp] 147\n");
             return static_cast<PropertySymOpnd*>(this)->CloneDefInternalSub(func);
         }
         return static_cast<SymOpnd*>(this)->CloneDefInternal(func);
 
     case OpndKindReg:
         if ((*static_cast<RegOpnd*>(this)).IsArrayRegOpnd())
-        {
+        {LOGMEIN("Opnd.cpp] 154\n");
             return static_cast<ArrayRegOpnd*>(this)->CloneDefInternalSub(func);
         }
         return static_cast<RegOpnd*>(this)->CloneDefInternal(func);
@@ -171,19 +171,19 @@ Opnd::CloneDef(Func *func)
 
 Opnd *
 Opnd::CloneUse(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 173\n");
     switch (this->m_kind)
-    {
+    {LOGMEIN("Opnd.cpp] 175\n");
     case OpndKindSym:
         if ((*static_cast<SymOpnd*>(this)).IsPropertySymOpnd())
-        {
+        {LOGMEIN("Opnd.cpp] 178\n");
             return static_cast<PropertySymOpnd*>(this)->CloneUseInternalSub(func);
         }
         return static_cast<SymOpnd*>(this)->CloneUseInternal(func);
 
     case OpndKindReg:
         if ((*static_cast<RegOpnd*>(this)).IsArrayRegOpnd())
-        {
+        {LOGMEIN("Opnd.cpp] 185\n");
             return static_cast<ArrayRegOpnd*>(this)->CloneUseInternalSub(func);
         }
         return static_cast<RegOpnd*>(this)->CloneUseInternal(func);
@@ -201,9 +201,9 @@ Opnd::CloneUse(Func *func)
 */
 
 void Opnd::Free(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 203\n");
     switch (this->m_kind)
-    {
+    {LOGMEIN("Opnd.cpp] 205\n");
     case OpndKindIntConst:
         //NOTE: use to be Sealed do not do sub class checks like in CloneUse
         static_cast<IntConstOpnd*>(this)->FreeInternal(func);
@@ -230,7 +230,7 @@ void Opnd::Free(Func *func)
 
     case OpndKindReg:
         if ((*static_cast<RegOpnd*>(this)).IsArrayRegOpnd())
-        {
+        {LOGMEIN("Opnd.cpp] 232\n");
             static_cast<ArrayRegOpnd*>(this)->FreeInternalSub(func);
             break;
         }
@@ -263,7 +263,7 @@ void Opnd::Free(Func *func)
     };
 #if DBG
     if (func->m_alloc->HasDelayFreeList())
-    {
+    {LOGMEIN("Opnd.cpp] 265\n");
         this->isDeleted = true;
     }
 #endif
@@ -274,9 +274,9 @@ void Opnd::Free(Func *func)
 */
 
 bool Opnd::IsEqual(Opnd *opnd)
-{
+{LOGMEIN("Opnd.cpp] 276\n");
     switch (this->m_kind)
-    {
+    {LOGMEIN("Opnd.cpp] 278\n");
     case OpndKindIntConst:
         return static_cast<IntConstOpnd*>(this)->IsEqualInternal(opnd);
 
@@ -288,7 +288,7 @@ bool Opnd::IsEqual(Opnd *opnd)
 
     case OpndKindHelperCall:
         if ((*static_cast<HelperCallOpnd*>(this)).IsDiagHelperCallOpnd())
-        {
+        {LOGMEIN("Opnd.cpp] 290\n");
             return static_cast<DiagHelperCallOpnd*>(this)->IsEqualInternalSub(opnd);
         }
         return static_cast<HelperCallOpnd*>(this)->IsEqualInternal(opnd);
@@ -328,9 +328,9 @@ bool Opnd::IsEqual(Opnd *opnd)
 */
 
 Opnd * Opnd::Copy(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 330\n");
     switch (this->m_kind)
-    {
+    {LOGMEIN("Opnd.cpp] 332\n");
     case OpndKindIntConst:
         return static_cast<IntConstOpnd*>(this)->CopyInternal(func);
 
@@ -342,21 +342,21 @@ Opnd * Opnd::Copy(Func *func)
 
     case OpndKindHelperCall:
         if ((*static_cast<HelperCallOpnd*>(this)).IsDiagHelperCallOpnd())
-        {
+        {LOGMEIN("Opnd.cpp] 344\n");
             return static_cast<DiagHelperCallOpnd*>(this)->CopyInternalSub(func);
         }
         return static_cast<HelperCallOpnd*>(this)->CopyInternal(func);
 
     case OpndKindSym:
         if ((*static_cast<SymOpnd*>(this)).IsPropertySymOpnd())
-        {
+        {LOGMEIN("Opnd.cpp] 351\n");
             return static_cast<PropertySymOpnd*>(this)->CopyInternalSub(func);
         }
         return static_cast<SymOpnd*>(this)->CopyInternal(func);
 
     case OpndKindReg:
         if ((*static_cast<RegOpnd*>(this)).IsArrayRegOpnd())
-        {
+        {LOGMEIN("Opnd.cpp] 358\n");
             return static_cast<ArrayRegOpnd*>(this)->CopyInternalSub(func);
         }
         return static_cast<RegOpnd*>(this)->CopyInternal(func);
@@ -384,9 +384,9 @@ Opnd * Opnd::Copy(Func *func)
 
 StackSym *
 Opnd::GetStackSym() const
-{
+{LOGMEIN("Opnd.cpp] 386\n");
     switch (this->GetKind())
-    {
+    {LOGMEIN("Opnd.cpp] 388\n");
     case OpndKindSym:
         return static_cast<SymOpnd const *>(this)->GetStackSymInternal();
     case OpndKindReg:
@@ -398,9 +398,9 @@ Opnd::GetStackSym() const
 
 Sym*
 Opnd::GetSym() const
-{
+{LOGMEIN("Opnd.cpp] 400\n");
     switch (this->GetKind())
-    {
+    {LOGMEIN("Opnd.cpp] 402\n");
         case OpndKindSym:
             return static_cast<SymOpnd const *>(this)->m_sym;
         case OpndKindReg:
@@ -412,9 +412,9 @@ Opnd::GetSym() const
 
 int64
 Opnd::GetImmediateValue(Func* func)
-{
+{LOGMEIN("Opnd.cpp] 414\n");
     switch (this->GetKind())
-    {
+    {LOGMEIN("Opnd.cpp] 416\n");
     case OpndKindIntConst:
         return this->AsIntConstOpnd()->GetValue();
 
@@ -436,7 +436,7 @@ Opnd::GetImmediateValue(Func* func)
 #if TARGET_32 && !defined(_M_IX86)
 int32
 Opnd::GetImmediateValueAsInt32(Func * func)
-{
+{LOGMEIN("Opnd.cpp] 438\n");
     Assert(!IRType_IsInt64(this->GetType()));
     Assert(this->GetKind() != OpndKindInt64Const);
     return (int32)this->GetImmediateValue(func);
@@ -444,14 +444,14 @@ Opnd::GetImmediateValueAsInt32(Func * func)
 #endif
 
 BailoutConstantValue Opnd::GetConstValue()
-{
+{LOGMEIN("Opnd.cpp] 446\n");
     BailoutConstantValue value;
     if (this->IsIntConstOpnd())
-    {
+    {LOGMEIN("Opnd.cpp] 449\n");
         value.InitIntConstValue(this->AsIntConstOpnd()->GetValue(), this->m_type);
     }
     else if (this->IsFloatConstOpnd())
-    {
+    {LOGMEIN("Opnd.cpp] 453\n");
         value.InitFloatConstValue(this->AsFloatConstOpnd()->m_value);
     }
     else
@@ -463,9 +463,9 @@ BailoutConstantValue Opnd::GetConstValue()
 }
 
 void Opnd::SetValueType(const ValueType valueType)
-{
+{LOGMEIN("Opnd.cpp] 465\n");
     if(m_isValueTypeFixed)
-    {
+    {LOGMEIN("Opnd.cpp] 467\n");
         return;
     }
 
@@ -479,34 +479,34 @@ void Opnd::SetValueType(const ValueType valueType)
 }
 
 bool Opnd::IsScopeObjOpnd(Func * func)
-{
+{LOGMEIN("Opnd.cpp] 481\n");
     if (IsRegOpnd())
-    {
+    {LOGMEIN("Opnd.cpp] 483\n");
         return this->GetStackSym() == func->GetScopeObjSym();
     }
     else if(IsSymOpnd() && AsSymOpnd()->m_sym->IsPropertySym())
-    {
+    {LOGMEIN("Opnd.cpp] 487\n");
         return this->AsSymOpnd()->m_sym->AsPropertySym()->m_stackSym == func->GetScopeObjSym();
     }
     return false;
 }
 
 ValueType Opnd::FindProfiledValueType()
-{
+{LOGMEIN("Opnd.cpp] 494\n");
     if (!this->GetValueType().IsUninitialized())
-    {
+    {LOGMEIN("Opnd.cpp] 496\n");
         return this->GetValueType();
     }
 
     // could be expanded to cover additional opnd kinds as well.
     if (this->IsRegOpnd() && this->AsRegOpnd()->m_sym->IsSingleDef())
-    {
+    {LOGMEIN("Opnd.cpp] 502\n");
         IR::Instr * defInstr = this->AsRegOpnd()->m_sym->GetInstrDef();
         IR::Opnd * src1 = defInstr->GetSrc1();
         while(defInstr->m_opcode == Js::OpCode::Ld_A)
-        {
+        {LOGMEIN("Opnd.cpp] 506\n");
             if (!src1->IsRegOpnd() || !src1->AsRegOpnd()->m_sym->IsSingleDef())
-            {
+            {LOGMEIN("Opnd.cpp] 508\n");
                 return ValueType::Uninitialized;
             }
             defInstr = src1->AsRegOpnd()->m_sym->GetInstrDef();
@@ -514,7 +514,7 @@ ValueType Opnd::FindProfiledValueType()
         }
 
         if (defInstr->GetDst()->GetValueType().IsAnyArray())
-        {
+        {LOGMEIN("Opnd.cpp] 516\n");
             return defInstr->GetDst()->GetValueType().ToLikely();
         }
         else
@@ -527,24 +527,24 @@ ValueType Opnd::FindProfiledValueType()
 
 #if DBG_DUMP || defined(ENABLE_IR_VIEWER)
 void Opnd::DumpValueType()
-{
+{LOGMEIN("Opnd.cpp] 529\n");
     if(m_valueType.IsUninitialized())
-    {
+    {LOGMEIN("Opnd.cpp] 531\n");
         return;
     }
 
     if(!CONFIG_FLAG(Verbose))
-    {
+    {LOGMEIN("Opnd.cpp] 536\n");
         // Skip printing the value type when it's obvious since verbose mode is off
         switch(this->GetKind())
-        {
+        {LOGMEIN("Opnd.cpp] 539\n");
         case OpndKindIntConst:
         case OpndKindInt64Const:
         case OpndKindFloatConst:
             return;
 
         case OpndKindReg:
-            {
+            {LOGMEIN("Opnd.cpp] 546\n");
                 StackSym *const sym = this->AsRegOpnd()->m_sym;
                 if(sym && (
                     sym->IsInt32() ||
@@ -553,7 +553,7 @@ void Opnd::DumpValueType()
                     sym->IsInt64() ||
                     sym->IsUint64()
                     ))
-                {
+                {LOGMEIN("Opnd.cpp] 555\n");
                     return;
                 }
                 break;
@@ -561,7 +561,7 @@ void Opnd::DumpValueType()
 
         case OpndKindAddr:
             if(this->AsAddrOpnd()->m_address && this->AsAddrOpnd()->IsVar())
-            {
+            {LOGMEIN("Opnd.cpp] 563\n");
                 IR::AddrOpnd *addrOpnd = this->AsAddrOpnd();
                 Js::Var address = addrOpnd->decodedValue ? addrOpnd->decodedValue : addrOpnd->m_address;
 
@@ -572,7 +572,7 @@ void Opnd::DumpValueType()
                     !JITManager::GetJITManager()->IsOOPJITEnabled() &&
 #endif
                     Js::JavascriptNumber::Is_NoTaggedIntCheck(address)))
-                {
+                {LOGMEIN("Opnd.cpp] 574\n");
                     return;
                 }
             }
@@ -584,9 +584,9 @@ void Opnd::DumpValueType()
 }
 
 void Opnd::DumpValueType(const ValueType valueType)
-{
+{LOGMEIN("Opnd.cpp] 586\n");
     if(valueType.IsUninitialized())
-    {
+    {LOGMEIN("Opnd.cpp] 588\n");
         return;
     }
 
@@ -597,24 +597,24 @@ void Opnd::DumpValueType(const ValueType valueType)
 #endif
 
 IntConstOpnd *Opnd::CreateUint32Opnd(const uint i, Func *const func)
-{
+{LOGMEIN("Opnd.cpp] 599\n");
     return IntConstOpnd::New(i, TyUint32, func, true);
 }
 
 IntConstOpnd *Opnd::CreateProfileIdOpnd(const Js::ProfileId profileId, Func *const func)
-{
+{LOGMEIN("Opnd.cpp] 604\n");
     CompileAssert(sizeof(profileId) == sizeof(uint16));
     return IntConstOpnd::New(profileId, TyUint16, func, true);
 }
 
 IntConstOpnd *Opnd::CreateInlineCacheIndexOpnd(const Js::InlineCacheIndex inlineCacheIndex, Func *const func)
-{
+{LOGMEIN("Opnd.cpp] 610\n");
     CompileAssert(sizeof(inlineCacheIndex) == sizeof(uint));
     return CreateUint32Opnd(inlineCacheIndex, func);
 }
 
 RegOpnd *Opnd::CreateFramePointerOpnd(Func *const func)
-{
+{LOGMEIN("Opnd.cpp] 616\n");
     return RegOpnd::New(nullptr, LowererMD::GetRegFramePointer(), TyMachPtr, func);
 }
 
@@ -628,13 +628,13 @@ RegOpnd *Opnd::CreateFramePointerOpnd(Func *const func)
 
 SymOpnd *
 SymOpnd::New(Sym *sym, IRType type, Func *func)
-{
+{LOGMEIN("Opnd.cpp] 630\n");
     return SymOpnd::New(sym, 0, type, func);
 }
 
 SymOpnd *
 SymOpnd::New(Sym *sym, uint32 offset, IRType type, Func *func)
-{
+{LOGMEIN("Opnd.cpp] 636\n");
     SymOpnd * symOpnd;
 
     AssertMsg(sym, "A SymOpnd needs a valid symbol.");
@@ -663,7 +663,7 @@ SymOpnd::New(Sym *sym, uint32 offset, IRType type, Func *func)
 
 SymOpnd *
 SymOpnd::CopyInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 665\n");
     Assert(m_kind == OpndKindSym);
     SymOpnd * newOpnd;
 
@@ -677,16 +677,16 @@ SymOpnd::CopyInternal(Func *func)
 
 SymOpnd *
 SymOpnd::CloneDefInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 679\n");
     Assert(m_kind == OpndKindSym);
     Sym *sym = this->m_sym;
 
     if (sym->IsStackSym() && sym->AsStackSym()->m_isSingleDef)
-    {
+    {LOGMEIN("Opnd.cpp] 684\n");
         StackSym * oldSym = sym->AsStackSym();
         StackSym * newSym = oldSym->CloneDef(func)->AsStackSym();
         if (func->GetCloner()->clonedInstrGetOrigArgSlotSym && oldSym->IsArgSlotSym())
-        {
+        {LOGMEIN("Opnd.cpp] 688\n");
             Assert(newSym != oldSym);
             this->m_sym = newSym;
             newSym->m_instrDef = oldSym->m_instrDef;
@@ -706,16 +706,16 @@ SymOpnd::CloneDefInternal(Func *func)
 
 SymOpnd *
 SymOpnd::CloneUseInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 708\n");
     Assert(m_kind == OpndKindSym);
     Sym *sym = this->m_sym;
 
     if (sym->IsStackSym() && sym->AsStackSym()->m_isSingleDef)
-    {
+    {LOGMEIN("Opnd.cpp] 713\n");
         StackSym * oldSym = sym->AsStackSym();
         StackSym * newSym = oldSym->CloneUse(func)->AsStackSym();
         if (func->GetCloner()->clonedInstrGetOrigArgSlotSym && oldSym->IsArgSlotSym())
-        {
+        {LOGMEIN("Opnd.cpp] 717\n");
             Assert(newSym != oldSym);
             this->m_sym = newSym;
             sym = oldSym;
@@ -733,7 +733,7 @@ SymOpnd::CloneUseInternal(Func *func)
 
 StackSym *
 SymOpnd::GetStackSymInternal() const
-{
+{LOGMEIN("Opnd.cpp] 735\n");
     return (this->m_sym && this->m_sym->IsStackSym()) ? this->m_sym->AsStackSym() : nullptr;
 }
 
@@ -754,11 +754,11 @@ SymOpnd::GetStackSymInternal() const
 ///----------------------------------------------------------------------------
 bool
 SymOpnd::IsEqualInternal(Opnd *opnd)
-{
+{LOGMEIN("Opnd.cpp] 756\n");
     Assert(m_kind == OpndKindSym);
     Assert(opnd);
     if (!opnd->IsSymOpnd() || this->GetType() != opnd->GetType())
-    {
+    {LOGMEIN("Opnd.cpp] 760\n");
         return false;
     }
 
@@ -767,7 +767,7 @@ SymOpnd::IsEqualInternal(Opnd *opnd)
     StackSym *thisStackSym = this->GetStackSymInternal();
     StackSym *opndStackSym = opndSym->GetStackSymInternal();
     if (thisStackSym && opndStackSym && thisStackSym->IsAllocated() && opndStackSym->IsAllocated())
-    {
+    {LOGMEIN("Opnd.cpp] 769\n");
         return thisStackSym->m_offset == opndStackSym->m_offset;
     }
     else
@@ -778,14 +778,14 @@ SymOpnd::IsEqualInternal(Opnd *opnd)
 
 void
 SymOpnd::FreeInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 780\n");
     Assert(m_kind == OpndKindSym);
     JitAdelete(func->m_alloc, this);
 }
 
 
 RegOpnd *SymOpnd::CreatePropertyOwnerOpnd(Func *const func) const
-{
+{LOGMEIN("Opnd.cpp] 787\n");
     Assert(m_sym->IsPropertySym());
     Assert(func);
 
@@ -797,7 +797,7 @@ RegOpnd *SymOpnd::CreatePropertyOwnerOpnd(Func *const func) const
 
 PropertySymOpnd *
 PropertySymOpnd::New(PropertySym *propertySym, uint inlineCacheIndex, IRType type, Func *func)
-{
+{LOGMEIN("Opnd.cpp] 799\n");
     PropertySymOpnd *newOpnd = IR::PropertySymOpnd::New(propertySym, type, func);
     newOpnd->Init(inlineCacheIndex, func);
     return newOpnd;
@@ -805,7 +805,7 @@ PropertySymOpnd::New(PropertySym *propertySym, uint inlineCacheIndex, IRType typ
 
 void
 PropertySymOpnd::Init(uint inlineCacheIndex, Func *func)
-{
+{LOGMEIN("Opnd.cpp] 807\n");
     this->Init(inlineCacheIndex,
         inlineCacheIndex != -1 ? func->GetRuntimeInlineCache(inlineCacheIndex) : 0,
         inlineCacheIndex != -1 ? func->GetRuntimePolymorphicInlineCache(inlineCacheIndex) : nullptr,
@@ -815,7 +815,7 @@ PropertySymOpnd::Init(uint inlineCacheIndex, Func *func)
 
 PropertySymOpnd *
 PropertySymOpnd::New(PropertySym *propertySym, IRType type, Func *func)
-{
+{LOGMEIN("Opnd.cpp] 817\n");
     PropertySymOpnd *newOpnd = JitAnew(func->m_alloc, IR::PropertySymOpnd);
     newOpnd->m_sym = propertySym;
     newOpnd->m_offset = 0;
@@ -836,7 +836,7 @@ PropertySymOpnd::New(PropertySym *propertySym, IRType type, Func *func)
 
 void
 PropertySymOpnd::Init(uint inlineCacheIndex, intptr_t runtimeInlineCache, JITTimePolymorphicInlineCache * runtimePolymorphicInlineCache, JITObjTypeSpecFldInfo* objTypeSpecFldInfo, byte polyCacheUtil)
-{
+{LOGMEIN("Opnd.cpp] 838\n");
     this->m_inlineCacheIndex = inlineCacheIndex;
     this->m_runtimeInlineCache = runtimeInlineCache;
     this->m_runtimePolymorphicInlineCache = runtimePolymorphicInlineCache;
@@ -848,7 +848,7 @@ PropertySymOpnd::Init(uint inlineCacheIndex, intptr_t runtimeInlineCache, JITTim
 
 PropertySymOpnd *
 PropertySymOpnd::CopyCommon(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 850\n");
     PropertySymOpnd *newOpnd = PropertySymOpnd::New(this->m_sym->AsPropertySym(), this->m_type, func);
     newOpnd->m_valueType = this->m_valueType;
     newOpnd->m_inlineCacheIndex = this->m_inlineCacheIndex;
@@ -860,7 +860,7 @@ PropertySymOpnd::CopyCommon(Func *func)
 
 PropertySymOpnd *
 PropertySymOpnd::CopyWithoutFlowSensitiveInfo(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 862\n");
     PropertySymOpnd *newOpnd = CopyCommon(func);
     newOpnd->SetObjTypeSpecFldInfo(this->objTypeSpecFldInfo);
 
@@ -883,7 +883,7 @@ PropertySymOpnd::CopyWithoutFlowSensitiveInfo(Func *func)
 
 PropertySymOpnd *
 PropertySymOpnd::CopyInternalSub(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 885\n");
     Assert(m_kind == OpndKindSym && this->IsPropertySymOpnd());
     PropertySymOpnd *newOpnd = CopyCommon(func);
 
@@ -904,19 +904,19 @@ PropertySymOpnd::CopyInternalSub(Func *func)
 
 bool
 PropertySymOpnd::IsObjectHeaderInlined() const
-{
+{LOGMEIN("Opnd.cpp] 906\n");
     JITTypeHolder type(nullptr);
     if (this->IsMono())
-    {
+    {LOGMEIN("Opnd.cpp] 909\n");
         type = this->GetType();
     }
     else if (this->HasEquivalentTypeSet())
-    {
+    {LOGMEIN("Opnd.cpp] 913\n");
         type = this->GetFirstEquivalentType();
     }
 
     if (type != nullptr && Js::DynamicType::Is(type->GetTypeId()))
-    {
+    {LOGMEIN("Opnd.cpp] 918\n");
         return type->GetTypeHandler()->IsObjectHeaderInlinedTypeHandler();
     }
 
@@ -925,12 +925,12 @@ PropertySymOpnd::IsObjectHeaderInlined() const
 
 bool
 PropertySymOpnd::ChangesObjectLayout() const
-{
+{LOGMEIN("Opnd.cpp] 927\n");
     JITTypeHolder cachedType = this->IsMono() ? this->GetType() : this->GetFirstEquivalentType();
 
     JITTypeHolder finalType = this->GetFinalType();
     if (finalType != nullptr && Js::DynamicType::Is(finalType->GetTypeId()))
-    {
+    {LOGMEIN("Opnd.cpp] 932\n");
         // This is the case where final type opt may cause pro-active type transition to take place.
 
     Assert(cachedType != nullptr && Js::DynamicType::Is(cachedType->GetTypeId()));
@@ -940,13 +940,13 @@ PropertySymOpnd::ChangesObjectLayout() const
     }
 
     if (!this->HasInitialType())
-    {
+    {LOGMEIN("Opnd.cpp] 942\n");
         return false;
     }
 
     JITTypeHolder initialType = this->GetInitialType();
     if (initialType != nullptr && Js::DynamicType::Is(initialType->GetTypeId()))
-    {
+    {LOGMEIN("Opnd.cpp] 948\n");
         // This is the case where the type transition actually occurs. (This is the only case that's detectable
         // during the loop pre-pass, since final types are not in place yet.)
 
@@ -964,7 +964,7 @@ PropertySymOpnd::ChangesObjectLayout() const
 
 void
 PropertySymOpnd::UpdateSlotForFinalType()
-{
+{LOGMEIN("Opnd.cpp] 966\n");
     JITTypeHolder finalType = this->GetFinalType();
 
     Assert(this->IsMono() || this->checkedTypeSetIndex != (uint16)-1);
@@ -975,7 +975,7 @@ PropertySymOpnd::UpdateSlotForFinalType()
     Assert(cachedType != nullptr && Js::DynamicType::Is(cachedType->GetTypeId()));
 
     if (finalType == cachedType)
-    {
+    {LOGMEIN("Opnd.cpp] 977\n");
         return;
     }
 
@@ -984,7 +984,7 @@ PropertySymOpnd::UpdateSlotForFinalType()
 
     if (cachedType->GetTypeHandler()->GetInlineSlotCapacity() == finalType->GetTypeHandler()->GetInlineSlotCapacity() &&
         cachedType->GetTypeHandler()->GetOffsetOfInlineSlots() == finalType->GetTypeHandler()->GetOffsetOfInlineSlots())
-    {
+    {LOGMEIN("Opnd.cpp] 986\n");
         // Nothing can change, since the variables aren't changing.
         return;
     }
@@ -992,7 +992,7 @@ PropertySymOpnd::UpdateSlotForFinalType()
     // Get the slot index and figure out the property index
     uint16 index = this->GetSlotIndex();
     if (this->UsesAuxSlot())
-    {
+    {LOGMEIN("Opnd.cpp] 994\n");
         index += cachedType->GetTypeHandler()->GetInlineSlotCapacity();
     }
     else
@@ -1002,7 +1002,7 @@ PropertySymOpnd::UpdateSlotForFinalType()
 
     // Figure out the slot index and aux-ness from the property index
     if (index >= finalType->GetTypeHandler()->GetInlineSlotCapacity())
-    {
+    {LOGMEIN("Opnd.cpp] 1004\n");
         this->SetUsesAuxSlot(true);
         index -= finalType->GetTypeHandler()->GetInlineSlotCapacity();
     }
@@ -1015,19 +1015,19 @@ PropertySymOpnd::UpdateSlotForFinalType()
 }
 
 bool PropertySymOpnd::HasFinalType() const
-{
+{LOGMEIN("Opnd.cpp] 1017\n");
     return this->finalType != nullptr;
 }
 
 PropertySymOpnd *
 PropertySymOpnd::CloneDefInternalSub(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1023\n");
     return this->CopyInternalSub(func);
 }
 
 PropertySymOpnd *
 PropertySymOpnd::CloneUseInternalSub(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1029\n");
     return this->CopyInternalSub(func);
 }
 
@@ -1051,7 +1051,7 @@ RegOpnd::RegOpnd(const RegOpnd &other, StackSym *const sym)
 }
 
 void RegOpnd::Initialize(StackSym *sym, RegNum reg, IRType type)
-{
+{LOGMEIN("Opnd.cpp] 1053\n");
     AssertMsg(sym || reg != RegNOREG, "A RegOpnd needs a valid symbol or register.");
     Assert(!sym || sym->GetType() != TyMisc);
 
@@ -1084,13 +1084,13 @@ void RegOpnd::Initialize(StackSym *sym, RegNum reg, IRType type)
 
 RegOpnd *
     RegOpnd::New(IRType type, Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1086\n");
     return RegOpnd::New(StackSym::New(type, func), RegNOREG, type, func);
 }
 
 RegOpnd *
 RegOpnd::New(StackSym *sym, IRType type, Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1092\n");
     return RegOpnd::New(sym, RegNOREG, type, func);
 }
 
@@ -1104,7 +1104,7 @@ RegOpnd::New(StackSym *sym, IRType type, Func *func)
 
 RegOpnd *
 RegOpnd::New(StackSym *sym, RegNum reg, IRType type, Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1106\n");
     return JitAnew(func->m_alloc, IR::RegOpnd, sym, reg, type);
 }
 
@@ -1117,40 +1117,40 @@ RegOpnd::New(StackSym *sym, RegNum reg, IRType type, Func *func)
 ///----------------------------------------------------------------------------
 RegOpnd *
 RegOpnd::CopyInternal(StackSym * sym, Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1119\n");
     Assert(m_kind == OpndKindReg);
     return JitAnew(func->m_alloc, IR::RegOpnd, *this, sym);
 }
 
 RegOpnd *
 RegOpnd::CopyInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1126\n");
     return CopyInternal(m_sym, func);
 }
 
 RegOpnd *
 RegOpnd::CloneDefInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1132\n");
     StackSym * sym = m_sym ? m_sym->CloneDef(func) :  nullptr;
     return CopyInternal(sym, func);
 }
 
 RegOpnd *
 RegOpnd::CloneUseInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1139\n");
     StackSym * sym = m_sym ? m_sym->CloneUse(func) : nullptr;
     return CopyInternal(sym, func);
 }
 
 StackSym *
 RegOpnd::GetStackSymInternal() const
-{
+{LOGMEIN("Opnd.cpp] 1146\n");
     return this->m_sym;
 }
 
 StackSym *
 RegOpnd::TryGetStackSym(Opnd *const opnd)
-{
+{LOGMEIN("Opnd.cpp] 1152\n");
     return opnd && opnd->IsRegOpnd() ? opnd->AsRegOpnd()->m_sym : nullptr;
 }
 
@@ -1162,14 +1162,14 @@ RegOpnd::TryGetStackSym(Opnd *const opnd)
 
 bool
 RegOpnd::IsEqualInternal(Opnd *opnd)
-{
+{LOGMEIN("Opnd.cpp] 1164\n");
     Assert(m_kind == OpndKindReg);
     return IsSameRegUntyped(opnd) && (this->GetType() == opnd->GetType());
 }
 
 void
 RegOpnd::FreeInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1171\n");
     Assert(m_kind == OpndKindReg);
     JitAdelete(func->m_alloc, this);
 }
@@ -1184,7 +1184,7 @@ RegOpnd::FreeInternal(Func *func)
 
 bool
 RegOpnd::IsSameReg(Opnd *opnd)
-{
+{LOGMEIN("Opnd.cpp] 1186\n");
     return IsSameRegUntyped(opnd) && (TySize[this->GetType()] == TySize[opnd->GetType()]);
 }
 
@@ -1198,15 +1198,15 @@ RegOpnd::IsSameReg(Opnd *opnd)
 
 bool
 RegOpnd::IsSameRegUntyped(Opnd *opnd)
-{
+{LOGMEIN("Opnd.cpp] 1200\n");
     if (!opnd->IsRegOpnd())
-    {
+    {LOGMEIN("Opnd.cpp] 1202\n");
         return false;
     }
     RegOpnd *regOpnd = opnd->AsRegOpnd();
 
     if (m_reg != RegNOREG)
-    {
+    {LOGMEIN("Opnd.cpp] 1208\n");
         return m_reg == regOpnd->m_reg;
     }
 
@@ -1233,7 +1233,7 @@ ArrayRegOpnd::ArrayRegOpnd(
     lengthSym(lengthSym),
     eliminatedLowerBoundCheck(eliminatedLowerBoundCheck),
     eliminatedUpperBoundCheck(eliminatedUpperBoundCheck)
-{
+{LOGMEIN("Opnd.cpp] 1235\n");
     Assert(valueType.IsAnyOptimizedArray());
     m_valueType = valueType;
     m_isArrayRegOpnd = true;
@@ -1254,7 +1254,7 @@ ArrayRegOpnd::ArrayRegOpnd(
     lengthSym(lengthSym),
     eliminatedLowerBoundCheck(eliminatedLowerBoundCheck),
     eliminatedUpperBoundCheck(eliminatedUpperBoundCheck)
-{
+{LOGMEIN("Opnd.cpp] 1256\n");
     Assert(valueType.IsAnyOptimizedArray());
     m_valueType = valueType;
     m_isArrayRegOpnd = true;
@@ -1269,7 +1269,7 @@ ArrayRegOpnd *ArrayRegOpnd::New(
     const bool eliminatedLowerBoundCheck,
     const bool eliminatedUpperBoundCheck,
     Func *const func)
-{
+{LOGMEIN("Opnd.cpp] 1271\n");
     Assert(func);
 
     return
@@ -1294,7 +1294,7 @@ ArrayRegOpnd *ArrayRegOpnd::New(
     const bool eliminatedLowerBoundCheck,
     const bool eliminatedUpperBoundCheck,
     Func *const func)
-{
+{LOGMEIN("Opnd.cpp] 1296\n");
     Assert(func);
 
     return
@@ -1312,20 +1312,20 @@ ArrayRegOpnd *ArrayRegOpnd::New(
 }
 
 RegOpnd *ArrayRegOpnd::CopyAsRegOpnd(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1314\n");
     RegOpnd *const regOpndCopy = RegOpnd::CopyInternal(func);
     Assert(!regOpndCopy->IsArrayRegOpnd());
     return regOpndCopy;
 }
 
 ArrayRegOpnd *ArrayRegOpnd::CopyInternalSub(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1321\n");
     Assert(m_kind == OpndKindReg && this->IsArrayRegOpnd());
     return Clone(m_sym, headSegmentSym, headSegmentLengthSym, lengthSym, func);
 }
 
 ArrayRegOpnd *ArrayRegOpnd::CloneDefInternalSub(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1327\n");
     Assert(m_kind == OpndKindReg && this->IsArrayRegOpnd());
     return
         Clone(
@@ -1337,7 +1337,7 @@ ArrayRegOpnd *ArrayRegOpnd::CloneDefInternalSub(Func *func)
 }
 
 ArrayRegOpnd *ArrayRegOpnd::CloneUseInternalSub(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1339\n");
     Assert(m_kind == OpndKindReg && this->IsArrayRegOpnd());
     return
         Clone(
@@ -1354,7 +1354,7 @@ ArrayRegOpnd *ArrayRegOpnd::Clone(
     StackSym *const headSegmentLengthSym,
     StackSym *const lengthSym,
     Func *const func) const
-{
+{LOGMEIN("Opnd.cpp] 1356\n");
     Assert(func);
 
     // Careful how clones are used. Only GlobOpt knows when it's valid to use the information in this class, so ideally cloning
@@ -1374,7 +1374,7 @@ ArrayRegOpnd *ArrayRegOpnd::Clone(
 }
 
 void ArrayRegOpnd::FreeInternalSub(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1376\n");
     Assert(m_kind == OpndKindReg && this->IsArrayRegOpnd());
     JitAdelete(func->m_alloc, this);
 }
@@ -1389,7 +1389,7 @@ void ArrayRegOpnd::FreeInternalSub(Func *func)
 
 IntConstOpnd *
 IntConstOpnd::New(IntConstType value, IRType type, Func *func, bool dontEncode)
-{
+{LOGMEIN("Opnd.cpp] 1391\n");
     IntConstOpnd * intConstOpnd;
 
     Assert(TySize[type] <= sizeof(IntConstType));
@@ -1412,7 +1412,7 @@ IntConstOpnd::New(IntConstType value, IRType type, Func *func, bool dontEncode)
 #if DBG_DUMP || defined(ENABLE_IR_VIEWER)
 IntConstOpnd *
 IntConstOpnd::New(IntConstType value, IRType type, const char16 * name, Func *func, bool dontEncode)
-{
+{LOGMEIN("Opnd.cpp] 1414\n");
     IntConstOpnd * intConstOpnd = IntConstOpnd::New(value, type, func, dontEncode);
     intConstOpnd->name = name;
     return intConstOpnd;
@@ -1428,9 +1428,9 @@ IntConstOpnd::New(IntConstType value, IRType type, const char16 * name, Func *fu
 ///----------------------------------------------------------------------------
 
 IR::Opnd* IntConstOpnd::NewFromType(int64 value, IRType type, Func* func)
-{
+{LOGMEIN("Opnd.cpp] 1430\n");
     if (IRType_IsInt64(type))
-    {
+    {LOGMEIN("Opnd.cpp] 1432\n");
         return Int64ConstOpnd::New(value, type, func);
     }
     Assert(value < (int64)UINT_MAX);
@@ -1447,7 +1447,7 @@ IR::Opnd* IntConstOpnd::NewFromType(int64 value, IRType type, Func* func)
 
 IntConstOpnd *
 IntConstOpnd::CopyInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1449\n");
     Assert(m_kind == OpndKindIntConst);
     IntConstOpnd * newOpnd;
     newOpnd = IntConstOpnd::New(m_value, m_type, func, m_dontEncode);
@@ -1464,10 +1464,10 @@ IntConstOpnd::CopyInternal(Func *func)
 
 bool
 IntConstOpnd::IsEqualInternal(Opnd *opnd)
-{
+{LOGMEIN("Opnd.cpp] 1466\n");
     Assert(m_kind == OpndKindIntConst);
     if (!opnd->IsIntConstOpnd() || this->GetType() != opnd->GetType())
-    {
+    {LOGMEIN("Opnd.cpp] 1469\n");
         return false;
     }
 
@@ -1476,7 +1476,7 @@ IntConstOpnd::IsEqualInternal(Opnd *opnd)
 
 void
 IntConstOpnd::FreeInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1478\n");
     Assert(m_kind == OpndKindIntConst);
     JitAdelete(func->m_alloc, this);
 }
@@ -1492,9 +1492,9 @@ IntConstOpnd::FreeInternal(Func *func)
 
 void
 IntConstOpnd::SetValue(IntConstType value)
-{
+{LOGMEIN("Opnd.cpp] 1494\n");
     if (sizeof(IntConstType) > sizeof(int32))
-    {
+    {LOGMEIN("Opnd.cpp] 1496\n");
         Assert(m_type != TyInt32  || (value >= INT32_MIN && value <= INT32_MAX));
         Assert(m_type != TyUint32 || (value >= 0 && value <= UINT32_MAX));
     }
@@ -1520,19 +1520,19 @@ IntConstOpnd::SetValue(IntConstType value)
 
 int32
 IntConstOpnd::AsInt32()
-{
+{LOGMEIN("Opnd.cpp] 1522\n");
     // TODO: Currently, there are cases where we construct IntConstOpnd with TyInt32
     // and retrieve value out as uint32 (or vice versa). Because of these, we allow
     // AsInt32/AsUint32 to cast between int32/uint32 in a lossy manner for now.
     // In the future, we should tighten up usage of IntConstOpnd to avoid these casts
 
     if (sizeof(IntConstType) == sizeof(int32))
-    {
+    {LOGMEIN("Opnd.cpp] 1529\n");
         return (int32)m_value;
     }
 
     if (m_type == TyUint32)
-    {
+    {LOGMEIN("Opnd.cpp] 1534\n");
         Assert(m_value >= 0 && m_value <= UINT32_MAX);
         return (int32)(uint32)m_value;
     }
@@ -1551,11 +1551,11 @@ IntConstOpnd::AsInt32()
 
 uint32
 IntConstOpnd::AsUint32()
-{
+{LOGMEIN("Opnd.cpp] 1553\n");
     // TODO: See comment in AsInt32() regarding casts from int32 to uint32
 
     if (sizeof(uint32) == sizeof(IntConstType))
-    {
+    {LOGMEIN("Opnd.cpp] 1557\n");
         return (uint32)m_value;
     }
 
@@ -1570,7 +1570,7 @@ IntConstOpnd::AsUint32()
 ///
 ///----------------------------------------------------------------------------
 IR::Int64ConstOpnd* Int64ConstOpnd::New(int64 value, IRType type, Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1572\n");
     AssertMsg(func->GetJITFunctionBody()->IsWasmFunction(), "Only WebAssembly functions should have int64 const operands. Use IntConstOpnd for size_t type");
     Int64ConstOpnd * intConstOpnd;
 
@@ -1586,7 +1586,7 @@ IR::Int64ConstOpnd* Int64ConstOpnd::New(int64 value, IRType type, Func *func)
 }
 
 IR::Int64ConstOpnd* Int64ConstOpnd::CopyInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1588\n");
     Assert(m_kind == OpndKindInt64Const);
     Int64ConstOpnd * newOpnd;
     newOpnd = Int64ConstOpnd::New(m_value, m_type, func);
@@ -1596,10 +1596,10 @@ IR::Int64ConstOpnd* Int64ConstOpnd::CopyInternal(Func *func)
 }
 
 bool Int64ConstOpnd::IsEqualInternal(Opnd *opnd)
-{
+{LOGMEIN("Opnd.cpp] 1598\n");
     Assert(m_kind == OpndKindInt64Const);
     if (!opnd->IsInt64ConstOpnd() || this->GetType() != opnd->GetType())
-    {
+    {LOGMEIN("Opnd.cpp] 1601\n");
         return false;
     }
 
@@ -1607,13 +1607,13 @@ bool Int64ConstOpnd::IsEqualInternal(Opnd *opnd)
 }
 
 void Int64ConstOpnd::FreeInternal(Func * func)
-{
+{LOGMEIN("Opnd.cpp] 1609\n");
     Assert(m_kind == OpndKindInt64Const);
     JitAdelete(func->m_alloc, this);
 }
 
 int64 Int64ConstOpnd::GetValue()
-{
+{LOGMEIN("Opnd.cpp] 1615\n");
     Assert(m_type == TyInt64);
     return m_value;
 }
@@ -1628,7 +1628,7 @@ int64 Int64ConstOpnd::GetValue()
 
 RegBVOpnd *
 RegBVOpnd::New(BVUnit32 value, IRType type, Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1630\n");
     RegBVOpnd * regBVOpnd;
 
     regBVOpnd = JitAnew(func->m_alloc, IR::RegBVOpnd);
@@ -1651,7 +1651,7 @@ RegBVOpnd::New(BVUnit32 value, IRType type, Func *func)
 
 RegBVOpnd *
 RegBVOpnd::CopyInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1653\n");
     Assert(m_kind == OpndKindRegBV);
     RegBVOpnd * newOpnd;
 
@@ -1669,10 +1669,10 @@ RegBVOpnd::CopyInternal(Func *func)
 
 bool
 RegBVOpnd::IsEqualInternal(Opnd *opnd)
-{
+{LOGMEIN("Opnd.cpp] 1671\n");
     Assert(m_kind == OpndKindRegBV);
     if (!opnd->IsRegBVOpnd() || this->GetType() != opnd->GetType())
-    {
+    {LOGMEIN("Opnd.cpp] 1674\n");
         return false;
     }
 
@@ -1681,7 +1681,7 @@ RegBVOpnd::IsEqualInternal(Opnd *opnd)
 
 void
 RegBVOpnd::FreeInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1683\n");
     Assert(m_kind == OpndKindRegBV);
     JitAdelete(func->m_alloc, this);
 }
@@ -1697,7 +1697,7 @@ RegBVOpnd::FreeInternal(Func *func)
 
 FloatConstOpnd *
 FloatConstOpnd::New(FloatConstType value, IRType type, Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1699\n");
     FloatConstOpnd * floatConstOpnd;
 
     floatConstOpnd = JitAnew(func->m_alloc, IR::FloatConstOpnd);
@@ -1716,7 +1716,7 @@ FloatConstOpnd::New(FloatConstType value, IRType type, Func *func)
 
 FloatConstOpnd *
 FloatConstOpnd::New(Js::Var floatVar, IRType type, Func *func, Js::Var varLocal /*= nullptr*/)
-{
+{LOGMEIN("Opnd.cpp] 1718\n");
     Assert((varLocal && Js::JavascriptNumber::Is(varLocal)) || Js::JavascriptNumber::Is(floatVar));
 
     FloatConstType value = Js::JavascriptNumber::GetValue(varLocal ? varLocal : floatVar);
@@ -1732,10 +1732,10 @@ FloatConstOpnd::New(Js::Var floatVar, IRType type, Func *func, Js::Var varLocal 
 
 AddrOpnd *
 FloatConstOpnd::GetAddrOpnd(Func *func, bool dontEncode)
-{
+{LOGMEIN("Opnd.cpp] 1734\n");
 #if !FLOATVAR
     if (this->m_number)
-    {
+    {LOGMEIN("Opnd.cpp] 1737\n");
         return AddrOpnd::New(this->m_number, (Js::TaggedNumber::Is(this->m_number) ? AddrOpndKindConstantVar : AddrOpndKindDynamicVar), func, dontEncode, this->m_numberCopy);
     }
 #endif
@@ -1759,7 +1759,7 @@ FloatConstOpnd::GetAddrOpnd(Func *func, bool dontEncode)
 
 FloatConstOpnd *
 FloatConstOpnd::CopyInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1761\n");
     Assert(m_kind == OpndKindFloatConst);
     FloatConstOpnd * newOpnd;
 
@@ -1778,10 +1778,10 @@ FloatConstOpnd::CopyInternal(Func *func)
 
 bool
 FloatConstOpnd::IsEqualInternal(Opnd *opnd)
-{
+{LOGMEIN("Opnd.cpp] 1780\n");
     Assert(m_kind == OpndKindFloatConst);
     if (!opnd->IsFloatConstOpnd() || this->GetType() != opnd->GetType())
-    {
+    {LOGMEIN("Opnd.cpp] 1783\n");
         return false;
     }
 
@@ -1790,7 +1790,7 @@ FloatConstOpnd::IsEqualInternal(Opnd *opnd)
 
 void
 FloatConstOpnd::FreeInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1792\n");
     Assert(m_kind == OpndKindFloatConst);
     JitAdelete(func->m_alloc, this);
 }
@@ -1805,7 +1805,7 @@ FloatConstOpnd::FreeInternal(Func *func)
 
 Simd128ConstOpnd *
 Simd128ConstOpnd::New(AsmJsSIMDValue value, IRType type, Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1807\n");
     Simd128ConstOpnd * simd128ConstOpnd;
 
     simd128ConstOpnd = JitAnew(func->m_alloc, IR::Simd128ConstOpnd);
@@ -1831,7 +1831,7 @@ Simd128ConstOpnd::New(AsmJsSIMDValue value, IRType type, Func *func)
 
 Simd128ConstOpnd *
 Simd128ConstOpnd::CopyInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1833\n");
     Assert(m_kind == OpndKindSimd128Const);
     Simd128ConstOpnd * newOpnd;
 
@@ -1850,10 +1850,10 @@ Simd128ConstOpnd::CopyInternal(Func *func)
 
 bool
 Simd128ConstOpnd::IsEqualInternal(Opnd *opnd)
-{
+{LOGMEIN("Opnd.cpp] 1852\n");
     Assert(m_kind == OpndKindSimd128Const);
     if (!opnd->IsSimd128ConstOpnd() || this->GetType() != opnd->GetType())
-    {
+    {LOGMEIN("Opnd.cpp] 1855\n");
         return false;
     }
 
@@ -1862,7 +1862,7 @@ Simd128ConstOpnd::IsEqualInternal(Opnd *opnd)
 
 void
 Simd128ConstOpnd::FreeInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1864\n");
     Assert(m_kind == OpndKindSimd128Const);
     JitAdelete(func->m_alloc, this);
 }
@@ -1878,7 +1878,7 @@ Simd128ConstOpnd::FreeInternal(Func *func)
 
 HelperCallOpnd *
 HelperCallOpnd::New(JnHelperMethod fnHelper, Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1880\n");
     HelperCallOpnd *helperCallOpnd = JitAnew(func->m_alloc, IR::HelperCallOpnd);
     helperCallOpnd->Init(fnHelper);
 
@@ -1887,7 +1887,7 @@ HelperCallOpnd::New(JnHelperMethod fnHelper, Func *func)
 
 void
 HelperCallOpnd::Init(JnHelperMethod fnHelper)
-{
+{LOGMEIN("Opnd.cpp] 1889\n");
     this->m_fnHelper    = fnHelper;
     this->m_type        = TyMachPtr;
 
@@ -1905,7 +1905,7 @@ HelperCallOpnd::Init(JnHelperMethod fnHelper)
 
 HelperCallOpnd *
 HelperCallOpnd::CopyInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1907\n");
     Assert(m_kind == OpndKindHelperCall);
     HelperCallOpnd *const newOpnd = HelperCallOpnd::New(m_fnHelper, func);
     newOpnd->m_valueType = m_valueType;
@@ -1920,10 +1920,10 @@ HelperCallOpnd::CopyInternal(Func *func)
 
 bool
 HelperCallOpnd::IsEqualInternal(Opnd *opnd)
-{
+{LOGMEIN("Opnd.cpp] 1922\n");
     Assert(m_kind == OpndKindHelperCall);
     if (!opnd->IsHelperCallOpnd())
-    {
+    {LOGMEIN("Opnd.cpp] 1925\n");
         return false;
     }
 
@@ -1932,14 +1932,14 @@ HelperCallOpnd::IsEqualInternal(Opnd *opnd)
 
 void
 HelperCallOpnd::FreeInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1934\n");
     Assert(m_kind == OpndKindHelperCall);
     JitAdelete(func->m_alloc, this);
 }
 
 DiagHelperCallOpnd *
 DiagHelperCallOpnd::New(JnHelperMethod fnHelper, Func *func, int argCount)
-{
+{LOGMEIN("Opnd.cpp] 1941\n");
     DiagHelperCallOpnd *helperCallOpnd = JitAnew(func->m_alloc, IR::DiagHelperCallOpnd);
     helperCallOpnd->Init(fnHelper);
     helperCallOpnd->m_argCount = argCount;
@@ -1949,7 +1949,7 @@ DiagHelperCallOpnd::New(JnHelperMethod fnHelper, Func *func, int argCount)
 
 DiagHelperCallOpnd *
 DiagHelperCallOpnd::CopyInternalSub(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 1951\n");
     Assert(m_kind == OpndKindHelperCall && this->IsDiagHelperCallOpnd());
     DiagHelperCallOpnd *const newOpnd = DiagHelperCallOpnd::New(m_fnHelper, func, m_argCount);
     newOpnd->m_valueType = m_valueType;
@@ -1958,10 +1958,10 @@ DiagHelperCallOpnd::CopyInternalSub(Func *func)
 
 bool
 DiagHelperCallOpnd::IsEqualInternalSub(Opnd *opnd)
-{
+{LOGMEIN("Opnd.cpp] 1960\n");
     Assert(m_kind == OpndKindHelperCall && this->IsDiagHelperCallOpnd());
     if (!opnd->IsHelperCallOpnd() || !opnd->AsHelperCallOpnd()->IsDiagHelperCallOpnd())
-    {
+    {LOGMEIN("Opnd.cpp] 1963\n");
         return false;
     }
 
@@ -1979,7 +1979,7 @@ DiagHelperCallOpnd::IsEqualInternalSub(Opnd *opnd)
 ///----------------------------------------------------------------------------
 AddrOpnd *
 AddrOpnd::New(intptr_t address, AddrOpndKind addrOpndKind, Func *func, bool dontEncode /* = false */, Js::Var varLocal /* = nullptr*/)
-{
+{LOGMEIN("Opnd.cpp] 1981\n");
     AddrOpnd * addrOpnd;
 
     addrOpnd = JitAnew(func->m_alloc, IR::AddrOpnd);
@@ -1993,9 +1993,9 @@ AddrOpnd::New(intptr_t address, AddrOpndKind addrOpndKind, Func *func, bool dont
     addrOpnd->m_isFunction = false;
 
     if (address && addrOpnd->IsVar())
-    {
+    {LOGMEIN("Opnd.cpp] 1995\n");
         if (Js::TaggedInt::Is(address))
-        {
+        {LOGMEIN("Opnd.cpp] 1997\n");
             addrOpnd->m_valueType = ValueType::GetTaggedInt();
             addrOpnd->SetValueTypeFixed();
         }
@@ -2004,7 +2004,7 @@ AddrOpnd::New(intptr_t address, AddrOpndKind addrOpndKind, Func *func, bool dont
             !func->IsOOPJIT() && CONFIG_FLAG(OOPJITMissingOpts) &&
 #endif
             Js::JavascriptNumber::Is_NoTaggedIntCheck(addrOpnd->m_address))
-        {
+        {LOGMEIN("Opnd.cpp] 2006\n");
             addrOpnd->m_valueType =
                 Js::JavascriptNumber::IsInt32_NoChecks(addrOpnd->m_address)
                 ? ValueType::GetInt(false)
@@ -2025,7 +2025,7 @@ AddrOpnd::New(intptr_t address, AddrOpndKind addrOpndKind, Func *func, bool dont
 
 AddrOpnd *
 AddrOpnd::New(Js::Var address, AddrOpndKind addrOpndKind, Func *func, bool dontEncode /* = false */, Js::Var varLocal /* = nullptr*/)
-{
+{LOGMEIN("Opnd.cpp] 2027\n");
     AddrOpnd * addrOpnd;
 
     addrOpnd = JitAnew(func->m_alloc, IR::AddrOpnd);
@@ -2039,9 +2039,9 @@ AddrOpnd::New(Js::Var address, AddrOpndKind addrOpndKind, Func *func, bool dontE
     addrOpnd->m_metadata = nullptr;
 
     if(address && addrOpnd->IsVar())
-    {
+    {LOGMEIN("Opnd.cpp] 2041\n");
         if(Js::TaggedInt::Is(address))
-        {
+        {LOGMEIN("Opnd.cpp] 2043\n");
             addrOpnd->m_valueType = ValueType::GetTaggedInt();
             addrOpnd->SetValueTypeFixed();
         }
@@ -2053,7 +2053,7 @@ AddrOpnd::New(Js::Var address, AddrOpndKind addrOpndKind, Func *func, bool dontE
                 varLocal || (!func->IsOOPJIT() && CONFIG_FLAG(OOPJITMissingOpts)) &&
 #endif
                 Js::JavascriptNumber::Is_NoTaggedIntCheck(var))
-            {
+            {LOGMEIN("Opnd.cpp] 2055\n");
                 addrOpnd->m_valueType =
                     Js::JavascriptNumber::IsInt32_NoChecks(var)
                     ? ValueType::GetInt(false)
@@ -2075,9 +2075,9 @@ AddrOpnd::New(Js::Var address, AddrOpndKind addrOpndKind, Func *func, bool dontE
 
 AddrOpnd *
 AddrOpnd::NewFromNumber(int32 value, Func *func, bool dontEncode /* = false */)
-{
+{LOGMEIN("Opnd.cpp] 2077\n");
     if (!Js::TaggedInt::IsOverflow(value))
-    {
+    {LOGMEIN("Opnd.cpp] 2079\n");
         return New(Js::TaggedInt::ToVarUnchecked(value), AddrOpndKindConstantVar, func, dontEncode);
     }
     else
@@ -2088,9 +2088,9 @@ AddrOpnd::NewFromNumber(int32 value, Func *func, bool dontEncode /* = false */)
 
 AddrOpnd *
 AddrOpnd::NewFromNumber(int64 value, Func *func, bool dontEncode /* = false */)
-{
+{LOGMEIN("Opnd.cpp] 2090\n");
     if (!Js::TaggedInt::IsOverflow(value))
-    {
+    {LOGMEIN("Opnd.cpp] 2092\n");
         return New(Js::TaggedInt::ToVarUnchecked((int)value), AddrOpndKindConstantVar, func, dontEncode);
     }
     else
@@ -2101,22 +2101,22 @@ AddrOpnd::NewFromNumber(int64 value, Func *func, bool dontEncode /* = false */)
 
 AddrOpnd *
 AddrOpnd::NewFromNumber(double value, Func *func, bool dontEncode /* = false */)
-{
+{LOGMEIN("Opnd.cpp] 2103\n");
     //
     // Check if a well-known value:
     // - This significantly cuts down on the below floating-point to integer conversions.
     //
 
     if (Js::JavascriptNumber::IsNegZero(value))
-    {
+    {LOGMEIN("Opnd.cpp] 2110\n");
         return New(func->GetScriptContextInfo()->GetNegativeZeroAddr(), AddrOpndKindDynamicVar, func, dontEncode);
     }
     if (value == +0.0)
-    {
+    {LOGMEIN("Opnd.cpp] 2114\n");
         return New(Js::TaggedInt::ToVarUnchecked(0), AddrOpndKindConstantVar, func, dontEncode);
     }
     if (value == 1.0)
-    {
+    {LOGMEIN("Opnd.cpp] 2118\n");
         return New(Js::TaggedInt::ToVarUnchecked(1), AddrOpndKindConstantVar, func, dontEncode);
     }
 
@@ -2128,7 +2128,7 @@ AddrOpnd::NewFromNumber(double value, Func *func, bool dontEncode /* = false */)
     int nValue      = (int) value;
     double dblCheck = (double) nValue;
     if ((dblCheck == value) && (!Js::TaggedInt::IsOverflow(nValue)))
-    {
+    {LOGMEIN("Opnd.cpp] 2130\n");
         return New(Js::TaggedInt::ToVarUnchecked(nValue), AddrOpndKindConstantVar, func, dontEncode);
     }
 
@@ -2137,7 +2137,7 @@ AddrOpnd::NewFromNumber(double value, Func *func, bool dontEncode /* = false */)
 
 AddrOpnd *
 AddrOpnd::NewFromNumberVar(double value, Func *func, bool dontEncode /* = false */)
-{
+{LOGMEIN("Opnd.cpp] 2139\n");
     Js::Var var = func->AllocateNumber((double)value);
     AddrOpnd* addrOpnd = New((intptr_t)var, AddrOpndKindDynamicVar, func, dontEncode);
     addrOpnd->m_valueType =
@@ -2152,7 +2152,7 @@ AddrOpnd::NewFromNumberVar(double value, Func *func, bool dontEncode /* = false 
 
 AddrOpnd *
 AddrOpnd::NewNull(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 2154\n");
     return AddrOpnd::New((Js::Var)0, AddrOpndKindConstantAddress, func, true);
 }
 
@@ -2166,7 +2166,7 @@ AddrOpnd::NewNull(Func *func)
 
 AddrOpnd *
 AddrOpnd::CopyInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 2168\n");
     Assert(m_kind == OpndKindAddr);
     AddrOpnd * newOpnd;
 
@@ -2178,7 +2178,7 @@ AddrOpnd::CopyInternal(Func *func)
     newOpnd->m_metadata = m_metadata;
     newOpnd->SetType(m_type);
     if (IsValueTypeFixed())
-    {
+    {LOGMEIN("Opnd.cpp] 2180\n");
         newOpnd->SetValueTypeFixed();
     }
 
@@ -2198,10 +2198,10 @@ AddrOpnd::CopyInternal(Func *func)
 
 bool
 AddrOpnd::IsEqualInternal(Opnd *opnd)
-{
+{LOGMEIN("Opnd.cpp] 2200\n");
     Assert(m_kind == OpndKindAddr);
     if (!opnd->IsAddrOpnd())
-    {
+    {LOGMEIN("Opnd.cpp] 2203\n");
         return false;
     }
 
@@ -2210,14 +2210,14 @@ AddrOpnd::IsEqualInternal(Opnd *opnd)
 
 void
 AddrOpnd::FreeInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 2212\n");
     Assert(m_kind == OpndKindAddr);
     JitAdelete(func->m_alloc, this);
 }
 
 void
 AddrOpnd::SetEncodedValue(Js::Var address, AddrOpndKind addrOpndKind)
-{
+{LOGMEIN("Opnd.cpp] 2219\n");
 #if DBG_DUMP || defined(ENABLE_IR_VIEWER)
     this->decodedValue = this->m_address;
 #endif
@@ -2226,7 +2226,7 @@ AddrOpnd::SetEncodedValue(Js::Var address, AddrOpndKind addrOpndKind)
 
 void
 AddrOpnd::SetAddress(Js::Var address, AddrOpndKind addrOpndKind)
-{
+{LOGMEIN("Opnd.cpp] 2228\n");
     this->m_address = address;
     this->addrOpndKind = addrOpndKind;
 }
@@ -2241,7 +2241,7 @@ AddrOpnd::SetAddress(Js::Var address, AddrOpndKind addrOpndKind)
 
 IndirOpnd *
 IndirOpnd::New(RegOpnd *baseOpnd, RegOpnd *indexOpnd, IRType type, Func *func)
-{
+{LOGMEIN("Opnd.cpp] 2243\n");
     IndirOpnd * indirOpnd;
 
     AssertMsg(baseOpnd, "An IndirOpnd needs a valid baseOpnd.");
@@ -2271,7 +2271,7 @@ IndirOpnd::New(RegOpnd *baseOpnd, RegOpnd *indexOpnd, IRType type, Func *func)
 
 IndirOpnd *
 IndirOpnd::New(RegOpnd *baseOpnd, RegOpnd *indexOpnd, byte scale, IRType type, Func *func)
-{
+{LOGMEIN("Opnd.cpp] 2273\n");
     IndirOpnd * indirOpnd = IndirOpnd::New(baseOpnd, indexOpnd, type, func);
 
     indirOpnd->m_scale = scale;
@@ -2289,7 +2289,7 @@ IndirOpnd::New(RegOpnd *baseOpnd, RegOpnd *indexOpnd, byte scale, IRType type, F
 
 IndirOpnd *
 IndirOpnd::New(RegOpnd *baseOpnd, int32 offset, IRType type, Func *func, bool dontEncode /* = false */)
-{
+{LOGMEIN("Opnd.cpp] 2291\n");
     IndirOpnd * indirOpnd;
 
     indirOpnd = JitAnew(func->m_alloc, IR::IndirOpnd);
@@ -2318,7 +2318,7 @@ IndirOpnd::New(RegOpnd *baseOpnd, int32 offset, IRType type, Func *func, bool do
 
 IndirOpnd *
 IndirOpnd::New(RegOpnd *baseOpnd, int32 offset, IRType type, const char16 *desc, Func *func, bool dontEncode /* = false */)
-{
+{LOGMEIN("Opnd.cpp] 2320\n");
     IndirOpnd * indirOpnd = IndirOpnd::New(baseOpnd, offset, type, func);
     indirOpnd->m_desc = desc;
     indirOpnd->m_dontEncode = dontEncode;
@@ -2327,13 +2327,13 @@ IndirOpnd::New(RegOpnd *baseOpnd, int32 offset, IRType type, const char16 *desc,
 #endif
 
 IndirOpnd::~IndirOpnd()
-{
+{LOGMEIN("Opnd.cpp] 2329\n");
     if (m_baseOpnd != nullptr)
-    {
+    {LOGMEIN("Opnd.cpp] 2331\n");
         m_baseOpnd->Free(m_func);
     }
     if (m_indexOpnd != nullptr)
-    {
+    {LOGMEIN("Opnd.cpp] 2335\n");
         m_indexOpnd->Free(m_func);
     }
 }
@@ -2347,7 +2347,7 @@ IndirOpnd::~IndirOpnd()
 
 IndirOpnd *
 IndirOpnd::CopyInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 2349\n");
     Assert(m_kind == OpndKindIndir);
     IndirOpnd * newOpnd;
 
@@ -2367,7 +2367,7 @@ IndirOpnd::CopyInternal(Func *func)
 
 IndirOpnd *
 IndirOpnd::CloneDefInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 2369\n");
     Assert(m_kind == OpndKindIndir);
     IndirOpnd * newOpnd;
 
@@ -2388,7 +2388,7 @@ IndirOpnd::CloneDefInternal(Func *func)
 
 IndirOpnd *
 IndirOpnd::CloneUseInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 2390\n");
     Assert(m_kind == OpndKindIndir);
     IndirOpnd * newOpnd;
 
@@ -2407,18 +2407,18 @@ IndirOpnd::CloneUseInternal(Func *func)
 
 bool
 IndirOpnd::TryGetIntConstIndexValue(bool trySym, IntConstType *pValue, bool * pIsNotInt)
-{
+{LOGMEIN("Opnd.cpp] 2409\n");
     *pIsNotInt = false;
     IR::RegOpnd * indexOpnd = this->GetIndexOpnd();
 
     if (!indexOpnd)
-    {
+    {LOGMEIN("Opnd.cpp] 2414\n");
         *pValue = (IntConstType)this->GetOffset();
         return true;
     }
 
     if (!trySym)
-    {
+    {LOGMEIN("Opnd.cpp] 2420\n");
         return false;
     }
 
@@ -2431,7 +2431,7 @@ IndirOpnd::TryGetIntConstIndexValue(bool trySym, IntConstType *pValue, bool * pI
     // type-specialized index syms and instead, expect that once the above issues are fixed, that the forward pass would fold a
     // constant index into the indir's offset.
     if (!*pIsNotInt && !indexSym->IsTypeSpec() && indexSym->IsIntConst())
-    {
+    {LOGMEIN("Opnd.cpp] 2433\n");
         *pValue = indexSym->GetIntConstValue();
         return true;
     }
@@ -2448,12 +2448,12 @@ IndirOpnd::TryGetIntConstIndexValue(bool trySym, IntConstType *pValue, bool * pI
 
 bool
 IndirOpnd::IsEqualInternal(Opnd *opnd)
-{
+{LOGMEIN("Opnd.cpp] 2450\n");
     Assert(m_kind == OpndKindIndir);
     Assert(opnd);
 
     if (!opnd->IsIndirOpnd() || this->GetType() != opnd->GetType())
-    {
+    {LOGMEIN("Opnd.cpp] 2455\n");
         return false;
     }
     IndirOpnd *indirOpnd = opnd->AsIndirOpnd();
@@ -2464,7 +2464,7 @@ IndirOpnd::IsEqualInternal(Opnd *opnd)
 
 void
 IndirOpnd::FreeInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 2466\n");
     Assert(m_kind == OpndKindIndir);
     JitAdelete(func->m_alloc, this);
 }
@@ -2477,13 +2477,13 @@ IndirOpnd::FreeInternal(Func *func)
 
 void
 IndirOpnd::SetBaseOpnd(RegOpnd *baseOpnd)
-{
+{LOGMEIN("Opnd.cpp] 2479\n");
     if (m_baseOpnd)
-    {
+    {LOGMEIN("Opnd.cpp] 2481\n");
         m_baseOpnd->UnUse();
     }
     if (baseOpnd)
-    {
+    {LOGMEIN("Opnd.cpp] 2485\n");
         baseOpnd = baseOpnd->Use(m_func)->AsRegOpnd();
     }
 
@@ -2498,7 +2498,7 @@ IndirOpnd::SetBaseOpnd(RegOpnd *baseOpnd)
 
 RegOpnd *
 IndirOpnd::UnlinkBaseOpnd()
-{
+{LOGMEIN("Opnd.cpp] 2500\n");
     RegOpnd * baseOpnd = this->m_baseOpnd;
 
     // This will also call UnUse()...
@@ -2509,7 +2509,7 @@ IndirOpnd::UnlinkBaseOpnd()
 
 void
 IndirOpnd::ReplaceBaseOpnd(RegOpnd *newBase)
-{
+{LOGMEIN("Opnd.cpp] 2511\n");
     RegOpnd * baseOpnd = this->m_baseOpnd;
     this->UnlinkBaseOpnd();
     baseOpnd->Free(this->m_func);
@@ -2525,13 +2525,13 @@ IndirOpnd::ReplaceBaseOpnd(RegOpnd *newBase)
 
 void
 IndirOpnd::SetIndexOpnd(RegOpnd *indexOpnd)
-{
+{LOGMEIN("Opnd.cpp] 2527\n");
     if (m_indexOpnd)
-    {
+    {LOGMEIN("Opnd.cpp] 2529\n");
         m_indexOpnd->UnUse();
     }
     if (indexOpnd)
-    {
+    {LOGMEIN("Opnd.cpp] 2533\n");
         indexOpnd = indexOpnd->Use(m_func)->AsRegOpnd();
     }
 
@@ -2546,7 +2546,7 @@ IndirOpnd::SetIndexOpnd(RegOpnd *indexOpnd)
 
 RegOpnd *
 IndirOpnd::UnlinkIndexOpnd()
-{
+{LOGMEIN("Opnd.cpp] 2548\n");
     RegOpnd * indexOpnd = this->m_indexOpnd;
 
     // This will also call UnUse()...
@@ -2557,7 +2557,7 @@ IndirOpnd::UnlinkIndexOpnd()
 
 void
 IndirOpnd::ReplaceIndexOpnd(RegOpnd *newIndex)
-{
+{LOGMEIN("Opnd.cpp] 2559\n");
     RegOpnd * indexOpnd = this->m_indexOpnd;
     this->UnlinkIndexOpnd();
     indexOpnd->Free(this->m_func);
@@ -2568,13 +2568,13 @@ IndirOpnd::ReplaceIndexOpnd(RegOpnd *newIndex)
 #if DBG_DUMP || defined(ENABLE_IR_VIEWER)
 const char16 *
 IndirOpnd::GetDescription()
-{
+{LOGMEIN("Opnd.cpp] 2570\n");
     return this->m_desc;
 }
 
 bool
 IndirOpnd::HasAddrKind() const
-{
+{LOGMEIN("Opnd.cpp] 2576\n");
 #if DBG_DUMP
     return m_addrKind != (IR::AddrOpndKind) - 1;
 #else
@@ -2584,7 +2584,7 @@ IndirOpnd::HasAddrKind() const
 
 IR::AddrOpndKind
 IndirOpnd::GetAddrKind() const
-{
+{LOGMEIN("Opnd.cpp] 2586\n");
     Assert(HasAddrKind());
 #if DBG_DUMP
     return m_addrKind;
@@ -2595,7 +2595,7 @@ IndirOpnd::GetAddrKind() const
 
 void *
 IndirOpnd::GetOriginalAddress() const
-{
+{LOGMEIN("Opnd.cpp] 2597\n");
     Assert(HasAddrKind());
 #if DBG_DUMP
     Assert(m_originalAddress != nullptr);
@@ -2609,7 +2609,7 @@ IndirOpnd::GetOriginalAddress() const
 #if DBG_DUMP
 void
 IndirOpnd::SetAddrKind(IR::AddrOpndKind kind, void * originalAddress)
-{
+{LOGMEIN("Opnd.cpp] 2611\n");
     Assert(originalAddress != nullptr);
     this->m_addrKind = kind;
     this->m_originalAddress = originalAddress;
@@ -2625,7 +2625,7 @@ IndirOpnd::SetAddrKind(IR::AddrOpndKind kind, void * originalAddress)
 
 MemRefOpnd *
 MemRefOpnd::New(intptr_t pMemLoc, IRType type, Func *func, AddrOpndKind addrOpndKind)
-{
+{LOGMEIN("Opnd.cpp] 2627\n");
     MemRefOpnd * memRefOpnd = JitAnew(func->m_alloc, IR::MemRefOpnd);
     memRefOpnd->m_memLoc = pMemLoc;
     memRefOpnd->m_type = type;
@@ -2641,7 +2641,7 @@ MemRefOpnd::New(intptr_t pMemLoc, IRType type, Func *func, AddrOpndKind addrOpnd
 // TODO: michhol OOP JIT, remove this signature
 MemRefOpnd *
 MemRefOpnd::New(void * pMemLoc, IRType type, Func *func, AddrOpndKind addrOpndKind)
-{
+{LOGMEIN("Opnd.cpp] 2643\n");
     MemRefOpnd * memRefOpnd = JitAnew(func->m_alloc, IR::MemRefOpnd);
     memRefOpnd->m_memLoc = (intptr_t)pMemLoc;
     memRefOpnd->m_type = type;
@@ -2656,7 +2656,7 @@ MemRefOpnd::New(void * pMemLoc, IRType type, Func *func, AddrOpndKind addrOpndKi
 
 IR::AddrOpndKind
 MemRefOpnd::GetAddrKind() const
-{
+{LOGMEIN("Opnd.cpp] 2658\n");
 #if DBG_DUMP
     return this->m_addrKind;
 #else
@@ -2675,7 +2675,7 @@ MemRefOpnd::GetAddrKind() const
 
 MemRefOpnd *
 MemRefOpnd::CopyInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 2677\n");
     Assert(m_kind == OpndKindMemRef);
     MemRefOpnd * newOpnd;
 
@@ -2697,10 +2697,10 @@ MemRefOpnd::CopyInternal(Func *func)
 
 bool
 MemRefOpnd::IsEqualInternal(Opnd *opnd)
-{
+{LOGMEIN("Opnd.cpp] 2699\n");
     Assert(m_kind == OpndKindMemRef);
     if (!opnd->IsMemRefOpnd() || this->GetType() != opnd->GetType())
-    {
+    {LOGMEIN("Opnd.cpp] 2702\n");
         return false;
     }
     MemRefOpnd *memRefOpnd = opnd->AsMemRefOpnd();
@@ -2710,14 +2710,14 @@ MemRefOpnd::IsEqualInternal(Opnd *opnd)
 
 void
 MemRefOpnd::FreeInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 2712\n");
     Assert(m_kind == OpndKindMemRef);
     JitAdelete(func->m_alloc, this);
 }
 
 LabelOpnd *
 LabelOpnd::New(LabelInstr * labelInstr, Func * func)
-{
+{LOGMEIN("Opnd.cpp] 2719\n");
     LabelOpnd * labelOpnd = JitAnew(func->m_alloc, IR::LabelOpnd);
 
     labelOpnd->m_label = labelInstr;
@@ -2733,7 +2733,7 @@ LabelOpnd::New(LabelInstr * labelInstr, Func * func)
 
 LabelOpnd *
 LabelOpnd::CopyInternal(Func * func)
-{
+{LOGMEIN("Opnd.cpp] 2735\n");
     Assert(m_kind == OpndKindLabel);
     LabelOpnd * newOpnd;
 
@@ -2745,10 +2745,10 @@ LabelOpnd::CopyInternal(Func * func)
 
 bool
 LabelOpnd::IsEqualInternal(Opnd * opnd)
-{
+{LOGMEIN("Opnd.cpp] 2747\n");
     Assert(m_kind == OpndKindLabel);
     if (!opnd->IsLabelOpnd())
-    {
+    {LOGMEIN("Opnd.cpp] 2750\n");
         return false;
     }
     LabelOpnd * newOpnd = opnd->AsLabelOpnd();
@@ -2758,32 +2758,32 @@ LabelOpnd::IsEqualInternal(Opnd * opnd)
 
 void
 LabelOpnd::FreeInternal(Func *func)
-{
+{LOGMEIN("Opnd.cpp] 2760\n");
     Assert(m_kind == OpndKindLabel);
     JitAdelete(func->m_alloc, this);
 }
 
 IR::RegOpnd *
 Opnd::FindRegUse(IR::RegOpnd *regOpnd)
-{
+{LOGMEIN("Opnd.cpp] 2767\n");
     StackSym *regSym = regOpnd->m_sym;
 
     if (this->IsRegOpnd())
-    {
+    {LOGMEIN("Opnd.cpp] 2771\n");
         if (this->AsRegOpnd()->m_sym == regSym)
-        {
+        {LOGMEIN("Opnd.cpp] 2773\n");
             return this->AsRegOpnd();
         }
     }
     else if (this->IsIndirOpnd())
-    {
+    {LOGMEIN("Opnd.cpp] 2778\n");
         IndirOpnd *indirOpnd = this->AsIndirOpnd();
         if (indirOpnd->GetBaseOpnd() && indirOpnd->GetBaseOpnd()->m_sym == regSym)
-        {
+        {LOGMEIN("Opnd.cpp] 2781\n");
             return indirOpnd->GetBaseOpnd();
         }
         if (indirOpnd->GetIndexOpnd() && indirOpnd->GetIndexOpnd()->m_sym == regSym)
-        {
+        {LOGMEIN("Opnd.cpp] 2785\n");
             return indirOpnd->GetIndexOpnd();
         }
     }
@@ -2793,7 +2793,7 @@ Opnd::FindRegUse(IR::RegOpnd *regOpnd)
 
 bool
 Opnd::IsArgumentsObject()
-{
+{LOGMEIN("Opnd.cpp] 2795\n");
     // returns "false" if the sym is not single def (happens when the parent function has formals); the opnd can still be the arguments object.
     // Since we need this information in the inliner where we don't track arguments object sym, going with single def is the best option.
     StackSym * sym = this->GetStackSym();
@@ -2806,16 +2806,16 @@ Opnd::IsArgumentsObject()
 
 void
 Opnd::DumpAddress(void *address, bool printToConsole, bool skipMaskedAddress)
-{
+{LOGMEIN("Opnd.cpp] 2808\n");
     if (!printToConsole)
-    {
+    {LOGMEIN("Opnd.cpp] 2810\n");
         return;
     }
 
     if (!Js::Configuration::Global.flags.DumpIRAddresses)
-    {
+    {LOGMEIN("Opnd.cpp] 2815\n");
         if (skipMaskedAddress)
-        {
+        {LOGMEIN("Opnd.cpp] 2817\n");
             return;
         }
         Output::Print(_u("0xXXXXXXXX"));
@@ -2832,12 +2832,12 @@ Opnd::DumpAddress(void *address, bool printToConsole, bool skipMaskedAddress)
 
 void
 Opnd::DumpFunctionInfo(_Outptr_result_buffer_(*count) char16 ** buffer, size_t * count, Js::FunctionInfo * info, bool printToConsole, _In_opt_z_ char16 const * type)
-{
+{LOGMEIN("Opnd.cpp] 2834\n");
     char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
     if (info->HasBody())
-    {
+    {LOGMEIN("Opnd.cpp] 2837\n");
         if (type == nullptr)
-        {
+        {LOGMEIN("Opnd.cpp] 2839\n");
             type = _u("FunctionBody");
         }
         Js::FunctionProxy * proxy = info->GetFunctionProxy();
@@ -2846,7 +2846,7 @@ Opnd::DumpFunctionInfo(_Outptr_result_buffer_(*count) char16 ** buffer, size_t *
     else
     {
         if (type == nullptr)
-        {
+        {LOGMEIN("Opnd.cpp] 2848\n");
             type = _u("FunctionInfo");
         }
         WriteToBuffer(buffer, count, _u(" (%s)"), type);
@@ -2863,7 +2863,7 @@ Opnd::DumpFunctionInfo(_Outptr_result_buffer_(*count) char16 ** buffer, size_t *
 
 void
 Opnd::Dump(IRDumpFlags flags, Func *func)
-{
+{LOGMEIN("Opnd.cpp] 2865\n");
     bool const AsmDumpMode = flags & IRDumpFlags_AsmDumpMode;
     bool const SimpleForm = !!(flags & IRDumpFlags_SimpleForm);
     FloatConstType floatValue;
@@ -2873,11 +2873,11 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
     bool dumpValueType = !SimpleForm;
 
     switch(GetKind())
-    {
+    {LOGMEIN("Opnd.cpp] 2875\n");
     case OpndKindSym:
         symOpnd = this->AsSymOpnd();
         if(symOpnd->m_sym->IsPropertySym() && !SimpleForm)
-        {
+        {LOGMEIN("Opnd.cpp] 2879\n");
             symOpnd->m_sym->Dump(flags, symOpnd->GetPropertyOwnerValueType());
         }
         else
@@ -2886,16 +2886,16 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
         }
 
         if (symOpnd->m_sym->IsStackSym())
-        {
+        {LOGMEIN("Opnd.cpp] 2888\n");
             StackSym * stackSym = symOpnd->m_sym->AsStackSym();
             bool hasOffset = stackSym->IsArgSlotSym()?
                 ((stackSym->m_offset != -1) || !stackSym->m_isInlinedArgSlot) :
                 (stackSym->m_offset != 0);
             if (hasOffset)
-            {
+            {LOGMEIN("Opnd.cpp] 2894\n");
                 int offset = stackSym->m_offset;
                 if(symOpnd->m_offset != 0)
-                {
+                {LOGMEIN("Opnd.cpp] 2897\n");
                     Assert(static_cast<int>(offset + symOpnd->m_offset) >= offset);
                     offset += symOpnd->m_offset;
                 }
@@ -2903,11 +2903,11 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
             }
         }
         else if (symOpnd->IsPropertySymOpnd() && !SimpleForm)
-        {
+        {LOGMEIN("Opnd.cpp] 2905\n");
             PropertySymOpnd *propertySymOpnd = symOpnd->AsPropertySymOpnd();
             Output::Print(_u("<"));
             if (propertySymOpnd->HasObjTypeSpecFldInfo())
-            {
+            {LOGMEIN("Opnd.cpp] 2909\n");
                 Output::Print(_u("%u,%s%s%s%s,"), propertySymOpnd->GetObjTypeSpecFldId(), propertySymOpnd->IsPoly() ? _u("p") : _u("m"),
                     propertySymOpnd->IsLoadedFromProto() ? _u("~") : _u(""), propertySymOpnd->UsesFixedValue() ? _u("=") : _u(""),
                     propertySymOpnd->IsBeingAdded() ? _u("+") : _u(""));
@@ -2921,18 +2921,18 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
                 propertySymOpnd->IsRootObjectNonConfigurableFieldLoad() ? _u("~") : _u("-"),
                 propertySymOpnd->IsTypeCheckSeqCandidate() ? _u("+") : _u("-"));
             if (propertySymOpnd->HasObjectTypeSym())
-            {
+            {LOGMEIN("Opnd.cpp] 2923\n");
                 Output::Print(_u("s%d"), propertySymOpnd->GetObjectTypeSym()->m_id);
                 if (propertySymOpnd->IsTypeChecked())
-                {
+                {LOGMEIN("Opnd.cpp] 2926\n");
                     Output::Print(_u("+%s"), propertySymOpnd->IsMono() ? _u("m") : _u("p"));
                 }
                 else if (propertySymOpnd->IsTypeAvailable())
-                {
+                {LOGMEIN("Opnd.cpp] 2930\n");
                     Output::Print(_u("*"));
                 }
                 if (propertySymOpnd->IsTypeDead())
-                {
+                {LOGMEIN("Opnd.cpp] 2934\n");
                     Output::Print(_u("!"));
                 }
             }
@@ -2941,10 +2941,10 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
                 Output::Print(_u("s?"));
             }
             if (propertySymOpnd->m_sym->AsPropertySym()->m_writeGuardSym != nullptr)
-            {
+            {LOGMEIN("Opnd.cpp] 2943\n");
                 Output::Print(_u(",s%d"), propertySymOpnd->m_sym->AsPropertySym()->m_writeGuardSym->m_id);
                 if (propertySymOpnd->IsWriteGuardChecked())
-                {
+                {LOGMEIN("Opnd.cpp] 2946\n");
                     Output::Print(_u("+"));
                 }
             }
@@ -2953,40 +2953,40 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
                 Output::Print(_u(",s?"));
             }
             if (propertySymOpnd->HasFinalType())
-            {
+            {LOGMEIN("Opnd.cpp] 2955\n");
                 Output::Print(_u(",final:"));
                 this->DumpAddress((void*)propertySymOpnd->GetFinalType()->GetAddr(), /* printToConsole */ true, /* skipMaskedAddress */ false);
             }
             if (propertySymOpnd->GetGuardedPropOps() != nullptr)
-            {
+            {LOGMEIN("Opnd.cpp] 2960\n");
                 Output::Print(_u(",{"));
                 if (func != nullptr)
-                {
+                {LOGMEIN("Opnd.cpp] 2963\n");
                     int i = 0;
                     auto guardedPropOps = propertySymOpnd->GetGuardedPropOps();
                     FOREACH_BITSET_IN_SPARSEBV(propertyOpId, guardedPropOps)
-                    {
+                    {LOGMEIN("Opnd.cpp] 2967\n");
                         if (i++ > 0)
-                        {
+                        {LOGMEIN("Opnd.cpp] 2969\n");
                             Output::Print(_u(","));
                         }
                         const JITObjTypeSpecFldInfo* propertyOpInfo = func->GetTopFunc()->GetGlobalObjTypeSpecFldInfo(propertyOpId);
                         if (!JITManager::GetJITManager()->IsOOPJITEnabled())
-                        {
+                        {LOGMEIN("Opnd.cpp] 2974\n");
                             Output::Print(_u("%s"), func->GetInProcThreadContext()->GetPropertyRecord(propertyOpInfo->GetPropertyId())->GetBuffer(), propertyOpId);
                         }
                         Output::Print(_u("(%u)"), propertyOpId);
                         
                         if (propertyOpInfo->IsLoadedFromProto())
-                        {
+                        {LOGMEIN("Opnd.cpp] 2980\n");
                             Output::Print(_u("~"));
                         }
                         if (propertyOpInfo->HasFixedValue())
-                        {
+                        {LOGMEIN("Opnd.cpp] 2984\n");
                             Output::Print(_u("="));
                         }
                         if (propertyOpInfo->IsBeingAdded())
-                        {
+                        {LOGMEIN("Opnd.cpp] 2988\n");
                             Output::Print(_u("+"));
                         }
                     }
@@ -2999,14 +2999,14 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
                 Output::Print(_u("}"));
             }
             if (propertySymOpnd->GetWriteGuards() != nullptr)
-            {
+            {LOGMEIN("Opnd.cpp] 3001\n");
                 Output::Print(_u(",{"));
                 int i = 0;
                 auto writeGuards = propertySymOpnd->GetWriteGuards();
                 FOREACH_BITSET_IN_SPARSEBV(writeGuardSymId, writeGuards)
-                {
+                {LOGMEIN("Opnd.cpp] 3006\n");
                     if (i++ > 0)
-                    {
+                    {LOGMEIN("Opnd.cpp] 3008\n");
                         Output::Print(_u(","));
                     }
                     Output::Print(_u("s%d"), writeGuardSymId);
@@ -3015,7 +3015,7 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
                 Output::Print(_u("}"));
             }
             if (propertySymOpnd->canStoreTemp)
-            {
+            {LOGMEIN("Opnd.cpp] 3017\n");
                 Output::Print(_u(",t"));
             }
             Output::Print(_u(">"));
@@ -3026,11 +3026,11 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
     case OpndKindReg:
         regOpnd = this->AsRegOpnd();
         if (regOpnd->m_sym)
-        {
+        {LOGMEIN("Opnd.cpp] 3028\n");
             regOpnd->m_sym->Dump(flags);
         }
         if(AsmDumpMode)
-        {
+        {LOGMEIN("Opnd.cpp] 3032\n");
             //
             // Print no brackets
             //
@@ -3039,33 +3039,33 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
         else
         {
             if (regOpnd->GetReg() != RegNOREG)
-            {
+            {LOGMEIN("Opnd.cpp] 3041\n");
                 Output::Print(_u("(%S)"), RegNames[regOpnd->GetReg()]);
             }
             if (regOpnd->m_isTempLastUse)
-            {
+            {LOGMEIN("Opnd.cpp] 3045\n");
                 Output::Print(_u("[isTempLastUse]"));
             }
             StackSym *sym = regOpnd->GetStackSym();
             if (sym && func)
-            {
+            {LOGMEIN("Opnd.cpp] 3050\n");
                 if (sym == func->GetScriptContextSym())
-                {
+                {LOGMEIN("Opnd.cpp] 3052\n");
                     Output::Print(_u("[ScriptContext]"));
                 }
                 else if (sym == func->GetFuncObjSym())
-                {
+                {LOGMEIN("Opnd.cpp] 3056\n");
                     Output::Print(_u("[FuncObj]"));
                 }
                 else if (sym == func->GetFunctionBodySym())
-                {
+                {LOGMEIN("Opnd.cpp] 3060\n");
                     Output::Print(_u("[FunctionBody]"));
                 }
             }
             if(regOpnd->IsArrayRegOpnd())
-            {
+            {LOGMEIN("Opnd.cpp] 3065\n");
                 if(dumpValueType)
-                {
+                {LOGMEIN("Opnd.cpp] 3067\n");
                     // Dump the array value type before the associated syms
                     DumpValueType();
                     dumpValueType = false;
@@ -3073,32 +3073,32 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
 
                 const ArrayRegOpnd *const arrayRegOpnd = regOpnd->AsArrayRegOpnd();
                 if(arrayRegOpnd->HeadSegmentSym())
-                {
+                {LOGMEIN("Opnd.cpp] 3075\n");
                     Output::Print(_u("[seg: "));
                     arrayRegOpnd->HeadSegmentSym()->Dump();
                     Output::Print(_u("]"));
                 }
                 if(arrayRegOpnd->HeadSegmentLengthSym())
-                {
+                {LOGMEIN("Opnd.cpp] 3081\n");
                     Output::Print(_u("[segLen: "));
                     arrayRegOpnd->HeadSegmentLengthSym()->Dump();
                     Output::Print(_u("]"));
                 }
                 if(arrayRegOpnd->LengthSym() && arrayRegOpnd->LengthSym() != arrayRegOpnd->HeadSegmentLengthSym())
-                {
+                {LOGMEIN("Opnd.cpp] 3087\n");
                     Output::Print(_u("[len: "));
                     arrayRegOpnd->LengthSym()->Dump();
                     Output::Print(_u("]"));
                 }
                 if(arrayRegOpnd->EliminatedLowerBoundCheck() || arrayRegOpnd->EliminatedUpperBoundCheck())
-                {
+                {LOGMEIN("Opnd.cpp] 3093\n");
                     Output::Print(_u("["));
                     if(arrayRegOpnd->EliminatedLowerBoundCheck())
-                    {
+                    {LOGMEIN("Opnd.cpp] 3096\n");
                         Output::Print(_u(">"));
                     }
                     if(arrayRegOpnd->EliminatedUpperBoundCheck())
-                    {
+                    {LOGMEIN("Opnd.cpp] 3100\n");
                         Output::Print(_u("<"));
                     }
                     Output::Print(_u("]"));
@@ -3108,19 +3108,19 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
         break;
 
     case OpndKindInt64Const:
-    {
+    {LOGMEIN("Opnd.cpp] 3110\n");
         Int64ConstOpnd * intConstOpnd = this->AsInt64ConstOpnd();
         int64 intValue = intConstOpnd->GetValue();
         Output::Print(_u("%lld (0x%llX)"), intValue, intValue);
         break;
     }
     case OpndKindIntConst:
-    {
+    {LOGMEIN("Opnd.cpp] 3117\n");
         IntConstOpnd * intConstOpnd = this->AsIntConstOpnd();
         if (intConstOpnd->name != nullptr)
-        {
+        {LOGMEIN("Opnd.cpp] 3120\n");
             if (!Js::Configuration::Global.flags.DumpIRAddresses)
-            {
+            {LOGMEIN("Opnd.cpp] 3122\n");
                 Output::Print(_u("<%s>"), intConstOpnd->name);
             }
             else
@@ -3132,11 +3132,11 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
         {
             IntConstType intValue;
             if (intConstOpnd->decodedValue != 0)
-            {
+            {LOGMEIN("Opnd.cpp] 3134\n");
                 intValue = intConstOpnd->decodedValue;
                 Output::Print(_u("%d (0x%X)"), intValue, intValue);
                 if (!Js::Configuration::Global.flags.DumpIRAddresses)
-                {
+                {LOGMEIN("Opnd.cpp] 3138\n");
                     Output::Print(_u(" [encoded]"));
                 }
                 else
@@ -3155,7 +3155,7 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
     }
 
     case OpndKindRegBV:
-    {
+    {LOGMEIN("Opnd.cpp] 3157\n");
         RegBVOpnd * regBVOpnd = this->AsRegBVOpnd();
         regBVOpnd->m_value.Dump();
         break;
@@ -3176,32 +3176,32 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
         break;
 
     case OpndKindIndir:
-    {
+    {LOGMEIN("Opnd.cpp] 3178\n");
         IndirOpnd *indirOpnd = this->AsIndirOpnd();
 
         Output::Print(_u("["));
         indirOpnd->GetBaseOpnd()->Dump(flags, func);
 
         if (indirOpnd->GetIndexOpnd())
-        {
+        {LOGMEIN("Opnd.cpp] 3185\n");
             Output::Print(_u("+"));
             indirOpnd->GetIndexOpnd()->Dump(flags, func);
             if (indirOpnd->GetScale() > 0)
-            {
+            {LOGMEIN("Opnd.cpp] 3189\n");
                 Output::Print(_u("*%d"), 1 << indirOpnd->GetScale());
             }
         }
         if (indirOpnd->GetOffset())
-        {
+        {LOGMEIN("Opnd.cpp] 3194\n");
             if (!Js::Configuration::Global.flags.DumpIRAddresses && indirOpnd->HasAddrKind())
-            {
+            {LOGMEIN("Opnd.cpp] 3196\n");
                 Output::Print(_u("+XX"));
             }
             else
             {
                 const auto sign = indirOpnd->GetOffset() >= 0 ? _u("+") : _u("");
                 if (AsmDumpMode)
-                {
+                {LOGMEIN("Opnd.cpp] 3203\n");
                     Output::Print(_u("%sXXXX%04d"), sign, indirOpnd->GetOffset() & 0xffff);
                 }
                 else
@@ -3211,11 +3211,11 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
             }
         }
         if (indirOpnd->GetDescription())
-        {
+        {LOGMEIN("Opnd.cpp] 3213\n");
             Output::Print(_u(" <%s>"), indirOpnd->GetDescription());
         }
         if (indirOpnd->HasAddrKind())
-        {
+        {LOGMEIN("Opnd.cpp] 3217\n");
             INT_PTR address = (INT_PTR)indirOpnd->GetOriginalAddress();
             Output::Print(_u(" <"));
             const size_t BUFFER_LEN = 128;
@@ -3234,11 +3234,11 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
         break;
     }
     case OpndKindLabel:
-    {
+    {LOGMEIN("Opnd.cpp] 3236\n");
         LabelOpnd * labelOpnd = this->AsLabelOpnd();
         LabelInstr * labelInstr = labelOpnd->GetLabel();
         if (labelInstr == nullptr)
-        {
+        {LOGMEIN("Opnd.cpp] 3240\n");
             Output::Print(_u("??"));
         }
         else
@@ -3250,16 +3250,16 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
     }
 
     if(!AsmDumpMode && dumpValueType)
-    {
+    {LOGMEIN("Opnd.cpp] 3252\n");
         DumpValueType();
     }
     if (!SimpleForm || this->GetType() != TyVar)
-    {
+    {LOGMEIN("Opnd.cpp] 3256\n");
         Output::Print(_u("."));
         IRType_Dump(this->GetType());
     }
     if (this->m_isDead && !SimpleForm)
-    {
+    {LOGMEIN("Opnd.cpp] 3261\n");
         Output::Print(_u("!"));
     }
 }
@@ -3274,7 +3274,7 @@ Opnd::Dump(IRDumpFlags flags, Func *func)
 
 void
 Opnd::DumpOpndKindAddr(bool AsmDumpMode, Func *func)
-{
+{LOGMEIN("Opnd.cpp] 3276\n");
     const size_t BUFFER_LEN = 128;
     char16 buffer[BUFFER_LEN];
     GetAddrDescription(buffer, BUFFER_LEN, AsmDumpMode, true, func);
@@ -3284,7 +3284,7 @@ Opnd::DumpOpndKindAddr(bool AsmDumpMode, Func *func)
 
 void
 Opnd::DumpOpndKindMemRef(bool AsmDumpMode, Func *func)
-{
+{LOGMEIN("Opnd.cpp] 3286\n");
     MemRefOpnd *memRefOpnd = this->AsMemRefOpnd();
     Output::Print(_u("["));
     const size_t BUFFER_LEN = 128;
@@ -3329,16 +3329,16 @@ Opnd::WriteToBuffer(_Outptr_result_buffer_(*count) char16 **buffer, size_t *coun
 void
 Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const size_t count,
     void * address, IR::AddrOpndKind addressKind, bool AsmDumpMode, bool printToConsole, Func *func, bool skipMaskedAddress)
-{
+{LOGMEIN("Opnd.cpp] 3331\n");
     char16 *buffer = description;
     size_t n = count;
 
     if (address)
-    {
+    {LOGMEIN("Opnd.cpp] 3336\n");
         switch (addressKind)
-        {
+        {LOGMEIN("Opnd.cpp] 3338\n");
         case IR::AddrOpndKindConstantAddress:
-        {
+        {LOGMEIN("Opnd.cpp] 3340\n");
 #ifdef _M_X64_OR_ARM64
             char16 const * format = _u("0x%012I64X");
 #else
@@ -3349,7 +3349,7 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
         break;
         case IR::AddrOpndKindDynamicVar:
             if (Js::TaggedInt::Is(address))
-            {
+            {LOGMEIN("Opnd.cpp] 3351\n");
 #ifdef _M_X64_OR_ARM64
                 char16 const * format = _u("0x%012I64X (value: %d)");
 #else
@@ -3376,7 +3376,7 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
                 else
                 {
                     switch (Js::RecyclableObject::FromVar(address)->GetTypeId())
-                    {
+                    {LOGMEIN("Opnd.cpp] 3378\n");
                     case Js::TypeIds_Boolean:
                         WriteToBuffer(&buffer, &n, Js::JavascriptBoolean::FromVar(address)->GetValue() ? _u(" (true)") : _u(" (false)"));
                         break;
@@ -3409,7 +3409,7 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
             }
             break;
         case IR::AddrOpndKindConstantVar:
-        {
+        {LOGMEIN("Opnd.cpp] 3411\n");
 #ifdef _M_X64_OR_ARM64
             char16 const * format = _u("0x%012I64X%s");
 #else
@@ -3418,12 +3418,12 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
             char16 const * addressName = _u("");
 
             if (address == Js::JavascriptArray::MissingItem)
-            {
+            {LOGMEIN("Opnd.cpp] 3420\n");
                 addressName = _u(" (MissingItem)");
             }
 #if FLOATVAR
             else if (address == (Js::Var)Js::FloatTag_Value)
-            {
+            {LOGMEIN("Opnd.cpp] 3425\n");
                 addressName = _u(" (FloatTag)");
             }
 #endif
@@ -3576,7 +3576,7 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
 
         case IR::AddrOpndKindDynamicObjectTypeRef:
             DumpAddress(address, printToConsole, skipMaskedAddress);
-            {
+            {LOGMEIN("Opnd.cpp] 3578\n");
                 Js::RecyclableObject * dynamicObject = (Js::RecyclableObject *)((intptr_t)address - Js::RecyclableObject::GetOffsetOfType());
                 if (!func->IsOOPJIT() && Js::JavascriptFunction::Is(dynamicObject))
                 {
@@ -3595,10 +3595,10 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
             DumpAddress(address, printToConsole, skipMaskedAddress);
             // TODO: OOP JIT, dump more info
             if(!func->IsOOPJIT())
-            {
+            {LOGMEIN("Opnd.cpp] 3597\n");
                 Js::TypeId typeId = ((Js::Type*)address)->GetTypeId();
                 switch (typeId)
-                {
+                {LOGMEIN("Opnd.cpp] 3600\n");
                 case Js::TypeIds_Number:
                     WriteToBuffer(&buffer, &n, _u(" (Type: StaticNumber)"));
                     break;
@@ -3628,7 +3628,7 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
             break;
 
         case AddrOpndKindDynamicFrameDisplay:
-            {
+            {LOGMEIN("Opnd.cpp] 3630\n");
                 Js::FrameDisplay * frameDisplay = (Js::FrameDisplay *)address;
                 WriteToBuffer(&buffer, &n, (frameDisplay->GetStrictMode() ? _u(" (StrictFrameDisplay len %d)") : _u(" (FrameDisplay len %d)")),
                     frameDisplay->GetLength());
@@ -3754,7 +3754,7 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
 void
 Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const size_t count, bool AsmDumpMode,
                          bool printToConsole, Func *func)
-{
+{LOGMEIN("Opnd.cpp] 3756\n");
     char16 *buffer = description;
     size_t n = count;
 
@@ -3763,7 +3763,7 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
 
     bool isEncoded = false;
     if (addrOpnd->decodedValue != 0)
-    {
+    {LOGMEIN("Opnd.cpp] 3765\n");
         address = addrOpnd->decodedValue;
         isEncoded = true;
     }
@@ -3775,7 +3775,7 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
     GetAddrDescription(description, count, address, addrOpnd->GetAddrOpndKind(), AsmDumpMode, printToConsole, func);
 
     if (isEncoded)
-    {
+    {LOGMEIN("Opnd.cpp] 3777\n");
         if (AsmDumpMode)
         {
             WriteToBuffer(&buffer, &n, _u(" [encoded]"));
@@ -3791,7 +3791,7 @@ Opnd::GetAddrDescription(__out_ecount(count) char16 *const description, const si
 
 void
 Opnd::Dump()
-{
+{LOGMEIN("Opnd.cpp] 3793\n");
     this->Dump(IRDumpFlags_None, nullptr);
 }
 

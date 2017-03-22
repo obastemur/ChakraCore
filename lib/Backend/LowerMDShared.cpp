@@ -27,7 +27,7 @@ static const int FLOAT_INT_MIN = 0xcf000000;
 //
 bool
 LowererMD::IsAssign(IR::Instr *instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 29\n");
     return instr->GetDst() && instr->m_opcode == LowererMDArch::GetAssignOp(instr->GetDst()->GetType());
 }
 
@@ -39,7 +39,7 @@ LowererMD::IsAssign(IR::Instr *instr)
 
 bool
 LowererMD::IsCall(IR::Instr *instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 41\n");
     return instr->m_opcode == Js::OpCode::CALL;
 }
 
@@ -51,14 +51,14 @@ LowererMD::IsCall(IR::Instr *instr)
 
 bool
 LowererMD::IsUnconditionalBranch(const IR::Instr *instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 53\n");
     return (instr->m_opcode == Js::OpCode::JMP);
 }
 
 // GenerateMemRef: Return an opnd that can be used to access the given address.
 IR::Opnd *
 LowererMD::GenerateMemRef(intptr_t addr, IRType type, IR::Instr *instr, bool dontEncode)
-{
+{LOGMEIN("LowerMDShared.cpp] 60\n");
     return IR::MemRefOpnd::New(addr, type, this->m_func);
 }
 
@@ -70,9 +70,9 @@ LowererMD::GenerateMemRef(intptr_t addr, IRType type, IR::Instr *instr, bool don
 
 void
 LowererMD::InvertBranch(IR::BranchInstr *branchInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 72\n");
     switch (branchInstr->m_opcode)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 74\n");
     case Js::OpCode::JA:
         branchInstr->m_opcode = Js::OpCode::JBE;
         break;
@@ -128,9 +128,9 @@ LowererMD::InvertBranch(IR::BranchInstr *branchInstr)
 
 void
 LowererMD::ReverseBranch(IR::BranchInstr *branchInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 130\n");
     switch (branchInstr->m_opcode)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 132\n");
     case Js::OpCode::JA:
         branchInstr->m_opcode = Js::OpCode::JB;
         break;
@@ -171,7 +171,7 @@ LowererMD::ReverseBranch(IR::BranchInstr *branchInstr)
 
 IR::Instr *
 LowererMD::LowerCallHelper(IR::Instr *instrCall)
-{
+{LOGMEIN("LowerMDShared.cpp] 173\n");
     IR::Opnd           *argOpnd      = instrCall->UnlinkSrc2();
     IR::Instr          *prevInstr    = nullptr;
     IR::JnHelperMethod  helperMethod = instrCall->GetSrc1()->AsHelperCallOpnd()->m_fnHelper;
@@ -185,7 +185,7 @@ LowererMD::LowerCallHelper(IR::Instr *instrCall)
     prevInstr = instrCall;
 
     while (argOpnd)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 187\n");
         Assert(argOpnd->IsRegOpnd());
         IR::RegOpnd *regArg = argOpnd->AsRegOpnd();
 
@@ -199,15 +199,15 @@ LowererMD::LowerCallHelper(IR::Instr *instrCall)
         argOpnd = instrArg->GetSrc2();
 
         if (prevInstr == instrArg)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 201\n");
             prevInstr = prevInstr->m_prev;
         }
 
         if (instrArg->m_opcode == Js::OpCode::ArgOut_A)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 206\n");
             instrArg->UnlinkSrc1();
             if (argOpnd)
-            {
+            {LOGMEIN("LowerMDShared.cpp] 209\n");
                 instrArg->UnlinkSrc2();
             }
 
@@ -235,22 +235,22 @@ LowererMD::LowerCallHelper(IR::Instr *instrCall)
 
 IR::Instr *
 LowererMD::LowerCall(IR::Instr * callInstr, Js::ArgSlot argCount)
-{
+{LOGMEIN("LowerMDShared.cpp] 237\n");
     return this->lowererMDArch.LowerCall(callInstr, argCount);
 }
 
 IR::Instr *
 LowererMD::LowerCallI(IR::Instr * callInstr, ushort callFlags, bool isHelper, IR::Instr * insertBeforeInstrForCFG)
-{
+{LOGMEIN("LowerMDShared.cpp] 243\n");
     return this->lowererMDArch.LowerCallI(callInstr, callFlags, isHelper, insertBeforeInstrForCFG);
 }
 
 IR::Instr *
 LowererMD::LowerAsmJsCallI(IR::Instr * callInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 249\n");
 #if DBG
     if (PHASE_ON(Js::AsmjsCallDebugBreakPhase, this->m_func))
-    {
+    {LOGMEIN("LowerMDShared.cpp] 252\n");
         this->GenerateDebugBreak(callInstr->m_next);
     }
 #endif
@@ -259,10 +259,10 @@ LowererMD::LowerAsmJsCallI(IR::Instr * callInstr)
 
 IR::Instr *
 LowererMD::LowerAsmJsCallE(IR::Instr * callInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 261\n");
 #if DBG
     if (PHASE_ON(Js::AsmjsCallDebugBreakPhase, this->m_func))
-    {
+    {LOGMEIN("LowerMDShared.cpp] 264\n");
         this->GenerateDebugBreak(callInstr->m_next);
     }
 #endif
@@ -271,23 +271,23 @@ LowererMD::LowerAsmJsCallE(IR::Instr * callInstr)
 
 IR::Instr *
 LowererMD::LowerWasmMemOp(IR::Instr * instr, IR::Opnd *addrOpnd)
-{
+{LOGMEIN("LowerMDShared.cpp] 273\n");
     return this->lowererMDArch.LowerWasmMemOp(instr, addrOpnd);
 }
 
 IR::Instr *
 LowererMD::LowerAsmJsLdElemHelper(IR::Instr * callInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 279\n");
     return this->lowererMDArch.LowerAsmJsLdElemHelper(callInstr);
 }
 IR::Instr *
 LowererMD::LowerAsmJsStElemHelper(IR::Instr * callInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 284\n");
     return this->lowererMDArch.LowerAsmJsStElemHelper(callInstr);
 }
 IR::Instr *
 LowererMD::LowerCallPut(IR::Instr * callInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 289\n");
     int32 argCount = this->lowererMDArch.LowerCallArgs(callInstr, Js::CallFlags_None, 2);
 
     //  load native entry point from script function into eax
@@ -307,61 +307,61 @@ LowererMD::LowerCallPut(IR::Instr * callInstr)
 
 IR::Instr *
 LowererMD::LoadInt64HelperArgument(IR::Instr * instr, IR::Opnd* opnd)
-{
+{LOGMEIN("LowerMDShared.cpp] 309\n");
     return this->lowererMDArch.LoadInt64HelperArgument(instr, opnd);
 }
 
 IR::Instr *
 LowererMD::LoadHelperArgument(IR::Instr * instr, IR::Opnd * opndArg)
-{
+{LOGMEIN("LowerMDShared.cpp] 315\n");
     return this->lowererMDArch.LoadHelperArgument(instr, opndArg);
 }
 
 IR::Instr *
 LowererMD::LoadDoubleHelperArgument(IR::Instr * instr, IR::Opnd * opndArg)
-{
+{LOGMEIN("LowerMDShared.cpp] 321\n");
     return this->lowererMDArch.LoadDoubleHelperArgument(instr, opndArg);
 }
 
 IR::Instr *
 LowererMD::LoadFloatHelperArgument(IR::Instr * instr, IR::Opnd * opndArg)
-{
+{LOGMEIN("LowerMDShared.cpp] 327\n");
     return this->lowererMDArch.LoadFloatHelperArgument(instr, opndArg);
 }
 
 IR::Instr *
 LowererMD::LowerEntryInstr(IR::EntryInstr * entryInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 333\n");
     return this->lowererMDArch.LowerEntryInstr(entryInstr);
 }
 
 IR::Instr *
 LowererMD::LowerExitInstr(IR::ExitInstr * exitInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 339\n");
     return this->lowererMDArch.LowerExitInstr(exitInstr);
 }
 
 IR::Instr *
 LowererMD::LowerEntryInstrAsmJs(IR::EntryInstr * entryInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 345\n");
     return this->lowererMDArch.LowerEntryInstrAsmJs(entryInstr);
 }
 
 IR::Instr *
 LowererMD::LowerExitInstrAsmJs(IR::ExitInstr * exitInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 351\n");
     return this->lowererMDArch.LowerExitInstrAsmJs(exitInstr);
 }
 
 IR::Instr *
 LowererMD::LoadNewScObjFirstArg(IR::Instr * instr, IR::Opnd * dst, ushort extraArgs)
-{
+{LOGMEIN("LowerMDShared.cpp] 357\n");
     return this->lowererMDArch.LoadNewScObjFirstArg(instr, dst, extraArgs);
 }
 
 IR::Instr *
 LowererMD::LowerTry(IR::Instr *tryInstr, IR::JnHelperMethod helperMethod)
-{
+{LOGMEIN("LowerMDShared.cpp] 363\n");
     // Mark the entry to the try
     IR::Instr *instr = tryInstr->GetNextRealInstrOrLabel();
     AssertMsg(instr->IsLabelInstr(), "No label at the entry to a try?");
@@ -371,7 +371,7 @@ LowererMD::LowerTry(IR::Instr *tryInstr, IR::JnHelperMethod helperMethod)
     this->m_lowerer->LoadScriptContext(tryAddr);
 
     if (tryInstr->m_opcode == Js::OpCode::TryCatch)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 373\n");
         // Arg 4 : hasBailedOutOffset
         IR::Opnd * hasBailedOutOffset = IR::IntConstOpnd::New(this->m_func->m_hasBailedOutSym->m_offset, TyInt32, this->m_func);
         this->LoadHelperArgument(tryAddr, hasBailedOutOffset);
@@ -426,9 +426,9 @@ LowererMD::LowerTry(IR::Instr *tryInstr, IR::JnHelperMethod helperMethod)
 
 IR::Instr *
 LowererMD::LowerLeave(IR::Instr *leaveInstr, IR::LabelInstr *targetInstr, bool fromFinalLower, bool isOrphanedLeave)
-{
+{LOGMEIN("LowerMDShared.cpp] 428\n");
     if (isOrphanedLeave)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 430\n");
         Assert(this->m_func->IsLoopBodyInTry());
         leaveInstr->m_opcode = Js::OpCode::JMP;
         return leaveInstr->m_prev;
@@ -440,7 +440,7 @@ LowererMD::LowerLeave(IR::Instr *leaveInstr, IR::LabelInstr *targetInstr, bool f
     lowererMDArch.LowerEHRegionReturn(leaveInstr, labelOpnd);
 
     if (fromFinalLower)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 442\n");
         instrPrev = leaveInstr->m_prev; // Need to lower LdArgSize and LdSpillSize
     }
     leaveInstr->Remove();
@@ -450,13 +450,13 @@ LowererMD::LowerLeave(IR::Instr *leaveInstr, IR::LabelInstr *targetInstr, bool f
 
 IR::Instr *
 LowererMD::LowerEHRegionReturn(IR::Instr * insertBeforeInstr, IR::Opnd * targetOpnd)
-{
+{LOGMEIN("LowerMDShared.cpp] 452\n");
     return lowererMDArch.LowerEHRegionReturn(insertBeforeInstr, targetOpnd);
 }
 
 IR::Instr *
 LowererMD::LowerLeaveNull(IR::Instr *finallyEndInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 458\n");
     IR::Instr *instrPrev = finallyEndInstr->m_prev;
     IR::Instr *instr     = nullptr;
 
@@ -517,7 +517,7 @@ LowererMD::LowerLeaveNull(IR::Instr *finallyEndInstr)
 
 void
 LowererMD::Init(Lowerer *lowerer)
-{
+{LOGMEIN("LowerMDShared.cpp] 519\n");
     m_lowerer = lowerer;
     this->lowererMDArch.Init(this);
 #ifdef ENABLE_SIMDJS
@@ -535,7 +535,7 @@ LowererMD::Init(Lowerer *lowerer)
 
 IR::Instr *
 LowererMD::LoadInputParamCount(IR::Instr * instrInsert, int adjust, bool needFlags)
-{
+{LOGMEIN("LowerMDShared.cpp] 537\n");
     IR::Instr *   instr;
     IR::RegOpnd * dstOpnd;
     IR::SymOpnd * srcOpnd;
@@ -567,9 +567,9 @@ LowererMD::LoadInputParamCount(IR::Instr * instrInsert, int adjust, bool needFla
 
 IR::Instr *
 LowererMD::LoadStackArgPtr(IR::Instr * instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 569\n");
     if (this->m_func->IsLoopBody())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 571\n");
         // Get the first user param from the interpreter frame instance that was passed in.
         // These args don't include the func object and callinfo; we just need to advance past "this".
 
@@ -598,9 +598,9 @@ LowererMD::LoadStackArgPtr(IR::Instr * instr)
 
 IR::Instr *
 LowererMD::LoadArgumentsFromFrame(IR::Instr * instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 600\n");
     if (this->m_func->IsLoopBody())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 602\n");
         // Get the arguments ptr from the interpreter frame instance that was passed in.
         Assert(this->m_func->m_loopParamSym);
         IR::RegOpnd *baseOpnd = IR::RegOpnd::New(this->m_func->m_loopParamSym, TyMachReg, this->m_func);
@@ -620,9 +620,9 @@ LowererMD::LoadArgumentsFromFrame(IR::Instr * instr)
 // load argument count as I4
 IR::Instr *
 LowererMD::LoadArgumentCount(IR::Instr * instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 622\n");
     if (this->m_func->IsLoopBody())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 624\n");
         // Pull the arg count from the interpreter frame instance that was passed in.
         // (The callinfo in the loop body's frame just shows the single parameter, the interpreter frame.)
         Assert(this->m_func->m_loopParamSym);
@@ -644,19 +644,19 @@ LowererMD::LoadArgumentCount(IR::Instr * instr)
 
 IR::Instr *
 LowererMD::LoadHeapArguments(IR::Instr * instrArgs)
-{
+{LOGMEIN("LowerMDShared.cpp] 646\n");
     return this->lowererMDArch.LoadHeapArguments(instrArgs);
 }
 
 IR::Instr *
 LowererMD::LoadHeapArgsCached(IR::Instr * instrArgs)
-{
+{LOGMEIN("LowerMDShared.cpp] 652\n");
     return this->lowererMDArch.LoadHeapArgsCached(instrArgs);
 }
 
 IR::Instr *
 LowererMD::LoadFuncExpression(IR::Instr * instrFuncExpr)
-{
+{LOGMEIN("LowerMDShared.cpp] 658\n");
     return this->lowererMDArch.LoadFuncExpression(instrFuncExpr);
 }
 
@@ -671,14 +671,14 @@ LowererMD::LoadFuncExpression(IR::Instr * instrFuncExpr)
 IR::Instr *
 LowererMD::ChangeToHelperCall(IR::Instr * callInstr,  IR::JnHelperMethod helperMethod, IR::LabelInstr *labelBailOut,
                               IR::Opnd *opndBailOutArg, IR::PropertySymOpnd *propSymOpnd, bool isHelperContinuation)
-{
+{LOGMEIN("LowerMDShared.cpp] 673\n");
     IR::Instr * bailOutInstr = callInstr;
     if (callInstr->HasBailOutInfo())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 676\n");
         IR::BailOutKind bailOutKind = callInstr->GetBailOutKind();
         if (bailOutKind == IR::BailOutOnNotPrimitive ||
             bailOutKind == IR::BailOutOnPowIntIntOverflow)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 680\n");
             callInstr = IR::Instr::New(callInstr->m_opcode, callInstr->m_func);
             bailOutInstr->TransferTo(callInstr);
             bailOutInstr->InsertBefore(callInstr);
@@ -698,7 +698,7 @@ LowererMD::ChangeToHelperCall(IR::Instr * callInstr,  IR::JnHelperMethod helperM
 
     IR::HelperCallOpnd *helperCallOpnd = Lowerer::CreateHelperCallOpnd(helperMethod, this->lowererMDArch.GetHelperArgsCount(), m_func);
     if (helperCallOpnd->IsDiagHelperCallOpnd())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 700\n");
         // Load arguments for the wrapper.
         this->LoadHelperArgument(callInstr, IR::AddrOpnd::New((Js::Var)IR::GetMethodOriginalAddress(m_func->GetThreadContextInfo(), helperMethod), IR::AddrOpndKindDynamicMisc, m_func));
         this->m_lowerer->LoadScriptContext(callInstr);
@@ -708,20 +708,20 @@ LowererMD::ChangeToHelperCall(IR::Instr * callInstr,  IR::JnHelperMethod helperM
     IR::Instr * instrRet = this->lowererMDArch.LowerCall(callInstr, 0);
 
     if (bailOutInstr != callInstr)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 710\n");
         // The bailout needs to be lowered after we lower the helper call because the helper argument
         // has already been loaded.  We need to drain them on AMD64 before starting another helper call
         if (bailOutInstr->m_opcode == Js::OpCode::BailOnNotObject)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 714\n");
             this->m_lowerer->LowerBailOnNotObject(bailOutInstr, nullptr, labelBailOut);
         }
         else if (bailOutInstr->m_opcode == Js::OpCode::BailOnNotPrimitive ||
             bailOutInstr->m_opcode == Js::OpCode::BailOnPowIntIntOverflow)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 719\n");
             this->m_lowerer->LowerBailOnTrue(bailOutInstr, labelBailOut);
         }
         else if (bailOutInstr->m_opcode == Js::OpCode::BailOut)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 723\n");
             this->m_lowerer->GenerateBailOut(bailOutInstr, nullptr, labelBailOut);
         }
         else
@@ -732,7 +732,7 @@ LowererMD::ChangeToHelperCall(IR::Instr * callInstr,  IR::JnHelperMethod helperM
 
 #if DBG
     if (PHASE_ON(Js::AsmjsCallDebugBreakPhase, this->m_func))
-    {
+    {LOGMEIN("LowerMDShared.cpp] 734\n");
         this->GenerateDebugBreak(instrRet->m_next);
     }
 #endif
@@ -741,7 +741,7 @@ LowererMD::ChangeToHelperCall(IR::Instr * callInstr,  IR::JnHelperMethod helperM
 }
 
 IR::Instr* LowererMD::ChangeToHelperCallMem(IR::Instr * instr,  IR::JnHelperMethod helperMethod)
-{
+{LOGMEIN("LowerMDShared.cpp] 743\n");
     this->m_lowerer->LoadScriptContext(instr);
 
     return this->ChangeToHelperCall(instr, helperMethod);
@@ -757,19 +757,19 @@ IR::Instr* LowererMD::ChangeToHelperCallMem(IR::Instr * instr,  IR::JnHelperMeth
 
 IR::Instr *
 LowererMD::ChangeToAssignNoBarrierCheck(IR::Instr * instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 759\n");
     return ChangeToAssign(instr, instr->GetDst()->GetType());
 }
 
 IR::Instr *
 LowererMD::ChangeToAssign(IR::Instr * instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 765\n");
     return ChangeToWriteBarrierAssign(instr, instr->m_func);
 }
 
 IR::Instr *
 LowererMD::ChangeToAssign(IR::Instr * instr, IRType type)
-{
+{LOGMEIN("LowerMDShared.cpp] 771\n");
     Assert(!instr->HasBailOutInfo() || instr->GetBailOutKind() == IR::BailOutExpectingString);
 
     instr->m_opcode = LowererMDArch::GetAssignOp(type);
@@ -788,7 +788,7 @@ LowererMD::ChangeToAssign(IR::Instr * instr, IRType type)
 
 IR::Instr *
 LowererMD::ChangeToLea(IR::Instr * instr, bool postRegAlloc)
-{
+{LOGMEIN("LowerMDShared.cpp] 790\n");
     Assert(instr);
     Assert(instr->GetDst());
     Assert(instr->GetDst()->IsRegOpnd());
@@ -810,7 +810,7 @@ LowererMD::ChangeToLea(IR::Instr * instr, bool postRegAlloc)
 
 IR::Instr *
 LowererMD::CreateAssign(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsertPt, bool generateWriteBarrier)
-{
+{LOGMEIN("LowerMDShared.cpp] 812\n");
     return Lowerer::InsertMove(dst, src, instrInsertPt, generateWriteBarrier);
 }
 
@@ -826,16 +826,16 @@ LowererMD::CreateAssign(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsertPt, 
 
 IR::Instr *
 LowererMD::LowerRet(IR::Instr * retInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 828\n");
     IR::RegOpnd * retReg;
 
 #ifdef ASMJS_PLAT
     if (m_func->GetJITFunctionBody()->IsAsmJsMode() && !m_func->IsLoopBody()) // for loop body ret is the bytecodeoffset
-    {
+    {LOGMEIN("LowerMDShared.cpp] 833\n");
         Js::AsmJsRetType::Which asmType = m_func->GetJITFunctionBody()->GetAsmJsInfo()->GetRetType();
         IRType regType = TyInt32;
         switch (asmType)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 837\n");
         case Js::AsmJsRetType::Double:
             regType = TyFloat64;
             break;
@@ -843,7 +843,7 @@ LowererMD::LowerRet(IR::Instr * retInstr)
             regType = TyFloat32;
             break;
         case Js::AsmJsRetType::Int64:
-        {
+        {LOGMEIN("LowerMDShared.cpp] 845\n");
             regType = TyInt64;
 #ifdef _M_IX86
             regType = TyInt32;
@@ -921,7 +921,7 @@ LowererMD::LowerRet(IR::Instr * retInstr)
 
 IR::Instr *
 LowererMD::LowerUncondBranch(IR::Instr * instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 923\n");
     instr->m_opcode = Js::OpCode::JMP;
 
     return instr;
@@ -935,7 +935,7 @@ LowererMD::LowerUncondBranch(IR::Instr * instr)
 
 IR::Instr *
 LowererMD::LowerMultiBranch(IR::Instr * instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 937\n");
     return LowerUncondBranch(instr);
 }
 
@@ -947,14 +947,14 @@ LowererMD::LowerMultiBranch(IR::Instr * instr)
 
 IR::Instr *
 LowererMD::LowerCondBranch(IR::Instr * instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 949\n");
     AssertMsg(instr->GetSrc1() != nullptr, "Expected src opnds on conditional branch");
     Assert(!instr->HasBailOutInfo());
     IR::Opnd *  opndSrc1 = instr->UnlinkSrc1();
     IR::Instr * instrPrev = nullptr;
 
     switch (instr->m_opcode)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 956\n");
     case Js::OpCode::BrTrue_A:
     case Js::OpCode::BrFalse_A:
     case Js::OpCode::BrNotNull_A:
@@ -969,7 +969,7 @@ LowererMD::LowerCondBranch(IR::Instr * instr)
         instr->InsertBefore(instrPrev);
 
         if (instr->m_opcode != Js::OpCode::BrFalse_A)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 971\n");
             instr->m_opcode = Js::OpCode::JNE;
         }
         else
@@ -989,7 +989,7 @@ LowererMD::LowerCondBranch(IR::Instr * instr)
         AssertMsg(opndSrc2 != nullptr, "Expected 2 src's on non-boolean branch");
 
         if (opndSrc1->IsFloat())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 991\n");
             Assert(opndSrc1->GetType() == opndSrc2->GetType());
             instrPrev = IR::Instr::New(opndSrc1->IsFloat64() ? Js::OpCode::COMISD : Js::OpCode::COMISS, m_func);
             instrPrev->SetSrc1(opndSrc1);
@@ -1000,7 +1000,7 @@ LowererMD::LowerCondBranch(IR::Instr * instr)
         {
             // This check assumes src1 is a variable.
             if (opndSrc2->IsIntConstOpnd() && opndSrc2->AsIntConstOpnd()->GetValue() == 0)
-            {
+            {LOGMEIN("LowerMDShared.cpp] 1002\n");
                 instrPrev = IR::Instr::New(Js::OpCode::TEST, this->m_func);
                 instrPrev->SetSrc1(opndSrc1);
                 instrPrev->SetSrc2(opndSrc1);
@@ -1039,9 +1039,9 @@ LowererMD::LowerCondBranch(IR::Instr * instr)
 
 Js::OpCode
 LowererMD::MDBranchOpcode(Js::OpCode opcode)
-{
+{LOGMEIN("LowerMDShared.cpp] 1041\n");
     switch (opcode)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 1043\n");
     case Js::OpCode::BrSrEq_A:
     case Js::OpCode::BrEq_A:
     case Js::OpCode::BrSrNotNeq_A:
@@ -1080,9 +1080,9 @@ LowererMD::MDBranchOpcode(Js::OpCode opcode)
 
 Js::OpCode
 LowererMD::MDConvertFloat64ToInt32Opcode(const RoundMode roundMode)
-{
+{LOGMEIN("LowerMDShared.cpp] 1082\n");
     switch (roundMode)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 1084\n");
     case RoundModeTowardZero:
         return Js::OpCode::CVTTSD2SI;
     case RoundModeTowardInteger:
@@ -1097,9 +1097,9 @@ LowererMD::MDConvertFloat64ToInt32Opcode(const RoundMode roundMode)
 
 Js::OpCode
 LowererMD::MDUnsignedBranchOpcode(Js::OpCode opcode)
-{
+{LOGMEIN("LowerMDShared.cpp] 1099\n");
     switch (opcode)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 1101\n");
     case Js::OpCode::BrEq_A:
     case Js::OpCode::BrSrEq_A:
     case Js::OpCode::BrSrNotNeq_A:
@@ -1137,20 +1137,20 @@ LowererMD::MDUnsignedBranchOpcode(Js::OpCode opcode)
 }
 
 Js::OpCode LowererMD::MDCompareWithZeroBranchOpcode(Js::OpCode opcode)
-{
+{LOGMEIN("LowerMDShared.cpp] 1139\n");
     Assert(opcode == Js::OpCode::BrLt_A || opcode == Js::OpCode::BrGe_A);
     return opcode == Js::OpCode::BrLt_A ? Js::OpCode::JSB : Js::OpCode::JNSB;
 }
 
 void LowererMD::ChangeToAdd(IR::Instr *const instr, const bool needFlags)
-{
+{LOGMEIN("LowerMDShared.cpp] 1145\n");
     Assert(instr);
     Assert(instr->GetDst());
     Assert(instr->GetSrc1());
     Assert(instr->GetSrc2());
 
     if(instr->GetDst()->IsFloat64())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 1152\n");
         Assert(instr->GetSrc1()->IsFloat64());
         Assert(instr->GetSrc2()->IsFloat64());
         Assert(!needFlags);
@@ -1158,7 +1158,7 @@ void LowererMD::ChangeToAdd(IR::Instr *const instr, const bool needFlags)
         return;
     }
     else if (instr->GetDst()->IsFloat32())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 1160\n");
         Assert(instr->GetSrc1()->IsFloat32());
         Assert(instr->GetSrc2()->IsFloat32());
         Assert(!needFlags);
@@ -1176,9 +1176,9 @@ void LowererMD::ChangeToAdd(IR::Instr *const instr, const bool needFlags)
         (instr->GetDst()->IsEqual(instr->GetSrc2()) &&
             instr->GetSrc1()->IsIntConstOpnd() &&
             instr->GetSrc1()->AsIntConstOpnd()->GetValue() == 1))
-    {
+    {LOGMEIN("LowerMDShared.cpp] 1178\n");
         if(instr->GetSrc1()->IsIntConstOpnd())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 1180\n");
             // Swap the operands, such that we would create (dst = INC src2)
             instr->SwapOpnds();
         }
@@ -1189,14 +1189,14 @@ void LowererMD::ChangeToAdd(IR::Instr *const instr, const bool needFlags)
 }
 
 void LowererMD::ChangeToSub(IR::Instr *const instr, const bool needFlags)
-{
+{LOGMEIN("LowerMDShared.cpp] 1191\n");
     Assert(instr);
     Assert(instr->GetDst());
     Assert(instr->GetSrc1());
     Assert(instr->GetSrc2());
 
     if(instr->GetDst()->IsFloat64())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 1198\n");
         Assert(instr->GetSrc1()->IsFloat64());
         Assert(instr->GetSrc2()->IsFloat64());
         Assert(!needFlags);
@@ -1208,7 +1208,7 @@ void LowererMD::ChangeToSub(IR::Instr *const instr, const bool needFlags)
     if(instr->GetDst()->IsEqual(instr->GetSrc1()) &&
         instr->GetSrc2()->IsIntConstOpnd() &&
         instr->GetSrc2()->AsIntConstOpnd()->GetValue() == 1)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 1210\n");
         instr->FreeSrc2();
         instr->m_opcode = Js::OpCode::DEC;
         return;
@@ -1218,14 +1218,14 @@ void LowererMD::ChangeToSub(IR::Instr *const instr, const bool needFlags)
 }
 
 void LowererMD::ChangeToShift(IR::Instr *const instr, const bool needFlags)
-{
+{LOGMEIN("LowerMDShared.cpp] 1220\n");
     Assert(instr);
     Assert(instr->GetDst());
     Assert(instr->GetSrc1());
     Assert(instr->GetSrc2());
 
     switch(instr->m_opcode)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 1227\n");
         case Js::OpCode::Shl_A:
         case Js::OpCode::Shl_I4:
             instr->m_opcode = Js::OpCode::SHL;
@@ -1255,7 +1255,7 @@ void LowererMD::ChangeToShift(IR::Instr *const instr, const bool needFlags)
     }
 
     if(instr->GetSrc2()->IsIntConstOpnd())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 1257\n");
         // Only values between 0-31 mean anything
         IntConstType value = instr->GetSrc2()->AsIntConstOpnd()->GetValue();
         value &= 0x1f;
@@ -1264,10 +1264,10 @@ void LowererMD::ChangeToShift(IR::Instr *const instr, const bool needFlags)
 }
 
 void LowererMD::ChangeToMul(IR::Instr *const instr, bool hasOverflowCheck)
-{
+{LOGMEIN("LowerMDShared.cpp] 1266\n");
     // If non-32 bit overflow check is needed, we have to use the IMUL form.
     if (hasOverflowCheck && !instr->ShouldCheckFor32BitOverflow() && instr->ShouldCheckForNon32BitOverflow())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 1269\n");
         IR::RegOpnd *regEAX = IR::RegOpnd::New(TyInt32, instr->m_func);
         IR::Opnd *temp2 = nullptr;
         // MOV eax, src1
@@ -1275,7 +1275,7 @@ void LowererMD::ChangeToMul(IR::Instr *const instr, bool hasOverflowCheck)
         instr->InsertBefore(IR::Instr::New(Js::OpCode::MOV, regEAX, instr->GetSrc1(), instr->m_func));
 
         if (instr->GetSrc2()->IsImmediateOpnd())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 1277\n");
             // MOV reg, imm
             temp2 = IR::RegOpnd::New(TyInt32, instr->m_func);
             instr->InsertBefore(IR::Instr::New(Js::OpCode::MOV, temp2,
@@ -1301,14 +1301,14 @@ void LowererMD::ChangeToMul(IR::Instr *const instr, bool hasOverflowCheck)
 
 const uint16
 LowererMD::GetFormalParamOffset()
-{
+{LOGMEIN("LowerMDShared.cpp] 1303\n");
     //In x86\x64 formal params were offset from EBP by the EBP chain, return address, and the 2 non-user params
     return 4;
 }
 
 IR::Instr *
 LowererMD::LowerCatch(IR::Instr * instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 1310\n");
     // t1 = catch    =>    t2(eax) = catch
     //               =>    t1 = t2(eax)
     IR::Opnd *catchObj = instr->UnlinkDst();
@@ -1330,16 +1330,16 @@ LowererMD::LowerCatch(IR::Instr * instr)
 
 void
 LowererMD::ForceDstToReg(IR::Instr *instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 1332\n");
     IR::Opnd * dst = instr->GetDst();
 
     if (dst->IsRegOpnd())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 1336\n");
         return;
     }
 
     if(dst->IsFloat64())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 1341\n");
         instr->SinkDst(Js::OpCode::MOVSD);
         return;
     }
@@ -1350,15 +1350,15 @@ LowererMD::ForceDstToReg(IR::Instr *instr)
 template <bool verify>
 void
 LowererMD::Legalize(IR::Instr *const instr, bool fPostRegAlloc)
-{
+{LOGMEIN("LowerMDShared.cpp] 1352\n");
     Assert(instr);
     Assert(!instr->isInlineeEntryInstr
         || (instr->m_opcode == Js::OpCode::MOV && instr->GetSrc1()->IsIntConstOpnd()));
 
     switch(instr->m_opcode)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 1358\n");
         case Js::OpCode::MOV:
-        {
+        {LOGMEIN("LowerMDShared.cpp] 1360\n");
             Assert(instr->GetSrc2() == nullptr);
 
             IR::Opnd *const dst = instr->GetDst();
@@ -1366,14 +1366,14 @@ LowererMD::Legalize(IR::Instr *const instr, bool fPostRegAlloc)
             IR::Opnd *const src = instr->GetSrc1();
             const IRType srcType = src->GetType();
             if(TySize[dstType] > TySize[srcType])
-            {
+            {LOGMEIN("LowerMDShared.cpp] 1368\n");
                 if (verify)
-                {
+                {LOGMEIN("LowerMDShared.cpp] 1370\n");
                     return;
                 }
             #if DBG
                 switch(dstType)
-                {
+                {LOGMEIN("LowerMDShared.cpp] 1375\n");
                     case TyInt32:
                     case TyUint32:
             #ifdef _M_X64
@@ -1390,12 +1390,12 @@ LowererMD::Legalize(IR::Instr *const instr, bool fPostRegAlloc)
 
                 IR::IntConstOpnd *const intConstantSrc = src->IsIntConstOpnd() ? src->AsIntConstOpnd() : nullptr;
                 const auto UpdateIntConstantSrc = [&](const size_t extendedValue)
-                {
+                {LOGMEIN("LowerMDShared.cpp] 1392\n");
                     Assert(intConstantSrc);
 
                 #ifdef _M_X64
                     if(TySize[dstType] > sizeof(IntConstType))
-                    {
+                    {LOGMEIN("LowerMDShared.cpp] 1397\n");
                         instr->ReplaceSrc1(
                             IR::AddrOpnd::New(
                                 reinterpret_cast<void *>(extendedValue),
@@ -1412,10 +1412,10 @@ LowererMD::Legalize(IR::Instr *const instr, bool fPostRegAlloc)
                 };
 
                 switch(srcType)
-                {
+                {LOGMEIN("LowerMDShared.cpp] 1414\n");
                     case TyInt8:
                         if(intConstantSrc)
-                        {
+                        {LOGMEIN("LowerMDShared.cpp] 1417\n");
                             UpdateIntConstantSrc(static_cast<int8>(intConstantSrc->GetValue())); // sign-extend
                             break;
                         }
@@ -1424,7 +1424,7 @@ LowererMD::Legalize(IR::Instr *const instr, bool fPostRegAlloc)
 
                     case TyUint8:
                         if(intConstantSrc)
-                        {
+                        {LOGMEIN("LowerMDShared.cpp] 1426\n");
                             UpdateIntConstantSrc(static_cast<uint8>(intConstantSrc->GetValue())); // zero-extend
                             break;
                         }
@@ -1433,7 +1433,7 @@ LowererMD::Legalize(IR::Instr *const instr, bool fPostRegAlloc)
 
                     case TyInt16:
                         if(intConstantSrc)
-                        {
+                        {LOGMEIN("LowerMDShared.cpp] 1435\n");
                             UpdateIntConstantSrc(static_cast<int16>(intConstantSrc->GetValue())); // sign-extend
                             break;
                         }
@@ -1442,7 +1442,7 @@ LowererMD::Legalize(IR::Instr *const instr, bool fPostRegAlloc)
 
                     case TyUint16:
                         if(intConstantSrc)
-                        {
+                        {LOGMEIN("LowerMDShared.cpp] 1444\n");
                             UpdateIntConstantSrc(static_cast<uint16>(intConstantSrc->GetValue())); // zero-extend
                             break;
                         }
@@ -1452,7 +1452,7 @@ LowererMD::Legalize(IR::Instr *const instr, bool fPostRegAlloc)
                 #ifdef _M_X64
                     case TyInt32:
                         if(intConstantSrc)
-                        {
+                        {LOGMEIN("LowerMDShared.cpp] 1454\n");
                             UpdateIntConstantSrc(static_cast<int32>(intConstantSrc->GetValue())); // sign-extend
                             break;
                         }
@@ -1461,12 +1461,12 @@ LowererMD::Legalize(IR::Instr *const instr, bool fPostRegAlloc)
 
                     case TyUint32:
                         if(intConstantSrc)
-                        {
+                        {LOGMEIN("LowerMDShared.cpp] 1463\n");
                             UpdateIntConstantSrc(static_cast<uint32>(intConstantSrc->GetValue())); // zero-extend
                             break;
                         }
                         switch(dst->GetKind())
-                        {
+                        {LOGMEIN("LowerMDShared.cpp] 1468\n");
                             case IR::OpndKindReg:
                                 // (mov r0.u32, r1.u32) clears the upper 32 bits of r0
                                 dst->SetType(TyUint32);
@@ -1495,15 +1495,15 @@ LowererMD::Legalize(IR::Instr *const instr, bool fPostRegAlloc)
                 }
             }
             else if (TySize[dstType] < TySize[srcType])
-            {
+            {LOGMEIN("LowerMDShared.cpp] 1497\n");
                 instr->GetSrc1()->SetType(dst->GetType());
             }
 
             if(instr->m_opcode == Js::OpCode::MOV)
-            {
+            {LOGMEIN("LowerMDShared.cpp] 1502\n");
                 uint src1Forms = L_Reg | L_Mem | L_Ptr;     // Allow 64 bit values in x64 as well
                 if (dst->IsMemoryOpnd())
-                {
+                {LOGMEIN("LowerMDShared.cpp] 1505\n");
 #if _M_X64
                     // Only allow <= 32 bit values
                     src1Forms = L_Reg | L_Imm32;
@@ -1545,7 +1545,7 @@ LowererMD::Legalize(IR::Instr *const instr, bool fPostRegAlloc)
         case Js::OpCode::CMOVP:
         case Js::OpCode::CMOVS:
             if (instr->GetSrc2())
-            {
+            {LOGMEIN("LowerMDShared.cpp] 1547\n");
                 Assert(instr->GetDst()->GetSize() == instr->GetSrc2()->GetSize());
                 Assert(instr->GetDst()->GetSize() == instr->GetSrc1()->GetSize());
 
@@ -1576,7 +1576,7 @@ LowererMD::Legalize(IR::Instr *const instr, bool fPostRegAlloc)
         case Js::OpCode::MOVSD:
             Assert(AutoSystemInfo::Data.SSE2Available());
         case Js::OpCode::MOVSS:
-        {
+        {LOGMEIN("LowerMDShared.cpp] 1578\n");
             Assert(instr->GetDst()->GetType() == (instr->m_opcode == Js::OpCode::MOVSD? TyFloat64 : TyFloat32) || instr->GetDst()->IsSimd128());
             Assert(instr->GetSrc1()->GetType() == (instr->m_opcode == Js::OpCode::MOVSD ? TyFloat64 : TyFloat32) || instr->GetSrc1()->IsSimd128());
 
@@ -1613,7 +1613,7 @@ LowererMD::Legalize(IR::Instr *const instr, bool fPostRegAlloc)
         case Js::OpCode::TEST:
             if((instr->GetSrc1()->IsImmediateOpnd() && !instr->GetSrc2()->IsImmediateOpnd()) ||
                 (instr->GetSrc2()->IsMemoryOpnd() && !instr->GetSrc1()->IsMemoryOpnd()))
-            {
+            {LOGMEIN("LowerMDShared.cpp] 1615\n");
                 if (verify)
                 {
                     AssertMsg(false, "Missing legalization");
@@ -1749,14 +1749,14 @@ LowererMD::Legalize(IR::Instr *const instr, bool fPostRegAlloc)
         case Js::OpCode::ROL:
         case Js::OpCode::ROR:
             if (verify)
-            {
+            {LOGMEIN("LowerMDShared.cpp] 1751\n");
                 Assert(instr->GetSrc2()->IsIntConstOpnd()
                     || instr->GetSrc2()->AsRegOpnd()->GetReg() == LowererMDArch::GetRegShiftCount());
             }
             else
             {
                 if(!instr->GetSrc2()->IsIntConstOpnd())
-                {
+                {LOGMEIN("LowerMDShared.cpp] 1758\n");
                     IR::Instr *const newInstr = instr->HoistSrc2(Js::OpCode::MOV);
                     newInstr->GetDst()->AsRegOpnd()->SetReg(LowererMDArch::GetRegShiftCount());
                     instr->GetSrc2()->AsRegOpnd()->SetReg(LowererMDArch::GetRegShiftCount());
@@ -1848,26 +1848,26 @@ LowererMD::Legalize(IR::Instr *const instr, bool fPostRegAlloc)
     // Asserting general rules
     // There should be at most 1 memory opnd in an instruction
     if (instr->GetDst() && instr->GetDst()->IsMemoryOpnd())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 1850\n");
         // All memref address need to fit in a dword
         Assert(!instr->GetDst()->IsMemRefOpnd() || Math::FitsInDWord((size_t)instr->GetDst()->AsMemRefOpnd()->GetMemLoc()));
         if (instr->GetSrc1())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 1854\n");
             Assert(instr->GetSrc1()->IsEqual(instr->GetDst()) || !instr->GetSrc1()->IsMemoryOpnd());
             if (instr->GetSrc2())
-            {
+            {LOGMEIN("LowerMDShared.cpp] 1857\n");
                 Assert(!instr->GetSrc2()->IsMemoryOpnd());
             }
         }
     }
     else if (instr->GetSrc1() && instr->GetSrc1()->IsMemoryOpnd())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 1863\n");
         // All memref address need to fit in a dword
         Assert(!instr->GetSrc1()->IsMemRefOpnd() || Math::FitsInDWord((size_t)instr->GetSrc1()->AsMemRefOpnd()->GetMemLoc()));
         Assert(!instr->GetSrc2() || !instr->GetSrc2()->IsMemoryOpnd());
     }
     else if (instr->GetSrc2() && instr->GetSrc2()->IsMemRefOpnd())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 1869\n");
         // All memref address need to fit in a dword
         Assert(Math::FitsInDWord((size_t)instr->GetSrc2()->AsMemRefOpnd()->GetMemLoc()));
     }
@@ -1880,7 +1880,7 @@ LowererMD::Legalize(IR::Instr *const instr, bool fPostRegAlloc)
 
 template <bool verify>
 void LowererMD::LegalizeOpnds(IR::Instr *const instr, const uint dstForms, const uint src1Forms, uint src2Forms)
-{
+{LOGMEIN("LowerMDShared.cpp] 1882\n");
     Assert(instr);
     Assert(!instr->GetDst() == !dstForms);
     Assert(!instr->GetSrc1() == !src1Forms);
@@ -1891,12 +1891,12 @@ void LowererMD::LegalizeOpnds(IR::Instr *const instr, const uint dstForms, const
     {
     #ifdef _M_X64
         if(forms & L_Ptr)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 1893\n");
             forms |= L_Imm32;
         }
     #else
         if(forms & (L_Imm32 | L_Ptr))
-        {
+        {LOGMEIN("LowerMDShared.cpp] 1898\n");
             forms |= L_Imm32 | L_Ptr;
         }
     #endif
@@ -1908,12 +1908,12 @@ void LowererMD::LegalizeOpnds(IR::Instr *const instr, const uint dstForms, const
         LegalizeDst<verify>(instr, NormalizeForms(dstForms));
     }
     if(!src1Forms)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 1910\n");
         return;
     }
     LegalizeSrc<verify>(instr, instr->GetSrc1(), NormalizeForms(src1Forms));
     if(src2Forms & L_Mem && instr->GetSrc1()->IsMemoryOpnd())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 1915\n");
         src2Forms ^= L_Mem;
     }
     if(src2Forms)
@@ -1924,7 +1924,7 @@ void LowererMD::LegalizeOpnds(IR::Instr *const instr, const uint dstForms, const
 
 template <bool verify>
 void LowererMD::LegalizeDst(IR::Instr *const instr, const uint forms)
-{
+{LOGMEIN("LowerMDShared.cpp] 1926\n");
     Assert(instr);
     Assert(forms);
 
@@ -1934,16 +1934,16 @@ void LowererMD::LegalizeDst(IR::Instr *const instr, const uint forms)
     AssertMsg(!dst->IsInt64(), "Int64 supported only on x64");
 #endif
     switch(dst->GetKind())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 1936\n");
         case IR::OpndKindReg:
             Assert(forms & L_Reg);
             return;
 
         case IR::OpndKindMemRef:
-        {
+        {LOGMEIN("LowerMDShared.cpp] 1942\n");
             IR::MemRefOpnd *const memRefOpnd = dst->AsMemRefOpnd();
             if(!LowererMDArch::IsLegalMemLoc(memRefOpnd))
-            {
+            {LOGMEIN("LowerMDShared.cpp] 1945\n");
                 if (verify)
                 {
                     AssertMsg(false, "Missing legalization");
@@ -1957,7 +1957,7 @@ void LowererMD::LegalizeDst(IR::Instr *const instr, const uint forms)
         case IR::OpndKindSym:
         case IR::OpndKindIndir:
             if(forms & L_Mem)
-            {
+            {LOGMEIN("LowerMDShared.cpp] 1959\n");
                 return;
             }
             break;
@@ -1986,15 +1986,15 @@ void LowererMD::LegalizeDst(IR::Instr *const instr, const uint forms)
     const bool equalsSrc1 = instr->GetSrc1() && dst->IsEqual(instr->GetSrc1());
     const bool equalsSrc2 = instr->GetSrc2() && dst->IsEqual(instr->GetSrc2());
     if(!(equalsSrc1 || equalsSrc2))
-    {
+    {LOGMEIN("LowerMDShared.cpp] 1988\n");
         return;
     }
     const Js::OpCode loadOpCode = GetLoadOp(irType);
     if(equalsSrc1)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 1993\n");
         instr->HoistSrc1(loadOpCode, RegNOREG, regOpnd->m_sym);
         if(equalsSrc2)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 1996\n");
             instr->ReplaceSrc2(regOpnd);
         }
     }
@@ -2004,11 +2004,11 @@ void LowererMD::LegalizeDst(IR::Instr *const instr, const uint forms)
     }
 }
 
-bool LowererMD::HoistLargeConstant(IR::IndirOpnd *indirOpnd, IR::Opnd *src, IR::Instr *instr) {
+bool LowererMD::HoistLargeConstant(IR::IndirOpnd *indirOpnd, IR::Opnd *src, IR::Instr *instr) {LOGMEIN("LowerMDShared.cpp] 2006\n");
         if (indirOpnd != nullptr)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 2008\n");
             if (indirOpnd->GetOffset() == 0)
-            {
+            {LOGMEIN("LowerMDShared.cpp] 2010\n");
                 instr->ReplaceSrc(src, indirOpnd->GetBaseOpnd());
             }
             else
@@ -2026,7 +2026,7 @@ bool LowererMD::HoistLargeConstant(IR::IndirOpnd *indirOpnd, IR::Opnd *src, IR::
 
 template <bool verify>
 void LowererMD::LegalizeSrc(IR::Instr *const instr, IR::Opnd *src, const uint forms)
-{
+{LOGMEIN("LowerMDShared.cpp] 2028\n");
     Assert(instr);
     Assert(src);
     Assert(src == instr->GetSrc1() || src == instr->GetSrc2());
@@ -2035,14 +2035,14 @@ void LowererMD::LegalizeSrc(IR::Instr *const instr, IR::Opnd *src, const uint fo
     AssertMsg(!src->IsInt64(), "Int64 supported only on x64");
 #endif
     switch(src->GetKind())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 2037\n");
         case IR::OpndKindReg:
             Assert(forms & L_Reg);
             return;
 
         case IR::OpndKindIntConst:
             if(forms & L_Ptr)
-            {
+            {LOGMEIN("LowerMDShared.cpp] 2044\n");
                 return;
             }
 #ifdef _M_X64
@@ -2050,9 +2050,9 @@ void LowererMD::LegalizeSrc(IR::Instr *const instr, IR::Opnd *src, const uint fo
                 IR::IntConstOpnd * intOpnd = src->AsIntConstOpnd();
                 if ((TySize[intOpnd->GetType()] != 8) ||
                     (!instr->isInlineeEntryInstr && Math::FitsInDWord(intOpnd->GetValue())))
-                {
+                {LOGMEIN("LowerMDShared.cpp] 2052\n");
                     if (forms & L_Imm32)
-                    {
+                    {LOGMEIN("LowerMDShared.cpp] 2054\n");
                         // the constant fits in 32-bit, no need to hoist
                         return;
                     }
@@ -2066,12 +2066,12 @@ void LowererMD::LegalizeSrc(IR::Instr *const instr, IR::Opnd *src, const uint fo
                 // The actual value for inlinee entry instr isn't determined until encoder
                 // So it need to be hoisted conventionally.
                 if (!instr->isInlineeEntryInstr)
-                {
+                {LOGMEIN("LowerMDShared.cpp] 2068\n");
                     Assert(forms & L_Reg);
                     IR::IntConstOpnd * newIntOpnd = IR::IntConstOpnd::New(intOpnd->GetValue(), intOpnd->GetType(), instr->m_func, true);
                     IR::IndirOpnd * indirOpnd = instr->m_func->GetTopFunc()->GetConstantAddressIndirOpnd(intOpnd->GetValue(), newIntOpnd, IR::AddrOpndKindConstantAddress, TyMachPtr, Js::OpCode::MOV);
                     if (HoistLargeConstant(indirOpnd, src, instr))
-                    {
+                    {LOGMEIN("LowerMDShared.cpp] 2073\n");
                         return;
                     }
                 }
@@ -2083,7 +2083,7 @@ void LowererMD::LegalizeSrc(IR::Instr *const instr, IR::Opnd *src, const uint fo
 
         case IR::OpndKindInt64Const:
             if (forms & L_Ptr)
-            {
+            {LOGMEIN("LowerMDShared.cpp] 2085\n");
                 return;
             }
 #ifdef _M_X64
@@ -2091,7 +2091,7 @@ void LowererMD::LegalizeSrc(IR::Instr *const instr, IR::Opnd *src, const uint fo
                 IR::Int64ConstOpnd * int64Opnd = src->AsInt64ConstOpnd();
                 if ((forms & L_Imm32) && ((TySize[src->GetType()] != 8) ||
                     (!instr->isInlineeEntryInstr && Math::FitsInDWord(int64Opnd->GetValue()))))
-                {
+                {LOGMEIN("LowerMDShared.cpp] 2093\n");
                     // the immediate fits in 32-bit, no need to hoist
                     return;
                 }
@@ -2111,7 +2111,7 @@ void LowererMD::LegalizeSrc(IR::Instr *const instr, IR::Opnd *src, const uint fo
             break;
         case IR::OpndKindAddr:
             if (forms & L_Ptr)
-            {
+            {LOGMEIN("LowerMDShared.cpp] 2113\n");
                 return;
             }
 #ifdef _M_X64
@@ -2119,7 +2119,7 @@ void LowererMD::LegalizeSrc(IR::Instr *const instr, IR::Opnd *src, const uint fo
                 IR::AddrOpnd * addrOpnd = src->AsAddrOpnd();
                 if ((forms & L_Imm32) && ((TySize[addrOpnd->GetType()] != 8) ||
                     (!instr->isInlineeEntryInstr && Math::FitsInDWord((size_t)addrOpnd->m_address))))
-                {
+                {LOGMEIN("LowerMDShared.cpp] 2121\n");
                     // the address fits in 32-bit, no need to hoist
                     return;
                 }
@@ -2135,7 +2135,7 @@ void LowererMD::LegalizeSrc(IR::Instr *const instr, IR::Opnd *src, const uint fo
                 IR::AddrOpnd * newAddrOpnd = IR::AddrOpnd::New(addrOpnd->m_address, addrOpnd->GetAddrOpndKind(), instr->m_func, true);
                 IR::IndirOpnd * indirOpnd = instr->m_func->GetTopFunc()->GetConstantAddressIndirOpnd((intptr_t)addrOpnd->m_address, newAddrOpnd, addrOpnd->GetAddrOpndKind(), TyMachPtr, Js::OpCode::MOV);
                 if (HoistLargeConstant(indirOpnd, src, instr))
-                {
+                {LOGMEIN("LowerMDShared.cpp] 2137\n");
                     return;
                 }
             }
@@ -2143,10 +2143,10 @@ void LowererMD::LegalizeSrc(IR::Instr *const instr, IR::Opnd *src, const uint fo
             break;
 
         case IR::OpndKindMemRef:
-        {
+        {LOGMEIN("LowerMDShared.cpp] 2145\n");
             IR::MemRefOpnd *const memRefOpnd = src->AsMemRefOpnd();
             if(!LowererMDArch::IsLegalMemLoc(memRefOpnd))
-            {
+            {LOGMEIN("LowerMDShared.cpp] 2148\n");
                 if (verify)
                 {
                     AssertMsg(false, "Missing legalization");
@@ -2160,7 +2160,7 @@ void LowererMD::LegalizeSrc(IR::Instr *const instr, IR::Opnd *src, const uint fo
         case IR::OpndKindSym:
         case IR::OpndKindIndir:
             if(forms & L_Mem)
-            {
+            {LOGMEIN("LowerMDShared.cpp] 2162\n");
                 return;
             }
             break;
@@ -2187,14 +2187,14 @@ void LowererMD::LegalizeSrc(IR::Instr *const instr, IR::Opnd *src, const uint fo
     Assert(!(instr->GetDst() && instr->GetDst()->IsEqual(src)));
     const Js::OpCode loadOpCode = GetLoadOp(src->GetType());
     if(src == instr->GetSrc2())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 2189\n");
         instr->HoistSrc2(loadOpCode);
         return;
     }
     const bool equalsSrc2 = instr->GetSrc2() && src->IsEqual(instr->GetSrc2());
     IR::Instr * hoistInstr = instr->HoistSrc1(loadOpCode);
     if(equalsSrc2)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 2196\n");
         instr->ReplaceSrc2(hoistInstr->GetDst());
     }
     hoistInstr->isInlineeEntryInstr = instr->isInlineeEntryInstr;
@@ -2217,12 +2217,12 @@ template void LowererMD::MakeDstEquSrc1<true>(IR::Instr *const instr);
 
 IR::Instr *
 LowererMD::LoadFunctionObjectOpnd(IR::Instr *instr, IR::Opnd *&functionObjOpnd)
-{
+{LOGMEIN("LowerMDShared.cpp] 2219\n");
     IR::Opnd * src1 = instr->GetSrc1();
     IR::Instr * instrPrev = instr->m_prev;
 
     if (src1 == nullptr)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 2224\n");
         IR::RegOpnd * regOpnd = IR::RegOpnd::New(TyMachPtr, m_func);
         StackSym *paramSym = StackSym::New(TyMachPtr, m_func);
         IR::SymOpnd *paramOpnd = IR::SymOpnd::New(paramSym, TyMachPtr, m_func);
@@ -2239,7 +2239,7 @@ LowererMD::LoadFunctionObjectOpnd(IR::Instr *instr, IR::Opnd *&functionObjOpnd)
         // Inlinee, use the function object opnd on the instruction
         functionObjOpnd = instr->UnlinkSrc1();
         if (!functionObjOpnd->IsRegOpnd())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 2241\n");
             Assert(functionObjOpnd->IsAddrOpnd());
         }
     }
@@ -2249,7 +2249,7 @@ LowererMD::LoadFunctionObjectOpnd(IR::Instr *instr, IR::Opnd *&functionObjOpnd)
 
 IR::Instr *
 LowererMD::LowerLdSuper(IR::Instr *instr, IR::JnHelperMethod helperOpCode)
-{
+{LOGMEIN("LowerMDShared.cpp] 2251\n");
     IR::Opnd * functionObjOpnd;
     IR::Instr * instrPrev = LoadFunctionObjectOpnd(instr, functionObjOpnd);
 
@@ -2262,7 +2262,7 @@ LowererMD::LowerLdSuper(IR::Instr *instr, IR::JnHelperMethod helperOpCode)
 
 void
 LowererMD::GenerateFastDivByPow2(IR::Instr *instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 2264\n");
     //
     // Given:
     // dst = Div_A src1, src2
@@ -2323,14 +2323,14 @@ LowererMD::GenerateFastDivByPow2(IR::Instr *instr)
 #endif
 
     // AND  s1, constant
-    {
+    {LOGMEIN("LowerMDShared.cpp] 2325\n");
         IR::Instr * andInstr = IR::Instr::New(Js::OpCode::AND, s1, s1, constant, m_func);
         instr->InsertBefore(andInstr);
         Legalize(andInstr);
     }
 
     // CMP s1, AtomTag_IntPtr
-    {
+    {LOGMEIN("LowerMDShared.cpp] 2332\n");
         IR::Instr *cmp = IR::Instr::New(Js::OpCode::CMP, m_func);
         cmp->SetSrc1(s1);
         cmp->SetSrc2(IR::AddrOpnd::New((Js::Var)(Js::AtomTag_IntPtr), IR::AddrOpndKindConstantVar, m_func, /* dontEncode = */ true));
@@ -2350,7 +2350,7 @@ LowererMD::GenerateFastDivByPow2(IR::Instr *instr)
     instr->InsertBefore(IR::Instr::New(Js::OpCode::SAR, s1, s1, IR::IntConstOpnd::New(Math::Log2(src2Value), TyInt32, m_func), m_func));
 
     if(s1->GetSize() != MachPtr)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 2352\n");
         s1 = s1->UseWithNewType(TyMachPtr, m_func)->AsRegOpnd();
     }
 
@@ -2384,7 +2384,7 @@ LowererMD::GenerateFastDivByPow2(IR::Instr *instr)
     }
 
     // CMP s1, AtomTag_IntPtr
-    {
+    {LOGMEIN("LowerMDShared.cpp] 2386\n");
         IR::Instr *cmp = IR::Instr::New(Js::OpCode::CMP, m_func);
         cmp->SetSrc1(s1);
         cmp->SetSrc2(IR::AddrOpnd::New((Js::Var)(Js::AtomTag_IntPtr), IR::AddrOpndKindConstantVar, m_func, /* dontEncode = */ true));
@@ -2412,11 +2412,11 @@ LowererMD::GenerateFastDivByPow2(IR::Instr *instr)
     // PUSH s1
     // PUSH ScriptContext
     // CALL Op_FinishOddDivByPow2
-    {
+    {LOGMEIN("LowerMDShared.cpp] 2414\n");
         IR::JnHelperMethod helperMethod;
 
         if (instr->dstIsTempNumber)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 2418\n");
             IR::Opnd *tempOpnd;
             helperMethod = IR::HelperOp_FinishOddDivByPow2InPlace;
             Assert(dst->IsRegOpnd());
@@ -2453,7 +2453,7 @@ LowererMD::GenerateFastDivByPow2(IR::Instr *instr)
 
 bool
 LowererMD::GenerateFastBrOrCmString(IR::Instr* instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 2455\n");
     IR::RegOpnd *srcReg1 = instr->GetSrc1()->IsRegOpnd() ? instr->GetSrc1()->AsRegOpnd() : nullptr;
     IR::RegOpnd *srcReg2 = instr->GetSrc2()->IsRegOpnd() ? instr->GetSrc2()->AsRegOpnd() : nullptr;
 
@@ -2463,7 +2463,7 @@ LowererMD::GenerateFastBrOrCmString(IR::Instr* instr)
         srcReg2->IsTaggedInt() ||
         !srcReg1->GetValueType().IsLikelyString() ||
         !srcReg2->GetValueType().IsLikelyString())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 2465\n");
         return false;
     }
 
@@ -2479,7 +2479,7 @@ LowererMD::GenerateFastBrOrCmString(IR::Instr* instr)
     bool isCmNegOp = false;
 
     switch (instr->m_opcode)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 2481\n");
     case Js::OpCode::BrSrEq_A:
     case Js::OpCode::BrSrNotNeq_A:
         isStrict = true;
@@ -2523,7 +2523,7 @@ LowererMD::GenerateFastBrOrCmString(IR::Instr* instr)
     }
 
     if (!isBranch)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 2525\n");
         labelBranchSuccess = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
         labelBranchFail = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
 
@@ -2539,7 +2539,7 @@ LowererMD::GenerateFastBrOrCmString(IR::Instr* instr)
     IR::LabelInstr *labelFallthrough = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
 
     if (!isBranch)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 2541\n");
         instr->InsertBefore(labelBranchSuccess);
         instr->InsertBefore(instrMovSuccess);
         instr->InsertBefore(IR::BranchInstr::New(Js::OpCode::JMP, labelFallthrough, this->m_func));
@@ -2560,7 +2560,7 @@ LowererMD::GenerateFastBrOrCmString(IR::Instr* instr)
     IR::Instr *blockEndInstr;
 
     if (isEqual)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 2562\n");
         blockEndInstr = labelHelper->GetNextBranchOrLabel();
     }
     else
@@ -2569,7 +2569,7 @@ LowererMD::GenerateFastBrOrCmString(IR::Instr* instr)
     }
 
     if (blockEndInstr->IsBranchInstr())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 2571\n");
         blockEndInstr->AsBranchInstr()->m_isHelperToNonHelperBranch = true;
     }
 
@@ -2581,7 +2581,7 @@ LowererMD::GenerateFastBrOrCmString(IR::Instr* instr)
 
 bool
 LowererMD::GenerateFastStringCheck(IR::Instr *instr, IR::RegOpnd *srcReg1, IR::RegOpnd *srcReg2, bool isEqual, bool isStrict, IR::LabelInstr *labelHelper, IR::LabelInstr *labelBranchSuccess, IR::LabelInstr *labelBranchFail)
-{
+{LOGMEIN("LowerMDShared.cpp] 2583\n");
     Assert(instr->m_opcode == Js::OpCode::BrSrEq_A  ||
         instr->m_opcode == Js::OpCode::BrSrNeq_A    ||
         instr->m_opcode == Js::OpCode::BrEq_A       ||
@@ -2660,7 +2660,7 @@ LowererMD::GenerateFastStringCheck(IR::Instr *instr, IR::RegOpnd *srcReg1, IR::R
     this->m_lowerer->GenerateStringTest(srcReg1, instrInsert, labelHelper);
 
     if (isStrict)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 2662\n");
         this->m_lowerer->GenerateStringTest(srcReg2, instrInsert, labelBranchFail);
     }
     else
@@ -2775,7 +2775,7 @@ LowererMD::GenerateFastStringCheck(IR::Instr *instr, IR::RegOpnd *srcReg1, IR::R
 
 bool
 LowererMD::GenerateFastCmSrEqConst(IR::Instr *instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 2777\n");
     //
     // Given:
     // s1 = CmSrEq_A s2, s3
@@ -2800,7 +2800,7 @@ LowererMD::GenerateFastCmSrEqConst(IR::Instr *instr)
     IR::LabelInstr *labelDone    = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
 
     if (!opnd->IsRegOpnd())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 2802\n");
         IR::RegOpnd *lhsReg = IR::RegOpnd::New(TyVar, m_func);
         IR::Instr *mov = IR::Instr::New(Js::OpCode::MOV, lhsReg, opnd, m_func);
         instr->InsertBefore(mov);
@@ -2848,7 +2848,7 @@ LowererMD::GenerateFastCmSrEqConst(IR::Instr *instr)
 ///
 ///----------------------------------------------------------------------------
 bool LowererMD::GenerateFastCmXxTaggedInt(IR::Instr *instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 2850\n");
     // The idea is to do an inline compare if we can prove that both sources
     // are tagged ints (i.e., are vars with the low bit set).
     //
@@ -2889,11 +2889,11 @@ bool LowererMD::GenerateFastCmXxTaggedInt(IR::Instr *instr)
 
     // Not tagged ints?
     if (src1->IsRegOpnd() && src1->AsRegOpnd()->IsNotInt())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 2891\n");
         return false;
     }
     if (src2->IsRegOpnd() && src2->AsRegOpnd()->IsNotInt())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 2895\n");
         return false;
     }
 
@@ -2904,15 +2904,15 @@ bool LowererMD::GenerateFastCmXxTaggedInt(IR::Instr *instr)
     // Tagged ints?
     bool isTaggedInts = false;
     if (src1->IsTaggedInt())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 2906\n");
         if (src2->IsTaggedInt())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 2908\n");
             isTaggedInts = true;
         }
     }
 
     if (!isTaggedInts)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 2914\n");
         this->GenerateSmIntPairTest(instr, src1, src2, helper);
     }
 
@@ -2922,7 +2922,7 @@ bool LowererMD::GenerateFastCmXxTaggedInt(IR::Instr *instr)
     Js::OpCode setCC_Opcode = Js::OpCode::Nop;
 
     switch(instr->m_opcode)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 2924\n");
     case Js::OpCode::CmSrEq_A:
     case Js::OpCode::CmEq_A:
         break;
@@ -2952,7 +2952,7 @@ bool LowererMD::GenerateFastCmXxTaggedInt(IR::Instr *instr)
     }
 
     if (setCC_Opcode == Js::OpCode::Nop)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 2954\n");
         // SUB r1, src2
         IR::Instr * subInstr = IR::Instr::New(Js::OpCode::SUB, r1, r1, src2, m_func);
         instr->InsertBefore(subInstr);
@@ -3001,7 +3001,7 @@ bool LowererMD::GenerateFastCmXxTaggedInt(IR::Instr *instr)
     }
 
     // ADD r1, equalResult
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3003\n");
         IR::Instr * add = IR::Instr::New(Js::OpCode::ADD, r1, r1, m_func);
         add->SetSrc2(IR::AddrOpnd::New(equalResult, IR::AddrOpndKind::AddrOpndKindDynamicVar, this->m_func));
         instr->InsertBefore(add);
@@ -3012,7 +3012,7 @@ bool LowererMD::GenerateFastCmXxTaggedInt(IR::Instr *instr)
     instr->InsertBefore(IR::Instr::New(Js::OpCode::MOV, dst, r1, m_func));
 
     if (isTaggedInts)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3014\n");
         instr->Remove();
         return true;
     }
@@ -3027,17 +3027,17 @@ bool LowererMD::GenerateFastCmXxTaggedInt(IR::Instr *instr)
 }
 
 void LowererMD::GenerateFastCmXxR8(IR::Instr *instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 3029\n");
     GenerateFastCmXx(instr);
 }
 
 void LowererMD::GenerateFastCmXxI4(IR::Instr *instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 3034\n");
     GenerateFastCmXx(instr);
 }
 
 void LowererMD::GenerateFastCmXx(IR::Instr *instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 3039\n");
     // For float src:
     // dst = MOV 0/1
     // (U)COMISD src1, src2
@@ -3070,7 +3070,7 @@ void LowererMD::GenerateFastCmXx(IR::Instr *instr)
 #ifndef _M_X64
     Int64RegPair src1Pair, src2Pair;
     if (isInt64Src)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3072\n");
         src1Pair = this->m_lowerer->FindOrCreateInt64Pair(src1);
         src2Pair = this->m_lowerer->FindOrCreateInt64Pair(src2);
         src1 = src1Pair.high;
@@ -3080,7 +3080,7 @@ void LowererMD::GenerateFastCmXx(IR::Instr *instr)
 
     IR::Instr * done;
     if (isFloatSrc)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3082\n");
         done = IR::LabelInstr::New(Js::OpCode::Label, m_func);
         instr->InsertBefore(done);
     }
@@ -3090,16 +3090,16 @@ void LowererMD::GenerateFastCmXx(IR::Instr *instr)
     }
 
     if (isIntDst)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3092\n");
         // reg = MOV 0 will get peeped to XOR reg, reg which sets the flags.
         // Put the MOV before the CMP, but use a tmp if dst == src1/src2
         if (dst->IsEqual(src1) || dst->IsEqual(src2))
-        {
+        {LOGMEIN("LowerMDShared.cpp] 3096\n");
             tmp = IR::RegOpnd::New(dst->GetType(), this->m_func);
         }
         // dst = MOV 0
         if (isFloatSrc && instr->m_opcode == Js::OpCode::CmNeq_A)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 3101\n");
             opnd = IR::IntConstOpnd::New(1, TyInt32, this->m_func);
         }
         else
@@ -3112,9 +3112,9 @@ void LowererMD::GenerateFastCmXx(IR::Instr *instr)
 
     Js::OpCode cmpOp;
     if (isFloatSrc)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3114\n");
         if (instr->m_opcode == Js::OpCode::CmEq_A || instr->m_opcode == Js::OpCode::CmNeq_A)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 3116\n");
             cmpOp = src1->IsFloat64() ? Js::OpCode::UCOMISD : Js::OpCode::UCOMISS;
         }
         else
@@ -3133,14 +3133,14 @@ void LowererMD::GenerateFastCmXx(IR::Instr *instr)
     done->InsertBefore(newInstr);
 
     if (isFloatSrc)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3135\n");
         newInstr = IR::BranchInstr::New(Js::OpCode::JP, done->AsLabelInstr(), this->m_func);
         done->InsertBefore(newInstr);
     }
 
 #ifndef _M_X64
     if (isInt64Src)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3142\n");
         IR::LabelInstr* skipLow = IR::LabelInstr::New(Js::OpCode::Label, m_func);
         newInstr = IR::BranchInstr::New(Js::OpCode::JNE, skipLow, this->m_func);
         done->InsertBefore(newInstr);
@@ -3154,14 +3154,14 @@ void LowererMD::GenerateFastCmXx(IR::Instr *instr)
 #endif
 
     if (!isIntDst)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3156\n");
         opnd = this->m_lowerer->LoadLibraryValueOpnd(instr, LibraryValue::ValueFalse);
         LowererMD::CreateAssign(tmp, opnd, done);
     }
 
     Js::OpCode useCC;
     switch(instr->m_opcode)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3163\n");
     case Js::OpCode::CmEq_I4:
     case Js::OpCode::CmEq_A:
         useCC = isIntDst ? Js::OpCode::SETE : Js::OpCode::CMOVE;
@@ -3214,7 +3214,7 @@ void LowererMD::GenerateFastCmXx(IR::Instr *instr)
     }
 
     if (isIntDst)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3216\n");
         // tmp.i8 = SetCC tmp.i8
         IR::Opnd *tmp_i8 = tmp->UseWithNewType(TyInt8, this->m_func);
 
@@ -3232,7 +3232,7 @@ void LowererMD::GenerateFastCmXx(IR::Instr *instr)
     done->InsertBefore(newInstr);
 
     if (tmp != dst)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3234\n");
         newInstr = IR::Instr::New(Js::OpCode::MOV, dst, tmp, this->m_func);
         instr->InsertBefore(newInstr);
     }
@@ -3241,7 +3241,7 @@ void LowererMD::GenerateFastCmXx(IR::Instr *instr)
 }
 
 IR::Instr * LowererMD::GenerateConvBool(IR::Instr *instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 3243\n");
     // TEST src1, src1
     // dst = MOV true
     // rf = MOV false
@@ -3286,7 +3286,7 @@ IR::Instr * LowererMD::GenerateConvBool(IR::Instr *instr)
 ///----------------------------------------------------------------------------
 bool
 LowererMD::GenerateFastAdd(IR::Instr * instrAdd)
-{
+{LOGMEIN("LowerMDShared.cpp] 3288\n");
     // Given:
     //
     // dst = Add src1, src2
@@ -3320,22 +3320,22 @@ LowererMD::GenerateFastAdd(IR::Instr * instrAdd)
     // Incrementing strings representing integers can be inter-mixed with integers e.g. "1"++ -> converts 1 to an int and thereafter, integer increment is expected.
     if (opndSrc1->IsRegOpnd() && (opndSrc1->AsRegOpnd()->IsNotInt() || opndSrc1->GetValueType().IsString()
         || (instrAdd->m_opcode != Js::OpCode::Incr_A && opndSrc1->GetValueType().IsLikelyString())))
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3322\n");
         return false;
     }
 
     if (opndSrc2->IsRegOpnd() && (opndSrc2->AsRegOpnd()->IsNotInt() ||
         opndSrc2->GetValueType().IsLikelyString()))
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3328\n");
         return false;
     }
 
     // Tagged ints?
     bool isTaggedInts = false;
     if (opndSrc1->IsTaggedInt())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3335\n");
         if (opndSrc2->IsTaggedInt())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 3337\n");
             isTaggedInts = true;
         }
     }
@@ -3343,14 +3343,14 @@ LowererMD::GenerateFastAdd(IR::Instr * instrAdd)
     labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
 
     if (!isTaggedInts)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3345\n");
         // (If not 2 Int31's, jump to $helper.)
 
         this->GenerateSmIntPairTest(instrAdd, opndSrc1, opndSrc2, labelHelper);
     }
 
     if (opndSrc1->IsAddrOpnd())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3352\n");
         // If opnd1 is a constant, just swap them.
         IR::Opnd *opndTmp = opndSrc1;
         opndSrc1 = opndSrc2;
@@ -3373,13 +3373,13 @@ LowererMD::GenerateFastAdd(IR::Instr * instrAdd)
 #if !INT32VAR
     // Do the DEC in place
     if (opndSrc2->IsAddrOpnd())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3375\n");
         Assert(opndSrc2->AsAddrOpnd()->GetAddrOpndKind() == IR::AddrOpndKindConstantVar);
         opndSrc2 = IR::IntConstOpnd::New(*((int *)&(opndSrc2->AsAddrOpnd()->m_address)) - 1, TyInt32, this->m_func, opndSrc2->AsAddrOpnd()->m_dontEncode);
         opndSrc2 = opndSrc2->Use(this->m_func);
     }
     else if (opndSrc2->IsIntConstOpnd())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3381\n");
         Assert(opndSrc2->GetType() == TyInt32);
         opndSrc2 = opndSrc2->Use(this->m_func);
         opndSrc2->AsIntConstOpnd()->DecrValue(1);
@@ -3395,11 +3395,11 @@ LowererMD::GenerateFastAdd(IR::Instr * instrAdd)
     instr = IR::Instr::New(Js::OpCode::ADD, opndReg, opndReg, opndSrc2, this->m_func);
 #else
     if (opndSrc2->IsAddrOpnd())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3397\n");
         // truncate to untag
         int value = ::Math::PointerCastToIntegralTruncate<int>(opndSrc2->AsAddrOpnd()->m_address);
         if (value == 1)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 3401\n");
             instr = IR::Instr::New(Js::OpCode::INC, opndReg, opndReg, this->m_func);
         }
         else
@@ -3428,7 +3428,7 @@ LowererMD::GenerateFastAdd(IR::Instr * instrAdd)
     //
 
     if(TyMachReg != opndReg->GetType())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3430\n");
         opndReg = opndReg->UseWithNewType(TyMachPtr, this->m_func);
     }
 
@@ -3466,7 +3466,7 @@ LowererMD::GenerateFastAdd(IR::Instr * instrAdd)
 ///----------------------------------------------------------------------------
 bool
 LowererMD::GenerateFastSub(IR::Instr * instrSub)
-{
+{LOGMEIN("LowerMDShared.cpp] 3468\n");
     // Given:
     //
     // dst = Sub src1, src2
@@ -3499,20 +3499,20 @@ LowererMD::GenerateFastSub(IR::Instr * instrSub)
 
     // Not tagged ints?
     if (opndSrc1->IsRegOpnd() && opndSrc1->AsRegOpnd()->IsNotInt())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3501\n");
         return false;
     }
     if (opndSrc2->IsRegOpnd() && opndSrc2->AsRegOpnd()->IsNotInt())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3505\n");
         return false;
     }
 
     // Tagged ints?
     bool isTaggedInts = false;
     if (opndSrc1->IsTaggedInt())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3512\n");
         if (opndSrc2->IsTaggedInt())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 3514\n");
             isTaggedInts = true;
         }
     }
@@ -3520,7 +3520,7 @@ LowererMD::GenerateFastSub(IR::Instr * instrSub)
     labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
 
     if (!isTaggedInts)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3522\n");
         // (If not 2 Int31's, jump to $helper.)
 
         this->GenerateSmIntPairTest(instrSub, opndSrc1, opndSrc2, labelHelper);
@@ -3561,7 +3561,7 @@ LowererMD::GenerateFastSub(IR::Instr * instrSub)
     //
 
     if(TyMachReg != opndReg->GetType())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3563\n");
         opndReg = opndReg->UseWithNewType(TyMachPtr, this->m_func);
     }
 
@@ -3599,7 +3599,7 @@ LowererMD::GenerateFastSub(IR::Instr * instrSub)
 
 bool
 LowererMD::GenerateFastMul(IR::Instr * instrMul)
-{
+{LOGMEIN("LowerMDShared.cpp] 3601\n");
     // Given:
     //
     // dst = Mul src1, src2
@@ -3647,11 +3647,11 @@ LowererMD::GenerateFastMul(IR::Instr * instrMul)
     AssertMsg(opndSrc1 && opndSrc2, "Expected 2 src opnd's on mul instruction");
 
     if (opndSrc1->IsRegOpnd() && opndSrc1->AsRegOpnd()->IsNotInt())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3649\n");
         return true;
     }
     if (opndSrc2->IsRegOpnd() && opndSrc2->AsRegOpnd()->IsNotInt())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3653\n");
         return true;
     }
     // (If not 2 Int31's, jump to $helper.)
@@ -3671,7 +3671,7 @@ LowererMD::GenerateFastMul(IR::Instr * instrMul)
     opndSrc2    = opndSrc2->UseWithNewType(TyInt32, this->m_func);
 
     if (opndSrc1->IsImmediateOpnd())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3673\n");
         IR::Opnd * temp = opndSrc1;
         opndSrc1 = opndSrc2;
         opndSrc2 = temp;
@@ -3691,7 +3691,7 @@ LowererMD::GenerateFastMul(IR::Instr * instrMul)
 #endif
 
     if (opndSrc2->IsImmediateOpnd())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3693\n");
         Assert(opndSrc2->IsAddrOpnd() && opndSrc2->AsAddrOpnd()->IsVar());
 
         IR::Opnd *opnd2 = IR::IntConstOpnd::New(Js::TaggedInt::ToInt32(opndSrc2->AsAddrOpnd()->m_address), TyInt32, this->m_func);
@@ -3798,7 +3798,7 @@ LowererMD::GenerateFastMul(IR::Instr * instrMul)
     //
 
     if(TyMachReg != s3->GetType())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3800\n");
         s3 = static_cast<IR::RegOpnd *>(s3->UseWithNewType(TyMachPtr, this->m_func));
     }
 
@@ -3830,7 +3830,7 @@ LowererMD::GenerateFastMul(IR::Instr * instrMul)
 
 bool
 LowererMD::GenerateFastNeg(IR::Instr * instrNeg)
-{
+{LOGMEIN("LowerMDShared.cpp] 3832\n");
     // Given:
     //
     // dst = Not src
@@ -3860,7 +3860,7 @@ LowererMD::GenerateFastNeg(IR::Instr * instrNeg)
     AssertMsg(opndSrc1, "Expected src opnd on Neg instruction");
 
     if(opndSrc1->IsEqual(instrNeg->GetDst()))
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3862\n");
         usingNewDst = true;
         opndDst = IR::RegOpnd::New(TyInt32, this->m_func);
     }
@@ -3870,12 +3870,12 @@ LowererMD::GenerateFastNeg(IR::Instr * instrNeg)
     }
 
     if (opndSrc1->IsRegOpnd() && opndSrc1->AsRegOpnd()->m_sym->IsIntConst())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3872\n");
         IR::Opnd *newOpnd;
         IntConstType value = opndSrc1->AsRegOpnd()->m_sym->GetIntConstValue();
 
         if (value == 0)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 3877\n");
             // If the negate operand is zero, the result is -0.0, which is a Number rather than an Int31.
             newOpnd = m_lowerer->LoadLibraryValueOpnd(instrNeg, LibraryValue::ValueNegativeZero);
         }
@@ -3897,7 +3897,7 @@ LowererMD::GenerateFastNeg(IR::Instr * instrNeg)
     bool isInt = (opndSrc1->IsTaggedInt());
 
     if (opndSrc1->IsRegOpnd() && opndSrc1->AsRegOpnd()->IsNotInt())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3899\n");
         return true;
     }
 
@@ -3940,7 +3940,7 @@ LowererMD::GenerateFastNeg(IR::Instr * instrNeg)
     // Convert TyInt32 operand, back to TyMachPtr type.
     //
     if(TyMachReg != opndDst->GetType())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3942\n");
         opndDst = opndDst->UseWithNewType(TyMachPtr, this->m_func);
     }
 
@@ -3948,7 +3948,7 @@ LowererMD::GenerateFastNeg(IR::Instr * instrNeg)
     GenerateInt32ToVarConversion(opndDst, instrNeg);
 #endif
     if(usingNewDst)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3950\n");
         instr = IR::Instr::New(Js::OpCode::MOV, instrNeg->GetDst(), opndDst, this->m_func);
         instrNeg->InsertBefore(instr);
     }
@@ -3972,7 +3972,7 @@ LowererMD::GenerateFastNeg(IR::Instr * instrNeg)
 
 void
 LowererMD::GenerateFastBrS(IR::BranchInstr *brInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 3974\n");
     IR::Opnd *src1 = brInstr->UnlinkSrc1();
 
     Assert(src1->IsIntConstOpnd() || src1->IsAddrOpnd() || src1->IsRegOpnd());
@@ -3987,7 +3987,7 @@ LowererMD::GenerateFastBrS(IR::BranchInstr *brInstr)
     Js::OpCode opcode;
 
     switch(brInstr->m_opcode)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 3989\n");
     case Js::OpCode::BrHasSideEffects:
         opcode = Js::OpCode::JNE;
         break;
@@ -4019,7 +4019,7 @@ LowererMD::GenerateSmIntPairTest(
     IR::Opnd * opndSrc1,
     IR::Opnd * opndSrc2,
     IR::LabelInstr * labelFail)
-{
+{LOGMEIN("LowerMDShared.cpp] 4021\n");
     IR::Opnd *           opndReg;
     IR::Instr *          instrPrev = instrInsert->m_prev;
     IR::Instr *          instr;
@@ -4028,16 +4028,16 @@ LowererMD::GenerateSmIntPairTest(
     Assert(opndSrc2->GetType() == TyVar);
 
     if (opndSrc1->IsTaggedInt())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 4030\n");
         IR::Opnd *tempOpnd = opndSrc1;
         opndSrc1 = opndSrc2;
         opndSrc2 = tempOpnd;
     }
 
     if (opndSrc2->IsTaggedInt())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 4037\n");
         if (opndSrc1->IsTaggedInt())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 4039\n");
             return instrPrev;
         }
 
@@ -4091,7 +4091,7 @@ LowererMD::GenerateSmIntPairTest(
     IR::Opnd * opndSrc1,
     IR::Opnd * opndSrc2,
     IR::LabelInstr * labelFail)
-{
+{LOGMEIN("LowerMDShared.cpp] 4093\n");
     IR::Opnd *           opndReg;
     IR::Instr *          instrPrev = instrInsert->m_prev;
     IR::Instr *          instr;
@@ -4100,16 +4100,16 @@ LowererMD::GenerateSmIntPairTest(
     Assert(opndSrc2->GetType() == TyVar);
 
     if (opndSrc1->IsTaggedInt())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 4102\n");
         IR::Opnd *tempOpnd = opndSrc1;
         opndSrc1 = opndSrc2;
         opndSrc2 = tempOpnd;
     }
 
     if (opndSrc2->IsTaggedInt())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 4109\n");
         if (opndSrc1->IsTaggedInt())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 4111\n");
             return instrPrev;
         }
 
@@ -4188,7 +4188,7 @@ LowererMD::GenerateLocalInlineCacheCheck(
     IR::RegOpnd * inlineCache,
     IR::LabelInstr * labelNext,
     bool checkTypeWithoutProperty)
-{
+{LOGMEIN("LowerMDShared.cpp] 4190\n");
     // Generate:
     //
     //      CMP s1, [&(inlineCache->u.local.type/typeWithoutProperty)]
@@ -4197,7 +4197,7 @@ LowererMD::GenerateLocalInlineCacheCheck(
     IR::Instr * instr;
     IR::Opnd* typeOpnd;
     if (checkTypeWithoutProperty)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 4199\n");
         typeOpnd = IR::IndirOpnd::New(inlineCache, (int32)offsetof(Js::InlineCache, u.local.typeWithoutProperty), TyMachReg, instrLdSt->m_func);
     }
     else
@@ -4224,7 +4224,7 @@ LowererMD::GenerateProtoInlineCacheCheck(
     IR::RegOpnd * opndType,
     IR::RegOpnd * inlineCache,
     IR::LabelInstr * labelNext)
-{
+{LOGMEIN("LowerMDShared.cpp] 4226\n");
     // Generate:
     //
     //      CMP s1, [&(inlineCache->u.proto.type)]
@@ -4252,7 +4252,7 @@ LowererMD::GenerateFlagInlineCacheCheck(
     IR::RegOpnd * opndType,
     IR::RegOpnd * opndInlineCache,
     IR::LabelInstr * labelNext)
-{
+{LOGMEIN("LowerMDShared.cpp] 4254\n");
     // Generate:
     //
     //      CMP s1, [&(inlineCache->u.accessor.type)]
@@ -4280,7 +4280,7 @@ LowererMD::GenerateFlagInlineCacheCheckForNoGetterSetter(
     IR::Instr * instrLdSt,
     IR::RegOpnd * opndInlineCache,
     IR::LabelInstr * labelNext)
-{
+{LOGMEIN("LowerMDShared.cpp] 4282\n");
     // Generate:
     //
     //      TEST [&(inlineCache->u.accessor.flags)], (Js::InlineCacheGetterFlag | Js::InlineCacheSetterFlag)
@@ -4308,14 +4308,14 @@ LowererMD::GenerateFlagInlineCacheCheckForGetterSetter(
     IR::Instr * insertBeforeInstr,
     IR::RegOpnd * opndInlineCache,
     IR::LabelInstr * labelNext)
-{
+{LOGMEIN("LowerMDShared.cpp] 4310\n");
     uint accessorFlagMask;
     if (PHASE_OFF(Js::InlineGettersPhase, insertBeforeInstr->m_func))
-    {
+    {LOGMEIN("LowerMDShared.cpp] 4313\n");
         accessorFlagMask = Js::InlineCache::GetSetterFlagMask();
     }
     else if (PHASE_OFF(Js::InlineSettersPhase, insertBeforeInstr->m_func))
-    {
+    {LOGMEIN("LowerMDShared.cpp] 4317\n");
         accessorFlagMask = Js::InlineCache::GetGetterFlagMask();
     }
     else
@@ -4350,7 +4350,7 @@ LowererMD::GenerateLdFldFromLocalInlineCache(
     IR::RegOpnd * inlineCache,
     IR::LabelInstr * labelFallThru,
     bool isInlineSlot)
-{
+{LOGMEIN("LowerMDShared.cpp] 4352\n");
     // Generate:
     //
     // s1 = MOV base->slots -- load the slot array
@@ -4364,7 +4364,7 @@ LowererMD::GenerateLdFldFromLocalInlineCache(
     IR::RegOpnd * opndSlotArray = nullptr;
 
     if (!isInlineSlot)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 4366\n");
         opndSlotArray = IR::RegOpnd::New(TyMachReg, instrLdFld->m_func);
         opndIndir = IR::IndirOpnd::New(opndBase, Js::DynamicObject::GetOffsetOfAuxSlots(), TyMachReg, instrLdFld->m_func);
         instr = IR::Instr::New(Js::OpCode::MOV, opndSlotArray, opndIndir, instrLdFld->m_func);
@@ -4378,7 +4378,7 @@ LowererMD::GenerateLdFldFromLocalInlineCache(
     instrLdFld->InsertBefore(instr);
 
     if (isInlineSlot)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 4380\n");
         // dst = MOV [base + s2* Scale]  -- load the value directly from the slot
         opndIndir = IR::IndirOpnd::New(opndBase, opndReg2, LowererMDArch::GetDefaultIndirScale(), TyMachReg, instrLdFld->m_func);
         instr = IR::Instr::New(Js::OpCode::MOV, opndDst, opndIndir, instrLdFld->m_func);
@@ -4405,7 +4405,7 @@ LowererMD::GenerateLdLocalFldFromFlagInlineCache(
     IR::RegOpnd * opndInlineCache,
     IR::LabelInstr * labelFallThru,
     bool isInlineSlot)
-{
+{LOGMEIN("LowerMDShared.cpp] 4407\n");
     // Generate:
     //
     // s1 = MOV [&base->slots] -- load the slot array
@@ -4419,7 +4419,7 @@ LowererMD::GenerateLdLocalFldFromFlagInlineCache(
     IR::RegOpnd * opndSlotArray = nullptr;
 
     if (!isInlineSlot)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 4421\n");
         opndSlotArray = IR::RegOpnd::New(TyMachReg, instrLdFld->m_func);
         opndIndir = IR::IndirOpnd::New(opndBase, Js::DynamicObject::GetOffsetOfAuxSlots(), TyMachReg, instrLdFld->m_func);
         instr = IR::Instr::New(Js::OpCode::MOV, opndSlotArray, opndIndir, instrLdFld->m_func);
@@ -4433,7 +4433,7 @@ LowererMD::GenerateLdLocalFldFromFlagInlineCache(
     instrLdFld->InsertBefore(instr);
 
     if (isInlineSlot)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 4435\n");
         // dst = MOV [s1 + s2*4]
         opndIndir = IR::IndirOpnd::New(opndBase, opndSlotIndex, LowererMDArch::GetDefaultIndirScale(), TyMachReg, instrLdFld->m_func);
         instr = IR::Instr::New(Js::OpCode::MOV, opndDst, opndIndir, instrLdFld->m_func);
@@ -4460,7 +4460,7 @@ LowererMD::GenerateLdFldFromFlagInlineCache(
     IR::RegOpnd * opndInlineCache,
     IR::LabelInstr * labelFallThru,
     bool isInlineSlot)
-{
+{LOGMEIN("LowerMDShared.cpp] 4462\n");
     // Generate:
     //
     // s1 = MOV [&(inlineCache->u.accessor.object)] -- load the cached prototype object
@@ -4483,7 +4483,7 @@ LowererMD::GenerateLdFldFromFlagInlineCache(
     insertBeforeInstr->InsertBefore(instr);
 
     if (!isInlineSlot)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 4485\n");
         // s1 = MOV [&s1->slots] -- load the slot array
         opndObjSlots = IR::RegOpnd::New(TyMachReg, this->m_func);
         opndIndir = IR::IndirOpnd::New(opndObject, Js::DynamicObject::GetOffsetOfAuxSlots(), TyMachReg, this->m_func);
@@ -4498,7 +4498,7 @@ LowererMD::GenerateLdFldFromFlagInlineCache(
     insertBeforeInstr->InsertBefore(instr);
 
     if (isInlineSlot)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 4500\n");
         // dst = MOV [s1 + s2*4]
         opndIndir = IR::IndirOpnd::New(opndObject, opndSlotIndex, this->lowererMDArch.GetDefaultIndirScale(), TyMachReg, this->m_func);
         instr = IR::Instr::New(Js::OpCode::MOV, opndDst, opndIndir, this->m_func);
@@ -4525,7 +4525,7 @@ LowererMD::GenerateLdFldFromProtoInlineCache(
     IR::RegOpnd * inlineCache,
     IR::LabelInstr * labelFallThru,
     bool isInlineSlot)
-{
+{LOGMEIN("LowerMDShared.cpp] 4527\n");
     // Generate:
     //
     // s1 = MOV [&(inlineCache->u.proto.prototypeObject)] -- load the cached prototype object
@@ -4548,7 +4548,7 @@ LowererMD::GenerateLdFldFromProtoInlineCache(
     instrLdFld->InsertBefore(instr);
 
     if (!isInlineSlot)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 4550\n");
         // s1 = MOV [&s1->slots] -- load the slot array
         opndProtoSlots = IR::RegOpnd::New(TyMachReg, instrLdFld->m_func);
         opndIndir = IR::IndirOpnd::New(opndProto, Js::DynamicObject::GetOffsetOfAuxSlots(), TyMachReg, instrLdFld->m_func);
@@ -4563,7 +4563,7 @@ LowererMD::GenerateLdFldFromProtoInlineCache(
     instrLdFld->InsertBefore(instr);
 
     if (isInlineSlot)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 4565\n");
         // dst = MOV [s1 + s2*4]
         opndIndir = IR::IndirOpnd::New(opndProto, opndSlotIndex, LowererMDArch::GetDefaultIndirScale(), TyMachReg, instrLdFld->m_func);
         instr = IR::Instr::New(Js::OpCode::MOV, opndDst, opndIndir, instrLdFld->m_func);
@@ -4584,19 +4584,19 @@ LowererMD::GenerateLdFldFromProtoInlineCache(
 
 void
 LowererMD::GenerateLoadTaggedType(IR::Instr * instrLdSt, IR::RegOpnd * opndType, IR::RegOpnd * opndTaggedType)
-{
+{LOGMEIN("LowerMDShared.cpp] 4586\n");
     // Generate
     //
     // MOV taggedType, type
     // OR taggedType, InlineCacheAuxSlotTypeTag
 
     // MOV taggedType, type
-    {
+    {LOGMEIN("LowerMDShared.cpp] 4593\n");
         IR::Instr * instrMov = IR::Instr::New(Js::OpCode::MOV, opndTaggedType, opndType, instrLdSt->m_func);
         instrLdSt->InsertBefore(instrMov);
     }
     // OR taggedType, InlineCacheAuxSlotTypeTag
-    {
+    {LOGMEIN("LowerMDShared.cpp] 4598\n");
         IR::IntConstOpnd * opndAuxSlotTag = IR::IntConstOpnd::New(InlineCacheAuxSlotTypeTag, TyMachPtr, instrLdSt->m_func);
         IR::Instr * instrAnd = IR::Instr::New(Js::OpCode::OR, opndTaggedType, opndTaggedType, opndAuxSlotTag, instrLdSt->m_func);
         instrLdSt->InsertBefore(instrAnd);
@@ -4615,7 +4615,7 @@ LowererMD::GenerateLoadTaggedType(IR::Instr * instrLdSt, IR::RegOpnd * opndType,
 
 bool
 LowererMD::GenerateFastLdMethodFromFlags(IR::Instr * instrLdFld)
-{
+{LOGMEIN("LowerMDShared.cpp] 4617\n");
     IR::LabelInstr *   labelFallThru;
     IR::LabelInstr *   bailOutLabel;
     IR::Opnd *         opndSrc;
@@ -4634,7 +4634,7 @@ LowererMD::GenerateFastLdMethodFromFlags(IR::Instr * instrLdFld)
     Assert(!instrLdFld->DoStackArgsOpt(this->m_func));
 
     if (propertySymOpnd->IsTypeCheckSeqCandidate())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 4636\n");
         AssertMsg(propertySymOpnd->HasObjectTypeSym(), "Type optimized property sym operand without a type sym?");
         StackSym *typeSym = propertySymOpnd->GetObjectTypeSym();
         opndType = IR::RegOpnd::New(typeSym, TyMachReg, this->m_func);
@@ -4683,7 +4683,7 @@ LowererMD::GenerateFastLdMethodFromFlags(IR::Instr * instrLdFld)
 
 void
 LowererMD::GenerateLoadPolymorphicInlineCacheSlot(IR::Instr * instrLdSt, IR::RegOpnd * opndInlineCache, IR::RegOpnd * opndType, uint polymorphicInlineCacheSize)
-{
+{LOGMEIN("LowerMDShared.cpp] 4685\n");
     // Generate
     //
     // MOV r1, type
@@ -4721,7 +4721,7 @@ LowererMD::GenerateLoadPolymorphicInlineCacheSlot(IR::Instr * instrLdSt, IR::Reg
 
 IR::Instr *
 LowererMD::ChangeToWriteBarrierAssign(IR::Instr * assignInstr, const Func* func)
-{
+{LOGMEIN("LowerMDShared.cpp] 4723\n");
 #ifdef RECYCLER_WRITE_BARRIER_JIT
     IR::Opnd* dest = assignInstr->GetDst();
 
@@ -4730,14 +4730,14 @@ LowererMD::ChangeToWriteBarrierAssign(IR::Instr * assignInstr, const Func* func)
     bool isPossibleBarrieredDest = false;
 
     if (TySize[dest->GetType()] == sizeof(void*))
-    {
+    {LOGMEIN("LowerMDShared.cpp] 4732\n");
         if (dest->IsIndirOpnd())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 4734\n");
             Assert(!dest->AsIndirOpnd()->HasAddrKind());
             isPossibleBarrieredDest = true;
         }
         else if (dest->IsMemRefOpnd())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 4739\n");
             // looks all thread context field access are from MemRefOpnd
             destAddr = (void*)dest->AsMemRefOpnd()->GetMemLoc();
             isPossibleBarrieredDest = destAddr != nullptr
@@ -4747,7 +4747,7 @@ LowererMD::ChangeToWriteBarrierAssign(IR::Instr * assignInstr, const Func* func)
                 && destAddr != (void*)threadContextInfo->GetBailOutRegisterSaveSpaceAddr();
 
             if (isPossibleBarrieredDest)
-            {
+            {LOGMEIN("LowerMDShared.cpp] 4749\n");
                 Assert(Recycler::WBCheckIsRecyclerAddress((char*)destAddr));
             }
         }
@@ -4761,7 +4761,7 @@ LowererMD::ChangeToWriteBarrierAssign(IR::Instr * assignInstr, const Func* func)
     if (isPossibleBarrieredDest 
         && assignInstr->m_opcode == Js::OpCode::MOV // ignore SSE instructions like MOVSD
         && assignInstr->GetSrc1()->IsWriteBarrierTriggerableValue())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 4763\n");
         instr = LowererMD::GenerateWriteBarrier(assignInstr);
     }
 #endif
@@ -4771,11 +4771,11 @@ LowererMD::ChangeToWriteBarrierAssign(IR::Instr * assignInstr, const Func* func)
 
 void
 LowererMD::GenerateWriteBarrierAssign(IR::MemRefOpnd * opndDst, IR::Opnd * opndSrc, IR::Instr * insertBeforeInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 4773\n");
     Lowerer::InsertMove(opndDst, opndSrc, insertBeforeInstr);
 #ifdef RECYCLER_WRITE_BARRIER_JIT
     if (opndSrc->IsWriteBarrierTriggerableValue())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 4777\n");
         void * address = (void *)opndDst->AsMemRefOpnd()->GetMemLoc();
 #ifdef RECYCLER_WRITE_BARRIER_BYTE
         // WriteBarrier-TODO: need to pass card table address through RPC
@@ -4786,7 +4786,7 @@ LowererMD::GenerateWriteBarrierAssign(IR::MemRefOpnd * opndDst, IR::Opnd * opndS
         insertBeforeInstr->InsertBefore(movInstr);
 #if DBG && GLOBAL_ENABLE_WRITE_BARRIER
         if (CONFIG_FLAG(ForceSoftwareWriteBarrier) && CONFIG_FLAG(RecyclerVerifyMark))
-        {
+        {LOGMEIN("LowerMDShared.cpp] 4788\n");
             this->LoadHelperArgument(insertBeforeInstr, opndDst);
             IR::Instr* instrCall = IR::Instr::New(Js::OpCode::Call, m_func);
             insertBeforeInstr->InsertBefore(instrCall);
@@ -4806,10 +4806,10 @@ LowererMD::GenerateWriteBarrierAssign(IR::MemRefOpnd * opndDst, IR::Opnd * opndS
 
 void
 LowererMD::GenerateWriteBarrierAssign(IR::IndirOpnd * opndDst, IR::Opnd * opndSrc, IR::Instr * insertBeforeInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 4808\n");
 #ifdef RECYCLER_WRITE_BARRIER_JIT
     if (opndSrc->IsWriteBarrierTriggerableValue())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 4811\n");
         IR::RegOpnd * writeBarrierAddrRegOpnd = IR::RegOpnd::New(TyMachPtr, insertBeforeInstr->m_func);
         insertBeforeInstr->InsertBefore(IR::Instr::New(Js::OpCode::LEA, writeBarrierAddrRegOpnd, opndDst, insertBeforeInstr->m_func));
 
@@ -4829,7 +4829,7 @@ LowererMD::GenerateWriteBarrierAssign(IR::IndirOpnd * opndDst, IR::Opnd * opndSr
 #ifdef RECYCLER_WRITE_BARRIER_JIT
 IR::Instr*
 LowererMD::GenerateWriteBarrier(IR::Instr * assignInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 4831\n");
 #if defined(RECYCLER_WRITE_BARRIER_BYTE)
     PHASE_PRINT_TRACE(Js::JitWriteBarrierPhase, assignInstr->m_func, _u("Generating write barrier\n"));
     IR::RegOpnd * indexOpnd = IR::RegOpnd::New(TyMachPtr, assignInstr->m_func);
@@ -4911,13 +4911,13 @@ LowererMD::GenerateStFldFromLocalInlineCache(
     IR::RegOpnd * inlineCache,
     IR::LabelInstr * labelFallThru,
     bool isInlineSlot)
-{
+{LOGMEIN("LowerMDShared.cpp] 4913\n");
     IR::Instr * instr;
     IR::Opnd* slotIndexOpnd;
     IR::RegOpnd * opndIndirBase = opndBase;
 
     if (!isInlineSlot)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 4919\n");
         // slotArray = MOV base->slots -- load the slot array
         IR::RegOpnd * opndSlotArray = IR::RegOpnd::New(TyMachReg, instrStFld->m_func);
         IR::IndirOpnd * opndIndir = IR::IndirOpnd::New(opndBase, Js::DynamicObject::GetOffsetOfAuxSlots(), TyMachReg, instrStFld->m_func);
@@ -4956,7 +4956,7 @@ LowererMD::GenerateStFldFromLocalInlineCache(
 //----------------------------------------------------------------------------
 IR::Instr *
 LowererMD::GenerateFastScopedLdFld(IR::Instr * instrLdScopedFld)
-{
+{LOGMEIN("LowerMDShared.cpp] 4958\n");
     //  CMP [base + offset(length)], 1     -- get the length on array and test if it is 1.
     //  JNE $helper
     //  MOV r1, [base + offset(scopes)]       -- load the first scope
@@ -5055,7 +5055,7 @@ LowererMD::GenerateFastScopedLdFld(IR::Instr * instrLdScopedFld)
 //----------------------------------------------------------------------------
 IR::Instr *
 LowererMD::GenerateFastScopedStFld(IR::Instr * instrStScopedFld)
-{
+{LOGMEIN("LowerMDShared.cpp] 5057\n");
     //  CMP [base + offset(length)], 1     -- get the length on array and test if it is 1.
     //  JNE $helper
     //  MOV r1, [base + offset(scopes)]       -- load the first scope
@@ -5140,7 +5140,7 @@ LowererMD::GenerateFastScopedStFld(IR::Instr * instrStScopedFld)
 
 IR::Opnd *
 LowererMD::CreateStackArgumentsSlotOpnd()
-{
+{LOGMEIN("LowerMDShared.cpp] 5142\n");
     StackSym *sym = StackSym::New(TyMachReg, this->m_func);
     sym->m_offset = -MachArgsSlotOffset;
     sym->m_allocated = true;
@@ -5150,7 +5150,7 @@ LowererMD::CreateStackArgumentsSlotOpnd()
 
 IR::RegOpnd *
 LowererMD::GenerateUntagVar(IR::RegOpnd * src, IR::LabelInstr * labelFail, IR::Instr * assignInstr, bool generateTagCheck)
-{
+{LOGMEIN("LowerMDShared.cpp] 5152\n");
     Assert(src->IsVar());
 
     //  MOV valueOpnd, index
@@ -5163,7 +5163,7 @@ LowererMD::GenerateUntagVar(IR::RegOpnd * src, IR::LabelInstr * labelFail, IR::I
 
 #if INT32VAR
     if (generateTagCheck)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5165\n");
         Assert(!opnd->IsTaggedInt());
         this->GenerateSmIntTest(opnd, assignInstr, labelFail);
     }
@@ -5181,7 +5181,7 @@ LowererMD::GenerateUntagVar(IR::RegOpnd * src, IR::LabelInstr * labelFail, IR::I
     assignInstr->InsertBefore(instr);
 
     if (generateTagCheck)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5183\n");
         Assert(!opnd->IsTaggedInt());
 
         // SAR set the carry flag (CF) to 1 if the lower bit is 1
@@ -5199,7 +5199,7 @@ IR::RegOpnd *LowererMD::LoadNonnegativeIndex(
     IR::LabelInstr *const notTaggedIntLabel,
     IR::LabelInstr *const negativeLabel,
     IR::Instr *const insertBeforeInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 5201\n");
     Assert(indexOpnd);
     Assert(indexOpnd->IsVar() || indexOpnd->GetType() == TyInt32 || indexOpnd->GetType() == TyUint32);
     Assert(indexOpnd->GetType() != TyUint32 || skipNegativeCheck);
@@ -5208,13 +5208,13 @@ IR::RegOpnd *LowererMD::LoadNonnegativeIndex(
     Assert(insertBeforeInstr);
 
     if(indexOpnd->IsVar())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5210\n");
         if (indexOpnd->GetValueType().IsLikelyFloat()
 #ifdef _M_IX86
             && AutoSystemInfo::Data.SSE2Available()
 #endif
             )
-        {
+        {LOGMEIN("LowerMDShared.cpp] 5216\n");
             return m_lowerer->LoadIndexFromLikelyFloat(indexOpnd, skipNegativeCheck, notTaggedIntLabel, negativeLabel, insertBeforeInstr);
         }
 
@@ -5225,7 +5225,7 @@ IR::RegOpnd *LowererMD::LoadNonnegativeIndex(
     }
 
     if(!skipNegativeCheck)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5227\n");
         //     test index, index
         //     js   $notTaggedIntOrNegative
         Lowerer::InsertTestBranch(indexOpnd, indexOpnd, Js::OpCode::JSB, negativeLabel, insertBeforeInstr);
@@ -5235,7 +5235,7 @@ IR::RegOpnd *LowererMD::LoadNonnegativeIndex(
 
 IR::IndirOpnd *
 LowererMD::GenerateFastElemIStringIndexCommon(IR::Instr * instrInsert, bool isStore, IR::IndirOpnd * indirOpnd, IR::LabelInstr * labelHelper)
-{
+{LOGMEIN("LowerMDShared.cpp] 5237\n");
     IR::RegOpnd *indexOpnd = indirOpnd->GetIndexOpnd();
     IR::RegOpnd *baseOpnd = indirOpnd->GetBaseOpnd();
     Assert(baseOpnd != nullptr);
@@ -5299,7 +5299,7 @@ LowererMD::GenerateFastElemIStringIndexCommon(IR::Instr * instrInsert, bool isSt
     instrInsert->InsertBefore(IR::BranchInstr::New(Js::OpCode::JNE, labelHelper, this->m_func));
 
     if (isStore)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5301\n");
         IR::IndirOpnd* isStoreEnabledOpnd = IR::IndirOpnd::New(propertyCacheOpnd, (int32)offsetof(Js::PropertyCache, isStoreFieldEnabled), TyInt8, this->m_func);
         IR::IntConstOpnd* zeroOpnd = IR::IntConstOpnd::New(0, TyInt8, this->m_func, /* dontEncode = */ true);
         this->m_lowerer->InsertCompareBranch(isStoreEnabledOpnd, zeroOpnd, Js::OpCode::BrEq_A, labelHelper, instrInsert);
@@ -5342,7 +5342,7 @@ LowererMD::GenerateFastElemIStringIndexCommon(IR::Instr * instrInsert, bool isSt
 
 // Inlines fast-path for int Mul/Add or int Mul/Sub.  If not int, call MulAdd/MulSub helper
 bool LowererMD::TryGenerateFastMulAdd(IR::Instr * instrAdd, IR::Instr ** pInstrPrev)
-{
+{LOGMEIN("LowerMDShared.cpp] 5344\n");
     IR::Instr *instrMul = instrAdd->GetPrevRealInstrOrLabel();
     IR::Opnd *addSrc;
     IR::RegOpnd *addCommonSrcOpnd;
@@ -5353,13 +5353,13 @@ bool LowererMD::TryGenerateFastMulAdd(IR::Instr * instrAdd, IR::Instr ** pInstrP
 
     // Mul needs to be a single def reg
     if (instrMul->m_opcode != Js::OpCode::Mul_A || instrMul->GetDst()->IsRegOpnd() == false)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5355\n");
         // Cannot generate MulAdd
         return false;
     }
 
     if (instrMul->HasBailOutInfo())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5361\n");
         // Bailout will be generated for the Add, but not the Mul.
         // We could handle this, but this path isn't used that much anymore.
         return false;
@@ -5368,19 +5368,19 @@ bool LowererMD::TryGenerateFastMulAdd(IR::Instr * instrAdd, IR::Instr ** pInstrP
     IR::RegOpnd *regMulDst = instrMul->GetDst()->AsRegOpnd();
 
     if (regMulDst->m_sym->m_isSingleDef == false)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5370\n");
         // Cannot generate MulAdd
         return false;
     }
 
     // Only handle a * b + c, so dst of Mul needs to match left source of Add
     if (instrMul->GetDst()->IsEqual(instrAdd->GetSrc1()))
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5377\n");
         addCommonSrcOpnd = instrAdd->GetSrc1()->AsRegOpnd();
         addSrc = instrAdd->GetSrc2();
     }
     else if (instrMul->GetDst()->IsEqual(instrAdd->GetSrc2()))
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5382\n");
         addSrc = instrAdd->GetSrc1();
         addCommonSrcOpnd = instrAdd->GetSrc2()->AsRegOpnd();
     }
@@ -5391,12 +5391,12 @@ bool LowererMD::TryGenerateFastMulAdd(IR::Instr * instrAdd, IR::Instr ** pInstrP
 
     // Only handle a * b + c where c != a * b
     if (instrAdd->GetSrc1()->IsEqual(instrAdd->GetSrc2()))
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5393\n");
         return false;
     }
 
     if (addCommonSrcOpnd->m_isTempLastUse == false)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5398\n");
         return false;
     }
 
@@ -5405,7 +5405,7 @@ bool LowererMD::TryGenerateFastMulAdd(IR::Instr * instrAdd, IR::Instr ** pInstrP
 
     if (mulSrc1->IsRegOpnd() && mulSrc1->AsRegOpnd()->IsTaggedInt()
         && mulSrc2->IsRegOpnd() && mulSrc2->AsRegOpnd()->IsTaggedInt())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5407\n");
         return false;
     }
 
@@ -5416,7 +5416,7 @@ bool LowererMD::TryGenerateFastMulAdd(IR::Instr * instrAdd, IR::Instr ** pInstrP
     if (!(addSrc->IsRegOpnd() && addSrc->AsRegOpnd()->IsNotInt())
         && !(mulSrc1->IsRegOpnd() && mulSrc1->AsRegOpnd()->IsNotInt())
         && !(mulSrc2->IsRegOpnd() && mulSrc2->AsRegOpnd()->IsNotInt()))
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5418\n");
         this->GenerateFastMul(instrMul);
 
         IR::LabelInstr *labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
@@ -5426,7 +5426,7 @@ bool LowererMD::TryGenerateFastMulAdd(IR::Instr * instrAdd, IR::Instr ** pInstrP
         // Generate int31 fast-path for Add
         bool success;
         if (isSub)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 5428\n");
             success = this->GenerateFastSub(instrAdd);
         }
         else
@@ -5435,7 +5435,7 @@ bool LowererMD::TryGenerateFastMulAdd(IR::Instr * instrAdd, IR::Instr ** pInstrP
         }
 
         if (!success)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 5437\n");
             labelHelper->isOpHelper = false;
         }
         // Generate MulAdd helper call
@@ -5443,7 +5443,7 @@ bool LowererMD::TryGenerateFastMulAdd(IR::Instr * instrAdd, IR::Instr ** pInstrP
     }
 
     if (instrAdd->dstIsTempNumber)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5445\n");
         m_lowerer->LoadHelperTemp(instrAdd, instrAdd);
     }
     else
@@ -5456,7 +5456,7 @@ bool LowererMD::TryGenerateFastMulAdd(IR::Instr * instrAdd, IR::Instr ** pInstrP
     IR::JnHelperMethod helper;
 
     if (addSrc == instrAdd->GetSrc2())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5458\n");
         instrAdd->FreeSrc1();
         IR::Opnd *addOpnd = instrAdd->UnlinkSrc2();
         this->LoadHelperArgument(instrAdd, addOpnd);
@@ -5485,7 +5485,7 @@ bool LowererMD::TryGenerateFastMulAdd(IR::Instr * instrAdd, IR::Instr ** pInstrP
 
 void
 LowererMD::GenerateFastAbs(IR::Opnd *dst, IR::Opnd *src, IR::Instr *callInstr, IR::Instr *insertInstr, IR::LabelInstr *labelHelper, IR::LabelInstr *doneLabel)
-{
+{LOGMEIN("LowerMDShared.cpp] 5487\n");
     //      TEST src1, AtomTag
     //      JEQ $float
     //      MOV EAX, src
@@ -5511,19 +5511,19 @@ LowererMD::GenerateFastAbs(IR::Opnd *dst, IR::Opnd *src, IR::Instr *callInstr, I
     bool            isNotInt   = false;
 
     if (src->IsRegOpnd())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5513\n");
         if (src->AsRegOpnd()->IsTaggedInt())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 5515\n");
             isInt = true;
 
         }
         else if (src->AsRegOpnd()->IsNotInt())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 5520\n");
             isNotInt = true;
         }
     }
     else if (src->IsAddrOpnd())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5525\n");
         IR::AddrOpnd *varOpnd = src->AsAddrOpnd();
         Assert(varOpnd->IsVar() && Js::TaggedInt::Is(varOpnd->m_address));
 
@@ -5534,7 +5534,7 @@ LowererMD::GenerateFastAbs(IR::Opnd *dst, IR::Opnd *src, IR::Instr *callInstr, I
 #endif
 
         if (!Js::TaggedInt::IsOverflow(absValue))
-        {
+        {LOGMEIN("LowerMDShared.cpp] 5536\n");
             varOpnd->SetAddress(Js::TaggedInt::ToVarUnchecked((__int32)absValue), IR::AddrOpndKindConstantVar);
 
             instr = IR::Instr::New(Js::OpCode::MOV, dst, varOpnd, this->m_func);
@@ -5545,7 +5545,7 @@ LowererMD::GenerateFastAbs(IR::Opnd *dst, IR::Opnd *src, IR::Instr *callInstr, I
     }
 
     if (src->IsRegOpnd() == false)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5547\n");
         IR::RegOpnd *regOpnd = IR::RegOpnd::New(TyVar, this->m_func);
         instr = IR::Instr::New(Js::OpCode::MOV, regOpnd, src, this->m_func);
         insertInstr->InsertBefore(instr);
@@ -5559,12 +5559,12 @@ LowererMD::GenerateFastAbs(IR::Opnd *dst, IR::Opnd *src, IR::Instr *callInstr, I
 #endif
 
     if (!isNotInt)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5561\n");
         if (!isInt)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 5563\n");
             IR::LabelInstr *label = labelHelper;
             if (emitFloatAbs)
-            {
+            {LOGMEIN("LowerMDShared.cpp] 5566\n");
                 label = labelFloat = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
             }
 
@@ -5631,7 +5631,7 @@ LowererMD::GenerateFastAbs(IR::Opnd *dst, IR::Opnd *src, IR::Instr *callInstr, I
     }
 
     if (labelFloat)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5633\n");
         // JMP $done
         instr = IR::BranchInstr::New(Js::OpCode::JMP, doneLabel, this->m_func);
         insertInstr->InsertBefore(instr);
@@ -5641,7 +5641,7 @@ LowererMD::GenerateFastAbs(IR::Opnd *dst, IR::Opnd *src, IR::Instr *callInstr, I
     }
 
     if (emitFloatAbs)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5643\n");
 #if defined(_M_IX86)
         // CMP [src], JavascriptNumber.vtable
         IR::Opnd *opnd = IR::IndirOpnd::New(src->AsRegOpnd(), (int32)0, TyMachPtr, this->m_func);
@@ -5678,7 +5678,7 @@ LowererMD::GenerateFastAbs(IR::Opnd *dst, IR::Opnd *src, IR::Instr *callInstr, I
 #endif
     }
     else if(!isInt)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5680\n");
         // The source is not known to be a tagged int, so either it's definitely not an int (isNotInt), or the int version of
         // abs failed the tag check and jumped here. We can't emit the float version of abs (!emitFloatAbs) due to SSE2 not
         // being available, so jump straight to the helper.
@@ -5690,11 +5690,11 @@ LowererMD::GenerateFastAbs(IR::Opnd *dst, IR::Opnd *src, IR::Instr *callInstr, I
 }
 
 IR::Instr * LowererMD::GenerateFloatAbs(IR::RegOpnd * regOpnd, IR::Instr * insertInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 5692\n");
     // ANDPS reg, absDoubleCst
     IR::Opnd * opnd;
     if (regOpnd->IsFloat64())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5696\n");
         opnd = m_lowerer->LoadLibraryValueOpnd(insertInstr, LibraryValue::ValueAbsDoubleCst);
     }
     else
@@ -5712,7 +5712,7 @@ IR::Instr * LowererMD::GenerateFloatAbs(IR::RegOpnd * regOpnd, IR::Instr * inser
 
 bool LowererMD::GenerateFastCharAt(Js::BuiltinFunction index, IR::Opnd *dst, IR::Opnd *srcStr, IR::Opnd *srcIndex, IR::Instr *callInstr,
                                   IR::Instr *insertInstr, IR::LabelInstr *labelHelper, IR::LabelInstr *doneLabel)
-{
+{LOGMEIN("LowerMDShared.cpp] 5714\n");
     //  if regSrcStr is not object, JMP $helper
     //  CMP [regSrcStr + offset(type)] , static string type   -- check base string type
     //  JNE $helper
@@ -5741,20 +5741,20 @@ bool LowererMD::GenerateFastCharAt(Js::BuiltinFunction index, IR::Opnd *dst, IR:
     IR::RegOpnd *regSrcStr;
 
     if (srcStr->IsRegOpnd())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5743\n");
         if (srcStr->AsRegOpnd()->IsTaggedInt())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 5745\n");
             isInt = true;
 
         }
         else if (srcStr->AsRegOpnd()->IsNotTaggedValue())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 5750\n");
             isNotTaggedValue = true;
         }
     }
 
     if (srcStr->IsRegOpnd() == false)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5756\n");
         IR::RegOpnd *regOpnd = IR::RegOpnd::New(TyVar, this->m_func);
         instr = IR::Instr::New(Js::OpCode::MOV, regOpnd, srcStr, this->m_func);
         insertInstr->InsertBefore(instr);
@@ -5766,7 +5766,7 @@ bool LowererMD::GenerateFastCharAt(Js::BuiltinFunction index, IR::Opnd *dst, IR:
     }
 
     if (!isNotTaggedValue)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5768\n");
         if (!isInt)
         {
             GenerateObjectTest(regSrcStr, insertInstr, labelHelper);
@@ -5784,7 +5784,7 @@ bool LowererMD::GenerateFastCharAt(Js::BuiltinFunction index, IR::Opnd *dst, IR:
 
     // Bail out if index a constant and is less than zero.
     if (srcIndex->IsAddrOpnd() && Js::TaggedInt::ToInt32(srcIndex->AsAddrOpnd()->m_address) < 0)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5786\n");
         labelHelper->isOpHelper = false;
         instr = IR::BranchInstr::New(Js::OpCode::JMP, labelHelper, this->m_func);
         insertInstr->InsertBefore(instr);
@@ -5812,7 +5812,7 @@ bool LowererMD::GenerateFastCharAt(Js::BuiltinFunction index, IR::Opnd *dst, IR:
 
     IR::IndirOpnd *strLength = IR::IndirOpnd::New(regSrcStr, offsetof(Js::JavascriptString, m_charLength), TyUint32, this->m_func);
     if (srcIndex->IsAddrOpnd())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5814\n");
         // CMP [regSrcStr + offsetof(length)], index
         instr = IR::Instr::New(Js::OpCode::CMP, this->m_func);
         instr->SetSrc1(strLength);
@@ -5857,7 +5857,7 @@ bool LowererMD::GenerateFastCharAt(Js::BuiltinFunction index, IR::Opnd *dst, IR:
         insertInstr->InsertBefore(instr);
 
         if (r2->GetSize() != MachPtr)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 5859\n");
             r2 = r2->UseWithNewType(TyMachPtr, this->m_func)->AsRegOpnd();
         }
 
@@ -5873,10 +5873,10 @@ bool LowererMD::GenerateFastCharAt(Js::BuiltinFunction index, IR::Opnd *dst, IR:
     instr = IR::Instr::New(Js::OpCode::MOVZXW, charReg, indirOpnd, this->m_func);
     insertInstr->InsertBefore(instr);
     if (index == Js::BuiltinFunction::JavascriptString_CharAt)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5875\n");
         IR::Opnd *resultOpnd;
         if (dst->IsEqual(srcStr))
-        {
+        {LOGMEIN("LowerMDShared.cpp] 5878\n");
             resultOpnd = IR::RegOpnd::New(TyVar, this->m_func);
         }
         else
@@ -5890,7 +5890,7 @@ bool LowererMD::GenerateFastCharAt(Js::BuiltinFunction index, IR::Opnd *dst, IR:
         Assert(index == Js::BuiltinFunction::JavascriptString_CharCodeAt || index == Js::BuiltinFunction::JavascriptString_CodePointAt);
 
         if (index == Js::BuiltinFunction::JavascriptString_CodePointAt)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 5892\n");
             this->m_lowerer->GenerateFastInlineStringCodePointAt(insertInstr, this->m_func, strLength, srcIndex, charReg, r1);
         }
 
@@ -5904,7 +5904,7 @@ bool LowererMD::GenerateFastCharAt(Js::BuiltinFunction index, IR::Opnd *dst, IR:
 }
 
 IR::RegOpnd* LowererMD::MaterializeDoubleConstFromInt(intptr_t constAddr, IR::Instr* instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 5906\n");
     IR::Opnd* constVal = IR::MemRefOpnd::New(constAddr, IRType::TyFloat64, this->m_func);
     IR::RegOpnd * xmmReg = IR::RegOpnd::New(TyFloat64, m_func);
     this->m_lowerer->InsertMove(xmmReg, constVal, instr);
@@ -5912,7 +5912,7 @@ IR::RegOpnd* LowererMD::MaterializeDoubleConstFromInt(intptr_t constAddr, IR::In
 }
 
 IR::RegOpnd* LowererMD::MaterializeConstFromBits(int bits, IRType type, IR::Instr* instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 5914\n");
     IR::Opnd * regBits = IR::RegOpnd::New(TyInt32, m_func);
     this->m_lowerer->InsertMove(regBits, IR::IntConstOpnd::New(bits, TyInt32, m_func), instr);
     IR::RegOpnd * regConst = IR::RegOpnd::New(type, m_func);
@@ -5921,7 +5921,7 @@ IR::RegOpnd* LowererMD::MaterializeConstFromBits(int bits, IRType type, IR::Inst
 }
 
 IR::Opnd* LowererMD::Subtract2To31(IR::Opnd* src1, IR::Opnd* intMinFP, IRType type, IR::Instr* instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 5923\n");
     Js::OpCode op = (type == TyFloat32) ? Js::OpCode::SUBSS : Js::OpCode::SUBSD;
 
     IR::Opnd*  adjSrc = IR::RegOpnd::New(type, m_func);
@@ -5932,14 +5932,14 @@ IR::Opnd* LowererMD::Subtract2To31(IR::Opnd* src1, IR::Opnd* intMinFP, IRType ty
 }
 
 IR::Opnd* LowererMD::GenerateTruncChecks(IR::Instr* instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 5934\n");
     IR::LabelInstr * conversion = IR::LabelInstr::New(Js::OpCode::Label, m_func);
     IR::LabelInstr * throwLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func);
     IR::Opnd* src1 = instr->GetSrc1();
 
     IR::Opnd * src64 = nullptr;
     if (src1->IsFloat32())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5941\n");
         src64 = IR::RegOpnd::New(TyFloat64, m_func);
         EmitFloat32ToFloat64(src64, src1, instr);
     }
@@ -5969,7 +5969,7 @@ IR::Opnd* LowererMD::GenerateTruncChecks(IR::Instr* instr)
 
 void
 LowererMD::GenerateTruncWithCheck(IR::Instr * instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 5971\n");
     Assert(AutoSystemInfo::Data.SSE2Available());
 
     IR::Opnd* src64 = GenerateTruncChecks(instr); //converts src to double and checks if  MIN <= src <= MAX
@@ -5977,7 +5977,7 @@ LowererMD::GenerateTruncWithCheck(IR::Instr * instr)
     IR::Opnd* dst = instr->GetDst();
 
     if (dst->IsUnsigned())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 5979\n");
         m_lowerer->InsertMove(dst, IR::IntConstOpnd::New(0, TyUint32, m_func), instr);
         IR::LabelInstr * skipUnsignedPart = IR::LabelInstr::New(Js::OpCode::Label, m_func);
         IR::Opnd* twoTo31 = MaterializeDoubleConstFromInt(m_func->GetThreadContextInfo()->GetDoubleTwoTo31Addr(), instr);
@@ -6002,18 +6002,18 @@ LowererMD::GenerateTruncWithCheck(IR::Instr * instr)
 
 void
 LowererMD::GenerateCtz(IR::Instr * instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 6004\n");
     Assert(instr->GetSrc1()->IsInt32() || instr->GetSrc1()->IsUInt32() || instr->GetSrc1()->IsInt64());
     Assert(IRType_IsNativeInt(instr->GetDst()->GetType()));
 #ifdef _M_IX86
     if (instr->GetSrc1()->IsInt64())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6009\n");
         lowererMDArch.EmitInt64Instr(instr);
         return;
     }
 #endif
     if (AutoSystemInfo::Data.TZCntAvailable())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6015\n");
         instr->m_opcode = Js::OpCode::TZCNT;
         Legalize(instr);
     }
@@ -6035,18 +6035,18 @@ LowererMD::GenerateCtz(IR::Instr * instr)
 
 void
 LowererMD::GeneratePopCnt(IR::Instr * instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 6037\n");
     Assert(instr->GetSrc1()->IsInt32() || instr->GetSrc1()->IsUInt32() || instr->GetSrc1()->IsInt64());
     Assert(instr->GetDst()->IsInt32() || instr->GetDst()->IsUInt32() || instr->GetDst()->IsInt64());
 #ifdef _M_IX86
     if (instr->GetSrc1()->IsInt64())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6042\n");
         lowererMDArch.EmitInt64Instr(instr);
         return;
     }
 #endif
     if (AutoSystemInfo::Data.PopCntAvailable())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6048\n");
         instr->m_opcode = Js::OpCode::POPCNT;
         Legalize(instr);
     }
@@ -6061,18 +6061,18 @@ LowererMD::GeneratePopCnt(IR::Instr * instr)
 
 void
 LowererMD::GenerateClz(IR::Instr * instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 6063\n");
     Assert(instr->GetSrc1()->IsInt32() || instr->GetSrc1()->IsUInt32() || instr->GetSrc1()->IsInt64());
     Assert(IRType_IsNativeInt(instr->GetDst()->GetType()));
 #ifdef _M_IX86
     if (instr->GetSrc1()->IsInt64())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6068\n");
         lowererMDArch.EmitInt64Instr(instr);
         return;
     }
 #endif
     if (AutoSystemInfo::Data.LZCntAvailable())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6074\n");
         instr->m_opcode = Js::OpCode::LZCNT;
         Legalize(instr);
     }
@@ -6108,7 +6108,7 @@ LowererMD::GenerateClz(IR::Instr * instr)
 #if !FLOATVAR
 void
 LowererMD::GenerateNumberAllocation(IR::RegOpnd * opndDst, IR::Instr * instrInsert, bool isHelper)
-{
+{LOGMEIN("LowerMDShared.cpp] 6110\n");
     size_t alignedAllocSize = Js::RecyclerJavascriptNumberAllocator::GetAlignedAllocSize(
         m_func->GetScriptContextInfo()->IsRecyclerVerifyEnabled(),
         m_func->GetScriptContextInfo()->GetRecyclerVerifyPad());
@@ -6166,22 +6166,22 @@ LowererMD::GenerateNumberAllocation(IR::RegOpnd * opndDst, IR::Instr * instrInse
 #ifdef _CONTROL_FLOW_GUARD
 void
 LowererMD::GenerateCFGCheck(IR::Opnd * entryPointOpnd, IR::Instr * insertBeforeInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 6168\n");
     //PreReserve segment at this point, as we will definitely using this segment for JITted code(in almost all cases)
     //This is for CFG check optimization
     IR::LabelInstr * callLabelInstr = nullptr;
     char * preReservedRegionStartAddress = nullptr;
 
     if (m_func->CanAllocInPreReservedHeapPageSegment())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6175\n");
         char* endAddressOfSegment = nullptr;
 #if ENABLE_OOP_NATIVE_CODEGEN
         if (m_func->IsOOPJIT())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 6179\n");
             PreReservedSectionAllocWrapper * preReservedAllocator = m_func->GetOOPThreadContext()->GetPreReservedSectionAllocator();
             preReservedRegionStartAddress = (char *)preReservedAllocator->EnsurePreReservedRegion();
             if (preReservedRegionStartAddress != nullptr)
-            {
+            {LOGMEIN("LowerMDShared.cpp] 6183\n");
                 endAddressOfSegment = (char*)preReservedAllocator->GetPreReservedEndAddress();
             }
         }
@@ -6191,13 +6191,13 @@ LowererMD::GenerateCFGCheck(IR::Opnd * entryPointOpnd, IR::Instr * insertBeforeI
             PreReservedVirtualAllocWrapper * preReservedVirtualAllocator = m_func->GetInProcThreadContext()->GetPreReservedVirtualAllocator();
             preReservedRegionStartAddress = (char *)preReservedVirtualAllocator->EnsurePreReservedRegion();
             if (preReservedRegionStartAddress != nullptr)
-            {
+            {LOGMEIN("LowerMDShared.cpp] 6193\n");
                 endAddressOfSegment = (char*)preReservedVirtualAllocator->GetPreReservedEndAddress();
             }
 
         }
         if (preReservedRegionStartAddress != nullptr)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 6199\n");
 
             int32 segmentSize = (int32) (endAddressOfSegment - preReservedRegionStartAddress);
 
@@ -6261,7 +6261,7 @@ LowererMD::GenerateCFGCheck(IR::Opnd * entryPointOpnd, IR::Instr * insertBeforeI
     insertBeforeInstr->InsertBefore(cfgCallInstr);
 
     if (preReservedRegionStartAddress != nullptr)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6263\n");
         Assert(callLabelInstr);
 #if DBG
         //Always generate CFG check in DBG build to make sure that the address is still valid
@@ -6274,7 +6274,7 @@ LowererMD::GenerateCFGCheck(IR::Opnd * entryPointOpnd, IR::Instr * insertBeforeI
 #endif
 void
 LowererMD::GenerateFastRecyclerAlloc(size_t allocSize, IR::RegOpnd* newObjDst, IR::Instr* insertionPointInstr, IR::LabelInstr* allocHelperLabel, IR::LabelInstr* allocDoneLabel)
-{
+{LOGMEIN("LowerMDShared.cpp] 6276\n");
     IR::Opnd * endAddressOpnd;
     IR::Opnd * freeListOpnd;
 
@@ -6323,7 +6323,7 @@ LowererMD::GenerateFastRecyclerAlloc(size_t allocSize, IR::RegOpnd* newObjDst, I
 #ifdef ENABLE_WASM
 void
 LowererMD::GenerateCopysign(IR::Instr * instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 6325\n");
 #if defined(_M_IX86)
     // We should only generate this if sse2 is available
     Assert(AutoSystemInfo::Data.SSE2Available());
@@ -6352,7 +6352,7 @@ LowererMD::GenerateCopysign(IR::Instr * instr)
 
 void
 LowererMD::SaveDoubleToVar(IR::RegOpnd * dstOpnd, IR::RegOpnd *opndFloat, IR::Instr *instrOrig, IR::Instr *instrInsert, bool isHelper)
-{
+{LOGMEIN("LowerMDShared.cpp] 6354\n");
     Assert(opndFloat->GetType() == TyFloat64);
 
     // Call JSNumber::ToVar to save the float operand to the result of the original (var) instruction
@@ -6367,7 +6367,7 @@ LowererMD::SaveDoubleToVar(IR::RegOpnd * dstOpnd, IR::RegOpnd *opndFloat, IR::In
     IR::Instr * newInstr;
     IR::Instr * numberInitInsertInstr = nullptr;
     if (instrOrig->dstIsTempNumber)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6369\n");
         // Use the original dst to get the temp number sym
         StackSym * tempNumberSym = this->m_lowerer->GetTempNumberSym(instrOrig->GetDst(), instrOrig->dstIsTempNumberTransferred);
 
@@ -6380,7 +6380,7 @@ LowererMD::SaveDoubleToVar(IR::RegOpnd * dstOpnd, IR::RegOpnd *opndFloat, IR::In
         symDblDst = IR::SymOpnd::New(tempNumberSym, (uint32)Js::JavascriptNumber::GetValueOffset(), TyFloat64, this->m_func);
         symTypeDst = IR::SymOpnd::New(tempNumberSym, (uint32)Js::JavascriptNumber::GetOffsetOfType(), TyMachPtr, this->m_func);
         if (this->m_lowerer->outerMostLoopLabel == nullptr)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 6382\n");
             // If we are not in loop, just insert in place
             numberInitInsertInstr = instrInsert;
         }
@@ -6401,7 +6401,7 @@ LowererMD::SaveDoubleToVar(IR::RegOpnd * dstOpnd, IR::RegOpnd *opndFloat, IR::In
     }
 
     if (numberInitInsertInstr)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6403\n");
         // Inline the case where the dst is marked as temp.
         IR::Opnd *jsNumberVTable = m_lowerer->LoadVTableValueOpnd(numberInitInsertInstr, VTableValue::VtableJavascriptNumber);
 
@@ -6427,7 +6427,7 @@ LowererMD::SaveDoubleToVar(IR::RegOpnd * dstOpnd, IR::RegOpnd *opndFloat, IR::In
     instrInsert->InsertBefore(movd);
 
     if (m_func->GetJITFunctionBody()->IsAsmJsMode())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6429\n");
         // s1 = MOVD src
         // tmp = NOT s1
         // tmp = AND tmp, 0x7FF0000000000000ull
@@ -6491,13 +6491,13 @@ LowererMD::SaveDoubleToVar(IR::RegOpnd * dstOpnd, IR::RegOpnd *opndFloat, IR::In
 
 void
 LowererMD::EmitLoadFloatFromNumber(IR::Opnd *dst, IR::Opnd *src, IR::Instr *insertInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 6493\n");
     IR::LabelInstr *labelDone;
     IR::Instr *instr;
     labelDone = EmitLoadFloatCommon(dst, src, insertInstr, insertInstr->HasBailOutInfo());
 
     if (labelDone == nullptr)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6499\n");
         // We're done
         insertInstr->Remove();
         return;
@@ -6507,7 +6507,7 @@ LowererMD::EmitLoadFloatFromNumber(IR::Opnd *dst, IR::Opnd *src, IR::Instr *inse
     insertInstr->InsertAfter(labelDone);
 
     if (!insertInstr->HasBailOutInfo())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6509\n");
         // $Done
         insertInstr->Remove();
         return;
@@ -6518,9 +6518,9 @@ LowererMD::EmitLoadFloatFromNumber(IR::Opnd *dst, IR::Opnd *src, IR::Instr *inse
     IR::SymOpnd *tempSymOpnd = nullptr;
 
     if (insertInstr->GetBailOutKind() == IR::BailOutPrimitiveButString)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6520\n");
         if (!this->m_func->tempSymDouble)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 6522\n");
             this->m_func->tempSymDouble = StackSym::New(TyFloat64, this->m_func);
             this->m_func->StackAllocate(this->m_func->tempSymDouble, MachDouble);
         }
@@ -6536,7 +6536,7 @@ LowererMD::EmitLoadFloatFromNumber(IR::Opnd *dst, IR::Opnd *src, IR::Instr *inse
         this->m_lowerer->LoadScriptContext(insertInstr);
         IR::IntConstOpnd *allowUndefOpnd;
         if (insertInstr->GetBailOutKind() == IR::BailOutPrimitiveButString)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 6538\n");
             allowUndefOpnd = IR::IntConstOpnd::New(true, TyInt32, this->m_func);
         }
         else
@@ -6576,7 +6576,7 @@ LowererMD::EmitLoadFloatFromNumber(IR::Opnd *dst, IR::Opnd *src, IR::Instr *inse
 
     // $noBailOut
     if (labelNoBailOut)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6578\n");
         insertInstr->InsertBefore(labelNoBailOut);
 
         Assert(dst->IsRegOpnd());
@@ -6589,7 +6589,7 @@ LowererMD::EmitLoadFloatFromNumber(IR::Opnd *dst, IR::Opnd *src, IR::Instr *inse
 
 IR::LabelInstr*
 LowererMD::EmitLoadFloatCommon(IR::Opnd *dst, IR::Opnd *src, IR::Instr *insertInstr, bool needHelperLabel)
-{
+{LOGMEIN("LowerMDShared.cpp] 6591\n");
     IR::Instr *instr;
 
     Assert(src->GetType() == TyVar);
@@ -6598,7 +6598,7 @@ LowererMD::EmitLoadFloatCommon(IR::Opnd *dst, IR::Opnd *src, IR::Instr *insertIn
     IR::RegOpnd *regFloatOpnd = nullptr;
 
     if (src->IsRegOpnd() && src->AsRegOpnd()->m_sym->m_isFltConst)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6600\n");
         IR::RegOpnd *regOpnd = src->AsRegOpnd();
         Assert(regOpnd->m_sym->m_isSingleDef);
         Js::Var value = regOpnd->m_sym->GetFloatConstValueAsVar_PostGlobOpt();
@@ -6606,7 +6606,7 @@ LowererMD::EmitLoadFloatCommon(IR::Opnd *dst, IR::Opnd *src, IR::Instr *insertIn
         void *pDouble = (double*)NativeCodeDataNewNoFixup(this->m_func->GetNativeCodeDataAllocator(), DoubleType<DataDesc_LowererMD_EmitLoadFloatCommon_Double>, Js::JavascriptNumber::GetValue(value));
         IR::Opnd * doubleRef;
         if (!m_func->IsOOPJIT())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 6608\n");
             doubleRef = IR::MemRefOpnd::New(pDouble, TyFloat64, this->m_func, IR::AddrOpndKindDynamicDoubleRef);
         }
         else
@@ -6632,15 +6632,15 @@ LowererMD::EmitLoadFloatCommon(IR::Opnd *dst, IR::Opnd *src, IR::Instr *insertIn
     }
     // Src is constant?
     if (src->IsImmediateOpnd() || src->IsFloatConstOpnd())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6634\n");
         regFloatOpnd = IR::RegOpnd::New(TyFloat64, this->m_func);
         m_lowerer->LoadFloatFromNonReg(src, regFloatOpnd, insertInstr);
         isFloatConst = true;
     }
     if (isFloatConst)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6640\n");
         if (dst->GetType() == TyFloat32)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 6642\n");
             // CVTSD2SS regOpnd32.f32, regOpnd.f64    -- Convert regOpnd from f64 to f32
             IR::RegOpnd *regOpnd32 = regFloatOpnd->UseWithNewType(TyFloat32, this->m_func)->AsRegOpnd();
             instr = IR::Instr::New(Js::OpCode::CVTSD2SS, regOpnd32, regFloatOpnd, this->m_func);
@@ -6664,7 +6664,7 @@ LowererMD::EmitLoadFloatCommon(IR::Opnd *dst, IR::Opnd *src, IR::Instr *insertIn
     IR::LabelInstr *labelHelper;
     IR::LabelInstr *labelDone = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
     if (needHelperLabel)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6666\n");
         labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
     }
     else
@@ -6681,7 +6681,7 @@ LowererMD::EmitLoadFloatCommon(IR::Opnd *dst, IR::Opnd *src, IR::Instr *insertIn
     // $Store
     insertInstr->InsertBefore(labelStore);
     if (isFloat32)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6683\n");
         IR::RegOpnd *reg2_32 = reg2->UseWithNewType(TyFloat32, this->m_func)->AsRegOpnd();
         // CVTSD2SS r2_32.f32, r2.f64    -- Convert regOpnd from f64 to f32
         instr = IR::Instr::New(Js::OpCode::CVTSD2SS, reg2_32, reg2, this->m_func);
@@ -6692,7 +6692,7 @@ LowererMD::EmitLoadFloatCommon(IR::Opnd *dst, IR::Opnd *src, IR::Instr *insertIn
         insertInstr->InsertBefore(instr);
     }
     else if (reg2 != dst)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6694\n");
         // MOVSD dst, r2
         instr = IR::Instr::New(Js::OpCode::MOVSD, dst, reg2, this->m_func);
         insertInstr->InsertBefore(instr);
@@ -6703,7 +6703,7 @@ LowererMD::EmitLoadFloatCommon(IR::Opnd *dst, IR::Opnd *src, IR::Instr *insertIn
     insertInstr->InsertBefore(instr);
 
     if (needHelperLabel)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6705\n");
         // $Helper
         insertInstr->InsertBefore(labelHelper);
     }
@@ -6713,13 +6713,13 @@ LowererMD::EmitLoadFloatCommon(IR::Opnd *dst, IR::Opnd *src, IR::Instr *insertIn
 
 IR::RegOpnd *
 LowererMD::EmitLoadFloat(IR::Opnd *dst, IR::Opnd *src, IR::Instr *insertInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 6715\n");
     IR::LabelInstr *labelDone;
     IR::Instr *instr;
     labelDone = EmitLoadFloatCommon(dst, src, insertInstr, true);
 
     if (labelDone == nullptr)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6721\n");
         // We're done
         return nullptr;
     }
@@ -6727,7 +6727,7 @@ LowererMD::EmitLoadFloat(IR::Opnd *dst, IR::Opnd *src, IR::Instr *insertInstr)
     IR::Opnd *memAddress = dst;
 
     if (dst->IsRegOpnd())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6729\n");
         // Create an f64 stack location to store the result of the helper.
         IR::SymOpnd *symOpnd = IR::SymOpnd::New(StackSym::New(dst->GetType(), this->m_func), dst->GetType(), this->m_func);
         this->m_func->StackAllocate(symOpnd->m_sym->AsStackSym(), sizeof(double));
@@ -6749,7 +6749,7 @@ LowererMD::EmitLoadFloat(IR::Opnd *dst, IR::Opnd *src, IR::Instr *insertInstr)
 
     IR::JnHelperMethod helper;
     if (dst->GetType() == TyFloat32)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6751\n");
         helper = IR::HelperOp_ConvFloat_Helper;
     }
     else
@@ -6759,9 +6759,9 @@ LowererMD::EmitLoadFloat(IR::Opnd *dst, IR::Opnd *src, IR::Instr *insertInstr)
     this->m_lowerer->LowerBinaryHelperMem(instr, helper);
 
     if (dst->IsRegOpnd())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6761\n");
         if (dst->GetType() == TyFloat32)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 6763\n");
             // MOVSS dst, r32
             instr = IR::Instr::New(Js::OpCode::MOVSS, dst, memAddress, this->m_func);
             insertInstr->InsertBefore(instr);
@@ -6785,7 +6785,7 @@ LowererMD::LowerInt4NegWithBailOut(
     const IR::BailOutKind bailOutKind,
     IR::LabelInstr *const bailOutLabel,
     IR::LabelInstr *const skipBailOutLabel)
-{
+{LOGMEIN("LowerMDShared.cpp] 6787\n");
     Assert(instr);
     Assert(instr->m_opcode == Js::OpCode::Neg_I4);
     Assert(!instr->HasBailOutInfo());
@@ -6802,12 +6802,12 @@ LowererMD::LowerInt4NegWithBailOut(
     Legalize(instr);
 
     if(bailOutKind & IR::BailOutOnOverflow || bailOutKind == IR::BailOutOnFailedHoistedLoopCountBasedBoundCheck)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6804\n");
         bailOutLabel->InsertBefore(IR::BranchInstr::New(Js::OpCode::JO, bailOutLabel, instr->m_func));
     }
 
     if(bailOutKind & IR::BailOutOnNegativeZero)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6809\n");
         bailOutLabel->InsertBefore(IR::BranchInstr::New(Js::OpCode::JEQ, bailOutLabel, instr->m_func));
     }
 
@@ -6821,7 +6821,7 @@ LowererMD::LowerInt4AddWithBailOut(
     const IR::BailOutKind bailOutKind,
     IR::LabelInstr *const bailOutLabel,
     IR::LabelInstr *const skipBailOutLabel)
-{
+{LOGMEIN("LowerMDShared.cpp] 6823\n");
     Assert(instr);
     Assert(instr->m_opcode == Js::OpCode::Add_I4);
     Assert(!instr->HasBailOutInfo());
@@ -6841,7 +6841,7 @@ LowererMD::LowerInt4AddWithBailOut(
     Assert(dst->IsRegOpnd());
     const bool dstEquSrc1 = dst->IsEqual(src1), dstEquSrc2 = dst->IsEqual(src2);
     if(dstEquSrc1 & dstEquSrc2)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6843\n");
         // We have:
         //     s1 += s1
         // Which is equivalent to:
@@ -6880,7 +6880,7 @@ LowererMD::LowerInt4AddWithBailOut(
             );
     }
     else if(dstEquSrc1 | dstEquSrc2)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6882\n");
         // We have:
         //     s1 += s2
         //   Or:
@@ -6892,7 +6892,7 @@ LowererMD::LowerInt4AddWithBailOut(
         // Generate:
         //     sub  s1, s2
         if(dstEquSrc1)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 6894\n");
             Assert(src2->IsRegOpnd() || src2->IsIntConstOpnd());
         }
         else
@@ -6918,7 +6918,7 @@ LowererMD::LowerInt4SubWithBailOut(
     const IR::BailOutKind bailOutKind,
     IR::LabelInstr *const bailOutLabel,
     IR::LabelInstr *const skipBailOutLabel)
-{
+{LOGMEIN("LowerMDShared.cpp] 6920\n");
     Assert(instr);
     Assert(instr->m_opcode == Js::OpCode::Sub_I4);
     Assert(!instr->HasBailOutInfo());
@@ -6938,7 +6938,7 @@ LowererMD::LowerInt4SubWithBailOut(
     Assert(dst->IsRegOpnd());
     const bool dstEquSrc1 = dst->IsEqual(src1), dstEquSrc2 = dst->IsEqual(src2);
     if(dstEquSrc1 ^ dstEquSrc2)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6940\n");
         // We have:
         //     s1 -= s2
         //   Or:
@@ -6953,7 +6953,7 @@ LowererMD::LowerInt4SubWithBailOut(
         //     neg  s1      - only for second case
         //     add  s1, s2
         if(dstEquSrc1)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 6955\n");
             Assert(src2->IsRegOpnd() || src2->IsIntConstOpnd());
         }
         else
@@ -6963,7 +6963,7 @@ LowererMD::LowerInt4SubWithBailOut(
         const auto startBailOutInstr = bailOutLabel->m_next;
         Assert(startBailOutInstr);
         if(dstEquSrc2)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 6965\n");
             startBailOutInstr->InsertBefore(IR::Instr::New(Js::OpCode::NEG, dst, dst, instr->m_func));
         }
         startBailOutInstr->InsertBefore(IR::Instr::New(Js::OpCode::ADD, dst, dst, dstEquSrc1 ? src2 : src1, instr->m_func));
@@ -6984,9 +6984,9 @@ LowererMD::GenerateSimplifiedInt4Mul(
     IR::Instr *const mulInstr,
     const IR::BailOutKind bailOutKind,
     IR::LabelInstr *const bailOutLabel)
-{
+{LOGMEIN("LowerMDShared.cpp] 6986\n");
     if (AutoSystemInfo::Data.IsAtomPlatform())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 6988\n");
         // On Atom, always optimize unless phase is off
         if (PHASE_OFF(Js::AtomPhase, mulInstr->m_func->GetTopFunc()) ||
             PHASE_OFF(Js::MulStrengthReductionPhase, mulInstr->m_func->GetTopFunc()))
@@ -7027,12 +7027,12 @@ LowererMD::GenerateSimplifiedInt4Mul(
         return false;
 
     switch(constSrcValue)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7029\n");
     case -3:
     case 3:
         // if dst = src, we need to have a copy of the src for the ADD/SUB
         if (dst->IsEqual(nonConstSrc))
-        {
+        {LOGMEIN("LowerMDShared.cpp] 7034\n");
             nonConstSrcCopy = IR::RegOpnd::New(nonConstSrc->GetType(), instr->m_func);
             // MOV
             Lowerer::InsertMove(nonConstSrcCopy, nonConstSrc, instr);
@@ -7047,7 +7047,7 @@ LowererMD::GenerateSimplifiedInt4Mul(
         Legalize(instr);
         // JO
         if (doOVF)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 7049\n");
             nextInstr = IR::BranchInstr::New(Js::OpCode::JO, bailOutLabel, instr->m_func);
             instr->InsertAfter(nextInstr);
             instr = nextInstr;
@@ -7058,10 +7058,10 @@ LowererMD::GenerateSimplifiedInt4Mul(
         instr = nextInstr;
         Legalize(instr);
         if (constSrcValue == -3)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 7060\n");
             // JO
             if (doOVF)
-            {
+            {LOGMEIN("LowerMDShared.cpp] 7063\n");
                 nextInstr = IR::BranchInstr::New(Js::OpCode::JO, bailOutLabel, instr->m_func);
                 instr->InsertAfter(nextInstr);
                 instr = nextInstr;
@@ -7086,10 +7086,10 @@ LowererMD::GenerateSimplifiedInt4Mul(
         Legalize(instr);
 
         if (constSrcValue == -2)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 7088\n");
             // JO
             if (doOVF)
-            {
+            {LOGMEIN("LowerMDShared.cpp] 7091\n");
                 nextInstr = IR::BranchInstr::New(Js::OpCode::JO, bailOutLabel, instr->m_func);
                 instr->InsertAfter(nextInstr);
                 instr = nextInstr;
@@ -7137,7 +7137,7 @@ LowererMD::GenerateSimplifiedInt4Mul(
         // 2^i
         // -2^i
         if (Math::IsPow2(constSrcValue) || Math::IsPow2(-constSrcValue))
-        {
+        {LOGMEIN("LowerMDShared.cpp] 7139\n");
             uint32 shamt = constSrcValue > 0 ? Math::Log2(constSrcValue) : Math::Log2(-constSrcValue);
             instr->UnlinkSrc1();
             instr->UnlinkSrc2();
@@ -7148,7 +7148,7 @@ LowererMD::GenerateSimplifiedInt4Mul(
             constSrc->Free(instr->m_func);
             Legalize(instr);
             if (constSrcValue < 0)
-            {
+            {LOGMEIN("LowerMDShared.cpp] 7150\n");
                 // NEG
                 nextInstr = IR::Instr::New(Js::OpCode::NEG, dst, dst, instr->m_func);
                 instr->InsertAfter(nextInstr);
@@ -7160,12 +7160,12 @@ LowererMD::GenerateSimplifiedInt4Mul(
         // 2^i + 1
         // 2^i - 1
         if (Math::IsPow2(constSrcValue - 1) || Math::IsPow2(constSrcValue + 1))
-        {
+        {LOGMEIN("LowerMDShared.cpp] 7162\n");
             bool plusOne = Math::IsPow2(constSrcValue - 1);
             uint32 shamt = plusOne ? Math::Log2(constSrcValue - 1) : Math::Log2(constSrcValue + 1);
 
             if (dst->IsEqual(nonConstSrc))
-            {
+            {LOGMEIN("LowerMDShared.cpp] 7167\n");
                 nonConstSrcCopy = IR::RegOpnd::New(nonConstSrc->GetType(), instr->m_func);
                 // MOV
                 Lowerer::InsertMove(nonConstSrcCopy, nonConstSrc, instr);
@@ -7195,7 +7195,7 @@ LowererMD::LowerInt4MulWithBailOut(
     const IR::BailOutKind bailOutKind,
     IR::LabelInstr *const bailOutLabel,
     IR::LabelInstr *const skipBailOutLabel)
-{
+{LOGMEIN("LowerMDShared.cpp] 7197\n");
     Assert(instr);
     Assert(instr->m_opcode == Js::OpCode::Mul_I4);
     Assert(!instr->HasBailOutInfo());
@@ -7210,7 +7210,7 @@ LowererMD::LowerInt4MulWithBailOut(
 
     IR::LabelInstr *checkForNegativeZeroLabel = nullptr;
     if(bailOutKind & IR::BailOutOnNegativeZero)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7212\n");
         // We have:
         //     s3 = s1 * s2
         //
@@ -7236,7 +7236,7 @@ LowererMD::LowerInt4MulWithBailOut(
         bailOutLabel->InsertBefore(checkForNegativeZeroLabel);
 
         if(src1->IsIntConstOpnd() || src2->IsIntConstOpnd())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 7238\n");
             Assert(!(src1->IsIntConstOpnd() && src2->IsIntConstOpnd())); // if this results in -0, GlobOpt should have avoided type specialization
 
             const auto constSrc = src1->IsIntConstOpnd() ? src1 : src2;
@@ -7250,7 +7250,7 @@ LowererMD::LowerInt4MulWithBailOut(
 
             const auto constSrcValue = constSrc->AsIntConstOpnd()->GetValue();
             if(constSrcValue == 0)
-            {
+            {LOGMEIN("LowerMDShared.cpp] 7252\n");
                 bailOutLabel->InsertBefore(IR::BranchInstr::New(Js::OpCode::JNSB, skipBailOutLabel, instr->m_func));
             }
             else
@@ -7285,14 +7285,14 @@ LowererMD::LowerInt4MulWithBailOut(
     bool simplifiedMul = LowererMD::GenerateSimplifiedInt4Mul(instr, bailOutKind, bailOutLabel);
     // Lower the instruction
     if (!simplifiedMul)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7287\n");
         LowererMD::ChangeToMul(instr, needsOverflowCheck);
     }
 
     const auto insertBeforeInstr = checkForNegativeZeroLabel ? checkForNegativeZeroLabel : bailOutLabel;
 
     if(needsOverflowCheck)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7294\n");
         // do we care about int32 or non-int32 overflow ?
         if (!simplifiedMul && !instr->ShouldCheckFor32BitOverflow() && instr->ShouldCheckForNon32BitOverflow())
             LowererMD::EmitNon32BitOvfCheck(instr, insertBeforeInstr, bailOutLabel);
@@ -7301,7 +7301,7 @@ LowererMD::LowerInt4MulWithBailOut(
     }
 
     if(bailOutKind & IR::BailOutOnNegativeZero)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7303\n");
         // On zero, branch to determine whether the result would be -0
 
         Assert(checkForNegativeZeroLabel);
@@ -7325,7 +7325,7 @@ LowererMD::LowerInt4RemWithBailOut(
     const IR::BailOutKind bailOutKind,
     IR::LabelInstr *const bailOutLabel,
     IR::LabelInstr *const skipBailOutLabel) const
-{
+{LOGMEIN("LowerMDShared.cpp] 7327\n");
 
     Assert(instr);
     Assert(instr->m_opcode == Js::OpCode::Rem_I4);
@@ -7367,7 +7367,7 @@ LowererMD::LowerInt4RemWithBailOut(
 
     // Fast path already checks if s1 >= 0
     if (!fastPath)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7369\n");
         newInstr = IR::Instr::New(Js::OpCode::TEST, instr->m_func);
         newInstr->SetSrc1(src1);
         newInstr->SetSrc2(src1);
@@ -7384,7 +7384,7 @@ LowererMD::LowerInt4RemWithBailOut(
 
 IR::Instr *
 LowererMD::LoadFloatZero(IR::Opnd * opndDst, IR::Instr * instrInsert)
-{
+{LOGMEIN("LowerMDShared.cpp] 7386\n");
     IR::Instr * instr = IR::Instr::New(Js::OpCode::MOVSD_ZERO, opndDst, instrInsert->m_func);
     instrInsert->InsertBefore(instr);
     return instr;
@@ -7392,9 +7392,9 @@ LowererMD::LoadFloatZero(IR::Opnd * opndDst, IR::Instr * instrInsert)
 
 IR::Instr *
 LowererMD::LoadFloatValue(IR::Opnd * opndDst, double value, IR::Instr * instrInsert)
-{
+{LOGMEIN("LowerMDShared.cpp] 7394\n");
     if (value == 0.0 && !Js::JavascriptNumber::IsNegZero(value))
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7396\n");
         // zero can be loaded with "XORPS xmm, xmm" rather than needing memory load
         return LoadFloatZero(opndDst, instrInsert);
     }
@@ -7404,7 +7404,7 @@ LowererMD::LoadFloatValue(IR::Opnd * opndDst, double value, IR::Instr * instrIns
     void* pValue = nullptr;
     bool isFloat64 = opndDst->IsFloat64();
     if (isFloat64)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7406\n");
         pValue = NativeCodeDataNewNoFixup(instrInsert->m_func->GetNativeCodeDataAllocator(), DoubleType<DataDesc_LowererMD_LoadFloatValue_Double>, value);
     }
     else
@@ -7414,7 +7414,7 @@ LowererMD::LoadFloatValue(IR::Opnd * opndDst, double value, IR::Instr * instrIns
     }
 
     if (!instrInsert->m_func->IsOOPJIT())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7416\n");
         opnd = IR::MemRefOpnd::New((void*)pValue, isFloat64 ? TyMachDouble : TyFloat32,
             instrInsert->m_func, isFloat64 ? IR::AddrOpndKindDynamicDoubleRef : IR::AddrOpndKindDynamicFloatRef);
     }
@@ -7446,7 +7446,7 @@ LowererMD::LoadFloatValue(IR::Opnd * opndDst, double value, IR::Instr * instrIns
 
 IR::Instr *
 LowererMD::EnsureAdjacentArgs(IR::Instr * instrArg)
-{
+{LOGMEIN("LowerMDShared.cpp] 7448\n");
     // Ensure that the arg instructions for a given call site are adjacent.
     // This isn't normally desirable for CQ, but it's required by, for instance, the cloner,
     // which must clone a complete call sequence.
@@ -7456,7 +7456,7 @@ LowererMD::EnsureAdjacentArgs(IR::Instr * instrArg)
 
     AssertMsg(opnd, "opnd");
     while (opnd->IsSymOpnd())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7458\n");
         sym = opnd->AsSymOpnd()->m_sym->AsStackSym();
         instrNextArg = sym->m_instrDef;
         Assert(instrNextArg);
@@ -7470,7 +7470,7 @@ LowererMD::EnsureAdjacentArgs(IR::Instr * instrArg)
 
     // The StartCall can be trivially moved down.
     if (instrNextArg->m_next != instrArg)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7472\n");
         instrNextArg->UnlinkStartCallFromBailOutInfo(instrArg);
         instrNextArg->Unlink();
         instrArg->InsertBefore(instrNextArg);
@@ -7484,7 +7484,7 @@ LowererMD::EnsureAdjacentArgs(IR::Instr * instrArg)
 // Convert an int32 to Var representation.
 //
 void LowererMD::GenerateInt32ToVarConversion( IR::Opnd * opndSrc, IR::Instr * insertInstr )
-{
+{LOGMEIN("LowerMDShared.cpp] 7486\n");
     AssertMsg(TySize[opndSrc->GetType()] == MachPtr, "For this to work it should be a 64-bit register");
 
     IR::Instr* instr = IR::Instr::New(Js::OpCode::BTS, opndSrc, opndSrc, IR::IntConstOpnd::New(Js::VarTag_Shift, TyInt8, this->m_func), this->m_func);
@@ -7495,7 +7495,7 @@ void LowererMD::GenerateInt32ToVarConversion( IR::Opnd * opndSrc, IR::Instr * in
 // jump to $labelHelper, based on the result of CMP
 //
 void LowererMD::GenerateSmIntTest(IR::Opnd *opndSrc, IR::Instr *insertInstr, IR::LabelInstr *labelHelper, IR::Instr **instrFirst /* = nullptr */, bool fContinueLabel /*= false*/)
-{
+{LOGMEIN("LowerMDShared.cpp] 7497\n");
     AssertMsg(opndSrc->GetSize() == MachPtr, "64-bit register required");
 
     IR::Opnd  * opndReg = IR::RegOpnd::New(TyMachReg, this->m_func);
@@ -7506,7 +7506,7 @@ void LowererMD::GenerateSmIntTest(IR::Opnd *opndSrc, IR::Instr *insertInstr, IR:
     insertInstr->InsertBefore(instr);
 
     if (instrFirst)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7508\n");
         *instrFirst = instr;
     }
 
@@ -7523,7 +7523,7 @@ void LowererMD::GenerateSmIntTest(IR::Opnd *opndSrc, IR::Instr *insertInstr, IR:
     insertInstr->InsertBefore(instr);
 
     if (instrFirst)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7525\n");
         *instrFirst = instr;
     }
 
@@ -7538,7 +7538,7 @@ void LowererMD::GenerateSmIntTest(IR::Opnd *opndSrc, IR::Instr *insertInstr, IR:
     insertInstr->InsertBefore(instr);
 #endif
     if(fContinueLabel)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7540\n");
         // JEQ $labelHelper
         instr = IR::BranchInstr::New(Js::OpCode::JEQ, labelHelper, this->m_func);
     }
@@ -7554,10 +7554,10 @@ void LowererMD::GenerateSmIntTest(IR::Opnd *opndSrc, IR::Instr *insertInstr, IR:
 // If lower 32-bits are zero (value is zero), jump to $helper.
 //
 void LowererMD::GenerateTaggedZeroTest( IR::Opnd * opndSrc, IR::Instr * insertInstr, IR::LabelInstr * labelHelper )
-{
+{LOGMEIN("LowerMDShared.cpp] 7556\n");
     // Cast the var to 32 bit integer.
     if(opndSrc->GetSize() != 4)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7559\n");
         opndSrc = opndSrc->UseWithNewType(TyUint32, this->m_func);
     }
     AssertMsg(TySize[opndSrc->GetType()] == 4, "This technique works only on the 32-bit version");
@@ -7569,7 +7569,7 @@ void LowererMD::GenerateTaggedZeroTest( IR::Opnd * opndSrc, IR::Instr * insertIn
     insertInstr->InsertBefore(instr);
 
     if(labelHelper != nullptr)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7571\n");
         // JZ $labelHelper
         instr = IR::BranchInstr::New(Js::OpCode::JEQ, labelHelper, this->m_func);
         insertInstr->InsertBefore(instr);
@@ -7580,11 +7580,11 @@ void LowererMD::GenerateTaggedZeroTest( IR::Opnd * opndSrc, IR::Instr * insertIn
 // If top 16 bits are not zero i.e. it is NOT object, jump to $helper.
 //
 bool LowererMD::GenerateObjectTest(IR::Opnd * opndSrc, IR::Instr * insertInstr, IR::LabelInstr * labelTarget, bool fContinueLabel)
-{
+{LOGMEIN("LowerMDShared.cpp] 7582\n");
     AssertMsg(opndSrc->GetSize() == MachPtr, "64-bit register required");
 
     if (opndSrc->IsTaggedValue() && fContinueLabel)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7586\n");
         // Insert delete branch opcode to tell the dbChecks not to assert on the helper label we may fall through into
         IR::Instr *fakeBr = IR::PragmaInstr::New(Js::OpCode::DeletedNonHelperBranch, 0, this->m_func);
         insertInstr->InsertBefore(fakeBr);
@@ -7592,7 +7592,7 @@ bool LowererMD::GenerateObjectTest(IR::Opnd * opndSrc, IR::Instr * insertInstr, 
         return false;
     }
     else if (opndSrc->IsNotTaggedValue() && !fContinueLabel)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7594\n");
         return false;
     }
 
@@ -7607,7 +7607,7 @@ bool LowererMD::GenerateObjectTest(IR::Opnd * opndSrc, IR::Instr * insertInstr, 
     insertInstr->InsertBefore(instr);
 
     if (fContinueLabel)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7609\n");
         // JEQ $labelHelper
         instr = IR::BranchInstr::New(Js::OpCode::JEQ, labelTarget, this->m_func);
         insertInstr->InsertBefore(instr);
@@ -7628,7 +7628,7 @@ bool LowererMD::GenerateObjectTest(IR::Opnd * opndSrc, IR::Instr * insertInstr, 
 // Convert an int32 value to a Var.
 //
 void LowererMD::GenerateInt32ToVarConversion( IR::Opnd * opndSrc, IR::Instr * insertInstr )
-{
+{LOGMEIN("LowerMDShared.cpp] 7630\n");
     // SHL r1, AtomTag
 
     IR::Instr * instr = IR::Instr::New(Js::OpCode::SHL, opndSrc, opndSrc, IR::IntConstOpnd::New(Js::AtomTag, TyInt8, this->m_func), this->m_func);
@@ -7644,13 +7644,13 @@ void LowererMD::GenerateInt32ToVarConversion( IR::Opnd * opndSrc, IR::Instr * in
 // jump to $labelHelper, based on the result of TEST
 //
 void LowererMD::GenerateSmIntTest(IR::Opnd *opndSrc, IR::Instr *insertInstr, IR::LabelInstr *labelHelper, IR::Instr **instrFirst /* = nullptr */, bool fContinueLabel /*= false*/)
-{
+{LOGMEIN("LowerMDShared.cpp] 7646\n");
     if (opndSrc->IsTaggedInt() && !fContinueLabel)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7648\n");
         return;
     }
     else if (opndSrc->IsNotTaggedValue() && fContinueLabel)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7652\n");
         return;
     }
 
@@ -7661,12 +7661,12 @@ void LowererMD::GenerateSmIntTest(IR::Opnd *opndSrc, IR::Instr *insertInstr, IR:
     insertInstr->InsertBefore(instr);
 
     if (instrFirst)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7663\n");
         *instrFirst = instr;
     }
 
     if(fContinueLabel)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7668\n");
         //      JNE $labelHelper
         instr = IR::BranchInstr::New(Js::OpCode::JNE, labelHelper, this->m_func);
     }
@@ -7682,9 +7682,9 @@ void LowererMD::GenerateSmIntTest(IR::Opnd *opndSrc, IR::Instr *insertInstr, IR:
 // If value is zero in tagged int representation, jump to $labelHelper.
 //
 void LowererMD::GenerateTaggedZeroTest( IR::Opnd * opndSrc, IR::Instr * insertInstr, IR::LabelInstr * labelHelper )
-{
+{LOGMEIN("LowerMDShared.cpp] 7684\n");
     if (opndSrc->IsNotTaggedValue())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7686\n");
         return;
     }
 
@@ -7696,7 +7696,7 @@ void LowererMD::GenerateTaggedZeroTest( IR::Opnd * opndSrc, IR::Instr * insertIn
 
     // JEQ $helper
     if(labelHelper != nullptr)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7698\n");
         // JEQ $labelHelper
         instr = IR::BranchInstr::New(Js::OpCode::JEQ, labelHelper, this->m_func);
         insertInstr->InsertBefore(instr);
@@ -7707,9 +7707,9 @@ void LowererMD::GenerateTaggedZeroTest( IR::Opnd * opndSrc, IR::Instr * insertIn
 // If not object, jump to $labelHelper.
 //
 bool LowererMD::GenerateObjectTest(IR::Opnd * opndSrc, IR::Instr * insertInstr, IR::LabelInstr * labelTarget, bool fContinueLabel)
-{
+{LOGMEIN("LowerMDShared.cpp] 7709\n");
     if (opndSrc->IsTaggedInt() && fContinueLabel)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7711\n");
         // Insert delete branch opcode to tell the dbChecks not to assert on this helper label
         IR::Instr *fakeBr = IR::PragmaInstr::New(Js::OpCode::DeletedNonHelperBranch, 0, this->m_func);
         insertInstr->InsertBefore(fakeBr);
@@ -7717,7 +7717,7 @@ bool LowererMD::GenerateObjectTest(IR::Opnd * opndSrc, IR::Instr * insertInstr, 
         return false;
     }
     else if (opndSrc->IsNotTaggedValue() && !fContinueLabel)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7719\n");
         return false;
     }
 
@@ -7728,7 +7728,7 @@ bool LowererMD::GenerateObjectTest(IR::Opnd * opndSrc, IR::Instr * insertInstr, 
     insertInstr->InsertBefore(instr);
 
     if (fContinueLabel)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7730\n");
         // JEQ $labelHelper
         instr = IR::BranchInstr::New(Js::OpCode::JEQ, labelTarget, this->m_func);
         insertInstr->InsertBefore(instr);
@@ -7747,18 +7747,18 @@ bool LowererMD::GenerateObjectTest(IR::Opnd * opndSrc, IR::Instr * insertInstr, 
 #endif
 
 bool LowererMD::GenerateJSBooleanTest(IR::RegOpnd * regSrc, IR::Instr * insertInstr, IR::LabelInstr * labelTarget, bool fContinueLabel)
-{
+{LOGMEIN("LowerMDShared.cpp] 7749\n");
     IR::Instr* instr;
     if (regSrc->GetValueType().IsBoolean())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7752\n");
         if (fContinueLabel)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 7754\n");
             // JMP $labelTarget
             instr = IR::BranchInstr::New(Js::OpCode::JMP, labelTarget, this->m_func);
             insertInstr->InsertBefore(instr);
 #if DBG
             if (labelTarget->isOpHelper)
-            {
+            {LOGMEIN("LowerMDShared.cpp] 7760\n");
                 labelTarget->m_noHelperAssert = true;
             }
 #endif
@@ -7776,7 +7776,7 @@ bool LowererMD::GenerateJSBooleanTest(IR::RegOpnd * regSrc, IR::Instr * insertIn
     Legalize(instr);
 
     if (fContinueLabel)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7778\n");
         // JEQ $labelTarget
         instr = IR::BranchInstr::New(Js::OpCode::JEQ, labelTarget, this->m_func);
         insertInstr->InsertBefore(instr);
@@ -7797,9 +7797,9 @@ bool LowererMD::GenerateJSBooleanTest(IR::RegOpnd * regSrc, IR::Instr * insertIn
 // If any of the top 14 bits are not set, then the var is not a float value and hence, jump to $labelHelper.
 //
 void LowererMD::GenerateFloatTest(IR::RegOpnd * opndSrc, IR::Instr * insertInstr, IR::LabelInstr* labelHelper, const bool checkForNullInLoopBody)
-{
+{LOGMEIN("LowerMDShared.cpp] 7799\n");
     if (opndSrc->GetValueType().IsFloat())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7801\n");
         return;
     }
 
@@ -7820,7 +7820,7 @@ void LowererMD::GenerateFloatTest(IR::RegOpnd * opndSrc, IR::Instr * insertInstr
 }
 
 IR::RegOpnd* LowererMD::CheckFloatAndUntag(IR::RegOpnd * opndSrc, IR::Instr * insertInstr, IR::LabelInstr* labelHelper)
-{
+{LOGMEIN("LowerMDShared.cpp] 7822\n");
     IR::Opnd* floatTag = IR::AddrOpnd::New((Js::Var)Js::FloatTag_Value, IR::AddrOpndKindConstantVar, this->m_func, /* dontEncode = */ true);
     IR::RegOpnd* regOpndFloatTag = IR::RegOpnd::New(TyUint64, this->m_func);
 
@@ -7829,7 +7829,7 @@ IR::RegOpnd* LowererMD::CheckFloatAndUntag(IR::RegOpnd * opndSrc, IR::Instr * in
     insertInstr->InsertBefore(instr);
 
     if (!opndSrc->GetValueType().IsFloat())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7831\n");
         // TEST s1, floatTagReg
         instr = IR::Instr::New(Js::OpCode::TEST, this->m_func);
         instr->SetSrc1(opndSrc);
@@ -7853,16 +7853,16 @@ IR::RegOpnd* LowererMD::CheckFloatAndUntag(IR::RegOpnd * opndSrc, IR::Instr * in
 }
 #else
 void LowererMD::GenerateFloatTest(IR::RegOpnd * opndSrc, IR::Instr * insertInstr, IR::LabelInstr* labelHelper, const bool checkForNullInLoopBody)
-{
+{LOGMEIN("LowerMDShared.cpp] 7855\n");
     if (opndSrc->GetValueType().IsFloat())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7857\n");
         return;
     }
 
     AssertMsg(opndSrc->GetSize() == MachPtr, "64-bit register required");
 
     if(checkForNullInLoopBody && m_func->IsLoopBody())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7864\n");
         // It's possible that the value was determined dead by the jitted function and was not restored. The jitted loop
         // body may not realize that it's dead and may try to use it. Check for null in loop bodies.
         //     test src1, src1
@@ -7892,7 +7892,7 @@ void LowererMD::GenerateFloatTest(IR::RegOpnd * opndSrc, IR::Instr * insertInstr
 // Helps in debugging of fast paths.
 //
 void LowererMD::GenerateDebugBreak( IR::Instr * insertInstr )
-{
+{LOGMEIN("LowerMDShared.cpp] 7894\n");
     // int 3
 
     IR::Instr *int3 = IR::Instr::New(Js::OpCode::INT, insertInstr->m_func);
@@ -7903,7 +7903,7 @@ void LowererMD::GenerateDebugBreak( IR::Instr * insertInstr )
 
 IR::Instr *
 LowererMD::LoadStackAddress(StackSym *sym, IR::RegOpnd *optionalDstOpnd /* = nullptr */)
-{
+{LOGMEIN("LowerMDShared.cpp] 7905\n");
     IR::RegOpnd * regDst = optionalDstOpnd != nullptr ? optionalDstOpnd : IR::RegOpnd::New(TyMachReg, this->m_func);
     IR::SymOpnd * symSrc = IR::SymOpnd::New(sym, TyMachPtr, this->m_func);
     IR::Instr * lea = IR::Instr::New(Js::OpCode::LEA, regDst, symSrc, this->m_func);
@@ -7914,14 +7914,14 @@ LowererMD::LoadStackAddress(StackSym *sym, IR::RegOpnd *optionalDstOpnd /* = nul
 template <bool verify>
 void
 LowererMD::MakeDstEquSrc1(IR::Instr *const instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 7916\n");
     Assert(instr);
     Assert(instr->IsLowered());
     Assert(instr->GetDst());
     Assert(instr->GetSrc1());
 
     if(instr->GetDst()->IsEqual(instr->GetSrc1()))
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7923\n");
         return;
     }
 
@@ -7932,9 +7932,9 @@ LowererMD::MakeDstEquSrc1(IR::Instr *const instr)
     }
 
     if(instr->GetSrc2() && instr->GetDst()->IsEqual(instr->GetSrc2()))
-    {
+    {LOGMEIN("LowerMDShared.cpp] 7934\n");
         switch(instr->m_opcode)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 7936\n");
 #ifdef _M_IX86
             case Js::OpCode::ADC:
 #endif
@@ -7972,13 +7972,13 @@ LowererMD::MakeDstEquSrc1(IR::Instr *const instr)
 
 void
 LowererMD::EmitPtrInstr(IR::Instr *instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 7974\n");
     LowererMDArch::EmitPtrInstr(instr);
 }
 
 void
 LowererMD::EmitInt64Instr(IR::Instr * instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 7980\n");
 #ifdef _M_IX86
     lowererMDArch.EmitInt64Instr(instr);
 #else
@@ -7988,55 +7988,55 @@ LowererMD::EmitInt64Instr(IR::Instr * instr)
 
 void
 LowererMD::EmitInt4Instr(IR::Instr *instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 7990\n");
     LowererMDArch::EmitInt4Instr(instr);
 }
 
 void
 LowererMD::EmitLoadVar(IR::Instr *instrLoad, bool isFromUint32, bool isHelper)
-{
+{LOGMEIN("LowerMDShared.cpp] 7996\n");
     lowererMDArch.EmitLoadVar(instrLoad, isFromUint32, isHelper);
 }
 
 bool
 LowererMD::EmitLoadInt32(IR::Instr *instrLoad, bool conversionFromObjectAllowed)
-{
+{LOGMEIN("LowerMDShared.cpp] 8002\n");
     return lowererMDArch.EmitLoadInt32(instrLoad, conversionFromObjectAllowed);
 }
 
 void
 LowererMD::EmitIntToFloat(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert)
-{
+{LOGMEIN("LowerMDShared.cpp] 8008\n");
     this->lowererMDArch.EmitIntToFloat(dst, src, instrInsert);
 }
 
 void
 LowererMD::EmitUIntToFloat(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert)
-{
+{LOGMEIN("LowerMDShared.cpp] 8014\n");
     this->lowererMDArch.EmitUIntToFloat(dst, src, instrInsert);
 }
 
 void
 LowererMD::EmitIntToLong(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert)
-{
+{LOGMEIN("LowerMDShared.cpp] 8020\n");
     this->lowererMDArch.EmitIntToLong(dst, src, instrInsert);
 }
 
 void
 LowererMD::EmitUIntToLong(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert)
-{
+{LOGMEIN("LowerMDShared.cpp] 8026\n");
     this->lowererMDArch.EmitUIntToLong(dst, src, instrInsert);
 }
 
 void
 LowererMD::EmitLongToInt(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert)
-{
+{LOGMEIN("LowerMDShared.cpp] 8032\n");
     this->lowererMDArch.EmitLongToInt(dst, src, instrInsert);
 }
 
 void
 LowererMD::EmitFloat32ToFloat64(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert)
-{
+{LOGMEIN("LowerMDShared.cpp] 8038\n");
     // We should only generate this if sse2 is available
     Assert(AutoSystemInfo::Data.SSE2Available());
 
@@ -8048,7 +8048,7 @@ LowererMD::EmitFloat32ToFloat64(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrIn
 
 void
 LowererMD::EmitInt64toFloat(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 8050\n");
 
 #ifdef _M_IX86
     IR::Opnd *srcOpnd = instr->UnlinkSrc1();
@@ -8061,7 +8061,7 @@ LowererMD::EmitInt64toFloat(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instr)
     const uint16 fromToType = dst->GetType() | (srcOpnd->GetType() << 8);
     IR::JnHelperMethod method = IR::HelperOp_Throw;
     switch (fromToType)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8063\n");
     case TyFloat32 | (TyInt64 << 8) : method = IR::HelperI64TOF32; break;
     case TyFloat32 | (TyUint64 << 8) : method = IR::HelperUI64TOF32; break;
     case TyFloat64 | (TyInt64 << 8) : method = IR::HelperI64TOF64; break;
@@ -8073,14 +8073,14 @@ LowererMD::EmitInt64toFloat(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instr)
 #else
     IR::Opnd* origDst = nullptr;
     if (dst->IsFloat32())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8075\n");
         origDst = dst;
         dst = IR::RegOpnd::New(TyFloat64, this->m_func);
     }
 
     instr->InsertBefore(IR::Instr::New(Js::OpCode::CVTSI2SD, dst, src, this->m_func));
     if (src->IsUnsigned())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8082\n");
         IR::RegOpnd * highestBitOpnd = IR::RegOpnd::New(TyInt64, this->m_func);
         IR::Instr* instrNew = IR::Instr::New(Js::OpCode::SHR, highestBitOpnd, src,
         IR::IntConstOpnd::New(63, TyInt8, this->m_func, true), this->m_func);
@@ -8099,7 +8099,7 @@ LowererMD::EmitInt64toFloat(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instr)
     }
 
     if (origDst)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8101\n");
         instr->InsertBefore(IR::Instr::New(Js::OpCode::CVTSD2SS, origDst, dst, this->m_func));
     }
 #endif
@@ -8107,7 +8107,7 @@ LowererMD::EmitInt64toFloat(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instr)
 
 void
 LowererMD::EmitNon32BitOvfCheck(IR::Instr *instr, IR::Instr *insertInstr, IR::LabelInstr* bailOutLabel)
-{
+{LOGMEIN("LowerMDShared.cpp] 8109\n");
     AssertMsg(instr->m_opcode == Js::OpCode::IMUL, "IMUL should be used to check for non-32 bit overflow check on x86.");
 
     IR::RegOpnd *edxSym = IR::RegOpnd::New(TyInt32, instr->m_func);
@@ -8148,7 +8148,7 @@ LowererMD::EmitNon32BitOvfCheck(IR::Instr *instr, IR::Instr *insertInstr, IR::La
 }
 
 void LowererMD::ConvertFloatToInt32(IR::Opnd* intOpnd, IR::Opnd* floatOpnd, IR::LabelInstr * labelHelper, IR::LabelInstr * labelDone, IR::Instr * instInsert)
-{
+{LOGMEIN("LowerMDShared.cpp] 8150\n");
     UNREFERENCED_PARAMETER(labelHelper); // used on ARM
 #if defined(_M_IX86)
     // We should only generate this if sse2 is available
@@ -8194,19 +8194,19 @@ void LowererMD::ConvertFloatToInt32(IR::Opnd* intOpnd, IR::Opnd* floatOpnd, IR::
     // but requires going to memory and should only be used in overflow scenarios
 #ifdef _M_IX86
     if (AutoSystemInfo::Data.SSE3Available())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8196\n");
         IR::Opnd* floatStackOpnd;
 
         StackSym* tempSymDouble = this->m_func->tempSymDouble;
         if (!tempSymDouble)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 8201\n");
             this->m_func->tempSymDouble = StackSym::New(TyFloat64, this->m_func);
             this->m_func->StackAllocate(this->m_func->tempSymDouble, MachDouble);
             tempSymDouble = this->m_func->tempSymDouble;
         }
         IR::Opnd * float64Opnd;
         if (floatOpnd->IsFloat32())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 8208\n");
             float64Opnd = IR::RegOpnd::New(TyFloat64, m_func);
             instr = IR::Instr::New(Js::OpCode::CVTSS2SD, float64Opnd, floatOpnd, m_func);
             instInsert->InsertBefore(instr);
@@ -8217,7 +8217,7 @@ void LowererMD::ConvertFloatToInt32(IR::Opnd* intOpnd, IR::Opnd* floatOpnd, IR::
         }
 
         if (float64Opnd->IsRegOpnd())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 8219\n");
             floatStackOpnd = IR::SymOpnd::New(tempSymDouble, TyMachDouble, m_func);
             instr = IR::Instr::New(Js::OpCode::MOVSD, floatStackOpnd, float64Opnd, m_func);
             instInsert->InsertBefore(instr);
@@ -8232,7 +8232,7 @@ void LowererMD::ConvertFloatToInt32(IR::Opnd* intOpnd, IR::Opnd* floatOpnd, IR::
         instInsert->InsertBefore(instr);
 
         if (!float64Opnd->IsRegOpnd())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 8234\n");
             floatStackOpnd = IR::SymOpnd::New(tempSymDouble, TyMachDouble, m_func);
         }
 
@@ -8275,7 +8275,7 @@ void LowererMD::ConvertFloatToInt32(IR::Opnd* intOpnd, IR::Opnd* floatOpnd, IR::
 
 IR::Instr *
 LowererMD::InsertConvertFloat64ToInt32(const RoundMode roundMode, IR::Opnd *const dst, IR::Opnd *const src, IR::Instr *const insertBeforeInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 8277\n");
     Assert(dst);
     Assert(dst->IsInt32());
     Assert(src);
@@ -8289,9 +8289,9 @@ LowererMD::InsertConvertFloat64ToInt32(const RoundMode roundMode, IR::Opnd *cons
     IR::Instr *instr = nullptr;
 
     switch (roundMode)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8291\n");
         case RoundModeTowardInteger:
-        {
+        {LOGMEIN("LowerMDShared.cpp] 8293\n");
             // Conversion with rounding towards nearest integer is not supported by the architecture. Add 0.5 and do a
             // round-toward-zero conversion instead.
             IR::RegOpnd *const srcPlusHalf = IR::RegOpnd::New(TyFloat64, func);
@@ -8311,7 +8311,7 @@ LowererMD::InsertConvertFloat64ToInt32(const RoundMode roundMode, IR::Opnd *cons
             return instr;
         }
         case RoundModeHalfToEven:
-        {
+        {LOGMEIN("LowerMDShared.cpp] 8313\n");
             instr = IR::Instr::New(LowererMD::MDConvertFloat64ToInt32Opcode(RoundModeHalfToEven), dst, src, func);
             insertBeforeInstr->InsertBefore(instr);
             LowererMD::Legalize(instr);
@@ -8325,7 +8325,7 @@ LowererMD::InsertConvertFloat64ToInt32(const RoundMode roundMode, IR::Opnd *cons
 
 void
 LowererMD::EmitFloatToInt(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert)
-{
+{LOGMEIN("LowerMDShared.cpp] 8327\n");
 #ifdef _M_IX86
     // We should only generate this if sse2 is available
     Assert(AutoSystemInfo::Data.SSE2Available());
@@ -8342,7 +8342,7 @@ LowererMD::EmitFloatToInt(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert)
 
     IR::Opnd * arg = src;
     if (src->IsFloat32())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8344\n");
         arg = IR::RegOpnd::New(TyFloat64, m_func);
 
         EmitFloat32ToFloat64(arg, src, instrInsert);
@@ -8360,16 +8360,16 @@ LowererMD::EmitFloatToInt(IR::Opnd *dst, IR::Opnd *src, IR::Instr *instrInsert)
 
 void
 LowererMD::EmitLoadVarNoCheck(IR::RegOpnd * dst, IR::RegOpnd * src, IR::Instr *instrLoad, bool isFromUint32, bool isHelper)
-{
+{LOGMEIN("LowerMDShared.cpp] 8362\n");
 #ifdef _M_IX86
     if (!AutoSystemInfo::Data.SSE2Available())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8365\n");
         IR::JnHelperMethod helperMethod;
 
         // PUSH &floatTemp
         IR::Opnd *tempOpnd;
         if (instrLoad->dstIsTempNumber)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 8371\n");
             helperMethod = isFromUint32 ? IR::HelperOp_UInt32ToAtomInPlace : IR::HelperOp_Int32ToAtomInPlace;
 
             // Use the original dst to get the temp number sym
@@ -8401,7 +8401,7 @@ LowererMD::EmitLoadVarNoCheck(IR::RegOpnd * dst, IR::RegOpnd * src, IR::Instr *i
 
     IR::RegOpnd * floatReg = IR::RegOpnd::New(TyFloat64, this->m_func);
     if (isFromUint32)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8403\n");
         this->EmitUIntToFloat(floatReg, src, instrLoad);
     }
     else
@@ -8413,7 +8413,7 @@ LowererMD::EmitLoadVarNoCheck(IR::RegOpnd * dst, IR::RegOpnd * src, IR::Instr *i
 
 IR::Instr *
 LowererMD::LowerGetCachedFunc(IR::Instr *instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 8415\n");
     // src1 is an ActivationObjectEx, and we want to get the function object identified by the index (src2)
     // dst = MOV (src1)->GetFuncCacheEntry(src2)->func
     //
@@ -8435,7 +8435,7 @@ LowererMD::LowerGetCachedFunc(IR::Instr *instr)
 
 IR::Instr *
 LowererMD::LowerCommitScope(IR::Instr *instrCommit)
-{
+{LOGMEIN("LowerMDShared.cpp] 8437\n");
     IR::Instr *instrPrev = instrCommit->m_prev;
     IR::RegOpnd *baseOpnd = instrCommit->UnlinkSrc1()->AsRegOpnd();
     IR::Opnd *opnd;
@@ -8453,7 +8453,7 @@ LowererMD::LowerCommitScope(IR::Instr *instrCommit)
 
     uint firstVarSlot = (uint)Js::ActivationObjectEx::GetFirstVarSlot(propIds);
     if (firstVarSlot < propIds->count)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8455\n");
         IR::RegOpnd *undefOpnd = IR::RegOpnd::New(TyMachReg, this->m_func);
         LowererMD::CreateAssign(undefOpnd, m_lowerer->LoadLibraryValueOpnd(insertInstr, LibraryValue::ValueUndefined), insertInstr);
 
@@ -8465,7 +8465,7 @@ LowererMD::LowerCommitScope(IR::Instr *instrCommit)
         this->CreateAssign(slotBaseOpnd, opnd, insertInstr);
 
         for (uint i = firstVarSlot; i < propIds->count; i++)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 8467\n");
             opnd = IR::IndirOpnd::New(slotBaseOpnd, i << this->GetDefaultIndirScale(), TyMachReg, this->m_func);
             this->CreateAssign(opnd, undefOpnd, insertInstr);
         }
@@ -8476,9 +8476,9 @@ LowererMD::LowerCommitScope(IR::Instr *instrCommit)
 
 void
 LowererMD::ImmedSrcToReg(IR::Instr * instr, IR::Opnd * newOpnd, int srcNum)
-{
+{LOGMEIN("LowerMDShared.cpp] 8478\n");
     if (srcNum == 2)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8480\n");
         instr->SetSrc2(newOpnd);
     }
     else
@@ -8490,19 +8490,19 @@ LowererMD::ImmedSrcToReg(IR::Instr * instr, IR::Opnd * newOpnd, int srcNum)
 
 IR::LabelInstr *
 LowererMD::GetBailOutStackRestoreLabel(BailOutInfo * bailOutInfo, IR::LabelInstr * exitTargetInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 8492\n");
     return lowererMDArch.GetBailOutStackRestoreLabel(bailOutInfo, exitTargetInstr);
 }
 
 StackSym *
 LowererMD::GetImplicitParamSlotSym(Js::ArgSlot argSlot)
-{
+{LOGMEIN("LowerMDShared.cpp] 8498\n");
     return GetImplicitParamSlotSym(argSlot, this->m_func);
 }
 
 StackSym *
 LowererMD::GetImplicitParamSlotSym(Js::ArgSlot argSlot, Func * func)
-{
+{LOGMEIN("LowerMDShared.cpp] 8504\n");
     // Stack looks like (EBP chain)+0, (return addr)+4, (function object)+8, (arg count)+12, (this)+16, actual args
     // Pass in the EBP+8 to start at the function object, the start of the implicit param slots
 
@@ -8513,39 +8513,39 @@ LowererMD::GetImplicitParamSlotSym(Js::ArgSlot argSlot, Func * func)
 }
 
 bool LowererMD::GenerateFastAnd(IR::Instr * instrAnd)
-{
+{LOGMEIN("LowerMDShared.cpp] 8515\n");
     return this->lowererMDArch.GenerateFastAnd(instrAnd);
 }
 
 bool LowererMD::GenerateFastXor(IR::Instr * instrXor)
-{
+{LOGMEIN("LowerMDShared.cpp] 8520\n");
     return this->lowererMDArch.GenerateFastXor(instrXor);
 }
 
 bool LowererMD::GenerateFastOr(IR::Instr * instrOr)
-{
+{LOGMEIN("LowerMDShared.cpp] 8525\n");
     return this->lowererMDArch.GenerateFastOr(instrOr);
 }
 
 bool LowererMD::GenerateFastNot(IR::Instr * instrNot)
-{
+{LOGMEIN("LowerMDShared.cpp] 8530\n");
     return this->lowererMDArch.GenerateFastNot(instrNot);
 }
 
 bool LowererMD::GenerateFastShiftLeft(IR::Instr * instrShift)
-{
+{LOGMEIN("LowerMDShared.cpp] 8535\n");
     return this->lowererMDArch.GenerateFastShiftLeft(instrShift);
 }
 
 bool LowererMD::GenerateFastShiftRight(IR::Instr * instrShift)
-{
+{LOGMEIN("LowerMDShared.cpp] 8540\n");
     return this->lowererMDArch.GenerateFastShiftRight(instrShift);
 }
 
 void LowererMD::GenerateIsDynamicObject(IR::RegOpnd *regOpnd, IR::Instr *insertInstr, IR::LabelInstr *labelHelper, bool fContinueLabel)
-{
+{LOGMEIN("LowerMDShared.cpp] 8545\n");
     // CMP [srcReg], Js::DynamicObject::`vtable'
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8547\n");
         IR::Instr *cmp = IR::Instr::New(Js::OpCode::CMP, this->m_func);
         cmp->SetSrc1(IR::IndirOpnd::New(regOpnd, 0, TyMachPtr, m_func));
         cmp->SetSrc2(m_lowerer->LoadVTableValueOpnd(insertInstr, VTableValue::VtableDynamicObject));
@@ -8554,7 +8554,7 @@ void LowererMD::GenerateIsDynamicObject(IR::RegOpnd *regOpnd, IR::Instr *insertI
     }
 
     if (fContinueLabel)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8556\n");
         // JEQ $fallThough
         IR::Instr * jne = IR::BranchInstr::New(Js::OpCode::JEQ, labelHelper, this->m_func);
         insertInstr->InsertBefore(jne);
@@ -8568,7 +8568,7 @@ void LowererMD::GenerateIsDynamicObject(IR::RegOpnd *regOpnd, IR::Instr *insertI
 }
 
 void LowererMD::GenerateIsRecyclableObject(IR::RegOpnd *regOpnd, IR::Instr *insertInstr, IR::LabelInstr *labelHelper, bool checkObjectAndDynamicObject)
-{
+{LOGMEIN("LowerMDShared.cpp] 8570\n");
     // CMP [srcReg], Js::DynamicObject::`vtable'
     // JEQ $fallThough
     // MOV r1, [src1 + offset(type)]                      -- get the type id
@@ -8581,7 +8581,7 @@ void LowererMD::GenerateIsRecyclableObject(IR::RegOpnd *regOpnd, IR::Instr *inse
     IR::LabelInstr *labelFallthrough = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
 
     if (checkObjectAndDynamicObject)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8583\n");
         if (!regOpnd->IsNotTaggedValue())
         {
             GenerateObjectTest(regOpnd, insertInstr, labelHelper);
@@ -8594,27 +8594,27 @@ void LowererMD::GenerateIsRecyclableObject(IR::RegOpnd *regOpnd, IR::Instr *inse
     IR::RegOpnd * typeIdRegOpnd = IR::RegOpnd::New(TyInt32, this->m_func);
 
     //  MOV r1, [src1 + offset(type)]
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8596\n");
         IR::IndirOpnd * indirOpnd = IR::IndirOpnd::New(regOpnd, Js::RecyclableObject::GetOffsetOfType(), TyMachReg, this->m_func);
         IR::Instr * mov = IR::Instr::New(Js::OpCode::MOV, typeRegOpnd, indirOpnd, this->m_func);
         insertInstr->InsertBefore(mov);
     }
 
     //  MOV r1, [r1 + offset(typeId)]
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8603\n");
         IR::IndirOpnd * indirOpnd = IR::IndirOpnd::New(typeRegOpnd, Js::Type::GetOffsetOfTypeId(), TyInt32, this->m_func);
         IR::Instr * mov = IR::Instr::New(Js::OpCode::MOV, typeIdRegOpnd, indirOpnd, this->m_func);
         insertInstr->InsertBefore(mov);
     }
 
     // ADD r1, ~TypeIds_LastJavascriptPrimitiveType
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8610\n");
         IR::Instr * add = IR::Instr::New(Js::OpCode::ADD, typeIdRegOpnd, typeIdRegOpnd, IR::IntConstOpnd::New(~Js::TypeIds_LastJavascriptPrimitiveType, TyInt32, this->m_func, true), this->m_func);
         insertInstr->InsertBefore(add);
     }
 
     // CMP r1, (TypeIds_LastTrueJavascriptObjectType - TypeIds_LastJavascriptPrimitiveType - 1)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8616\n");
         IR::Instr * cmp = IR::Instr::New(Js::OpCode::CMP, this->m_func);
         cmp->SetSrc1(typeIdRegOpnd);
         cmp->SetSrc2(IR::IntConstOpnd::New(Js::TypeIds_LastTrueJavascriptObjectType - Js::TypeIds_LastJavascriptPrimitiveType - 1, TyInt32, this->m_func));
@@ -8622,7 +8622,7 @@ void LowererMD::GenerateIsRecyclableObject(IR::RegOpnd *regOpnd, IR::Instr *inse
     }
 
     // JA $helper
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8624\n");
         IR::Instr * jbe = IR::BranchInstr::New(Js::OpCode::JA, labelHelper, this->m_func);
         insertInstr->InsertBefore(jbe);
     }
@@ -8633,7 +8633,7 @@ void LowererMD::GenerateIsRecyclableObject(IR::RegOpnd *regOpnd, IR::Instr *inse
 
 bool
 LowererMD::GenerateLdThisCheck(IR::Instr * instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 8635\n");
     //
     // If not a recyclable object, jump to $helper
     // MOV dst, src1                                      -- return the object itself
@@ -8650,13 +8650,13 @@ LowererMD::GenerateLdThisCheck(IR::Instr * instr)
 
     // MOV dst, src1
     if (instr->GetDst() && !instr->GetDst()->IsEqual(src1))
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8652\n");
         IR::Instr * mov = IR::Instr::New(Js::OpCode::MOV, instr->GetDst(), src1, this->m_func);
         instr->InsertBefore(mov);
     }
 
     // JMP $fallthrough
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8658\n");
         IR::Instr * jmp = IR::BranchInstr::New(Js::OpCode::JMP, fallthrough, this->m_func);
         instr->InsertBefore(jmp);
     }
@@ -8684,7 +8684,7 @@ LowererMD::GenerateLdThisCheck(IR::Instr * instr)
 // $fallthru:
 bool
 LowererMD::GenerateLdThisStrict(IR::Instr* instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 8686\n");
     IR::RegOpnd * src1 = instr->GetSrc1()->AsRegOpnd();
     IR::RegOpnd * typeReg = IR::RegOpnd::New(TyMachReg, this->m_func);
     IR::LabelInstr * done = IR::LabelInstr::New(Js::OpCode::Label, m_func);
@@ -8705,7 +8705,7 @@ LowererMD::GenerateLdThisStrict(IR::Instr* instr)
         m_func));
 
     // CMP [typeReg + offsetof(Type::typeid)], TypeIds_ActivationObject
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8707\n");
         IR::Instr * cmp = IR::Instr::New(Js::OpCode::CMP, m_func);
         cmp->SetSrc1(IR::IndirOpnd::New(typeReg, Js::Type::GetOffsetOfTypeId(), TyInt32, m_func));
         cmp->SetSrc2(IR::IntConstOpnd::New(Js::TypeId::TypeIds_ActivationObject, TyInt32, m_func));
@@ -8716,7 +8716,7 @@ LowererMD::GenerateLdThisStrict(IR::Instr* instr)
     instr->InsertBefore(IR::BranchInstr::New(Js::OpCode::JEQ, helper, m_func));
 
     if (assign)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8718\n");
         // $done:
         // MOV dst, src
         instr->InsertBefore(done);
@@ -8728,7 +8728,7 @@ LowererMD::GenerateLdThisStrict(IR::Instr* instr)
 
     instr->InsertBefore(helper);
     if (instr->GetDst())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8730\n");
         // MOV dst, undefined
         instr->InsertBefore(IR::Instr::New(Js::OpCode::MOV, instr->GetDst(),
             m_lowerer->LoadLibraryValueOpnd(instr, LibraryValue::ValueUndefined), m_func));
@@ -8772,7 +8772,7 @@ LowererMD::GenerateLdThisStrict(IR::Instr* instr)
 // $done
 bool
 LowererMD::GenerateFastIsInst(IR::Instr * instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 8774\n");
     IR::LabelInstr * helper = IR::LabelInstr::New(Js::OpCode::Label, m_func, true);
     IR::LabelInstr * checkPrimType = IR::LabelInstr::New(Js::OpCode::Label, m_func, true);
     IR::LabelInstr * done = IR::LabelInstr::New(Js::OpCode::Label, m_func);
@@ -8801,7 +8801,7 @@ LowererMD::GenerateFastIsInst(IR::Instr * instr)
     Lowerer::InsertMove(instr->GetDst(), m_lowerer->LoadLibraryValueOpnd(instr, LibraryValue::ValueFalse), instr);
 
     if (functionSrc->IsRegOpnd())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8803\n");
         functionReg = functionSrc->AsRegOpnd();
     }
     else
@@ -8812,7 +8812,7 @@ LowererMD::GenerateFastIsInst(IR::Instr * instr)
     }
 
     // CMP functionReg, [&(inlineCache->function)]
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8814\n");
         IR::Instr * cmp = IR::Instr::New(Js::OpCode::CMP, m_func);
         cmp->SetSrc1(functionReg);
         cmp->SetSrc2(IR::MemRefOpnd::New(inlineCache + Js::IsInstInlineCache::OffsetOfFunction(), TyMachReg, m_func,
@@ -8825,7 +8825,7 @@ LowererMD::GenerateFastIsInst(IR::Instr * instr)
     instr->InsertBefore(IR::BranchInstr::New(Js::OpCode::JNE, helper, m_func));
 
     if (objectSrc->IsRegOpnd())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8827\n");
         objectReg = objectSrc->AsRegOpnd();
     }
     else
@@ -8845,7 +8845,7 @@ LowererMD::GenerateFastIsInst(IR::Instr * instr)
         m_func));
 
     // CMP typeReg, [&(inlineCache->type]
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8847\n");
         IR::Instr * cmp = IR::Instr::New(Js::OpCode::CMP, m_func);
         cmp->SetSrc1(typeReg);
         cmp->SetSrc2(IR::MemRefOpnd::New(inlineCache + Js::IsInstInlineCache::OffsetOfType(), TyMachReg, m_func,
@@ -8868,7 +8868,7 @@ LowererMD::GenerateFastIsInst(IR::Instr * instr)
     instr->InsertBefore(checkPrimType);
 
     // CMP [typeReg + offsetof(Type::typeid)], TypeIds_LastJavascriptPrimitiveType
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8870\n");
         IR::Instr * cmp = IR::Instr::New(Js::OpCode::CMP, m_func);
         cmp->SetSrc1(IR::IndirOpnd::New(typeReg, Js::Type::GetOffsetOfTypeId(), TyInt32, m_func));
         cmp->SetSrc2(IR::IntConstOpnd::New(Js::TypeId::TypeIds_LastJavascriptPrimitiveType, TyInt32, m_func));
@@ -8910,19 +8910,19 @@ void LowererMD::GenerateIsJsObjectTest(IR::RegOpnd* instanceReg, IR::Instr* inse
 
 IR::Instr *
 LowererMD::LowerReinterpretPrimitive(IR::Instr* instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 8912\n");
     IR::Opnd* dst = instr->GetDst();
     IR::Opnd* src = instr->GetSrc1();
     if ((dst->IsInt64() && src->IsFloat64()) ||
         (dst->IsFloat64() && src->IsInt64()))
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8917\n");
 #if _M_AMD64
         instr->m_opcode = Js::OpCode::MOVQ;
         Legalize(instr);
         return instr;
 #elif _M_IX86
         if (dst->IsInt64())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 8924\n");
             //    movd low_bits, xmm1
             //    shufps xmm1, xmm1, 1
             //    movd high_bits, xmm1
@@ -8963,15 +8963,15 @@ LowererMD::LowerReinterpretPrimitive(IR::Instr* instr)
 
 IR::Instr *
 LowererMD::LowerInt64Assign(IR::Instr * instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 8965\n");
     return this->lowererMDArch.LowerInt64Assign(instr);
 }
 
 IR::Instr *
 LowererMD::LowerToFloat(IR::Instr *instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 8971\n");
     switch (instr->m_opcode)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8973\n");
     case Js::OpCode::Add_A:
         Assert(instr->GetDst()->GetType() == instr->GetSrc1()->GetType());
         Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
@@ -8997,11 +8997,11 @@ LowererMD::LowerToFloat(IR::Instr *instr)
         break;
 
     case Js::OpCode::Neg_A:
-    {
+    {LOGMEIN("LowerMDShared.cpp] 8999\n");
         IR::Opnd *opnd;
         instr->m_opcode = Js::OpCode::XORPS;
         if (instr->GetDst()->IsFloat32())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 9003\n");
             opnd = IR::MemRefOpnd::New(m_func->GetThreadContextInfo()->GetMaskNegFloatAddr(), TyFloat32, this->m_func, IR::AddrOpndKindDynamicFloatRef);
         }
         else
@@ -9043,7 +9043,7 @@ LowererMD::LowerToFloat(IR::Instr *instr)
 
 IR::BranchInstr *
 LowererMD::LowerFloatCondBranch(IR::BranchInstr *instrBranch, bool ignoreNan)
-{
+{LOGMEIN("LowerMDShared.cpp] 9045\n");
     Js::OpCode brOpcode = Js::OpCode::InvalidOpCode;
     Js::OpCode cmpOpcode = Js::OpCode::InvalidOpCode;
     IR::Instr *instr;
@@ -9069,7 +9069,7 @@ LowererMD::LowerFloatCondBranch(IR::BranchInstr *instrBranch, bool ignoreNan)
     Assert(src1->GetType() == src2->GetType());
 
     switch (instrBranch->m_opcode)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 9071\n");
     case Js::OpCode::BrSrEq_A:
     case Js::OpCode::BrEq_A:
     case Js::OpCode::BrSrNotNeq_A:
@@ -9078,7 +9078,7 @@ LowererMD::LowerFloatCondBranch(IR::BranchInstr *instrBranch, bool ignoreNan)
         brOpcode = Js::OpCode::JEQ;
 
         if (!ignoreNan)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 9080\n");
             // Don't jump on NaN's
             labelNaN = instrBranch->GetOrCreateContinueLabel();
             addJP = true;
@@ -9093,7 +9093,7 @@ LowererMD::LowerFloatCondBranch(IR::BranchInstr *instrBranch, bool ignoreNan)
         cmpOpcode = src1->IsFloat64() ? Js::OpCode::UCOMISD : Js::OpCode::UCOMISS;
         brOpcode = Js::OpCode::JNE;
         if (!ignoreNan)
-        {
+        {LOGMEIN("LowerMDShared.cpp] 9095\n");
             // Jump on NaN's
             labelNaN = instrBranch->GetTarget();
             addJP = true;
@@ -9141,12 +9141,12 @@ LowererMD::LowerFloatCondBranch(IR::BranchInstr *instrBranch, bool ignoreNan)
 
     // if we haven't set cmpOpcode, then we are using COMISD/COMISS
     if (cmpOpcode == Js::OpCode::InvalidOpCode)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 9143\n");
         cmpOpcode = src1->IsFloat64() ? Js::OpCode::COMISD : Js::OpCode::COMISS;
     }
 
     if (swapCmpOpnds)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 9148\n");
         IR::Opnd *tmp = src1;
         src1 = src2;
         src2 = tmp;
@@ -9163,7 +9163,7 @@ LowererMD::LowerFloatCondBranch(IR::BranchInstr *instrBranch, bool ignoreNan)
     Legalize(instrCmp);
 
     if (addJP)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 9165\n");
         // JP $LabelNaN
         instr = IR::BranchInstr::New(Js::OpCode::JP, labelNaN, func);
         instrBranch->InsertBefore(instr);
@@ -9178,7 +9178,7 @@ LowererMD::LowerFloatCondBranch(IR::BranchInstr *instrBranch, bool ignoreNan)
     return instr->AsBranchInstr();
 }
 void LowererMD::HelperCallForAsmMathBuiltin(IR::Instr* instr, IR::JnHelperMethod helperMethodFloat, IR::JnHelperMethod helperMethodDouble)
-{
+{LOGMEIN("LowerMDShared.cpp] 9180\n");
     Assert(instr->m_opcode == Js::OpCode::InlineMathFloor || instr->m_opcode == Js::OpCode::InlineMathCeil || instr->m_opcode == Js::OpCode::Trunc_A || instr->m_opcode == Js::OpCode::Nearest_A);
     AssertMsg(instr->GetDst()->IsFloat(), "dst must be float.");
     Assert(instr->GetDst()->GetType() == instr->GetSrc1()->GetType());
@@ -9188,7 +9188,7 @@ void LowererMD::HelperCallForAsmMathBuiltin(IR::Instr* instr, IR::JnHelperMethod
     IR::JnHelperMethod helperMethod;
     uint dwordCount;
     if (argOpnd->IsFloat32())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 9190\n");
         helperMethod = helperMethodFloat;
         LoadFloatHelperArgument(instr, argOpnd);
         dwordCount = 1;
@@ -9208,9 +9208,9 @@ void LowererMD::HelperCallForAsmMathBuiltin(IR::Instr* instr, IR::JnHelperMethod
     this->lowererMDArch.LowerCall(instr, dwordCount);
 }
 void LowererMD::GenerateFastInlineBuiltInCall(IR::Instr* instr, IR::JnHelperMethod helperMethod)
-{
+{LOGMEIN("LowerMDShared.cpp] 9210\n");
     switch (instr->m_opcode)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 9212\n");
     case Js::OpCode::InlineMathSqrt:
         // Sqrt maps directly to the SSE2 instruction.
         // src and dst should already be XMM registers, all we need is just change the opcode.
@@ -9226,7 +9226,7 @@ void LowererMD::GenerateFastInlineBuiltInCall(IR::Instr* instr, IR::JnHelperMeth
     case Js::OpCode::InlineMathPow:
 #ifdef _M_IX86
         if (!instr->GetSrc2()->IsFloat())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 9228\n");
 #endif
             this->GenerateFastInlineBuiltInMathPow(instr);
             break;
@@ -9400,14 +9400,14 @@ void LowererMD::GenerateFastInlineBuiltInCall(IR::Instr* instr, IR::JnHelperMeth
             IR::LabelInstr * bailoutLabel = nullptr;
             bool sharedBailout = false;
             if (instr->GetDst()->IsInt32())
-            {
+            {LOGMEIN("LowerMDShared.cpp] 9402\n");
                 sharedBailout = (instr->GetBailOutInfo()->bailOutInstr != instr) ? true : false;
                 bailoutLabel = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, /*helperLabel*/true);
             }
 
             IR::Opnd * zero;
             if (src->IsFloat64())
-            {
+            {LOGMEIN("LowerMDShared.cpp] 9409\n");
                 zero = IR::MemRefOpnd::New(m_func->GetThreadContextInfo()->GetDoubleZeroAddr(), TyFloat64, this->m_func, IR::AddrOpndKindDynamicDoubleRef);
             }
             else
@@ -9419,7 +9419,7 @@ void LowererMD::GenerateFastInlineBuiltInCall(IR::Instr* instr, IR::JnHelperMeth
             IR::LabelInstr * skipRoundSd = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
 
             if(instr->m_opcode == Js::OpCode::InlineMathRound)
-            {
+            {LOGMEIN("LowerMDShared.cpp] 9421\n");
                 IR::LabelInstr * addHalfToRoundSrcLabel = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
                 IR::LabelInstr * ltHalf = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
                 IR::LabelInstr * setZero = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
@@ -9429,7 +9429,7 @@ void LowererMD::GenerateFastInlineBuiltInCall(IR::Instr* instr, IR::JnHelperMeth
                 IR::Opnd * negPointFive;
 
                 if (src->IsFloat64())
-                {
+                {LOGMEIN("LowerMDShared.cpp] 9431\n");
                     pointFive = IR::MemRefOpnd::New(m_func->GetThreadContextInfo()->GetDoublePointFiveAddr(), TyFloat64, this->m_func, IR::AddrOpndKindDynamicDoubleRef);
                     negPointFive = IR::MemRefOpnd::New(m_func->GetThreadContextInfo()->GetDoubleNegPointFiveAddr(), TyFloat64, this->m_func, IR::AddrOpndKindDynamicDoubleRef);
                 }
@@ -9445,7 +9445,7 @@ void LowererMD::GenerateFastInlineBuiltInCall(IR::Instr* instr, IR::JnHelperMeth
                 this->m_lowerer->InsertCompareBranch(pointFive, roundedFloat, Js::OpCode::BrGt_A, ltHalf, instr);
 
                 if (instr->GetDst()->IsInt32())
-                {
+                {LOGMEIN("LowerMDShared.cpp] 9447\n");
                     // if we are specializing dst to int, we will bailout on overflow so don't need upperbound check
                     // Also, we will bailout on NaN, so it doesn't need special handling either
                     // J $addHalfToRoundSrcLabel
@@ -9455,7 +9455,7 @@ void LowererMD::GenerateFastInlineBuiltInCall(IR::Instr* instr, IR::JnHelperMeth
                 {
                     IR::Opnd * twoToFraction;
                     if (src->IsFloat64())
-                    {
+                    {LOGMEIN("LowerMDShared.cpp] 9457\n");
                         twoToFraction = IR::MemRefOpnd::New(m_func->GetThreadContextInfo()->GetDoubleTwoToFractionAddr(), TyFloat64, this->m_func, IR::AddrOpndKindDynamicDoubleRef);
                     }
                     else
@@ -9475,7 +9475,7 @@ void LowererMD::GenerateFastInlineBuiltInCall(IR::Instr* instr, IR::JnHelperMeth
                 // JL $ltNegHalf
                 this->m_lowerer->InsertCompareBranch(roundedFloat, negPointFive, Js::OpCode::BrLt_A, ltNegHalf, instr);
                 if (instr->ShouldCheckForNegativeZero())
-                {
+                {LOGMEIN("LowerMDShared.cpp] 9477\n");
                     // CMP roundedFloat, 0
                     // JA $setZero
                     this->m_lowerer->InsertCompareBranch(roundedFloat, zero, Js::OpCode::BrGt_A, setZero, instr);
@@ -9499,11 +9499,11 @@ void LowererMD::GenerateFastInlineBuiltInCall(IR::Instr* instr, IR::JnHelperMeth
                 // $ltNegHalf:
                 instr->InsertBefore(ltNegHalf);
                 if (!instr->GetDst()->IsInt32())
-                {
+                {LOGMEIN("LowerMDShared.cpp] 9501\n");
                     // if we are specializing dst to int, we will bailout on overflow so don't need lowerbound check
                     IR::Opnd * negTwoToFraction;
                     if (src->IsFloat64())
-                    {
+                    {LOGMEIN("LowerMDShared.cpp] 9505\n");
                         negTwoToFraction = IR::MemRefOpnd::New(m_func->GetThreadContextInfo()->GetDoubleNegTwoToFractionAddr(), TyFloat64, this->m_func, IR::AddrOpndKindDynamicDoubleRef);
                     }
                     else
@@ -9520,7 +9520,7 @@ void LowererMD::GenerateFastInlineBuiltInCall(IR::Instr* instr, IR::JnHelperMeth
                 }
 
                 if (src->IsFloat64())
-                {
+                {LOGMEIN("LowerMDShared.cpp] 9522\n");
                     pointFive = IR::MemRefOpnd::New(m_func->GetThreadContextInfo()->GetDoublePointFiveAddr(), TyFloat64, this->m_func, IR::AddrOpndKindDynamicDoubleRef);
                 }
                 else
@@ -9538,7 +9538,7 @@ void LowererMD::GenerateFastInlineBuiltInCall(IR::Instr* instr, IR::JnHelperMeth
             }
 
             if (instr->m_opcode == Js::OpCode::InlineMathFloor && instr->GetDst()->IsInt32())
-            {
+            {LOGMEIN("LowerMDShared.cpp] 9540\n");
                 this->m_lowerer->InsertCompareBranch(roundedFloat, zero, Js::OpCode::BrGe_A, skipRoundSd, instr);
             }
 
@@ -9546,7 +9546,7 @@ void LowererMD::GenerateFastInlineBuiltInCall(IR::Instr* instr, IR::JnHelperMeth
             IR::Opnd * roundMode = nullptr;
 
             switch (instr->m_opcode)
-            {
+            {LOGMEIN("LowerMDShared.cpp] 9548\n");
 #ifdef ENABLE_WASM
             case Js::OpCode::Trunc_A:
                 roundMode = IR::IntConstOpnd::New(0x03, TyInt32, this->m_func);
@@ -9569,25 +9569,25 @@ void LowererMD::GenerateFastInlineBuiltInCall(IR::Instr* instr, IR::JnHelperMeth
             instr->InsertBefore(roundInstr);
 
             if (instr->m_opcode == Js::OpCode::InlineMathRound)
-            {
+            {LOGMEIN("LowerMDShared.cpp] 9571\n");
                 instr->InsertBefore(skipRoundSd);
             }
 
             if (instr->GetDst()->IsInt32())
-            {
+            {LOGMEIN("LowerMDShared.cpp] 9576\n");
                 if (instr->m_opcode == Js::OpCode::InlineMathFloor)
-                {
+                {LOGMEIN("LowerMDShared.cpp] 9578\n");
                     instr->InsertBefore(skipRoundSd);
                 }
 
                 //negZero bailout
                 if(instr->ShouldCheckForNegativeZero() && !negZeroCheckDone)
-                {
+                {LOGMEIN("LowerMDShared.cpp] 9584\n");
                     IR::LabelInstr * convertToInt = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
                     IR::Opnd * checkNegZeroOpnd;
 
                     if(isNotCeil)
-                    {
+                    {LOGMEIN("LowerMDShared.cpp] 9589\n");
                         checkNegZeroOpnd = src;
                     }
                     else
@@ -9607,7 +9607,7 @@ void LowererMD::GenerateFastInlineBuiltInCall(IR::Instr* instr, IR::JnHelperMeth
                 // CVT(T)SD2SI dst, srcCopy
                 IR::Instr* convertToIntInstr;
                 if (isNotCeil)
-                {
+                {LOGMEIN("LowerMDShared.cpp] 9609\n");
                     convertToIntInstr = IR::Instr::New(src->IsFloat64() ? Js::OpCode::CVTTSD2SI : Js::OpCode::CVTTSS2SI, originalDst, roundedFloat, this->m_func);
                 }
                 else
@@ -9622,7 +9622,7 @@ void LowererMD::GenerateFastInlineBuiltInCall(IR::Instr* instr, IR::JnHelperMeth
 
                 instr->InsertAfter(fallthrough);
                 if (!sharedBailout)
-                {
+                {LOGMEIN("LowerMDShared.cpp] 9624\n");
                     instr->InsertBefore(bailoutLabel);
                 }
 
@@ -9644,7 +9644,7 @@ void LowererMD::GenerateFastInlineBuiltInCall(IR::Instr* instr, IR::JnHelperMeth
 
     case Js::OpCode::InlineMathMin:
     case Js::OpCode::InlineMathMax:
-        {
+        {LOGMEIN("LowerMDShared.cpp] 9646\n");
             IR::Opnd* src1 = instr->GetSrc1();
             IR::Opnd* src2 = instr->GetSrc2();
             IR::Opnd* dst = instr->GetDst();
@@ -9657,12 +9657,12 @@ void LowererMD::GenerateFastInlineBuiltInCall(IR::Instr* instr, IR::JnHelperMeth
 
             // CMP src1, src2
             if(dst->IsInt32())
-            {
+            {LOGMEIN("LowerMDShared.cpp] 9659\n");
                 //MOV dst, src2;
                 Assert(!dst->IsEqual(src2));
                 this->m_lowerer->InsertMove(dst, src2, instr);
                 if(min)
-                {
+                {LOGMEIN("LowerMDShared.cpp] 9664\n");
                     // JLT $continueLabel
                     branchInstr = IR::BranchInstr::New(Js::OpCode::BrGt_I4, doneLabel, src1, src2, instr->m_func);
                     instr->InsertBefore(branchInstr);
@@ -9679,7 +9679,7 @@ void LowererMD::GenerateFastInlineBuiltInCall(IR::Instr* instr, IR::JnHelperMeth
                 this->m_lowerer->InsertMove(dst, src1, instr);
             }
             else if(dst->IsFloat())
-            {
+            {LOGMEIN("LowerMDShared.cpp] 9681\n");
                 //      COMISD/COMISS src1 (src2), src2 (src1)
                 //      JA $doneLabel
                 //      JEQ $labelNegZeroAndNaNCheckHelper
@@ -9710,7 +9710,7 @@ void LowererMD::GenerateFastInlineBuiltInCall(IR::Instr* instr, IR::JnHelperMeth
 
                 this->m_lowerer->InsertMove(dst, src1, instr);
                 if(min)
-                {
+                {LOGMEIN("LowerMDShared.cpp] 9712\n");
                     this->m_lowerer->InsertCompareBranch(src1, src2, Js::OpCode::BrLt_A, doneLabel, instr); // Lowering of BrLt_A for floats is done to JA with operands swapped
                 }
                 else
@@ -9729,7 +9729,7 @@ void LowererMD::GenerateFastInlineBuiltInCall(IR::Instr* instr, IR::JnHelperMeth
 
                 IR::Opnd* isNegZero;
                 if(min)
-                {
+                {LOGMEIN("LowerMDShared.cpp] 9731\n");
                     isNegZero =  IsOpndNegZero(src2, instr);
                 }
                 else
@@ -9746,7 +9746,7 @@ void LowererMD::GenerateFastInlineBuiltInCall(IR::Instr* instr, IR::JnHelperMeth
                 IR::Opnd * opndNaN = nullptr;
 
                 if (dst->IsFloat32())
-                {
+                {LOGMEIN("LowerMDShared.cpp] 9748\n");
                     opndNaN = IR::MemRefOpnd::New(m_func->GetThreadContextInfo()->GetFloatNaNAddr(), IRType::TyFloat32, this->m_func);
                 }
                 else
@@ -9769,12 +9769,12 @@ void LowererMD::GenerateFastInlineBuiltInCall(IR::Instr* instr, IR::JnHelperMeth
 }
 
 IR::Opnd* LowererMD::IsOpndNegZero(IR::Opnd* opnd, IR::Instr* instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 9771\n");
     IR::Opnd * isNegZero = IR::RegOpnd::New(TyInt32, this->m_func);
     IR::Opnd *src = opnd;
 
     if (opnd->IsFloat32())
-    {
+    {LOGMEIN("LowerMDShared.cpp] 9776\n");
         src = IR::RegOpnd::New(TyFloat64, this->m_func);
         instr->InsertBefore(IR::Instr::New(LowererMD::MDConvertFloat32ToFloat64Opcode, src, opnd, this->m_func));
     }
@@ -9788,7 +9788,7 @@ IR::Opnd* LowererMD::IsOpndNegZero(IR::Opnd* opnd, IR::Instr* instr)
 }
 
 void LowererMD::GenerateFastInlineBuiltInMathAbs(IR::Instr* inlineInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 9790\n");
     IR::Opnd* src = inlineInstr->GetSrc1();
     IR::Opnd* dst = inlineInstr->UnlinkDst();
     Assert(src);
@@ -9800,7 +9800,7 @@ void LowererMD::GenerateFastInlineBuiltInMathAbs(IR::Instr* inlineInstr)
 
     IRType srcType = src->GetType();
     if (srcType == IRType::TyInt32)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 9802\n");
         // Note: if execution gets so far, we always get (untagged) int32 here.
         // Since -x = ~x + 1, abs(x) = x, abs(-x) = -x, sign-extend(x) = 0, sign_extend(-x) = -1, where 0 <= x.
         // Then: abs(x) = sign-extend(x) XOR x - sign-extend(x)
@@ -9836,9 +9836,9 @@ void LowererMD::GenerateFastInlineBuiltInMathAbs(IR::Instr* inlineInstr)
         nextInstr->InsertBefore(tmpInstr);
     }
     else if (srcType == IRType::TyFloat64)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 9838\n");
         if (!dst->IsRegOpnd())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 9840\n");
             // MOVSD tempRegOpnd, src
             IR::RegOpnd* tempRegOpnd = IR::RegOpnd::New(nullptr, TyMachDouble, this->m_func);
             tempRegOpnd->m_isCallArg = true; // This is to make sure that lifetime of opnd is virtually extended until next CALL instr.
@@ -9863,9 +9863,9 @@ void LowererMD::GenerateFastInlineBuiltInMathAbs(IR::Instr* inlineInstr)
         }
     }
     else if (srcType == IRType::TyFloat32)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 9865\n");
         if (!dst->IsRegOpnd())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 9867\n");
             // MOVSS tempRegOpnd, src
             IR::RegOpnd* tempRegOpnd = IR::RegOpnd::New(nullptr, TyFloat32, this->m_func);
             tempRegOpnd->m_isCallArg = true; // This is to make sure that lifetime of opnd is virtually extended until next CALL instr.
@@ -9896,7 +9896,7 @@ void LowererMD::GenerateFastInlineBuiltInMathAbs(IR::Instr* inlineInstr)
 }
 
 void LowererMD::GenerateFastInlineBuiltInMathPow(IR::Instr* instr)
-{
+{LOGMEIN("LowerMDShared.cpp] 9898\n");
 #ifdef _M_IX86
     AssertMsg(!instr->GetSrc2()->IsFloat(), "Math.pow(*, double) needs customized lowering!");
 #endif
@@ -9909,7 +9909,7 @@ void LowererMD::GenerateFastInlineBuiltInMathPow(IR::Instr* instr)
         LoadHelperArgument(instr, instr->UnlinkSrc2());
 
         if (instr->GetSrc1()->IsFloat())
-        {
+        {LOGMEIN("LowerMDShared.cpp] 9911\n");
             directPowHelper = IR::HelperDirectMath_PowDoubleInt;
             LoadDoubleHelperArgument(instr, instr->UnlinkSrc1());
         }
@@ -9919,7 +9919,7 @@ void LowererMD::GenerateFastInlineBuiltInMathPow(IR::Instr* instr)
             LoadHelperArgument(instr, instr->UnlinkSrc1());
 
             if (!this->m_func->tempSymBool)
-            {
+            {LOGMEIN("LowerMDShared.cpp] 9921\n");
                 this->m_func->tempSymBool = StackSym::New(TyUint8, this->m_func);
                 this->m_func->StackAllocate(this->m_func->tempSymBool, TySize[TyUint8]);
             }
@@ -9946,13 +9946,13 @@ void LowererMD::GenerateFastInlineBuiltInMathPow(IR::Instr* instr)
 
 void
 LowererMD::FinalLower()
-{
+{LOGMEIN("LowerMDShared.cpp] 9948\n");
     this->lowererMDArch.FinalLower();
 }
 
 IR::Instr *
 LowererMD::LowerDivI4AndBailOnReminder(IR::Instr * instr, IR::LabelInstr * bailOutLabel)
-{
+{LOGMEIN("LowerMDShared.cpp] 9954\n");
     // Don't have save the operand for bailout because the lowering of IDIV don't overwrite their values
 
     //       (EDX) = CDQ
@@ -9994,7 +9994,7 @@ LowererMD::LowerDivI4AndBailOnReminder(IR::Instr * instr, IR::LabelInstr * bailO
 
 void
 LowererMD::LowerTypeof(IR::Instr * typeOfInstr)
-{
+{LOGMEIN("LowerMDShared.cpp] 9996\n");
     Func * func = typeOfInstr->m_func;
     IR::Opnd * src1 = typeOfInstr->GetSrc1();
     IR::Opnd * dst = typeOfInstr->GetDst();
@@ -10043,7 +10043,7 @@ LowererMD::LowerTypeof(IR::Instr * typeOfInstr)
     InsertCmovCC(Js::OpCode::CMOVNE, typeIdOpnd, typeIdUndefinedOpnd, typeOfInstr);
 
     if (dst->IsEqual(src1))
-    {
+    {LOGMEIN("LowerMDShared.cpp] 10045\n");
         ChangeToAssign(typeOfInstr->HoistSrc1(Js::OpCode::Ld_A));
     }
     m_lowerer->InsertMove(dst, IR::IndirOpnd::New(typeDisplayStringsArrayOpnd, typeIdOpnd, this->GetDefaultIndirScale(), TyMachPtr, func), typeOfInstr);
@@ -10068,13 +10068,13 @@ LowererMD::LowerTypeof(IR::Instr * typeOfInstr)
 
 IR::Instr*
 LowererMD::InsertCmovCC(const Js::OpCode opCode, IR::Opnd * dst, IR::Opnd* src1, IR::Instr* insertBeforeInstr, bool postRegAlloc)
-{
+{LOGMEIN("LowerMDShared.cpp] 10070\n");
     Assert(opCode > Js::OpCode::MDStart);
     Func* func = insertBeforeInstr->m_func;
 
     IR::Opnd* src2 = nullptr;
     if (!postRegAlloc)
-    {
+    {LOGMEIN("LowerMDShared.cpp] 10076\n");
         src2 = src1;
         src1 = dst;
     }

@@ -8,20 +8,20 @@ namespace Js
 {
     JavascriptNumberObject::JavascriptNumberObject(DynamicType * type)
         : DynamicObject(type), value(Js::TaggedInt::ToVarUnchecked(0))
-    {
+    {LOGMEIN("JavascriptNumberObject.cpp] 10\n");
         Assert(type->GetTypeId() == TypeIds_NumberObject);
     }
 
     JavascriptNumberObject::JavascriptNumberObject(Var value, DynamicType * type)
         : DynamicObject(type), value(value)
-    {
+    {LOGMEIN("JavascriptNumberObject.cpp] 16\n");
         Assert(type->GetTypeId() == TypeIds_NumberObject);
         Assert(TaggedInt::Is(value) || JavascriptNumber::Is(value));
         Assert(TaggedInt::Is(value) || !ThreadContext::IsOnStack(value));
     }
 
     bool JavascriptNumberObject::Is(Var aValue)
-    {
+    {LOGMEIN("JavascriptNumberObject.cpp] 23\n");
         return JavascriptOperators::GetTypeId(aValue) == TypeIds_NumberObject;
     }
 
@@ -33,14 +33,14 @@ namespace Js
     }
 
     Var JavascriptNumberObject::Unwrap() const
-    {
+    {LOGMEIN("JavascriptNumberObject.cpp] 35\n");
         return value;
     }
 
     double JavascriptNumberObject::GetValue() const
-    {
+    {LOGMEIN("JavascriptNumberObject.cpp] 40\n");
         if (TaggedInt::Is(value))
-        {
+        {LOGMEIN("JavascriptNumberObject.cpp] 42\n");
             return TaggedInt::ToDouble(value);
         }
         Assert(JavascriptNumber::Is(value));
@@ -48,7 +48,7 @@ namespace Js
     }
 
     void JavascriptNumberObject::SetValue(Var value)
-    {
+    {LOGMEIN("JavascriptNumberObject.cpp] 50\n");
         Assert(TaggedInt::Is(value) || JavascriptNumber::Is(value));
         Assert(TaggedInt::Is(value) || !ThreadContext::IsOnStack(value));
 
@@ -65,31 +65,31 @@ namespace Js
     }
 
     BOOL JavascriptNumberObject::GetDiagTypeString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptNumberObject.cpp] 67\n");
         stringBuilder->AppendCppLiteral(_u("Number, (Object)"));
         return TRUE;
     }
 
 #if ENABLE_TTD
     void JavascriptNumberObject::SetValue_TTD(Js::Var val)
-    {
+    {LOGMEIN("JavascriptNumberObject.cpp] 74\n");
         TTDAssert(TaggedInt::Is(value) || JavascriptNumber::Is(value), "Only valid values!");
 
         this->value = val;
     }
 
     void JavascriptNumberObject::MarkVisitKindSpecificPtrs(TTD::SnapshotExtractor* extractor)
-    {
+    {LOGMEIN("JavascriptNumberObject.cpp] 81\n");
         extractor->MarkVisitVar(this->value);
     }
 
     TTD::NSSnapObjects::SnapObjectType JavascriptNumberObject::GetSnapTag_TTD() const
-    {
+    {LOGMEIN("JavascriptNumberObject.cpp] 86\n");
         return TTD::NSSnapObjects::SnapObjectType::SnapBoxedValueObject;
     }
 
     void JavascriptNumberObject::ExtractSnapObjectDataInto(TTD::NSSnapObjects::SnapObject* objData, TTD::SlabAllocator& alloc)
-    {
+    {LOGMEIN("JavascriptNumberObject.cpp] 91\n");
         TTD::NSSnapObjects::StdExtractSetKindSpecificInfo<TTD::TTDVar, TTD::NSSnapObjects::SnapObjectType::SnapBoxedValueObject>(objData, this->value);
     }
 #endif

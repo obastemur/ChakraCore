@@ -10,22 +10,22 @@ namespace Js
         JavascriptEnumerator(requestContext),
         stringObject(stringObject),
         index(-1)
-    {
+    {LOGMEIN("JavascriptStringEnumerator.cpp] 12\n");
     }
 
     void JavascriptStringEnumerator::Reset()
-    {
+    {LOGMEIN("JavascriptStringEnumerator.cpp] 16\n");
         index = -1;
     }
 
 
     Var JavascriptStringEnumerator::MoveAndGetNext(PropertyId& propertyId, PropertyAttributes* attributes)
-    {
+    {LOGMEIN("JavascriptStringEnumerator.cpp] 22\n");
         propertyId = Constants::NoProperty;
         if (++index < stringObject->GetLengthAsSignedInt())
-        {
+        {LOGMEIN("JavascriptStringEnumerator.cpp] 25\n");
             if (attributes != nullptr)
-            {
+            {LOGMEIN("JavascriptStringEnumerator.cpp] 27\n");
                 *attributes = PropertyEnumerable;
             }
 

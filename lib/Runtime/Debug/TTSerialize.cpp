@@ -11,11 +11,11 @@ namespace TTD
     namespace NSTokens
     {
         void InitKeyNamesArray(const char16*** names, size_t** lengths)
-        {
+        {LOGMEIN("TTSerialize.cpp] 13\n");
             const char16** nameArray = TT_HEAP_ALLOC_ARRAY(const char16*, (uint32)Key::Count);
             size_t* lengthArray = TT_HEAP_ALLOC_ARRAY(size_t, (uint32)Key::Count);
 
-#define ENTRY_SERIALIZE_ENUM(K) { nameArray[(uint32)Key::##K] = _u(#K); lengthArray[(uint32)Key::##K] = wcslen(_u(#K)); }
+#define ENTRY_SERIALIZE_ENUM(K) {LOGMEIN("TTSerialize.cpp] 17\n"); nameArray[(uint32)Key::##K] = _u(#K); lengthArray[(uint32)Key::##K] = wcslen(_u(#K)); }
 #include "TTSerializeEnum.h"
 
             *names = nameArray;
@@ -23,7 +23,7 @@ namespace TTD
         }
 
         void CleanupKeyNamesArray(const char16*** names, size_t** lengths)
-        {
+        {LOGMEIN("TTSerialize.cpp] 25\n");
             if(*names != nullptr)
             {
                 TT_HEAP_FREE_ARRAY(char16*, *names, (uint32)NSTokens::Key::Count);
@@ -41,7 +41,7 @@ namespace TTD
     //////////////////
 
     void FileWriter::WriteBlock(const byte* buff, size_t bufflen)
-    {
+    {LOGMEIN("TTSerialize.cpp] 43\n");
         TTDAssert(bufflen != 0, "Shouldn't be writing empty blocks");
         TTDAssert(this->m_hfile != nullptr, "Trying to write to closed file.");
 
@@ -51,21 +51,21 @@ namespace TTD
 
     FileWriter::FileWriter(JsTTDStreamHandle handle, TTDWriteBytesToStreamCallback pfWrite, TTDFlushAndCloseStreamCallback pfClose)
         : m_hfile(handle), m_pfWrite(pfWrite), m_pfClose(pfClose), m_cursor(0), m_buffer(nullptr)
-    {
+    {LOGMEIN("TTSerialize.cpp] 53\n");
         this->m_buffer = TT_HEAP_ALLOC_ARRAY(byte, TTD_SERIALIZATION_BUFFER_SIZE);
     }
 
     FileWriter::~FileWriter()
-    {
+    {LOGMEIN("TTSerialize.cpp] 58\n");
         this->FlushAndClose();
     }
 
     void FileWriter::FlushAndClose()
-    {
+    {LOGMEIN("TTSerialize.cpp] 63\n");
         if(this->m_hfile != nullptr)
-        {
+        {LOGMEIN("TTSerialize.cpp] 65\n");
             if(this->m_cursor != 0)
-            {
+            {LOGMEIN("TTSerialize.cpp] 67\n");
                 this->WriteBlock(this->m_buffer, this->m_cursor);
                 this->m_cursor = 0;
             }
@@ -82,67 +82,67 @@ namespace TTD
     }
 
     void FileWriter::WriteLengthValue(uint32 length, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 84\n");
         this->WriteKey(NSTokens::Key::count, separator);
         this->WriteNakedUInt32(length);
     }
 
     void FileWriter::WriteSequenceStart_DefaultKey(NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 90\n");
         this->WriteKey(NSTokens::Key::values, separator);
         this->WriteSequenceStart();
     }
 
     void FileWriter::WriteRecordStart_DefaultKey(NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 96\n");
         this->WriteKey(NSTokens::Key::entry, separator);
         this->WriteRecordStart();
     }
 
     void FileWriter::WriteNull(NSTokens::Key key, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 102\n");
         this->WriteKey(key, separator);
         this->WriteNakedNull();
     }
 
     void FileWriter::WriteInt32(NSTokens::Key key, int32 val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 108\n");
         this->WriteKey(key, separator);
         this->WriteNakedInt32(val);
     }
 
     void FileWriter::WriteUInt32(NSTokens::Key key, uint32 val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 114\n");
         this->WriteKey(key, separator);
         this->WriteNakedUInt32(val);
     }
 
     void FileWriter::WriteInt64(NSTokens::Key key, int64 val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 120\n");
         this->WriteKey(key, separator);
         this->WriteNakedInt64(val);
     }
 
     void FileWriter::WriteUInt64(NSTokens::Key key, uint64 val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 126\n");
         this->WriteKey(key, separator);
         this->WriteNakedUInt64(val);
     }
 
     void FileWriter::WriteDouble(NSTokens::Key key, double val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 132\n");
         this->WriteKey(key, separator);
         this->WriteNakedDouble(val);
     }
 
     void FileWriter::WriteAddr(NSTokens::Key key, TTD_PTR_ID val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 138\n");
         this->WriteKey(key, separator);
         this->WriteNakedAddr(val);
     }
 
     void FileWriter::WriteLogTag(NSTokens::Key key, TTD_LOG_PTR_ID val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 144\n");
         this->WriteKey(key, separator);
         this->WriteNakedLogTag(val);
     }
@@ -150,13 +150,13 @@ namespace TTD
     ////
 
     void FileWriter::WriteString(NSTokens::Key key, const TTString& val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 152\n");
         this->WriteKey(key, separator);
         this->WriteNakedString(val);
     }
 
     void FileWriter::WriteWellKnownToken(NSTokens::Key key, TTD_WELLKNOWN_TOKEN val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 158\n");
         this->WriteKey(key, separator);
         this->WriteNakedWellKnownToken(val);
     }
@@ -165,7 +165,7 @@ namespace TTD
 
     TextFormatWriter::TextFormatWriter(JsTTDStreamHandle handle, TTDWriteBytesToStreamCallback pfWrite, TTDFlushAndCloseStreamCallback pfClose)
         : FileWriter(handle, pfWrite, pfClose), m_keyNameArray(nullptr), m_keyNameLengthArray(nullptr), m_indentSize(0)
-    {
+    {LOGMEIN("TTSerialize.cpp] 167\n");
         byte byteOrderMarker[2] = { 0xFF, 0xFE };
         this->WriteRawByteBuff(byteOrderMarker, 2);
 
@@ -173,21 +173,21 @@ namespace TTD
     }
 
     TextFormatWriter::~TextFormatWriter()
-    {
+    {LOGMEIN("TTSerialize.cpp] 175\n");
         NSTokens::CleanupKeyNamesArray(&(this->m_keyNameArray), &(this->m_keyNameLengthArray));
     }
 
     void TextFormatWriter::WriteSeperator(NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 180\n");
         if((separator & NSTokens::Separator::CommaSeparator) == NSTokens::Separator::CommaSeparator)
-        {
+        {LOGMEIN("TTSerialize.cpp] 182\n");
             this->WriteRawChar(_u(','));
 
             if((separator & NSTokens::Separator::BigSpaceSeparator) == NSTokens::Separator::BigSpaceSeparator)
-            {
+            {LOGMEIN("TTSerialize.cpp] 186\n");
                 this->WriteRawChar(_u('\n'));
                 for(uint32 i = 0; i < this->m_indentSize; ++i)
-                {
+                {LOGMEIN("TTSerialize.cpp] 189\n");
                     this->WriteRawChar(_u(' '));
                     this->WriteRawChar(_u(' '));
                 }
@@ -199,10 +199,10 @@ namespace TTD
         }
 
         if(separator == NSTokens::Separator::BigSpaceSeparator)
-        {
+        {LOGMEIN("TTSerialize.cpp] 201\n");
             this->WriteRawChar(_u('\n'));
             for(uint32 i = 0; i < this->m_indentSize; ++i)
-            {
+            {LOGMEIN("TTSerialize.cpp] 204\n");
                 this->WriteRawChar(_u(' '));
                 this->WriteRawChar(_u(' '));
             }
@@ -210,7 +210,7 @@ namespace TTD
     }
 
     void TextFormatWriter::WriteKey(NSTokens::Key key, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 212\n");
         this->WriteSeperator(separator);
 
         TTDAssert(1 <= (uint32)key && (uint32)key < (uint32)NSTokens::Key::Count, "Key not in valid range!");
@@ -222,13 +222,13 @@ namespace TTD
     }
 
     void TextFormatWriter::WriteSequenceStart(NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 224\n");
         this->WriteSeperator(separator);
         this->WriteRawChar(_u('['));
     }
 
     void TextFormatWriter::WriteSequenceEnd(NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 230\n");
         TTDAssert(separator == NSTokens::Separator::NoSeparator || separator == NSTokens::Separator::BigSpaceSeparator, "Shouldn't be anything else!!!");
 
         this->WriteSeperator(separator);
@@ -236,13 +236,13 @@ namespace TTD
     }
 
     void TextFormatWriter::WriteRecordStart(NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 238\n");
         this->WriteSeperator(separator);
         this->WriteRawChar(_u('{'));
     }
 
     void TextFormatWriter::WriteRecordEnd(NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 244\n");
         TTDAssert(separator == NSTokens::Separator::NoSeparator || separator == NSTokens::Separator::BigSpaceSeparator, "Shouldn't be anything else!!!");
 
         this->WriteSeperator(separator);
@@ -250,33 +250,33 @@ namespace TTD
     }
 
     void TextFormatWriter::AdjustIndent(int32 delta)
-    {
+    {LOGMEIN("TTSerialize.cpp] 252\n");
         this->m_indentSize += delta;
     }
 
     void TextFormatWriter::SetIndent(uint32 depth)
-    {
+    {LOGMEIN("TTSerialize.cpp] 257\n");
         this->m_indentSize = depth;
     }
 
     void TextFormatWriter::WriteNakedNull(NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 262\n");
         this->WriteSeperator(separator);
 
         this->WriteRawCharBuff(_u("null"), 4);
     }
 
     void TextFormatWriter::WriteNakedByte(byte val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 269\n");
         this->WriteSeperator(separator);
         this->WriteFormattedCharData(_u("%I32u"), (uint32)val);
     }
 
     void TextFormatWriter::WriteBool(NSTokens::Key key, bool val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 275\n");
         this->WriteKey(key, separator);
         if(val)
-        {
+        {LOGMEIN("TTSerialize.cpp] 278\n");
             this->WriteRawCharBuff(_u("true"), 4);
         }
         else
@@ -286,61 +286,61 @@ namespace TTD
     }
 
     void TextFormatWriter::WriteNakedInt32(int32 val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 288\n");
         this->WriteSeperator(separator);
         this->WriteFormattedCharData(_u("%I32i"), val);
     }
 
     void TextFormatWriter::WriteNakedUInt32(uint32 val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 294\n");
         this->WriteSeperator(separator);
         this->WriteFormattedCharData(_u("%I32u"), val);
     }
 
     void TextFormatWriter::WriteNakedInt64(int64 val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 300\n");
         this->WriteSeperator(separator);
         this->WriteFormattedCharData(_u("%I64i"), val);
     }
 
     void TextFormatWriter::WriteNakedUInt64(uint64 val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 306\n");
         this->WriteSeperator(separator);
         this->WriteFormattedCharData(_u("%I64u"), val);
     }
 
     void TextFormatWriter::WriteNakedDouble(double val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 312\n");
         this->WriteSeperator(separator);
 
         if(Js::JavascriptNumber::IsNan(val))
-        {
+        {LOGMEIN("TTSerialize.cpp] 316\n");
             this->WriteRawCharBuff(_u("#nan"), 4);
         }
         else if(Js::JavascriptNumber::IsPosInf(val))
-        {
+        {LOGMEIN("TTSerialize.cpp] 320\n");
             this->WriteRawCharBuff(_u("#+inf"), 5);
         }
         else if(Js::JavascriptNumber::IsNegInf(val))
-        {
+        {LOGMEIN("TTSerialize.cpp] 324\n");
             this->WriteRawCharBuff(_u("#-inf"), 5);
         }
         else if(Js::JavascriptNumber::MAX_VALUE == val)
-        {
+        {LOGMEIN("TTSerialize.cpp] 328\n");
             this->WriteRawCharBuff(_u("#ub"), 3);
         }
         else if(Js::JavascriptNumber::MIN_VALUE == val)
-        {
+        {LOGMEIN("TTSerialize.cpp] 332\n");
             this->WriteRawCharBuff(_u("#lb"), 3);
         }
         else if(Js::Math::EPSILON == val)
-        {
+        {LOGMEIN("TTSerialize.cpp] 336\n");
             this->WriteRawCharBuff(_u("#ep"), 3);
         }
         else
         {
             if(INT32_MAX <= val && val <= INT32_MAX && floor(val) == val)
-            {
+            {LOGMEIN("TTSerialize.cpp] 342\n");
                 this->WriteFormattedCharData(_u("%I64i"), (int64)val);
             }
             else
@@ -356,19 +356,19 @@ namespace TTD
     }
 
     void TextFormatWriter::WriteNakedAddr(TTD_PTR_ID val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 358\n");
         this->WriteSeperator(separator);
         this->WriteFormattedCharData(_u("*%I64u"), val);
     }
 
     void TextFormatWriter::WriteNakedLogTag(TTD_LOG_PTR_ID val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 364\n");
         this->WriteSeperator(separator);
         this->WriteFormattedCharData(_u("!%I64i"), val);
     }
 
     void TextFormatWriter::WriteNakedTag(uint32 tagvalue, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 370\n");
         this->WriteSeperator(separator);
         this->WriteFormattedCharData(_u("$%I32i"), tagvalue);
     }
@@ -376,11 +376,11 @@ namespace TTD
     ////
 
     void TextFormatWriter::WriteNakedString(const TTString& val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 378\n");
         this->WriteSeperator(separator);
 
         if(IsNullPtrTTString(val))
-        {
+        {LOGMEIN("TTSerialize.cpp] 382\n");
             this->WriteNakedNull();
         }
         else
@@ -394,7 +394,7 @@ namespace TTD
     }
 
     void TextFormatWriter::WriteNakedWellKnownToken(TTD_WELLKNOWN_TOKEN val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 396\n");
         this->WriteSeperator(separator);
 
         this->WriteRawChar(_u('~'));
@@ -403,7 +403,7 @@ namespace TTD
     }
 
     void TextFormatWriter::WriteInlineCode(_In_reads_(length) const char16* code, uint32 length, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 405\n");
         this->WriteSeperator(separator);
 
         this->WriteFormattedCharData(_u("@%I32u"), length);
@@ -414,7 +414,7 @@ namespace TTD
     }
 
     void TextFormatWriter::WriteInlinePropertyRecordName(_In_reads_(length) const char16* pname, uint32 length, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 416\n");
         this->WriteSeperator(separator);
 
         this->WriteFormattedCharData(_u("@%I32u"), length);
@@ -426,135 +426,135 @@ namespace TTD
 
     BinaryFormatWriter::BinaryFormatWriter(JsTTDStreamHandle handle, TTDWriteBytesToStreamCallback pfWrite, TTDFlushAndCloseStreamCallback pfClose)
         : FileWriter(handle, pfWrite, pfClose)
-    {
+    {LOGMEIN("TTSerialize.cpp] 428\n");
         ;
     }
 
     BinaryFormatWriter::~BinaryFormatWriter()
-    {
+    {LOGMEIN("TTSerialize.cpp] 433\n");
         ;
     }
 
     void BinaryFormatWriter::WriteSeperator(NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 438\n");
         if((separator & NSTokens::Separator::CommaSeparator) == NSTokens::Separator::CommaSeparator)
-        {
+        {LOGMEIN("TTSerialize.cpp] 440\n");
             this->WriteRawByteBuff_Fixed<byte>((byte)NSTokens::Separator::CommaSeparator);
         }
     }
 
     void BinaryFormatWriter::WriteKey(NSTokens::Key key, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 446\n");
         this->WriteSeperator(separator);
         this->WriteRawByteBuff_Fixed<byte>((byte)key);
     }
 
     void BinaryFormatWriter::WriteSequenceStart(NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 452\n");
         this->WriteSeperator(separator);
         this->WriteRawByteBuff_Fixed<byte>('[');
     }
 
     void BinaryFormatWriter::WriteSequenceEnd(NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 458\n");
         this->WriteSeperator(separator);
         this->WriteRawByteBuff_Fixed<byte>(']');
     }
 
     void BinaryFormatWriter::WriteRecordStart(NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 464\n");
         this->WriteSeperator(separator);
         this->WriteRawByteBuff_Fixed<byte>('{');
     }
 
     void BinaryFormatWriter::WriteRecordEnd(NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 470\n");
         this->WriteSeperator(separator);
         this->WriteRawByteBuff_Fixed<byte>('}');
     }
 
     void BinaryFormatWriter::AdjustIndent(int32 delta)
-    {
+    {LOGMEIN("TTSerialize.cpp] 476\n");
         ;
     }
 
     void BinaryFormatWriter::SetIndent(uint32 depth)
-    {
+    {LOGMEIN("TTSerialize.cpp] 481\n");
         ;
     }
 
     void BinaryFormatWriter::WriteNakedNull(NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 486\n");
         this->WriteSeperator(separator);
         this->WriteRawByteBuff_Fixed<byte>((byte)0);
     }
 
     void BinaryFormatWriter::WriteNakedByte(byte val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 492\n");
         this->WriteSeperator(separator);
         this->WriteRawByteBuff_Fixed<byte>(val);
     }
 
     void BinaryFormatWriter::WriteBool(NSTokens::Key key, bool val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 498\n");
         this->WriteKey(key, separator);
         this->WriteRawByteBuff_Fixed<byte>(val ? (byte)1 : (byte)0);
     }
 
     void BinaryFormatWriter::WriteNakedInt32(int32 val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 504\n");
         this->WriteSeperator(separator);
         this->WriteRawByteBuff_Fixed<int32>(val);
     }
 
     void BinaryFormatWriter::WriteNakedUInt32(uint32 val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 510\n");
         this->WriteSeperator(separator);
         this->WriteRawByteBuff_Fixed<uint32>(val);
     }
 
     void BinaryFormatWriter::WriteNakedInt64(int64 val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 516\n");
         this->WriteSeperator(separator);
         this->WriteRawByteBuff_Fixed<int64>(val);
     }
 
     void BinaryFormatWriter::WriteNakedUInt64(uint64 val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 522\n");
         this->WriteSeperator(separator);
         this->WriteRawByteBuff_Fixed<uint64>(val);
     }
 
     void BinaryFormatWriter::WriteNakedDouble(double val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 528\n");
         this->WriteSeperator(separator);
         this->WriteRawByteBuff_Fixed<double>(val);
     }
 
     void BinaryFormatWriter::WriteNakedAddr(TTD_PTR_ID val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 534\n");
         this->WriteSeperator(separator);
         this->WriteRawByteBuff_Fixed<TTD_PTR_ID>(val);
     }
 
     void BinaryFormatWriter::WriteNakedLogTag(TTD_LOG_PTR_ID val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 540\n");
         this->WriteSeperator(separator);
         this->WriteRawByteBuff_Fixed<TTD_LOG_PTR_ID>(val);
     }
 
     void BinaryFormatWriter::WriteNakedTag(uint32 tagvalue, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 546\n");
         this->WriteSeperator(separator);
         this->WriteRawByteBuff_Fixed<uint32>(tagvalue);
     }
 
     void BinaryFormatWriter::WriteNakedString(const TTString& val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 552\n");
         this->WriteSeperator(separator);
 
         if(IsNullPtrTTString(val))
-        {
+        {LOGMEIN("TTSerialize.cpp] 556\n");
             this->WriteRawByteBuff_Fixed<uint32>(UINT32_MAX);
         }
         else
@@ -565,7 +565,7 @@ namespace TTD
     }
 
     void BinaryFormatWriter::WriteNakedWellKnownToken(TTD_WELLKNOWN_TOKEN val, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 567\n");
         this->WriteSeperator(separator);
 
         uint32 charLen = (uint32)wcslen(val);
@@ -574,7 +574,7 @@ namespace TTD
     }
 
     void BinaryFormatWriter::WriteInlineCode(_In_reads_(length) const char16* code, uint32 length, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 576\n");
         this->WriteSeperator(separator);
 
         this->WriteRawByteBuff_Fixed<uint32>(length);
@@ -582,7 +582,7 @@ namespace TTD
     }
 
     void BinaryFormatWriter::WriteInlinePropertyRecordName(_In_reads_(length) const char16* pname, uint32 length, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 584\n");
         this->WriteSeperator(separator);
 
         this->WriteRawByteBuff_Fixed<uint32>(length);
@@ -592,7 +592,7 @@ namespace TTD
     //////////////////
 
     void FileReader::ReadBlock(byte* buff, size_t* readSize)
-    {
+    {LOGMEIN("TTSerialize.cpp] 594\n");
         TTDAssert(this->m_hfile != nullptr, "Trying to read a invalid file.");
 
         size_t bwp = 0;
@@ -603,14 +603,14 @@ namespace TTD
 
     FileReader::FileReader(JsTTDStreamHandle handle, TTDReadBytesFromStreamCallback pfRead, TTDFlushAndCloseStreamCallback pfClose)
         : m_hfile(handle), m_pfRead(pfRead), m_pfClose(pfClose), m_peekChar(-1), m_cursor(0), m_buffCount(0), m_buffer(nullptr)
-    {
+    {LOGMEIN("TTSerialize.cpp] 605\n");
         this->m_buffer = TT_HEAP_ALLOC_ARRAY(byte, TTD_SERIALIZATION_BUFFER_SIZE);
     }
 
     FileReader::~FileReader()
-    {
+    {LOGMEIN("TTSerialize.cpp] 610\n");
         if(this->m_hfile != nullptr)
-        {
+        {LOGMEIN("TTSerialize.cpp] 612\n");
             this->m_pfClose(this->m_hfile, true, false);
             this->m_hfile = nullptr;
         }
@@ -623,67 +623,67 @@ namespace TTD
     }
 
     uint32 FileReader::ReadLengthValue(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 625\n");
         this->ReadKey(NSTokens::Key::count, readSeparator);
         return this->ReadNakedUInt32();
     }
 
     void FileReader::ReadSequenceStart_WDefaultKey(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 631\n");
         this->ReadKey(NSTokens::Key::values, readSeparator);
         this->ReadSequenceStart();
     }
 
     void FileReader::ReadRecordStart_WDefaultKey(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 637\n");
         this->ReadKey(NSTokens::Key::entry, readSeparator);
         this->ReadRecordStart();
     }
 
     void FileReader::ReadNull(NSTokens::Key keyCheck, bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 643\n");
         this->ReadKey(keyCheck, readSeparator);
         this->ReadNakedNull();
     }
 
     int32 FileReader::ReadInt32(NSTokens::Key keyCheck, bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 649\n");
         this->ReadKey(keyCheck, readSeparator);
         return this->ReadNakedInt32();
     }
 
     uint32 FileReader::ReadUInt32(NSTokens::Key keyCheck, bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 655\n");
         this->ReadKey(keyCheck, readSeparator);
         return this->ReadNakedUInt32();
     }
 
     int64 FileReader::ReadInt64(NSTokens::Key keyCheck, bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 661\n");
         this->ReadKey(keyCheck, readSeparator);
         return this->ReadNakedInt64();
     }
 
     uint64 FileReader::ReadUInt64(NSTokens::Key keyCheck, bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 667\n");
         this->ReadKey(keyCheck, readSeparator);
         return this->ReadNakedUInt64();
     }
 
     double FileReader::ReadDouble(NSTokens::Key keyCheck, bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 673\n");
         this->ReadKey(keyCheck, readSeparator);
         return this->ReadNakedDouble();
     }
 
     TTD_PTR_ID FileReader::ReadAddr(NSTokens::Key keyCheck, bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 679\n");
         this->ReadKey(keyCheck, readSeparator);
         return this->ReadNakedAddr();
     }
 
     TTD_LOG_PTR_ID FileReader::ReadLogTag(NSTokens::Key keyCheck, bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 685\n");
         this->ReadKey(keyCheck, readSeparator);
         return this->ReadNakedLogTag();
     }
@@ -691,14 +691,14 @@ namespace TTD
     //////////////////
 
     NSTokens::ParseTokenKind TextFormatReader::Scan(JsUtil::List<char16, HeapAllocator>& charList)
-    {
+    {LOGMEIN("TTSerialize.cpp] 693\n");
         char16 c = _u('\0');
         charList.Clear();
 
         while(this->ReadRawChar(&c))
-        {
+        {LOGMEIN("TTSerialize.cpp] 698\n");
             switch(c)
-            {
+            {LOGMEIN("TTSerialize.cpp] 700\n");
             case 0:
                 return NSTokens::ParseTokenKind::Error; //we shouldn't hit EOF explicitly here
             case _u('\t'):
@@ -762,7 +762,7 @@ namespace TTD
     }
 
     NSTokens::ParseTokenKind TextFormatReader::ScanKey(JsUtil::List<char16, HeapAllocator>& charList)
-    {
+    {LOGMEIN("TTSerialize.cpp] 764\n");
         charList.Clear();
 
         char16 c = _u('\0');
@@ -770,9 +770,9 @@ namespace TTD
 
         //Read off any whitespace
         while(this->PeekRawChar(&c))
-        {
+        {LOGMEIN("TTSerialize.cpp] 772\n");
             if((c != _u('\t')) & (c != _u('\r')) & (c != _u('\n')) & (c != _u(' ')))
-            {
+            {LOGMEIN("TTSerialize.cpp] 774\n");
                 break;
             }
 
@@ -780,15 +780,15 @@ namespace TTD
         }
 
         while(this->PeekRawChar(&c))
-        {
+        {LOGMEIN("TTSerialize.cpp] 782\n");
             if(c == 0 || charList.Count() > 256)
-            {
+            {LOGMEIN("TTSerialize.cpp] 784\n");
                 //we reached the end of the file or the "key" is much longer than it should be
                 return NSTokens::ParseTokenKind::Error;
             }
 
             if(c == _u(':'))
-            {
+            {LOGMEIN("TTSerialize.cpp] 790\n");
                 //end of the string
                 endFound = true;
                 break;
@@ -801,7 +801,7 @@ namespace TTD
         }
 
         if(!endFound)
-        {
+        {LOGMEIN("TTSerialize.cpp] 803\n");
             // no ending found 
             return NSTokens::ParseTokenKind::Error;
         }
@@ -810,67 +810,67 @@ namespace TTD
     }
 
     NSTokens::ParseTokenKind TextFormatReader::ScanSpecialNumber()
-    {
+    {LOGMEIN("TTSerialize.cpp] 812\n");
         char16 c = _u('\0');
         bool ok = this->ReadRawChar(&c);
 
         if(ok && c == _u('n'))
-        {
+        {LOGMEIN("TTSerialize.cpp] 817\n");
             ok = this->ReadRawChar(&c);
             if(!ok || c != _u('a'))
-            {
+            {LOGMEIN("TTSerialize.cpp] 820\n");
                 return NSTokens::ParseTokenKind::Error;
             }
 
             ok = this->ReadRawChar(&c);
             if(!ok || c != _u('n'))
-            {
+            {LOGMEIN("TTSerialize.cpp] 826\n");
                 return NSTokens::ParseTokenKind::Error;
             }
 
             return NSTokens::ParseTokenKind::NaN;
         }
         else if(ok && (c == _u('+') || c == _u('-')))
-        {
+        {LOGMEIN("TTSerialize.cpp] 833\n");
             char16 signc = c;
 
             ok = this->ReadRawChar(&c);
             if(!ok || c != _u('i'))
-            {
+            {LOGMEIN("TTSerialize.cpp] 838\n");
                 return NSTokens::ParseTokenKind::Error;
             }
 
             ok = this->ReadRawChar(&c);
             if(!ok || c != _u('n'))
-            {
+            {LOGMEIN("TTSerialize.cpp] 844\n");
                 return NSTokens::ParseTokenKind::Error;
             }
 
             ok = this->ReadRawChar(&c);
             if(!ok || c != _u('f'))
-            {
+            {LOGMEIN("TTSerialize.cpp] 850\n");
                 return NSTokens::ParseTokenKind::Error;
             }
 
             return (signc == _u('+')) ? NSTokens::ParseTokenKind::PosInfty : NSTokens::ParseTokenKind::NegInfty;
         }
         else if(ok && (c == _u('u') || c == _u('l')))
-        {
+        {LOGMEIN("TTSerialize.cpp] 857\n");
             char16 limitc = c;
 
             ok = this->ReadRawChar(&c);
             if(!ok || c != _u('b'))
-            {
+            {LOGMEIN("TTSerialize.cpp] 862\n");
                 return NSTokens::ParseTokenKind::Error;
             }
 
             return (limitc == _u('u')) ? NSTokens::ParseTokenKind::UpperBound : NSTokens::ParseTokenKind::LowerBound;
         }
         else if(ok && c == _u('e'))
-        {
+        {LOGMEIN("TTSerialize.cpp] 869\n");
             ok = this->ReadRawChar(&c);
             if(!ok || c != _u('p'))
-            {
+            {LOGMEIN("TTSerialize.cpp] 872\n");
                 return NSTokens::ParseTokenKind::Error;
             }
 
@@ -883,10 +883,10 @@ namespace TTD
     }
 
     NSTokens::ParseTokenKind TextFormatReader::ScanNumber(JsUtil::List<char16, HeapAllocator>& charList)
-    {
+    {LOGMEIN("TTSerialize.cpp] 885\n");
         char16 c = _u('\0');
         while(this->PeekRawChar(&c) && ((_u('0') <= c && c <= _u('9')) || (c == _u('.'))))
-        {
+        {LOGMEIN("TTSerialize.cpp] 888\n");
             this->ReadRawChar(&c);
             charList.Add(c);
         }
@@ -899,7 +899,7 @@ namespace TTD
         const char16* start = charList.GetBuffer();
         double val = Js::NumberUtilities::StrToDbl<char16>(start, &end, likelyint);
         if(start == end)
-        {
+        {LOGMEIN("TTSerialize.cpp] 901\n");
             return NSTokens::ParseTokenKind::Error;
         }
         TTDAssert(!Js::JavascriptNumber::IsNan(val), "Bad result from string to double conversion");
@@ -908,10 +908,10 @@ namespace TTD
     }
 
     NSTokens::ParseTokenKind TextFormatReader::ScanAddress(JsUtil::List<char16, HeapAllocator>& charList)
-    {
+    {LOGMEIN("TTSerialize.cpp] 910\n");
         NSTokens::ParseTokenKind okNumber = this->ScanNumber(charList);
         if(okNumber != NSTokens::ParseTokenKind::Number)
-        {
+        {LOGMEIN("TTSerialize.cpp] 913\n");
             return NSTokens::ParseTokenKind::Error;
         }
 
@@ -919,10 +919,10 @@ namespace TTD
     }
 
     NSTokens::ParseTokenKind TextFormatReader::ScanLogTag(JsUtil::List<char16, HeapAllocator>& charList)
-    {
+    {LOGMEIN("TTSerialize.cpp] 921\n");
         NSTokens::ParseTokenKind okNumber = this->ScanNumber(charList);
         if(okNumber != NSTokens::ParseTokenKind::Number)
-        {
+        {LOGMEIN("TTSerialize.cpp] 924\n");
             return NSTokens::ParseTokenKind::Error;
         }
 
@@ -930,10 +930,10 @@ namespace TTD
     }
 
     NSTokens::ParseTokenKind TextFormatReader::ScanEnumTag(JsUtil::List<char16, HeapAllocator>& charList)
-    {
+    {LOGMEIN("TTSerialize.cpp] 932\n");
         NSTokens::ParseTokenKind okNumber = this->ScanNumber(charList);
         if(okNumber != NSTokens::ParseTokenKind::Number)
-        {
+        {LOGMEIN("TTSerialize.cpp] 935\n");
             return NSTokens::ParseTokenKind::Error;
         }
 
@@ -941,19 +941,19 @@ namespace TTD
     }
 
     NSTokens::ParseTokenKind TextFormatReader::ScanWellKnownToken(JsUtil::List<char16, HeapAllocator>& charList)
-    {
+    {LOGMEIN("TTSerialize.cpp] 943\n");
         char16 c = _u('\0');
         bool endFound = false;
 
         while(this->ReadRawChar(&c))
-        {
+        {LOGMEIN("TTSerialize.cpp] 948\n");
             if(c == 0)
-            {
+            {LOGMEIN("TTSerialize.cpp] 950\n");
                 return NSTokens::ParseTokenKind::Error;
             }
 
             if(c == _u('~'))
-            {
+            {LOGMEIN("TTSerialize.cpp] 955\n");
                 //end of the string
                 endFound = true;
                 break;
@@ -965,7 +965,7 @@ namespace TTD
         }
 
         if(!endFound)
-        {
+        {LOGMEIN("TTSerialize.cpp] 967\n");
             // no ending found 
             return NSTokens::ParseTokenKind::Error;
         }
@@ -974,14 +974,14 @@ namespace TTD
     }
 
     NSTokens::ParseTokenKind TextFormatReader::ScanString(JsUtil::List<char16, HeapAllocator>& charList)
-    {
+    {LOGMEIN("TTSerialize.cpp] 976\n");
         bool ok = false;
         char16 c = _u('\0');
 
         //first we should find a number
         NSTokens::ParseTokenKind okNumber = this->ScanNumber(charList);
         if(okNumber != NSTokens::ParseTokenKind::Number)
-        {
+        {LOGMEIN("TTSerialize.cpp] 983\n");
             return NSTokens::ParseTokenKind::Error;
         }
 
@@ -992,17 +992,17 @@ namespace TTD
         //read the lead "\""
         ok = this->ReadRawChar(&c);
         if(!ok || c != _u('\"'))
-        {
+        {LOGMEIN("TTSerialize.cpp] 994\n");
             return NSTokens::ParseTokenKind::Error;
         }
 
         //read that many chars and check for the terminating "\""
         charList.Clear();
         for(uint32 i = 0; i < length; ++i)
-        {
+        {LOGMEIN("TTSerialize.cpp] 1001\n");
             ok = this->ReadRawChar(&c);
             if(!ok)
-            {
+            {LOGMEIN("TTSerialize.cpp] 1004\n");
                 return NSTokens::ParseTokenKind::Error;
             }
             charList.Add(c);
@@ -1010,7 +1010,7 @@ namespace TTD
 
         ok = this->ReadRawChar(&c);
         if(!ok || c != _u('\"'))
-        {
+        {LOGMEIN("TTSerialize.cpp] 1012\n");
             return NSTokens::ParseTokenKind::Error;
         }
 
@@ -1018,83 +1018,83 @@ namespace TTD
     }
 
     NSTokens::ParseTokenKind TextFormatReader::ScanNakedString(char16 leadChar)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1020\n");
         bool ok = false;
         char16 c = _u('\0');
 
         if(leadChar == _u('n'))
-        {
+        {LOGMEIN("TTSerialize.cpp] 1025\n");
             //check for "null"
 
             ok = this->ReadRawChar(&c);
             if(!ok || c != _u('u'))
-            {
+            {LOGMEIN("TTSerialize.cpp] 1030\n");
                 return NSTokens::ParseTokenKind::Error;
             }
 
             ok = this->ReadRawChar(&c);
             if(!ok || c != _u('l'))
-            {
+            {LOGMEIN("TTSerialize.cpp] 1036\n");
                 return NSTokens::ParseTokenKind::Error;
             }
 
             ok = this->ReadRawChar(&c);
             if(!ok || c != _u('l'))
-            {
+            {LOGMEIN("TTSerialize.cpp] 1042\n");
                 return NSTokens::ParseTokenKind::Error;
             }
 
             return NSTokens::ParseTokenKind::Null;
         }
         else if(leadChar == _u('t'))
-        {
+        {LOGMEIN("TTSerialize.cpp] 1049\n");
             //check for "true"
 
             ok = this->ReadRawChar(&c);
             if(!ok || c != _u('r'))
-            {
+            {LOGMEIN("TTSerialize.cpp] 1054\n");
                 return NSTokens::ParseTokenKind::Error;
             }
 
             ok = this->ReadRawChar(&c);
             if(!ok || c != _u('u'))
-            {
+            {LOGMEIN("TTSerialize.cpp] 1060\n");
                 return NSTokens::ParseTokenKind::Error;
             }
 
             ok = this->ReadRawChar(&c);
             if(!ok || c != _u('e'))
-            {
+            {LOGMEIN("TTSerialize.cpp] 1066\n");
                 return NSTokens::ParseTokenKind::Error;
             }
 
             return NSTokens::ParseTokenKind::True;
         }
         else if(leadChar == _u('f'))
-        {
+        {LOGMEIN("TTSerialize.cpp] 1073\n");
             //check for "false"
 
             ok = this->ReadRawChar(&c);
             if(!ok || c != _u('a'))
-            {
+            {LOGMEIN("TTSerialize.cpp] 1078\n");
                 return NSTokens::ParseTokenKind::Error;
             }
 
             ok = this->ReadRawChar(&c);
             if(!ok || c != _u('l'))
-            {
+            {LOGMEIN("TTSerialize.cpp] 1084\n");
                 return NSTokens::ParseTokenKind::Error;
             }
 
             ok = this->ReadRawChar(&c);
             if(!ok || c != _u('s'))
-            {
+            {LOGMEIN("TTSerialize.cpp] 1090\n");
                 return NSTokens::ParseTokenKind::Error;
             }
 
             ok = this->ReadRawChar(&c);
             if(!ok || c != _u('e'))
-            {
+            {LOGMEIN("TTSerialize.cpp] 1096\n");
                 return NSTokens::ParseTokenKind::Error;
             }
 
@@ -1107,21 +1107,21 @@ namespace TTD
     }
 
     int64 TextFormatReader::ReadIntFromCharArray(const char16* buff)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1109\n");
         int64 value = 0;
         int64 multiplier = 1;
 
         int64 sign = 1;
         int32 lastIdx = 0;
         if(buff[0] == _u('-'))
-        {
+        {LOGMEIN("TTSerialize.cpp] 1116\n");
             sign = -1;
             lastIdx = 1;
         }
 
         int32 digitCount = (int32)wcslen(buff);
         for(int32 i = digitCount - 1; i >= lastIdx; --i)
-        {
+        {LOGMEIN("TTSerialize.cpp] 1123\n");
             char16 digit = buff[i];
             uint32 digitValue = (digit - _u('0'));
 
@@ -1133,13 +1133,13 @@ namespace TTD
     }
 
     uint64 TextFormatReader::ReadUIntFromCharArray(const char16* buff)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1135\n");
         uint64 value = 0;
         uint64 multiplier = 1;
 
         int32 digitCount = (int32)wcslen(buff);
         for(int32 i = digitCount - 1; i >= 0; --i)
-        {
+        {LOGMEIN("TTSerialize.cpp] 1141\n");
             char16 digit = buff[i];
             uint32 digitValue = (digit - _u('0'));
 
@@ -1151,7 +1151,7 @@ namespace TTD
     }
 
     double TextFormatReader::ReadDoubleFromCharArray(const char16* buff)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1153\n");
         bool likelytInt; //we don't care about this as we already know it is a double
         const char16* end;
         double val = Js::NumberUtilities::StrToDbl<char16>(buff, &end, likelytInt);
@@ -1162,7 +1162,7 @@ namespace TTD
 
     TextFormatReader::TextFormatReader(JsTTDStreamHandle handle, TTDReadBytesFromStreamCallback pfRead, TTDFlushAndCloseStreamCallback pfClose)
         : FileReader(handle, pfRead, pfClose), m_charListPrimary(&HeapAllocator::Instance), m_charListOpt(&HeapAllocator::Instance), m_charListDiscard(&HeapAllocator::Instance), m_keyNameArray(nullptr), m_keyNameLengthArray(nullptr)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1164\n");
         byte byteOrderMarker[2] = { 0x0, 0x0 };
         this->ReadBytesInto(byteOrderMarker, 2);
         TTDAssert(byteOrderMarker[0] == 0xFF && byteOrderMarker[1] == 0xFE, "Byte Order Marker is incorrect!");
@@ -1171,21 +1171,21 @@ namespace TTD
     }
 
     TextFormatReader::~TextFormatReader()
-    {
+    {LOGMEIN("TTSerialize.cpp] 1173\n");
         NSTokens::CleanupKeyNamesArray(&(this->m_keyNameArray), &(this->m_keyNameLengthArray));
     }
 
     void TextFormatReader::ReadSeperator(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1178\n");
         if(readSeparator)
-        {
+        {LOGMEIN("TTSerialize.cpp] 1180\n");
             NSTokens::ParseTokenKind tok = this->Scan(this->m_charListDiscard);
             TTDAssert(tok == NSTokens::ParseTokenKind::Comma, "Error in parse.");
         }
     }
 
     void TextFormatReader::ReadKey(NSTokens::Key keyCheck, bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1187\n");
         this->ReadSeperator(readSeparator);
 
         //We do a special scan here for a key (instead of the more general scan we call elsewhere)
@@ -1206,7 +1206,7 @@ namespace TTD
     }
 
     void TextFormatReader::ReadSequenceStart(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1208\n");
         this->ReadSeperator(readSeparator);
 
         NSTokens::ParseTokenKind tok = this->Scan(this->m_charListDiscard);
@@ -1214,13 +1214,13 @@ namespace TTD
     }
 
     void TextFormatReader::ReadSequenceEnd()
-    {
+    {LOGMEIN("TTSerialize.cpp] 1216\n");
         NSTokens::ParseTokenKind tok = this->Scan(this->m_charListDiscard);
         TTDAssert(tok == NSTokens::ParseTokenKind::RBrack, "Error in parse.");
     }
 
     void TextFormatReader::ReadRecordStart(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1222\n");
         this->ReadSeperator(readSeparator);
 
         NSTokens::ParseTokenKind tok = this->Scan(this->m_charListDiscard);
@@ -1228,13 +1228,13 @@ namespace TTD
     }
 
     void TextFormatReader::ReadRecordEnd()
-    {
+    {LOGMEIN("TTSerialize.cpp] 1230\n");
         NSTokens::ParseTokenKind tok = this->Scan(this->m_charListDiscard);
         TTDAssert(tok == NSTokens::ParseTokenKind::RCurly, "Error in parse.");
     }
 
     void TextFormatReader::ReadNakedNull(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1236\n");
         this->ReadSeperator(readSeparator);
 
         NSTokens::ParseTokenKind tok = this->Scan(this->m_charListDiscard);
@@ -1242,7 +1242,7 @@ namespace TTD
     }
 
     byte TextFormatReader::ReadNakedByte(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1244\n");
         this->ReadSeperator(readSeparator);
 
         NSTokens::ParseTokenKind tok = this->Scan(this->m_charListOpt);
@@ -1255,7 +1255,7 @@ namespace TTD
     }
 
     bool TextFormatReader::ReadBool(NSTokens::Key keyCheck, bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1257\n");
         this->ReadKey(keyCheck, readSeparator);
 
         NSTokens::ParseTokenKind tok = this->Scan(this->m_charListOpt);
@@ -1265,7 +1265,7 @@ namespace TTD
     }
 
     int32 TextFormatReader::ReadNakedInt32(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1267\n");
         this->ReadSeperator(readSeparator);
 
         NSTokens::ParseTokenKind tok = this->Scan(this->m_charListOpt);
@@ -1278,7 +1278,7 @@ namespace TTD
     }
 
     uint32 TextFormatReader::ReadNakedUInt32(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1280\n");
         this->ReadSeperator(readSeparator);
 
         NSTokens::ParseTokenKind tok = this->Scan(this->m_charListOpt);
@@ -1291,7 +1291,7 @@ namespace TTD
     }
 
     int64 TextFormatReader::ReadNakedInt64(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1293\n");
         this->ReadSeperator(readSeparator);
 
         NSTokens::ParseTokenKind tok = this->Scan(this->m_charListOpt);
@@ -1301,7 +1301,7 @@ namespace TTD
     }
 
     uint64 TextFormatReader::ReadNakedUInt64(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1303\n");
         this->ReadSeperator(readSeparator);
 
         NSTokens::ParseTokenKind tok = this->Scan(this->m_charListOpt);
@@ -1311,14 +1311,14 @@ namespace TTD
     }
 
     double TextFormatReader::ReadNakedDouble(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1313\n");
         this->ReadSeperator(readSeparator);
 
         NSTokens::ParseTokenKind tok = this->Scan(this->m_charListOpt);
 
         double res = -1.0;
         switch(tok)
-        {
+        {LOGMEIN("TTSerialize.cpp] 1320\n");
         case TTD::NSTokens::ParseTokenKind::NaN:
             res = Js::JavascriptNumber::NaN;
             break;
@@ -1338,7 +1338,7 @@ namespace TTD
             res = Js::Math::EPSILON;
             break;
         default:
-        {
+        {LOGMEIN("TTSerialize.cpp] 1340\n");
             TTDAssert(tok == NSTokens::ParseTokenKind::Number, "Error in parse.");
 
             res = this->ReadDoubleFromCharArray(this->m_charListOpt.GetBuffer());
@@ -1351,7 +1351,7 @@ namespace TTD
     }
 
     TTD_PTR_ID TextFormatReader::ReadNakedAddr(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1353\n");
         this->ReadSeperator(readSeparator);
 
         NSTokens::ParseTokenKind tok = this->Scan(this->m_charListOpt);
@@ -1361,7 +1361,7 @@ namespace TTD
     }
 
     TTD_LOG_PTR_ID TextFormatReader::ReadNakedLogTag(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1363\n");
         this->ReadSeperator(readSeparator);
 
         NSTokens::ParseTokenKind tok = this->Scan(this->m_charListOpt);
@@ -1371,7 +1371,7 @@ namespace TTD
     }
 
     uint32 TextFormatReader::ReadNakedTag(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1373\n");
         this->ReadSeperator(readSeparator);
 
         NSTokens::ParseTokenKind tok = this->Scan(this->m_charListOpt);
@@ -1386,14 +1386,14 @@ namespace TTD
     ////
 
     void TextFormatReader::ReadNakedString(SlabAllocator& alloc, TTString& into, bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1388\n");
         this->ReadSeperator(readSeparator);
 
         NSTokens::ParseTokenKind tok = this->Scan(this->m_charListOpt);
         TTDAssert(tok == NSTokens::ParseTokenKind::String || tok == NSTokens::ParseTokenKind::Null, "Error in parse.");
 
         if(tok == NSTokens::ParseTokenKind::Null)
-        {
+        {LOGMEIN("TTSerialize.cpp] 1395\n");
             alloc.CopyNullTermStringInto(nullptr, into);
         }
         else
@@ -1403,14 +1403,14 @@ namespace TTD
     }
 
     void TextFormatReader::ReadNakedString(UnlinkableSlabAllocator& alloc, TTString& into, bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1405\n");
         this->ReadSeperator(readSeparator);
 
         NSTokens::ParseTokenKind tok = this->Scan(this->m_charListOpt);
         TTDAssert(tok == NSTokens::ParseTokenKind::String || tok == NSTokens::ParseTokenKind::Null, "Error in parse.");
 
         if(tok == NSTokens::ParseTokenKind::Null)
-        {
+        {LOGMEIN("TTSerialize.cpp] 1412\n");
             alloc.CopyNullTermStringInto(nullptr, into);
         }
         else
@@ -1420,7 +1420,7 @@ namespace TTD
     }
 
     TTD_WELLKNOWN_TOKEN TextFormatReader::ReadNakedWellKnownToken(SlabAllocator& alloc, bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1422\n");
         this->ReadSeperator(readSeparator);
 
         NSTokens::ParseTokenKind tok = this->Scan(this->m_charListOpt);
@@ -1431,7 +1431,7 @@ namespace TTD
     }
 
     TTD_WELLKNOWN_TOKEN TextFormatReader::ReadNakedWellKnownToken(UnlinkableSlabAllocator& alloc, bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1433\n");
         this->ReadSeperator(readSeparator);
 
         NSTokens::ParseTokenKind tok = this->Scan(this->m_charListOpt);
@@ -1442,7 +1442,7 @@ namespace TTD
     }
 
     void TextFormatReader::ReadInlineCode(_Out_writes_(length) char16* code, uint32 length, bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1444\n");
         this->ReadSeperator(readSeparator);
 
         NSTokens::ParseTokenKind tok = this->Scan(this->m_charListOpt);
@@ -1453,19 +1453,19 @@ namespace TTD
 
     BinaryFormatReader::BinaryFormatReader(JsTTDStreamHandle handle, TTDReadBytesFromStreamCallback pfRead, TTDFlushAndCloseStreamCallback pfClose)
         : FileReader(handle, pfRead, pfClose)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1455\n");
         ;
     }
 
     BinaryFormatReader::~BinaryFormatReader()
-    {
+    {LOGMEIN("TTSerialize.cpp] 1460\n");
         ;
     }
 
     void BinaryFormatReader::ReadSeperator(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1465\n");
         if(readSeparator)
-        {
+        {LOGMEIN("TTSerialize.cpp] 1467\n");
             byte sep;
             this->ReadBytesInto_Fixed<byte>(sep);
 
@@ -1474,7 +1474,7 @@ namespace TTD
     }
 
     void BinaryFormatReader::ReadKey(NSTokens::Key keyCheck, bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1476\n");
         this->ReadSeperator(readSeparator);
 
         byte key;
@@ -1484,7 +1484,7 @@ namespace TTD
     }
 
     void BinaryFormatReader::ReadSequenceStart(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1486\n");
         this->ReadSeperator(readSeparator);
 
         byte tok;
@@ -1494,7 +1494,7 @@ namespace TTD
     }
 
     void BinaryFormatReader::ReadSequenceEnd()
-    {
+    {LOGMEIN("TTSerialize.cpp] 1496\n");
         byte tok;
         this->ReadBytesInto_Fixed<byte>(tok);
 
@@ -1502,7 +1502,7 @@ namespace TTD
     }
 
     void BinaryFormatReader::ReadRecordStart(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1504\n");
         this->ReadSeperator(readSeparator);
 
         byte tok;
@@ -1512,7 +1512,7 @@ namespace TTD
     }
 
     void BinaryFormatReader::ReadRecordEnd()
-    {
+    {LOGMEIN("TTSerialize.cpp] 1514\n");
         byte tok;
         this->ReadBytesInto_Fixed<byte>(tok);
 
@@ -1520,7 +1520,7 @@ namespace TTD
     }
 
     void BinaryFormatReader::ReadNakedNull(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1522\n");
         this->ReadSeperator(readSeparator);
 
         byte tok;
@@ -1530,7 +1530,7 @@ namespace TTD
     }
 
     byte BinaryFormatReader::ReadNakedByte(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1532\n");
         this->ReadSeperator(readSeparator);
 
         byte b;
@@ -1540,7 +1540,7 @@ namespace TTD
     }
 
     bool BinaryFormatReader::ReadBool(NSTokens::Key keyCheck, bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1542\n");
         this->ReadKey(keyCheck, readSeparator);
 
         byte b;
@@ -1550,7 +1550,7 @@ namespace TTD
     }
 
     int32 BinaryFormatReader::ReadNakedInt32(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1552\n");
         this->ReadSeperator(readSeparator);
 
         int32 i;
@@ -1560,7 +1560,7 @@ namespace TTD
     }
 
     uint32 BinaryFormatReader::ReadNakedUInt32(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1562\n");
         this->ReadSeperator(readSeparator);
 
         uint32 i;
@@ -1570,7 +1570,7 @@ namespace TTD
     }
 
     int64 BinaryFormatReader::ReadNakedInt64(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1572\n");
         this->ReadSeperator(readSeparator);
 
         int64 i;
@@ -1580,7 +1580,7 @@ namespace TTD
     }
 
     uint64 BinaryFormatReader::ReadNakedUInt64(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1582\n");
         this->ReadSeperator(readSeparator);
 
         uint64 i;
@@ -1590,7 +1590,7 @@ namespace TTD
     }
 
     double BinaryFormatReader::ReadNakedDouble(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1592\n");
         this->ReadSeperator(readSeparator);
 
         double d;
@@ -1600,7 +1600,7 @@ namespace TTD
     }
 
     TTD_PTR_ID BinaryFormatReader::ReadNakedAddr(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1602\n");
         this->ReadSeperator(readSeparator);
 
         TTD_PTR_ID addr;
@@ -1610,7 +1610,7 @@ namespace TTD
     }
 
     TTD_LOG_PTR_ID BinaryFormatReader::ReadNakedLogTag(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1612\n");
         this->ReadSeperator(readSeparator);
 
         TTD_LOG_PTR_ID tag;
@@ -1620,7 +1620,7 @@ namespace TTD
     }
 
     uint32 BinaryFormatReader::ReadNakedTag(bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1622\n");
         this->ReadSeperator(readSeparator);
 
         uint32 tag;
@@ -1630,14 +1630,14 @@ namespace TTD
     }
 
     void BinaryFormatReader::ReadNakedString(SlabAllocator& alloc, TTString& into, bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1632\n");
         this->ReadSeperator(readSeparator);
 
         uint32 sizeField;
         this->ReadBytesInto_Fixed<uint32>(sizeField);
 
         if(sizeField == UINT32_MAX)
-        {
+        {LOGMEIN("TTSerialize.cpp] 1639\n");
             alloc.CopyNullTermStringInto(nullptr, into);
         }
         else
@@ -1649,14 +1649,14 @@ namespace TTD
     }
 
     void BinaryFormatReader::ReadNakedString(UnlinkableSlabAllocator& alloc, TTString& into, bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1651\n");
         this->ReadSeperator(readSeparator);
 
         uint32 sizeField;
         this->ReadBytesInto_Fixed<uint32>(sizeField);
 
         if(sizeField == UINT32_MAX)
-        {
+        {LOGMEIN("TTSerialize.cpp] 1658\n");
             alloc.CopyNullTermStringInto(nullptr, into);
         }
         else
@@ -1668,7 +1668,7 @@ namespace TTD
     }
 
     TTD_WELLKNOWN_TOKEN BinaryFormatReader::ReadNakedWellKnownToken(SlabAllocator& alloc, bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1670\n");
         this->ReadSeperator(readSeparator);
 
         uint32 charLen;
@@ -1682,7 +1682,7 @@ namespace TTD
     }
 
     TTD_WELLKNOWN_TOKEN BinaryFormatReader::ReadNakedWellKnownToken(UnlinkableSlabAllocator& alloc, bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1684\n");
         this->ReadSeperator(readSeparator);
 
         uint32 charLen;
@@ -1696,7 +1696,7 @@ namespace TTD
     }
 
     void BinaryFormatReader::ReadInlineCode(_Out_writes_(length) char16* code, uint32 length, bool readSeparator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1698\n");
         uint32 wlen = 0;
         this->ReadBytesInto_Fixed<uint32>(wlen);
         TTDAssert(wlen == length, "Not exepcted string length!!!");
@@ -1708,33 +1708,33 @@ namespace TTD
 
 #if ENABLE_OBJECT_SOURCE_TRACKING
     bool IsDiagnosticOriginInformationValid(const DiagnosticOrigin& info)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1710\n");
         return info.SourceLine != -1;
     }
 
     void InitializeDiagnosticOriginInformation(DiagnosticOrigin& info)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1715\n");
         info.SourceLine = -1;
         info.EventTime = 0;
         info.TimeHash = 0;
     }
 
     void CopyDiagnosticOriginInformation(DiagnosticOrigin& infoInto, const DiagnosticOrigin& infoFrom)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1722\n");
         infoInto.SourceLine = infoFrom.SourceLine;
         infoInto.EventTime = infoFrom.EventTime;
         infoInto.TimeHash = infoFrom.TimeHash;
     }
 
     void SetDiagnosticOriginInformation(DiagnosticOrigin& info, uint32 sourceLine, uint64 eTime, uint64 fTime, uint64 lTime)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1729\n");
         info.SourceLine = sourceLine;
         info.EventTime = (uint32)eTime;
         info.TimeHash = ((uint32)(lTime << 32)) | ((uint32)fTime);
     }
 
     void EmitDiagnosticOriginInformation(const DiagnosticOrigin& info, FileWriter* writer, NSTokens::Separator separator)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1736\n");
         writer->WriteRecordStart(separator);
         writer->WriteInt32(NSTokens::Key::line, info.SourceLine);
         writer->WriteUInt32(NSTokens::Key::eventTime, info.EventTime, NSTokens::Separator::CommaSeparator);
@@ -1743,7 +1743,7 @@ namespace TTD
     }
 
     void ParseDiagnosticOriginInformation(DiagnosticOrigin& info, bool readSeperator, FileReader* reader)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1745\n");
         reader->ReadRecordStart(readSeperator);
         info.SourceLine = reader->ReadInt32(NSTokens::Key::line);
         info.EventTime = reader->ReadUInt32(NSTokens::Key::eventTime, true);
@@ -1754,22 +1754,22 @@ namespace TTD
 
 #if ENABLE_BASIC_TRACE || ENABLE_FULL_BC_TRACE
     void TraceLogger::AppendText(char* text, uint32 length)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1756\n");
         this->EnsureSpace(length);
         this->AppendRaw(text, length);
     }
 
     void TraceLogger::AppendText(const char16* text, uint32 length)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1762\n");
         this->EnsureSpace(length);
         this->AppendRaw(text, length);
     }
 
     void TraceLogger::AppendIndent()
-    {
+    {LOGMEIN("TTSerialize.cpp] 1768\n");
         uint32 totalIndent = this->m_indentSize * 2;
         while(totalIndent > TRACE_LOGGER_INDENT_BUFFER_SIZE)
-        {
+        {LOGMEIN("TTSerialize.cpp] 1771\n");
             this->EnsureSpace(TRACE_LOGGER_INDENT_BUFFER_SIZE);
             this->AppendRaw(this->m_indentBuffer, TRACE_LOGGER_INDENT_BUFFER_SIZE);
 
@@ -1781,15 +1781,15 @@ namespace TTD
     }
 
     void TraceLogger::AppendString(char* text)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1783\n");
         uint32 length = (uint32)strlen(text);
         this->AppendText(text, length);
     }
 
     void TraceLogger::AppendBool(bool bval)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1789\n");
         if(bval)
-        {
+        {LOGMEIN("TTSerialize.cpp] 1791\n");
             this->AppendLiteral("true");
         }
         else
@@ -1799,29 +1799,29 @@ namespace TTD
     }
 
     void TraceLogger::AppendInteger(int64 ival)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1801\n");
         this->EnsureSpace(64);
         this->m_currLength += sprintf_s(this->m_buffer + this->m_currLength, 64, "%I64i", ival);
     }
 
     void TraceLogger::AppendUnsignedInteger(uint64 ival)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1807\n");
         this->EnsureSpace(64);
         this->m_currLength += sprintf_s(this->m_buffer + this->m_currLength, 64, "%I64u", ival);
     }
 
     void TraceLogger::AppendIntegerHex(int64 ival)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1813\n");
         this->EnsureSpace(64);
         this->m_currLength += sprintf_s(this->m_buffer + this->m_currLength, 64, "0x%I64x", ival);
     }
 
     void TraceLogger::AppendDouble(double dval)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1819\n");
         this->EnsureSpace(64);
 
         if(INT32_MIN <= dval && dval <= INT32_MAX &&  floor(dval) == dval)
-        {
+        {LOGMEIN("TTSerialize.cpp] 1823\n");
             this->m_currLength += sprintf_s(this->m_buffer + this->m_currLength, 64, "%I64i", (int64)dval);
         }
         else
@@ -1832,7 +1832,7 @@ namespace TTD
 
     TraceLogger::TraceLogger(FILE* outfile)
         : m_currLength(0), m_indentSize(0), m_outfile(outfile)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1834\n");
         this->m_buffer = (char*)malloc(TRACE_LOGGER_BUFFER_SIZE);
         TTDAssert(this->m_buffer != nullptr, "Malloc failure in tracing code.");
 
@@ -1844,11 +1844,11 @@ namespace TTD
     }
 
     TraceLogger::~TraceLogger()
-    {
+    {LOGMEIN("TTSerialize.cpp] 1846\n");
         this->ForceFlush();
 
         if(this->m_outfile != stdout)
-        {
+        {LOGMEIN("TTSerialize.cpp] 1850\n");
             fclose(this->m_outfile);
         }
 
@@ -1857,9 +1857,9 @@ namespace TTD
     }
 
     void TraceLogger::ForceFlush()
-    {
+    {LOGMEIN("TTSerialize.cpp] 1859\n");
         if(this->m_currLength != 0)
-        {
+        {LOGMEIN("TTSerialize.cpp] 1861\n");
             fwrite(this->m_buffer, sizeof(char), this->m_currLength, this->m_outfile);
 
             this->m_currLength = 0;
@@ -1869,7 +1869,7 @@ namespace TTD
     }
 
     void TraceLogger::WriteEnumAction(int64 eTime, BOOL returnCode, Js::PropertyId pid, Js::PropertyAttributes attrib, Js::JavascriptString* pname)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1871\n");
         this->AppendLiteral("EnumAction(time: ");
         this->AppendInteger(eTime);
         this->AppendLiteral(", rCode: ");
@@ -1878,7 +1878,7 @@ namespace TTD
         this->AppendInteger(pid);
 
         if(returnCode)
-        {
+        {LOGMEIN("TTSerialize.cpp] 1880\n");
             this->AppendLiteral(", attrib: ");
             this->AppendInteger(attrib);
             this->AppendLiteral(", name: ");
@@ -1889,16 +1889,16 @@ namespace TTD
     }
 
     void TraceLogger::WriteVar(Js::Var var, bool skipStringContents)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1891\n");
         if(var == nullptr)
-        {
+        {LOGMEIN("TTSerialize.cpp] 1893\n");
             this->AppendLiteral("nullptr");
         }
         else
         {
             Js::TypeId tid = Js::JavascriptOperators::GetTypeId(var);
             switch(tid)
-            {
+            {LOGMEIN("TTSerialize.cpp] 1900\n");
             case Js::TypeIds_Undefined:
                 this->AppendLiteral("undefined");
                 break;
@@ -1923,9 +1923,9 @@ namespace TTD
             case Js::TypeIds_String:
                 this->AppendLiteral("'");
                 if(!skipStringContents)
-                {
+                {LOGMEIN("TTSerialize.cpp] 1925\n");
                     if(Js::JavascriptString::FromVar(var)->GetLength() <= 40)
-                    {
+                    {LOGMEIN("TTSerialize.cpp] 1927\n");
                         this->AppendText(Js::JavascriptString::FromVar(var)->GetSz(), Js::JavascriptString::FromVar(var)->GetLength());
                     }
                     else
@@ -1947,10 +1947,10 @@ namespace TTD
             {
 #if ENABLE_OBJECT_SOURCE_TRACKING
                 if(tid > Js::TypeIds_LastStaticType)
-                {
+                {LOGMEIN("TTSerialize.cpp] 1949\n");
                     const Js::DynamicObject* dynObj = Js::DynamicObject::FromVar(var);
                     if(!IsDiagnosticOriginInformationValid(dynObj->TTDDiagOriginInfo))
-                    {
+                    {LOGMEIN("TTSerialize.cpp] 1952\n");
                         this->AppendLiteral("*");
                     }
                     else
@@ -1979,7 +1979,7 @@ namespace TTD
     }
 
     void TraceLogger::WriteCall(Js::JavascriptFunction* function, bool isExternal, uint32 argc, Js::Var* argv, int64 etime)
-    {
+    {LOGMEIN("TTSerialize.cpp] 1981\n");
         Js::JavascriptString* displayName = function->GetDisplayName();
 
         this->AppendIndent();
@@ -1988,7 +1988,7 @@ namespace TTD
         this->AppendText(nameStr, nameLength);
 
         if(isExternal)
-        {
+        {LOGMEIN("TTSerialize.cpp] 1990\n");
             this->AppendLiteral("^(");
         }
         else
@@ -1997,9 +1997,9 @@ namespace TTD
         }
 
         for(uint32 i = 0; i < argc; ++i)
-        {
+        {LOGMEIN("TTSerialize.cpp] 1999\n");
             if(i != 0)
-            {
+            {LOGMEIN("TTSerialize.cpp] 2001\n");
                 this->AppendLiteral(", ");
             }
 
@@ -2017,7 +2017,7 @@ namespace TTD
     }
 
     void TraceLogger::WriteReturn(Js::JavascriptFunction* function, Js::Var res, int64 etime)
-    {
+    {LOGMEIN("TTSerialize.cpp] 2019\n");
         this->m_indentSize--;
 
         Js::JavascriptString* displayName = function->GetDisplayName();
@@ -2035,7 +2035,7 @@ namespace TTD
     }
 
     void TraceLogger::WriteReturnException(Js::JavascriptFunction* function, int64 etime)
-    {
+    {LOGMEIN("TTSerialize.cpp] 2037\n");
         this->m_indentSize--;
 
         Js::JavascriptString* displayName = function->GetDisplayName();
@@ -2052,7 +2052,7 @@ namespace TTD
     }
 
     void TraceLogger::WriteStmtIndex(uint32 line, uint32 column)
-    {
+    {LOGMEIN("TTSerialize.cpp] 2054\n");
         this->AppendIndent();
 
         this->EnsureSpace(128);
@@ -2066,7 +2066,7 @@ namespace TTD
     }
 
     void TraceLogger::WriteTraceValue(Js::Var var)
-    {
+    {LOGMEIN("TTSerialize.cpp] 2068\n");
         this->WriteVar(var, true);
         this->WriteLiteralMsg("\n");
     }

@@ -8,11 +8,11 @@ namespace Js
 {
     JavascriptMap::JavascriptMap(DynamicType* type)
         : DynamicObject(type)
-    {
+    {LOGMEIN("JavascriptMap.cpp] 10\n");
     }
 
     JavascriptMap* JavascriptMap::New(ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptMap.cpp] 14\n");
         JavascriptMap* map = scriptContext->GetLibrary()->CreateMap();
         map->map = RecyclerNew(scriptContext->GetRecycler(), MapDataMap, scriptContext->GetRecycler());
 
@@ -20,7 +20,7 @@ namespace Js
     }
 
     bool JavascriptMap::Is(Var aValue)
-    {
+    {LOGMEIN("JavascriptMap.cpp] 22\n");
         return JavascriptOperators::GetTypeId(aValue) == TypeIds_Map;
     }
 
@@ -32,7 +32,7 @@ namespace Js
     }
 
     JavascriptMap::MapDataList::Iterator JavascriptMap::GetIterator()
-    {
+    {LOGMEIN("JavascriptMap.cpp] 34\n");
         return list.GetIterator();
     }
 
@@ -53,7 +53,7 @@ namespace Js
         JavascriptMap* mapObject = nullptr;
 
         if (callInfo.Flags & CallFlags_New)
-        {
+        {LOGMEIN("JavascriptMap.cpp] 55\n");
             mapObject = library->CreateMap();
         }
         else
@@ -68,30 +68,30 @@ namespace Js
         RecyclableObject* adder = nullptr;
 
         if (JavascriptConversion::CheckObjectCoercible(iterable, scriptContext))
-        {
+        {LOGMEIN("JavascriptMap.cpp] 70\n");
             iter = JavascriptOperators::GetIterator(iterable, scriptContext);
             Var adderVar = JavascriptOperators::GetProperty(mapObject, PropertyIds::set, scriptContext);
             if (!JavascriptConversion::IsCallable(adderVar))
-            {
+            {LOGMEIN("JavascriptMap.cpp] 74\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedFunction);
             }
             adder = RecyclableObject::FromVar(adderVar);
         }
 
         if (mapObject->map != nullptr)
-        {
+        {LOGMEIN("JavascriptMap.cpp] 81\n");
             JavascriptError::ThrowTypeErrorVar(scriptContext, JSERR_ObjectIsAlreadyInitialized, _u("Map"), _u("Map"));
         }
 
         mapObject->map = RecyclerNew(scriptContext->GetRecycler(), MapDataMap, scriptContext->GetRecycler());
 
         if (iter != nullptr)
-        {
+        {LOGMEIN("JavascriptMap.cpp] 88\n");
             Var undefined = library->GetUndefined();
 
             JavascriptOperators::DoIteratorStepAndValue(iter, scriptContext, [&](Var nextItem) {
                 if (!JavascriptOperators::IsObject(nextItem))
-                {
+                {LOGMEIN("JavascriptMap.cpp] 93\n");
                     JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedObject);
                 }
 
@@ -100,12 +100,12 @@ namespace Js
                 Var key, value;
 
                 if (!JavascriptOperators::GetItem(obj, 0u, &key, scriptContext))
-                {
+                {LOGMEIN("JavascriptMap.cpp] 102\n");
                     key = undefined;
                 }
 
                 if (!JavascriptOperators::GetItem(obj, 1u, &value, scriptContext))
-                {
+                {LOGMEIN("JavascriptMap.cpp] 107\n");
                     value = undefined;
                 }
 
@@ -127,7 +127,7 @@ namespace Js
         ScriptContext* scriptContext = function->GetScriptContext();
 
         if (!JavascriptMap::Is(args[0]))
-        {
+        {LOGMEIN("JavascriptMap.cpp] 129\n");
             JavascriptError::ThrowTypeErrorVar(scriptContext, JSERR_NeedObjectOfType, _u("Map.prototype.clear"), _u("Map"));
         }
 
@@ -146,7 +146,7 @@ namespace Js
         ScriptContext* scriptContext = function->GetScriptContext();
 
         if (!JavascriptMap::Is(args[0]))
-        {
+        {LOGMEIN("JavascriptMap.cpp] 148\n");
             JavascriptError::ThrowTypeErrorVar(scriptContext, JSERR_NeedObjectOfType, _u("Map.prototype.delete"), _u("Map"));
         }
 
@@ -168,14 +168,14 @@ namespace Js
         AUTO_TAG_NATIVE_LIBRARY_ENTRY(function, callInfo, _u("Map.prototype.forEach"));
 
         if (!JavascriptMap::Is(args[0]))
-        {
+        {LOGMEIN("JavascriptMap.cpp] 170\n");
             JavascriptError::ThrowTypeErrorVar(scriptContext, JSERR_NeedObjectOfType, _u("Map.prototype.forEach"), _u("Map"));
         }
 
         JavascriptMap* map = JavascriptMap::FromVar(args[0]);
 
         if (args.Info.Count < 2 || !JavascriptConversion::IsCallable(args[1]))
-        {
+        {LOGMEIN("JavascriptMap.cpp] 177\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedFunction, _u("Map.prototype.forEach"));
         }
         RecyclableObject* callBackFn = RecyclableObject::FromVar(args[1]);
@@ -185,7 +185,7 @@ namespace Js
         auto iterator = map->GetIterator();
 
         while (iterator.Next())
-        {
+        {LOGMEIN("JavascriptMap.cpp] 187\n");
             Var key = iterator.Current().Key();
             Var value = iterator.Current().Value();
 
@@ -203,7 +203,7 @@ namespace Js
         ScriptContext* scriptContext = function->GetScriptContext();
 
         if (!JavascriptMap::Is(args[0]))
-        {
+        {LOGMEIN("JavascriptMap.cpp] 205\n");
             JavascriptError::ThrowTypeErrorVar(scriptContext, JSERR_NeedObjectOfType, _u("Map.prototype.get"), _u("Map"));
         }
 
@@ -213,7 +213,7 @@ namespace Js
         Var value = nullptr;
 
         if (map->Get(key, &value))
-        {
+        {LOGMEIN("JavascriptMap.cpp] 215\n");
             return value;
         }
 
@@ -228,7 +228,7 @@ namespace Js
         ScriptContext* scriptContext = function->GetScriptContext();
 
         if (!JavascriptMap::Is(args[0]))
-        {
+        {LOGMEIN("JavascriptMap.cpp] 230\n");
             JavascriptError::ThrowTypeErrorVar(scriptContext, JSERR_NeedObjectOfType, _u("Map.prototype.has"), _u("Map"));
         }
 
@@ -249,7 +249,7 @@ namespace Js
         ScriptContext* scriptContext = function->GetScriptContext();
 
         if (!JavascriptMap::Is(args[0]))
-        {
+        {LOGMEIN("JavascriptMap.cpp] 251\n");
             JavascriptError::ThrowTypeErrorVar(scriptContext, JSERR_NeedObjectOfType, _u("Map.prototype.set"), _u("Map"));
         }
 
@@ -259,7 +259,7 @@ namespace Js
         Var value = (args.Info.Count > 2) ? args[2] : scriptContext->GetLibrary()->GetUndefined();
 
         if (JavascriptNumber::Is(key) && JavascriptNumber::IsNegZero(JavascriptNumber::GetValue(key)))
-        {
+        {LOGMEIN("JavascriptMap.cpp] 261\n");
             // Normalize -0 to +0
             key = JavascriptNumber::New(0.0, scriptContext);
         }
@@ -277,7 +277,7 @@ namespace Js
         ScriptContext* scriptContext = function->GetScriptContext();
 
         if (!JavascriptMap::Is(args[0]))
-        {
+        {LOGMEIN("JavascriptMap.cpp] 279\n");
             JavascriptError::ThrowTypeErrorVar(scriptContext, JSERR_NeedObjectOfType, _u("Map.prototype.size"), _u("Map"));
         }
 
@@ -296,7 +296,7 @@ namespace Js
         ScriptContext* scriptContext = function->GetScriptContext();
 
         if (!JavascriptMap::Is(args[0]))
-        {
+        {LOGMEIN("JavascriptMap.cpp] 298\n");
             JavascriptError::ThrowTypeErrorVar(scriptContext, JSERR_NeedObjectOfType, _u("Map.prototype.entries"), _u("Map"));
         }
 
@@ -313,7 +313,7 @@ namespace Js
         ScriptContext* scriptContext = function->GetScriptContext();
 
         if (!JavascriptMap::Is(args[0]))
-        {
+        {LOGMEIN("JavascriptMap.cpp] 315\n");
             JavascriptError::ThrowTypeErrorVar(scriptContext, JSERR_NeedObjectOfType, _u("Map.prototype.keys"), _u("Map"));
         }
 
@@ -330,7 +330,7 @@ namespace Js
         ScriptContext* scriptContext = function->GetScriptContext();
 
         if (!JavascriptMap::Is(args[0]))
-        {
+        {LOGMEIN("JavascriptMap.cpp] 332\n");
             JavascriptError::ThrowTypeErrorVar(scriptContext, JSERR_NeedObjectOfType, _u("Map.prototype.values"), _u("Map"));
         }
 
@@ -339,15 +339,15 @@ namespace Js
     }
 
     void JavascriptMap::Clear()
-    {
+    {LOGMEIN("JavascriptMap.cpp] 341\n");
         list.Clear();
         map->Clear();
     }
 
     bool JavascriptMap::Delete(Var key)
-    {
+    {LOGMEIN("JavascriptMap.cpp] 347\n");
         if (map->ContainsKey(key))
-        {
+        {LOGMEIN("JavascriptMap.cpp] 349\n");
             MapDataNode* node = map->Item(key);
             list.Remove(node);
             return map->Remove(key);
@@ -356,9 +356,9 @@ namespace Js
     }
 
     bool JavascriptMap::Get(Var key, Var* value)
-    {
+    {LOGMEIN("JavascriptMap.cpp] 358\n");
         if (map->ContainsKey(key))
-        {
+        {LOGMEIN("JavascriptMap.cpp] 360\n");
             MapDataNode* node = map->Item(key);
             *value = node->data.Value();
             return true;
@@ -367,14 +367,14 @@ namespace Js
     }
 
     bool JavascriptMap::Has(Var key)
-    {
+    {LOGMEIN("JavascriptMap.cpp] 369\n");
         return map->ContainsKey(key);
     }
 
     void JavascriptMap::Set(Var key, Var value)
-    {
+    {LOGMEIN("JavascriptMap.cpp] 374\n");
         if (map->ContainsKey(key))
-        {
+        {LOGMEIN("JavascriptMap.cpp] 376\n");
             MapDataNode* node = map->Item(key);
             node->data = MapDataKeyValuePair(key, value);
         }
@@ -387,12 +387,12 @@ namespace Js
     }
 
     int JavascriptMap::Size()
-    {
+    {LOGMEIN("JavascriptMap.cpp] 389\n");
         return map->Count();
     }
 
     BOOL JavascriptMap::GetDiagTypeString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptMap.cpp] 394\n");
         stringBuilder->AppendCppLiteral(_u("Map"));
         return TRUE;
     }
@@ -408,27 +408,27 @@ namespace Js
 
 #if ENABLE_TTD
     void JavascriptMap::MarkVisitKindSpecificPtrs(TTD::SnapshotExtractor* extractor)
-    {
+    {LOGMEIN("JavascriptMap.cpp] 410\n");
         auto iterator = GetIterator();
         while(iterator.Next())
-        {
+        {LOGMEIN("JavascriptMap.cpp] 413\n");
             extractor->MarkVisitVar(iterator.Current().Key());
             extractor->MarkVisitVar(iterator.Current().Value());
         }
     }
 
     TTD::NSSnapObjects::SnapObjectType JavascriptMap::GetSnapTag_TTD() const
-    {
+    {LOGMEIN("JavascriptMap.cpp] 420\n");
         return TTD::NSSnapObjects::SnapObjectType::SnapMapObject;
     }
 
     void JavascriptMap::ExtractSnapObjectDataInto(TTD::NSSnapObjects::SnapObject* objData, TTD::SlabAllocator& alloc)
-    {
+    {LOGMEIN("JavascriptMap.cpp] 425\n");
         TTD::NSSnapObjects::SnapMapInfo* smi = alloc.SlabAllocateStruct<TTD::NSSnapObjects::SnapMapInfo>();
         smi->MapSize = 0;
 
         if(this->Size() == 0)
-        {
+        {LOGMEIN("JavascriptMap.cpp] 430\n");
             smi->MapKeyValueArray = nullptr;
         }
         else
@@ -437,7 +437,7 @@ namespace Js
 
             auto iter = this->GetIterator();
             while(iter.Next())
-            {
+            {LOGMEIN("JavascriptMap.cpp] 439\n");
                 smi->MapKeyValueArray[smi->MapSize] = iter.Current().Key();
                 smi->MapKeyValueArray[smi->MapSize + 1] = iter.Current().Value();
                 smi->MapSize += 2;
@@ -448,7 +448,7 @@ namespace Js
     }
 
     JavascriptMap* JavascriptMap::CreateForSnapshotRestore(ScriptContext* ctx)
-    {
+    {LOGMEIN("JavascriptMap.cpp] 450\n");
         JavascriptMap* res = ctx->GetLibrary()->CreateMap();
         res->map = RecyclerNew(ctx->GetRecycler(), MapDataMap, ctx->GetRecycler());
 

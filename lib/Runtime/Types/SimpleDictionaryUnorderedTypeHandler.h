@@ -44,10 +44,10 @@ namespace Js
     private:
         template<class OtherTPropertyIndex, class OtherTMapKey, bool OtherIsNotExtensibleSupported>
         void CopyUnorderedStateFrom(const SimpleDictionaryUnorderedTypeHandler<OtherTPropertyIndex, OtherTMapKey, OtherIsNotExtensibleSupported> &other)
-        {
+        {LOGMEIN("SimpleDictionaryUnorderedTypeHandler.h] 46\n");
             CompileAssert(sizeof(TPropertyIndex) >= sizeof(OtherTPropertyIndex));
             if (other.deletedPropertyIndex != PropertyIndexRanges<OtherTPropertyIndex>::NoSlots)
-            {
+            {LOGMEIN("SimpleDictionaryUnorderedTypeHandler.h] 49\n");
                 deletedPropertyIndex = other.deletedPropertyIndex;
             }
         }

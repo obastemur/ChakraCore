@@ -52,7 +52,7 @@ public:
 class EncoderMD
 {
 public:
-    EncoderMD(Func * func) : m_func(func), consecutiveThumbInstrCount(0) { }
+    EncoderMD(Func * func) : m_func(func), consecutiveThumbInstrCount(0) {LOGMEIN("EncoderMD.h] 54\n"); }
     ptrdiff_t       Encode(IR::Instr * instr, BYTE *pc, BYTE* beginCodeAddress = nullptr);
     void            Init(Encoder *encoder);
     void            ApplyRelocs(uint32 codeBufferAddress, size_t codeSize, uint* bufferCRC, BOOL isBrShorteningSucceeded, bool isFinalBufferValidation = false);
@@ -65,39 +65,39 @@ public:
     static uint32   GetOpdope(Js::OpCode op);
 
     static bool     IsLoad(IR::Instr *instr)
-    {
+    {LOGMEIN("EncoderMD.h] 67\n");
         return ISLOAD(instr->m_opcode);
     }
 
     static bool     IsStore(IR::Instr *instr)
-    {
+    {LOGMEIN("EncoderMD.h] 72\n");
         return ISSTORE(instr->m_opcode);
     }
 
     static bool     IsShifterUpdate(IR::Instr *instr)
-    {
+    {LOGMEIN("EncoderMD.h] 77\n");
         return ISSHIFTERUPDATE(instr->m_opcode);
     }
 
     static bool     IsShifterSub(IR::Instr *instr)
-    {
+    {LOGMEIN("EncoderMD.h] 82\n");
         return ISSHIFTERSUB(instr->m_opcode);
     }
 
     static bool     IsShifterPost(IR::Instr *instr)
-    {
+    {LOGMEIN("EncoderMD.h] 87\n");
         return ISSHIFTERPOST(instr->m_opcode);
     }
 
     static bool     SetsSBit(IR::Instr *instr)
-    {
+    {LOGMEIN("EncoderMD.h] 92\n");
         return SETS_SBIT(instr->m_opcode);
     }
 
     void            AddLabelReloc(BYTE* relocAddress);
 
     static bool     CanEncodeModConst12(DWORD constant);
-    static bool     CanEncodeLoadStoreOffset(int32 offset) { return IS_CONST_UINT12(offset); }
+    static bool     CanEncodeLoadStoreOffset(int32 offset) {LOGMEIN("EncoderMD.h] 99\n"); return IS_CONST_UINT12(offset); }
     static void     BaseAndOffsetFromSym(IR::SymOpnd *symOpnd, RegNum *pBaseReg, int32 *pOffset, Func * func);
     static bool     EncodeImmediate16(int32 constant, DWORD * result);
     static ENCODE_32  BranchOffset_T2_24(int x);

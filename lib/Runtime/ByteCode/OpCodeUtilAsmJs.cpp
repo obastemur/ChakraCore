@@ -23,15 +23,15 @@ namespace Js
     };
 
     char16 const * OpCodeUtilAsmJs::GetOpCodeName(OpCodeAsmJs op)
-    {
+    {LOGMEIN("OpCodeUtilAsmJs.cpp] 25\n");
         if (op <= Js::OpCodeAsmJs::MaxByteSizedOpcodes)
-        {
+        {LOGMEIN("OpCodeUtilAsmJs.cpp] 27\n");
             Assert(op < _countof(OpCodeAsmJsNames));
             __analysis_assume(op < _countof(OpCodeAsmJsNames));
             return OpCodeAsmJsNames[(int)op];
         }
         else if (op < Js::OpCodeAsmJs::ByteCodeLast)
-        {
+        {LOGMEIN("OpCodeUtilAsmJs.cpp] 33\n");
             uint opIndex = op - (Js::OpCodeAsmJs::MaxByteSizedOpcodes + 1);
             Assert(opIndex < _countof(ExtendedOpCodeAsmJsNames));
             __analysis_assume(opIndex < _countof(ExtendedOpCodeAsmJsNames));
@@ -42,7 +42,7 @@ namespace Js
 
 #else
     wchar const * OpCodeUtilAsmJs::GetOpCodeName(OpCodeAsmJs op)
-    {
+    {LOGMEIN("OpCodeUtilAsmJs.cpp] 44\n");
         return _u("<NotAvail>");
     }
 #endif
@@ -60,9 +60,9 @@ namespace Js
     };
 
     OpLayoutTypeAsmJs OpCodeUtilAsmJs::GetOpCodeLayout(OpCodeAsmJs op)
-    {
+    {LOGMEIN("OpCodeUtilAsmJs.cpp] 62\n");
         if ((uint)op <= (uint)Js::OpCodeAsmJs::MaxByteSizedOpcodes)
-        {
+        {LOGMEIN("OpCodeUtilAsmJs.cpp] 64\n");
             Assert(op < _countof(OpCodeAsmJsLayouts));
             __analysis_assume(op < _countof(OpCodeAsmJsLayouts));
             return OpCodeAsmJsLayouts[(uint)op];
@@ -75,7 +75,7 @@ namespace Js
     }
 
     bool OpCodeUtilAsmJs::IsValidByteCodeOpcode(OpCodeAsmJs op)
-    {
+    {LOGMEIN("OpCodeUtilAsmJs.cpp] 77\n");
         // These OpCodes must have the same value for asm.js and normal javascript.
         // This CompileAssert will make sure to update both lists if any changes are made
         CompileAssert((uint)OpCodeAsmJs::EndOfBlock                 == (uint)OpCode::EndOfBlock);
@@ -93,7 +93,7 @@ namespace Js
     }
 
     bool OpCodeUtilAsmJs::IsValidOpcode(OpCodeAsmJs op)
-    {
+    {LOGMEIN("OpCodeUtilAsmJs.cpp] 95\n");
         return IsValidByteCodeOpcode(op)
             || (op > Js::OpCodeAsmJs::ByteCodeLast && op < Js::OpCodeAsmJs::Count);
     }

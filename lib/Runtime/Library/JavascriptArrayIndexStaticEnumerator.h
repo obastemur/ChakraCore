@@ -21,7 +21,7 @@ namespace Js
     public:
         JavascriptArrayIndexStaticEnumerator(JavascriptArray* array)
             : m_array(array)
-        {
+        {LOGMEIN("JavascriptArrayIndexStaticEnumerator.h] 23\n");
 #if ENABLE_COPYONACCESS_ARRAY
             JavascriptLibrary::CheckAndConvertCopyOnAccessNativeIntArray<Var>(m_array);
 #endif
@@ -32,7 +32,7 @@ namespace Js
         // Reset to enumerate from beginning.
         //
         void Reset()
-        {
+        {LOGMEIN("JavascriptArrayIndexStaticEnumerator.h] 34\n");
             m_index = JavascriptArray::InvalidIndex;
         }
 
@@ -40,7 +40,7 @@ namespace Js
         // Get the current index. Valid only when MoveNext() returns true.
         //
         uint32 GetIndex() const
-        {
+        {LOGMEIN("JavascriptArrayIndexStaticEnumerator.h] 42\n");
             return m_index;
         }
 
@@ -48,11 +48,11 @@ namespace Js
         // Move to next index. If successful, use GetIndex() to get the index.
         //
         bool MoveNext()
-        {
+        {LOGMEIN("JavascriptArrayIndexStaticEnumerator.h] 50\n");
             m_index = m_array->GetNextIndex(m_index);
 
             if (m_index != JavascriptArray::InvalidIndex)
-            {
+            {LOGMEIN("JavascriptArrayIndexStaticEnumerator.h] 54\n");
                 return true;
             }
 

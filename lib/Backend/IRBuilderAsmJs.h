@@ -30,16 +30,16 @@ public:
         , m_IsTJLoopBody(false)
         , m_switchAdapter(this)
         , m_switchBuilder(&m_switchAdapter)
-    {
+    {LOGMEIN("IRBuilderAsmJs.h] 32\n");
         func->m_workItem->InitializeReader(&m_jnReader, &m_statementReader, func->m_alloc);
         m_asmFuncInfo = m_func->GetJITFunctionBody()->GetAsmJsInfo();
 #if 0
         // templatized JIT loop body
         if (func->IsLoopBody())
-        {
+        {LOGMEIN("IRBuilderAsmJs.h] 38\n");
             Js::LoopEntryPointInfo* loopEntryPointInfo = (Js::LoopEntryPointInfo*)(func->m_workItem->GetEntryPoint());
             if (loopEntryPointInfo->GetIsTJMode())
-            {
+            {LOGMEIN("IRBuilderAsmJs.h] 41\n");
                 m_IsTJLoopBody = true;
                 func->isTJLoopBody = true;
             }
@@ -88,11 +88,11 @@ private:
 #endif
     Js::RegSlot             GetTypedRegFromRegSlot(Js::RegSlot reg, WAsmJs::Types type);
     Js::RegSlot             GetRegSlotFromTypedReg(Js::RegSlot srcReg, WAsmJs::Types type);
-    Js::RegSlot             GetRegSlotFromIntReg(Js::RegSlot srcIntReg) {return GetRegSlotFromTypedReg(srcIntReg, WAsmJs::INT32);}
-    Js::RegSlot             GetRegSlotFromInt64Reg(Js::RegSlot srcIntReg) {return GetRegSlotFromTypedReg(srcIntReg, WAsmJs::INT64);}
-    Js::RegSlot             GetRegSlotFromFloatReg(Js::RegSlot srcFloatReg) {return GetRegSlotFromTypedReg(srcFloatReg, WAsmJs::FLOAT32);}
-    Js::RegSlot             GetRegSlotFromDoubleReg(Js::RegSlot srcDoubleReg) {return GetRegSlotFromTypedReg(srcDoubleReg, WAsmJs::FLOAT64);}
-    Js::RegSlot             GetRegSlotFromSimd128Reg(Js::RegSlot srcSimd128Reg) {return GetRegSlotFromTypedReg(srcSimd128Reg, WAsmJs::SIMD);}
+    Js::RegSlot             GetRegSlotFromIntReg(Js::RegSlot srcIntReg) {LOGMEIN("IRBuilderAsmJs.h] 90\n");return GetRegSlotFromTypedReg(srcIntReg, WAsmJs::INT32);}
+    Js::RegSlot             GetRegSlotFromInt64Reg(Js::RegSlot srcIntReg) {LOGMEIN("IRBuilderAsmJs.h] 91\n");return GetRegSlotFromTypedReg(srcIntReg, WAsmJs::INT64);}
+    Js::RegSlot             GetRegSlotFromFloatReg(Js::RegSlot srcFloatReg) {LOGMEIN("IRBuilderAsmJs.h] 92\n");return GetRegSlotFromTypedReg(srcFloatReg, WAsmJs::FLOAT32);}
+    Js::RegSlot             GetRegSlotFromDoubleReg(Js::RegSlot srcDoubleReg) {LOGMEIN("IRBuilderAsmJs.h] 93\n");return GetRegSlotFromTypedReg(srcDoubleReg, WAsmJs::FLOAT64);}
+    Js::RegSlot             GetRegSlotFromSimd128Reg(Js::RegSlot srcSimd128Reg) {LOGMEIN("IRBuilderAsmJs.h] 94\n");return GetRegSlotFromTypedReg(srcSimd128Reg, WAsmJs::SIMD);}
 
     Js::RegSlot             GetRegSlotFromVarReg(Js::RegSlot srcVarReg);
     Js::OpCode              GetSimdOpcode(Js::OpCodeAsmJs asmjsOpcode);
@@ -107,11 +107,11 @@ private:
     BOOL                    RegIsConstant(Js::RegSlot reg);
     BOOL                    RegIsVar(Js::RegSlot reg);
     BOOL                    RegIsTypedVar(Js::RegSlot reg, WAsmJs::Types type);
-    BOOL                    RegIsIntVar(Js::RegSlot reg) {return RegIsTypedVar(reg, WAsmJs::INT32);}
-    BOOL                    RegIsInt64Var(Js::RegSlot reg) {return RegIsTypedVar(reg, WAsmJs::INT64);}
-    BOOL                    RegIsFloatVar(Js::RegSlot reg) {return RegIsTypedVar(reg, WAsmJs::FLOAT32);}
-    BOOL                    RegIsDoubleVar(Js::RegSlot reg) {return RegIsTypedVar(reg, WAsmJs::FLOAT64);}
-    BOOL                    RegIsSimd128Var(Js::RegSlot reg) {return RegIsTypedVar(reg, WAsmJs::SIMD);}
+    BOOL                    RegIsIntVar(Js::RegSlot reg) {LOGMEIN("IRBuilderAsmJs.h] 109\n");return RegIsTypedVar(reg, WAsmJs::INT32);}
+    BOOL                    RegIsInt64Var(Js::RegSlot reg) {LOGMEIN("IRBuilderAsmJs.h] 110\n");return RegIsTypedVar(reg, WAsmJs::INT64);}
+    BOOL                    RegIsFloatVar(Js::RegSlot reg) {LOGMEIN("IRBuilderAsmJs.h] 111\n");return RegIsTypedVar(reg, WAsmJs::FLOAT32);}
+    BOOL                    RegIsDoubleVar(Js::RegSlot reg) {LOGMEIN("IRBuilderAsmJs.h] 112\n");return RegIsTypedVar(reg, WAsmJs::FLOAT64);}
+    BOOL                    RegIsSimd128Var(Js::RegSlot reg) {LOGMEIN("IRBuilderAsmJs.h] 113\n");return RegIsTypedVar(reg, WAsmJs::SIMD);}
 
     void                    BuildArgOut(IR::Opnd* srcOpnd, uint32 dstRegSlot, uint32 offset, IRType type, ValueType valueType = ValueType::Uninitialized);
     void                    BuildFromVar(uint32 offset, Js::RegSlot dstRegSlot, Js::RegSlot srcRegSlot, IRType irType, ValueType valueType);
@@ -168,13 +168,13 @@ private:
     Js::RegSlot             m_firstIRTemp;
     Js::OpCode *            m_simdOpcodesMap;
 
-    Js::RegSlot GetFirstConst(WAsmJs::Types type) { return m_firstsType[type]; }
-    Js::RegSlot GetFirstVar(WAsmJs::Types type) { return m_firstsType[type + WAsmJs::LIMIT]; }
-    Js::RegSlot GetFirstTmp(WAsmJs::Types type) { return m_firstsType[type + WAsmJs::LIMIT * 2]; }
+    Js::RegSlot GetFirstConst(WAsmJs::Types type) {LOGMEIN("IRBuilderAsmJs.h] 170\n"); return m_firstsType[type]; }
+    Js::RegSlot GetFirstVar(WAsmJs::Types type) {LOGMEIN("IRBuilderAsmJs.h] 171\n"); return m_firstsType[type + WAsmJs::LIMIT]; }
+    Js::RegSlot GetFirstTmp(WAsmJs::Types type) {LOGMEIN("IRBuilderAsmJs.h] 172\n"); return m_firstsType[type + WAsmJs::LIMIT * 2]; }
     
-    Js::RegSlot GetLastConst(WAsmJs::Types type) { return m_firstsType[type + 1]; }
-    Js::RegSlot GetLastVar(WAsmJs::Types type) { return m_firstsType[type + WAsmJs::LIMIT + 1]; }
-    Js::RegSlot GetLastTmp(WAsmJs::Types type) { return m_firstsType[type + WAsmJs::LIMIT * 2 + 1]; }
+    Js::RegSlot GetLastConst(WAsmJs::Types type) {LOGMEIN("IRBuilderAsmJs.h] 174\n"); return m_firstsType[type + 1]; }
+    Js::RegSlot GetLastVar(WAsmJs::Types type) {LOGMEIN("IRBuilderAsmJs.h] 175\n"); return m_firstsType[type + WAsmJs::LIMIT + 1]; }
+    Js::RegSlot GetLastTmp(WAsmJs::Types type) {LOGMEIN("IRBuilderAsmJs.h] 176\n"); return m_firstsType[type + WAsmJs::LIMIT * 2 + 1]; }
 
     SymID *                 m_tempMap;
     BVFixed *               m_fbvTempUsed;

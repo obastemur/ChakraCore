@@ -16,23 +16,23 @@ namespace Js
         DetachedStateBase(TypeId typeId)
             : typeId(typeId),
             hasBeenClaimed(false)
-        {
+        {LOGMEIN("DetachedStateBase.h] 18\n");
         }
 
         virtual ~DetachedStateBase()
-        {
+        {LOGMEIN("DetachedStateBase.h] 22\n");
         }
 
-        TypeId GetTypeId() { return typeId; }
+        TypeId GetTypeId() {LOGMEIN("DetachedStateBase.h] 25\n"); return typeId; }
 
-        bool HasBeenClaimed() { return hasBeenClaimed; }
+        bool HasBeenClaimed() {LOGMEIN("DetachedStateBase.h] 27\n"); return hasBeenClaimed; }
 
-        void MarkAsClaimed() { hasBeenClaimed = true; }
+        void MarkAsClaimed() {LOGMEIN("DetachedStateBase.h] 29\n"); hasBeenClaimed = true; }
 
         void CleanUp()
-        {
+        {LOGMEIN("DetachedStateBase.h] 32\n");
             if (!hasBeenClaimed)
-            {
+            {LOGMEIN("DetachedStateBase.h] 34\n");
                 DiscardState();
             }
             ClearSelfOnly();
@@ -62,7 +62,7 @@ namespace Js
             buffer(buffer),
             bufferLength(bufferLength),
             allocationType(allocationType)
-        {}
+        {LOGMEIN("DetachedStateBase.h] 64\n");}
 
     };
 }

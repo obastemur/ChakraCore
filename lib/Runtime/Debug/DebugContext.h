@@ -7,15 +7,15 @@
 class HostDebugContext
 {
 public:
-    HostDebugContext(Js::ScriptContext* inScriptContext) { this->scriptContext = inScriptContext; }
+    HostDebugContext(Js::ScriptContext* inScriptContext) {LOGMEIN("DebugContext.h] 9\n"); this->scriptContext = inScriptContext; }
     virtual void Delete() = 0;
     virtual DWORD_PTR GetHostSourceContext(Js::Utf8SourceInfo * sourceInfo) = 0;
     virtual HRESULT SetThreadDescription(__in LPCWSTR url) = 0;
     virtual HRESULT DbgRegisterFunction(Js::ScriptContext * scriptContext, Js::FunctionBody * functionBody, DWORD_PTR dwDebugSourceContext, LPCWSTR title) = 0;
     virtual void ReParentToCaller(Js::Utf8SourceInfo* sourceInfo) = 0;
-    virtual void SortMembersList(JsUtil::List<Js::DebuggerPropertyDisplayInfo *, ArenaAllocator> * pMembersList, Js::ScriptContext* scriptContext) {/*Do nothing*/}
+    virtual void SortMembersList(JsUtil::List<Js::DebuggerPropertyDisplayInfo *, ArenaAllocator> * pMembersList, Js::ScriptContext* scriptContext) {LOGMEIN("DebugContext.h] 15\n");/*Do nothing*/}
 
-    Js::ScriptContext* GetScriptContext() { return scriptContext; }
+    Js::ScriptContext* GetScriptContext() {LOGMEIN("DebugContext.h] 17\n"); return scriptContext; }
 
 private:
     Js::ScriptContext* scriptContext;
@@ -51,14 +51,14 @@ namespace Js
         void SetHostDebugContext(HostDebugContext * hostDebugContext);
 
         void SetDebuggerMode(DebuggerMode mode);
-        bool IsDebugContextInNonDebugMode() const { return this->debuggerMode == DebuggerMode::NotDebugging; }
-        bool IsDebugContextInDebugMode() const { return this->debuggerMode == DebuggerMode::Debugging; }
-        bool IsDebugContextInSourceRundownMode() const { return this->debuggerMode == DebuggerMode::SourceRundown; }
-        bool IsDebugContextInSourceRundownOrDebugMode() const { return IsDebugContextInSourceRundownMode() || IsDebugContextInDebugMode(); }
+        bool IsDebugContextInNonDebugMode() const {LOGMEIN("DebugContext.h] 53\n"); return this->debuggerMode == DebuggerMode::NotDebugging; }
+        bool IsDebugContextInDebugMode() const {LOGMEIN("DebugContext.h] 54\n"); return this->debuggerMode == DebuggerMode::Debugging; }
+        bool IsDebugContextInSourceRundownMode() const {LOGMEIN("DebugContext.h] 55\n"); return this->debuggerMode == DebuggerMode::SourceRundown; }
+        bool IsDebugContextInSourceRundownOrDebugMode() const {LOGMEIN("DebugContext.h] 56\n"); return IsDebugContextInSourceRundownMode() || IsDebugContextInDebugMode(); }
 
-        ProbeContainer* GetProbeContainer() const { return this->diagProbesContainer; }
+        ProbeContainer* GetProbeContainer() const {LOGMEIN("DebugContext.h] 58\n"); return this->diagProbesContainer; }
 
-        HostDebugContext * GetHostDebugContext() const { return hostDebugContext; }
+        HostDebugContext * GetHostDebugContext() const {LOGMEIN("DebugContext.h] 60\n"); return hostDebugContext; }
 
     private:
         ScriptContext * scriptContext;

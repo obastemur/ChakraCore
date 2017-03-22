@@ -32,7 +32,7 @@ namespace Js
         static bool Is(Var instance);
         static JavascriptSIMDUint32x4* FromVar(Var aValue);
         static JavascriptSIMDUint32x4* FromFloat32x4(JavascriptSIMDFloat32x4   *instance, ScriptContext* requestContext);
-        static size_t GetOffsetOfValue() { return offsetof(JavascriptSIMDUint32x4, value); }
+        static size_t GetOffsetOfValue() {LOGMEIN("JavascriptSimdUint32x4.h] 34\n"); return offsetof(JavascriptSIMDUint32x4, value); }
         static Var CallToLocaleString(RecyclableObject& obj, ScriptContext& requestContext, SIMDValue simdValue, const Var* args, uint numArgs, CallInfo callInfo);
 
         static void ToStringBuffer(SIMDValue& value, __out_ecount(countBuffer) char16* stringBuffer, size_t countBuffer, ScriptContext* scriptContext = nullptr)
@@ -41,7 +41,7 @@ namespace Js
         }
 
         static const char16* GetTypeName();
-        inline SIMDValue GetValue() { return value; }
+        inline SIMDValue GetValue() {LOGMEIN("JavascriptSimdUint32x4.h] 43\n"); return value; }
 
         virtual RecyclableObject * CloneToScriptContext(ScriptContext* requestContext) override;
 

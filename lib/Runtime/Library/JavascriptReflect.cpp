@@ -17,13 +17,13 @@ namespace Js
 
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
         if  (args.Info.Flags & CallFlags_New)
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 19\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_ErrorOnNew, _u("Reflect.defineProperty"));
         }
 
         Var propertyKey, attributes;
         if (args.Info.Count < 2 || !JavascriptOperators::IsObject(args[1]))
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 25\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedObject, _u("Reflect.defineProperty"));
         }
         Var target = args[1];
@@ -35,14 +35,14 @@ namespace Js
         attributes = args.Info.Count > 3 ? args[3] : undefinedValue;
         PropertyDescriptor propertyDescriptor;
         if (!JavascriptOperators::ToPropertyDescriptor(attributes, &propertyDescriptor, scriptContext))
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 37\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_PropertyDescriptor_Invalid, scriptContext->GetPropertyName(propertyRecord->GetPropertyId())->GetBuffer());
         }
 
         // If the object is HostDispatch try to invoke the operation remotely
         BOOL defineResult;
         if (JavascriptOperators::GetTypeId(target) == TypeIds_HostDispatch)
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 44\n");
             defineResult = RecyclableObject::FromVar(target)->InvokeBuiltInOperationRemotely(EntryDefineProperty, args, nullptr);
         }
         else
@@ -64,12 +64,12 @@ namespace Js
 
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
         if  (args.Info.Flags & CallFlags_New)
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 66\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_ErrorOnNew, _u("Reflect.deleteProperty"));
         }
 
         if (args.Info.Count < 2 || !JavascriptOperators::IsObject(args[1]))
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 71\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedObject, _u("Reflect.deleteProperty"));
         }
         Var target = args[1];
@@ -89,12 +89,12 @@ namespace Js
 
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
         if  (args.Info.Flags & CallFlags_New)
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 91\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_ErrorOnNew, _u("Reflect.get"));
         }
 
         if (args.Info.Count < 2 || !JavascriptOperators::IsObject(args[1]))
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 96\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedObject, _u("Reflect.get"));
         }
         Var target = args[1];
@@ -116,22 +116,22 @@ namespace Js
 
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
         if  (args.Info.Flags & CallFlags_New)
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 118\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_ErrorOnNew, _u("Reflect.getOwnPropertyDescriptor"));
         }
 
         if (args.Info.Count < 2 || !JavascriptOperators::IsObject(args[1]))
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 123\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedObject, _u("Reflect.getOwnPropertyDescriptor"));
         }
         Var target = args[1];
         Var propertyKey = args.Info.Count > 2 ? args[2] : undefinedValue;
 
         if (JavascriptOperators::GetTypeId(target) == TypeIds_HostDispatch)
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 130\n");
             Var result;
             if (RecyclableObject::FromVar(target)->InvokeBuiltInOperationRemotely(EntryGetOwnPropertyDescriptor, args, &result))
-            {
+            {LOGMEIN("JavascriptReflect.cpp] 133\n");
                 return result;
             }
         }
@@ -149,12 +149,12 @@ namespace Js
 
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
         if  (args.Info.Flags & CallFlags_New)
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 151\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_ErrorOnNew, _u("Reflect.getPrototypeOf"));
         }
 
         if (args.Info.Count < 2 || !JavascriptOperators::IsObject(args[1]))
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 156\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedObject, _u("Reflect.getPrototypeOf"));
         }
         Var target = args[1];
@@ -172,12 +172,12 @@ namespace Js
 
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
         if  (args.Info.Flags & CallFlags_New)
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 174\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_ErrorOnNew, _u("Reflect.has"));
         }
 
         if (args.Info.Count < 2 || !JavascriptOperators::IsObject(args[1]))
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 179\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedObject, _u("Reflect.has"));
         }
         Var target = args[1];
@@ -197,12 +197,12 @@ namespace Js
 
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
         if  (args.Info.Flags & CallFlags_New)
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 199\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_ErrorOnNew, _u("Reflect.isExtensible"));
         }
 
         if (args.Info.Count < 2 || !JavascriptOperators::IsObject(args[1]))
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 204\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedObject, _u("Reflect.iesExtensible"));
         }
         Var target = args[1];
@@ -211,7 +211,7 @@ namespace Js
 
         GlobalObject* globalObject = object->GetLibrary()->GetGlobalObject();
         if (isExtensible && globalObject != object && globalObject && (globalObject->ToThis() == object))
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 213\n");
             isExtensible = globalObject->IsExtensible();
         }
 
@@ -228,12 +228,12 @@ namespace Js
 
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
         if  (args.Info.Flags & CallFlags_New)
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 230\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_ErrorOnNew, _u("Reflect.ownKeys"));
         }
 
         if (args.Info.Count < 2 || !JavascriptOperators::IsObject(args[1]))
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 235\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedObject, _u("Reflect.ownKeys"));
         }
         Var target = args[1];
@@ -251,12 +251,12 @@ namespace Js
 
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
         if (args.Info.Flags & CallFlags_New)
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 253\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_ErrorOnNew, _u("Reflect.preventExtensions"));
         }
 
         if (args.Info.Count < 2 || !JavascriptOperators::IsObject(args[1]))
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 258\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedObject, _u("Reflect.preventExtensions"));
         }
         Var target = args[1];
@@ -264,7 +264,7 @@ namespace Js
         RecyclableObject* targetObj = RecyclableObject::FromVar(target);
         GlobalObject* globalObject = targetObj->GetLibrary()->GetGlobalObject();
         if (globalObject != targetObj && globalObject && (globalObject->ToThis() == targetObj))
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 266\n");
             globalObject->PreventExtensions();
         }
 
@@ -282,12 +282,12 @@ namespace Js
 
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
         if (args.Info.Flags & CallFlags_New)
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 284\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_ErrorOnNew, _u("Reflect.set"));
         }
 
         if (args.Info.Count < 2 || !JavascriptOperators::IsObject(args[1]))
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 289\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedObject, _u("Reflect.set"));
         }
         Var target = args[1];
@@ -310,19 +310,19 @@ namespace Js
 
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
         if  (args.Info.Flags & CallFlags_New)
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 312\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_ErrorOnNew, _u("Reflect.setPrototypeOf"));
         }
 
         if (args.Info.Count < 2 || !JavascriptOperators::IsObject(args[1]))
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 317\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedObject, _u("Reflect.setPrototypeOf"));
         }
         Var target = args[1];
         target = JavascriptOperators::ToObject(target, scriptContext);
 
         if (args.Info.Count < 3 || !JavascriptOperators::IsObjectOrNull(args[2]))
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 324\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NotObjectOrNull, _u("Object.setPrototypeOf"));
         }
 
@@ -343,19 +343,19 @@ namespace Js
 
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
         if (args.Info.Flags & CallFlags_New)
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 345\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_ErrorOnNew, _u("Reflect.apply"));
         }
 
         Var target = args.Info.Count > 1 ? args[1] : undefinedValue;
         if (!JavascriptConversion::IsCallable(target))
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 351\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedFunction, _u("Reflect.apply"));
         }
         Var thisArgument = args.Info.Count > 2 ? args[2] : undefinedValue;
         Var argArray = args.Info.Count > 3 ? args[3] : undefinedValue;
         if (!(JavascriptOperators::IsObjectType(JavascriptOperators::GetTypeId(argArray))))
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 357\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedArrayLike, _u("Reflect.apply"));
         }
 
@@ -374,25 +374,25 @@ namespace Js
 
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
         if (args.Info.Flags & CallFlags_New)
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 376\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_ErrorOnNew, _u("Reflect.construct"));
         }
 
         Var target = args.Info.Count > 1 ? args[1] : undefinedValue;
 
         if (!JavascriptOperators::IsConstructor(target))
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 383\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedConstructor, _u("target"));
         }
 
         Var newTarget = nullptr;
         if (scriptContext->GetConfig()->IsES6ClassAndExtendsEnabled())
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 389\n");
             if (args.Info.Count > 3)
-            {
+            {LOGMEIN("JavascriptReflect.cpp] 391\n");
                 newTarget = args[3];
                 if (!JavascriptOperators::IsConstructor(newTarget))
-                {
+                {LOGMEIN("JavascriptReflect.cpp] 394\n");
                     JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedConstructor, _u("newTarget"));
                 }
             }
@@ -404,13 +404,13 @@ namespace Js
 
         RecyclableObject* thisArg = RecyclableObject::FromVar(undefinedValue);
         if (newTarget != nullptr)
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 406\n");
             thisArg = JavascriptOperators::CreateFromConstructor(RecyclableObject::FromVar(newTarget), scriptContext);
         }
 
         Var argArray = args.Info.Count > 2 ? args[2] : undefinedValue;
         if (!(JavascriptOperators::IsObjectType(JavascriptOperators::GetTypeId(argArray))))
-        {
+        {LOGMEIN("JavascriptReflect.cpp] 412\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedArrayLike, _u("Reflect.construct"));
         }
 

@@ -46,6 +46,6 @@ public:
 
 template<>
 inline ValueNumber JsUtil::ValueToKey<ValueNumber, ValueRelativeOffset>::ToKey(const ValueRelativeOffset &valueRelativeOffset)
-{
+{LOGMEIN("ValueRelativeOffset.h] 48\n");
     return valueRelativeOffset.BaseValueNumber();
 }

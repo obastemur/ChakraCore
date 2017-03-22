@@ -48,7 +48,7 @@ namespace Js
     {
         PropertyCacheOperationInfo()
             : cacheType(CacheType_None), slotType(SlotType_None), isPolymorphic(false)
-        {
+        {LOGMEIN("InlineCache.h] 50\n");
         }
 
         CacheType cacheType;
@@ -63,7 +63,7 @@ namespace Js
         static const int RequiredAuxSlotCapacityBitCount = 15;
         static const bool IsPolymorphic = false;
 
-        InlineCache() {}
+        InlineCache() {LOGMEIN("InlineCache.h] 65\n");}
 
         union
         {
@@ -136,69 +136,69 @@ namespace Js
         InlineCache** invalidationListSlotPtr;
 
         bool IsEmpty() const
-        {
+        {LOGMEIN("InlineCache.h] 138\n");
             return u.local.type == nullptr;
         }
 
         bool IsLocal() const
-        {
+        {LOGMEIN("InlineCache.h] 143\n");
             return u.local.isLocal;
         }
 
         bool IsProto() const
-        {
+        {LOGMEIN("InlineCache.h] 148\n");
             return u.proto.isProto;
         }
 
         DynamicObject * GetPrototypeObject() const
-        {
+        {LOGMEIN("InlineCache.h] 153\n");
             Assert(IsProto());
             return u.proto.prototypeObject;
         }
 
         DynamicObject * GetAccessorObject() const
-        {
+        {LOGMEIN("InlineCache.h] 159\n");
             Assert(IsAccessor());
             return u.accessor.object;
         }
 
         bool IsAccessor() const
-        {
+        {LOGMEIN("InlineCache.h] 165\n");
             return u.accessor.isAccessor;
         }
 
         bool IsAccessorOnProto() const
-        {
+        {LOGMEIN("InlineCache.h] 170\n");
             return IsAccessor() && u.accessor.isOnProto;
         }
 
         bool IsGetterAccessor() const
-        {
+        {LOGMEIN("InlineCache.h] 175\n");
             return IsAccessor() && !!(u.accessor.flags & InlineCacheGetterFlag);
         }
 
         bool IsGetterAccessorOnProto() const
-        {
+        {LOGMEIN("InlineCache.h] 180\n");
             return IsGetterAccessor() && u.accessor.isOnProto;
         }
 
         bool IsSetterAccessor() const
-        {
+        {LOGMEIN("InlineCache.h] 185\n");
             return IsAccessor() && !!(u.accessor.flags & InlineCacheSetterFlag);
         }
 
         bool IsSetterAccessorOnProto() const
-        {
+        {LOGMEIN("InlineCache.h] 190\n");
             return IsSetterAccessor() && u.accessor.isOnProto;
         }
 
         Type* GetRawType() const
-        {
+        {LOGMEIN("InlineCache.h] 195\n");
             return IsLocal() ? u.local.type : (IsProto() ? u.proto.type : (IsAccessor() ? u.accessor.type : nullptr));
         }
 
         Type* GetType() const
-        {
+        {LOGMEIN("InlineCache.h] 200\n");
             return TypeWithoutAuxSlotTag(GetRawType());
         }
 
@@ -206,19 +206,19 @@ namespace Js
         bool HasDifferentType(const bool isProto, const Type * type, const Type * typeWithoutProperty) const;
 
         bool HasType_Flags(const Type * type) const
-        {
+        {LOGMEIN("InlineCache.h] 208\n");
             return u.accessor.type == type || u.accessor.type == TypeWithAuxSlotTag(type);
         }
 
         bool HasDifferentType(const Type * type) const
-        {
+        {LOGMEIN("InlineCache.h] 213\n");
             return !IsEmpty() && GetType() != type;
         }
 
         bool RemoveFromInvalidationList()
-        {
+        {LOGMEIN("InlineCache.h] 218\n");
             if (this->invalidationListSlotPtr == nullptr)
-            {
+            {LOGMEIN("InlineCache.h] 220\n");
                 return false;
             }
 
@@ -229,17 +229,17 @@ namespace Js
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
         const char16 *LayoutString() const
-        {
+        {LOGMEIN("InlineCache.h] 231\n");
             if (IsEmpty())
-            {
+            {LOGMEIN("InlineCache.h] 233\n");
                 return _u("Empty");
             }
             if (IsLocal())
-            {
+            {LOGMEIN("InlineCache.h] 237\n");
                 return _u("Local");
             }
             if (IsAccessor())
-            {
+            {LOGMEIN("InlineCache.h] 241\n");
                 return _u("Accessor");
             }
             return _u("Proto");
@@ -324,19 +324,19 @@ namespace Js
         bool GetCallApplyTarget(RecyclableObject* obj, RecyclableObject **callee);
 
         static uint GetGetterFlagMask()
-        {
+        {LOGMEIN("InlineCache.h] 326\n");
             // First bit is marked for isAccessor in the accessor cache layout.
             return  InlineCacheGetterFlag << 1;
         }
 
         static uint GetSetterFlagMask()
-        {
+        {LOGMEIN("InlineCache.h] 332\n");
             // First bit is marked for isAccessor in the accessor cache layout.
             return  InlineCacheSetterFlag << 1;
         }
 
         static uint GetGetterSetterFlagMask()
-        {
+        {LOGMEIN("InlineCache.h] 338\n");
             // First bit is marked for isAccessor in the accessor cache layout.
             return  (InlineCacheGetterFlag | InlineCacheSetterFlag) << 1;
         }
@@ -392,7 +392,7 @@ namespace Js
 
         PolymorphicInlineCache(InlineCache * inlineCaches, uint16 size, FunctionBody * functionBody)
             : inlineCaches(inlineCaches), functionBody(functionBody), size(size), ignoreForEquivalentObjTypeSpec(false), cloneForJitTimeUse(true), inlineCachesFillInfo(0), next(nullptr), prev(nullptr)
-        {
+        {LOGMEIN("InlineCache.h] 394\n");
             Assert((size == 0 && inlineCaches == nullptr) ||
                 (inlineCaches != nullptr && size >= MinPolymorphicInlineCacheSize && size <= MaxPolymorphicInlineCacheSize));
         }
@@ -400,12 +400,12 @@ namespace Js
     public:
         static PolymorphicInlineCache * New(uint16 size, FunctionBody * functionBody);
 
-        static uint16 GetInitialSize() { return MinPolymorphicInlineCacheSize; }
-        bool CanAllocateBigger() { return GetSize() < MaxPolymorphicInlineCacheSize; }
+        static uint16 GetInitialSize() {LOGMEIN("InlineCache.h] 402\n"); return MinPolymorphicInlineCacheSize; }
+        bool CanAllocateBigger() {LOGMEIN("InlineCache.h] 403\n"); return GetSize() < MaxPolymorphicInlineCacheSize; }
         static uint16 GetNextSize(uint16 currentSize)
-        {
+        {LOGMEIN("InlineCache.h] 405\n");
             if (currentSize == MaxPolymorphicInlineCacheSize)
-            {
+            {LOGMEIN("InlineCache.h] 407\n");
                 return 0;
             }
             else
@@ -419,14 +419,14 @@ namespace Js
         bool HasDifferentType(const bool isProto, const Type * type, const Type * typeWithoutProperty) const;
         bool HasType_Flags(const Type * type) const;
 
-        InlineCache * GetInlineCaches() const { return inlineCaches; }
-        uint16 GetSize() const { return size; }
-        PolymorphicInlineCache * GetNext() { return next; }
-        bool GetIgnoreForEquivalentObjTypeSpec() const { return this->ignoreForEquivalentObjTypeSpec; }
-        void SetIgnoreForEquivalentObjTypeSpec(bool value) { this->ignoreForEquivalentObjTypeSpec = value; }
-        bool GetCloneForJitTimeUse() const { return this->cloneForJitTimeUse; }
-        void SetCloneForJitTimeUse(bool value) { this->cloneForJitTimeUse = value; }
-        uint32 GetInlineCachesFillInfo() { return this->inlineCachesFillInfo; }
+        InlineCache * GetInlineCaches() const {LOGMEIN("InlineCache.h] 421\n"); return inlineCaches; }
+        uint16 GetSize() const {LOGMEIN("InlineCache.h] 422\n"); return size; }
+        PolymorphicInlineCache * GetNext() {LOGMEIN("InlineCache.h] 423\n"); return next; }
+        bool GetIgnoreForEquivalentObjTypeSpec() const {LOGMEIN("InlineCache.h] 424\n"); return this->ignoreForEquivalentObjTypeSpec; }
+        void SetIgnoreForEquivalentObjTypeSpec(bool value) {LOGMEIN("InlineCache.h] 425\n"); this->ignoreForEquivalentObjTypeSpec = value; }
+        bool GetCloneForJitTimeUse() const {LOGMEIN("InlineCache.h] 426\n"); return this->cloneForJitTimeUse; }
+        void SetCloneForJitTimeUse(bool value) {LOGMEIN("InlineCache.h] 427\n"); this->cloneForJitTimeUse = value; }
+        uint32 GetInlineCachesFillInfo() {LOGMEIN("InlineCache.h] 428\n"); return this->inlineCachesFillInfo; }
         void UpdateInlineCachesFillInfo(uint32 index, bool set);
         bool IsFull();
 
@@ -503,15 +503,15 @@ namespace Js
 #endif
 
         uint GetInlineCacheIndexForType(const Type * type) const
-        {
+        {LOGMEIN("InlineCache.h] 505\n");
             return (((size_t)type) >> PolymorphicInlineCacheShift) & (GetSize() - 1);
         }
 
     private:
         uint GetNextInlineCacheIndex(uint index) const
-        {
+        {LOGMEIN("InlineCache.h] 511\n");
             if (++index == GetSize())
-            {
+            {LOGMEIN("InlineCache.h] 513\n");
                 index = 0;
             }
             return index;
@@ -526,12 +526,12 @@ namespace Js
 #endif
 #if INTRUSIVE_TESTTRACE_PolymorphicInlineCache
         uint GetEntryCount()
-        {
+        {LOGMEIN("InlineCache.h] 528\n");
             uint count = 0;
             for (uint i = 0; i < size; ++i)
-            {
+            {LOGMEIN("InlineCache.h] 531\n");
                 if (!inlineCaches[i].IsEmpty())
-                {
+                {LOGMEIN("InlineCache.h] 533\n");
                     count++;
                 }
             }
@@ -552,7 +552,7 @@ namespace Js
         EquivalentTypeSet(RecyclerJITTypeHolder * types, uint16 count);
 
         uint16 GetCount() const
-        {
+        {LOGMEIN("InlineCache.h] 554\n");
             return this->count;
         }
 
@@ -561,7 +561,7 @@ namespace Js
         JITTypeHolder GetType(uint16 index) const;
 
         bool GetSortedAndDuplicatesRemoved() const
-        {
+        {LOGMEIN("InlineCache.h] 563\n");
             return this->sortedAndDuplicatesRemoved;
         }
         bool Contains(const JITTypeHolder type, uint16 * pIndex = nullptr);
@@ -642,7 +642,7 @@ namespace Js
 
     public:
         ConstructorCache()
-        {
+        {LOGMEIN("InlineCache.h] 644\n");
             this->content.type = nullptr;
             this->content.scriptContext = nullptr;
             this->content.slotCount = 0;
@@ -660,7 +660,7 @@ namespace Js
         }
 
         ConstructorCache(ConstructorCache const * other)
-        {
+        {LOGMEIN("InlineCache.h] 662\n");
             Assert(other != nullptr);
             this->content.type = other->content.type;
             this->content.scriptContext = other->content.scriptContext;
@@ -678,11 +678,11 @@ namespace Js
             Assert(IsConsistent());
         }
 
-        static size_t const GetOffsetOfGuardValue() { return offsetof(Js::ConstructorCache, guard.value); }
-        static size_t const GetSizeOfGuardValue() { return sizeof(((Js::ConstructorCache*)nullptr)->guard.value); }
+        static size_t const GetOffsetOfGuardValue() {LOGMEIN("InlineCache.h] 680\n"); return offsetof(Js::ConstructorCache, guard.value); }
+        static size_t const GetSizeOfGuardValue() {LOGMEIN("InlineCache.h] 681\n"); return sizeof(((Js::ConstructorCache*)nullptr)->guard.value); }
 
         void Populate(DynamicType* type, ScriptContext* scriptContext, bool ctorHasNoExplicitReturnValue, bool updateAfterCtor)
-        {
+        {LOGMEIN("InlineCache.h] 684\n");
             Assert(scriptContext == type->GetScriptContext());
             Assert(type->GetIsShared());
             Assert(IsConsistent());
@@ -699,7 +699,7 @@ namespace Js
         }
 
         void PopulateForSkipDefaultNewObject(ScriptContext* scriptContext)
-        {
+        {LOGMEIN("InlineCache.h] 701\n");
             Assert(IsConsistent());
             Assert(!this->content.isPopulated);
             this->content.isPopulated = true;
@@ -710,7 +710,7 @@ namespace Js
         }
 
         bool TryUpdateAfterConstructor(DynamicType* type, ScriptContext* scriptContext)
-        {
+        {LOGMEIN("InlineCache.h] 712\n");
             Assert(scriptContext == type->GetScriptContext());
             Assert(type->GetTypeHandler()->GetMayBecomeShared());
             Assert(IsConsistent());
@@ -720,12 +720,12 @@ namespace Js
             Assert(this->content.ctorHasNoExplicitReturnValue);
 
             if (type->GetTypeHandler()->GetSlotCapacity() > MaxCachedSlotCount)
-            {
+            {LOGMEIN("InlineCache.h] 722\n");
                 return false;
             }
 
             if (type->GetIsShared())
-            {
+            {LOGMEIN("InlineCache.h] 727\n");
                 this->content.type = type;
                 this->content.typeIsFinal = true;
                 this->content.pendingType = nullptr;
@@ -744,7 +744,7 @@ namespace Js
         }
 
         void UpdateInlineSlotCount()
-        {
+        {LOGMEIN("InlineCache.h] 746\n");
             Assert(IsConsistent());
             Assert(this->content.isPopulated);
             Assert(IsEnabled() || NeedsTypeUpdate());
@@ -760,7 +760,7 @@ namespace Js
         }
 
         void EnableAfterTypeUpdate()
-        {
+        {LOGMEIN("InlineCache.h] 762\n");
             Assert(IsConsistent());
             Assert(this->content.isPopulated);
             Assert(!IsEnabled());
@@ -777,137 +777,137 @@ namespace Js
         }
 
         intptr_t GetRawGuardValue() const
-        {
+        {LOGMEIN("InlineCache.h] 779\n");
             return static_cast<intptr_t>(this->guard.value);
         }
 
         DynamicType* GetGuardValueAsType() const
-        {
+        {LOGMEIN("InlineCache.h] 784\n");
             return reinterpret_cast<DynamicType*>(this->guard.value & ~CtorCacheGuardValues::TagFlag);
         }
 
         DynamicType* GetType() const
-        {
+        {LOGMEIN("InlineCache.h] 789\n");
             Assert(static_cast<intptr_t>(this->guard.value & CtorCacheGuardValues::TagFlag) == 0);
             return this->content.type;
         }
 
         DynamicType* GetPendingType() const
-        {
+        {LOGMEIN("InlineCache.h] 795\n");
             return this->content.pendingType;
         }
 
         ScriptContext* GetScriptContext() const
-        {
+        {LOGMEIN("InlineCache.h] 800\n");
             return this->content.scriptContext;
         }
 
         int GetSlotCount() const
-        {
+        {LOGMEIN("InlineCache.h] 805\n");
             return this->content.slotCount;
         }
 
         int16 GetInlineSlotCount() const
-        {
+        {LOGMEIN("InlineCache.h] 810\n");
             return this->content.inlineSlotCount;
         }
 
         static bool IsDefault(const ConstructorCache* constructorCache)
-        {
+        {LOGMEIN("InlineCache.h] 815\n");
             return constructorCache == &ConstructorCache::DefaultInstance;
         }
 
         bool IsDefault() const
-        {
+        {LOGMEIN("InlineCache.h] 820\n");
             return IsDefault(this);
         }
 
         bool IsPopulated() const
-        {
+        {LOGMEIN("InlineCache.h] 825\n");
             Assert(IsConsistent());
             return this->content.isPopulated;
         }
 
         bool IsEmpty() const
-        {
+        {LOGMEIN("InlineCache.h] 831\n");
             Assert(IsConsistent());
             return !this->content.isPopulated;
         }
 
         bool IsPolymorphic() const
-        {
+        {LOGMEIN("InlineCache.h] 837\n");
             Assert(IsConsistent());
             return this->content.isPolymorphic;
         }
 
         bool GetSkipDefaultNewObject() const
-        {
+        {LOGMEIN("InlineCache.h] 843\n");
             return this->content.skipDefaultNewObject;
         }
 
         bool GetCtorHasNoExplicitReturnValue() const
-        {
+        {LOGMEIN("InlineCache.h] 848\n");
             return this->content.ctorHasNoExplicitReturnValue;
         }
 
         bool GetUpdateCacheAfterCtor() const
-        {
+        {LOGMEIN("InlineCache.h] 853\n");
             return this->content.updateAfterCtor;
         }
 
         bool GetTypeUpdatePending() const
-        {
+        {LOGMEIN("InlineCache.h] 858\n");
             return this->content.typeUpdatePending;
         }
 
         bool IsEnabled() const
-        {
+        {LOGMEIN("InlineCache.h] 863\n");
             return GetGuardValueAsType() != nullptr;
         }
 
         bool IsInvalidated() const
-        {
+        {LOGMEIN("InlineCache.h] 868\n");
             return this->guard.value == CtorCacheGuardValues::Invalid && this->content.isPopulated;
         }
 
         bool NeedsTypeUpdate() const
-        {
+        {LOGMEIN("InlineCache.h] 873\n");
             return this->guard.value == CtorCacheGuardValues::Special && this->content.typeUpdatePending;
         }
 
         uint8 CallCount() const
-        {
+        {LOGMEIN("InlineCache.h] 878\n");
             return content.callCount;
         }
 
         void IncCallCount()
-        {
+        {LOGMEIN("InlineCache.h] 883\n");
             ++content.callCount;
             Assert(content.callCount != 0);
         }
 
         bool NeedsUpdateAfterCtor() const
-        {
+        {LOGMEIN("InlineCache.h] 889\n");
             return this->content.updateAfterCtor;
         }
 
         bool IsNormal() const
-        {
+        {LOGMEIN("InlineCache.h] 894\n");
             return this->guard.value != CtorCacheGuardValues::Invalid && static_cast<intptr_t>(this->guard.value & CtorCacheGuardValues::TagFlag) == 0;
         }
 
         bool SkipDefaultNewObject() const
-        {
+        {LOGMEIN("InlineCache.h] 899\n");
             return this->guard.value == CtorCacheGuardValues::Special && this->content.skipDefaultNewObject;
         }
 
         bool IsSetUpForJit() const
-        {
+        {LOGMEIN("InlineCache.h] 904\n");
             return GetRawGuardValue() != NULL && !IsPolymorphic() && !NeedsUpdateAfterCtor() && (IsNormal() || SkipDefaultNewObject());
         }
 
         void ClearUpdateAfterCtor()
-        {
+        {LOGMEIN("InlineCache.h] 909\n");
             Assert(IsConsistent());
             Assert(this->content.isPopulated);
             Assert(this->content.updateAfterCtor);
@@ -918,17 +918,17 @@ namespace Js
         static ConstructorCache* EnsureValidInstance(ConstructorCache* currentCache, ScriptContext* scriptContext);
 
         const void* GetAddressOfGuardValue() const
-        {
+        {LOGMEIN("InlineCache.h] 920\n");
             return reinterpret_cast<const void*>(&this->guard.value);
         }
 
         static uint32 GetOffsetOfUpdateAfterCtor()
-        {
+        {LOGMEIN("InlineCache.h] 925\n");
             return offsetof(ConstructorCache, content.updateAfterCtor);
         }
 
         void InvalidateAsGuard()
-        {
+        {LOGMEIN("InlineCache.h] 930\n");
             Assert(!IsDefault(this));
             this->guard.value = CtorCacheGuardValues::Invalid;
             // Make sure we don't leak the types.
@@ -940,7 +940,7 @@ namespace Js
 
 #if DBG
         bool IsConsistent() const
-        {
+        {LOGMEIN("InlineCache.h] 942\n");
             return this->guard.value == CtorCacheGuardValues::Invalid ||
                 (this->content.isPopulated && (
                     (this->guard.value == CtorCacheGuardValues::Special && !this->content.updateAfterCtor && this->content.skipDefaultNewObject && !this->content.typeUpdatePending && this->content.slotCount == 0 && this->content.inlineSlotCount == 0 && this->content.pendingType == nullptr) ||
@@ -966,7 +966,7 @@ namespace Js
         IsInstInlineCache * next;       // Used to link together caches that have the same function operand
 
     public:
-        bool IsEmpty() const { return type == nullptr; }
+        bool IsEmpty() const {LOGMEIN("InlineCache.h] 968\n"); return type == nullptr; }
         bool TryGetResult(Var instance, JavascriptFunction * function, JavascriptBoolean ** result);
         void Cache(Type * instanceType, JavascriptFunction * function, JavascriptBoolean * result, ScriptContext * scriptContext);
         void Unregister(ScriptContext * scriptContext);
@@ -995,24 +995,24 @@ namespace Js
             result0(FALSE),
             result1(FALSE),
             lastAccess(1)
-        {
+        {LOGMEIN("InlineCache.h] 997\n");
         }
 
         bool TryGetIsConcatSpreadable(Type *type, _Out_ BOOL *result)
-        {
+        {LOGMEIN("InlineCache.h] 1001\n");
             Assert(type != nullptr);
             Assert(result != nullptr);
 
             *result = FALSE;
             if (type0 == type)
-            {
+            {LOGMEIN("InlineCache.h] 1007\n");
                 *result = result0;
                 lastAccess = 0;
                 return true;
             }
 
             if (type1 == type)
-            {
+            {LOGMEIN("InlineCache.h] 1014\n");
                 *result = result1;
                 lastAccess = 1;
                 return true;
@@ -1022,11 +1022,11 @@ namespace Js
         }
 
         void CacheIsConcatSpreadable(Type *type, BOOL result)
-        {
+        {LOGMEIN("InlineCache.h] 1024\n");
             Assert(type != nullptr);
 
             if (lastAccess == 0)
-            {
+            {LOGMEIN("InlineCache.h] 1028\n");
                 type1 = type;
                 result1 = result;
                 lastAccess = 1;
@@ -1040,7 +1040,7 @@ namespace Js
         }
 
         void Invalidate()
-        {
+        {LOGMEIN("InlineCache.h] 1042\n");
             type0 = nullptr;
             type1 = nullptr;
         }

@@ -45,11 +45,11 @@ public:
     void                Init(LowererMD * lowererMD);
     void                FinalLower();
     void                FlipHelperCallArgsOrder()
-    {
+    {LOGMEIN("LowererMDArch.h] 47\n");
         int left  = 0;
         int right = helperCallArgsCount - 1;
         while (left < right)
-        {
+        {LOGMEIN("LowererMDArch.h] 51\n");
             IR::Opnd *tempOpnd = helperCallArgs[left];
             helperCallArgs[left] = helperCallArgs[right];
             helperCallArgs[right] = tempOpnd;
@@ -60,7 +60,7 @@ public:
     }
 
     static  bool        IsLegalMemLoc(IR::MemRefOpnd *opnd)
-    {
+    {LOGMEIN("LowererMDArch.h] 62\n");
         return Math::FitsInDWord((size_t)opnd->GetMemLoc());
     }
 
@@ -131,8 +131,8 @@ public:
     IR::Opnd*           GenerateArgOutForStackArgs(IR::Instr* callInstr, IR::Instr* stackArgsInstr);
     void                GenerateFunctionObjectTest(IR::Instr * callInstr, IR::RegOpnd  *functionObjOpnd, bool isHelper, IR::LabelInstr* afterCallLabel = nullptr);
 
-    int                 GetHelperArgsCount() { return this->helperCallArgsCount; }
-    void                ResetHelperArgsCount() { this->helperCallArgsCount = 0; }
+    int                 GetHelperArgsCount() {LOGMEIN("LowererMDArch.h] 133\n"); return this->helperCallArgsCount; }
+    void                ResetHelperArgsCount() {LOGMEIN("LowererMDArch.h] 134\n"); this->helperCallArgsCount = 0; }
 
     void                LowerInlineSpreadArgOutLoop(IR::Instr *callInstr, IR::RegOpnd *indexOpnd, IR::RegOpnd *arrayElementsStartOpnd);
     IR::Instr *         LowerEHRegionReturn(IR::Instr * insertBeforeInstr, IR::Opnd * targetOpnd);

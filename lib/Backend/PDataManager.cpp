@@ -13,10 +13,10 @@
 // ----------------------------------------------------------------------------
 
 void PDataManager::RegisterPdata(RUNTIME_FUNCTION* pdataStart, _In_ const ULONG_PTR functionStart, _In_ const ULONG_PTR functionEnd, _Out_ PVOID* pdataTable, ULONG entryCount, ULONG maxEntryCount)
-{
+{LOGMEIN("PDataManager.cpp] 15\n");
     BOOLEAN success = FALSE;
     if (AutoSystemInfo::Data.IsWin8OrLater())
-    {
+    {LOGMEIN("PDataManager.cpp] 18\n");
         Assert(pdataTable != NULL);
 
         // Since we do not expect many thunk functions to be created, we are using 1 table/function
@@ -29,7 +29,7 @@ void PDataManager::RegisterPdata(RUNTIME_FUNCTION* pdataStart, _In_ const ULONG_
             /*RangeEnd*/ functionEnd);
         success = NT_SUCCESS(status);
         if (success)
-        {
+        {LOGMEIN("PDataManager.cpp] 31\n");
             Assert(pdataTable);
         }
     }
@@ -42,9 +42,9 @@ void PDataManager::RegisterPdata(RUNTIME_FUNCTION* pdataStart, _In_ const ULONG_
 }
 
 void PDataManager::UnregisterPdata(RUNTIME_FUNCTION* pdata)
-{
+{LOGMEIN("PDataManager.cpp] 44\n");
     if (AutoSystemInfo::Data.IsWin8OrLater())
-    {
+    {LOGMEIN("PDataManager.cpp] 46\n");
         NtdllLibrary::Instance->DeleteGrowableFunctionTable(pdata);
     }
     else
@@ -63,13 +63,13 @@ void PDataManager::UnregisterPdata(RUNTIME_FUNCTION* pdata)
 void PDataManager::RegisterPdata(RUNTIME_FUNCTION* pdataStart,
     _In_ const ULONG_PTR functionStart, _In_ const ULONG_PTR functionEnd,
     _Out_ PVOID* pdataTable, ULONG entryCount, ULONG maxEntryCount)
-{
+{LOGMEIN("PDataManager.cpp] 65\n");
     __REGISTER_FRAME(pdataStart);
     *pdataTable = pdataStart;
 }
 
 void PDataManager::UnregisterPdata(RUNTIME_FUNCTION* pdata)
-{
+{LOGMEIN("PDataManager.cpp] 71\n");
     __DEREGISTER_FRAME(pdata);
 }
 

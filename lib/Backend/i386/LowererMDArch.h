@@ -33,11 +33,11 @@ public:
             LowererMDArch(Func* function)
                 : m_func(function),
                   bailOutStackRestoreLabel(nullptr)
-            {
+            {LOGMEIN("LowererMDArch.h] 35\n");
             }
 
     static  bool                IsLegalMemLoc(IR::MemRefOpnd *opnd)
-            {
+            {LOGMEIN("LowererMDArch.h] 39\n");
                 return true;
             }
 
@@ -113,10 +113,10 @@ public:
 
             IR::LabelInstr *    GetBailOutStackRestoreLabel(BailOutInfo * bailOutInfo, IR::LabelInstr * exitTargetInstr);
             IR::Opnd*           GenerateArgOutForStackArgs(IR::Instr* callInstr, IR::Instr* stackArgsInstr);
-            IR::Instr *         LoadDynamicArgumentUsingLength(IR::Instr *instr) { Assert(false); return instr; }
+            IR::Instr *         LoadDynamicArgumentUsingLength(IR::Instr *instr) {LOGMEIN("LowererMDArch.h] 115\n"); Assert(false); return instr; }
             void                GenerateFunctionObjectTest(IR::Instr * callInstr, IR::RegOpnd  *functionObjOpnd, bool isHelper, IR::LabelInstr* afterCallLabel = nullptr);
-            int                 GetHelperArgsCount() { return this->helperCallArgsCount; }
-            void                ResetHelperArgsCount() { this->helperCallArgsCount = 0; }
+            int                 GetHelperArgsCount() {LOGMEIN("LowererMDArch.h] 117\n"); return this->helperCallArgsCount; }
+            void                ResetHelperArgsCount() {LOGMEIN("LowererMDArch.h] 118\n"); this->helperCallArgsCount = 0; }
 
 
             void                LowerInlineSpreadArgOutLoop(IR::Instr *callInstr, IR::RegOpnd *indexOpnd, IR::RegOpnd *arrayElementsStartOpnd);

@@ -151,7 +151,7 @@ public:
 template<>
 inline IntBoundCheckCompatibilityId JsUtil::ValueToKey<IntBoundCheckCompatibilityId, IntBoundCheck>::ToKey(
     const IntBoundCheck &intBoundCheck)
-{
+{LOGMEIN("IntBounds.h] 153\n");
     return intBoundCheck.CompatibilityId();
 }
 

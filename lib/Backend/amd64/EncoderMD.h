@@ -39,14 +39,14 @@ private:
 
 public:
     void                init(RelocType type, void* ptr, IR::LabelInstr* labelInstr = nullptr)
-    {
+    {LOGMEIN("EncoderMD.h] 41\n");
         m_type = type;
         m_ptr = ptr;
         m_InlineeOffset = 0;
         m_isShortBr = false;
 
         if (type == RelocTypeLabel)
-        {
+        {LOGMEIN("EncoderMD.h] 48\n");
             // preserve original PC for labels
             m_origPtr   = (void*)((IR::LabelInstr*)ptr)->GetPC();
             m_nopCount  = 0;
@@ -56,13 +56,13 @@ public:
             m_origPtr = ptr;
             
             if (type == RelocTypeBranch)
-            {
+            {LOGMEIN("EncoderMD.h] 58\n");
                 Assert(labelInstr);
                 m_labelInstr = labelInstr;
                 m_isShortBr = false;
             }
             else if (type == RelocTypeLabelUse)
-            {
+            {LOGMEIN("EncoderMD.h] 64\n");
                 Assert(labelInstr);
                 m_labelInstr = labelInstr;
             }
@@ -70,10 +70,10 @@ public:
     }
 
     void                revert()
-    {
+    {LOGMEIN("EncoderMD.h] 72\n");
         // recover old label PC
         if (isLabel())
-        {
+        {LOGMEIN("EncoderMD.h] 75\n");
             // recover old label PC and reset alignment nops
             // we keep aligned labels type so we align them on the second attempt.
             setLabelCurrPC(getLabelOrigPC());
@@ -82,83 +82,83 @@ public:
         }
 
         if (m_type == RelocTypeBranch)
-        {
+        {LOGMEIN("EncoderMD.h] 84\n");
             m_isShortBr = false;
         }
 
         m_ptr = m_origPtr;
     }
 
-    bool                isLabel()           const { return isAlignedLabel() || m_type == RelocTypeLabel; }
-    bool                isAlignedLabel()    const { return m_type == RelocTypeAlignedLabel; }
-    bool                isLongBr()          const { return m_type == RelocTypeBranch && !m_isShortBr; }
-    bool                isShortBr()         const { return m_type == RelocTypeBranch && m_isShortBr; }
-    BYTE*               getBrOpCodeByte()   const { return (BYTE*)m_origPtr - 1;}
+    bool                isLabel()           const {LOGMEIN("EncoderMD.h] 91\n"); return isAlignedLabel() || m_type == RelocTypeLabel; }
+    bool                isAlignedLabel()    const {LOGMEIN("EncoderMD.h] 92\n"); return m_type == RelocTypeAlignedLabel; }
+    bool                isLongBr()          const {LOGMEIN("EncoderMD.h] 93\n"); return m_type == RelocTypeBranch && !m_isShortBr; }
+    bool                isShortBr()         const {LOGMEIN("EncoderMD.h] 94\n"); return m_type == RelocTypeBranch && m_isShortBr; }
+    BYTE*               getBrOpCodeByte()   const {LOGMEIN("EncoderMD.h] 95\n"); return (BYTE*)m_origPtr - 1;}
 
     IR::LabelInstr *    getBrTargetLabel()  const
-    {
+    {LOGMEIN("EncoderMD.h] 98\n");
         Assert((m_type == RelocTypeBranch || m_type == RelocTypeLabelUse) && m_labelInstr);
         return m_labelInstr;
     }
     IR::LabelInstr *    getLabel()  const
-    {
+    {LOGMEIN("EncoderMD.h] 103\n");
         Assert(isLabel());
         return (IR::LabelInstr*) m_ptr;
     }
     // get label original PC without shortening/alignment
     BYTE *  getLabelOrigPC()  const
-    {
+    {LOGMEIN("EncoderMD.h] 109\n");
         Assert(isLabel());
         return ((BYTE*) m_origPtr);
     }
 
     // get label PC after shortening/alignment
     BYTE *  getLabelCurrPC()  const
-    {
+    {LOGMEIN("EncoderMD.h] 116\n");
         Assert(isLabel());
         return getLabel()->GetPC();
     }
 
     BYTE    getLabelNopCount() const
-    {
+    {LOGMEIN("EncoderMD.h] 122\n");
         Assert(isAlignedLabel());
         return m_nopCount;
     }
 
     void    setLabelCurrPC(BYTE* pc)
-    {
+    {LOGMEIN("EncoderMD.h] 128\n");
         Assert(isLabel());
         getLabel()->SetPC(pc);
     }
 
     void    setLabelNopCount(BYTE nopCount)
-    {
+    {LOGMEIN("EncoderMD.h] 134\n");
         Assert(isAlignedLabel());
         Assert (nopCount >= 0 && nopCount < 16);
         m_nopCount = nopCount;
     }
 
     void                setAsShortBr()
-    {
+    {LOGMEIN("EncoderMD.h] 141\n");
         Assert(m_type == RelocTypeBranch);
         m_isShortBr = true;
     }
 
     // Validates if the branch is short and its target PC fits in one byte
     bool                validateShortBrTarget() const
-    {
+    {LOGMEIN("EncoderMD.h] 148\n");
         return isShortBr() &&
             getBrTargetLabel()->GetPC() - ((BYTE*)m_ptr + 1) >= -128 &&
             getBrTargetLabel()->GetPC() - ((BYTE*)m_ptr + 1) <= 127;
     }
 
     uint64 GetInlineOffset()
-    {
+    {LOGMEIN("EncoderMD.h] 155\n");
         return m_InlineeOffset;
     }
 
     void SetInlineOffset(uint64 offset)
-    {
+    {LOGMEIN("EncoderMD.h] 160\n");
         m_InlineeOffset = offset;
     }
 };
@@ -178,7 +178,7 @@ typedef JsUtil::List<InlineeFrameRecord*, ArenaAllocator> InlineeFrameRecords;
 class EncoderMD
 {
 public:
-    EncoderMD(Func * func) : m_func(func) {}
+    EncoderMD(Func * func) : m_func(func) {LOGMEIN("EncoderMD.h] 180\n");}
     ptrdiff_t       Encode(IR::Instr * instr, BYTE *pc, BYTE* beginCodeAddress = nullptr);
     void            Init(Encoder *encoder);
     void            ApplyRelocs(size_t codeBufferAddress, size_t codeSize, uint* bufferCRC, BOOL isBrShorteningSucceeded, bool isFinalBufferValidation = false);
@@ -192,7 +192,7 @@ public:
     static bool     IsOPEQ(IR::Instr *instr);
     static bool     IsSHIFT(IR::Instr *instr);
     static bool     IsMOVEncoding(IR::Instr *instr);
-    RelocList*      GetRelocList() const { return m_relocList; }
+    RelocList*      GetRelocList() const {LOGMEIN("EncoderMD.h] 194\n"); return m_relocList; }
     int             AppendRelocEntry(RelocType type, void *ptr, IR::LabelInstr *label= nullptr);
     int             FixRelocListEntry(uint32 index, int totalBytesSaved, BYTE *buffStart, BYTE* buffEnd);
     void            FixMaps(uint32 brOffset, uint32 bytesSaved, uint32 *inlineeFrameRecordsIndex, uint32 *inlineeFrameMapIndex,  uint32 *pragmaInstToRecordOffsetIndex, uint32 *offsetBuffIndex);

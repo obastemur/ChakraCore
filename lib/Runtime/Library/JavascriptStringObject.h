@@ -31,7 +31,7 @@ namespace Js
         static JavascriptStringObject* FromVar(Var aValue);
 
         void Initialize(JavascriptString* value);
-        JavascriptString* Unwrap() { return InternalUnwrap(); }
+        JavascriptString* Unwrap() {LOGMEIN("JavascriptStringObject.h] 33\n"); return InternalUnwrap(); }
 
         virtual bool HasReadOnlyPropertiesInvisibleToTypeHandler() override { return true; }
 

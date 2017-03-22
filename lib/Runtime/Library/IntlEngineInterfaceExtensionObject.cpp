@@ -34,7 +34,7 @@ using namespace Windows::Globalization;
 
 #define IfCOMFailIgnoreSilentlyAndReturn(op) \
     if(FAILED(hr=(op))) \
-    { \
+    {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 36\n"); \
         return; \
     } \
 
@@ -47,18 +47,18 @@ using namespace Windows::Globalization;
 
 #define HandleOOMSOEHR(hr) \
     if (hr == E_OUTOFMEMORY) \
-    { \
+    {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 49\n"); \
     JavascriptError::ThrowOutOfMemoryError(scriptContext); \
     } \
     else if(hr == VBSERR_OutOfStack) \
-    { \
+    {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 53\n"); \
     JavascriptError::ThrowStackOverflowError(scriptContext); \
     } \
 
 
 #define IfFailThrowHr(op) \
     if (FAILED(hr=(op))) \
-    { \
+    {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 60\n"); \
     JavascriptError::MapAndThrowError(scriptContext, hr); \
     } \
 
@@ -127,22 +127,22 @@ namespace Js
     private:
         HSTRING value;
     public:
-        HSTRING *operator&() { Assert(value == nullptr); return &value; }
-        HSTRING operator*() const { Assert(value != nullptr); return value; }
+        HSTRING *operator&() {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 129\n"); Assert(value == nullptr); return &value; }
+        HSTRING operator*() const {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 130\n"); Assert(value != nullptr); return value; }
 
         AutoHSTRING()
             : value(nullptr)
-        { }
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 134\n"); }
 
         ~AutoHSTRING()
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 137\n");
             Clear();
         }
 
         void Clear()
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 142\n");
             if (value != nullptr)
-            {
+            {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 144\n");
                 WindowsDeleteString(value);
                 value = nullptr;
             }
@@ -158,10 +158,10 @@ namespace Js
 
         AutoCOMJSObject(IInspectable *object)
             : instance(object)
-        { }
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 160\n"); }
 
         static AutoCOMJSObject * New(Recycler * recycler, IInspectable *object)
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 163\n");
             return RecyclerNewFinalized(recycler, AutoCOMJSObject, object);
         }
 
@@ -180,7 +180,7 @@ namespace Js
         }
 
         IInspectable *GetInstance()
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 182\n");
             return instance;
         }
     };
@@ -195,7 +195,7 @@ namespace Js
         intlNativeInterfaces(nullptr),
         intlByteCode(nullptr),
         wasInitialized(false)
-    {
+    {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 197\n");
     }
 
     NoProfileFunctionInfo IntlEngineInterfaceExtensionObject::EntryInfo::Intl_RaiseAssert(FORCE_NO_WRITE_BARRIER_TAG(IntlEngineInterfaceExtensionObject::EntryIntl_RaiseAssert));
@@ -226,20 +226,20 @@ namespace Js
     NoProfileFunctionInfo IntlEngineInterfaceExtensionObject::EntryInfo::Intl_BuiltIn_CallInstanceFunction(FORCE_NO_WRITE_BARRIER_TAG(IntlEngineInterfaceExtensionObject::EntryIntl_BuiltIn_CallInstanceFunction));
 
     WindowsGlobalizationAdapter* IntlEngineInterfaceExtensionObject::GetWindowsGlobalizationAdapter(_In_ ScriptContext * scriptContext)
-    {
+    {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 228\n");
         return scriptContext->GetThreadContext()->GetWindowsGlobalizationAdapter();
     }
 
     void IntlEngineInterfaceExtensionObject::Initialize()
-    {
+    {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 233\n");
         if (wasInitialized)
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 235\n");
             return;
         }
         JavascriptLibrary* library = scriptContext->GetLibrary();
         DynamicObject* commonObject = library->GetEngineInterfaceObject()->GetCommonNativeInterfaces();
         if (scriptContext->IsIntlEnabled())
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 241\n");
             Assert(library->GetEngineInterfaceObject() != nullptr);
             this->intlNativeInterfaces = DynamicObject::New(library->GetRecycler(),
                 DynamicType::New(scriptContext, TypeIds_Object, commonObject, nullptr,
@@ -256,7 +256,7 @@ namespace Js
 
 #if DBG
     void IntlEngineInterfaceExtensionObject::DumpByteCode()
-    {
+    {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 258\n");
         Output::Print(_u("Dumping Intl Byte Code:"));
         this->EnsureIntlByteCode(scriptContext);
         Js::ByteCodeDumper::DumpRecursively(intlByteCode);
@@ -264,7 +264,7 @@ namespace Js
 #endif
 
     void IntlEngineInterfaceExtensionObject::InitializeIntlNativeInterfaces(DynamicObject* intlNativeInterfaces, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 266\n");
         typeHandler->Convert(intlNativeInterfaces, mode, 16);
 
         ScriptContext* scriptContext = intlNativeInterfaces->GetScriptContext();
@@ -296,7 +296,7 @@ namespace Js
     }
 
     void IntlEngineInterfaceExtensionObject::deletePrototypePropertyHelper(ScriptContext* scriptContext, DynamicObject* intlObject, Js::PropertyId objectPropertyId, Js::PropertyId getterFunctionId)
-    {
+    {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 298\n");
         DynamicObject *prototypeObject = nullptr;
         DynamicObject *functionObj = nullptr;
         Var propertyValue = nullptr;
@@ -307,13 +307,13 @@ namespace Js
 
         if (!JavascriptOperators::GetProperty(intlObject, objectPropertyId, &propertyValue, scriptContext) ||
             !JavascriptOperators::IsObject(propertyValue))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 309\n");
             return;
         }
 
         if (!JavascriptOperators::GetProperty(DynamicObject::FromVar(propertyValue), Js::PropertyIds::prototype, &prototypeValue, scriptContext) ||
             !JavascriptOperators::IsObject(prototypeValue))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 315\n");
             return;
         }
 
@@ -321,7 +321,7 @@ namespace Js
 
         if (!JavascriptOperators::GetProperty(prototypeObject, Js::PropertyIds::resolvedOptions, &resolvedOptionsValue, scriptContext) ||
             !JavascriptOperators::IsObject(resolvedOptionsValue))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 323\n");
             return;
         }
 
@@ -331,7 +331,7 @@ namespace Js
 
         if (!JavascriptOperators::GetOwnAccessors(prototypeObject, getterFunctionId, &getter, &setter, scriptContext) ||
             !JavascriptOperators::IsObject(getter))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 333\n");
             return;
         }
 
@@ -341,7 +341,7 @@ namespace Js
     }
 
     void IntlEngineInterfaceExtensionObject::cleanUpIntl(ScriptContext *scriptContext, DynamicObject* intlObject)
-    {
+    {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 343\n");
         this->dateToLocaleString = nullptr;
         this->dateToLocaleTimeString = nullptr;
         this->dateToLocaleDateString = nullptr;
@@ -350,23 +350,23 @@ namespace Js
 
         //Failed to setup Intl; Windows.Globalization.dll is most likely missing.
         if (Js::JavascriptOperators::HasProperty(intlObject, Js::PropertyIds::Collator))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 352\n");
             intlObject->DeleteProperty(Js::PropertyIds::Collator, Js::PropertyOperationFlags::PropertyOperation_None);
         }
         if (Js::JavascriptOperators::HasProperty(intlObject, Js::PropertyIds::NumberFormat))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 356\n");
             intlObject->DeleteProperty(Js::PropertyIds::NumberFormat, Js::PropertyOperationFlags::PropertyOperation_None);
         }
         if (Js::JavascriptOperators::HasProperty(intlObject, Js::PropertyIds::DateTimeFormat))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 360\n");
             intlObject->DeleteProperty(Js::PropertyIds::DateTimeFormat, Js::PropertyOperationFlags::PropertyOperation_None);
         }
     }
 
     void IntlEngineInterfaceExtensionObject::EnsureIntlByteCode(_In_ ScriptContext * scriptContext)
-    {
+    {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 366\n");
         if (this->intlByteCode == nullptr)
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 368\n");
             SourceContextInfo * sourceContextInfo = scriptContext->GetSourceContextInfo(Js::Constants::NoHostSourceContext, NULL);
 
             Assert(sourceContextInfo != nullptr);
@@ -384,10 +384,10 @@ namespace Js
     }
 
     void IntlEngineInterfaceExtensionObject::InjectIntlLibraryCode(_In_ ScriptContext * scriptContext, DynamicObject* intlObject, IntlInitializationType intlInitializationType)
-    {
+    {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 386\n");
         JavascriptExceptionObject *pExceptionObject = nullptr;
         WindowsGlobalizationAdapter* globAdapter = GetWindowsGlobalizationAdapter(scriptContext);
-        try {
+        try {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 389\n");
             this->EnsureIntlByteCode(scriptContext);
 
             Assert(intlByteCode != nullptr);
@@ -401,7 +401,7 @@ namespace Js
             //Ensure we have initialized all appropriate COM objects for the adapter (we will be using them now)
             IfCOMFailIgnoreSilentlyAndReturn(globAdapter->EnsureCommonObjectsInitialized(library));
             switch (intlInitializationType)
-            {
+            {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 403\n");
                 default:
                     AssertMsg(false, "Not a valid intlInitializationType.");
                     // fall thru
@@ -429,7 +429,7 @@ namespace Js
 
             // If we are profiling, we need to register the script to the profiler callback, so the script compiled event will be sent.
             if (scriptContext->IsProfiling())
-            {
+            {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 431\n");
                 scriptContext->RegisterScript(function->GetFunctionProxy());
             }
             // Mark we are profiling library code already, so that any initialization library code called here won't be reported to profiler
@@ -453,12 +453,12 @@ namespace Js
             }
         }
         catch (const JavascriptException& err)
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 455\n");
             pExceptionObject = err.GetAndClear();
         }
 
         if (pExceptionObject)
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 460\n");
             if (intlInitializationType == IntlInitializationType::Intl)
             {
                 cleanUpIntl(scriptContext, intlObject);
@@ -466,10 +466,10 @@ namespace Js
 
             if (pExceptionObject == ThreadContext::GetContextForCurrentThread()->GetPendingOOMErrorObject() ||
                 pExceptionObject == ThreadContext::GetContextForCurrentThread()->GetPendingSOErrorObject())
-            {
+            {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 468\n");
                 // Reset factory objects that are might not have fully initialized
                 globAdapter->ResetCommonFactoryObjects();
-                switch (intlInitializationType) {
+                switch (intlInitializationType) {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 471\n");
                   default:
                     AssertMsg(false, "Not a valid intlInitializationType.");
                     // fall thru
@@ -517,7 +517,7 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo);
 
         if (args.Info.Count < 2 || !JavascriptString::Is(args.Values[1]))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 519\n");
             // IsWellFormedLanguageTage of undefined or non-string is false
             return scriptContext->GetLibrary()->GetFalse();
         }
@@ -532,7 +532,7 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo);
 
         if (args.Info.Count < 2 || !JavascriptString::Is(args.Values[1]))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 534\n");
             // NormalizeLanguageTag of undefined or non-string is undefined
             return scriptContext->GetLibrary()->GetUndefined();
         }
@@ -544,7 +544,7 @@ namespace Js
         AutoHSTRING str;
         HRESULT hr;
         if (FAILED(hr = wga->NormalizeLanguageTag(scriptContext, argString->GetSz(), &str)))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 546\n");
             HandleOOMSOEHR(hr);
             //If we can't normalize the tag; return undefined.
             return scriptContext->GetLibrary()->GetUndefined();
@@ -560,7 +560,7 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo);
 
         if (args.Info.Count < 2 || !JavascriptString::Is(args.Values[1]))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 562\n");
             // NormalizeLanguageTag of undefined or non-string is undefined
             return scriptContext->GetLibrary()->GetUndefined();
         }
@@ -572,7 +572,7 @@ namespace Js
 
         ResolveLocaleName(argString->GetSz(), resolvedLocaleName, _countof(resolvedLocaleName));
         if (resolvedLocaleName[0] == '\0')
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 574\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
         return JavascriptString::NewCopySz(resolvedLocaleName, scriptContext);
@@ -584,7 +584,7 @@ namespace Js
         DelayLoadWindowsGlobalization* wgl = scriptContext->GetThreadContext()->GetWindowsGlobalizationLibrary();
         WindowsGlobalizationAdapter* wga = GetWindowsGlobalizationAdapter(scriptContext);
         if (args.Info.Count < 2 || !JavascriptString::Is(args.Values[1]))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 586\n");
             // NormalizeLanguageTag of undefined or non-string is undefined
             return scriptContext->GetLibrary()->GetUndefined();
         }
@@ -595,13 +595,13 @@ namespace Js
         AutoCOMPtr<DateTimeFormatting::IDateTimeFormatter> formatter;
         HRESULT hr;
         if (FAILED(hr = wga->CreateDateTimeFormatter(scriptContext, _u("longdate"), &passedLocale, 1, nullptr, nullptr, &formatter)))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 597\n");
             HandleOOMSOEHR(hr);
             return scriptContext->GetLibrary()->GetUndefined();
         }
         AutoHSTRING locale;
         if (FAILED(hr = wga->GetResolvedLanguage(formatter, &locale)))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 603\n");
             HandleOOMSOEHR(hr);
             return scriptContext->GetLibrary()->GetUndefined();
         }
@@ -617,7 +617,7 @@ namespace Js
         defaultLocale[0] = '\0';
 
         if (GetUserDefaultLocaleName(defaultLocale, _countof(defaultLocale)) == 0 || defaultLocale[0] == '\0')
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 619\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -630,7 +630,7 @@ namespace Js
         DelayLoadWindowsGlobalization* wgl = scriptContext->GetThreadContext()->GetWindowsGlobalizationLibrary();
         WindowsGlobalizationAdapter* wga = GetWindowsGlobalizationAdapter(scriptContext);
         if (args.Info.Count < 2 || !JavascriptString::Is(args.Values[1]))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 632\n");
             // NormalizeLanguageTag of undefined or non-string is undefined
             return scriptContext->GetLibrary()->GetUndefined();
         }
@@ -639,13 +639,13 @@ namespace Js
         AutoCOMPtr<ILanguageExtensionSubtags> extensionSubtags;
         HRESULT hr;
         if (FAILED(hr = wga->CreateLanguage(scriptContext, JavascriptString::FromVar(args.Values[1])->GetSz(), &language)))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 641\n");
             HandleOOMSOEHR(hr);
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
         if (FAILED(hr = language->QueryInterface(__uuidof(ILanguageExtensionSubtags), reinterpret_cast<void**>(&extensionSubtags))))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 647\n");
             HandleOOMSOEHR(hr);
             return scriptContext->GetLibrary()->GetUndefined();
         }
@@ -656,17 +656,17 @@ namespace Js
         uint32 length;
 
         if (FAILED(hr = wgl->WindowsCreateString(_u("u"), 1, &singletonString)) || FAILED(hr = extensionSubtags->GetExtensionSubtags(*singletonString, &subtags)) || FAILED(subtags->get_Size(&length)))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 658\n");
             HandleOOMSOEHR(hr);
             return scriptContext->GetLibrary()->GetUndefined();
         }
         JavascriptArray *toReturn = scriptContext->GetLibrary()->CreateArray(length);
 
         for (uint32 i = 0; i < length; i++)
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 665\n");
             AutoHSTRING str;
             if (!FAILED(hr = wga->GetItemAt(subtags, i, &str)))
-            {
+            {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 668\n");
                 toReturn->SetItem(i, JavascriptString::NewCopySz(wgl->WindowsGetStringRawBuffer(*str, NULL), scriptContext), Js::PropertyOperationFlags::PropertyOperation_None);
             }
             else
@@ -686,7 +686,7 @@ namespace Js
 
         //The passed object is the hidden state object
         if (args.Info.Count < 2 || !DynamicObject::Is(args.Values[1]))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 688\n");
             // Call with undefined or non-number is undefined
             return scriptContext->GetLibrary()->GetUndefined();
         }
@@ -698,7 +698,7 @@ namespace Js
 
         //Verify locale is present
         if (!GetTypedPropertyBuiltInFrom(options, __locale, JavascriptString) || (localeJSstr = JavascriptString::FromVar(propertyValue))->GetLength() <= 0)
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 700\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -708,16 +708,16 @@ namespace Js
         PCWSTR locale = localeJSstr->GetSz();
         uint16 formatterToUseVal = 0; // number is default, 1 is percent, 2 is currency
         if (GetTypedPropertyBuiltInFrom(options, __formatterToUse, TaggedInt) && (formatterToUseVal = TaggedInt::ToUInt16(propertyValue)) == 1)
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 710\n");
             //Use the percent formatter
             IfFailThrowHr(wga->CreatePercentFormatter(scriptContext, &locale, 1, &numberFormatter));
         }
         else if (formatterToUseVal == 2)
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 715\n");
             //Use the currency formatter
             AutoCOMPtr<NumberFormatting::ICurrencyFormatter> currencyFormatter(nullptr);
             if (!GetTypedPropertyBuiltInFrom(options, __currency, JavascriptString))
-            {
+            {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 719\n");
                 return scriptContext->GetLibrary()->GetUndefined();
             }
             //API call retrieves a currency formatter, have to query its interface for numberFormatter
@@ -725,12 +725,12 @@ namespace Js
 
             if (GetTypedPropertyBuiltInFrom(options, __currencyDisplayToUse, TaggedInt)) // 0 is for symbol, 1 is for code, 2 is for name.
                                                                                          //Currently name isn't supported; so it will default to code in that case.
-            {
+            {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 727\n");
                 AutoCOMPtr<NumberFormatting::ICurrencyFormatter2> currencyFormatter2(nullptr);
                 IfFailThrowHr(currencyFormatter->QueryInterface(__uuidof(NumberFormatting::ICurrencyFormatter2), reinterpret_cast<void**>(&currencyFormatter2)));
 
                 if (TaggedInt::ToUInt16(propertyValue) == 0)
-                {
+                {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 732\n");
                     IfFailThrowHr(currencyFormatter2->put_Mode(NumberFormatting::CurrencyFormatterMode::CurrencyFormatterMode_UseSymbol));
                 }
                 else
@@ -758,11 +758,11 @@ namespace Js
         Assert(numberFormatterOptions);
 
         if (GetTypedPropertyBuiltInFrom(options, __isDecimalPointAlwaysDisplayed, JavascriptBoolean))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 760\n");
             IfFailThrowHr(numberFormatterOptions->put_IsDecimalPointAlwaysDisplayed((boolean)(JavascriptBoolean::FromVar(propertyValue)->GetValue())));
         }
         if (GetTypedPropertyBuiltInFrom(options, __useGrouping, JavascriptBoolean))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 764\n");
             IfFailThrowHr(numberFormatterOptions->put_IsGrouped((boolean)(JavascriptBoolean::FromVar(propertyValue)->GetValue())));
         }
 
@@ -781,15 +781,15 @@ namespace Js
         Assert(rounderOptions);
 
         if (HasPropertyBuiltInOn(options, __minimumSignificantDigits) || HasPropertyBuiltInOn(options, __maximumSignificantDigits))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 783\n");
             uint16 minSignificantDigits = 1, maxSignificantDigits = 21;
             //Do significant digit rounding
             if (GetTypedPropertyBuiltInFrom(options, __minimumSignificantDigits, TaggedInt))
-            {
+            {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 787\n");
                 minSignificantDigits = max<uint16>(min<uint16>(TaggedInt::ToUInt16(propertyValue), 21), 1);
             }
             if (GetTypedPropertyBuiltInFrom(options, __maximumSignificantDigits, TaggedInt))
-            {
+            {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 791\n");
                 maxSignificantDigits = max<uint16>(min<uint16>(TaggedInt::ToUInt16(propertyValue), 21), minSignificantDigits);
             }
             prepareWithSignificantDigits(scriptContext, rounderOptions, numberFormatter, numberFormatterOptions, minSignificantDigits, maxSignificantDigits);
@@ -799,15 +799,15 @@ namespace Js
             uint16 minFractionDigits = 0, maxFractionDigits = 3, minIntegerDigits = 1;
             //Do fraction/integer digit rounding
             if (GetTypedPropertyBuiltInFrom(options, __minimumIntegerDigits, TaggedInt))
-            {
+            {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 801\n");
                 minIntegerDigits = max<uint16>(min<uint16>(TaggedInt::ToUInt16(propertyValue), 21), 1);
             }
             if (GetTypedPropertyBuiltInFrom(options, __minimumFractionDigits, TaggedInt))
-            {
+            {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 805\n");
                 minFractionDigits = min<uint16>(TaggedInt::ToUInt16(propertyValue), 20);//ToUInt16 will get rid of negatives by making them high
             }
             if (GetTypedPropertyBuiltInFrom(options, __maximumFractionDigits, TaggedInt))
-            {
+            {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 809\n");
                 maxFractionDigits = max(min<uint16>(TaggedInt::ToUInt16(propertyValue), 20), minFractionDigits);//ToUInt16 will get rid of negatives by making them high
             }
             prepareWithFractionIntegerDigits(scriptContext, rounderOptions, numberFormatterOptions, minFractionDigits, maxFractionDigits + (formatterToUseVal == 1 ? 2 : 0), minIntegerDigits);//extend max fractions for percent
@@ -828,7 +828,7 @@ namespace Js
         WindowsGlobalizationAdapter* wga = GetWindowsGlobalizationAdapter(scriptContext);
 
         if (args.Info.Count < 3 || !DynamicObject::Is(args.Values[1]) || !JavascriptBoolean::Is(args.Values[2]))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 830\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -851,7 +851,7 @@ namespace Js
 
         AutoHSTRING hDummyCalendar;
         if (clock != nullptr)
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 853\n");
             //Because both calendar and clock are needed to pass into the datetimeformatter constructor (or neither); create a dummy one to get the value of calendar out so clock can be passed in with it.
             AutoCOMPtr<DateTimeFormatting::IDateTimeFormatter> dummyFormatter;
             IfFailThrowHr(wga->CreateDateTimeFormatter(scriptContext, templateString, &locale, 1, nullptr, nullptr, &dummyFormatter));
@@ -891,7 +891,7 @@ namespace Js
         JavascriptArray *patternStrings = scriptContext->GetLibrary()->CreateArray(length);
 
         for (uint32 i = 0; i < length; i++)
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 893\n");
             AutoHSTRING item;
             IfFailThrowHr(wga->GetItemAt(dateResult, i, &item));
             patternStrings->SetItem(i, Js::JavascriptString::NewCopySz(wgl->WindowsGetStringRawBuffer(*item, NULL), scriptContext), PropertyOperation_None);
@@ -903,7 +903,7 @@ namespace Js
         {
             //If timeZone is undefined; then use the standard dateTimeFormatter to format in local time; otherwise use the IDateTimeFormatter2 to format using specified timezone (UTC)
             if (!GetPropertyBuiltInFrom(obj, __timeZone) || JavascriptOperators::IsUndefinedObject(propertyValue))
-            {
+            {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 905\n");
                 cachedFormatter->AddRef();
                 obj->SetInternalProperty(Js::InternalPropertyIds::HiddenObject, AutoCOMJSObject::New(scriptContext->GetRecycler(), cachedFormatter), Js::PropertyOperationFlags::PropertyOperation_None, NULL);
             }
@@ -924,19 +924,19 @@ namespace Js
     DWORD getFlagsForSensitivity(LPCWSTR sensitivity)
     {
         if (wcscmp(sensitivity, _u("base")) == 0)
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 926\n");
             return LINGUISTIC_IGNOREDIACRITIC | LINGUISTIC_IGNORECASE | NORM_IGNOREKANATYPE | NORM_IGNOREWIDTH;
         }
         else if (wcscmp(sensitivity, _u("accent")) == 0)
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 930\n");
             return LINGUISTIC_IGNORECASE | NORM_IGNOREKANATYPE | NORM_IGNOREWIDTH;
         }
         else if (wcscmp(sensitivity, _u("case")) == 0)
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 934\n");
             return  NORM_IGNOREKANATYPE | NORM_IGNOREWIDTH | LINGUISTIC_IGNOREDIACRITIC;
         }
         else if (wcscmp(sensitivity, _u("variant")) == 0)
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 938\n");
             return NORM_LINGUISTIC_CASING;
         }
         return 0;
@@ -953,7 +953,7 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo);
 
         if (args.Info.Count < 7 || !JavascriptString::Is(args.Values[1]) || !JavascriptString::Is(args.Values[2]))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 955\n");
             // CompareStringEx of undefined or non-strings is undefined
             return scriptContext->GetLibrary()->GetUndefined();
         }
@@ -967,18 +967,18 @@ namespace Js
         defaultLocale[0] = '\0';
 
         if (!JavascriptOperators::IsUndefinedObject(args.Values[3], scriptContext))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 969\n");
             if (!JavascriptString::Is(args.Values[3]))
-            {
+            {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 971\n");
                 return scriptContext->GetLibrary()->GetUndefined();
             }
             givenLocale = JavascriptString::FromVar(args.Values[3])->GetSz();
         }
 
         if (!JavascriptOperators::IsUndefinedObject(args.Values[4], scriptContext))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 978\n");
             if (!JavascriptString::Is(args.Values[4]))
-            {
+            {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 980\n");
                 return scriptContext->GetLibrary()->GetUndefined();
             }
             compareFlags |= getFlagsForSensitivity(JavascriptString::FromVar(args.Values[4])->GetSz());
@@ -989,38 +989,38 @@ namespace Js
         }
 
         if (!JavascriptOperators::IsUndefinedObject(args.Values[5], scriptContext))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 991\n");
             if (!JavascriptBoolean::Is(args.Values[5]))
-            {
+            {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 993\n");
                 return scriptContext->GetLibrary()->GetUndefined();
             }
             else if ((boolean)(JavascriptBoolean::FromVar(args.Values[5])->GetValue()))
-            {
+            {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 997\n");
                 compareFlags |= NORM_IGNORESYMBOLS;
             }
         }
 
         if (!JavascriptOperators::IsUndefinedObject(args.Values[6], scriptContext))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1003\n");
             if (!JavascriptBoolean::Is(args.Values[6]))
-            {
+            {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1005\n");
                 return scriptContext->GetLibrary()->GetUndefined();
             }
             else if ((boolean)(JavascriptBoolean::FromVar(args.Values[6])->GetValue()))
-            {
+            {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1009\n");
                 compareFlags |= SORT_DIGITSASNUMBERS;
             }
         }
 
         if (givenLocale == nullptr && GetUserDefaultLocaleName(defaultLocale, _countof(defaultLocale)) == 0)
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1015\n");
             JavascriptError::MapAndThrowError(scriptContext, HRESULT_FROM_WIN32(GetLastError()));
         }
 
         int compareResult = 0;
         DWORD lastError = S_OK;
         BEGIN_TEMP_ALLOCATOR(tempAllocator, scriptContext, _u("localeCompare"))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1022\n");
             using namespace PlatformAgnostic;
             char16 * aLeft = nullptr;
             char16 * aRight = nullptr;
@@ -1028,22 +1028,22 @@ namespace Js
             charcount_t size2 = 0;
             auto canonicalEquivalentForm = UnicodeText::NormalizationForm::C;
             if (!UnicodeText::IsNormalizedString(canonicalEquivalentForm, str1->GetSz(), -1))
-            {
+            {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1030\n");
                 aLeft = str1->GetNormalizedString(canonicalEquivalentForm, tempAllocator, size1);
             }
 
             if (!UnicodeText::IsNormalizedString(canonicalEquivalentForm, str2->GetSz(), -1))
-            {
+            {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1035\n");
                 aRight = str2->GetNormalizedString(canonicalEquivalentForm, tempAllocator, size2);
             }
 
             if (aLeft == nullptr)
-            {
+            {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1040\n");
                 aLeft = const_cast<char16*>(str1->GetSz());
                 size1 = str1->GetLength();
             }
             if (aRight == nullptr)
-            {
+            {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1045\n");
                 aRight = const_cast<char16*>(str2->GetSz());
                 size2 = str2->GetLength();
             }
@@ -1053,7 +1053,7 @@ namespace Js
 
             // Get the last error code so that it won't be affected by END_TEMP_ALLOCATOR.
             if (compareResult == 0)
-            {
+            {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1055\n");
                 lastError = GetLastError();
             }
         }
@@ -1061,7 +1061,7 @@ namespace Js
 
 
         if (compareResult != 0)//CompareStringEx returns 1, 2, 3 on success;  2 is the strings are equal, 1 is the fist string is lexically less than second, 3 is reverse.
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1063\n");
             return JavascriptNumber::ToVar(compareResult - 2, scriptContext);//Convert 1,2,3 to -1,0,1
         }
 
@@ -1075,7 +1075,7 @@ namespace Js
         HRESULT hr;
 
         if (args.Info.Count < 2 || !JavascriptString::Is(args.Values[1]))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1077\n");
             // Call with undefined or non-string is undefined
             return scriptContext->GetLibrary()->GetFalse();
         }
@@ -1094,7 +1094,7 @@ namespace Js
     //Helper, this just prepares based on fraction and integer format options
     void IntlEngineInterfaceExtensionObject::prepareWithFractionIntegerDigits(ScriptContext* scriptContext, NumberFormatting::INumberRounderOption* rounderOptions,
         NumberFormatting::INumberFormatterOptions* formatterOptions, uint16 minFractionDigits, uint16 maxFractionDigits, uint16 minIntegerDigits)
-    {
+    {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1096\n");
         HRESULT hr;
         WindowsGlobalizationAdapter* wga = GetWindowsGlobalizationAdapter(scriptContext);
         AutoCOMPtr<NumberFormatting::INumberRounder> numberRounder(nullptr);
@@ -1115,7 +1115,7 @@ namespace Js
     //Helper, this just prepares based on significant digits format options
     void IntlEngineInterfaceExtensionObject::prepareWithSignificantDigits(ScriptContext* scriptContext, NumberFormatting::INumberRounderOption* rounderOptions, NumberFormatting::INumberFormatter *numberFormatter,
         NumberFormatting::INumberFormatterOptions* formatterOptions, uint16 minSignificantDigits, uint16 maxSignificantDigits)
-    {
+    {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1117\n");
         HRESULT hr;
         WindowsGlobalizationAdapter* wga = GetWindowsGlobalizationAdapter(scriptContext);
         AutoCOMPtr<NumberFormatting::INumberRounder> numberRounder(nullptr);
@@ -1153,7 +1153,7 @@ namespace Js
 
         //First argument is required and must be either a tagged integer or a number; second is also required and is the internal state object
         if (args.Info.Count < 3 || !(TaggedInt::Is(args.Values[1]) || JavascriptNumber::Is(args.Values[1])) || !DynamicObject::Is(args.Values[2]))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1155\n");
             // Call with undefined or non-number is undefined
             return scriptContext->GetLibrary()->GetUndefined();
         }
@@ -1169,7 +1169,7 @@ namespace Js
         AutoHSTRING result;
         HRESULT hr;
         if (TaggedInt::Is(args.Values[1]))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1171\n");
             IfFailThrowHr(numberFormatter->FormatInt(TaggedInt::ToInt32(args.Values[1]), &result));
         }
         else
@@ -1186,14 +1186,14 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo);
 
         if (args.Info.Count < 3 || !(TaggedInt::Is(args.Values[1]) || JavascriptNumber::Is(args.Values[1])) || !DynamicObject::Is(args.Values[2]))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1188\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
         Windows::Foundation::DateTime winDate;
         HRESULT hr;
         if (TaggedInt::Is(args.Values[1]))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1195\n");
             hr = Js::DateUtilities::ES5DateToWinRTDate(TaggedInt::ToInt32(args.Values[1]), &(winDate.UniversalTime));
         }
         else
@@ -1201,7 +1201,7 @@ namespace Js
             hr = Js::DateUtilities::ES5DateToWinRTDate(JavascriptNumber::GetValue(args.Values[1]), &(winDate.UniversalTime));
         }
         if (FAILED(hr))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1203\n");
             HandleOOMSOEHR(hr);
             // If conversion failed, double value is outside the range of WinRT DateTime
             Js::JavascriptError::ThrowRangeError(scriptContext, JSERR_OutOfDateTimeRange);
@@ -1218,7 +1218,7 @@ namespace Js
 
         //If timeZone is undefined; then use the standard dateTimeFormatter to format in local time; otherwise use the IDateTimeFormatter2 to format using specified timezone (UTC)
         if (!GetPropertyBuiltInFrom(obj, __timeZone) || JavascriptOperators::IsUndefinedObject(propertyValue))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1220\n");
             DateTimeFormatting::IDateTimeFormatter *formatter = static_cast<DateTimeFormatting::IDateTimeFormatter *>(((AutoCOMJSObject *)hiddenObject)->GetInstance());
             Assert(formatter);
             IfFailThrowHr(formatter->Format(winDate, &result));
@@ -1263,7 +1263,7 @@ namespace Js
         AutoHSTRING canonicalizedTimeZone;
         boolean isValidTimeZone = GetWindowsGlobalizationAdapter(scriptContext)->ValidateAndCanonicalizeTimeZone(scriptContext, argString->GetSz(), &canonicalizedTimeZone);
         if (isValidTimeZone)
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1265\n");
             DelayLoadWindowsGlobalization* wsl = scriptContext->GetThreadContext()->GetWindowsGlobalizationLibrary();
             PCWSTR strBuf = wsl->WindowsGetStringRawBuffer(*canonicalizedTimeZone, NULL);
             return Js::JavascriptString::NewCopySz(strBuf, scriptContext);
@@ -1288,7 +1288,7 @@ namespace Js
 
         HRESULT hr;
         if (FAILED(hr = wga->GetDefaultTimeZoneId(scriptContext, &str)))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1290\n");
             HandleOOMSOEHR(hr);
             //If we can't get default timeZone, return undefined.
             return scriptContext->GetLibrary()->GetUndefined();
@@ -1323,7 +1323,7 @@ namespace Js
         IntlEngineInterfaceExtensionObject* extensionObject = static_cast<IntlEngineInterfaceExtensionObject*>(nativeEngineInterfaceObj->GetEngineExtension(EngineInterfaceExtensionKind_Intl));
 
         switch (id)
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1325\n");
         case 0:
             extensionObject->dateToLocaleString = func;
             break;
@@ -1353,14 +1353,14 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo);
 
         if (callInfo.Count < 2 || !DynamicObject::Is(args.Values[1]))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1355\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
         DynamicObject* obj = DynamicObject::FromVar(args.Values[1]);
         Var hiddenObject;
         if (!obj->GetInternalProperty(obj, Js::InternalPropertyIds::HiddenObject, &hiddenObject, NULL, scriptContext))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1362\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
         return hiddenObject;
@@ -1371,7 +1371,7 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo);
 
         if (callInfo.Count < 3 || !DynamicObject::Is(args.Values[1]) || !DynamicObject::Is(args.Values[2]))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1373\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -1379,7 +1379,7 @@ namespace Js
         DynamicObject* value = DynamicObject::FromVar(args.Values[2]);
 
         if (obj->SetInternalProperty(Js::InternalPropertyIds::HiddenObject, value, Js::PropertyOperationFlags::PropertyOperation_None, NULL))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1381\n");
             return scriptContext->GetLibrary()->GetTrue();
         }
         else
@@ -1396,7 +1396,7 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo);
 
         if (callInfo.Count < 3 || !DynamicObject::Is(args.Values[1]) || !RecyclableObject::Is(args.Values[2]))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1398\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -1416,12 +1416,12 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo);
 
         if (callInfo.Count < 2)
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1418\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
         if (DynamicObject::IsAnyArray(args.Values[1]))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1423\n");
             JavascriptArray* arr = JavascriptArray::FromAnyArray(args.Values[1]);
             return TaggedInt::ToVarUnchecked(arr->GetLength());
         }
@@ -1441,7 +1441,7 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo);
 
         if (callInfo.Count < 2 || !JavascriptString::Is(args.Values[1]) || !JavascriptRegExp::Is(args.Values[2]))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1443\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -1460,7 +1460,7 @@ namespace Js
 
         Assert(args.Info.Count <= 5);
         if (callInfo.Count < 3 || args.Info.Count > 5 || !JavascriptConversion::IsCallable(args.Values[1]) || !RecyclableObject::Is(args.Values[2]))
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1462\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -1471,7 +1471,7 @@ namespace Js
         Js::Arguments newArgs(callInfo, newVars);
 
         for (uint i = 0; i<args.Info.Count - 2; ++i)
-        {
+        {LOGMEIN("IntlEngineInterfaceExtensionObject.cpp] 1473\n");
             newArgs.Values[i] = args.Values[i + 2];
         }
 

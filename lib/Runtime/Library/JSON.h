@@ -40,21 +40,21 @@ namespace JSON
                 gap(NULL),
                 indent(0),
                 propertySeparator(NULL)
-        {
+        {LOGMEIN("JSON.h] 42\n");
             replacer.propertyList.propertyNames = NULL;
             replacer.propertyList.length = 0;
         };
 
-        Js::Var Stringify(){};
+        Js::Var Stringify(){LOGMEIN("JSON.h] 47\n");};
 
         // Init operation is split in three functions
         void InitReplacer(Js::RecyclableObject* f)
-        {
+        {LOGMEIN("JSON.h] 51\n");
             replacerType = ReplacerFunction;
             replacer.ReplacerFunction = f;
         }
         void InitReplacer(StringTable *nameTable, uint len)
-        {
+        {LOGMEIN("JSON.h] 56\n");
             replacerType = ReplacerArray;
             replacer.propertyList.propertyNames = nameTable;
             replacer.propertyList.length = len;

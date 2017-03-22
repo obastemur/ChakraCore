@@ -14,11 +14,11 @@ namespace PlatformAgnostic
                                         unsigned ( *start_address )( void * ),
                                         void* arg_list,
                                         ThreadInitFlag init_flag)
-    {
+    {LOGMEIN("Thread.cpp] 16\n");
         unsigned int flag = 0;
 
         switch (init_flag)
-        {
+        {LOGMEIN("Thread.cpp] 20\n");
         case ThreadInitRunImmediately:
             flag = 0;
             break;

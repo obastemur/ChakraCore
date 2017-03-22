@@ -152,11 +152,11 @@ namespace Js
         virtual Var TypedExchange(__in uint32 index, Var second) = 0;
         virtual Var TypedCompareExchange(__in uint32 index, Var comparand, Var replacementValue) = 0;
 
-        uint32 GetByteLength() const { return length * BYTES_PER_ELEMENT; }
-        uint32 GetByteOffset() const { return byteOffset; }
-        uint32 GetBytesPerElement() const { return BYTES_PER_ELEMENT; }
-        byte*  GetByteBuffer() const { return buffer; };
-        bool IsDetachedBuffer() const { return this->GetArrayBuffer()->IsDetached(); }
+        uint32 GetByteLength() const {LOGMEIN("TypedArray.h] 154\n"); return length * BYTES_PER_ELEMENT; }
+        uint32 GetByteOffset() const {LOGMEIN("TypedArray.h] 155\n"); return byteOffset; }
+        uint32 GetBytesPerElement() const {LOGMEIN("TypedArray.h] 156\n"); return BYTES_PER_ELEMENT; }
+        byte*  GetByteBuffer() const {LOGMEIN("TypedArray.h] 157\n"); return buffer; };
+        bool IsDetachedBuffer() const {LOGMEIN("TypedArray.h] 158\n"); return this->GetArrayBuffer()->IsDetached(); }
         static Var CommonSet(Arguments& args);
         static Var CommonSubarray(Arguments& args);
 
@@ -198,8 +198,8 @@ namespace Js
         FieldNoBarrier(BYTE*) buffer;   // beginning of mapped array.
 
     public:
-        static uint32 GetOffsetOfBuffer()  { return offsetof(TypedArrayBase, buffer); }
-        static uint32 GetOffsetOfLength()  { return offsetof(TypedArrayBase, length); }
+        static uint32 GetOffsetOfBuffer()  {LOGMEIN("TypedArray.h] 200\n"); return offsetof(TypedArrayBase, buffer); }
+        static uint32 GetOffsetOfLength()  {LOGMEIN("TypedArray.h] 201\n"); return offsetof(TypedArrayBase, length); }
 
 #if ENABLE_TTD
     public:
@@ -214,26 +214,26 @@ namespace Js
     protected:
         DEFINE_VTABLE_CTOR(TypedArray, TypedArrayBase);
         virtual void MarshalToScriptContext(Js::ScriptContext * scriptContext)
-        {
+        {LOGMEIN("TypedArray.h] 216\n");
             Assert(this->GetScriptContext() != scriptContext);
             AssertMsg(VirtualTableInfo<TypedArray>::HasVirtualTable(this), "Derived class need to define marshal to script context");
             VirtualTableInfo<Js::CrossSiteObject<TypedArray<TypeName, clamped, virtualAllocated>>>::SetVirtualTable(this);
             ArrayBufferBase* arrayBuffer = this->GetArrayBuffer();
             if (arrayBuffer && !arrayBuffer->IsCrossSiteObject())
-            {
+            {LOGMEIN("TypedArray.h] 222\n");
                 arrayBuffer->MarshalToScriptContext(scriptContext);
             }
         }
 
 #if ENABLE_TTD
         virtual void MarshalCrossSite_TTDInflate()
-        {
+        {LOGMEIN("TypedArray.h] 229\n");
             AssertMsg(VirtualTableInfo<TypedArray>::HasVirtualTable(this), "Derived class need to define marshal");
             VirtualTableInfo<Js::CrossSiteObject<TypedArray<TypeName, clamped, virtualAllocated>>>::SetVirtualTable(this);
         }
 #endif
 
-        TypedArray(DynamicType *type): TypedArrayBase(nullptr, 0, 0, sizeof(TypeName), type) { buffer = nullptr; }
+        TypedArray(DynamicType *type): TypedArrayBase(nullptr, 0, 0, sizeof(TypeName), type) {LOGMEIN("TypedArray.h] 235\n"); buffer = nullptr; }
 
     public:
         class EntryInfo
@@ -256,14 +256,14 @@ namespace Js
         static TypedArray<TypeName, clamped, virtualAllocated>* FromVar(Var aValue);
 
         inline Var BaseTypedDirectGetItem(__in uint32 index)
-        {
+        {LOGMEIN("TypedArray.h] 258\n");
             if (this->IsDetachedBuffer()) // 9.4.5.8 IntegerIndexedElementGet
-            {
+            {LOGMEIN("TypedArray.h] 260\n");
                 JavascriptError::ThrowTypeError(GetScriptContext(), JSERR_DetachedTypedArray);
             }
 
             if (index < GetLength())
-            {
+            {LOGMEIN("TypedArray.h] 265\n");
                 Assert((index + 1)* sizeof(TypeName)+GetByteOffset() <= GetArrayBuffer()->GetByteLength());
                 TypeName* typedBuffer = (TypeName*)buffer;
                 return JavascriptNumber::ToVar(typedBuffer[index], GetScriptContext());
@@ -272,14 +272,14 @@ namespace Js
         }
 
         inline Var TypedDirectGetItemWithCheck(__in uint32 index)
-        {
+        {LOGMEIN("TypedArray.h] 274\n");
             if (this->IsDetachedBuffer()) // 9.4.5.8 IntegerIndexedElementGet
-            {
+            {LOGMEIN("TypedArray.h] 276\n");
                 JavascriptError::ThrowTypeError(GetScriptContext(), JSERR_DetachedTypedArray);
             }
 
             if (index < GetLength())
-            {
+            {LOGMEIN("TypedArray.h] 281\n");
                 Assert((index + 1)* sizeof(TypeName)+GetByteOffset() <= GetArrayBuffer()->GetByteLength());
                 TypeName* typedBuffer = (TypeName*)buffer;
                 return JavascriptNumber::ToVarWithCheck(typedBuffer[index], GetScriptContext());
@@ -288,7 +288,7 @@ namespace Js
         }
 
         inline Var BaseTypedDirectGetItemNoDetachCheck(__in uint32 index)
-        {
+        {LOGMEIN("TypedArray.h] 290\n");
             Assert(!IsDetachedBuffer());
             Assert(index < GetLength());
             Assert((index + 1)* sizeof(TypeName) + GetByteOffset() <= GetArrayBuffer()->GetByteLength());
@@ -297,7 +297,7 @@ namespace Js
         }
 
         inline Var DirectGetItemVarCheckNoDetachCheck(__in uint32 index)
-        {
+        {LOGMEIN("TypedArray.h] 299\n");
             Assert(!IsDetachedBuffer());
             Assert(index < GetLength());
             Assert((index + 1)* sizeof(TypeName) + GetByteOffset() <= GetArrayBuffer()->GetByteLength());
@@ -306,7 +306,7 @@ namespace Js
         }
 
         inline BOOL DirectSetItemAtRange(TypedArray *fromArray, __in int32 iSrcStart, __in int32 iDstStart, __in uint32 length, TypeName(*convFunc)(Var value, ScriptContext* scriptContext))
-        {
+        {LOGMEIN("TypedArray.h] 308\n");
             TypeName* dstBuffer = (TypeName*)buffer;
             TypeName* srcBuffer = (TypeName*)fromArray->buffer;
             Assert(srcBuffer && dstBuffer);
@@ -315,16 +315,16 @@ namespace Js
             Assert(iSrcStart == iDstStart);
 
             if (this->IsDetachedBuffer() || fromArray->IsDetachedBuffer())
-            {
+            {LOGMEIN("TypedArray.h] 317\n");
                 JavascriptError::ThrowTypeError(GetScriptContext(), JSERR_DetachedTypedArray);
             }
 
             // Fixup destination start in case it's negative
             uint32 start = iDstStart;
             if (iDstStart < 0)
-            {
+            {LOGMEIN("TypedArray.h] 324\n");
                 if ((int64)(length) + iDstStart < 0)
-                {
+                {LOGMEIN("TypedArray.h] 326\n");
                     // nothing to do, all index are no-op
                     return true;
                 }
@@ -344,10 +344,10 @@ namespace Js
             js_memcpy_s(dstBuffer + start, dstLength * sizeof(TypeName), srcBuffer + start, byteSize);
 
             if (dstLength > length)
-            {
+            {LOGMEIN("TypedArray.h] 346\n");
                 TypeName undefinedValue = convFunc(GetLibrary()->GetUndefined(), GetScriptContext());
                 for (uint32 i = length; i < dstLength; i++)
-                {
+                {LOGMEIN("TypedArray.h] 349\n");
                     dstBuffer[i] = undefinedValue;
                 }
             }
@@ -356,23 +356,23 @@ namespace Js
         }
 
         inline BOOL DirectSetItemAtRange(__in int32 start, __in uint32 length, __in Js::Var value, TypeName(*convFunc)(Var value, ScriptContext* scriptContext))
-        {
+        {LOGMEIN("TypedArray.h] 358\n");
             if (CrossSite::IsCrossSiteObjectTyped(this))
-            {
+            {LOGMEIN("TypedArray.h] 360\n");
                 return false;
             }
             TypeName typedValue = convFunc(value, GetScriptContext());
 
             if (this->IsDetachedBuffer()) // 9.4.5.9 IntegerIndexedElementSet
-            {
+            {LOGMEIN("TypedArray.h] 366\n");
                 JavascriptError::ThrowTypeError(GetScriptContext(), JSERR_DetachedTypedArray);
             }
             uint32 newStart = start, newLength = length;
 
             if (start < 0)
-            {
+            {LOGMEIN("TypedArray.h] 372\n");
                 if ((int64)(length) + start < 0)
-                {
+                {LOGMEIN("TypedArray.h] 374\n");
                     // nothing to do, all index are no-op
                     return true;
                 }
@@ -381,19 +381,19 @@ namespace Js
                 newLength += start;
             }
             if (newStart >= GetLength())
-            {
+            {LOGMEIN("TypedArray.h] 383\n");
                 // If we want to start copying past the length of the array, all index are no-op
                 return true;
             }
             if (UInt32Math::Add(newStart, newLength) > GetLength())
-            {
+            {LOGMEIN("TypedArray.h] 388\n");
                 newLength = GetLength() - newStart;
             }
 
             TypeName* typedBuffer = (TypeName*)buffer;
 
             if (typedValue == 0 || sizeof(TypeName) == 1)
-            {
+            {LOGMEIN("TypedArray.h] 395\n");
                 const size_t byteSize = sizeof(TypeName) * newLength;
                 Assert(byteSize >= newLength); // check for overflow
                 memset(typedBuffer + newStart, (int)typedValue, byteSize);
@@ -401,7 +401,7 @@ namespace Js
             else
             {
                 for (uint32 i = 0; i < newLength; i++)
-                {
+                {LOGMEIN("TypedArray.h] 403\n");
                     typedBuffer[newStart + i] = typedValue;
                 }
             }
@@ -410,18 +410,18 @@ namespace Js
         }
 
         inline BOOL BaseTypedDirectSetItem(__in uint32 index, __in Js::Var value, TypeName (*convFunc)(Var value, ScriptContext* scriptContext))
-        {
+        {LOGMEIN("TypedArray.h] 412\n");
             // This call can potentially invoke user code, and may end up detaching the underlying array (this).
             // Therefore it was brought out and above the IsDetached check
             TypeName typedValue = convFunc(value, GetScriptContext());
 
             if (this->IsDetachedBuffer()) // 9.4.5.9 IntegerIndexedElementSet
-            {
+            {LOGMEIN("TypedArray.h] 418\n");
                 JavascriptError::ThrowTypeError(GetScriptContext(), JSERR_DetachedTypedArray);
             }
 
             if (index >= GetLength())
-            {
+            {LOGMEIN("TypedArray.h] 423\n");
                 return FALSE;
             }
 
@@ -441,7 +441,7 @@ namespace Js
             convFunc(value, GetScriptContext());
 
             if (this->IsDetachedBuffer()) // 9.4.5.9 IntegerIndexedElementSet
-            {
+            {LOGMEIN("TypedArray.h] 443\n");
                 JavascriptError::ThrowTypeError(GetScriptContext(), JSERR_DetachedTypedArray);
             }
 
@@ -449,7 +449,7 @@ namespace Js
         }
 
         inline BOOL BaseTypedDirectSetItemNoDetachCheck(__in uint32 index, __in Js::Var value, TypeName(*convFunc)(Var value, ScriptContext* scriptContext))
-        {
+        {LOGMEIN("TypedArray.h] 451\n");
             TypeName typedValue = convFunc(value, GetScriptContext());
 
             // The caller of the function made sure that no IsDetached check required.
@@ -482,7 +482,7 @@ namespace Js
         virtual Var TypedCompareExchange(__in uint32 index, Var comparand, Var replacementValue) override;
 
         static BOOL DirectSetItem(__in TypedArray* arr, __in uint32 index, __in Js::Var value)
-        {
+        {LOGMEIN("TypedArray.h] 484\n");
             AssertMsg(arr != nullptr, "Array shouldn't be nullptr.");
 
             return arr->DirectSetItem(index, value);
@@ -490,7 +490,7 @@ namespace Js
 
     protected:
         CompareElementsFunction GetCompareElementsFunction()
-        {
+        {LOGMEIN("TypedArray.h] 492\n");
             return &TypedArrayCompareElementsHelper<TypeName>;
         }
     };
@@ -517,7 +517,7 @@ namespace Js
 
         CharArray(ArrayBufferBase* arrayBuffer, uint32 byteOffset, uint32 mappedLength, DynamicType* type) :
         TypedArrayBase(arrayBuffer, byteOffset, mappedLength, sizeof(char16), type)
-        {
+        {LOGMEIN("TypedArray.h] 519\n");
             AssertMsg(arrayBuffer->GetByteLength() >= byteOffset, "invalid offset");
             AssertMsg(mappedLength*sizeof(char16)+byteOffset <= GetArrayBuffer()->GetByteLength(), "invalid length");
             buffer = arrayBuffer->GetBuffer() + byteOffset;
@@ -548,7 +548,7 @@ namespace Js
 
     protected:
         CompareElementsFunction GetCompareElementsFunction()
-        {
+        {LOGMEIN("TypedArray.h] 550\n");
             return &TypedArrayCompareElementsHelper<char16>;
         }
     };
@@ -557,7 +557,7 @@ namespace Js
     template <typename TypeName, bool clamped, bool virtualAllocated>
     TypedArray<TypeName, clamped, virtualAllocated>::TypedArray(ArrayBufferBase* arrayBuffer, uint32 byteOffset, uint32 mappedLength, DynamicType* type) :
         TypedArrayBase(arrayBuffer, byteOffset, mappedLength, sizeof(TypeName), type)
-    {
+    {LOGMEIN("TypedArray.h] 559\n");
         AssertMsg(arrayBuffer->GetByteLength() >= byteOffset, "invalid offset");
         AssertMsg(mappedLength*sizeof(TypeName)+byteOffset <= arrayBuffer->GetByteLength(), "invalid length");
         buffer = arrayBuffer->GetBuffer() + byteOffset;
@@ -565,10 +565,10 @@ namespace Js
              (byteOffset == 0) &&
              (mappedLength == (arrayBuffer->GetByteLength() / sizeof(TypeName)))
            )
-        {
+        {LOGMEIN("TypedArray.h] 567\n");
             // update the vtable
             switch (type->GetTypeId())
-            {
+            {LOGMEIN("TypedArray.h] 570\n");
             case TypeIds_Int8Array:
                 VirtualTableInfo<Int8VirtualArray>::SetVirtualTable(this);
                 break;
@@ -604,13 +604,13 @@ namespace Js
 
     template <typename TypeName, bool clamped, bool virtualAllocated>
     Var TypedArray<TypeName, clamped, virtualAllocated>::Create(ArrayBufferBase* arrayBuffer, uint32 byteOffSet, uint32 mappedLength, JavascriptLibrary* javascriptLibrary)
-    {
+    {LOGMEIN("TypedArray.h] 606\n");
         uint32 totalLength, mappedByteLength;
 
         if (UInt32Math::Mul(mappedLength, sizeof(TypeName), &mappedByteLength) ||
             UInt32Math::Add(byteOffSet, mappedByteLength, &totalLength) ||
             (totalLength > arrayBuffer->GetByteLength()))
-        {
+        {LOGMEIN("TypedArray.h] 612\n");
             JavascriptError::ThrowRangeError(arrayBuffer->GetScriptContext(), JSERR_InvalidTypedArrayLength);
         }
 

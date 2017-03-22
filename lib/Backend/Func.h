@@ -23,11 +23,11 @@ struct Cloner
         instrFirst(nullptr),
         instrLast(nullptr),
         fRetargetClonedBranch(FALSE)
-    {
+    {LOGMEIN("Func.h] 25\n");
     }
 
     ~Cloner()
-    {
+    {LOGMEIN("Func.h] 29\n");
         if (symMap)
         {
             Adelete(alloc, symMap);
@@ -69,7 +69,7 @@ public:
         formalsIndexToStackSymMap(nullptr),
         m_scopeObjSym(nullptr),
         alloc(alloc)
-    {
+    {LOGMEIN("Func.h] 71\n");
     }
 
     BVSparse<JitArenaAllocator> * GetFormalsArraySyms();
@@ -90,7 +90,7 @@ struct FrameDisplayCheckRecord
     SlotArrayCheckTable *table;
     uint32               slotId;
 
-    FrameDisplayCheckRecord() : table(nullptr), slotId((uint32)-1) {}
+    FrameDisplayCheckRecord() : table(nullptr), slotId((uint32)-1) {LOGMEIN("Func.h] 92\n");}
 };
 typedef HashTable<FrameDisplayCheckRecord*, JitArenaAllocator> FrameDisplayCheckTable;
 
@@ -113,44 +113,44 @@ public:
         Js::ProfileId callSiteIdInParentFunc = UINT16_MAX, bool isGetterSetter = false);
 public:
     void * const GetCodeGenAllocators()
-    {
+    {LOGMEIN("Func.h] 115\n");
         return this->GetTopFunc()->m_codeGenAllocators;
     }
     InProcCodeGenAllocators * const GetInProcCodeGenAllocators()
-    {
+    {LOGMEIN("Func.h] 119\n");
         Assert(!JITManager::GetJITManager()->IsJITServer());
         return reinterpret_cast<InProcCodeGenAllocators*>(this->GetTopFunc()->m_codeGenAllocators);
     }
 #if ENABLE_OOP_NATIVE_CODEGEN
     OOPCodeGenAllocators * const GetOOPCodeGenAllocators()
-    {
+    {LOGMEIN("Func.h] 125\n");
         Assert(JITManager::GetJITManager()->IsJITServer());
         return reinterpret_cast<OOPCodeGenAllocators*>(this->GetTopFunc()->m_codeGenAllocators);
     }
 #endif
     NativeCodeData::Allocator *GetNativeCodeDataAllocator()
-    {
+    {LOGMEIN("Func.h] 131\n");
         return &this->GetTopFunc()->nativeCodeDataAllocator;
     }
     NativeCodeData::Allocator *GetTransferDataAllocator()
-    {
+    {LOGMEIN("Func.h] 135\n");
         return &this->GetTopFunc()->transferDataAllocator;
     }
 #if !FLOATVAR
     CodeGenNumberAllocator * GetNumberAllocator()
-    {
+    {LOGMEIN("Func.h] 140\n");
         return this->numberAllocator;
     }
 #endif
 
 #if !FLOATVAR
     XProcNumberPageSegmentImpl* GetXProcNumberAllocator()
-    {
+    {LOGMEIN("Func.h] 147\n");
         if (this->GetJITOutput()->GetOutputData()->numberPageSegments == nullptr)
-        {
+        {LOGMEIN("Func.h] 149\n");
             XProcNumberPageSegmentImpl* seg = (XProcNumberPageSegmentImpl*)midl_user_allocate(sizeof(XProcNumberPageSegment));
             if (seg == nullptr)
-            {
+            {LOGMEIN("Func.h] 152\n");
                 Js::Throw::OutOfMemory();
             }
             this->GetJITOutput()->GetOutputData()->numberPageSegments = new (seg) XProcNumberPageSegmentImpl();
@@ -160,7 +160,7 @@ public:
 #endif
 
     Js::ScriptContextProfiler *GetCodeGenProfiler() const
-    {
+    {LOGMEIN("Func.h] 162\n");
 #ifdef PROFILE_EXEC
         return m_codeGenProfiler;
 #else
@@ -168,24 +168,24 @@ public:
 #endif
     }
 
-    bool IsOOPJIT() const { return JITManager::GetJITManager()->IsOOPJITEnabled(); }
+    bool IsOOPJIT() const {LOGMEIN("Func.h] 170\n"); return JITManager::GetJITManager()->IsOOPJITEnabled(); }
 
     void InitLocalClosureSyms();
 
-    bool HasAnyStackNestedFunc() const { return this->hasAnyStackNestedFunc; }
-    bool DoStackNestedFunc() const { return this->stackNestedFunc; }
-    bool DoStackFrameDisplay() const { return this->stackClosure; }
-    bool DoStackScopeSlots() const { return this->stackClosure; }
-    bool IsBackgroundJIT() const { return this->m_isBackgroundJIT; }
-    bool HasArgumentSlot() const { return this->GetInParamsCount() != 0 && !this->IsLoopBody(); }
-    bool IsLoopBody() const { return m_workItem->IsLoopBody(); }
+    bool HasAnyStackNestedFunc() const {LOGMEIN("Func.h] 174\n"); return this->hasAnyStackNestedFunc; }
+    bool DoStackNestedFunc() const {LOGMEIN("Func.h] 175\n"); return this->stackNestedFunc; }
+    bool DoStackFrameDisplay() const {LOGMEIN("Func.h] 176\n"); return this->stackClosure; }
+    bool DoStackScopeSlots() const {LOGMEIN("Func.h] 177\n"); return this->stackClosure; }
+    bool IsBackgroundJIT() const {LOGMEIN("Func.h] 178\n"); return this->m_isBackgroundJIT; }
+    bool HasArgumentSlot() const {LOGMEIN("Func.h] 179\n"); return this->GetInParamsCount() != 0 && !this->IsLoopBody(); }
+    bool IsLoopBody() const {LOGMEIN("Func.h] 180\n"); return m_workItem->IsLoopBody(); }
     bool IsLoopBodyInTry() const;
     bool CanAllocInPreReservedHeapPageSegment();
     void SetDoFastPaths();
-    bool DoFastPaths() const { Assert(this->hasCalledSetDoFastPaths); return this->m_doFastPaths; }
+    bool DoFastPaths() const {LOGMEIN("Func.h] 184\n"); Assert(this->hasCalledSetDoFastPaths); return this->m_doFastPaths; }
 
     bool DoLoopFastPaths() const
-    {
+    {LOGMEIN("Func.h] 187\n");
         return
             (!IsSimpleJit() || CONFIG_FLAG(NewSimpleJit)) &&
             !PHASE_OFF(Js::FastPathPhase, this) &&
@@ -193,81 +193,81 @@ public:
     }
 
     bool DoGlobOpt() const
-    {
+    {LOGMEIN("Func.h] 195\n");
         return
             !PHASE_OFF(Js::GlobOptPhase, this) && !IsSimpleJit() &&
             (!GetTopFunc()->HasTry() || GetTopFunc()->CanOptimizeTryCatch());
     }
 
     bool DoInline() const
-    {
+    {LOGMEIN("Func.h] 202\n");
         return DoGlobOpt() && !GetTopFunc()->HasTry();
     }
 
     bool DoOptimizeTryCatch() const
-    {
+    {LOGMEIN("Func.h] 207\n");
         Assert(IsTopFunc());
         return DoGlobOpt();
     }
 
     bool CanOptimizeTryCatch() const
-    {
+    {LOGMEIN("Func.h] 213\n");
         return !this->HasFinally() && !this->m_workItem->IsLoopBody() && !PHASE_OFF(Js::OptimizeTryCatchPhase, this);
     }
 
     bool DoSimpleJitDynamicProfile() const;
-    bool IsSimpleJit() const { return m_workItem->GetJitMode() == ExecutionMode::SimpleJit; }
+    bool IsSimpleJit() const {LOGMEIN("Func.h] 218\n"); return m_workItem->GetJitMode() == ExecutionMode::SimpleJit; }
 
     JITTimeWorkItem * GetWorkItem() const
-    {
+    {LOGMEIN("Func.h] 221\n");
         return m_workItem;
     }
 
     ThreadContext * GetInProcThreadContext() const
-    {
+    {LOGMEIN("Func.h] 226\n");
         Assert(!IsOOPJIT());
         return (ThreadContext*)m_threadContextInfo;
     }
 
     ServerThreadContext* GetOOPThreadContext() const
-    {
+    {LOGMEIN("Func.h] 232\n");
         Assert(IsOOPJIT());
         return (ServerThreadContext*)m_threadContextInfo;
     }
 
     ThreadContextInfo * GetThreadContextInfo() const
-    {
+    {LOGMEIN("Func.h] 238\n");
         return m_threadContextInfo;
     }
 
     ScriptContextInfo * GetScriptContextInfo() const
-    {
+    {LOGMEIN("Func.h] 243\n");
         return m_scriptContextInfo;
     }
 
     JITOutput* GetJITOutput()
-    {
+    {LOGMEIN("Func.h] 248\n");
         return &m_output;
     }
 
     const JITOutput* GetJITOutput() const
-    {
+    {LOGMEIN("Func.h] 253\n");
         return &m_output;
     }
 
     const JITTimeFunctionBody * const GetJITFunctionBody() const
-    {
+    {LOGMEIN("Func.h] 258\n");
         return m_workItem->GetJITFunctionBody();
     }
 
     Js::EntryPointInfo* GetInProcJITEntryPointInfo() const
-    {
+    {LOGMEIN("Func.h] 263\n");
         Assert(!IsOOPJIT());
         return m_entryPointInfo;
     }
 
     char16* GetDebugNumberSet(wchar(&bufferToWriteTo)[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE]) const
-    {
+    {LOGMEIN("Func.h] 269\n");
         return m_workItem->GetJITTimeInfo()->GetDebugNumberSet(bufferToWriteTo);
     }
 
@@ -295,12 +295,12 @@ public:
     void OnAddSym(Sym* sym);
 
     uint GetLocalFunctionId() const
-    {
+    {LOGMEIN("Func.h] 297\n");
         return m_workItem->GetJITTimeInfo()->GetLocalFunctionId();
     }
 
     uint GetSourceContextId() const
-    {
+    {LOGMEIN("Func.h] 302\n");
         return m_workItem->GetJITFunctionBody()->GetSourceContextId();
     }
 
@@ -314,7 +314,7 @@ public:
     static int32 AdjustOffsetValue(int32 offset);
 
     static inline uint32 GetDiagLocalSlotSize()
-    {
+    {LOGMEIN("Func.h] 316\n");
         // For the debug purpose we will have fixed stack slot size
         // We will allocated the 8 bytes for each variable.
         return MachDouble;
@@ -338,51 +338,51 @@ static const unsigned __int64 c_debugFillPattern8 = 0xcececececececece;
 #endif
 
     bool IsSIMDEnabled() const
-    {
+    {LOGMEIN("Func.h] 340\n");
         return GetScriptContextInfo()->IsSIMDEnabled();
     }
     uint32 GetInstrCount();
     inline Js::ScriptContext* GetScriptContext() const
-    {
+    {LOGMEIN("Func.h] 345\n");
         Assert(!IsOOPJIT());
 
         return static_cast<Js::ScriptContext*>(this->GetScriptContextInfo());
     }
     void NumberInstrs();
-    bool IsTopFunc() const { return this->parentFunc == nullptr; }
+    bool IsTopFunc() const {LOGMEIN("Func.h] 351\n"); return this->parentFunc == nullptr; }
     Func const * GetTopFunc() const;
     Func * GetTopFunc();
 
     void SetFirstArgOffset(IR::Instr* inlineeStart);
 
     uint GetFunctionNumber() const
-    {
+    {LOGMEIN("Func.h] 358\n");
         return m_workItem->GetJITFunctionBody()->GetFunctionNumber();
     }
 
     BOOL HasTry() const
-    {
+    {LOGMEIN("Func.h] 363\n");
         Assert(this->IsTopFunc());
         return this->GetJITFunctionBody()->HasTry();
     }
     bool HasFinally() const
-    {
+    {LOGMEIN("Func.h] 368\n");
         Assert(this->IsTopFunc());
         return this->GetJITFunctionBody()->HasFinally();
     }
     bool HasThis() const
-    {
+    {LOGMEIN("Func.h] 373\n");
         Assert(this->IsTopFunc());
         Assert(this->GetJITFunctionBody());     // For now we always have a function body
         return this->GetJITFunctionBody()->HasThis();
     }
     Js::ArgSlot GetInParamsCount() const
-    {
+    {LOGMEIN("Func.h] 379\n");
         Assert(this->IsTopFunc());
         return this->GetJITFunctionBody()->GetInParamsCount();
     }
     bool IsGlobalFunc() const
-    {
+    {LOGMEIN("Func.h] 384\n");
         Assert(this->IsTopFunc());
         return this->GetJITFunctionBody()->IsGlobalFunc();
     }
@@ -390,15 +390,15 @@ static const unsigned __int64 c_debugFillPattern8 = 0xcececececececece;
 
     intptr_t GetWeakFuncRef() const;
 
-    const FunctionJITRuntimeInfo * GetRuntimeInfo() const { return m_runtimeInfo; }
+    const FunctionJITRuntimeInfo * GetRuntimeInfo() const {LOGMEIN("Func.h] 392\n"); return m_runtimeInfo; }
     bool IsLambda() const
-    {
+    {LOGMEIN("Func.h] 394\n");
         Assert(this->IsTopFunc());
         Assert(this->GetJITFunctionBody());     // For now we always have a function body
         return this->GetJITFunctionBody()->IsLambda();
     }
     bool IsTrueLeaf() const
-    {
+    {LOGMEIN("Func.h] 400\n");
         return !GetHasCalls() && !GetHasImplicitCalls();
     }
 
@@ -407,26 +407,26 @@ static const unsigned __int64 c_debugFillPattern8 = 0xcececececececece;
     void UpdateForInLoopMaxDepth(uint forInLoopMaxDepth);
     int GetForInEnumeratorArrayOffset() const;
 
-    StackSym *GetFuncObjSym() const { return m_funcObjSym; }
-    void SetFuncObjSym(StackSym *sym) { m_funcObjSym = sym; }
+    StackSym *GetFuncObjSym() const {LOGMEIN("Func.h] 409\n"); return m_funcObjSym; }
+    void SetFuncObjSym(StackSym *sym) {LOGMEIN("Func.h] 410\n"); m_funcObjSym = sym; }
 
-    StackSym *GetJavascriptLibrarySym() const { return m_javascriptLibrarySym; }
-    void SetJavascriptLibrarySym(StackSym *sym) { m_javascriptLibrarySym = sym; }
+    StackSym *GetJavascriptLibrarySym() const {LOGMEIN("Func.h] 412\n"); return m_javascriptLibrarySym; }
+    void SetJavascriptLibrarySym(StackSym *sym) {LOGMEIN("Func.h] 413\n"); m_javascriptLibrarySym = sym; }
 
-    StackSym *GetScriptContextSym() const { return m_scriptContextSym; }
-    void SetScriptContextSym(StackSym *sym) { m_scriptContextSym = sym; }
+    StackSym *GetScriptContextSym() const {LOGMEIN("Func.h] 415\n"); return m_scriptContextSym; }
+    void SetScriptContextSym(StackSym *sym) {LOGMEIN("Func.h] 416\n"); m_scriptContextSym = sym; }
 
-    StackSym *GetFunctionBodySym() const { return m_functionBodySym; }
-    void SetFunctionBodySym(StackSym *sym) { m_functionBodySym = sym; }
+    StackSym *GetFunctionBodySym() const {LOGMEIN("Func.h] 418\n"); return m_functionBodySym; }
+    void SetFunctionBodySym(StackSym *sym) {LOGMEIN("Func.h] 419\n"); m_functionBodySym = sym; }
 
-    StackSym *GetLocalClosureSym() const { return m_localClosureSym; }
-    void SetLocalClosureSym(StackSym *sym) { m_localClosureSym = sym; }
+    StackSym *GetLocalClosureSym() const {LOGMEIN("Func.h] 421\n"); return m_localClosureSym; }
+    void SetLocalClosureSym(StackSym *sym) {LOGMEIN("Func.h] 422\n"); m_localClosureSym = sym; }
 
-    StackSym *GetParamClosureSym() const { return m_paramClosureSym; }
-    void SetParamClosureSym(StackSym *sym) { m_paramClosureSym = sym; }
+    StackSym *GetParamClosureSym() const {LOGMEIN("Func.h] 424\n"); return m_paramClosureSym; }
+    void SetParamClosureSym(StackSym *sym) {LOGMEIN("Func.h] 425\n"); m_paramClosureSym = sym; }
 
-    StackSym *GetLocalFrameDisplaySym() const { return m_localFrameDisplaySym; }
-    void SetLocalFrameDisplaySym(StackSym *sym) { m_localFrameDisplaySym = sym; }
+    StackSym *GetLocalFrameDisplaySym() const {LOGMEIN("Func.h] 427\n"); return m_localFrameDisplaySym; }
+    void SetLocalFrameDisplaySym(StackSym *sym) {LOGMEIN("Func.h] 428\n"); m_localFrameDisplaySym = sym; }
 
     intptr_t GetJittedLoopIterationsSinceLastBailoutAddress() const;
     void EnsurePinnedTypeRefs();
@@ -459,86 +459,86 @@ static const unsigned __int64 c_debugFillPattern8 = 0xcececececececece;
 
 #ifdef _M_X64
     void SetSpillSize(int32 spillSize)
-    {
+    {LOGMEIN("Func.h] 461\n");
         m_spillSize = spillSize;
     }
 
     int32 GetSpillSize()
-    {
+    {LOGMEIN("Func.h] 466\n");
         return m_spillSize;
     }
 
     void SetArgsSize(int32 argsSize)
-    {
+    {LOGMEIN("Func.h] 471\n");
         m_argsSize = argsSize;
     }
 
     int32 GetArgsSize()
-    {
+    {LOGMEIN("Func.h] 476\n");
         return m_argsSize;
     }
 
     void SetSavedRegSize(int32 savedRegSize)
-    {
+    {LOGMEIN("Func.h] 481\n");
         m_savedRegSize = savedRegSize;
     }
 
     int32 GetSavedRegSize()
-    {
+    {LOGMEIN("Func.h] 486\n");
         return m_savedRegSize;
     }
 #endif
 
     bool IsInlinee() const
-    {
+    {LOGMEIN("Func.h] 492\n");
         Assert(m_inlineeFrameStartSym ? (m_inlineeFrameStartSym->m_offset != -1) : true);
         return m_inlineeFrameStartSym != nullptr;
     }
 
     void SetInlineeFrameStartSym(StackSym *sym)
-    {
+    {LOGMEIN("Func.h] 498\n");
         Assert(m_inlineeFrameStartSym == nullptr);
         m_inlineeFrameStartSym = sym;
     }
 
     IR::SymOpnd *GetInlineeArgCountSlotOpnd()
-    {
+    {LOGMEIN("Func.h] 504\n");
         return GetInlineeOpndAtOffset(Js::Constants::InlineeMetaArgIndex_Argc * MachPtr);
     }
 
     IR::SymOpnd *GetNextInlineeFrameArgCountSlotOpnd()
-    {
+    {LOGMEIN("Func.h] 509\n");
         Assert(!this->m_hasInlineArgsOpt);
         return GetInlineeOpndAtOffset((Js::Constants::InlineeMetaArgCount + actualCount) * MachPtr);
     }
 
     IR::SymOpnd *GetInlineeFunctionObjectSlotOpnd()
-    {
+    {LOGMEIN("Func.h] 515\n");
         Assert(!this->m_hasInlineArgsOpt);
         return GetInlineeOpndAtOffset(Js::Constants::InlineeMetaArgIndex_FunctionObject * MachPtr);
     }
 
     IR::SymOpnd *GetInlineeArgumentsObjectSlotOpnd()
-    {
+    {LOGMEIN("Func.h] 521\n");
         return GetInlineeOpndAtOffset(Js::Constants::InlineeMetaArgIndex_ArgumentsObject * MachPtr);
     }
 
     IR::SymOpnd *GetInlineeArgvSlotOpnd()
-    {
+    {LOGMEIN("Func.h] 526\n");
         Assert(!this->m_hasInlineArgsOpt);
         return GetInlineeOpndAtOffset(Js::Constants::InlineeMetaArgIndex_Argv * MachPtr);
     }
 
     bool IsInlined() const
-    {
+    {LOGMEIN("Func.h] 532\n");
         return this->parentFunc != nullptr;
     }
 
     bool IsInlinedConstructor() const
-    {
+    {LOGMEIN("Func.h] 537\n");
         return this->isInlinedConstructor;
     }
-    bool IsTJLoopBody()const {
+    bool IsTJLoopBody()const {LOGMEIN("Func.h] 540\n");
         return this->isTJLoopBody;
     }
 
@@ -713,80 +713,80 @@ public:
 
     void                BeginClone(Lowerer *lowerer, JitArenaAllocator *alloc);
     void                EndClone();
-    Cloner *            GetCloner() const { return GetTopFunc()->m_cloner; }
-    InstrMap *          GetCloneMap() const { return GetTopFunc()->m_cloneMap; }
-    void                ClearCloneMap() { Assert(this->IsTopFunc()); this->m_cloneMap = nullptr; }
+    Cloner *            GetCloner() const {LOGMEIN("Func.h] 715\n"); return GetTopFunc()->m_cloner; }
+    InstrMap *          GetCloneMap() const {LOGMEIN("Func.h] 716\n"); return GetTopFunc()->m_cloneMap; }
+    void                ClearCloneMap() {LOGMEIN("Func.h] 717\n"); Assert(this->IsTopFunc()); this->m_cloneMap = nullptr; }
 
-    bool                HasByteCodeOffset() const { return !this->GetTopFunc()->hasInstrNumber; }
-    bool                DoMaintainByteCodeOffset() const { return this->HasByteCodeOffset() && this->GetTopFunc()->maintainByteCodeOffset; }
-    void                StopMaintainByteCodeOffset() { this->GetTopFunc()->maintainByteCodeOffset = false; }
-    Func *              GetParentFunc() const { return parentFunc; }
-    uint                GetMaxInlineeArgOutCount() const { return maxInlineeArgOutCount; }
+    bool                HasByteCodeOffset() const {LOGMEIN("Func.h] 719\n"); return !this->GetTopFunc()->hasInstrNumber; }
+    bool                DoMaintainByteCodeOffset() const {LOGMEIN("Func.h] 720\n"); return this->HasByteCodeOffset() && this->GetTopFunc()->maintainByteCodeOffset; }
+    void                StopMaintainByteCodeOffset() {LOGMEIN("Func.h] 721\n"); this->GetTopFunc()->maintainByteCodeOffset = false; }
+    Func *              GetParentFunc() const {LOGMEIN("Func.h] 722\n"); return parentFunc; }
+    uint                GetMaxInlineeArgOutCount() const {LOGMEIN("Func.h] 723\n"); return maxInlineeArgOutCount; }
     void                UpdateMaxInlineeArgOutCount(uint inlineeArgOutCount);
 #if DBG_DUMP
     ptrdiff_t           m_codeSize;
 #endif
-    bool                GetHasCalls() const { return this->m_hasCalls; }
-    void                SetHasCalls() { this->m_hasCalls = true; }
+    bool                GetHasCalls() const {LOGMEIN("Func.h] 728\n"); return this->m_hasCalls; }
+    void                SetHasCalls() {LOGMEIN("Func.h] 729\n"); this->m_hasCalls = true; }
     void                SetHasCallsOnSelfAndParents()
-    {
+    {LOGMEIN("Func.h] 731\n");
                         Func *curFunc = this;
                         while (curFunc)
-                        {
+                        {LOGMEIN("Func.h] 734\n");
                             curFunc->SetHasCalls();
                             curFunc = curFunc->GetParentFunc();
                         }
     }
-    void                SetHasInstrNumber(bool has) { this->GetTopFunc()->hasInstrNumber = has; }
-    bool                HasInstrNumber() const { return this->GetTopFunc()->hasInstrNumber; }
-    bool                HasInlinee() const { Assert(this->IsTopFunc()); return this->hasInlinee; }
-    void                SetHasInlinee() { Assert(this->IsTopFunc()); this->hasInlinee = true; }
+    void                SetHasInstrNumber(bool has) {LOGMEIN("Func.h] 739\n"); this->GetTopFunc()->hasInstrNumber = has; }
+    bool                HasInstrNumber() const {LOGMEIN("Func.h] 740\n"); return this->GetTopFunc()->hasInstrNumber; }
+    bool                HasInlinee() const {LOGMEIN("Func.h] 741\n"); Assert(this->IsTopFunc()); return this->hasInlinee; }
+    void                SetHasInlinee() {LOGMEIN("Func.h] 742\n"); Assert(this->IsTopFunc()); this->hasInlinee = true; }
 
-    bool                GetThisOrParentInlinerHasArguments() const { return thisOrParentInlinerHasArguments; }
+    bool                GetThisOrParentInlinerHasArguments() const {LOGMEIN("Func.h] 744\n"); return thisOrParentInlinerHasArguments; }
 
     bool                GetHasStackArgs()
-    {
+    {LOGMEIN("Func.h] 747\n");
                         bool isStackArgOptDisabled = false;
                         if (HasProfileInfo())
-                        {
+                        {LOGMEIN("Func.h] 750\n");
                             isStackArgOptDisabled = GetReadOnlyProfileInfo()->IsStackArgOptDisabled();
                         }
                         return this->hasStackArgs && !isStackArgOptDisabled && !PHASE_OFF1(Js::StackArgOptPhase);
     }
-    void                SetHasStackArgs(bool has) { this->hasStackArgs = has;}
+    void                SetHasStackArgs(bool has) {LOGMEIN("Func.h] 755\n"); this->hasStackArgs = has;}
 
     bool                IsStackArgsEnabled()
-    {
+    {LOGMEIN("Func.h] 758\n");
                         Func* curFunc = this;
                         bool isStackArgsEnabled = GetJITFunctionBody()->UsesArgumentsObject() && curFunc->GetHasStackArgs();
                         Func * topFunc = curFunc->GetTopFunc();
                         if (topFunc != nullptr)
-                        {
+                        {LOGMEIN("Func.h] 763\n");
                             isStackArgsEnabled = isStackArgsEnabled && topFunc->GetHasStackArgs();
                         }
                         return isStackArgsEnabled;
     }
 
-    bool                GetHasImplicitParamLoad() const { return this->hasImplicitParamLoad; }
-    void                SetHasImplicitParamLoad() { this->hasImplicitParamLoad = true; }
+    bool                GetHasImplicitParamLoad() const {LOGMEIN("Func.h] 769\n"); return this->hasImplicitParamLoad; }
+    void                SetHasImplicitParamLoad() {LOGMEIN("Func.h] 770\n"); this->hasImplicitParamLoad = true; }
 
-    bool                GetHasThrow() const { return this->hasThrow; }
-    void                SetHasThrow() { this->hasThrow = true; }
+    bool                GetHasThrow() const {LOGMEIN("Func.h] 772\n"); return this->hasThrow; }
+    void                SetHasThrow() {LOGMEIN("Func.h] 773\n"); this->hasThrow = true; }
 
-    bool                GetHasUnoptimizedArgumentsAcccess() const { return this->hasUnoptimizedArgumentsAcccess; }
+    bool                GetHasUnoptimizedArgumentsAcccess() const {LOGMEIN("Func.h] 775\n"); return this->hasUnoptimizedArgumentsAcccess; }
     void                SetHasUnoptimizedArgumentsAccess(bool args)
-    {
+    {LOGMEIN("Func.h] 777\n");
                         // Once set to 'true' make sure this does not become false
                         if (!this->hasUnoptimizedArgumentsAcccess)
-                        {
+                        {LOGMEIN("Func.h] 780\n");
                             this->hasUnoptimizedArgumentsAcccess = args;
                         }
 
                         if (args)
-                        {
+                        {LOGMEIN("Func.h] 785\n");
                             Func *curFunc = this->GetParentFunc();
                             while (curFunc)
-                            {
+                            {LOGMEIN("Func.h] 788\n");
                                 curFunc->hasUnoptimizedArgumentsAcccess = args;
                                 curFunc = curFunc->GetParentFunc();
                             }
@@ -794,60 +794,60 @@ public:
     }
 
     void               DisableCanDoInlineArgOpt()
-    {
+    {LOGMEIN("Func.h] 796\n");
                         Func* curFunc = this;
                         while (curFunc)
-                        {
+                        {LOGMEIN("Func.h] 799\n");
                             curFunc->m_canDoInlineArgsOpt = false;
                             curFunc->m_hasInlineArgsOpt = false;
                             curFunc = curFunc->GetParentFunc();
                         }
     }
 
-    bool                GetHasApplyTargetInlining() const { return this->hasApplyTargetInlining;}
-    void                SetHasApplyTargetInlining() { this->hasApplyTargetInlining = true;}
+    bool                GetHasApplyTargetInlining() const {LOGMEIN("Func.h] 806\n"); return this->hasApplyTargetInlining;}
+    void                SetHasApplyTargetInlining() {LOGMEIN("Func.h] 807\n"); this->hasApplyTargetInlining = true;}
 
-    bool                GetHasMarkTempObjects() const { return this->hasMarkTempObjects; }
-    void                SetHasMarkTempObjects() { this->hasMarkTempObjects = true; }
+    bool                GetHasMarkTempObjects() const {LOGMEIN("Func.h] 809\n"); return this->hasMarkTempObjects; }
+    void                SetHasMarkTempObjects() {LOGMEIN("Func.h] 810\n"); this->hasMarkTempObjects = true; }
 
-    bool                GetHasNonSimpleParams() const { return this->hasNonSimpleParams; }
-    void                SetHasNonSimpleParams() { this->hasNonSimpleParams = true; }
+    bool                GetHasNonSimpleParams() const {LOGMEIN("Func.h] 812\n"); return this->hasNonSimpleParams; }
+    void                SetHasNonSimpleParams() {LOGMEIN("Func.h] 813\n"); this->hasNonSimpleParams = true; }
 
-    bool                GetHasImplicitCalls() const { return this->hasImplicitCalls;}
-    void                SetHasImplicitCalls(bool has) { this->hasImplicitCalls = has;}
+    bool                GetHasImplicitCalls() const {LOGMEIN("Func.h] 815\n"); return this->hasImplicitCalls;}
+    void                SetHasImplicitCalls(bool has) {LOGMEIN("Func.h] 816\n"); this->hasImplicitCalls = has;}
     void                SetHasImplicitCallsOnSelfAndParents()
-                        {
+                        {LOGMEIN("Func.h] 818\n");
                             this->SetHasImplicitCalls(true);
                             Func *curFunc = this->GetParentFunc();
                             while (curFunc && !curFunc->IsTopFunc())
-                            {
+                            {LOGMEIN("Func.h] 822\n");
                                 curFunc->SetHasImplicitCalls(true);
                                 curFunc = curFunc->GetParentFunc();
                             }
                         }
 
-    bool                GetHasTempObjectProducingInstr() const { return this->hasTempObjectProducingInstr; }
-    void                SetHasTempObjectProducingInstr(bool has) { this->hasTempObjectProducingInstr = has; }
+    bool                GetHasTempObjectProducingInstr() const {LOGMEIN("Func.h] 828\n"); return this->hasTempObjectProducingInstr; }
+    void                SetHasTempObjectProducingInstr(bool has) {LOGMEIN("Func.h] 829\n"); this->hasTempObjectProducingInstr = has; }
 
-    const JITTimeProfileInfo * GetReadOnlyProfileInfo() const { return GetJITFunctionBody()->GetReadOnlyProfileInfo(); }
-    bool                HasProfileInfo() const { return GetJITFunctionBody()->HasProfileInfo(); }
+    const JITTimeProfileInfo * GetReadOnlyProfileInfo() const {LOGMEIN("Func.h] 831\n"); return GetJITFunctionBody()->GetReadOnlyProfileInfo(); }
+    bool                HasProfileInfo() const {LOGMEIN("Func.h] 832\n"); return GetJITFunctionBody()->HasProfileInfo(); }
     bool                HasArrayInfo()
-    {
+    {LOGMEIN("Func.h] 834\n");
         const auto top = this->GetTopFunc();
         return this->HasProfileInfo() && this->GetWeakFuncRef() && !(top->HasTry() && !top->DoOptimizeTryCatch()) &&
             top->DoGlobOpt() && !PHASE_OFF(Js::LoopFastPathPhase, top);
     }
 
     static Js::BuiltinFunction GetBuiltInIndex(IR::Opnd* opnd)
-    {
+    {LOGMEIN("Func.h] 841\n");
         Assert(opnd);
         Js::BuiltinFunction index;
         if (opnd->IsRegOpnd())
-        {
+        {LOGMEIN("Func.h] 845\n");
             index = opnd->AsRegOpnd()->m_sym->m_builtInIndex;
         }
         else if (opnd->IsSymOpnd())
-        {
+        {LOGMEIN("Func.h] 849\n");
             PropertySym *propertySym = opnd->AsSymOpnd()->m_sym->AsPropertySym();
             index = Js::JavascriptLibrary::GetBuiltinFunctionForPropId(propertySym->m_propertyId);
         }
@@ -859,11 +859,11 @@ public:
     }
 
     static bool IsBuiltInInlinedInLowerer(IR::Opnd* opnd)
-    {
+    {LOGMEIN("Func.h] 861\n");
         Assert(opnd);
         Js::BuiltinFunction index = Func::GetBuiltInIndex(opnd);
         switch (index)
-        {
+        {LOGMEIN("Func.h] 865\n");
         case Js::BuiltinFunction::JavascriptString_CharAt:
         case Js::BuiltinFunction::JavascriptString_CharCodeAt:
         case Js::BuiltinFunction::JavascriptString_CodePointAt:
@@ -878,34 +878,34 @@ public:
     }
 
     void AddYieldOffsetResumeLabel(uint32 offset, IR::LabelInstr* label)
-    {
+    {LOGMEIN("Func.h] 880\n");
         m_yieldOffsetResumeLabelList->Add(YieldOffsetResumeLabel(offset, label));
     }
 
     template <typename Fn>
     void MapYieldOffsetResumeLabels(Fn fn)
-    {
+    {LOGMEIN("Func.h] 886\n");
         m_yieldOffsetResumeLabelList->Map(fn);
     }
 
     template <typename Fn>
     bool MapUntilYieldOffsetResumeLabels(Fn fn)
-    {
+    {LOGMEIN("Func.h] 892\n");
         return m_yieldOffsetResumeLabelList->MapUntil(fn);
     }
 
     void RemoveYieldOffsetResumeLabel(const YieldOffsetResumeLabel& yorl)
-    {
+    {LOGMEIN("Func.h] 897\n");
         m_yieldOffsetResumeLabelList->Remove(yorl);
     }
 
     void RemoveDeadYieldOffsetResumeLabel(IR::LabelInstr* label)
-    {
+    {LOGMEIN("Func.h] 902\n");
         uint32 offset;
         bool found = m_yieldOffsetResumeLabelList->MapUntil([&offset, &label](int i, YieldOffsetResumeLabel& yorl)
         {
             if (yorl.Second() == label)
-            {
+            {LOGMEIN("Func.h] 907\n");
                 offset = yorl.First();
                 return true;
             }
@@ -919,7 +919,7 @@ public:
     IR::Instr * GetFunctionEntryInsertionPoint();
     IR::IndirOpnd * GetConstantAddressIndirOpnd(intptr_t address, IR::Opnd *largeConstOpnd, IR::AddrOpndKind kind, IRType type, Js::OpCode loadOpCode);
     void MarkConstantAddressSyms(BVSparse<JitArenaAllocator> * bv);
-    void DisableConstandAddressLoadHoist() { canHoistConstantAddressLoad = false; }
+    void DisableConstandAddressLoadHoist() {LOGMEIN("Func.h] 921\n"); canHoistConstantAddressLoad = false; }
 
     void AddSlotArrayCheck(IR::SymOpnd *fieldOpnd);
     void AddFrameDisplayCheck(IR::SymOpnd *fieldOpnd, uint32 slotId = (uint32)-1);
@@ -942,10 +942,10 @@ public:
 
 #if defined(_M_ARM32_OR_ARM64)
     int32               GetInlineeArgumentStackSize()
-    {
+    {LOGMEIN("Func.h] 944\n");
         int32 count = this->GetMaxInlineeArgOutCount();
         if (count)
-        {
+        {LOGMEIN("Func.h] 947\n");
             return ((count + 1) * MachPtr); // +1 for the dedicated zero out argc slot
         }
         return 0;
@@ -1001,7 +1001,7 @@ private:
     JITObjTypeSpecFldInfo ** m_globalObjTypeSpecFldInfoArray;
     StackSym *CreateInlineeStackSym();
     IR::SymOpnd *GetInlineeOpndAtOffset(int32 offset);
-    bool HasLocalVarSlotCreated() const { return m_localVarSlotsOffset != Js::Constants::InvalidOffset; }
+    bool HasLocalVarSlotCreated() const {LOGMEIN("Func.h] 1003\n"); return m_localVarSlotsOffset != Js::Constants::InvalidOffset; }
     void EnsureLocalVarSlots();
     StackSym * m_nativeCodeDataSym;
     SList<IR::RegOpnd *> constantAddressRegOpnd;
@@ -1020,13 +1020,13 @@ class AutoCodeGenPhase
 {
 public:
     AutoCodeGenPhase(Func * func, Js::Phase phase) : func(func), phase(phase), dump(false), isPhaseComplete(false)
-    {
+    {LOGMEIN("Func.h] 1022\n");
         func->BeginPhase(phase);
     }
     ~AutoCodeGenPhase()
-    {
+    {LOGMEIN("Func.h] 1026\n");
         if(this->isPhaseComplete)
-        {
+        {LOGMEIN("Func.h] 1028\n");
             func->EndPhase(phase, dump);
         }
         else
@@ -1036,7 +1036,7 @@ public:
         }
     }
     void EndPhase(Func * func, Js::Phase phase, bool dump, bool isPhaseComplete)
-    {
+    {LOGMEIN("Func.h] 1038\n");
         Assert(this->func == func);
         Assert(this->phase == phase);
         this->dump = dump && (PHASE_DUMP(Js::SimpleJitPhase, func) || !func->IsSimpleJit());
@@ -1048,7 +1048,7 @@ private:
     bool dump;
     bool isPhaseComplete;
 };
-#define BEGIN_CODEGEN_PHASE(func, phase) { AutoCodeGenPhase __autoCodeGen(func, phase);
+#define BEGIN_CODEGEN_PHASE(func, phase) {LOGMEIN("Func.h] 1050\n"); AutoCodeGenPhase __autoCodeGen(func, phase);
 #define END_CODEGEN_PHASE(func, phase) __autoCodeGen.EndPhase(func, phase, true, true); }
 #define END_CODEGEN_PHASE_NO_DUMP(func, phase) __autoCodeGen.EndPhase(func, phase, false, true); }
 

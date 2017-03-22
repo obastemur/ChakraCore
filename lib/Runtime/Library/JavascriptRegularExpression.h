@@ -54,12 +54,12 @@ namespace Js
         Var GetOptions();
 
         void SetPattern(UnifiedRegex::RegexPattern* pattern)
-        {
+        {LOGMEIN("JavascriptRegularExpression.h] 56\n");
             this->pattern = pattern;
         }
 
         void SetSplitPattern(UnifiedRegex::RegexPattern* splitPattern)
-        {
+        {LOGMEIN("JavascriptRegularExpression.h] 61\n");
             this->splitPattern = splitPattern;
         }
 
@@ -92,13 +92,13 @@ namespace Js
         JavascriptRegExp(UnifiedRegex::RegexPattern* pattern, DynamicType* type);
         JavascriptRegExp(DynamicType * type);
 
-        static uint GetOffsetOfPattern() { return offsetof(JavascriptRegExp, pattern); }
-        static uint GetOffsetOfSplitPattern() { return offsetof(JavascriptRegExp, splitPattern); }
-        static uint GetOffsetOfLastIndexVar() { return offsetof(JavascriptRegExp, lastIndexVar); }
-        static uint GetOffsetOfLastIndexOrFlag() { return offsetof(JavascriptRegExp, lastIndexOrFlag); }
+        static uint GetOffsetOfPattern() {LOGMEIN("JavascriptRegularExpression.h] 94\n"); return offsetof(JavascriptRegExp, pattern); }
+        static uint GetOffsetOfSplitPattern() {LOGMEIN("JavascriptRegularExpression.h] 95\n"); return offsetof(JavascriptRegExp, splitPattern); }
+        static uint GetOffsetOfLastIndexVar() {LOGMEIN("JavascriptRegularExpression.h] 96\n"); return offsetof(JavascriptRegExp, lastIndexVar); }
+        static uint GetOffsetOfLastIndexOrFlag() {LOGMEIN("JavascriptRegularExpression.h] 97\n"); return offsetof(JavascriptRegExp, lastIndexOrFlag); }
 
-        inline UnifiedRegex::RegexPattern* GetPattern() const { return pattern; }
-        inline UnifiedRegex::RegexPattern* GetSplitPattern() const { return splitPattern; }
+        inline UnifiedRegex::RegexPattern* GetPattern() const {LOGMEIN("JavascriptRegularExpression.h] 99\n"); return pattern; }
+        inline UnifiedRegex::RegexPattern* GetSplitPattern() const {LOGMEIN("JavascriptRegularExpression.h] 100\n"); return splitPattern; }
 
         InternalString GetSource() const;
         UnifiedRegex::RegexFlags GetFlags() const;
@@ -106,16 +106,16 @@ namespace Js
         void CacheLastIndex();
 
         inline CharCountOrFlag GetLastIndex()
-        {
+        {LOGMEIN("JavascriptRegularExpression.h] 108\n");
             if (lastIndexOrFlag == NotCachedValue)
-            {
+            {LOGMEIN("JavascriptRegularExpression.h] 110\n");
                 CacheLastIndex();
             }
             return lastIndexOrFlag;
         }
 
         inline void SetLastIndex(CharCount lastIndex)
-        {
+        {LOGMEIN("JavascriptRegularExpression.h] 117\n");
             Assert(lastIndex <= MaxCharCount);
             lastIndexVar = nullptr;
             this->lastIndexOrFlag = lastIndex;

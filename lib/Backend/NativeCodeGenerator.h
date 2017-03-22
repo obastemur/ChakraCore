@@ -106,9 +106,9 @@ public:
 
     void QueueFreeNativeCodeGenAllocation(void* address);
 
-    bool IsClosed() { return isClosed; }
+    bool IsClosed() {LOGMEIN("NativeCodeGenerator.h] 108\n"); return isClosed; }
     void AddWorkItem(CodeGenWorkItem* workItem);
-    InProcCodeGenAllocators* GetCodeGenAllocator(PageAllocator* pageallocator){ return EnsureForegroundAllocators(pageallocator); }
+    InProcCodeGenAllocators* GetCodeGenAllocator(PageAllocator* pageallocator){LOGMEIN("NativeCodeGenerator.h] 110\n"); return EnsureForegroundAllocators(pageallocator); }
 
 #if DBG_DUMP
     FILE * asmFile;
@@ -128,19 +128,19 @@ private:
     void CodeGen(PageAllocator * pageAllocator, CodeGenWorkItem* workItem, const bool foreground);
 
     InProcCodeGenAllocators *CreateAllocators(PageAllocator *const pageAllocator)
-    {
+    {LOGMEIN("NativeCodeGenerator.h] 130\n");
         return HeapNew(InProcCodeGenAllocators, pageAllocator->GetAllocationPolicyManager(), scriptContext, scriptContext->GetThreadContext()->GetCodePageAllocators(), GetCurrentProcess());
     }
 
     InProcCodeGenAllocators *EnsureForegroundAllocators(PageAllocator * pageAllocator)
-    {
+    {LOGMEIN("NativeCodeGenerator.h] 135\n");
         if (this->foregroundAllocators == nullptr)
-        {
+        {LOGMEIN("NativeCodeGenerator.h] 137\n");
             this->foregroundAllocators = CreateAllocators(pageAllocator);
 
 #if !_M_X64_OR_ARM64 && _CONTROL_FLOW_GUARD
             if (this->scriptContext->webWorkerId != Js::Constants::NonWebWorkerContextId)
-            {
+            {LOGMEIN("NativeCodeGenerator.h] 142\n");
                 this->foregroundAllocators->canCreatePreReservedSegment = true;
             }
 #endif
@@ -151,7 +151,7 @@ private:
 
 
     InProcCodeGenAllocators * GetBackgroundAllocator(PageAllocator *pageAllocator)
-    {
+    {LOGMEIN("NativeCodeGenerator.h] 153\n");
         return this->backgroundAllocators;
     }
 
@@ -160,9 +160,9 @@ private:
     void  AllocateBackgroundCodeGenProfiler(PageAllocator * pageAllocator);
 
     void AllocateBackgroundAllocators(PageAllocator * pageAllocator)
-    {
+    {LOGMEIN("NativeCodeGenerator.h] 162\n");
         if (!this->backgroundAllocators)
-        {
+        {LOGMEIN("NativeCodeGenerator.h] 164\n");
             this->backgroundAllocators = CreateAllocators(pageAllocator);
 #if !_M_X64_OR_ARM64 && _CONTROL_FLOW_GUARD
             this->backgroundAllocators->canCreatePreReservedSegment = true;
@@ -201,7 +201,7 @@ private:
           JsUtil::Job(manager),
           codeAddress(address),
           heapAllocated(isHeapAllocated)
-        {
+        {LOGMEIN("NativeCodeGenerator.h] 203\n");
         }
 
         bool heapAllocated;
@@ -224,30 +224,30 @@ private:
         }
 
         virtual ~FreeLoopBodyJobManager()
-        {
+        {LOGMEIN("NativeCodeGenerator.h] 226\n");
             if (autoClose && !isClosed)
-            {
+            {LOGMEIN("NativeCodeGenerator.h] 228\n");
                 Close();
             }
             Assert(this->isClosed);
         }
 
         void Close()
-        {
+        {LOGMEIN("NativeCodeGenerator.h] 235\n");
             Assert(!this->isClosed);
             Processor()->RemoveManager(this);
             this->isClosed = true;
         }
 
         void SetAutoClose(bool autoClose)
-        {
+        {LOGMEIN("NativeCodeGenerator.h] 242\n");
             this->autoClose = autoClose;
         }
 
         FreeLoopBodyJob* GetJob(FreeLoopBodyJob* job)
-        {
+        {LOGMEIN("NativeCodeGenerator.h] 247\n");
             if (!job->heapAllocated)
-            {
+            {LOGMEIN("NativeCodeGenerator.h] 249\n");
                 return this->stackJobProcessed ? nullptr : job;
             }
             else
@@ -257,17 +257,17 @@ private:
         }
 
         bool WasAddedToJobProcessor(JsUtil::Job *const job) const
-        {
+        {LOGMEIN("NativeCodeGenerator.h] 259\n");
             return true;
         }
 
         void SetNativeCodeGen(NativeCodeGenerator* nativeCodeGen)
-        {
+        {LOGMEIN("NativeCodeGenerator.h] 264\n");
             this->nativeCodeGen = nativeCodeGen;
         }
 
-        void BeforeWaitForJob(FreeLoopBodyJob*) const {}
-        void AfterWaitForJob(FreeLoopBodyJob*) const {}
+        void BeforeWaitForJob(FreeLoopBodyJob*) const {LOGMEIN("NativeCodeGenerator.h] 268\n");}
+        void AfterWaitForJob(FreeLoopBodyJob*) const {LOGMEIN("NativeCodeGenerator.h] 269\n");}
 
         virtual bool Process(JsUtil::Job *const job, JsUtil::ParallelThreadData *threadData) override
         {
@@ -284,7 +284,7 @@ private:
             FreeLoopBodyJob* freeLoopBodyJob = static_cast<FreeLoopBodyJob*>(job);
 
             if (freeLoopBodyJob->heapAllocated)
-            {
+            {LOGMEIN("NativeCodeGenerator.h] 286\n");
                 HeapDelete(freeLoopBodyJob);
             }
             else

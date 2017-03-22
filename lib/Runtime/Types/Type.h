@@ -42,17 +42,17 @@ namespace Js
         Type(ScriptContext* scriptContext, TypeId typeId, RecyclableObject* prototype, JavascriptMethod entryPoint);
 
     public:
-        static DWORD GetJavascriptLibraryOffset() { return offsetof(Type, javascriptLibrary); }
-        inline TypeId GetTypeId() const { return typeId; }
-        void SetTypeId(TypeId typeId) { this->typeId = typeId; }
-        RecyclableObject* GetPrototype() const { return prototype; }
-        JavascriptMethod GetEntryPoint() const { return entryPoint; }
-        JavascriptLibrary* GetLibrary() const { return javascriptLibrary; }
+        static DWORD GetJavascriptLibraryOffset() {LOGMEIN("Type.h] 44\n"); return offsetof(Type, javascriptLibrary); }
+        inline TypeId GetTypeId() const {LOGMEIN("Type.h] 45\n"); return typeId; }
+        void SetTypeId(TypeId typeId) {LOGMEIN("Type.h] 46\n"); this->typeId = typeId; }
+        RecyclableObject* GetPrototype() const {LOGMEIN("Type.h] 47\n"); return prototype; }
+        JavascriptMethod GetEntryPoint() const {LOGMEIN("Type.h] 48\n"); return entryPoint; }
+        JavascriptLibrary* GetLibrary() const {LOGMEIN("Type.h] 49\n"); return javascriptLibrary; }
         ScriptContext * GetScriptContext() const;
         Recycler * GetRecycler() const;
         TypePropertyCache *GetPropertyCache();
         TypePropertyCache *CreatePropertyCache();
-        BOOL HasSpecialPrototype() const { return (flags & TypeFlagMask_HasSpecialPrototype) == TypeFlagMask_HasSpecialPrototype; }
+        BOOL HasSpecialPrototype() const {LOGMEIN("Type.h] 54\n"); return (flags & TypeFlagMask_HasSpecialPrototype) == TypeFlagMask_HasSpecialPrototype; }
 
         // This function has a different meaning from RecyclableObject::HasOnlyWritableDataProperties. If this function returns
         // true, then it's implied that RecyclableObject::HasOnlyWritableDataProperties would return true for an object of this
@@ -60,14 +60,14 @@ namespace Js
         BOOL AreThisAndPrototypesEnsuredToHaveOnlyWritableDataProperties() const;
         void SetAreThisAndPrototypesEnsuredToHaveOnlyWritableDataProperties(const bool truth);
 
-        inline BOOL IsExternal() const { return (this->flags & TypeFlagMask_External) != 0; }
-        inline BOOL IsJsrtExternal() const { return (this->flags & TypeFlagMask_JsrtExternal) != 0; }
-        inline BOOL SkipsPrototype() const { return (this->flags & TypeFlagMask_SkipsPrototype) != 0 ; }
-        inline BOOL CanHaveInterceptors() const { return (this->flags & TypeFlagMask_CanHaveInterceptors) != 0; }
-        inline BOOL IsFalsy() const { return flags & TypeFlagMask_IsFalsy; }
-        inline BOOL HasBeenCached() const { return flags & TypeFlagMask_HasBeenCached; }
+        inline BOOL IsExternal() const {LOGMEIN("Type.h] 62\n"); return (this->flags & TypeFlagMask_External) != 0; }
+        inline BOOL IsJsrtExternal() const {LOGMEIN("Type.h] 63\n"); return (this->flags & TypeFlagMask_JsrtExternal) != 0; }
+        inline BOOL SkipsPrototype() const {LOGMEIN("Type.h] 64\n"); return (this->flags & TypeFlagMask_SkipsPrototype) != 0 ; }
+        inline BOOL CanHaveInterceptors() const {LOGMEIN("Type.h] 65\n"); return (this->flags & TypeFlagMask_CanHaveInterceptors) != 0; }
+        inline BOOL IsFalsy() const {LOGMEIN("Type.h] 66\n"); return flags & TypeFlagMask_IsFalsy; }
+        inline BOOL HasBeenCached() const {LOGMEIN("Type.h] 67\n"); return flags & TypeFlagMask_HasBeenCached; }
         inline void SetHasBeenCached()
-        {
+        {LOGMEIN("Type.h] 69\n");
             // Once set, this flag should never be reset.
             flags |= TypeFlagMask_HasBeenCached;
         };
@@ -76,9 +76,9 @@ namespace Js
         void SetHasSpecialPrototype(const bool hasSpecialPrototype);
 
         // This is for static lib verification use only.
-        static DWORD GetTypeIdFieldOffset() { return offsetof(Type, typeId); }
+        static DWORD GetTypeIdFieldOffset() {LOGMEIN("Type.h] 78\n"); return offsetof(Type, typeId); }
         static size_t OffsetOfWritablePropertiesFlag()
-        {
+        {LOGMEIN("Type.h] 80\n");
             return offsetof(Type, flags);
         }
 

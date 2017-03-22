@@ -48,13 +48,13 @@ public:
     // This points to the current function body which can be reused when parsing a subtree (called due to deferred parsing logic).
     Js::FunctionBody * pCurrentFunction;
 
-    bool InDestructuredPattern() const { return inDestructuredPattern; }
-    void SetInDestructuredPattern(bool in) { inDestructuredPattern = in; }
+    bool InDestructuredPattern() const {LOGMEIN("ByteCodeGenerator.h] 50\n"); return inDestructuredPattern; }
+    void SetInDestructuredPattern(bool in) {LOGMEIN("ByteCodeGenerator.h] 51\n"); inDestructuredPattern = in; }
 
-    bool InPrologue() const { return inPrologue; }
-    void SetInPrologue(bool val) { inPrologue = val; }
-    Parser* GetParser() { return parser; }
-    Js::ParseableFunctionInfo * GetRootFunc(){return pRootFunc;}
+    bool InPrologue() const {LOGMEIN("ByteCodeGenerator.h] 53\n"); return inPrologue; }
+    void SetInPrologue(bool val) {LOGMEIN("ByteCodeGenerator.h] 54\n"); inPrologue = val; }
+    Parser* GetParser() {LOGMEIN("ByteCodeGenerator.h] 55\n"); return parser; }
+    Js::ParseableFunctionInfo * GetRootFunc(){LOGMEIN("ByteCodeGenerator.h] 56\n");return pRootFunc;}
     void SetRootFuncInfo(FuncInfo* funcInfo);
     // Treat the return value register like a constant register so that the byte code writer maps it to the bottom
     // of the register range.
@@ -68,67 +68,67 @@ public:
 
 #if DBG_DUMP
     bool Trace() const
-    {
+    {LOGMEIN("ByteCodeGenerator.h] 70\n");
         return Js::Configuration::Global.flags.Trace.IsEnabled(Js::ByteCodePhase);
     }
 #else
     bool Trace() const
-    {
+    {LOGMEIN("ByteCodeGenerator.h] 75\n");
         return false;
     }
 #endif
 
-    Js::ScriptContext* GetScriptContext() { return scriptContext; }
+    Js::ScriptContext* GetScriptContext() {LOGMEIN("ByteCodeGenerator.h] 80\n"); return scriptContext; }
 
-    Scope *GetCurrentScope() const { return currentScope; }
+    Scope *GetCurrentScope() const {LOGMEIN("ByteCodeGenerator.h] 82\n"); return currentScope; }
 
-    void SetCurrentBlock(ParseNode *pnode) { currentBlock = pnode; }
-    ParseNode *GetCurrentBlock() const { return currentBlock; }
+    void SetCurrentBlock(ParseNode *pnode) {LOGMEIN("ByteCodeGenerator.h] 84\n"); currentBlock = pnode; }
+    ParseNode *GetCurrentBlock() const {LOGMEIN("ByteCodeGenerator.h] 85\n"); return currentBlock; }
 
-    void SetCurrentTopStatement(ParseNode *pnode) { currentTopStatement = pnode; }
-    ParseNode *GetCurrentTopStatement() const { return currentTopStatement; }
+    void SetCurrentTopStatement(ParseNode *pnode) {LOGMEIN("ByteCodeGenerator.h] 87\n"); currentTopStatement = pnode; }
+    ParseNode *GetCurrentTopStatement() const {LOGMEIN("ByteCodeGenerator.h] 88\n"); return currentTopStatement; }
 
     Js::ModuleID GetModuleID() const
-    {
+    {LOGMEIN("ByteCodeGenerator.h] 91\n");
         return m_utf8SourceInfo->GetSrcInfo()->moduleID;
     }
 
     void SetFlags(uint32 grfscr)
-    {
+    {LOGMEIN("ByteCodeGenerator.h] 96\n");
         flags = grfscr;
     }
 
     uint32 GetFlags(void)
-    {
+    {LOGMEIN("ByteCodeGenerator.h] 101\n");
         return flags;
     }
 
     bool IsConsoleScopeEval(void)
-    {
+    {LOGMEIN("ByteCodeGenerator.h] 106\n");
         return (flags & fscrConsoleScopeEval) == fscrConsoleScopeEval;
     }
 
     bool IsModuleCode()
-    {
+    {LOGMEIN("ByteCodeGenerator.h] 111\n");
         return (flags & fscrIsModuleCode) == fscrIsModuleCode;
     }
 
-    bool IsBinding() const {
+    bool IsBinding() const {LOGMEIN("ByteCodeGenerator.h] 115\n");
         return isBinding;
     }
 
-    Js::ByteCodeWriter *Writer() {
+    Js::ByteCodeWriter *Writer() {LOGMEIN("ByteCodeGenerator.h] 119\n");
         return &m_writer;
     }
 
-    ArenaAllocator *GetAllocator() {
+    ArenaAllocator *GetAllocator() {LOGMEIN("ByteCodeGenerator.h] 123\n");
         return alloc;
     }
 
     Js::PropertyRecordList* EnsurePropertyRecordList()
-    {
+    {LOGMEIN("ByteCodeGenerator.h] 128\n");
         if (this->propertyRecords == nullptr)
-        {
+        {LOGMEIN("ByteCodeGenerator.h] 130\n");
             Recycler* recycler = this->scriptContext->GetRecycler();
             this->propertyRecords = RecyclerNew(recycler, Js::PropertyRecordList, recycler);
         }
@@ -137,16 +137,16 @@ public:
     }
 
     bool IsEvalWithNoParentScopeInfo()
-    {
+    {LOGMEIN("ByteCodeGenerator.h] 139\n");
         return (flags & fscrEvalCode) && !HasParentScopeInfo();
     }
 
     Js::ProfileId GetNextCallSiteId(Js::OpCode op)
-    {
+    {LOGMEIN("ByteCodeGenerator.h] 144\n");
         if (m_writer.ShouldIncrementCallSiteId(op))
-        {
+        {LOGMEIN("ByteCodeGenerator.h] 146\n");
             if (m_callSiteId != Js::Constants::NoProfileId)
-            {
+            {LOGMEIN("ByteCodeGenerator.h] 148\n");
                 return m_callSiteId++;
             }
         }
@@ -158,8 +158,8 @@ public:
     FuncInfo *TopFuncInfo() const;
 
     void EnterLoop();
-    void ExitLoop() { loopDepth--; }
-    BOOL IsInLoop() const { return loopDepth > 0; }
+    void ExitLoop() {LOGMEIN("ByteCodeGenerator.h] 160\n"); loopDepth--; }
+    BOOL IsInLoop() const {LOGMEIN("ByteCodeGenerator.h] 161\n"); return loopDepth > 0; }
     // TODO: per-function register assignment for env and global symbols
     void AssignRegister(Symbol *sym);
     void AddTargetStmt(ParseNode *pnodeStmt);
@@ -193,12 +193,12 @@ public:
     static Js::JavascriptArray* BuildArrayFromStringList(ParseNode* stringNodeList, uint arrayLength, Js::ScriptContext* scriptContext);
 
     bool HasParentScopeInfo() const
-    {
+    {LOGMEIN("ByteCodeGenerator.h] 195\n");
         return this->parentScopeInfo != nullptr;
     }
 
     Js::RegSlot EmitLdObjProto(Js::OpCode op, Js::RegSlot objReg, FuncInfo *funcInfo)
-    {
+    {LOGMEIN("ByteCodeGenerator.h] 200\n");
         // LdHomeObjProto protoReg, objReg
         // LdFuncObjProto protoReg, objReg
         Js::RegSlot protoReg = funcInfo->AcquireTmpRegister();
@@ -324,12 +324,12 @@ public:
 
     void InvalidateCachedOuterScopes(FuncInfo *funcInfo);
 
-    bool InDynamicScope() const { return dynamicScopeCount != 0; }
+    bool InDynamicScope() const {LOGMEIN("ByteCodeGenerator.h] 326\n"); return dynamicScopeCount != 0; }
 
     Scope * FindScopeForSym(Scope *symScope, Scope *scope, Js::PropertyId *envIndex, FuncInfo *funcInfo) const;
 
     static Js::OpCode GetStFldOpCode(bool isStrictMode, bool isRoot, bool isLetDecl, bool isConstDecl, bool isClassMemberInit)
-    {
+    {LOGMEIN("ByteCodeGenerator.h] 331\n");
         return isClassMemberInit ? Js::OpCode::InitClassMember :
             isConstDecl ? (isRoot ? Js::OpCode::InitRootConstFld : Js::OpCode::InitConstFld) :
             isLetDecl ? (isRoot ? Js::OpCode::InitRootLetFld : Js::OpCode::InitLetFld) :
@@ -338,12 +338,12 @@ public:
     }
     static Js::OpCode GetStFldOpCode(FuncInfo* funcInfo, bool isRoot, bool isLetDecl, bool isConstDecl, bool isClassMemberInit);
     static Js::OpCode GetScopedStFldOpCode(bool isStrictMode)
-    {
+    {LOGMEIN("ByteCodeGenerator.h] 340\n");
         return isStrictMode ? Js::OpCode::ScopedStFldStrict : Js::OpCode::ScopedStFld;
     }
     static Js::OpCode GetScopedStFldOpCode(FuncInfo* funcInfo, bool isConsoleScopeLetConst = false);
     static Js::OpCode GetStElemIOpCode(bool isStrictMode)
-    {
+    {LOGMEIN("ByteCodeGenerator.h] 345\n");
         return isStrictMode ? Js::OpCode::StElemI_A_Strict : Js::OpCode::StElemI_A;
     }
     static Js::OpCode GetStElemIOpCode(FuncInfo* funcInfo);
@@ -356,8 +356,8 @@ public:
         __in uint32 grfscr,
         __in Js::ParseableFunctionInfo* pRootFunc);
 
-    void SetCurrentSourceIndex(uint sourceIndex) { this->sourceIndex = sourceIndex; }
-    uint GetCurrentSourceIndex() { return sourceIndex; }
+    void SetCurrentSourceIndex(uint sourceIndex) {LOGMEIN("ByteCodeGenerator.h] 358\n"); this->sourceIndex = sourceIndex; }
+    uint GetCurrentSourceIndex() {LOGMEIN("ByteCodeGenerator.h] 359\n"); return sourceIndex; }
 
     static bool IsFalse(ParseNode* node);
 
@@ -408,10 +408,10 @@ private:
 };
 
 template<class Fn> void ByteCodeGenerator::IterateBlockScopedVariables(ParseNode *pnodeBlock, Fn fn)
-{
+{LOGMEIN("ByteCodeGenerator.h] 410\n");
     Assert(pnodeBlock->nop == knopBlock);
     for (auto lexvar = pnodeBlock->sxBlock.pnodeLexVars; lexvar; lexvar = lexvar->sxVar.pnodeNext)
-    {
+    {LOGMEIN("ByteCodeGenerator.h] 413\n");
         fn(lexvar);
     }
 }

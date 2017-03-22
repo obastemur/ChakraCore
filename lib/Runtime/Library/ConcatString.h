@@ -62,7 +62,7 @@ namespace Js
             __super::CopyImpl(buffer, N, AddressOf(m_slots[0]), nestedStringTreeCopyInfos, recursionDepth);
         }
         virtual int GetRandomAccessItemsFromConcatString(Js::JavascriptString * const *& items) const
-        {
+        {LOGMEIN("ConcatString.h] 64\n");
             items = AddressOf(m_slots[0]);
             return N;
         }
@@ -91,8 +91,8 @@ namespace Js
         static ConcatString* New(JavascriptString* a, JavascriptString* b);
         static const int MaxDepth = 1000;
 
-        JavascriptString *LeftString() const { Assert(!IsFinalized()); return m_slots[0]; }
-        JavascriptString *RightString() const { Assert(!IsFinalized()); return m_slots[1]; }
+        JavascriptString *LeftString() const {LOGMEIN("ConcatString.h] 93\n"); Assert(!IsFinalized()); return m_slots[0]; }
+        JavascriptString *RightString() const {LOGMEIN("ConcatString.h] 94\n"); Assert(!IsFinalized()); return m_slots[1]; }
     };
 
     // Concat string with any number of child nodes, can grow dynamically.
@@ -166,7 +166,7 @@ namespace Js
         const char16 * GetSz() override sealed;
     private:
         void EnsureAllSlots()
-        {
+        {LOGMEIN("ConcatString.h] 168\n");
             m_slots[0] = this->GetFirstItem();
             m_slots[1] = m_inner;
             m_slots[2] = this->GetLastItem();
@@ -206,7 +206,7 @@ namespace Js
             __super::CopyImpl(buffer, slotCount, AddressOf(m_slots[0]), nestedStringTreeCopyInfos, recursionDepth);
         }
         virtual int GetRandomAccessItemsFromConcatString(Js::JavascriptString * const *& items) const
-        {
+        {LOGMEIN("ConcatString.h] 208\n");
             Assert(IsFilled());
             items = AddressOf(m_slots[0]);
             return slotCount;
@@ -220,8 +220,8 @@ namespace Js
         static size_t GetAllocSize(uint slotCount);
         void SetItem(_In_range_(0, slotCount - 1) uint index, JavascriptString* value);
 
-        static uint32 GetOffsetOfSlotCount() { return offsetof(ConcatStringMulti, slotCount); }
-        static uint32 GetOffsetOfSlots() { return offsetof(ConcatStringMulti, m_slots); }
+        static uint32 GetOffsetOfSlotCount() {LOGMEIN("ConcatString.h] 222\n"); return offsetof(ConcatStringMulti, slotCount); }
+        static uint32 GetOffsetOfSlots() {LOGMEIN("ConcatString.h] 223\n"); return offsetof(ConcatStringMulti, m_slots); }
     protected:
         Field(uint) slotCount;
         Field(JavascriptString*) m_slots[];   // These contain the child nodes.

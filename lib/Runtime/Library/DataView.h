@@ -44,12 +44,12 @@ namespace Js
         static BOOL Is(Var aValue);
 
         static inline DataView* FromVar(Var aValue)
-        {
+        {LOGMEIN("DataView.h] 46\n");
             Assert(DataView::Is(aValue));
             return static_cast<DataView*>(aValue);
         }
 
-        uint32 GetByteOffset() const { return byteOffset; }
+        uint32 GetByteOffset() const {LOGMEIN("DataView.h] 51\n"); return byteOffset; }
 
         static Var NewInstance(RecyclableObject* function, CallInfo callInfo, ...);
         static Var EntryGetInt8(RecyclableObject* function, CallInfo callInfo, ...);
@@ -86,26 +86,26 @@ namespace Js
         template<typename TypeName>
         void SwapRoutine(TypeName* input, TypeName* dest);
 
-        template<> void SwapRoutine(int8* input, int8* dest) {*dest =  *input; }
-        template<> void SwapRoutine(uint8* input, uint8* dest) {*dest =  *input; }
-        template<> void SwapRoutine(int16* input, int16* dest) {*dest =  RtlUshortByteSwap(*input); }
-        template<> void SwapRoutine(uint16* input, uint16* dest) {*dest =  RtlUshortByteSwap(*input);}
-        template<> void SwapRoutine(int32* input, int32* dest) {*dest =  RtlUlongByteSwap(*input);}
-        template<> void SwapRoutine(uint32* input, uint32* dest) {*dest =  RtlUlongByteSwap(*input);}
+        template<> void SwapRoutine(int8* input, int8* dest) {LOGMEIN("DataView.h] 88\n");*dest =  *input; }
+        template<> void SwapRoutine(uint8* input, uint8* dest) {LOGMEIN("DataView.h] 89\n");*dest =  *input; }
+        template<> void SwapRoutine(int16* input, int16* dest) {LOGMEIN("DataView.h] 90\n");*dest =  RtlUshortByteSwap(*input); }
+        template<> void SwapRoutine(uint16* input, uint16* dest) {LOGMEIN("DataView.h] 91\n");*dest =  RtlUshortByteSwap(*input);}
+        template<> void SwapRoutine(int32* input, int32* dest) {LOGMEIN("DataView.h] 92\n");*dest =  RtlUlongByteSwap(*input);}
+        template<> void SwapRoutine(uint32* input, uint32* dest) {LOGMEIN("DataView.h] 93\n");*dest =  RtlUlongByteSwap(*input);}
         // we don't want type conversion here, we just want to swap the bytes.
-        template<> void SwapRoutine(float* input, float* dest) { *((uint32*)dest) = RtlUlongByteSwap(*((uint32*)input)); }
-        template<> void SwapRoutine(double* input, double* dest) {*((uint64*)dest) = RtlUlonglongByteSwap(*((uint64*)input)); }
+        template<> void SwapRoutine(float* input, float* dest) {LOGMEIN("DataView.h] 95\n"); *((uint32*)dest) = RtlUlongByteSwap(*((uint32*)input)); }
+        template<> void SwapRoutine(double* input, double* dest) {LOGMEIN("DataView.h] 96\n");*((uint64*)dest) = RtlUlonglongByteSwap(*((uint64*)input)); }
 
         template<typename TypeName>
         Var GetValue(uint32 byteOffset, const char16* funcName, BOOL isLittleEndian = FALSE)
-        {
+        {LOGMEIN("DataView.h] 100\n");
             ScriptContext* scriptContext = GetScriptContext();
             if (this->GetArrayBuffer()->IsDetached())
-            {
+            {LOGMEIN("DataView.h] 103\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_DetachedTypedArray, funcName);
             }
             if ((byteOffset + sizeof(TypeName) <= GetLength()) && (byteOffset <= GetLength()))
-            {
+            {LOGMEIN("DataView.h] 107\n");
                 TypeName item;
                 TypeName* typedBuffer = (TypeName*)(buffer + byteOffset);
                 if (!isLittleEndian)
@@ -126,20 +126,20 @@ namespace Js
 
         template<typename TypeName>
         inline Var GetValueWithCheck(uint32 byteOffset, const char16* funcName, BOOL isLittleEndian = FALSE)
-        {
+        {LOGMEIN("DataView.h] 128\n");
             return GetValueWithCheck<TypeName, TypeName*>(byteOffset, isLittleEndian, funcName);
         }
 
         template<typename TypeName, typename PointerAccessTypeName>
         Var GetValueWithCheck(uint32 byteOffset, BOOL isLittleEndian, const char16* funcName)
-        {
+        {LOGMEIN("DataView.h] 134\n");
             ScriptContext* scriptContext = GetScriptContext();
             if (this->GetArrayBuffer()->IsDetached())
-            {
+            {LOGMEIN("DataView.h] 137\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_DetachedTypedArray, funcName);
             }
             if ((byteOffset + sizeof(TypeName) <= GetLength()) && (byteOffset <= GetLength()))
-            {
+            {LOGMEIN("DataView.h] 141\n");
                 TypeName item;
                 TypeName *typedBuffer = (TypeName*)(buffer + byteOffset);
                 if (!isLittleEndian)
@@ -166,14 +166,14 @@ namespace Js
 
         template<typename TypeName, typename PointerAccessTypeName>
         void SetValue(uint32 byteOffset, TypeName value, BOOL isLittleEndian, const char16 *funcName)
-        {
+        {LOGMEIN("DataView.h] 168\n");
             ScriptContext* scriptContext = GetScriptContext();
             if (this->GetArrayBuffer()->IsDetached())
-            {
+            {LOGMEIN("DataView.h] 171\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_DetachedTypedArray, funcName);
             }
             if ((byteOffset + sizeof(TypeName) <= GetLength()) && (byteOffset <= GetLength()))
-            {
+            {LOGMEIN("DataView.h] 175\n");
                 TypeName* typedBuffer = (TypeName*)(buffer + byteOffset);
                 if (!isLittleEndian)
                 {

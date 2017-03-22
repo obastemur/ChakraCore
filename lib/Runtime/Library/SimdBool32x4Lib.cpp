@@ -39,7 +39,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDBool32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdBool32x4Lib.cpp] 41\n");
             return args[1];
         }
         JavascriptError::ThrowTypeError(scriptContext, JSERR_SimdBool32x4TypeMismatch, _u("bool32x4"));
@@ -74,7 +74,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 3 && JavascriptSIMDBool32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdBool32x4Lib.cpp] 76\n");
             // if value arg is missing, then it is undefined.
             Var laneVar = args.Info.Count >= 3 ? args[2] : scriptContext->GetLibrary()->GetUndefined();
             bool result = (SIMDUtils::SIMD128ExtractLane<JavascriptSIMDBool32x4, 4, int32>(args[1], laneVar, scriptContext)) ? true : false;
@@ -94,7 +94,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 4 && JavascriptSIMDBool32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdBool32x4Lib.cpp] 96\n");
             // if value arg is missing, then it is undefined.
             Var laneVar = args.Info.Count >= 4 ? args[2] : scriptContext->GetLibrary()->GetUndefined();
             Var argVal = args.Info.Count >= 4 ? args[3] : scriptContext->GetLibrary()->GetUndefined();
@@ -120,7 +120,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDBool32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdBool32x4Lib.cpp] 122\n");
             JavascriptSIMDBool32x4 *a = JavascriptSIMDBool32x4::FromVar(args[1]);
             Assert(a);
 
@@ -143,7 +143,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDBool32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdBool32x4Lib.cpp] 145\n");
             JavascriptSIMDBool32x4 *a = JavascriptSIMDBool32x4::FromVar(args[1]);
             Assert(a);
 
@@ -166,7 +166,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDBool32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdBool32x4Lib.cpp] 168\n");
             JavascriptSIMDBool32x4 *a = JavascriptSIMDBool32x4::FromVar(args[1]);
             Assert(a);
 
@@ -191,7 +191,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDBool32x4::Is(args[1]) && JavascriptSIMDBool32x4::Is(args[2]))
-        {
+        {LOGMEIN("SimdBool32x4Lib.cpp] 193\n");
             JavascriptSIMDBool32x4 *a = JavascriptSIMDBool32x4::FromVar(args[1]);
             JavascriptSIMDBool32x4 *b = JavascriptSIMDBool32x4::FromVar(args[2]);
             Assert(a && b);
@@ -222,7 +222,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDBool32x4::Is(args[1]) && JavascriptSIMDBool32x4::Is(args[2]))
-        {
+        {LOGMEIN("SimdBool32x4Lib.cpp] 224\n");
             JavascriptSIMDBool32x4 *a = JavascriptSIMDBool32x4::FromVar(args[1]);
             JavascriptSIMDBool32x4 *b = JavascriptSIMDBool32x4::FromVar(args[2]);
             Assert(a && b);
@@ -253,7 +253,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDBool32x4::Is(args[1]) && JavascriptSIMDBool32x4::Is(args[2]))
-        {
+        {LOGMEIN("SimdBool32x4Lib.cpp] 255\n");
             JavascriptSIMDBool32x4 *a = JavascriptSIMDBool32x4::FromVar(args[1]);
             JavascriptSIMDBool32x4 *b = JavascriptSIMDBool32x4::FromVar(args[2]);
             Assert(a && b);

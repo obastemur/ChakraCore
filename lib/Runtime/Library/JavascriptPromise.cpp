@@ -8,7 +8,7 @@ namespace Js
 {
     JavascriptPromise::JavascriptPromise(DynamicType * type)
         : DynamicObject(type)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 10\n");
         Assert(type->GetTypeId() == TypeIds_Promise);
 
         this->status = PromiseStatusCode_Undefined;
@@ -40,13 +40,13 @@ namespace Js
 
         // 1. If NewTarget is undefined, throw a TypeError exception.
         if ((callInfo.Flags & CallFlags_New) != CallFlags_New || (newTarget != nullptr && JavascriptOperators::IsUndefined(newTarget)))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 42\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_ClassConstructorCannotBeCalledWithoutNew, _u("Promise"));
         }
 
         // 2. If IsCallable(executor) is false, throw a TypeError exception.
         if (args.Info.Count < 2 || !JavascriptConversion::IsCallable(args[1]))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 48\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedFunction, _u("Promise"));
         }
         RecyclableObject* executor = RecyclableObject::FromVar(args[1]);
@@ -54,7 +54,7 @@ namespace Js
         // 3. Let promise be ? OrdinaryCreateFromConstructor(NewTarget, "%PromisePrototype%", <<[[PromiseState]], [[PromiseResult]], [[PromiseFulfillReactions]], [[PromiseRejectReactions]], [[PromiseIsHandled]] >>).
         JavascriptPromise* promise = library->CreatePromise();
         if (isCtorSuperCall)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 56\n");
             JavascriptOperators::OrdinaryCreateFromConstructor(RecyclableObject::FromVar(newTarget), promise, library->GetPromisePrototype(), scriptContext);
         }
 
@@ -79,7 +79,7 @@ namespace Js
                 reject);
         }
         catch (const JavascriptException& err)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 81\n");
             exception = err.GetAndClear();
         }
 
@@ -95,7 +95,7 @@ namespace Js
     }
 
     void JavascriptPromise::InitializePromise(JavascriptPromise* promise, JavascriptPromiseResolveOrRejectFunction** resolve, JavascriptPromiseResolveOrRejectFunction** reject, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 97\n");
         Assert(promise->status == PromiseStatusCode_Undefined);
         Assert(resolve);
         Assert(reject);
@@ -116,7 +116,7 @@ namespace Js
     }
 
     bool JavascriptPromise::Is(Var aValue)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 118\n");
         return Js::JavascriptOperators::GetTypeId(aValue) == TypeIds_Promise;
     }
 
@@ -128,25 +128,25 @@ namespace Js
     }
 
     BOOL JavascriptPromise::GetDiagValueString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 130\n");
         stringBuilder->AppendCppLiteral(_u("[...]"));
 
         return TRUE;
     }
 
     BOOL JavascriptPromise::GetDiagTypeString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 137\n");
         stringBuilder->AppendCppLiteral(_u("Promise"));
         return TRUE;
     }
 
     JavascriptPromiseReactionList* JavascriptPromise::GetResolveReactions()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 143\n");
         return this->resolveReactions;
     }
 
     JavascriptPromiseReactionList* JavascriptPromise::GetRejectReactions()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 148\n");
         return this->rejectReactions;
     }
 
@@ -166,7 +166,7 @@ namespace Js
 
         // 2. If Type(C) is not Object, throw a TypeError exception.
         if (!JavascriptOperators::IsObject(constructor))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 168\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedObject, _u("Promise.all"));
         }
 
@@ -174,7 +174,7 @@ namespace Js
         Var iterable;
 
         if (args.Info.Count > 1)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 176\n");
             iterable = args[1];
         }
         else
@@ -202,7 +202,7 @@ namespace Js
 
         JavascriptExceptionObject* exception = nullptr;
         try
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 204\n");
             // 4. Let iterator be GetIterator(iterable).
             RecyclableObject* iterator = JavascriptOperators::GetIterator(iterable, scriptContext);
             values = library->CreateArray(0);
@@ -212,7 +212,7 @@ namespace Js
                 Var resolveVar = JavascriptOperators::GetProperty(constructorObject, Js::PropertyIds::resolve, scriptContext);
 
                 if (!JavascriptConversion::IsCallable(resolveVar))
-                {
+                {LOGMEIN("JavascriptPromise.cpp] 214\n");
                     JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedFunction);
                 }
 
@@ -229,14 +229,14 @@ namespace Js
                 RecyclableObject* nextPromiseObject;
 
                 if (!JavascriptConversion::ToObject(nextPromise, scriptContext, &nextPromiseObject))
-                {
+                {LOGMEIN("JavascriptPromise.cpp] 231\n");
                     JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedObject);
                 }
 
                 Var thenVar = JavascriptOperators::GetProperty(nextPromiseObject, Js::PropertyIds::then, scriptContext);
 
                 if (!JavascriptConversion::IsCallable(thenVar))
-                {
+                {LOGMEIN("JavascriptPromise.cpp] 238\n");
                     JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedFunction);
                 }
 
@@ -251,7 +251,7 @@ namespace Js
             });
         }
         catch (const JavascriptException& err)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 253\n");
             exception = err.GetAndClear();
         }
 
@@ -268,7 +268,7 @@ namespace Js
 
         // We want this call to happen outside the try statement because if it throws, we aren't supposed to reject the promise.
         if (remainingElementsWrapper->remainingElements == 0)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 270\n");
             Assert(values != nullptr);
 
             TryCallResolveOrRejectHandler(promiseCapability->GetResolve(), values, scriptContext);
@@ -291,14 +291,14 @@ namespace Js
         RecyclableObject* promise;
 
         if (!JavascriptConversion::ToObject(args[0], scriptContext, &promise))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 293\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedObject, _u("Promise.prototype.catch"));
         }
 
         Var funcVar = JavascriptOperators::GetProperty(promise, Js::PropertyIds::then, scriptContext);
 
         if (!JavascriptConversion::IsCallable(funcVar))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 300\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedFunction, _u("Promise.prototype.catch"));
         }
 
@@ -306,7 +306,7 @@ namespace Js
         RecyclableObject* undefinedVar = scriptContext->GetLibrary()->GetUndefined();
 
         if (args.Info.Count > 1)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 308\n");
             onRejected = args[1];
         }
         else
@@ -338,7 +338,7 @@ namespace Js
 
         // 2. If Type(C) is not Object, throw a TypeError exception.
         if (!JavascriptOperators::IsObject(constructor))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 340\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedObject, _u("Promise.race"));
         }
 
@@ -346,7 +346,7 @@ namespace Js
         Var iterable;
 
         if (args.Info.Count > 1)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 348\n");
             iterable = args[1];
         }
         else
@@ -364,7 +364,7 @@ namespace Js
         JavascriptExceptionObject* exception = nullptr;
 
         try
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 366\n");
             // 4. Let iterator be GetIterator(iterable).
             RecyclableObject* iterator = JavascriptOperators::GetIterator(iterable, scriptContext);
 
@@ -373,7 +373,7 @@ namespace Js
                 Var resolveVar = JavascriptOperators::GetProperty(constructorObject, Js::PropertyIds::resolve, scriptContext);
 
                 if (!JavascriptConversion::IsCallable(resolveVar))
-                {
+                {LOGMEIN("JavascriptPromise.cpp] 375\n");
                     JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedFunction);
                 }
 
@@ -386,14 +386,14 @@ namespace Js
                 RecyclableObject* nextPromiseObject;
 
                 if (!JavascriptConversion::ToObject(nextPromise, scriptContext, &nextPromiseObject))
-                {
+                {LOGMEIN("JavascriptPromise.cpp] 388\n");
                     JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedObject);
                 }
 
                 Var thenVar = JavascriptOperators::GetProperty(nextPromiseObject, Js::PropertyIds::then, scriptContext);
 
                 if (!JavascriptConversion::IsCallable(thenVar))
-                {
+                {LOGMEIN("JavascriptPromise.cpp] 395\n");
                     JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedFunction);
                 }
 
@@ -407,7 +407,7 @@ namespace Js
             });
         }
         catch (const JavascriptException& err)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 409\n");
             exception = err.GetAndClear();
         }
 
@@ -435,14 +435,14 @@ namespace Js
 
         // 2. If Type(C) is not Object, throw a TypeError exception.
         if (!JavascriptOperators::IsObject(constructor))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 437\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedObject, _u("Promise.reject"));
         }
 
         Var r;
 
         if (args.Info.Count > 1)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 444\n");
             r = args[1];
         }
         else
@@ -474,12 +474,12 @@ namespace Js
 
         // 2. If Type(C) is not Object, throw a TypeError exception.
         if (!JavascriptOperators::IsObject(constructor))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 476\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedObject, _u("Promise.resolve"));
         }
 
         if (args.Info.Count > 1)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 481\n");
             x = args[1];
         }
         else
@@ -489,13 +489,13 @@ namespace Js
 
         // 3. If IsPromise(x) is true,
         if (JavascriptPromise::Is(x))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 491\n");
             // a. Let xConstructor be Get(x, "constructor").
             Var xConstructor = JavascriptOperators::GetProperty((RecyclableObject*)x, PropertyIds::constructor, scriptContext);
 
             // b. If SameValue(xConstructor, C) is true, return x.
             if (JavascriptConversion::SameValue(xConstructor, constructor))
-            {
+            {LOGMEIN("JavascriptPromise.cpp] 497\n");
                 return x;
             }
         }
@@ -518,7 +518,7 @@ namespace Js
         AUTO_TAG_NATIVE_LIBRARY_ENTRY(function, callInfo, _u("Promise.prototype.then"));
 
         if (args.Info.Count < 1 || !JavascriptPromise::Is(args[0]))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 520\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedPromise, _u("Promise.prototype.then"));
         }
 
@@ -528,7 +528,7 @@ namespace Js
         RecyclableObject* fulfillmentHandler;
 
         if (args.Info.Count > 1 && JavascriptConversion::IsCallable(args[1]))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 530\n");
             fulfillmentHandler = RecyclableObject::FromVar(args[1]);
         }
         else
@@ -537,7 +537,7 @@ namespace Js
         }
 
         if (args.Info.Count > 2 && JavascriptConversion::IsCallable(args[2]))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 539\n");
             rejectionHandler = RecyclableObject::FromVar(args[2]);
         }
         else
@@ -561,7 +561,7 @@ namespace Js
         Var resolution;
 
         if (args.Info.Count > 1)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 563\n");
             resolution = args[1];
         }
         else
@@ -572,7 +572,7 @@ namespace Js
         JavascriptPromiseResolveOrRejectFunction* resolveOrRejectFunction = JavascriptPromiseResolveOrRejectFunction::FromVar(function);
 
         if (resolveOrRejectFunction->IsAlreadyResolved())
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 574\n");
             return undefinedVar;
         }
 
@@ -586,25 +586,25 @@ namespace Js
     }
 
     Var JavascriptPromise::Resolve(Var resolution, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 588\n");
         return this->ResolveHelper(resolution, false, scriptContext);
     }
 
     Var JavascriptPromise::Reject(Var resolution, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 593\n");
         return this->ResolveHelper(resolution, true, scriptContext);
     }
 
     Var JavascriptPromise::ResolveHelper(Var resolution, bool isRejecting, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 598\n");
         JavascriptLibrary* library = scriptContext->GetLibrary();
         Var undefinedVar = library->GetUndefined();
 
         // We only need to check SameValue and check for thenable resolution in the Resolve function case (not Reject)
         if (!isRejecting)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 604\n");
             if (JavascriptConversion::SameValue(resolution, this))
-            {
+            {LOGMEIN("JavascriptPromise.cpp] 606\n");
                 JavascriptError* selfResolutionError = scriptContext->GetLibrary()->CreateTypeError();
                 JavascriptError::SetErrorMessage(selfResolutionError, JSERR_PromiseSelfResolution, _u(""), scriptContext);
 
@@ -612,14 +612,14 @@ namespace Js
                 isRejecting = true;
             }
             else if (RecyclableObject::Is(resolution))
-            {
+            {LOGMEIN("JavascriptPromise.cpp] 614\n");
                 try
-                {
+                {LOGMEIN("JavascriptPromise.cpp] 616\n");
                     RecyclableObject* thenable = RecyclableObject::FromVar(resolution);
                     Var then = JavascriptOperators::GetProperty(thenable, Js::PropertyIds::then, scriptContext);
 
                     if (JavascriptConversion::IsCallable(then))
-                    {
+                    {LOGMEIN("JavascriptPromise.cpp] 621\n");
                         JavascriptPromiseResolveThenableTaskFunction* resolveThenableTaskFunction = library->CreatePromiseResolveThenableTaskFunction(EntryResolveThenableTaskFunction, this, thenable, RecyclableObject::FromVar(then));
 
                         library->EnqueueTask(resolveThenableTaskFunction);
@@ -628,11 +628,11 @@ namespace Js
                     }
                 }
                 catch (const JavascriptException& err)
-                {
+                {LOGMEIN("JavascriptPromise.cpp] 630\n");
                     resolution = err.GetAndClear()->GetThrownObject(scriptContext);
 
                     if (resolution == nullptr)
-                    {
+                    {LOGMEIN("JavascriptPromise.cpp] 634\n");
                         resolution = undefinedVar;
                     }
 
@@ -646,7 +646,7 @@ namespace Js
 
         // Need to check rejecting state again as it might have changed due to failures
         if (isRejecting)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 648\n");
             reactions = this->GetRejectReactions();
             newStatus = PromiseStatusCode_HasRejection;
         }
@@ -679,11 +679,11 @@ namespace Js
         Var reject = undefinedVar;
 
         if (args.Info.Count > 1)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 681\n");
             resolve = args[1];
 
             if (args.Info.Count > 2)
-            {
+            {LOGMEIN("JavascriptPromise.cpp] 685\n");
                 reject = args[2];
             }
         }
@@ -692,7 +692,7 @@ namespace Js
         JavascriptPromiseCapability* promiseCapability = capabilitiesExecutorFunction->GetCapability();
 
         if (!JavascriptOperators::IsUndefined(promiseCapability->GetResolve()) || !JavascriptOperators::IsUndefined(promiseCapability->GetReject()))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 694\n");
             JavascriptError::ThrowTypeErrorVar(scriptContext, JSERR_UnexpectedMetadataFailure, _u("Promise"));
         }
 
@@ -723,19 +723,19 @@ namespace Js
         {
             Js::JavascriptExceptionOperators::AutoCatchHandlerExists autoCatchHandlerExists(scriptContext);
             try
-            {
+            {LOGMEIN("JavascriptPromise.cpp] 725\n");
                 handlerResult = CALL_FUNCTION(handler, Js::CallInfo(Js::CallFlags::CallFlags_Value, 2),
                     undefinedVar,
                     argument);
             }
             catch (const JavascriptException& err)
-            {
+            {LOGMEIN("JavascriptPromise.cpp] 731\n");
                 exception = err.GetAndClear();
             }
         }
 
         if (exception != nullptr)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 737\n");
             return TryRejectWithExceptionObject(exception, promiseCapability->GetReject(), scriptContext);
         }
 
@@ -745,11 +745,11 @@ namespace Js
     }
 
     Var JavascriptPromise::TryCallResolveOrRejectHandler(Var handler, Var value, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 747\n");
         Var undefinedVar = scriptContext->GetLibrary()->GetUndefined();
 
         if (!JavascriptConversion::IsCallable(handler))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 751\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedFunction);
         }
 
@@ -761,11 +761,11 @@ namespace Js
     }
 
     Var JavascriptPromise::TryRejectWithExceptionObject(JavascriptExceptionObject* exceptionObject, Var handler, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 763\n");
         Var thrownObject = exceptionObject->GetThrownObject(scriptContext);
 
         if (thrownObject == nullptr)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 767\n");
             thrownObject = scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -773,9 +773,9 @@ namespace Js
     }
 
     Var JavascriptPromise::CreateRejectedPromise(Var resolution, ScriptContext* scriptContext, Var promiseConstructor)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 775\n");
         if (promiseConstructor == nullptr)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 777\n");
             promiseConstructor = scriptContext->GetLibrary()->GetPromiseConstructor();
         }
 
@@ -787,9 +787,9 @@ namespace Js
     }
 
     Var JavascriptPromise::CreateResolvedPromise(Var resolution, ScriptContext* scriptContext, Var promiseConstructor)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 789\n");
         if (promiseConstructor == nullptr)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 791\n");
             promiseConstructor = scriptContext->GetLibrary()->GetPromiseConstructor();
         }
 
@@ -801,14 +801,14 @@ namespace Js
     }
 
     Var JavascriptPromise::CreatePassThroughPromise(JavascriptPromise* sourcePromise, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 803\n");
         JavascriptLibrary* library = scriptContext->GetLibrary();
 
         return CreateThenPromise(sourcePromise, library->GetIdentityFunction(), library->GetThrowerFunction(), scriptContext);
     }
 
     Var JavascriptPromise::CreateThenPromise(JavascriptPromise* sourcePromise, RecyclableObject* fulfillmentHandler, RecyclableObject* rejectionHandler, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 810\n");
         Var constructor = JavascriptOperators::SpeciesConstructor(sourcePromise, scriptContext->GetLibrary()->GetPromiseConstructor(), scriptContext);
         JavascriptPromiseCapability* promiseCapability = NewPromiseCapability(constructor, scriptContext);
 
@@ -816,7 +816,7 @@ namespace Js
         JavascriptPromiseReaction* rejectReaction = JavascriptPromiseReaction::New(promiseCapability, rejectionHandler, scriptContext);
 
         switch (sourcePromise->status)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 818\n");
         case PromiseStatusCode_Unresolved:
             sourcePromise->resolveReactions->Add(resolveReaction);
             sourcePromise->rejectReactions->Add(rejectReaction);
@@ -860,14 +860,14 @@ namespace Js
         {
             Js::JavascriptExceptionOperators::AutoCatchHandlerExists autoCatchHandlerExists(scriptContext);
             try
-            {
+            {LOGMEIN("JavascriptPromise.cpp] 862\n");
                 return CALL_FUNCTION(thenFunction, Js::CallInfo(Js::CallFlags::CallFlags_Value, 3),
                     thenable,
                     resolve,
                     reject);
             }
             catch (const JavascriptException& err)
-            {
+            {LOGMEIN("JavascriptPromise.cpp] 869\n");
                 exception = err.GetAndClear();
             }
         }
@@ -885,7 +885,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count > 1)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 887\n");
             Assert(args[1] != nullptr);
 
         return args[1];
@@ -907,7 +907,7 @@ namespace Js
         Var arg;
 
         if (args.Info.Count > 1)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 909\n");
             Assert(args[1] != nullptr);
 
             arg = args[1];
@@ -932,7 +932,7 @@ namespace Js
         Var x;
 
         if (args.Info.Count > 1)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 934\n");
             x = args[1];
         }
         else
@@ -943,7 +943,7 @@ namespace Js
         JavascriptPromiseAllResolveElementFunction* allResolveElementFunction = JavascriptPromiseAllResolveElementFunction::FromVar(function);
 
         if (allResolveElementFunction->IsAlreadyCalled())
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 945\n");
             return undefinedVar;
         }
 
@@ -955,21 +955,21 @@ namespace Js
         JavascriptExceptionObject* exception = nullptr;
 
         try
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 957\n");
             values->SetItem(index, x, PropertyOperation_None);
         }
         catch (const JavascriptException& err)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 961\n");
             exception = err.GetAndClear();
         }
 
         if (exception != nullptr)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 966\n");
             return TryRejectWithExceptionObject(exception, promiseCapability->GetReject(), scriptContext);
         }
 
         if (allResolveElementFunction->DecrementRemainingElements() == 0)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 971\n");
             return TryCallResolveOrRejectHandler(promiseCapability->GetResolve(), values, scriptContext);
         }
 
@@ -1038,7 +1038,7 @@ namespace Js
         Var argument = undefinedVar;
 
         if (args.Info.Count > 1)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1040\n");
             argument = args[1];
         }
 
@@ -1049,7 +1049,7 @@ namespace Js
         JavascriptFunction* resolve = asyncSpawnStepExecutorFunction->GetResolve();
 
         if (asyncSpawnStepExecutorFunction->GetIsReject())
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1051\n");
             functionArg = library->CreatePromiseAsyncSpawnStepArgumentExecutorFunction(EntryJavascriptPromiseAsyncSpawnStepThrowExecutorFunction, gen, argument, NULL, NULL, false);
         }
         else
@@ -1063,7 +1063,7 @@ namespace Js
     }
 
     void JavascriptPromise::AsyncSpawnStep(JavascriptPromiseAsyncSpawnStepArgumentExecutorFunction* nextFunction, JavascriptGenerator* gen, JavascriptFunction* resolve, JavascriptFunction* reject)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1065\n");
         ScriptContext* scriptContext = resolve->GetScriptContext();
         JavascriptLibrary* library = scriptContext->GetLibrary();
         Var undefinedVar = library->GetUndefined();
@@ -1074,11 +1074,11 @@ namespace Js
         bool done;
 
         try
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1076\n");
             next = RecyclableObject::FromVar(CALL_FUNCTION(nextFunction, CallInfo(CallFlags_Value, 1), undefinedVar));
         }
         catch (const JavascriptException& err)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1080\n");
             exception = err.GetAndClear();
         }
 
@@ -1092,7 +1092,7 @@ namespace Js
         Assert(next != nullptr);
         done = JavascriptConversion::ToBool(JavascriptOperators::GetProperty(next, PropertyIds::done, scriptContext), scriptContext);
         if (done)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1094\n");
             // finished with success, resolve the promise
             value = JavascriptOperators::GetProperty(next, PropertyIds::value, scriptContext);
             CALL_FUNCTION(resolve, CallInfo(CallFlags_Value, 2), undefinedVar, value);
@@ -1116,36 +1116,36 @@ namespace Js
 
 #if ENABLE_TTD
     void JavascriptPromise::MarkVisitKindSpecificPtrs(TTD::SnapshotExtractor* extractor)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1118\n");
         if(this->result != nullptr)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1120\n");
             extractor->MarkVisitVar(this->result);
         }
 
         if(this->resolveReactions != nullptr)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1125\n");
             for(int32 i = 0; i < this->resolveReactions->Count(); ++i)
-            {
+            {LOGMEIN("JavascriptPromise.cpp] 1127\n");
                 this->resolveReactions->Item(i)->MarkVisitPtrs(extractor);
             }
         }
 
         if(this->rejectReactions != nullptr)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1133\n");
             for(int32 i = 0; i < this->rejectReactions->Count(); ++i)
-            {
+            {LOGMEIN("JavascriptPromise.cpp] 1135\n");
                 this->rejectReactions->Item(i)->MarkVisitPtrs(extractor);
             }
         }
     }
 
     TTD::NSSnapObjects::SnapObjectType JavascriptPromise::GetSnapTag_TTD() const
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1142\n");
         return TTD::NSSnapObjects::SnapObjectType::SnapPromiseObject;
     }
 
     void JavascriptPromise::ExtractSnapObjectDataInto(TTD::NSSnapObjects::SnapObject* objData, TTD::SlabAllocator& alloc)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1147\n");
         JsUtil::List<TTD_PTR_ID, HeapAllocator> depOnList(&HeapAllocator::Instance);
 
         TTD::NSSnapObjects::SnapPromiseInfo* spi = alloc.SlabAllocateStruct<TTD::NSSnapObjects::SnapPromiseInfo>();
@@ -1154,7 +1154,7 @@ namespace Js
 
         //Primitive kinds always inflated first so we only need to deal with complex kinds as depends on
         if(this->result != nullptr && TTD::JsSupport::IsVarComplexKind(this->result))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1156\n");
             depOnList.Add(TTD_CONVERT_VAR_TO_PTR_ID(this->result));
         }
 
@@ -1163,11 +1163,11 @@ namespace Js
         spi->ResolveReactionCount = (this->resolveReactions != nullptr) ? this->resolveReactions->Count() : 0;
         spi->ResolveReactions = nullptr;
         if(spi->ResolveReactionCount != 0)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1165\n");
             spi->ResolveReactions = alloc.SlabAllocateArray<TTD::NSSnapValues::SnapPromiseReactionInfo>(spi->ResolveReactionCount);
 
             for(uint32 i = 0; i < spi->ResolveReactionCount; ++i)
-            {
+            {LOGMEIN("JavascriptPromise.cpp] 1169\n");
                 this->resolveReactions->Item(i)->ExtractSnapPromiseReactionInto(spi->ResolveReactions + i, depOnList, alloc);
             }
         }
@@ -1175,18 +1175,18 @@ namespace Js
         spi->RejectReactionCount = (this->rejectReactions != nullptr) ? this->rejectReactions->Count() : 0;
         spi->RejectReactions = nullptr;
         if(spi->RejectReactionCount != 0)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1177\n");
             spi->RejectReactions = alloc.SlabAllocateArray<TTD::NSSnapValues::SnapPromiseReactionInfo>(spi->RejectReactionCount);
 
             for(uint32 i = 0; i < spi->RejectReactionCount; ++i)
-            {
+            {LOGMEIN("JavascriptPromise.cpp] 1181\n");
                 this->rejectReactions->Item(i)->ExtractSnapPromiseReactionInto(spi->RejectReactions+ i, depOnList, alloc);
             }
         }
 
         //see what we need to do wrt dependencies
         if(depOnList.Count() == 0)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1188\n");
             TTD::NSSnapObjects::StdExtractSetKindSpecificInfo<TTD::NSSnapObjects::SnapPromiseInfo*, TTD::NSSnapObjects::SnapObjectType::SnapPromiseObject>(objData, spi);
         }
         else
@@ -1195,7 +1195,7 @@ namespace Js
             TTD_PTR_ID* depOnArray = alloc.SlabAllocateArray<TTD_PTR_ID>(depOnCount);
 
             for(uint32 i = 0; i < depOnCount; ++i)
-            {
+            {LOGMEIN("JavascriptPromise.cpp] 1197\n");
                 depOnArray[i] = depOnList.Item(i);
             }
 
@@ -1204,7 +1204,7 @@ namespace Js
     }
 
     JavascriptPromise* JavascriptPromise::InitializePromise_TTD(ScriptContext* scriptContext, uint32 status, Var result, JsUtil::List<Js::JavascriptPromiseReaction*, HeapAllocator>& resolveReactions, JsUtil::List<Js::JavascriptPromiseReaction*, HeapAllocator>& rejectReactions)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1206\n");
         Recycler* recycler = scriptContext->GetRecycler();
         JavascriptLibrary* library = scriptContext->GetLibrary();
 
@@ -1225,9 +1225,9 @@ namespace Js
 
     // NewPromiseCapability as described in ES6.0 (draft 29) Section 25.4.1.6
     JavascriptPromiseCapability* JavascriptPromise::NewPromiseCapability(Var constructor, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1227\n");
         if (!JavascriptOperators::IsConstructor(constructor))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1229\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedFunction);
         }
 
@@ -1238,7 +1238,7 @@ namespace Js
 
     // CreatePromiseCapabilityRecord as described in ES6.0 (draft 29) Section 25.4.1.6.1
     JavascriptPromiseCapability* JavascriptPromise::CreatePromiseCapabilityRecord(RecyclableObject* constructor, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1240\n");
         JavascriptLibrary* library = scriptContext->GetLibrary();
         Var undefinedVar = library->GetUndefined();
         JavascriptPromiseCapability* promiseCapability = JavascriptPromiseCapability::New(undefinedVar, undefinedVar, undefinedVar, scriptContext);
@@ -1251,7 +1251,7 @@ namespace Js
         Var promise = JavascriptFunction::CallAsConstructor(constructor, nullptr, args, scriptContext);
 
         if (!JavascriptConversion::IsCallable(promiseCapability->GetResolve()) || !JavascriptConversion::IsCallable(promiseCapability->GetReject()))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1253\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedFunction, _u("Promise"));
         }
 
@@ -1262,13 +1262,13 @@ namespace Js
 
     // TriggerPromiseReactions as defined in ES 2015 Section 25.4.1.7
     Var JavascriptPromise::TriggerPromiseReactions(JavascriptPromiseReactionList* reactions, Var resolution, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1264\n");
         JavascriptLibrary* library = scriptContext->GetLibrary();
 
         if (reactions != nullptr)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1268\n");
             for (int i = 0; i < reactions->Count(); i++)
-            {
+            {LOGMEIN("JavascriptPromise.cpp] 1270\n");
                 JavascriptPromiseReaction* reaction = reactions->Item(i);
 
                 EnqueuePromiseReactionTask(reaction, resolution, scriptContext);
@@ -1279,7 +1279,7 @@ namespace Js
     }
 
     void JavascriptPromise::EnqueuePromiseReactionTask(JavascriptPromiseReaction* reaction, Var resolution, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1281\n");
         Assert(resolution != nullptr);
 
         JavascriptLibrary* library = scriptContext->GetLibrary();
@@ -1290,16 +1290,16 @@ namespace Js
 
     JavascriptPromiseResolveOrRejectFunction::JavascriptPromiseResolveOrRejectFunction(DynamicType* type)
         : RuntimeFunction(type, &Js::JavascriptPromise::EntryInfo::ResolveOrRejectFunction), promise(nullptr), isReject(false), alreadyResolvedWrapper(nullptr)
-    { }
+    {LOGMEIN("JavascriptPromise.cpp] 1292\n"); }
 
     JavascriptPromiseResolveOrRejectFunction::JavascriptPromiseResolveOrRejectFunction(DynamicType* type, FunctionInfo* functionInfo, JavascriptPromise* promise, bool isReject, JavascriptPromiseResolveOrRejectFunctionAlreadyResolvedWrapper* alreadyResolvedRecord)
         : RuntimeFunction(type, functionInfo), promise(promise), isReject(isReject), alreadyResolvedWrapper(alreadyResolvedRecord)
-    { }
+    {LOGMEIN("JavascriptPromise.cpp] 1296\n"); }
 
     bool JavascriptPromiseResolveOrRejectFunction::Is(Var var)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1299\n");
         if (JavascriptFunction::Is(var))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1301\n");
             JavascriptFunction* obj = JavascriptFunction::FromVar(var);
 
             return VirtualTableInfo<JavascriptPromiseResolveOrRejectFunction>::HasVirtualTable(obj)
@@ -1310,31 +1310,31 @@ namespace Js
     }
 
     JavascriptPromiseResolveOrRejectFunction* JavascriptPromiseResolveOrRejectFunction::FromVar(Var var)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1312\n");
         Assert(JavascriptPromiseResolveOrRejectFunction::Is(var));
 
         return static_cast<JavascriptPromiseResolveOrRejectFunction*>(var);
     }
 
     JavascriptPromise* JavascriptPromiseResolveOrRejectFunction::GetPromise()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1319\n");
         return this->promise;
     }
 
     bool JavascriptPromiseResolveOrRejectFunction::IsRejectFunction()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1324\n");
         return this->isReject;
     }
 
     bool JavascriptPromiseResolveOrRejectFunction::IsAlreadyResolved()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1329\n");
         Assert(this->alreadyResolvedWrapper);
 
         return this->alreadyResolvedWrapper->alreadyResolved;
     }
 
     void JavascriptPromiseResolveOrRejectFunction::SetAlreadyResolved(bool is)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1336\n");
         Assert(this->alreadyResolvedWrapper);
 
         this->alreadyResolvedWrapper->alreadyResolved = is;
@@ -1342,19 +1342,19 @@ namespace Js
 
 #if ENABLE_TTD
     void JavascriptPromiseResolveOrRejectFunction::MarkVisitKindSpecificPtrs(TTD::SnapshotExtractor* extractor)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1344\n");
         TTDAssert(this->promise != nullptr, "Was not expecting that!!!");
 
         extractor->MarkVisitVar(this->promise);
     }
 
     TTD::NSSnapObjects::SnapObjectType JavascriptPromiseResolveOrRejectFunction::GetSnapTag_TTD() const
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1351\n");
         return TTD::NSSnapObjects::SnapObjectType::SnapPromiseResolveOrRejectFunctionObject;
     }
 
     void JavascriptPromiseResolveOrRejectFunction::ExtractSnapObjectDataInto(TTD::NSSnapObjects::SnapObject* objData, TTD::SlabAllocator& alloc)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1356\n");
         TTD::NSSnapObjects::SnapPromiseResolveOrRejectFunctionInfo* sprri = alloc.SlabAllocateStruct<TTD::NSSnapObjects::SnapPromiseResolveOrRejectFunctionInfo>();
 
         uint32 depOnCount = 1;
@@ -1374,12 +1374,12 @@ namespace Js
 
     JavascriptPromiseAsyncSpawnExecutorFunction::JavascriptPromiseAsyncSpawnExecutorFunction(DynamicType* type, FunctionInfo* functionInfo, JavascriptGenerator* generator, Var target)
         : RuntimeFunction(type, functionInfo), generator(generator), target(target)
-    { }
+    {LOGMEIN("JavascriptPromise.cpp] 1376\n"); }
 
     bool JavascriptPromiseAsyncSpawnExecutorFunction::Is(Var var)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1379\n");
         if (JavascriptFunction::Is(var))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1381\n");
             JavascriptFunction* obj = JavascriptFunction::FromVar(var);
 
             return VirtualTableInfo<JavascriptPromiseAsyncSpawnExecutorFunction>::HasVirtualTable(obj)
@@ -1390,19 +1390,19 @@ namespace Js
     }
 
     JavascriptPromiseAsyncSpawnExecutorFunction* JavascriptPromiseAsyncSpawnExecutorFunction::FromVar(Var var)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1392\n");
         Assert(JavascriptPromiseAsyncSpawnExecutorFunction::Is(var));
 
         return static_cast<JavascriptPromiseAsyncSpawnExecutorFunction*>(var);
     }
 
     JavascriptGenerator* JavascriptPromiseAsyncSpawnExecutorFunction::GetGenerator()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1399\n");
         return this->generator;
     }
 
     Var JavascriptPromiseAsyncSpawnExecutorFunction::GetTarget()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1404\n");
         return this->target;
     }
 
@@ -1426,12 +1426,12 @@ namespace Js
 
     JavascriptPromiseAsyncSpawnStepArgumentExecutorFunction::JavascriptPromiseAsyncSpawnStepArgumentExecutorFunction(DynamicType* type, FunctionInfo* functionInfo, JavascriptGenerator* generator, Var argument, JavascriptFunction* resolve, JavascriptFunction* reject, bool isReject)
         : RuntimeFunction(type, functionInfo), generator(generator), argument(argument), resolve(resolve), reject(reject), isReject(isReject)
-    { }
+    {LOGMEIN("JavascriptPromise.cpp] 1428\n"); }
 
     bool JavascriptPromiseAsyncSpawnStepArgumentExecutorFunction::Is(Var var)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1431\n");
         if (JavascriptFunction::Is(var))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1433\n");
             JavascriptFunction* obj = JavascriptFunction::FromVar(var);
 
             return VirtualTableInfo<JavascriptPromiseAsyncSpawnStepArgumentExecutorFunction>::HasVirtualTable(obj)
@@ -1442,34 +1442,34 @@ namespace Js
     }
 
     JavascriptPromiseAsyncSpawnStepArgumentExecutorFunction* JavascriptPromiseAsyncSpawnStepArgumentExecutorFunction::FromVar(Var var)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1444\n");
         Assert(JavascriptPromiseAsyncSpawnStepArgumentExecutorFunction::Is(var));
 
         return static_cast<JavascriptPromiseAsyncSpawnStepArgumentExecutorFunction*>(var);
     }
 
     JavascriptGenerator* JavascriptPromiseAsyncSpawnStepArgumentExecutorFunction::GetGenerator()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1451\n");
         return this->generator;
     }
 
     JavascriptFunction* JavascriptPromiseAsyncSpawnStepArgumentExecutorFunction::GetResolve()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1456\n");
         return this->resolve;
     }
 
     JavascriptFunction* JavascriptPromiseAsyncSpawnStepArgumentExecutorFunction::GetReject()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1461\n");
         return this->reject;
     }
 
     bool JavascriptPromiseAsyncSpawnStepArgumentExecutorFunction::GetIsReject()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1466\n");
         return this->isReject;
     }
 
     Var JavascriptPromiseAsyncSpawnStepArgumentExecutorFunction::GetArgument()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1471\n");
         return this->argument;
     }
 
@@ -1493,12 +1493,12 @@ namespace Js
 
     JavascriptPromiseCapabilitiesExecutorFunction::JavascriptPromiseCapabilitiesExecutorFunction(DynamicType* type, FunctionInfo* functionInfo, JavascriptPromiseCapability* capability)
         : RuntimeFunction(type, functionInfo), capability(capability)
-    { }
+    {LOGMEIN("JavascriptPromise.cpp] 1495\n"); }
 
     bool JavascriptPromiseCapabilitiesExecutorFunction::Is(Var var)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1498\n");
         if (JavascriptFunction::Is(var))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1500\n");
             JavascriptFunction* obj = JavascriptFunction::FromVar(var);
 
             return VirtualTableInfo<JavascriptPromiseCapabilitiesExecutorFunction>::HasVirtualTable(obj)
@@ -1509,14 +1509,14 @@ namespace Js
     }
 
     JavascriptPromiseCapabilitiesExecutorFunction* JavascriptPromiseCapabilitiesExecutorFunction::FromVar(Var var)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1511\n");
         Assert(JavascriptPromiseCapabilitiesExecutorFunction::Is(var));
 
         return static_cast<JavascriptPromiseCapabilitiesExecutorFunction*>(var);
     }
 
     JavascriptPromiseCapability* JavascriptPromiseCapabilitiesExecutorFunction::GetCapability()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1518\n");
         return this->capability;
     }
 
@@ -1539,43 +1539,43 @@ namespace Js
 #endif
 
     JavascriptPromiseCapability* JavascriptPromiseCapability::New(Var promise, Var resolve, Var reject, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1541\n");
         return RecyclerNew(scriptContext->GetRecycler(), JavascriptPromiseCapability, promise, resolve, reject);
     }
 
     Var JavascriptPromiseCapability::GetResolve()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1546\n");
         return this->resolve;
     }
 
     Var JavascriptPromiseCapability::GetReject()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1551\n");
         return this->reject;
     }
 
     Var JavascriptPromiseCapability::GetPromise()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1556\n");
         return this->promise;
     }
 
     void JavascriptPromiseCapability::SetPromise(Var promise)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1561\n");
         this->promise = promise;
     }
 
     void JavascriptPromiseCapability::SetResolve(Var resolve)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1566\n");
         this->resolve = resolve;
     }
 
     void JavascriptPromiseCapability::SetReject(Var reject)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1571\n");
         this->reject = reject;
     }
 
 #if ENABLE_TTD
     void JavascriptPromiseCapability::MarkVisitPtrs(TTD::SnapshotExtractor* extractor)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1577\n");
         TTDAssert(this->promise != nullptr && this->resolve != nullptr && this->reject != nullptr, "Seems odd, I was not expecting this!!!");
 
         extractor->MarkVisitVar(this->promise);
@@ -1585,47 +1585,47 @@ namespace Js
     }
 
     void JavascriptPromiseCapability::ExtractSnapPromiseCapabilityInto(TTD::NSSnapValues::SnapPromiseCapabilityInfo* snapPromiseCapability, JsUtil::List<TTD_PTR_ID, HeapAllocator>& depOnList, TTD::SlabAllocator& alloc)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1587\n");
         snapPromiseCapability->CapabilityId = TTD_CONVERT_PROMISE_INFO_TO_PTR_ID(this);
 
         snapPromiseCapability->PromiseVar = this->promise;
         if(TTD::JsSupport::IsVarComplexKind(this->promise))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1592\n");
             depOnList.Add(TTD_CONVERT_VAR_TO_PTR_ID(this->resolve));
         }
 
         snapPromiseCapability->ResolveVar = this->resolve;
         if(TTD::JsSupport::IsVarComplexKind(this->resolve))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1598\n");
             depOnList.Add(TTD_CONVERT_VAR_TO_PTR_ID(this->resolve));
         }
 
         snapPromiseCapability->RejectVar = this->reject;
         if(TTD::JsSupport::IsVarComplexKind(this->reject))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1604\n");
             depOnList.Add(TTD_CONVERT_VAR_TO_PTR_ID(this->reject));
         }
     }
 #endif
 
     JavascriptPromiseReaction* JavascriptPromiseReaction::New(JavascriptPromiseCapability* capabilities, RecyclableObject* handler, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1611\n");
         return RecyclerNew(scriptContext->GetRecycler(), JavascriptPromiseReaction, capabilities, handler);
     }
 
     JavascriptPromiseCapability* JavascriptPromiseReaction::GetCapabilities()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1616\n");
         return this->capabilities;
     }
 
     RecyclableObject* JavascriptPromiseReaction::GetHandler()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1621\n");
         return this->handler;
     }
 
 #if ENABLE_TTD
     void JavascriptPromiseReaction::MarkVisitPtrs(TTD::SnapshotExtractor* extractor)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1627\n");
         TTDAssert(this->handler != nullptr && this->capabilities != nullptr, "Seems odd, I was not expecting this!!!");
 
         extractor->MarkVisitVar(this->handler);
@@ -1634,7 +1634,7 @@ namespace Js
     }
 
     void JavascriptPromiseReaction::ExtractSnapPromiseReactionInto(TTD::NSSnapValues::SnapPromiseReactionInfo* snapPromiseReaction, JsUtil::List<TTD_PTR_ID, HeapAllocator>& depOnList, TTD::SlabAllocator& alloc)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1636\n");
         TTDAssert(this->handler != nullptr && this->capabilities != nullptr, "Seems odd, I was not expecting this!!!");
 
         snapPromiseReaction->PromiseReactionId = TTD_CONVERT_PROMISE_INFO_TO_PTR_ID(this);
@@ -1647,18 +1647,18 @@ namespace Js
 #endif
 
     JavascriptPromiseReaction* JavascriptPromiseReactionTaskFunction::GetReaction()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1649\n");
         return this->reaction;
     }
 
     Var JavascriptPromiseReactionTaskFunction::GetArgument()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1654\n");
         return this->argument;
     }
 
 #if ENABLE_TTD
     void JavascriptPromiseReactionTaskFunction::MarkVisitKindSpecificPtrs(TTD::SnapshotExtractor* extractor)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1660\n");
         TTDAssert(this->argument != nullptr && this->reaction != nullptr, "Was not expecting this!!!");
 
         extractor->MarkVisitVar(this->argument);
@@ -1667,12 +1667,12 @@ namespace Js
     }
 
     TTD::NSSnapObjects::SnapObjectType JavascriptPromiseReactionTaskFunction::GetSnapTag_TTD() const
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1669\n");
         return TTD::NSSnapObjects::SnapObjectType::SnapPromiseReactionTaskFunctionObject;
     }
 
     void JavascriptPromiseReactionTaskFunction::ExtractSnapObjectDataInto(TTD::NSSnapObjects::SnapObject* objData, TTD::SlabAllocator& alloc)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1674\n");
         TTD::NSSnapObjects::SnapPromiseReactionTaskFunctionInfo* sprtfi = alloc.SlabAllocateStruct<TTD::NSSnapObjects::SnapPromiseReactionTaskFunctionInfo>();
 
         JsUtil::List<TTD_PTR_ID, HeapAllocator> depOnList(&HeapAllocator::Instance);
@@ -1680,7 +1680,7 @@ namespace Js
         sprtfi->Argument = this->argument;
 
         if(this->argument != nullptr && TTD::JsSupport::IsVarComplexKind(this->argument))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1682\n");
             depOnList.Add(TTD_CONVERT_VAR_TO_PTR_ID(this->argument));
         }
 
@@ -1688,7 +1688,7 @@ namespace Js
 
         //see what we need to do wrt dependencies
         if(depOnList.Count() == 0)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1690\n");
             TTD::NSSnapObjects::StdExtractSetKindSpecificInfo<TTD::NSSnapObjects::SnapPromiseReactionTaskFunctionInfo*, TTD::NSSnapObjects::SnapObjectType::SnapPromiseReactionTaskFunctionObject>(objData, sprtfi);
         }
         else
@@ -1697,7 +1697,7 @@ namespace Js
             TTD_PTR_ID* depOnArray = alloc.SlabAllocateArray<TTD_PTR_ID>(depOnCount);
 
             for(uint32 i = 0; i < depOnCount; ++i)
-            {
+            {LOGMEIN("JavascriptPromise.cpp] 1699\n");
                 depOnArray[i] = depOnList.Item(i);
             }
 
@@ -1707,17 +1707,17 @@ namespace Js
 #endif
 
     JavascriptPromise* JavascriptPromiseResolveThenableTaskFunction::GetPromise()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1709\n");
         return this->promise;
     }
 
     RecyclableObject* JavascriptPromiseResolveThenableTaskFunction::GetThenable()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1714\n");
         return this->thenable;
     }
 
     RecyclableObject* JavascriptPromiseResolveThenableTaskFunction::GetThenFunction()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1719\n");
         return this->thenFunction;
     }
 
@@ -1741,16 +1741,16 @@ namespace Js
 
     JavascriptPromiseAllResolveElementFunction::JavascriptPromiseAllResolveElementFunction(DynamicType* type)
         : RuntimeFunction(type, &Js::JavascriptPromise::EntryInfo::AllResolveElementFunction), index(0), values(nullptr), capabilities(nullptr), remainingElementsWrapper(nullptr), alreadyCalled(false)
-    { }
+    {LOGMEIN("JavascriptPromise.cpp] 1743\n"); }
 
     JavascriptPromiseAllResolveElementFunction::JavascriptPromiseAllResolveElementFunction(DynamicType* type, FunctionInfo* functionInfo, uint32 index, JavascriptArray* values, JavascriptPromiseCapability* capabilities, JavascriptPromiseAllResolveElementFunctionRemainingElementsWrapper* remainingElementsWrapper)
         : RuntimeFunction(type, functionInfo), index(index), values(values), capabilities(capabilities), remainingElementsWrapper(remainingElementsWrapper), alreadyCalled(false)
-    { }
+    {LOGMEIN("JavascriptPromise.cpp] 1747\n"); }
 
     bool JavascriptPromiseAllResolveElementFunction::Is(Var var)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1750\n");
         if (JavascriptFunction::Is(var))
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1752\n");
             JavascriptFunction* obj = JavascriptFunction::FromVar(var);
 
             return VirtualTableInfo<JavascriptPromiseAllResolveElementFunction>::HasVirtualTable(obj)
@@ -1761,50 +1761,50 @@ namespace Js
     }
 
     JavascriptPromiseAllResolveElementFunction* JavascriptPromiseAllResolveElementFunction::FromVar(Var var)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1763\n");
         Assert(JavascriptPromiseAllResolveElementFunction::Is(var));
 
         return static_cast<JavascriptPromiseAllResolveElementFunction*>(var);
     }
 
     JavascriptPromiseCapability* JavascriptPromiseAllResolveElementFunction::GetCapabilities()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1770\n");
         return this->capabilities;
     }
 
     uint32 JavascriptPromiseAllResolveElementFunction::GetIndex()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1775\n");
         return this->index;
     }
 
     uint32 JavascriptPromiseAllResolveElementFunction::GetRemainingElements()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1780\n");
         return this->remainingElementsWrapper->remainingElements;
     }
 
     JavascriptArray* JavascriptPromiseAllResolveElementFunction::GetValues()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1785\n");
         return this->values;
     }
 
     uint32 JavascriptPromiseAllResolveElementFunction::DecrementRemainingElements()
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1790\n");
         return --(this->remainingElementsWrapper->remainingElements);
     }
 
     bool JavascriptPromiseAllResolveElementFunction::IsAlreadyCalled() const
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1795\n");
         return this->alreadyCalled;
     }
 
     void JavascriptPromiseAllResolveElementFunction::SetAlreadyCalled(const bool is)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1800\n");
         this->alreadyCalled = is;
     }
 
 #if ENABLE_TTD
     void JavascriptPromiseAllResolveElementFunction::MarkVisitKindSpecificPtrs(TTD::SnapshotExtractor* extractor)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1806\n");
         TTDAssert(this->capabilities != nullptr && this->remainingElementsWrapper != nullptr && this->values != nullptr, "Don't think these can be null");
 
         this->capabilities->MarkVisitPtrs(extractor);
@@ -1812,12 +1812,12 @@ namespace Js
     }
 
     TTD::NSSnapObjects::SnapObjectType JavascriptPromiseAllResolveElementFunction::GetSnapTag_TTD() const
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1814\n");
         return TTD::NSSnapObjects::SnapObjectType::SnapPromiseAllResolveElementFunctionObject;
     }
 
     void JavascriptPromiseAllResolveElementFunction::ExtractSnapObjectDataInto(TTD::NSSnapObjects::SnapObject* objData, TTD::SlabAllocator& alloc)
-    {
+    {LOGMEIN("JavascriptPromise.cpp] 1819\n");
         TTD::NSSnapObjects::SnapPromiseAllResolveElementFunctionInfo* sprai = alloc.SlabAllocateStruct<TTD::NSSnapObjects::SnapPromiseAllResolveElementFunctionInfo>();
 
         JsUtil::List<TTD_PTR_ID, HeapAllocator> depOnList(&HeapAllocator::Instance);
@@ -1836,7 +1836,7 @@ namespace Js
         TTD_PTR_ID* depOnArray = alloc.SlabAllocateArray<TTD_PTR_ID>(depOnCount);
 
         for(uint32 i = 0; i < depOnCount; ++i)
-        {
+        {LOGMEIN("JavascriptPromise.cpp] 1838\n");
             depOnArray[i] = depOnList.Item(i);
         }
 

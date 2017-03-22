@@ -16,7 +16,7 @@ namespace Js
     class WritableStringBuffer
     {
     public:
-        WritableStringBuffer(_In_count_(length) char16* str, _In_ charcount_t length) : m_pszString(str), m_pszCurrentPtr(str), m_length(length) {}
+        WritableStringBuffer(_In_count_(length) char16* str, _In_ charcount_t length) : m_pszString(str), m_pszCurrentPtr(str), m_length(length) {LOGMEIN("JSONString.h] 18\n");}
 
         void Append(char16 c);
         void Append(const char16 * str, charcount_t countNeeded);
@@ -27,7 +27,7 @@ namespace Js
         charcount_t m_length;
 #if DBG
         charcount_t GetCount()
-        {
+        {LOGMEIN("JSONString.h] 29\n");
             Assert(m_pszCurrentPtr >= m_pszString);
             Assert(m_pszCurrentPtr - m_pszString <= MaxCharCount);
             return static_cast<charcount_t>(m_pszCurrentPtr - m_pszString);
@@ -54,11 +54,11 @@ namespace Js
     public:
         template <EscapingOperation op>
         static Js::JavascriptString* Escape(Js::JavascriptString* value, uint start = 0, WritableStringBuffer* outputString = nullptr)
-        {
+        {LOGMEIN("JSONString.h] 56\n");
             uint len = value->GetLength();
 
             if (0 == len)
-            {
+            {LOGMEIN("JSONString.h] 60\n");
                 Js::ScriptContext* scriptContext = value->GetScriptContext();
                 return scriptContext->GetLibrary()->GetQuotesString();
             }
@@ -71,17 +71,17 @@ namespace Js
 
         template <EscapingOperation op, class TJSONString, class TConcatStringWrapping, class TJavascriptString>
         static TJavascriptString EscapeNonEmptyString(Js::JavascriptString* value, const char16* szValue, uint start, charcount_t len, WritableStringBuffer* outputString)
-        {
+        {LOGMEIN("JSONString.h] 73\n");
             charcount_t extra = 0;
             TJavascriptString result;
 
             // Optimize for the case when we don't need to change anything, just wrap with quotes.
             // If we realize we need to change the inside of the string, start over in "modification needed" mode.
             if (op == EscapingOperation_Escape)
-            {
+            {LOGMEIN("JSONString.h] 80\n");
                 outputString->Append(_u('\"'));
                 if (start != 0)
-                {
+                {LOGMEIN("JSONString.h] 83\n");
                     outputString->AppendLarge(szValue, start);
                 }
             }
@@ -89,13 +89,13 @@ namespace Js
             const wchar* startSz = szValue + start;
             const wchar* lastFlushSz = startSz;
             for (const wchar* current = startSz; current < endSz; current++)
-            {
+            {LOGMEIN("JSONString.h] 91\n");
                 WCHAR wch = *current;
 
                 if (op == EscapingOperation_Count)
-                {
+                {LOGMEIN("JSONString.h] 95\n");
                     if (wch < _countof(escapeMap))
-                    {
+                    {LOGMEIN("JSONString.h] 97\n");
                         extra = UInt32Math::Add(extra, escapeMapCount[static_cast<int>((char)wch)]);
                     }
                 }
@@ -103,7 +103,7 @@ namespace Js
                 {
                     WCHAR specialChar;
                     if (wch < _countof(escapeMap))
-                    {
+                    {LOGMEIN("JSONString.h] 105\n");
                         specialChar = escapeMap[static_cast<int>((char)wch)];
                     }
                     else
@@ -114,24 +114,24 @@ namespace Js
                     if (specialChar != '\0')
                     {
                         if (op == EscapingOperation_Escape)
-                        {
+                        {LOGMEIN("JSONString.h] 116\n");
                             outputString->AppendLarge(lastFlushSz, (charcount_t)(current - lastFlushSz));
                             lastFlushSz = current + 1;
                             outputString->Append(_u('\\'));
                             outputString->Append(specialChar);
                             if (specialChar == _u('u'))
-                            {
+                            {LOGMEIN("JSONString.h] 122\n");
                                 char16 bf[5];
                                 _ltow_s(wch, bf, _countof(bf), 16);
                                 size_t count = wcslen(bf);
                                 if (count < 4)
-                                {
+                                {LOGMEIN("JSONString.h] 127\n");
                                     if (count == 1)
-                                    {
+                                    {LOGMEIN("JSONString.h] 129\n");
                                         outputString->Append(_u("000"), 3);
                                     }
                                     else if (count == 2)
-                                    {
+                                    {LOGMEIN("JSONString.h] 133\n");
                                         outputString->Append(_u("00"), 2);
                                     }
                                     else
@@ -152,16 +152,16 @@ namespace Js
             } // for.
 
             if (op == EscapingOperation_Escape)
-            {
+            {LOGMEIN("JSONString.h] 154\n");
                 if (lastFlushSz < endSz)
-                {
+                {LOGMEIN("JSONString.h] 156\n");
                     outputString->AppendLarge(lastFlushSz, (charcount_t)(endSz - lastFlushSz));
                 }
                 outputString->Append(_u('\"'));
                 result = nullptr;
             }
             else if (op == EscapingOperation_Count)
-            {
+            {LOGMEIN("JSONString.h] 163\n");
                 result = TJSONString::New(value, start, extra);
             }
             else
@@ -174,7 +174,7 @@ namespace Js
         }
 
         static WCHAR* EscapeNonEmptyString(ArenaAllocator* allocator, const char16* szValue)
-        {
+        {LOGMEIN("JSONString.h] 176\n");
             WCHAR* result = nullptr;
             StringProxy::allocator = allocator;
             charcount_t len = (charcount_t)wcslen(szValue);
@@ -192,17 +192,17 @@ namespace Js
             static ArenaAllocator* allocator;
 
             StringProxy()
-            {
+            {LOGMEIN("JSONString.h] 194\n");
                 this->m_needEscape = false;
             }
 
             StringProxy(int start, int extra) : m_start(start), m_extra(extra)
-            {
+            {LOGMEIN("JSONString.h] 199\n");
                 this->m_needEscape = true;
             }
 
             static StringProxy* New(Js::JavascriptString* value)
-            {
+            {LOGMEIN("JSONString.h] 204\n");
                 // Case 1: The string do not need to be escaped at all
                 Assert(value == nullptr);
                 Assert(allocator != nullptr);
@@ -210,7 +210,7 @@ namespace Js
             }
 
             static StringProxy* New(Js::JavascriptString* value, uint start, uint length)
-            {
+            {LOGMEIN("JSONString.h] 212\n");
                 // Case 2: The string requires escaping, and the length is computed
                 Assert(value == nullptr);
                 Assert(allocator != nullptr);
@@ -218,9 +218,9 @@ namespace Js
             }
 
             WCHAR* GetResult(const WCHAR* originalString, charcount_t originalLength)
-            {
+            {LOGMEIN("JSONString.h] 220\n");
                 if (this->m_needEscape)
-                {
+                {LOGMEIN("JSONString.h] 222\n");
                     charcount_t unescapedStringLength = originalLength + m_extra + 2 /* for the quotes */;
                     WCHAR* buffer = AnewArray(allocator, WCHAR, unescapedStringLength + 1); /* for terminating null */
                     buffer[unescapedStringLength] = '\0';

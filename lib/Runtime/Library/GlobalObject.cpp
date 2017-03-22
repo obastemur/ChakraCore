@@ -16,7 +16,7 @@
 namespace Js
 {
     GlobalObject * GlobalObject::New(ScriptContext * scriptContext)
-    {
+    {LOGMEIN("GlobalObject.cpp] 18\n");
         SimpleDictionaryTypeHandler* globalTypeHandler = SimpleDictionaryTypeHandler::New(
             scriptContext->GetRecycler(), InitialCapacity, InlineSlotCapacity, sizeof(Js::GlobalObject));
 
@@ -37,11 +37,11 @@ namespace Js
         secureDirectHostObject(nullptr),
         EvalHelper(&GlobalObject::DefaultEvalHelper),
         reservedProperties(nullptr)
-    {
+    {LOGMEIN("GlobalObject.cpp] 39\n");
     }
 
     void GlobalObject::Initialize(ScriptContext * scriptContext)
-    {
+    {LOGMEIN("GlobalObject.cpp] 43\n");
         Assert(type->javascriptLibrary == nullptr);
         JavascriptLibrary* localLibrary = RecyclerNewFinalized(scriptContext->GetRecycler(), JavascriptLibrary, this);
         scriptContext->SetLibrary(localLibrary);
@@ -52,7 +52,7 @@ namespace Js
     }
 
     bool GlobalObject::Is(Var aValue)
-    {
+    {LOGMEIN("GlobalObject.cpp] 54\n");
         return RecyclableObject::Is(aValue) && (RecyclableObject::FromVar(aValue)->GetTypeId() == TypeIds_GlobalObject);
     }
 
@@ -63,7 +63,7 @@ namespace Js
     }
 
     HRESULT GlobalObject::SetDirectHostObject(RecyclableObject* hostObject, RecyclableObject* secureDirectHostObject)
-    {
+    {LOGMEIN("GlobalObject.cpp] 65\n");
         HRESULT hr = S_OK;
 
         BEGIN_TRANSLATE_OOM_TO_HRESULT_NESTED
@@ -79,12 +79,12 @@ namespace Js
     }
 
     RecyclableObject* GlobalObject::GetDirectHostObject()
-    {
+    {LOGMEIN("GlobalObject.cpp] 81\n");
         return this->directHostObject;
     }
 
     RecyclableObject* GlobalObject::GetSecureDirectHostObject()
-    {
+    {LOGMEIN("GlobalObject.cpp] 86\n");
         return this->secureDirectHostObject;
     }
 
@@ -92,16 +92,16 @@ namespace Js
     // In a non-hosted environment, the global object (this) is returned.
     // In a hosted environment, the host object is returned.
     Var GlobalObject::ToThis()
-    {
+    {LOGMEIN("GlobalObject.cpp] 94\n");
         Var ret;
 
         // In fast DOM, we need to give user the secure version of host object
         if (secureDirectHostObject)
-        {
+        {LOGMEIN("GlobalObject.cpp] 99\n");
             ret = secureDirectHostObject;
         }
         else if (hostObject)
-        {
+        {LOGMEIN("GlobalObject.cpp] 103\n");
             // If the global object has the host object, use that as "this"
             ret = hostObject->GetHostDispatchVar();
             Assert(ret);
@@ -116,13 +116,13 @@ namespace Js
     }
 
     BOOL GlobalObject::ReserveGlobalProperty(PropertyId propertyId)
-    {
+    {LOGMEIN("GlobalObject.cpp] 118\n");
         if (DynamicObject::HasProperty(propertyId))
-        {
+        {LOGMEIN("GlobalObject.cpp] 120\n");
             return false;
         }
         if (reservedProperties == nullptr)
-        {
+        {LOGMEIN("GlobalObject.cpp] 124\n");
             Recycler* recycler = this->GetScriptContext()->GetRecycler();
             reservedProperties = RecyclerNew(recycler, ReservedPropertiesHashSet, recycler, 3);
         }
@@ -131,7 +131,7 @@ namespace Js
     }
 
     BOOL GlobalObject::IsReservedGlobalProperty(PropertyId propertyId)
-    {
+    {LOGMEIN("GlobalObject.cpp] 133\n");
         return reservedProperties != nullptr && reservedProperties->Contains(propertyId);
     }
 
@@ -150,7 +150,7 @@ namespace Js
         size_t sourceLength = 0;
 
         if (Js::JavascriptString::Is(codeVar))
-        {
+        {LOGMEIN("GlobalObject.cpp] 152\n");
             codeStringVar = (Js::JavascriptString *)codeVar;
             source = codeStringVar->GetString();
             sourceLength = codeStringVar->GetLength();
@@ -181,7 +181,7 @@ namespace Js
 
     // TODO remove when refactor
     Js::PropertyId GlobalObject::CreateProperty(Js::ScriptContext *scriptContext, const char16 *propertyName)
-    {
+    {LOGMEIN("GlobalObject.cpp] 183\n");
         Js::PropertyRecord const *propertyRecord;
         scriptContext->GetOrAddPropertyRecord(propertyName, (int) wcslen(propertyName), &propertyRecord);
         Js::PropertyId propertyId = propertyRecord->GetPropertyId();
@@ -191,10 +191,10 @@ namespace Js
 
     // TODO remove when refactor
     void GlobalObject::SetProperty(Js::DynamicObject *obj, const char16 *propertyName, Js::Var value)
-    {
+    {LOGMEIN("GlobalObject.cpp] 193\n");
         const size_t len = wcslen(propertyName);
         if (!(len > 0))
-        {
+        {LOGMEIN("GlobalObject.cpp] 196\n");
             return;
         }
 
@@ -204,9 +204,9 @@ namespace Js
 
     // TODO remove when refactor
     void GlobalObject::SetProperty(Js::DynamicObject *obj, Js::PropertyId id, Js::Var value)
-    {
+    {LOGMEIN("GlobalObject.cpp] 206\n");
         if (value == NULL)
-        {
+        {LOGMEIN("GlobalObject.cpp] 208\n");
             return;
         }
 
@@ -216,7 +216,7 @@ namespace Js
     Var GlobalObject::FunctionInfoObjectBuilder(ScriptContext *scriptContext, const char16 *file,
         const char16 *function, ULONG lineNum, ULONG colNum,
         uint functionId, Js::Utf8SourceInfo *utf8SrcInfo, Js::Var source)
-    {
+    {LOGMEIN("GlobalObject.cpp] 218\n");
         Js::DynamicObject *fnInfoObj = scriptContext->GetLibrary()->CreateObject();
 
         // create javascript objects for properties
@@ -258,7 +258,7 @@ namespace Js
         for (scriptContext = threadContext->GetScriptContextList();
             scriptContext;
             scriptContext = scriptContext->next)
-        {
+        {LOGMEIN("GlobalObject.cpp] 260\n");
             if (scriptContext->IsClosed()) continue;
 
             //
@@ -269,7 +269,7 @@ namespace Js
             {
                 Js::Utf8SourceInfo *sourceInfo = sourceInfoWeakRef->Get();
                 if (sourceInfo == nullptr || sourceInfo->GetIsLibraryCode()) // library code has no source, skip
-                {
+                {LOGMEIN("GlobalObject.cpp] 271\n");
                     return;
                 }
 
@@ -279,7 +279,7 @@ namespace Js
 
 #ifdef ENABLE_IR_VIEWER_DBG_DUMP
         if (Js::Configuration::Global.flags.Verbose)
-        {
+        {LOGMEIN("GlobalObject.cpp] 281\n");
             Output::Print(_u(">> There are %d total functions\n"), fnCount);
             Output::Flush();
         }
@@ -294,7 +294,7 @@ namespace Js
         for (scriptContext = threadContext->GetScriptContextList();
             scriptContext;
             scriptContext = scriptContext->next)
-        {
+        {LOGMEIN("GlobalObject.cpp] 296\n");
             if (scriptContext->IsClosed()) continue;
             // if (scriptContext == originalScriptContext) continue;  // uncomment to ignore the originalScriptContext
 
@@ -303,7 +303,7 @@ namespace Js
             {
                 Js::Utf8SourceInfo *sourceInfo = sourceInfoWeakRef->Get();
                 if (sourceInfo == nullptr || sourceInfo->GetIsLibraryCode()) // library code has no source, skip
-                {
+                {LOGMEIN("GlobalObject.cpp] 305\n");
                     return;
                 }
 
@@ -316,7 +316,7 @@ namespace Js
                 char16 filenameBuffer[128];  // hold dynamically built filename
                 char16 const *srcFileUrl = NULL;
                 if (!srcContextInfo->IsDynamic())
-                {
+                {LOGMEIN("GlobalObject.cpp] 318\n");
                     Assert(srcContextInfo->url != NULL);
                     srcFileUrl = srcContextInfo->url;
                 }
@@ -336,7 +336,7 @@ namespace Js
                     uint funcId = functionBody->GetLocalFunctionId();
                     Js::Utf8SourceInfo *utf8SrcInfo = functionBody->GetUtf8SourceInfo();
                     if (utf8SrcInfo == nullptr)
-                    {
+                    {LOGMEIN("GlobalObject.cpp] 338\n");
                         return;
                     }
 
@@ -358,7 +358,7 @@ namespace Js
 
 #ifdef ENABLE_IR_VIEWER_DBG_DUMP
         if (Js::Configuration::Global.flags.Verbose)
-        {
+        {LOGMEIN("GlobalObject.cpp] 360\n");
             Output::Print(_u(">> Returning from functionList()\n"));
             Output::Flush();
         }
@@ -374,7 +374,7 @@ namespace Js
     {
 #ifdef ENABLE_IR_VIEWER_DBG_DUMP
         if (Js::Configuration::Global.flags.Verbose)
-        {
+        {LOGMEIN("GlobalObject.cpp] 376\n");
             Output::Print(_u(">> Entering rejitFunction()\n"));
             Output::Flush();
         }
@@ -390,7 +390,7 @@ namespace Js
 
 #ifdef ENABLE_IR_VIEWER_DBG_DUMP
         if (Js::Configuration::Global.flags.Verbose)
-        {
+        {LOGMEIN("GlobalObject.cpp] 392\n");
             Output::Print(_u("jsVarUtf8SourceInfo: %d (0x%08X)\n"), jsVarUtf8SourceInfo, jsVarUtf8SourceInfo);
             Output::Print(_u("jsVarFunctionId: %d (0x%08X)\n"), jsVarFunctionId, jsVarFunctionId);
         }
@@ -403,11 +403,11 @@ namespace Js
 
         // extract value of jsVarUtf8SourceInfo
         if (Js::TaggedInt::Is(jsVarUtf8SourceInfo))
-        {
+        {LOGMEIN("GlobalObject.cpp] 405\n");
             utf8SourceInfoNumber = (int32)TaggedInt::ToInt64(jsVarUtf8SourceInfo); // REVIEW: just truncate?
         }
         else if (Js::JavascriptNumber::Is(jsVarUtf8SourceInfo))
-        {
+        {LOGMEIN("GlobalObject.cpp] 409\n");
             jsUtf8SourceInfoNumber = (Js::JavascriptNumber *)jsVarUtf8SourceInfo;
             utf8SourceInfoNumber = (int32)JavascriptNumber::GetValue(jsUtf8SourceInfoNumber);    // REVIEW: just truncate?
         }
@@ -419,11 +419,11 @@ namespace Js
 
         // extract value of jsVarFunctionId
         if (Js::TaggedInt::Is(jsVarFunctionId))
-        {
+        {LOGMEIN("GlobalObject.cpp] 421\n");
             functionIdNumber = (int32)TaggedInt::ToInt64(jsVarFunctionId); // REVIEW: just truncate?
         }
         else if (Js::JavascriptNumber::Is(jsVarFunctionId))
-        {
+        {LOGMEIN("GlobalObject.cpp] 425\n");
             jsFunctionIdNumber = (Js::JavascriptNumber *)jsVarFunctionId;
             functionIdNumber = (int32)JavascriptNumber::GetValue(jsFunctionIdNumber); // REVIEW: just truncate?
         }
@@ -435,7 +435,7 @@ namespace Js
 
 #ifdef ENABLE_IR_VIEWER_DBG_DUMP
         if (Js::Configuration::Global.flags.Verbose)
-        {
+        {LOGMEIN("GlobalObject.cpp] 437\n");
             Output::Print(_u("utf8SourceInfoNumber (value): %d (0x%08X)\n"), utf8SourceInfoNumber, utf8SourceInfoNumber);
             Output::Print(_u("jsVarFunctionId (value): %d (0x%08X)\n"), functionIdNumber, functionIdNumber);
             Output::Print(_u(">> Executing rejitFunction(%d, %d)\n"), utf8SourceInfoNumber, functionIdNumber);
@@ -449,7 +449,7 @@ namespace Js
 
         Js::Utf8SourceInfo *sourceInfo = (Js::Utf8SourceInfo *)(utf8SourceInfoNumber);
         if (sourceInfo == NULL)
-        {
+        {LOGMEIN("GlobalObject.cpp] 451\n");
             return NULL;
         }
 
@@ -463,7 +463,7 @@ namespace Js
         NativeCodeGenerator *nativeCodeGenerator = scriptContext->GetNativeCodeGenerator();
 
         if (!functionBody || !functionBody->GetByteCode())
-        {
+        {LOGMEIN("GlobalObject.cpp] 465\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -475,7 +475,7 @@ namespace Js
 
 #ifdef ENABLE_IR_VIEWER_DBG_DUMP
         if (Js::Configuration::Global.flags.Verbose)
-        {
+        {LOGMEIN("GlobalObject.cpp] 477\n");
             Output::Print(_u("rejitFunction - retVal: 0x%08X\n"), retVal);
             Output::Flush();
         }
@@ -486,7 +486,7 @@ namespace Js
 
 #endif /* IR_VIEWER */
     Var GlobalObject::EntryEvalHelper(ScriptContext* scriptContext, RecyclableObject* function, CallInfo callInfo, Js::Arguments& args)
-    {
+    {LOGMEIN("GlobalObject.cpp] 488\n");
         FrameDisplay* environment = (FrameDisplay*)&NullFrameDisplay;
         ModuleID moduleID = kmodGlobal;
         BOOL strictMode = FALSE;
@@ -494,13 +494,13 @@ namespace Js
         BOOL isIndirect = FALSE;
 
         if (Js::CallInfo::isDirectEvalCall(args.Info.Flags))
-        {
+        {LOGMEIN("GlobalObject.cpp] 496\n");
             // This was recognized as an eval call at compile time. The last one or two args are internal to us.
             // Argcount will be one of the following when called from global code
             //  - eval("...")     : argcount 3 : this, evalString, frameDisplay
             //  - eval.call("..."): argcount 2 : this(which is string) , frameDisplay
             if (args.Info.Count >= 2)
-            {
+            {LOGMEIN("GlobalObject.cpp] 502\n");
                 environment = (FrameDisplay*)(args[args.Info.Count - 1]);
 
                 // Check for a module root passed from the caller. If it's there, use its module ID to compile the eval.
@@ -513,7 +513,7 @@ namespace Js
                 strictMode = environment->GetStrictMode();
 
                 if (args.Info.Count >= 3 && JavascriptOperators::GetTypeId(args[args.Info.Count - 2]) == TypeIds_ModuleRoot)
-                {
+                {LOGMEIN("GlobalObject.cpp] 515\n");
                     moduleID = ((Js::ModuleRoot*)(RecyclableObject::FromVar(args[args.Info.Count - 2])))->GetModuleID();
                     args.Info.Count--;
                 }
@@ -564,7 +564,7 @@ namespace Js
 
     Var GlobalObject::VEval(JavascriptLibrary* library, FrameDisplay* environment, ModuleID moduleID, bool strictMode, bool isIndirect,
         Arguments& args, bool isLibraryCode, bool registerDocument, uint32 additionalGrfscr)
-    {
+    {LOGMEIN("GlobalObject.cpp] 566\n");
         Assert(library);
         ScriptContext* scriptContext = library->GetScriptContext();
 
@@ -576,13 +576,13 @@ namespace Js
         Var varThis = library->GetUndefined();
 
         if (argCount < 2)
-        {
+        {LOGMEIN("GlobalObject.cpp] 578\n");
             return library->GetUndefined();
         }
 
         Var evalArg = args[1];
         if (!JavascriptString::Is(evalArg))
-        {
+        {LOGMEIN("GlobalObject.cpp] 584\n");
             // "If x is not a string value, return x."
             return evalArg;
         }
@@ -597,11 +597,11 @@ namespace Js
         charcount_t sourceLen = argString->GetLength();
         FastEvalMapString key(sourceString, sourceLen, moduleID, strictMode, isLibraryCode);
         if (!scriptContext->IsInEvalMap(key, isIndirect, &pfuncScript))
-        {
+        {LOGMEIN("GlobalObject.cpp] 599\n");
             uint32 grfscr = additionalGrfscr | fscrReturnExpression | fscrEval | fscrEvalCode | fscrGlobalCode;
 
             if (isLibraryCode)
-            {
+            {LOGMEIN("GlobalObject.cpp] 603\n");
                 grfscr |= fscrIsLibraryCode;
             }
 
@@ -612,7 +612,7 @@ namespace Js
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
             Js::Utf8SourceInfo* utf8SourceInfo = pfuncScript->GetFunctionBody()->GetUtf8SourceInfo();
             if (scriptContext->IsScriptContextInDebugMode() && !utf8SourceInfo->GetIsLibraryCode() && !utf8SourceInfo->IsInDebugMode())
-            {
+            {LOGMEIN("GlobalObject.cpp] 614\n");
                 // Identifying if any non library function escaped for not being in debug mode.
                 Throw::FatalInternalError();
             }
@@ -620,7 +620,7 @@ namespace Js
 
 #if ENABLE_TTD
             if(!scriptContext->IsTTDRecordOrReplayModeEnabled())
-            {
+            {LOGMEIN("GlobalObject.cpp] 622\n");
                 scriptContext->AddToEvalMap(key, isIndirect, pfuncScript);
             }
 #else
@@ -633,7 +633,7 @@ namespace Js
         {
             Js::Utf8SourceInfo* utf8SourceInfo = pfuncScript->GetFunctionBody()->GetUtf8SourceInfo();
             if (scriptContext->IsScriptContextInDebugMode() && !utf8SourceInfo->GetIsLibraryCode() && !utf8SourceInfo->IsInDebugMode())
-            {
+            {LOGMEIN("GlobalObject.cpp] 635\n");
                 // Identifying if any non library function escaped for not being in debug mode.
                 Throw::FatalInternalError();
             }
@@ -645,20 +645,20 @@ namespace Js
         //TODO: We may (probably?) want to use the debugger source rundown functionality here instead
         //
         if(!isLibraryCode && (scriptContext->IsTTDRecordModeEnabled() || scriptContext->ShouldPerformReplayAction()))
-        {
+        {LOGMEIN("GlobalObject.cpp] 647\n");
             //Make sure we have the body and text information available
             FunctionBody* globalBody = TTD::JsSupport::ForceAndGetFunctionBody(pfuncScript->GetParseableFunctionInfo());
             if(!scriptContext->TTDContextInfo->IsBodyAlreadyLoadedAtTopLevel(globalBody))
-            {
+            {LOGMEIN("GlobalObject.cpp] 651\n");
                 uint64 bodyIdCtr = 0;
 
                 if(scriptContext->IsTTDRecordModeEnabled())
-                {
+                {LOGMEIN("GlobalObject.cpp] 655\n");
                     const TTD::NSSnapValues::TopLevelEvalFunctionBodyResolveInfo* tbfi = scriptContext->GetThreadContext()->TTDLog->AddEvalFunction(globalBody, moduleID, sourceString, sourceLen, additionalGrfscr, registerDocument, isIndirect, strictMode);
 
                     //We always want to register the top-level load but we don't always need to log the event
                     if(scriptContext->ShouldPerformRecordAction())
-                    {
+                    {LOGMEIN("GlobalObject.cpp] 660\n");
                         scriptContext->GetThreadContext()->TTDLog->RecordTopLevelCodeAction(tbfi->TopLevelBase.TopLevelBodyCtr);
                     }
 
@@ -666,7 +666,7 @@ namespace Js
                 }
 
                 if(scriptContext->ShouldPerformReplayAction())
-                {
+                {LOGMEIN("GlobalObject.cpp] 668\n");
                     bodyIdCtr = scriptContext->GetThreadContext()->TTDLog->ReplayTopLevelCodeAction();
                 }
 
@@ -678,22 +678,22 @@ namespace Js
 #endif
 
         //We shouldn't be serializing eval functions; unless with -ForceSerialized flag
-        if (CONFIG_FLAG(ForceSerialized)) {
+        if (CONFIG_FLAG(ForceSerialized)) {LOGMEIN("GlobalObject.cpp] 680\n");
             pfuncScript->GetFunctionProxy()->EnsureDeserialized();
         }
 
         if (pfuncScript->GetFunctionBody()->GetHasThis())
-        {
+        {LOGMEIN("GlobalObject.cpp] 685\n");
             // The eval expression refers to "this"
             if (args.Info.Flags & CallFlags_ExtraArg)
-            {
+            {LOGMEIN("GlobalObject.cpp] 688\n");
                 JavascriptFunction* pfuncCaller;
                 JavascriptStackWalker::GetCaller(&pfuncCaller, scriptContext);
                 // If we are non-hidden call to eval then look for the "this" object in the frame display if the caller is a lambda else get "this" from the caller's frame.
 
                 FunctionInfo* functionInfo = pfuncCaller->GetFunctionInfo();
                 if (functionInfo != nullptr && (functionInfo->IsLambda() || functionInfo->IsClassConstructor()))
-                {
+                {LOGMEIN("GlobalObject.cpp] 695\n");
                     Var defaultInstance = (moduleID == kmodGlobal) ? JavascriptOperators::OP_LdRoot(scriptContext)->ToThis() : (Var)JavascriptOperators::GetModuleRoot(moduleID, scriptContext);
                     varThis = JavascriptOperators::OP_GetThisScoped(environment, defaultInstance, scriptContext);
                     UpdateThisForEval(varThis, moduleID, scriptContext, strictMode);
@@ -713,10 +713,10 @@ namespace Js
         }
 
         if (pfuncScript->HasSuperReference())
-        {
+        {LOGMEIN("GlobalObject.cpp] 715\n");
             // Indirect evals cannot have a super reference.
             if (!(args.Info.Flags & CallFlags_ExtraArg))
-            {
+            {LOGMEIN("GlobalObject.cpp] 718\n");
                 JavascriptError::ThrowSyntaxError(scriptContext, ERRSuperInIndirectEval, _u("super"));
             }
         }
@@ -725,9 +725,9 @@ namespace Js
     }
 
     void GlobalObject::UpdateThisForEval(Var &varThis, ModuleID moduleID, ScriptContext *scriptContext, BOOL strictMode)
-    {
+    {LOGMEIN("GlobalObject.cpp] 727\n");
         if (strictMode)
-        {
+        {LOGMEIN("GlobalObject.cpp] 729\n");
             varThis = JavascriptOperators::OP_StrictGetThis(varThis, scriptContext);
         }
         else
@@ -738,14 +738,14 @@ namespace Js
 
 
     Var GlobalObject::ExecuteEvalParsedFunction(ScriptFunction *pfuncScript, FrameDisplay* environment, Var &varThis)
-    {
+    {LOGMEIN("GlobalObject.cpp] 740\n");
         Assert(pfuncScript != nullptr);
 
         pfuncScript->SetEnvironment(environment);
         //This function is supposed to be deserialized
         Assert(pfuncScript->GetFunctionBody());
         if (pfuncScript->GetFunctionBody()->GetFuncEscapes())
-        {
+        {LOGMEIN("GlobalObject.cpp] 747\n");
             // Executing the eval causes the scope chain to escape.
             pfuncScript->InvalidateCachedScopeChain();
         }
@@ -756,7 +756,7 @@ namespace Js
 
 #ifdef ENABLE_SCRIPT_PROFILING
     ScriptFunction* GlobalObject::ProfileModeEvalHelper(ScriptContext* scriptContext, const char16 *source, int sourceLength, ModuleID moduleID, uint32 grfscr, LPCOLESTR pszTitle, BOOL registerDocument, BOOL isIndirect, BOOL strictMode)
-    {
+    {LOGMEIN("GlobalObject.cpp] 758\n");
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 #endif
@@ -769,7 +769,7 @@ namespace Js
                                     proxy->GetDebugNumberSet(debugStringBuffer), pEvalFunction->GetEntryPoint(), proxy->IsDeferred());
 
         if (proxy->IsDeferred())
-        {
+        {LOGMEIN("GlobalObject.cpp] 771\n");
             // This could happen if the top level function is marked as deferred, we need to parse this to generate the script compile information (RegisterScript depends on that)
             Js::JavascriptFunction::DeferredParse(&pEvalFunction);
             proxy = pEvalFunction->GetFunctionProxy();
@@ -782,7 +782,7 @@ namespace Js
 #endif
 
     void GlobalObject::ValidateSyntax(ScriptContext* scriptContext, const char16 *source, int sourceLength, bool isGenerator, bool isAsync, void (Parser::*validateSyntax)())
-    {
+    {LOGMEIN("GlobalObject.cpp] 784\n");
         Assert(sourceLength >= 0);
 
         HRESULT hr = S_OK;
@@ -808,25 +808,25 @@ namespace Js
         END_LEAVE_SCRIPT_INTERNAL(scriptContext);
 
         if (FAILED(hr))
-        {
+        {LOGMEIN("GlobalObject.cpp] 810\n");
             if (hr == E_OUTOFMEMORY)
-            {
+            {LOGMEIN("GlobalObject.cpp] 812\n");
                 JavascriptError::ThrowOutOfMemoryError(scriptContext);
             }
             if (hr == VBSERR_OutOfStack)
-            {
+            {LOGMEIN("GlobalObject.cpp] 816\n");
                 JavascriptError::ThrowStackOverflowError(scriptContext);
             }
         }
         if (!SUCCEEDED(hrParser))
-        {
+        {LOGMEIN("GlobalObject.cpp] 821\n");
             hrParser = SCRIPT_E_RECORDED;
             EXCEPINFO ei;
             se.GetError(&hrParser, &ei);
 
             ErrorTypeEnum errorType;
             switch ((HRESULT)ei.scode)
-            {
+            {LOGMEIN("GlobalObject.cpp] 828\n");
     #define RT_ERROR_MSG(name, errnum, str1, str2, jst, errorNumSource) \
             case name: \
                 errorType = jst; \
@@ -843,11 +843,11 @@ namespace Js
     }
 
     ScriptFunction* GlobalObject::DefaultEvalHelper(ScriptContext* scriptContext, const char16 *source, int sourceLength, ModuleID moduleID, uint32 grfscr, LPCOLESTR pszTitle, BOOL registerDocument, BOOL isIndirect, BOOL strictMode)
-    {
+    {LOGMEIN("GlobalObject.cpp] 845\n");
         Assert(sourceLength >= 0);
         AnalysisAssert(scriptContext);
         if (scriptContext->GetThreadContext()->EvalDisabled())
-        {
+        {LOGMEIN("GlobalObject.cpp] 849\n");
             throw Js::EvalDisabledException();
         }
 
@@ -892,7 +892,7 @@ namespace Js
             SourceContextInfo * sourceContextInfo = pSrcInfo->sourceContextInfo;
             ULONG deferParseThreshold = Parser::GetDeferralThreshold(sourceContextInfo->IsSourceProfileLoaded());
             if ((ULONG)sourceLength > deferParseThreshold && !PHASE_OFF1(Phase::DeferParsePhase))
-            {
+            {LOGMEIN("GlobalObject.cpp] 894\n");
                 // Defer function bodies declared inside large dynamic blocks.
                 grfscr |= fscrDeferFncParse;
             }
@@ -905,7 +905,7 @@ namespace Js
             sourceInfo->SetParseFlags(grfscr);
 
             if (SUCCEEDED(hrParser) && parseTree)
-            {
+            {LOGMEIN("GlobalObject.cpp] 907\n");
                 // This keeps function bodies generated by the byte code alive till we return
                 Js::AutoDynamicCodeReference dynamicFunctionReference(scriptContext);
 
@@ -917,7 +917,7 @@ namespace Js
                 if (isIndirect &&
                     !strictMode &&
                     !parseTree->sxFnc.GetStrictMode())
-                {
+                {LOGMEIN("GlobalObject.cpp] 919\n");
                     grfscr &= ~fscrEval;
                 }
                 hrCodeGen = GenerateByteCode(parseTree, grfscr, scriptContext, &funcBody, sourceIndex, forceNoNative, &parser, &se);
@@ -936,11 +936,11 @@ namespace Js
         THROW_KNOWN_HRESULT_EXCEPTIONS(hr, scriptContext);
 
         if (!SUCCEEDED(hrParser))
-        {
+        {LOGMEIN("GlobalObject.cpp] 938\n");
             JavascriptError::ThrowParserError(scriptContext, hrParser, &se);
         }
         else if (!SUCCEEDED(hrCodeGen))
-        {
+        {LOGMEIN("GlobalObject.cpp] 942\n");
             Assert(hrCodeGen == SCRIPT_E_RECORDED);
             hrCodeGen = se.ei.scode;
             /*
@@ -949,7 +949,7 @@ namespace Js
              */
             se.Free();
             if (hrCodeGen == VBSERR_OutOfStack)
-            {
+            {LOGMEIN("GlobalObject.cpp] 951\n");
                 JavascriptError::ThrowStackOverflowError(scriptContext);
             }
             JavascriptError::MapAndThrowError(scriptContext, hrCodeGen);
@@ -957,7 +957,7 @@ namespace Js
         else
         {
             if (se.ei.scode == JSERR_AsmJsCompileError)
-            {
+            {LOGMEIN("GlobalObject.cpp] 959\n");
                 // if asm.js compilation succeeded, retry with asm.js disabled
                 grfscr |= fscrNoAsmJs;
                 se.Clear();
@@ -972,11 +972,11 @@ namespace Js
 
             // If not library code then let's find the parent, we may need to register this source if any exception happens later
             if ((grfscr & fscrIsLibraryCode) == 0)
-            {
+            {LOGMEIN("GlobalObject.cpp] 974\n");
                 // For parented eval get the caller's utf8SourceInfo
                 JavascriptFunction* pfuncCaller;
                 if (JavascriptStackWalker::GetCaller(&pfuncCaller, scriptContext) && pfuncCaller && pfuncCaller->IsScriptFunction())
-                {
+                {LOGMEIN("GlobalObject.cpp] 978\n");
                     FunctionBody* parentFuncBody = pfuncCaller->GetFunctionBody();
                     Utf8SourceInfo* parentUtf8SourceInfo = parentFuncBody->GetUtf8SourceInfo();
                     Utf8SourceInfo* utf8SourceInfo = funcBody->GetUtf8SourceInfo();
@@ -985,7 +985,7 @@ namespace Js
             }
 
             if (registerDocument)
-            {
+            {LOGMEIN("GlobalObject.cpp] 987\n");
                 funcBody->RegisterFuncToDiag(scriptContext, pszTitle);
                 funcBody = funcBody->GetParseableFunctionInfo(); // RegisterFunction may parse and update function body
             }
@@ -1002,13 +1002,13 @@ namespace Js
     Var GlobalObject::IRDumpEvalHelper(ScriptContext* scriptContext, const char16 *source,
         int sourceLength, ModuleID moduleID, uint32 grfscr, LPCOLESTR pszTitle,
         BOOL registerDocument, BOOL isIndirect, BOOL strictMode)
-    {
+    {LOGMEIN("GlobalObject.cpp] 1004\n");
         // TODO (t-doilij) clean up this function, specifically used for IR dump (don't execute bytecode; potentially dangerous)
 
         Assert(sourceLength >= 0);
 
         if (scriptContext->GetThreadContext()->EvalDisabled())
-        {
+        {LOGMEIN("GlobalObject.cpp] 1010\n");
             throw Js::EvalDisabledException();
         }
 
@@ -1058,7 +1058,7 @@ namespace Js
             sourceInfo->SetParseFlags(grfscr);
 
             if (SUCCEEDED(hrParser) && parseTree)
-            {
+            {LOGMEIN("GlobalObject.cpp] 1060\n");
                 // This keeps function bodies generated by the byte code alive till we return
                 Js::AutoDynamicCodeReference dynamicFunctionReference(scriptContext);
 
@@ -1083,14 +1083,14 @@ namespace Js
         THROW_KNOWN_HRESULT_EXCEPTIONS(hr);
 
         if (!SUCCEEDED(hrParser))
-        {
+        {LOGMEIN("GlobalObject.cpp] 1085\n");
             hrParser = SCRIPT_E_RECORDED;
             EXCEPINFO ei;
             se.GetError(&hrParser, &ei);
 
             ErrorTypeEnum errorType;
             switch ((HRESULT)ei.scode)
-            {
+            {LOGMEIN("GlobalObject.cpp] 1092\n");
     #define RT_ERROR_MSG(name, errnum, str1, str2, jst, errorNumSource) \
             case name: \
                 errorType = jst; \
@@ -1105,7 +1105,7 @@ namespace Js
             JavascriptError::MapAndThrowError(scriptContext, ei.scode, errorType, &ei);
         }
         else if (!SUCCEEDED(hrCodeGen))
-        {
+        {LOGMEIN("GlobalObject.cpp] 1107\n");
             Assert(hrCodeGen == SCRIPT_E_RECORDED);
             hrCodeGen = se.ei.scode;
             /*
@@ -1114,7 +1114,7 @@ namespace Js
              */
             se.Free();
             if (hrCodeGen == VBSERR_OutOfStack)
-            {
+            {LOGMEIN("GlobalObject.cpp] 1116\n");
                 JavascriptError::ThrowStackOverflowError(scriptContext);
             }
             JavascriptError::MapAndThrowError(scriptContext, hrCodeGen);
@@ -1128,7 +1128,7 @@ namespace Js
             funcBody->SetIsTopLevel(true);
 
             if (registerDocument)
-            {
+            {LOGMEIN("GlobalObject.cpp] 1130\n");
                 funcBody->RegisterFuncToDiag(scriptContext, pszTitle);
                 funcBody = funcBody->GetParseableFunctionInfo(); // RegisterFunction may parse and update function body
             }
@@ -1137,7 +1137,7 @@ namespace Js
             Js::FunctionBody *functionBody = funcBody->GetFunctionBody(); // funcBody is ParseableFunctionInfo
 
             if (!functionBody || !functionBody->GetByteCode())
-            {
+            {LOGMEIN("GlobalObject.cpp] 1139\n");
                 return scriptContext->GetLibrary()->GetUndefined();
             }
 
@@ -1163,7 +1163,7 @@ namespace Js
 
 
         if(args.Info.Count < 2)
-        {
+        {LOGMEIN("GlobalObject.cpp] 1165\n");
             // We're really converting "undefined" here, but "undefined" produces
             // NaN, so just return that directly.
             return JavascriptNumber::ToVarNoCheck(JavascriptNumber::NaN, scriptContext);
@@ -1174,19 +1174,19 @@ namespace Js
         if (((args.Info.Count == 2) ||
             (TaggedInt::Is(args[2]) && TaggedInt::ToInt32(args[2]) == 10) ||
             (JavascriptNumber::Is(args[2]) && JavascriptNumber::GetValue(args[2]) == 10)))
-        {
+        {LOGMEIN("GlobalObject.cpp] 1176\n");
             if (TaggedInt::Is(args[1]))
-            {
+            {LOGMEIN("GlobalObject.cpp] 1178\n");
                 return args[1];
             }
             if (JavascriptNumber::Is(args[1]))
-            {
+            {LOGMEIN("GlobalObject.cpp] 1182\n");
                 double value = JavascriptNumber::GetValue(args[1]);
 
                 // make sure we are in the ranges that don't have exponential notation.
                 double absValue = Math::Abs(value);
                 if (absValue < 1.0e21 && absValue >= 1e-5)
-                {
+                {LOGMEIN("GlobalObject.cpp] 1188\n");
                     double result;
 #pragma prefast(suppress:6031, "We don't care about the fraction part")
                     ::modf(value, &result);
@@ -1197,7 +1197,7 @@ namespace Js
 
         // convert input to a string
         if (JavascriptString::Is(args[1]))
-        {
+        {LOGMEIN("GlobalObject.cpp] 1199\n");
             str = JavascriptString::FromVar(args[1]);
         }
         else
@@ -1206,12 +1206,12 @@ namespace Js
         }
 
         if(args.Info.Count > 2)
-        {
+        {LOGMEIN("GlobalObject.cpp] 1208\n");
             // retrieve the radix
             // TODO : verify for ES5 : radix is 10 when undefined or 0, except when it starts with 0x when it is 16.
             radix = JavascriptConversion::ToInt32(args[2], scriptContext);
             if(radix < 0 || radix == 1 || radix > 36)
-            {
+            {LOGMEIN("GlobalObject.cpp] 1213\n");
                 //illegal, return NaN
                 return JavascriptNumber::ToVarNoCheck(JavascriptNumber::NaN, scriptContext);
             }
@@ -1235,7 +1235,7 @@ namespace Js
         JavascriptString *str;
 
         if(args.Info.Count < 2)
-        {
+        {LOGMEIN("GlobalObject.cpp] 1237\n");
             // We're really converting "undefined" here, but "undefined" produces
             // NaN, so just return that directly.
             return JavascriptNumber::ToVarNoCheck(JavascriptNumber::NaN, scriptContext);
@@ -1243,11 +1243,11 @@ namespace Js
 
         // Short cut for numbers
         if (TaggedInt::Is(args[1]))
-        {
+        {LOGMEIN("GlobalObject.cpp] 1245\n");
             return args[1];
         }
         if(JavascriptNumber::Is_NoTaggedIntCheck(args[1]))
-        {
+        {LOGMEIN("GlobalObject.cpp] 1249\n");
             // If the value is negative zero, return positive zero. Since the parameter type is string, -0 would first be
             // converted to the string "0", then parsed to result in positive zero.
             return
@@ -1258,7 +1258,7 @@ namespace Js
 
         // convert input to a string
         if (JavascriptString::Is(args[1]))
-        {
+        {LOGMEIN("GlobalObject.cpp] 1260\n");
             str = JavascriptString::FromVar(args[1]);
         }
         else
@@ -1287,7 +1287,7 @@ namespace Js
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
 
         if(args.Info.Count < 2)
-        {
+        {LOGMEIN("GlobalObject.cpp] 1289\n");
             return scriptContext->GetLibrary()->GetTrue();
         }
         return JavascriptBoolean::ToVar(
@@ -1306,7 +1306,7 @@ namespace Js
 
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
         if(args.Info.Count < 2)
-        {
+        {LOGMEIN("GlobalObject.cpp] 1308\n");
             return scriptContext->GetLibrary()->GetFalse();
         }
         return JavascriptBoolean::ToVar(
@@ -1402,7 +1402,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count <= 1)
-        {
+        {LOGMEIN("GlobalObject.cpp] 1404\n");
             return scriptContext->GetLibrary()->GetUndefinedDisplayString();
         }
 
@@ -1418,11 +1418,11 @@ namespace Js
         pchSrc = const_cast<char16 *>(src->GetString());
         pchLim = pchSrc + src->GetLength();
         while (pchSrc < pchLim)
-        {
+        {LOGMEIN("GlobalObject.cpp] 1420\n");
             chw = *pchSrc++;
 
             if (0 != (chw & 0xFF00))
-            {
+            {LOGMEIN("GlobalObject.cpp] 1424\n");
                 bs->AppendChars(_u("%u"));
                 bs->AppendChars(static_cast<char16>(_rgchHex[(chw >> 12) & 0x0F]));
                 bs->AppendChars(static_cast<char16>(_rgchHex[(chw >> 8) & 0x0F]));
@@ -1430,7 +1430,7 @@ namespace Js
                 bs->AppendChars(static_cast<char16>(_rgchHex[chw & 0x0F]));
             }
             else if (_grfbitEscape[chw >> 3] & (1 << (chw & 7)))
-            {
+            {LOGMEIN("GlobalObject.cpp] 1432\n");
                 // Escape the byte.
                 bs->AppendChars(_u('%'));
                 bs->AppendChars(static_cast<char16>(_rgchHex[chw >> 4]));
@@ -1458,7 +1458,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count <= 1)
-        {
+        {LOGMEIN("GlobalObject.cpp] 1460\n");
             return scriptContext->GetLibrary()->GetUndefinedDisplayString();
         }
 
@@ -1475,9 +1475,9 @@ namespace Js
         pchSrc = const_cast<char16 *>(src->GetString());
         pchLim = pchSrc + src->GetLength();
         while (pchSrc < pchLim)
-        {
+        {LOGMEIN("GlobalObject.cpp] 1477\n");
             if ('%' != (chT = *pchSrc++))
-            {
+            {LOGMEIN("GlobalObject.cpp] 1479\n");
                 bs->AppendChars(chT);
                 continue;
             }
@@ -1485,7 +1485,7 @@ namespace Js
             pchMin = pchSrc;
             chT = *pchSrc++;
             if ('u' != chT)
-            {
+            {LOGMEIN("GlobalObject.cpp] 1487\n");
                 chw = 0;
                 goto LTwoHexDigits;
             }
@@ -1516,7 +1516,7 @@ LTwoHexDigits:
             else if ((chT -= 'A' - '0') <= 5 || (chT -= 'a' - 'A') <= 5)
                 chw += chT + 10;
             else
-            {
+            {LOGMEIN("GlobalObject.cpp] 1518\n");
 LHexError:
                 pchSrc = pchMin;
                 chw = '%';
@@ -1530,7 +1530,7 @@ LHexError:
 
 #if DBG
     void DebugClearStack()
-    {
+    {LOGMEIN("GlobalObject.cpp] 1532\n");
         char buffer[1024];
         memset(buffer, 0, sizeof(buffer));
     }
@@ -1542,7 +1542,7 @@ LHexError:
 
 #if DBG_DUMP
         if (Js::Configuration::Global.flags.TraceWin8Allocations)
-        {
+        {LOGMEIN("GlobalObject.cpp] 1544\n");
             Output::Print(_u("MemoryTrace: GlobalObject::EntryCollectGarbage Invoke\n"));
             Output::Flush();
         }
@@ -1562,7 +1562,7 @@ LHexError:
             && scriptContext->GetConfig()->GetHostType() != HostType::HostTypeWebview
 #endif
             )
-        {
+        {LOGMEIN("GlobalObject.cpp] 1564\n");
             // We expose the CollectGarbage API with flag for compat reasons.
             // If CollectGarbage key is not enabled, and if the HostType is neither
             // HostType::HostTypeApplication nor HostType::HostTypeWebview,
@@ -1572,14 +1572,14 @@ LHexError:
 
         Recycler* recycler = scriptContext->GetRecycler();
         if (recycler)
-        {
+        {LOGMEIN("GlobalObject.cpp] 1574\n");
 #if DBG && defined(RECYCLER_DUMP_OBJECT_GRAPH)
             ARGUMENTS(args, callInfo);
             if (args.Info.Count > 1)
-            {
+            {LOGMEIN("GlobalObject.cpp] 1578\n");
                 double value = JavascriptConversion::ToNumber(args[1], function->GetScriptContext());
                 if (value == 1.0)
-                {
+                {LOGMEIN("GlobalObject.cpp] 1581\n");
                     recycler->dumpObjectOnceOnCollect = true;
                 }
             }
@@ -1593,7 +1593,7 @@ LHexError:
 #endif
 
         if (Js::Configuration::Global.flags.TraceWin8Allocations)
-        {
+        {LOGMEIN("GlobalObject.cpp] 1595\n");
             Output::Print(_u("MemoryTrace: GlobalObject::EntryCollectGarbage Exit\n"));
             Output::Flush();
         }
@@ -1615,17 +1615,17 @@ LHexError:
         bool doPrint = (args.Info.Count == 3) && Js::JavascriptBoolean::Is(args[2]) && (Js::JavascriptBoolean::FromVar(args[2])->GetValue());
 
         if(function->GetScriptContext()->ShouldPerformReplayAction())
-        {
+        {LOGMEIN("GlobalObject.cpp] 1617\n");
             function->GetScriptContext()->GetThreadContext()->TTDLog->ReplayTelemetryLogEvent(jsString);
         }
 
         if(function->GetScriptContext()->ShouldPerformRecordAction())
-        {
+        {LOGMEIN("GlobalObject.cpp] 1622\n");
             function->GetScriptContext()->GetThreadContext()->TTDLog->RecordTelemetryLogEvent(jsString, doPrint);
         }
 
         if(doPrint)
-        {
+        {LOGMEIN("GlobalObject.cpp] 1627\n");
             //
             //TODO: the host should give us a print callback which we can use here
             //
@@ -1643,7 +1643,7 @@ LHexError:
         ARGUMENTS(args, callInfo);
 
         if(function->GetScriptContext()->ShouldPerformRecordOrReplayAction())
-        {
+        {LOGMEIN("GlobalObject.cpp] 1645\n");
             return function->GetScriptContext()->GetLibrary()->GetTrue();
         }
         else
@@ -1661,19 +1661,19 @@ LHexError:
         Js::JavascriptLibrary* jslib = function->GetScriptContext()->GetLibrary();
 
         if(args.Info.Count != 2 || !Js::JavascriptString::Is(args[1]))
-        {
+        {LOGMEIN("GlobalObject.cpp] 1663\n");
             return jslib->GetFalse();
         }
 
         if(function->GetScriptContext()->ShouldPerformReplayAction())
-        {
+        {LOGMEIN("GlobalObject.cpp] 1668\n");
             function->GetScriptContext()->GetThreadContext()->TTDLog->ReplayEmitLogEvent();
 
             return jslib->GetTrue();
         }
 
         if(function->GetScriptContext()->ShouldPerformRecordAction())
-        {
+        {LOGMEIN("GlobalObject.cpp] 1675\n");
             Js::JavascriptString* jsString = Js::JavascriptString::FromVar(args[1]);
             function->GetScriptContext()->GetThreadContext()->TTDLog->RecordEmitLogEvent(jsString);
 
@@ -1687,9 +1687,9 @@ LHexError:
     //Pattern match is unique to RuntimeObject. Only leading and trailing * are implemented
     //Example: *pat*tern* actually matches all the strings having pat*tern as substring.
     BOOL GlobalObject::MatchPatternHelper(JavascriptString *propertyName, JavascriptString *pattern, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("GlobalObject.cpp] 1689\n");
         if (nullptr == propertyName || nullptr == pattern)
-        {
+        {LOGMEIN("GlobalObject.cpp] 1691\n");
             return FALSE;
         }
 
@@ -1699,7 +1699,7 @@ LHexError:
         BOOL    bEnd;
 
         if (0 == patternLength)
-        {
+        {LOGMEIN("GlobalObject.cpp] 1701\n");
             return TRUE; // empty pattern matches all
         }
 
@@ -1708,12 +1708,12 @@ LHexError:
 
         //deal with the stars
         if (bStart || bEnd)
-        {
+        {LOGMEIN("GlobalObject.cpp] 1710\n");
             JavascriptString *subPattern;
             int idxStart = bStart? 1: 0;
             int idxEnd   = bEnd? (patternLength - 1): patternLength;
             if (idxEnd <= idxStart)
-            {
+            {LOGMEIN("GlobalObject.cpp] 1715\n");
                 return TRUE; //scenario double star **
             }
 
@@ -1723,15 +1723,15 @@ LHexError:
             uint index = JavascriptString::strstr(propertyName, subPattern, false);
 
             if (index == (uint)-1)
-            {
+            {LOGMEIN("GlobalObject.cpp] 1725\n");
                 return FALSE;
             }
             if (FALSE == bStart)
-            {
+            {LOGMEIN("GlobalObject.cpp] 1729\n");
                 return index == 0; //begin at the same place;
             }
             else if (FALSE == bEnd)
-            {
+            {LOGMEIN("GlobalObject.cpp] 1733\n");
                 return (index + patternLength - 1) == (nameLength);
             }
             return TRUE;
@@ -1740,7 +1740,7 @@ LHexError:
         {
             //full match
             if (0 == JavascriptString::strcmp(propertyName, pattern))
-            {
+            {LOGMEIN("GlobalObject.cpp] 1742\n");
                 return TRUE;
             }
         }
@@ -1749,34 +1749,34 @@ LHexError:
     }
 
     BOOL GlobalObject::HasProperty(PropertyId propertyId)
-    {
+    {LOGMEIN("GlobalObject.cpp] 1751\n");
         return DynamicObject::HasProperty(propertyId) ||
             (this->directHostObject && JavascriptOperators::HasProperty(this->directHostObject, propertyId)) ||
             (this->hostObject && JavascriptOperators::HasProperty(this->hostObject, propertyId));
     }
 
     BOOL GlobalObject::HasRootProperty(PropertyId propertyId)
-    {
+    {LOGMEIN("GlobalObject.cpp] 1758\n");
         return __super::HasRootProperty(propertyId) ||
             (this->directHostObject && JavascriptOperators::HasProperty(this->directHostObject, propertyId)) ||
             (this->hostObject && JavascriptOperators::HasProperty(this->hostObject, propertyId));
     }
 
     BOOL GlobalObject::HasOwnProperty(PropertyId propertyId)
-    {
+    {LOGMEIN("GlobalObject.cpp] 1765\n");
         return DynamicObject::HasProperty(propertyId) ||
             (this->directHostObject && this->directHostObject->HasProperty(propertyId));
     }
 
     BOOL GlobalObject::HasOwnPropertyNoHostObject(PropertyId propertyId)
-    {
+    {LOGMEIN("GlobalObject.cpp] 1771\n");
         return DynamicObject::HasProperty(propertyId);
     }
 
     BOOL GlobalObject::GetProperty(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("GlobalObject.cpp] 1776\n");
         if (DynamicObject::GetProperty(originalInstance, propertyId, value, info, requestContext))
-        {
+        {LOGMEIN("GlobalObject.cpp] 1778\n");
             return TRUE;
         }
         return (this->directHostObject && JavascriptOperators::GetProperty(this->directHostObject, propertyId, value, requestContext, info)) ||
@@ -1784,16 +1784,16 @@ LHexError:
     }
 
     BOOL GlobalObject::GetProperty(Var originalInstance, JavascriptString* propertyNameString, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("GlobalObject.cpp] 1786\n");
         PropertyRecord const* propertyRecord;
         this->GetScriptContext()->GetOrAddPropertyRecord(propertyNameString->GetString(), propertyNameString->GetLength(), &propertyRecord);
         return GlobalObject::GetProperty(originalInstance, propertyRecord->GetPropertyId(), value, info, requestContext);
     }
 
     BOOL GlobalObject::GetRootProperty(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("GlobalObject.cpp] 1793\n");
         if (__super::GetRootProperty(originalInstance, propertyId, value, info, requestContext))
-        {
+        {LOGMEIN("GlobalObject.cpp] 1795\n");
             return TRUE;
         }
         return (this->directHostObject && JavascriptOperators::GetProperty(this->directHostObject, propertyId, value, requestContext, info)) ||
@@ -1801,17 +1801,17 @@ LHexError:
     }
 
     BOOL GlobalObject::GetAccessors(PropertyId propertyId, Var* getter, Var* setter, ScriptContext * requestContext)
-    {
+    {LOGMEIN("GlobalObject.cpp] 1803\n");
         if (DynamicObject::GetAccessors(propertyId, getter, setter, requestContext))
-        {
+        {LOGMEIN("GlobalObject.cpp] 1805\n");
             return TRUE;
         }
         if (this->directHostObject)
-        {
+        {LOGMEIN("GlobalObject.cpp] 1809\n");
             return this->directHostObject->GetAccessors(propertyId, getter, setter, requestContext);
         }
         else if (this->hostObject)
-        {
+        {LOGMEIN("GlobalObject.cpp] 1813\n");
             return this->hostObject->GetAccessors(propertyId, getter, setter, requestContext);
         }
         return FALSE;
@@ -1819,9 +1819,9 @@ LHexError:
 
     BOOL GlobalObject::GetPropertyReference(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info,
         ScriptContext* requestContext)
-    {
+    {LOGMEIN("GlobalObject.cpp] 1821\n");
         if (DynamicObject::GetPropertyReference(originalInstance, propertyId, value, info, requestContext))
-        {
+        {LOGMEIN("GlobalObject.cpp] 1823\n");
             return true;
         }
         return (this->directHostObject && JavascriptOperators::GetPropertyReference(this->directHostObject, propertyId, value, requestContext, info)) ||
@@ -1830,9 +1830,9 @@ LHexError:
 
     BOOL GlobalObject::GetRootPropertyReference(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info,
         ScriptContext* requestContext)
-    {
+    {LOGMEIN("GlobalObject.cpp] 1832\n");
         if (__super::GetRootPropertyReference(originalInstance, propertyId, value, info, requestContext))
-        {
+        {LOGMEIN("GlobalObject.cpp] 1834\n");
             return true;
         }
         return (this->directHostObject && JavascriptOperators::GetPropertyReference(this->directHostObject, propertyId, value, requestContext, info)) ||
@@ -1840,7 +1840,7 @@ LHexError:
     }
 
     BOOL GlobalObject::InitProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {LOGMEIN("GlobalObject.cpp] 1842\n");
         // var x = 10; variables declared with "var" at global scope
         // These cannot be deleted
         // In ES5 they are enumerable.
@@ -1851,7 +1851,7 @@ LHexError:
     }
 
     BOOL GlobalObject::InitPropertyScoped(PropertyId propertyId, Var value)
-    {
+    {LOGMEIN("GlobalObject.cpp] 1853\n");
         // var x = 10; variables declared with "var" inside "eval"
         // These CAN be deleted
         // in ES5 they are enumerable.
@@ -1861,13 +1861,13 @@ LHexError:
     }
 
     BOOL GlobalObject::InitFuncScoped(PropertyId propertyId, Var value)
-    {
+    {LOGMEIN("GlobalObject.cpp] 1863\n");
         // Var binding of functions declared in eval are elided when conflicting
         // with global scope let/const variables, so do not actually set the
         // property if it exists and is a let/const variable.
         bool noRedecl = false;
         if (!GetTypeHandler()->HasRootProperty(this, propertyId, &noRedecl) || !noRedecl)
-        {
+        {LOGMEIN("GlobalObject.cpp] 1869\n");
             //
             // var x = 10; variables declared with "var" inside "eval"
             // These CAN be deleted
@@ -1881,7 +1881,7 @@ LHexError:
     }
 
     BOOL GlobalObject::SetExistingProperty(PropertyId propertyId, Var value, PropertyValueInfo* info, BOOL *setAttempted)
-    {
+    {LOGMEIN("GlobalObject.cpp] 1883\n");
         BOOL hasOwnProperty = DynamicObject::HasProperty(propertyId);
         BOOL hasProperty = JavascriptOperators::HasProperty(this->GetPrototype(), propertyId);
         *setAttempted = TRUE;
@@ -1890,12 +1890,12 @@ LHexError:
             !hasOwnProperty &&
             !hasProperty &&
             this->directHostObject->HasProperty(propertyId))
-        {
+        {LOGMEIN("GlobalObject.cpp] 1892\n");
             // directHostObject->HasProperty returns true for things in global collections, however, they are not able to be set.
             // When we call SetProperty we'll return FALSE which means fall back to GlobalObject::SetProperty and shadow our collection
             // object rather than failing the set altogether. See bug Windows Out Of Band Releases 1144780 and linked bugs for details.
             if (this->directHostObject->SetProperty(propertyId, value, PropertyOperation_None, info))
-            {
+            {LOGMEIN("GlobalObject.cpp] 1897\n");
                 return TRUE;
             }
         }
@@ -1905,12 +1905,12 @@ LHexError:
                 !hasOwnProperty &&
                 !hasProperty &&
                 this->hostObject->HasProperty(propertyId))
-            {
+            {LOGMEIN("GlobalObject.cpp] 1907\n");
                 return this->hostObject->SetProperty(propertyId, value, PropertyOperation_None, NULL);
             }
 
         if (hasOwnProperty || hasProperty)
-        {
+        {LOGMEIN("GlobalObject.cpp] 1912\n");
             return DynamicObject::SetProperty(propertyId, value, PropertyOperation_None, info);
         }
 
@@ -1919,7 +1919,7 @@ LHexError:
     }
 
     BOOL GlobalObject::SetExistingRootProperty(PropertyId propertyId, Var value, PropertyValueInfo* info, BOOL *setAttempted)
-    {
+    {LOGMEIN("GlobalObject.cpp] 1921\n");
         BOOL hasOwnProperty = __super::HasRootProperty(propertyId);
         BOOL hasProperty = JavascriptOperators::HasProperty(this->GetPrototype(), propertyId);
         *setAttempted = TRUE;
@@ -1928,12 +1928,12 @@ LHexError:
             !hasOwnProperty &&
             !hasProperty &&
             this->directHostObject->HasProperty(propertyId))
-        {
+        {LOGMEIN("GlobalObject.cpp] 1930\n");
             // directHostObject->HasProperty returns true for things in global collections, however, they are not able to be set.
             // When we call SetProperty we'll return FALSE which means fall back to GlobalObject::SetProperty and shadow our collection
             // object rather than failing the set altogether. See bug Windows Out Of Band Releases 1144780 and linked bugs for details.
             if (this->directHostObject->SetProperty(propertyId, value, PropertyOperation_None, info))
-            {
+            {LOGMEIN("GlobalObject.cpp] 1935\n");
                 return TRUE;
             }
         }
@@ -1943,12 +1943,12 @@ LHexError:
                 !hasOwnProperty &&
                 !hasProperty &&
                 this->hostObject->HasProperty(propertyId))
-            {
+            {LOGMEIN("GlobalObject.cpp] 1945\n");
                 return this->hostObject->SetProperty(propertyId, value, PropertyOperation_None, NULL);
             }
 
         if (hasOwnProperty || hasProperty)
-        {
+        {LOGMEIN("GlobalObject.cpp] 1950\n");
             return __super::SetRootProperty(propertyId, value, PropertyOperation_None, info);
         }
 
@@ -1957,12 +1957,12 @@ LHexError:
     }
 
     BOOL GlobalObject::SetProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {LOGMEIN("GlobalObject.cpp] 1959\n");
         Assert(!(flags & PropertyOperation_Root));
 
         BOOL setAttempted = TRUE;
         if (this->SetExistingProperty(propertyId, value, info, &setAttempted))
-        {
+        {LOGMEIN("GlobalObject.cpp] 1964\n");
             return TRUE;
         }
 
@@ -1972,7 +1972,7 @@ LHexError:
         // In those scenarios, we should be setting the property with default attributes
         //
         if (setAttempted)
-        {
+        {LOGMEIN("GlobalObject.cpp] 1974\n");
             return FALSE;
         }
 
@@ -1996,19 +1996,19 @@ LHexError:
     }
 
     BOOL GlobalObject::SetProperty(JavascriptString* propertyNameString, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {LOGMEIN("GlobalObject.cpp] 1998\n");
         PropertyRecord const * propertyRecord;
         this->GetScriptContext()->GetOrAddPropertyRecord(propertyNameString->GetString(), propertyNameString->GetLength(), &propertyRecord);
         return GlobalObject::SetProperty(propertyRecord->GetPropertyId(), value, flags, info);
     }
 
     BOOL GlobalObject::SetRootProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {LOGMEIN("GlobalObject.cpp] 2005\n");
         Assert(flags & PropertyOperation_Root);
 
         BOOL setAttempted = TRUE;
         if (this->SetExistingRootProperty(propertyId, value, info, &setAttempted))
-        {
+        {LOGMEIN("GlobalObject.cpp] 2010\n");
             return TRUE;
         }
 
@@ -2018,14 +2018,14 @@ LHexError:
         // In those scenarios, we should be setting the property with default attributes
         //
         if (setAttempted)
-        {
+        {LOGMEIN("GlobalObject.cpp] 2020\n");
             return FALSE;
         }
 
         if (flags & PropertyOperation_StrictMode)
-        {
+        {LOGMEIN("GlobalObject.cpp] 2025\n");
             if (!GetScriptContext()->GetThreadContext()->RecordImplicitException())
-            {
+            {LOGMEIN("GlobalObject.cpp] 2027\n");
                 return FALSE;
             }
             JavascriptError::ThrowReferenceError(GetScriptContext(), JSERR_RefErrorUndefVariable);
@@ -2045,34 +2045,34 @@ LHexError:
     }
 
     BOOL GlobalObject::SetAccessors(PropertyId propertyId, Var getter, Var setter, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("GlobalObject.cpp] 2047\n");
         if (DynamicObject::SetAccessors(propertyId, getter, setter, flags))
-        {
+        {LOGMEIN("GlobalObject.cpp] 2049\n");
             return TRUE;
         }
         if (this->directHostObject)
-        {
+        {LOGMEIN("GlobalObject.cpp] 2053\n");
             return this->directHostObject->SetAccessors(propertyId, getter, setter, flags);
         }
         if (this->hostObject)
-        {
+        {LOGMEIN("GlobalObject.cpp] 2057\n");
             return this->hostObject->SetAccessors(propertyId, getter, setter, flags);
         }
         return TRUE;
     }
 
     DescriptorFlags GlobalObject::GetSetter(PropertyId propertyId, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("GlobalObject.cpp] 2064\n");
         DescriptorFlags flags = DynamicObject::GetSetter(propertyId, setterValue, info, requestContext);
         if (flags == None)
-        {
+        {LOGMEIN("GlobalObject.cpp] 2067\n");
             if (this->directHostObject)
-            {
+            {LOGMEIN("GlobalObject.cpp] 2069\n");
                 // We need to look up the prototype chain here.
                 JavascriptOperators::CheckPrototypesForAccessorOrNonWritableProperty(this->directHostObject, propertyId, setterValue, &flags, info, requestContext);
             }
             else if (this->hostObject)
-            {
+            {LOGMEIN("GlobalObject.cpp] 2074\n");
                 JavascriptOperators::CheckPrototypesForAccessorOrNonWritableProperty(this->hostObject, propertyId, setterValue, &flags, info, requestContext);
             }
         }
@@ -2081,24 +2081,24 @@ LHexError:
     }
 
     DescriptorFlags GlobalObject::GetSetter(JavascriptString* propertyNameString, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("GlobalObject.cpp] 2083\n");
         PropertyRecord const* propertyRecord;
         this->GetScriptContext()->GetOrAddPropertyRecord(propertyNameString->GetString(), propertyNameString->GetLength(), &propertyRecord);
         return GlobalObject::GetSetter(propertyRecord->GetPropertyId(), setterValue, info, requestContext);
     }
 
     DescriptorFlags GlobalObject::GetRootSetter(PropertyId propertyId, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("GlobalObject.cpp] 2090\n");
         DescriptorFlags flags = __super::GetRootSetter(propertyId, setterValue, info, requestContext);
         if (flags == None)
-        {
+        {LOGMEIN("GlobalObject.cpp] 2093\n");
             if (this->directHostObject)
-            {
+            {LOGMEIN("GlobalObject.cpp] 2095\n");
                 // We need to look up the prototype chain here.
                 JavascriptOperators::CheckPrototypesForAccessorOrNonWritableProperty(this->directHostObject, propertyId, setterValue, &flags, info, requestContext);
             }
             else if (this->hostObject)
-            {
+            {LOGMEIN("GlobalObject.cpp] 2100\n");
                 JavascriptOperators::CheckPrototypesForAccessorOrNonWritableProperty(this->hostObject, propertyId, setterValue, &flags, info, requestContext);
             }
         }
@@ -2107,17 +2107,17 @@ LHexError:
     }
 
     DescriptorFlags GlobalObject::GetItemSetter(uint32 index, Var* setterValue, ScriptContext* requestContext)
-    {
+    {LOGMEIN("GlobalObject.cpp] 2109\n");
         DescriptorFlags flags = DynamicObject::GetItemSetter(index, setterValue, requestContext);
         if (flags == None)
-        {
+        {LOGMEIN("GlobalObject.cpp] 2112\n");
             if (this->directHostObject)
-            {
+            {LOGMEIN("GlobalObject.cpp] 2114\n");
                 // We need to look up the prototype chain here.
                 JavascriptOperators::CheckPrototypesForAccessorOrNonWritableItem(this->directHostObject, index, setterValue, &flags, requestContext);
             }
             else if (this->hostObject)
-            {
+            {LOGMEIN("GlobalObject.cpp] 2119\n");
                 JavascriptOperators::CheckPrototypesForAccessorOrNonWritableItem(this->hostObject, index, setterValue, &flags, requestContext);
             }
         }
@@ -2126,17 +2126,17 @@ LHexError:
     }
 
     BOOL GlobalObject::DeleteProperty(PropertyId propertyId, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("GlobalObject.cpp] 2128\n");
         if (__super::HasProperty(propertyId))
-        {
+        {LOGMEIN("GlobalObject.cpp] 2130\n");
             return __super::DeleteProperty(propertyId, flags);
         }
         else if (this->directHostObject && this->directHostObject->HasProperty(propertyId))
-        {
+        {LOGMEIN("GlobalObject.cpp] 2134\n");
             return this->directHostObject->DeleteProperty(propertyId, flags);
         }
         else if (this->hostObject && this->hostObject->HasProperty(propertyId))
-        {
+        {LOGMEIN("GlobalObject.cpp] 2138\n");
             return this->hostObject->DeleteProperty(propertyId, flags);
         }
 
@@ -2145,10 +2145,10 @@ LHexError:
     }
 
     BOOL GlobalObject::DeleteProperty(JavascriptString *propertyNameString, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("GlobalObject.cpp] 2147\n");
         PropertyRecord const *propertyRecord = nullptr;
         if (JavascriptOperators::ShouldTryDeleteProperty(this, propertyNameString, &propertyRecord))
-        {
+        {LOGMEIN("GlobalObject.cpp] 2150\n");
             Assert(propertyRecord);
             return DeleteProperty(propertyRecord->GetPropertyId(), flags);
         }
@@ -2157,17 +2157,17 @@ LHexError:
     }
 
     BOOL GlobalObject::DeleteRootProperty(PropertyId propertyId, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("GlobalObject.cpp] 2159\n");
         if (__super::HasRootProperty(propertyId))
-        {
+        {LOGMEIN("GlobalObject.cpp] 2161\n");
             return __super::DeleteRootProperty(propertyId, flags);
         }
         else if (this->directHostObject && this->directHostObject->HasProperty(propertyId))
-        {
+        {LOGMEIN("GlobalObject.cpp] 2165\n");
             return this->directHostObject->DeleteProperty(propertyId, flags);
         }
         else if (this->hostObject && this->hostObject->HasProperty(propertyId))
-        {
+        {LOGMEIN("GlobalObject.cpp] 2169\n");
             return this->hostObject->DeleteProperty(propertyId, flags);
         }
 
@@ -2176,22 +2176,22 @@ LHexError:
     }
 
     BOOL GlobalObject::HasItem(uint32 index)
-    {
+    {LOGMEIN("GlobalObject.cpp] 2178\n");
         return DynamicObject::HasItem(index)
             || (this->directHostObject && JavascriptOperators::HasItem(this->directHostObject, index))
             || (this->hostObject && JavascriptOperators::HasItem(this->hostObject, index));
     }
 
     BOOL GlobalObject::HasOwnItem(uint32 index)
-    {
+    {LOGMEIN("GlobalObject.cpp] 2185\n");
         return DynamicObject::HasItem(index)
             || (this->directHostObject && this->directHostObject->HasItem(index));
     }
 
     BOOL GlobalObject::GetItemReference(Var originalInstance, uint32 index, Var* value, ScriptContext* requestContext)
-    {
+    {LOGMEIN("GlobalObject.cpp] 2191\n");
         if (DynamicObject::GetItemReference(originalInstance, index, value, requestContext))
-        {
+        {LOGMEIN("GlobalObject.cpp] 2193\n");
             return TRUE;
         }
         return (this->directHostObject && this->directHostObject->GetItemReference(originalInstance, index, value, requestContext)) ||
@@ -2199,15 +2199,15 @@ LHexError:
     }
 
     BOOL GlobalObject::SetItem(uint32 index, Var value, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("GlobalObject.cpp] 2201\n");
         BOOL result = DynamicObject::SetItem(index, value, flags);
         return result;
     }
 
     BOOL GlobalObject::GetItem(Var originalInstance, uint32 index, Var* value, ScriptContext* requestContext)
-    {
+    {LOGMEIN("GlobalObject.cpp] 2207\n");
         if (DynamicObject::GetItem(originalInstance, index, value, requestContext))
-        {
+        {LOGMEIN("GlobalObject.cpp] 2209\n");
             return TRUE;
         }
 
@@ -2216,49 +2216,49 @@ LHexError:
     }
 
     BOOL GlobalObject::DeleteItem(uint32 index, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("GlobalObject.cpp] 2218\n");
         if (DynamicObject::DeleteItem(index, flags))
-        {
+        {LOGMEIN("GlobalObject.cpp] 2220\n");
             return TRUE;
         }
 
         if (this->directHostObject)
-        {
+        {LOGMEIN("GlobalObject.cpp] 2225\n");
             return this->directHostObject->DeleteItem(index, flags);
         }
 
         if (this->hostObject)
-        {
+        {LOGMEIN("GlobalObject.cpp] 2230\n");
             return this->hostObject->DeleteItem(index, flags);
         }
         return FALSE;
     }
 
     BOOL GlobalObject::GetDiagValueString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {LOGMEIN("GlobalObject.cpp] 2237\n");
         stringBuilder->AppendCppLiteral(_u("{...}"));
         return TRUE;
     }
 
     BOOL GlobalObject::GetDiagTypeString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {LOGMEIN("GlobalObject.cpp] 2243\n");
         stringBuilder->AppendCppLiteral(_u("Object, (Global)"));
         return TRUE;
     }
 
     BOOL GlobalObject::StrictEquals(__in Js::Var other, __out BOOL* value, ScriptContext * requestContext)
-    {
+    {LOGMEIN("GlobalObject.cpp] 2249\n");
         if (this == other)
-        {
+        {LOGMEIN("GlobalObject.cpp] 2251\n");
             *value = TRUE;
             return TRUE;
         }
         else if (this->directHostObject)
-        {
+        {LOGMEIN("GlobalObject.cpp] 2256\n");
             return this->directHostObject->StrictEquals(other, value, requestContext);
         }
         else if (this->hostObject)
-        {
+        {LOGMEIN("GlobalObject.cpp] 2260\n");
             return this->hostObject->StrictEquals(other, value, requestContext);
         }
         *value = FALSE;
@@ -2266,18 +2266,18 @@ LHexError:
     }
 
     BOOL GlobalObject::Equals(__in Js::Var other, __out BOOL* value, ScriptContext * requestContext)
-    {
+    {LOGMEIN("GlobalObject.cpp] 2268\n");
         if (this == other)
-        {
+        {LOGMEIN("GlobalObject.cpp] 2270\n");
             *value = TRUE;
             return TRUE;
         }
         else if (this->directHostObject)
-        {
+        {LOGMEIN("GlobalObject.cpp] 2275\n");
             return this->directHostObject->Equals(other, value, requestContext);
         }
         else if (this->hostObject)
-        {
+        {LOGMEIN("GlobalObject.cpp] 2279\n");
             return this->hostObject->Equals(other, value, requestContext);
         }
 
@@ -2287,12 +2287,12 @@ LHexError:
 
 #if ENABLE_TTD
     TTD::NSSnapObjects::SnapObjectType GlobalObject::GetSnapTag_TTD() const
-    {
+    {LOGMEIN("GlobalObject.cpp] 2289\n");
         return TTD::NSSnapObjects::SnapObjectType::SnapWellKnownObject;
     }
 
     void GlobalObject::ExtractSnapObjectDataInto(TTD::NSSnapObjects::SnapObject* objData, TTD::SlabAllocator& alloc)
-    {
+    {LOGMEIN("GlobalObject.cpp] 2294\n");
         //
         //TODO: we assume that the global object is always set right (e.g., ignore the directHostObject and secureDirectHostObject values) we need to verify that this is ok and/or what to do about it
         //

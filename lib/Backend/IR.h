@@ -28,7 +28,7 @@ struct CapturedValues
     BVSparse<JitArenaAllocator> * argObjSyms;                  // Captured arg object symbols during glob opt
 
     ~CapturedValues()
-    {
+    {LOGMEIN("IR.h] 30\n");
         // Reset SListBase to be exception safe. Captured values are from GlobOpt->func->alloc
         // in normal case the 2 SListBase are empty so no Clear needed, also no need to Clear in exception case
         constantValues.Reset();
@@ -43,7 +43,7 @@ class BranchJumpTableWrapper
 public:
 
     BranchJumpTableWrapper(uint tableSize) : defaultTarget(nullptr), labelInstr(nullptr), tableSize(tableSize)
-    {
+    {LOGMEIN("IR.h] 45\n");
     }
 
     void** jmpTable;
@@ -52,7 +52,7 @@ public:
     int tableSize;
 
     static BranchJumpTableWrapper* New(JitArenaAllocator * allocator, uint tableSize)
-    {
+    {LOGMEIN("IR.h] 54\n");
         BranchJumpTableWrapper * branchTargets = JitAnew(allocator, BranchJumpTableWrapper, tableSize);
 
         //Create the jump table for integers
@@ -152,7 +152,7 @@ protected:
         isCtorCall(false),
         isCallInstrProtectedByNoProfileBailout(false),
         hasSideEffects(false)
-    {
+    {LOGMEIN("IR.h] 154\n");
     }
 public:
     static Instr *  New(Js::OpCode opcode, Func *func);
@@ -188,7 +188,7 @@ public:
     bool            IsInvalidInstr() const;
     Instr*          GetInvalidInstr();
 
-    bool            IsLinked() const { return this->m_prev != nullptr || this->m_next != nullptr; }
+    bool            IsLinked() const {LOGMEIN("IR.h] 190\n"); return this->m_prev != nullptr || this->m_next != nullptr; }
 
     bool            StartsBasicBlock() const;
     bool            EndsBasicBlock() const;
@@ -197,10 +197,10 @@ public:
     bool            HasAnyLoadHeapArgsOpCode();
     bool            IsEqual(IR::Instr *instr) const;
 
-    bool            IsCloned() const { return isCloned; }
-    void            SetIsCloned(bool isCloned) { this->isCloned = isCloned; }
-    bool            HasBailOutInfo() const { return hasBailOutInfo; }
-    bool            HasAuxBailOut() const { return hasAuxBailOut; }
+    bool            IsCloned() const {LOGMEIN("IR.h] 199\n"); return isCloned; }
+    void            SetIsCloned(bool isCloned) {LOGMEIN("IR.h] 200\n"); this->isCloned = isCloned; }
+    bool            HasBailOutInfo() const {LOGMEIN("IR.h] 201\n"); return hasBailOutInfo; }
+    bool            HasAuxBailOut() const {LOGMEIN("IR.h] 202\n"); return hasAuxBailOut; }
     bool            HasTypeCheckBailOut() const;
     bool            HasEquivalentTypeCheckBailOut() const;
     void            ClearBailOutInfo();
@@ -322,7 +322,7 @@ public:
     void            ChangeEquivalentToMonoTypeCheckBailOut();
     intptr_t        TryOptimizeInstrWithFixedDataProperty(IR::Instr ** pInstr, GlobOpt* globopt);
     Opnd *          FindCallArgumentOpnd(const Js::ArgSlot argSlot, IR::Instr * *const ownerInstrRef = nullptr);
-    void            CopyNumber(IR::Instr *instr) { this->SetNumber(instr->GetNumber()); }
+    void            CopyNumber(IR::Instr *instr) {LOGMEIN("IR.h] 324\n"); this->SetNumber(instr->GetNumber()); }
 
     bool            FetchOperands(_Out_writes_(argsOpndLength) IR::Opnd **argsOpnd, uint argsOpndLength);
     template <typename Fn>
@@ -337,16 +337,16 @@ public:
     // Iterates argument chain
     template<class Fn>
     bool IterateArgInstrs(Fn callback)
-    {
+    {LOGMEIN("IR.h] 339\n");
         StackSym* linkSym = this->GetSrc2()->GetStackSym();
         Assert(linkSym->IsSingleDef());
         IR::Instr *argInstr = linkSym->m_instrDef;
         IR::Instr* nextArg = nullptr;
         do
-        {
+        {LOGMEIN("IR.h] 345\n");
             // Get the next instr before calling 'callback' since callback might modify the IR.
             if (argInstr->GetSrc2() && argInstr->GetSrc2()->IsSymOpnd())
-            {
+            {LOGMEIN("IR.h] 348\n");
                 linkSym = argInstr->GetSrc2()->AsSymOpnd()->m_sym->AsStackSym();
                 Assert(linkSym->IsArgSlotSym());
 
@@ -363,19 +363,19 @@ public:
                 nextArg = nullptr;
             }
             if(argInstr->m_opcode == Js::OpCode::ArgOut_A_InlineSpecialized)
-            {
+            {LOGMEIN("IR.h] 365\n");
                 argInstr = nextArg;
                 // This is a fake ArgOut, skip it
                 continue;
             }
             if (argInstr->m_opcode == Js::OpCode::StartCall)
-            {
+            {LOGMEIN("IR.h] 371\n");
                 Assert(nextArg == nullptr);
                 break;
             }
 
             if(callback(argInstr))
-            {
+            {LOGMEIN("IR.h] 377\n");
                 return true;
             }
             argInstr = nextArg;
@@ -386,7 +386,7 @@ public:
         // We allow this possibility here, while relying on the more involved dead-code-removal to remove the rest of the call sequence.
         // Inserting the opcode InvalidOpCode, with no lowering, here to safeguard against the possibility of a dead part of the call sequence not being removed. The lowerer would assert then.
         if (argInstr && argInstr->IsInvalidInstr())
-        {
+        {LOGMEIN("IR.h] 388\n");
             this->InsertBefore(Instr::New(Js::OpCode::InvalidOpCode, this->m_func));
         }
         return false;
@@ -395,26 +395,26 @@ public:
     // Iterates all meta args for inlinee
     template<class Fn>
     bool IterateMetaArgs(Fn callback)
-    {
+    {LOGMEIN("IR.h] 397\n");
         Assert(this->m_opcode == Js::OpCode::InlineeStart);
         Instr* currentInstr = this;
         while(currentInstr->m_opcode != Js::OpCode::InlineeMetaArg)
-        {
+        {LOGMEIN("IR.h] 401\n");
             currentInstr = currentInstr->m_prev;
         }
         // backward iteration
         while (currentInstr->m_prev->m_opcode == Js::OpCode::InlineeMetaArg)
-        {
+        {LOGMEIN("IR.h] 406\n");
             currentInstr = currentInstr->m_prev;
         }
 
         // forward iteration
         while(currentInstr->m_opcode == Js::OpCode::InlineeMetaArg)
-        {
+        {LOGMEIN("IR.h] 412\n");
             // cache next instr as callback might move meta arg.
             IR::Instr* nextInstr = currentInstr->m_next;
             if(callback(currentInstr))
-            {
+            {LOGMEIN("IR.h] 416\n");
                 return true;
             }
             currentInstr = nextInstr;
@@ -437,7 +437,7 @@ public:
     void       MoveArgs(bool generateByteCodeCapture = false);
     void       Move(IR::Instr* insertInstr);
 private:
-    void            ClearNumber() { this->m_number = 0; }
+    void            ClearNumber() {LOGMEIN("IR.h] 439\n"); this->m_number = 0; }
     void            SetNumber(uint32 number);
     friend class ::Func;
     friend class ::Lowerer;
@@ -562,7 +562,7 @@ public:
 class ProfiledInstr: public Instr
 {
 protected:
-    ProfiledInstr(bool hasBailOutInfo = false) : Instr(hasBailOutInfo) {}
+    ProfiledInstr(bool hasBailOutInfo = false) : Instr(hasBailOutInfo) {LOGMEIN("IR.h] 564\n");}
 public:
     static ProfiledInstr * New(Js::OpCode opcode, Opnd *dstOpnd, Opnd *src1Opnd, Func * func);
     static ProfiledInstr * New(Js::OpCode opcode, Opnd *dstOpnd, Opnd *src1Opnd, Opnd *src2Opnd, Func * func);
@@ -581,7 +581,7 @@ public:
 
     public:
         Js::FldInfo &FldInfo()
-        {
+        {LOGMEIN("IR.h] 583\n");
             return reinterpret_cast<Js::FldInfo &>(fldInfoData);
         }
     } u;
@@ -742,7 +742,7 @@ public:
     static BranchInstr * New(Js::OpCode opcode, LabelInstr * branchTarget, Opnd *src1Opnd, Opnd *src2Opnd, Func *func);
 
     BranchInstr(bool hasBailOutInfo = false) : Instr(hasBailOutInfo), m_branchTarget(nullptr), m_isAirlock(false), m_isSwitchBr(false), m_isOrphanedLeave(false)
-    {
+    {LOGMEIN("IR.h] 744\n");
 #if DBG
         m_isMultiBranch = false;
 #endif
@@ -761,9 +761,9 @@ public:
     BranchInstr *       CloneBranchInstr() const;
     bool                IsMultiBranch() const;
     MultiBranchInstr *  AsMultiBrInstr();
-    void                SetByteCodeReg(Js::RegSlot reg) { m_byteCodeReg = reg; }
-    Js::RegSlot         GetByteCodeReg() { return m_byteCodeReg; }
-    bool                HasByteCodeReg() { return m_byteCodeReg != Js::Constants::NoRegister; }
+    void                SetByteCodeReg(Js::RegSlot reg) {LOGMEIN("IR.h] 763\n"); m_byteCodeReg = reg; }
+    Js::RegSlot         GetByteCodeReg() {LOGMEIN("IR.h] 764\n"); return m_byteCodeReg; }
+    bool                HasByteCodeReg() {LOGMEIN("IR.h] 765\n"); return m_byteCodeReg != Js::Constants::NoRegister; }
     bool                IsLoopTail(Func * func);
 
 public:
@@ -814,7 +814,7 @@ public:
 
     MultiBranchInstr() :
         m_branchTargets(nullptr)
-    {
+    {LOGMEIN("IR.h] 816\n");
 #if DBG
         m_isMultiBranch = true;
 #endif
@@ -838,7 +838,7 @@ public:
 ///---------------------------------------------------------------------------
     template<class Fn>
     void MapMultiBrLabels(Fn fn)
-    {
+    {LOGMEIN("IR.h] 840\n");
         MapMultiBrTargetByAddress([fn](void ** value) -> void
         {
             fn((LabelInstr*) *value);
@@ -852,12 +852,12 @@ public:
 ///---------------------------------------------------------------------------
     template<class Fn>
         void MapUniqueMultiBrLabels(Fn fn)
-    {
+    {LOGMEIN("IR.h] 854\n");
         BVSparse<JitArenaAllocator> visitedTargets(m_func->m_alloc);
         MapMultiBrLabels([&](IR::LabelInstr *const targetLabel)
         {
             if(visitedTargets.Test(targetLabel->m_id))
-            {
+            {LOGMEIN("IR.h] 859\n");
                 return;
             }
             visitedTargets.Set(targetLabel->m_id);
@@ -872,7 +872,7 @@ public:
 ///--------------------------------------------------------------------------------------------
     template<class Fn>
     void UpdateMultiBrTargetOffsets(Fn fn)
-    {
+    {LOGMEIN("IR.h] 874\n");
         MapMultiBrTargetByAddress([fn](void ** value) -> void
         {
             *value = (void*)fn(::Math::PointerCastToIntegral<uint32>(*value));
@@ -886,7 +886,7 @@ public:
 ///--------------------------------------------------------------------------------------------
     template<class Fn>
     void UpdateMultiBrLabels(Fn fn)
-    {
+    {LOGMEIN("IR.h] 888\n");
         MapMultiBrTargetByAddress([fn](void ** value) -> void
         {
             IR::LabelInstr * oldLabelInstr = (LabelInstr*)*value;
@@ -903,18 +903,18 @@ public:
 ///-------------------------------------------------------------------------------------------------------------
     template<class Fn>
     void MapMultiBrTargetByAddress(Fn fn)
-    {
+    {LOGMEIN("IR.h] 905\n");
         if(!m_branchTargets)
-        {
+        {LOGMEIN("IR.h] 907\n");
             return;
         }
 
         void ** defaultTarget = nullptr;
 
         switch (m_kind)
-        {
+        {LOGMEIN("IR.h] 914\n");
         case StrDictionary:
-        {
+        {LOGMEIN("IR.h] 916\n");
             BranchDictionary& branchDictionary = GetBranchDictionary()->dictionary;
 
             defaultTarget = &(((MultiBranchInstr::BranchDictionaryWrapper*)(m_branchTargets))->defaultTarget);
@@ -927,12 +927,12 @@ public:
         }
         case IntJumpTable:
         case SingleCharStrJumpTable:
-        {
+        {LOGMEIN("IR.h] 929\n");
             void ** branchJumpTable = GetBranchJumpTable()->jmpTable;
             defaultTarget = &(GetBranchJumpTable()->defaultTarget);
 
             for (IntConstType i = m_baseCaseValue; i <= m_lastCaseValue; i++)
-            {
+            {LOGMEIN("IR.h] 934\n");
                 fn(&branchJumpTable[i - m_baseCaseValue]);
             }
             break;
@@ -963,7 +963,7 @@ public:
     static PragmaInstr * New(Js::OpCode opcode, uint32 index, Func *func);
 
     PragmaInstr() : Instr(), m_statementIndex(0)
-    {
+    {LOGMEIN("IR.h] 965\n");
     }
 
 #if DBG_DUMP
@@ -982,7 +982,7 @@ template <typename InstrType>
 class BailOutInstrTemplate : public InstrType
 {
 private:
-    BailOutInstrTemplate() : InstrType(true) {}
+    BailOutInstrTemplate() : InstrType(true) {LOGMEIN("IR.h] 984\n");}
 public:
     static BailOutInstrTemplate * New(Js::OpCode opcode, BailOutKind kind, IR::Instr * bailOutTarget, Func * func);
     static BailOutInstrTemplate * New(Js::OpCode opcode, IR::Opnd *dst, BailOutKind kind, IR::Instr * bailOutTarget, Func * func);
@@ -1033,64 +1033,64 @@ typedef BailOutInstrTemplate<BranchInstr> BranchBailOutInstr;
 #endif
 
 #define FOREACH_INSTR_IN_RANGE(instr, instrList, instrLast)\
-    {\
+    {LOGMEIN("IR.h] 1035\n");\
         INIT_PREV;\
         IR::Instr *instr##Stop = instrLast ? ((IR::Instr*)instrLast)->m_next : nullptr; \
         for ( IR::Instr *instr = instrList;\
             instr != instr##Stop;\
             instr = instr->m_next)\
-        {\
+        {LOGMEIN("IR.h] 1041\n");\
             CHECK_PREV(instr);
 #define NEXT_INSTR_IN_RANGE                     }}
 
 #define FOREACH_REAL_INSTR_IN_RANGE(instr, instrList, instrLast)\
     FOREACH_INSTR_IN_RANGE(instr, instrList, instrLast)\
-    {\
+    {LOGMEIN("IR.h] 1047\n");\
         if (!instr->IsRealInstr())\
-        {\
+        {LOGMEIN("IR.h] 1049\n");\
             continue;\
         }
 #define NEXT_REAL_INSTR_IN_RANGE    NEXT_INSTR_IN_RANGE }
 
 #define FOREACH_INSTR_BACKWARD_IN_RANGE(instr, instrList, instrLast)\
-    {\
+    {LOGMEIN("IR.h] 1055\n");\
         INIT_NEXT;\
         IR::Instr *instr##Stop = instrLast ? ((IR::Instr*)instrLast)->m_prev : nullptr; \
         for ( IR::Instr *instr = instrList;\
             instr != instr##Stop;\
             instr = instr->m_prev)\
-        {\
+        {LOGMEIN("IR.h] 1061\n");\
             CHECK_NEXT(instr);
 #define NEXT_INSTR_BACKWARD_IN_RANGE            }}
 
 #define FOREACH_INSTR_EDITING_IN_RANGE(instr, instrNext, instrList, instrLast)\
-    {\
+    {LOGMEIN("IR.h] 1066\n");\
         IR::Instr * instrNext;\
         IR::Instr *instr##Stop = instrLast ? ((IR::Instr*)instrLast)->m_next : nullptr; \
         for ( IR::Instr *instr = instrList;\
             instr != instr##Stop;\
             instr = instrNext)\
-        {\
+        {LOGMEIN("IR.h] 1072\n");\
             instrNext = instr->m_next;
 #define NEXT_INSTR_EDITING_IN_RANGE            }}
 
 #define FOREACH_REAL_INSTR_EDITING_IN_RANGE(instr, instrNext, instrList, instrLast)\
     FOREACH_INSTR_EDITING_IN_RANGE(instr, instrNext, instrList, instrLast)\
-    {\
+    {LOGMEIN("IR.h] 1078\n");\
         if (!instr->IsRealInstr())\
-        {\
+        {LOGMEIN("IR.h] 1080\n");\
             continue;\
         }
 #define NEXT_REAL_INSTR_EDITING_IN_RANGE NEXT_INSTR_EDITING_IN_RANGE }
 
 #define FOREACH_INSTR_BACKWARD_EDITING_IN_RANGE(instr, instrPrev, instrList, instrLast)\
-    {\
+    {LOGMEIN("IR.h] 1086\n");\
         IR::Instr * instrPrev;\
         IR::Instr *instr##Stop = instrLast ? ((IR::Instr*)instrLast)->m_prev : nullptr; \
         for ( IR::Instr *instr = instrList;\
             instr != instr##Stop;\
             instr = instrPrev)\
-        {\
+        {LOGMEIN("IR.h] 1092\n");\
             instrPrev = instr->m_prev;
 #define NEXT_INSTR_BACKWARD_EDITING_IN_RANGE   }}
 

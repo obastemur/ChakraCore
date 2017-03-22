@@ -10,12 +10,12 @@ namespace Js
         DynamicObject(type),
         m_string(string),
         m_nextIndex(0)
-    {
+    {LOGMEIN("JavascriptStringIterator.cpp] 12\n");
         Assert(type->GetTypeId() == TypeIds_StringIterator);
     }
 
     bool JavascriptStringIterator::Is(Var aValue)
-    {
+    {LOGMEIN("JavascriptStringIterator.cpp] 17\n");
         TypeId typeId = JavascriptOperators::GetTypeId(aValue);
         return typeId == TypeIds_StringIterator;
     }
@@ -40,7 +40,7 @@ namespace Js
         Var thisObj = args[0];
 
         if (!JavascriptStringIterator::Is(thisObj))
-        {
+        {LOGMEIN("JavascriptStringIterator.cpp] 42\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedStringIterator, _u("String Iterator.prototype.next"));
         }
 
@@ -48,7 +48,7 @@ namespace Js
         JavascriptString* string = iterator->m_string;
 
         if (string == nullptr)
-        {
+        {LOGMEIN("JavascriptStringIterator.cpp] 50\n");
             return library->CreateIteratorResultObjectUndefinedTrue();
         }
 
@@ -56,7 +56,7 @@ namespace Js
         charcount_t index = iterator->m_nextIndex;
 
         if (index >= length)
-        {
+        {LOGMEIN("JavascriptStringIterator.cpp] 58\n");
             // Nulling out the m_string field is important so that the iterator
             // does not keep the string alive after iteration is completed.
             iterator->m_string = nullptr;
@@ -69,7 +69,7 @@ namespace Js
         if (index + 1 == string->GetLength() ||
             !NumberUtilities::IsSurrogateLowerPart(chFirst) ||
             !NumberUtilities::IsSurrogateUpperPart(string->GetItem(index + 1)))
-        {
+        {LOGMEIN("JavascriptStringIterator.cpp] 71\n");
             result = scriptContext->GetLibrary()->GetCharStringCache().GetStringForChar(chFirst);
             iterator->m_nextIndex += 1;
         }

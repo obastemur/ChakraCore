@@ -13,7 +13,7 @@ namespace Js
         Var data;
         JavascriptExceptionObject* exceptionObj;
 
-        ResumeYieldData(Var data, JavascriptExceptionObject* exceptionObj) : data(data), exceptionObj(exceptionObj) { }
+        ResumeYieldData(Var data, JavascriptExceptionObject* exceptionObj) : data(data), exceptionObj(exceptionObj) {LOGMEIN("JavascriptGenerator.h] 15\n"); }
     };
 
     class JavascriptGenerator : public DynamicObject
@@ -25,9 +25,9 @@ namespace Js
             Completed
         };
 
-        static uint32 GetFrameOffset() { return offsetof(JavascriptGenerator, frame); }
-        static uint32 GetCallInfoOffset() { return offsetof(JavascriptGenerator, args) + Arguments::GetCallInfoOffset(); }
-        static uint32 GetArgsPtrOffset() { return offsetof(JavascriptGenerator, args) + Arguments::GetValuesOffset(); }
+        static uint32 GetFrameOffset() {LOGMEIN("JavascriptGenerator.h] 27\n"); return offsetof(JavascriptGenerator, frame); }
+        static uint32 GetCallInfoOffset() {LOGMEIN("JavascriptGenerator.h] 28\n"); return offsetof(JavascriptGenerator, args) + Arguments::GetCallInfoOffset(); }
+        static uint32 GetArgsPtrOffset() {LOGMEIN("JavascriptGenerator.h] 29\n"); return offsetof(JavascriptGenerator, args) + Arguments::GetValuesOffset(); }
 
     private:
         Field(InterpreterStackFrame*) frame;
@@ -39,10 +39,10 @@ namespace Js
         DEFINE_MARSHAL_OBJECT_TO_SCRIPT_CONTEXT(JavascriptGenerator);
 
         void SetState(GeneratorState state)
-        {
+        {LOGMEIN("JavascriptGenerator.h] 41\n");
             this->state = state;
             if (state == GeneratorState::Completed)
-            {
+            {LOGMEIN("JavascriptGenerator.h] 44\n");
                 frame = nullptr;
                 args.Values = nullptr;
                 scriptFunction = nullptr;
@@ -55,19 +55,19 @@ namespace Js
     public:
         static JavascriptGenerator* New(Recycler* recycler, DynamicType* generatorType, Arguments& args, ScriptFunction* scriptFunction);
 
-        bool IsExecuting() const { return state == GeneratorState::Executing; }
-        bool IsSuspended() const { return state == GeneratorState::Suspended; }
-        bool IsCompleted() const { return state == GeneratorState::Completed; }
-        bool IsSuspendedStart() const { return state == GeneratorState::Suspended && this->frame == nullptr; }
+        bool IsExecuting() const {LOGMEIN("JavascriptGenerator.h] 57\n"); return state == GeneratorState::Executing; }
+        bool IsSuspended() const {LOGMEIN("JavascriptGenerator.h] 58\n"); return state == GeneratorState::Suspended; }
+        bool IsCompleted() const {LOGMEIN("JavascriptGenerator.h] 59\n"); return state == GeneratorState::Completed; }
+        bool IsSuspendedStart() const {LOGMEIN("JavascriptGenerator.h] 60\n"); return state == GeneratorState::Suspended && this->frame == nullptr; }
 
         void SetFrame(InterpreterStackFrame* frame, size_t bytes);
-        InterpreterStackFrame* GetFrame() const { return frame; }
+        InterpreterStackFrame* GetFrame() const {LOGMEIN("JavascriptGenerator.h] 63\n"); return frame; }
 
 #if GLOBAL_ENABLE_WRITE_BARRIER
         virtual void Finalize(bool isShutdown) override;
 #endif
 
-        const Arguments& GetArguments() const { return args; }
+        const Arguments& GetArguments() const {LOGMEIN("JavascriptGenerator.h] 69\n"); return args; }
 
         static bool Is(Var var);
         static JavascriptGenerator* FromVar(Var var);

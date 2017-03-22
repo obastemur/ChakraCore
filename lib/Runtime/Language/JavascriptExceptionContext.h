@@ -23,13 +23,13 @@ namespace Js {
             Field(StackTraceArguments) argumentTypes;
 
         public:
-            StackFrame() {}
+            StackFrame() {LOGMEIN("JavascriptExceptionContext.h] 25\n");}
             StackFrame(JavascriptFunction* func, const JavascriptStackWalker& walker, bool initArgumentTypes);
             StackFrame(const StackFrame& other)
                 :functionBody(other.functionBody), name(other.name), argumentTypes(other.argumentTypes)
-            {}
+            {LOGMEIN("JavascriptExceptionContext.h] 29\n");}
             StackFrame& operator=(const StackFrame& other)
-            {
+            {LOGMEIN("JavascriptExceptionContext.h] 31\n");
                 functionBody = other.functionBody;
                 name = other.name;
                 argumentTypes = other.argumentTypes;
@@ -38,7 +38,7 @@ namespace Js {
 
             bool IsScriptFunction() const;
             FunctionBody* GetFunctionBody() const;
-            uint32 GetByteCodeOffset() const { return byteCodeOffset; }
+            uint32 GetByteCodeOffset() const {LOGMEIN("JavascriptExceptionContext.h] 40\n"); return byteCodeOffset; }
             LPCWSTR GetFunctionName() const;
             HRESULT GetFunctionNameWithArguments(_In_ LPCWSTR *outResult) const;
         };
@@ -51,18 +51,18 @@ namespace Js {
             m_throwingFunctionByteCodeOffset(0),
             m_stackTrace(nullptr),
             m_originalStackTrace(nullptr)
-        {
+        {LOGMEIN("JavascriptExceptionContext.h] 53\n");
         }
 
-        JavascriptFunction* ThrowingFunction() const { return m_throwingFunction; }
-        uint32 ThrowingFunctionByteCodeOffset() const { return m_throwingFunctionByteCodeOffset; }
+        JavascriptFunction* ThrowingFunction() const {LOGMEIN("JavascriptExceptionContext.h] 56\n"); return m_throwingFunction; }
+        uint32 ThrowingFunctionByteCodeOffset() const {LOGMEIN("JavascriptExceptionContext.h] 57\n"); return m_throwingFunctionByteCodeOffset; }
         void SetThrowingFunction(JavascriptFunction* function, uint32 byteCodeOffset, void * returnAddress);
 
-        bool HasStackTrace() const { return m_stackTrace && m_stackTrace->Count() > 0; }
-        StackTrace* GetStackTrace() const { return m_stackTrace; }
-        void SetStackTrace(StackTrace *stackTrace) { m_stackTrace = stackTrace; }
-        void SetOriginalStackTrace(StackTrace *stackTrace) { Assert(m_originalStackTrace == nullptr); m_originalStackTrace = stackTrace; }
-        StackTrace* GetOriginalStackTrace() const { return m_originalStackTrace; }
+        bool HasStackTrace() const {LOGMEIN("JavascriptExceptionContext.h] 60\n"); return m_stackTrace && m_stackTrace->Count() > 0; }
+        StackTrace* GetStackTrace() const {LOGMEIN("JavascriptExceptionContext.h] 61\n"); return m_stackTrace; }
+        void SetStackTrace(StackTrace *stackTrace) {LOGMEIN("JavascriptExceptionContext.h] 62\n"); m_stackTrace = stackTrace; }
+        void SetOriginalStackTrace(StackTrace *stackTrace) {LOGMEIN("JavascriptExceptionContext.h] 63\n"); Assert(m_originalStackTrace == nullptr); m_originalStackTrace = stackTrace; }
+        StackTrace* GetOriginalStackTrace() const {LOGMEIN("JavascriptExceptionContext.h] 64\n"); return m_originalStackTrace; }
 
     private:
         Field(JavascriptFunction*) m_throwingFunction;

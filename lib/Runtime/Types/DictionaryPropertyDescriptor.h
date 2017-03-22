@@ -14,15 +14,15 @@ namespace Js
     public:
         DictionaryPropertyDescriptor(TPropertyIndex dataSlot, bool isInitialized = false, bool isFixed = false, bool usedAsFixed = false) :
             Data(dataSlot), Getter(NoSlots), Setter(NoSlots), Attributes(PropertyDynamicTypeDefaults),
-            PreventFalseReference(true), IsInitialized(isInitialized), IsOnlyOneAccessorInitialized(false), IsFixed(isFixed), UsedAsFixed(usedAsFixed), IsShadowed(false), IsAccessor(false) { }
+            PreventFalseReference(true), IsInitialized(isInitialized), IsOnlyOneAccessorInitialized(false), IsFixed(isFixed), UsedAsFixed(usedAsFixed), IsShadowed(false), IsAccessor(false) {LOGMEIN("DictionaryPropertyDescriptor.h] 16\n"); }
 
         DictionaryPropertyDescriptor(TPropertyIndex getterSlot, TPropertyIndex setterSlot, bool isInitialized = false, bool isFixed = false, bool usedAsFixed = false) :
             Data(NoSlots), Getter(getterSlot), Setter(setterSlot), Attributes(PropertyDynamicTypeDefaults),
-            PreventFalseReference(true), IsInitialized(isInitialized), IsOnlyOneAccessorInitialized(false), IsFixed(isFixed), UsedAsFixed(usedAsFixed), IsShadowed(false), IsAccessor(true) { }
+            PreventFalseReference(true), IsInitialized(isInitialized), IsOnlyOneAccessorInitialized(false), IsFixed(isFixed), UsedAsFixed(usedAsFixed), IsShadowed(false), IsAccessor(true) {LOGMEIN("DictionaryPropertyDescriptor.h] 20\n"); }
 
         DictionaryPropertyDescriptor(TPropertyIndex dataSlot, PropertyAttributes attributes, bool isInitialized = false, bool isFixed = false, bool usedAsFixed = false) :
             Data(dataSlot), Getter(NoSlots), Setter(NoSlots), Attributes(attributes),
-            PreventFalseReference(true), IsInitialized(isInitialized), IsOnlyOneAccessorInitialized(false), IsFixed(isFixed), UsedAsFixed(usedAsFixed), IsShadowed(false), IsAccessor(false) { }
+            PreventFalseReference(true), IsInitialized(isInitialized), IsOnlyOneAccessorInitialized(false), IsFixed(isFixed), UsedAsFixed(usedAsFixed), IsShadowed(false), IsAccessor(false) {LOGMEIN("DictionaryPropertyDescriptor.h] 24\n"); }
 
         DictionaryPropertyDescriptor(TPropertyIndex getterSlot, TPropertyIndex setterSlot, PropertyAttributes attributes, bool isInitialized = false, bool isFixed = false, bool usedAsFixed = false) :
             Data(NoSlots), Getter(getterSlot), Setter(setterSlot), Attributes(attributes),
@@ -30,7 +30,7 @@ namespace Js
 
         // this is for initialization.
         DictionaryPropertyDescriptor() : Data(NoSlots), Getter(NoSlots), Setter(NoSlots), Attributes(PropertyDynamicTypeDefaults),
-            PreventFalseReference(true), IsInitialized(false), IsOnlyOneAccessorInitialized(false), IsFixed(false), UsedAsFixed(false), IsShadowed(false), IsAccessor(false) { }
+            PreventFalseReference(true), IsInitialized(false), IsOnlyOneAccessorInitialized(false), IsFixed(false), UsedAsFixed(false), IsShadowed(false), IsAccessor(false) {LOGMEIN("DictionaryPropertyDescriptor.h] 32\n"); }
 
         template <typename TPropertyIndexFrom>
         void CopyFrom(DictionaryPropertyDescriptor<TPropertyIndexFrom>& descriptor);
@@ -60,7 +60,7 @@ namespace Js
         bool ConvertToGetterSetter(TPropertyIndex& nextSlotIndex);
 
         bool HasNonLetConstGlobal() const
-        {
+        {LOGMEIN("DictionaryPropertyDescriptor.h] 62\n");
             return (this->Attributes & PropertyLetConstGlobal) == 0 || this->IsShadowed;
         }
         void AddShadowedData(TPropertyIndex& nextPropertyIndex, bool addingLetConstGlobal);
@@ -70,7 +70,7 @@ namespace Js
     public:
 #if DBG
         bool SanityCheckFixedBits()
-        {
+        {LOGMEIN("DictionaryPropertyDescriptor.h] 72\n");
             return
                 ((!this->IsFixed && !this->UsedAsFixed) ||
                 (!(this->Attributes & PropertyDeleted) && (this->Data != NoSlots || this->Getter != NoSlots || this->Setter != NoSlots)));
@@ -82,20 +82,20 @@ namespace Js
     template <typename TPropertyIndex>
     template <bool allowLetConstGlobal>
     TPropertyIndex DictionaryPropertyDescriptor<TPropertyIndex>::GetDataPropertyIndex() const
-    {
+    {LOGMEIN("DictionaryPropertyDescriptor.h] 84\n");
         // If it is let const global, the data slot is the let const property, and if we allow let const global,
         // we already return that the Getter/Setter slot may be doubled as the Data Slot
         // so only return it if we allow let const
         bool const isLetConstGlobal = (this->Attributes & PropertyLetConstGlobal) != 0;
         if (isLetConstGlobal)
-        {
+        {LOGMEIN("DictionaryPropertyDescriptor.h] 90\n");
             Assert(this->Data != NoSlots);  // Should always have slot for LetConstGlobal if specified
             if (allowLetConstGlobal)
-            {
+            {LOGMEIN("DictionaryPropertyDescriptor.h] 93\n");
                 return this->Data;
             }
             else if (this->IsShadowed && !this->IsAccessor)
-            {
+            {LOGMEIN("DictionaryPropertyDescriptor.h] 97\n");
                 // if it is a let const global, if the setter slot is empty, then the Getter slot must be
                 // the shadowed data slot, return that.
                 return this->Getter;
@@ -111,7 +111,7 @@ namespace Js
 
     template <typename TPropertyIndex>
     TPropertyIndex DictionaryPropertyDescriptor<TPropertyIndex>::GetGetterPropertyIndex() const
-    {
+    {LOGMEIN("DictionaryPropertyDescriptor.h] 113\n");
         // Need to check data property index first
         Assert(GetDataPropertyIndex<false>() == NoSlots);
         return this->Getter;
@@ -119,7 +119,7 @@ namespace Js
 
     template <typename TPropertyIndex>
     TPropertyIndex DictionaryPropertyDescriptor<TPropertyIndex>::GetSetterPropertyIndex() const
-    {
+    {LOGMEIN("DictionaryPropertyDescriptor.h] 121\n");
         // Need to check data property index first
         Assert(GetDataPropertyIndex<false>() == NoSlots);
         return this->Setter;
@@ -127,13 +127,13 @@ namespace Js
 
     template <typename TPropertyIndex>
     void DictionaryPropertyDescriptor<TPropertyIndex>::ConvertToData()
-    {
+    {LOGMEIN("DictionaryPropertyDescriptor.h] 129\n");
         if (this->IsAccessor)
-        {
+        {LOGMEIN("DictionaryPropertyDescriptor.h] 131\n");
             Assert(this->Getter != NoSlots && this->Setter != NoSlots);
             this->IsAccessor = false;
             if (this->IsShadowed)
-            {
+            {LOGMEIN("DictionaryPropertyDescriptor.h] 135\n");
                 Assert(this->Data != NoSlots);
             }
             else
@@ -148,15 +148,15 @@ namespace Js
 
     template <typename TPropertyIndex>
     void DictionaryPropertyDescriptor<TPropertyIndex>::AddShadowedData(TPropertyIndex& nextPropertyIndex, bool addingLetConstGlobal)
-    {
+    {LOGMEIN("DictionaryPropertyDescriptor.h] 150\n");
         Assert(!this->IsShadowed);
         this->IsShadowed = true;
         if (this->IsAccessor)
-        {
+        {LOGMEIN("DictionaryPropertyDescriptor.h] 154\n");
             Assert(this->Data == NoSlots);
         }
         else if (addingLetConstGlobal)
-        {
+        {LOGMEIN("DictionaryPropertyDescriptor.h] 158\n");
             this->Getter = this->Data;
             this->Data = nextPropertyIndex++;
         }
@@ -170,7 +170,7 @@ namespace Js
 
     template <typename TPropertyIndex>
     bool DictionaryPropertyDescriptor<TPropertyIndex>::ConvertToGetterSetter(TPropertyIndex& nextPropertyIndex)
-    {
+    {LOGMEIN("DictionaryPropertyDescriptor.h] 172\n");
         // Initial descriptor state and corresponding conversion can be one of the following:
         //
         // | State                              | Data    | Getter   | Setter   | Conversion                                                                                        |
@@ -185,7 +185,7 @@ namespace Js
         // NOTE: Do not create slot for Getter/Setter if they are already valid; possible after previous conversion from Accessor to Data, or deletion of Accessor, etc.
 
         if (this->IsAccessor)
-        {
+        {LOGMEIN("DictionaryPropertyDescriptor.h] 187\n");
             // Accessor property
             // Accessor property + LetConstGlobal
             Assert(this->Getter != NoSlots && this->Setter != NoSlots);
@@ -194,9 +194,9 @@ namespace Js
 
         this->IsAccessor = true;
         if (this->Attributes & PropertyLetConstGlobal)
-        {
+        {LOGMEIN("DictionaryPropertyDescriptor.h] 196\n");
             if (this->IsShadowed)
-            {
+            {LOGMEIN("DictionaryPropertyDescriptor.h] 198\n");
                 // Data property + LetConstGlobal
                 Assert(this->Getter != NoSlots);
             }
@@ -217,12 +217,12 @@ namespace Js
 
         bool addedPropertyIndex = false;
         if (this->Getter == NoSlots)
-        {
+        {LOGMEIN("DictionaryPropertyDescriptor.h] 219\n");
             this->Getter = nextPropertyIndex++;
             addedPropertyIndex = true;
         }
         if (this->Setter == NoSlots)
-        {
+        {LOGMEIN("DictionaryPropertyDescriptor.h] 224\n");
             this->Setter = nextPropertyIndex++;
             addedPropertyIndex = true;
         }
@@ -233,7 +233,7 @@ namespace Js
     template <typename TPropertyIndex>
     template <typename TPropertyIndexFrom>
     void DictionaryPropertyDescriptor<TPropertyIndex>::CopyFrom(DictionaryPropertyDescriptor<TPropertyIndexFrom>& descriptor)
-    {
+    {LOGMEIN("DictionaryPropertyDescriptor.h] 235\n");
         this->Attributes = descriptor.Attributes;
         this->Data = (descriptor.Data == DictionaryPropertyDescriptor<TPropertyIndexFrom>::NoSlots) ? NoSlots : descriptor.Data;
         this->Getter = (descriptor.Getter == DictionaryPropertyDescriptor<TPropertyIndexFrom>::NoSlots) ? NoSlots : descriptor.Getter;

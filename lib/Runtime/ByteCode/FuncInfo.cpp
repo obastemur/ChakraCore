@@ -103,68 +103,68 @@ FuncInfo::FuncInfo(
     targetStatements(alloc),
     nextForInLoopLevel(0),
     maxForInLoopLevel(0)
-{
+{LOGMEIN("FuncInfo.cpp] 105\n");
     this->byteCodeFunction = byteCodeFunction;
     bodyScope->SetFunc(this);
     if (paramScope != nullptr)
-    {
+    {LOGMEIN("FuncInfo.cpp] 109\n");
         paramScope->SetFunc(this);
     }
     if (pnode && pnode->sxFnc.NestedFuncEscapes())
-    {
+    {LOGMEIN("FuncInfo.cpp] 113\n");
         this->SetHasMaybeEscapedNestedFunc(DebugOnly(_u("Child")));
     }
 }
 
 bool FuncInfo::IsGlobalFunction() const
-{
+{LOGMEIN("FuncInfo.cpp] 119\n");
     return root && root->nop == knopProg;
 }
 
 bool FuncInfo::IsDeferred() const
-{
+{LOGMEIN("FuncInfo.cpp] 124\n");
     return root && root->sxFnc.pnodeBody == nullptr;
 }
 
 bool FuncInfo::IsRedeferrable() const
-{
+{LOGMEIN("FuncInfo.cpp] 129\n");
     return byteCodeFunction && byteCodeFunction->CanBeDeferred();
 }
 
 BOOL FuncInfo::HasSuperReference() const
-{
+{LOGMEIN("FuncInfo.cpp] 134\n");
     return root->sxFnc.HasSuperReference();
 }
 
 BOOL FuncInfo::HasDirectSuper() const
-{
+{LOGMEIN("FuncInfo.cpp] 139\n");
     return root->sxFnc.HasDirectSuper();
 }
 
 BOOL FuncInfo::IsClassMember() const
-{
+{LOGMEIN("FuncInfo.cpp] 144\n");
     return root->sxFnc.IsClassMember();
 }
 
 BOOL FuncInfo::IsLambda() const
-{
+{LOGMEIN("FuncInfo.cpp] 149\n");
     return root->sxFnc.IsLambda();
 }
 
 BOOL FuncInfo::IsClassConstructor() const
-{
+{LOGMEIN("FuncInfo.cpp] 154\n");
     return root->sxFnc.IsClassConstructor();
 }
 
 BOOL FuncInfo::IsBaseClassConstructor() const
-{
+{LOGMEIN("FuncInfo.cpp] 159\n");
     return root->sxFnc.IsBaseClassConstructor();
 }
 
 void FuncInfo::EnsureThisScopeSlot()
-{
+{LOGMEIN("FuncInfo.cpp] 164\n");
     if (this->thisScopeSlot == Js::Constants::NoProperty)
-    {
+    {LOGMEIN("FuncInfo.cpp] 166\n");
         // In case of split scope param and body has separate closures. So we have to use different scope slots for them.
         bool isSplitScope = this->paramScope && !this->paramScope->GetCanMergeWithBodyScope();
         Scope* scope = isSplitScope ? this->paramScope : this->bodyScope;
@@ -172,87 +172,87 @@ void FuncInfo::EnsureThisScopeSlot()
 
         this->thisScopeSlot = currentScope->AddScopeSlot();
         if (isSplitScope)
-        {
+        {LOGMEIN("FuncInfo.cpp] 174\n");
             this->innerThisScopeSlot = this->bodyScope->AddScopeSlot();
         }
     }
 }
 
 void FuncInfo::EnsureSuperScopeSlot()
-{
+{LOGMEIN("FuncInfo.cpp] 181\n");
     if (this->superScopeSlot == Js::Constants::NoProperty)
-    {
+    {LOGMEIN("FuncInfo.cpp] 183\n");
         // In case of split scope param and body has separate closures. So we have to use different scope slots for them.
         bool isSplitScope = this->paramScope && !this->paramScope->GetCanMergeWithBodyScope();
         Scope* scope = isSplitScope ? this->paramScope : this->bodyScope;
 
         this->superScopeSlot = scope->AddScopeSlot();
         if (isSplitScope)
-        {
+        {LOGMEIN("FuncInfo.cpp] 190\n");
             this->innerSuperScopeSlot = this->bodyScope->AddScopeSlot();
         }
     }
 }
 
 void FuncInfo::EnsureSuperCtorScopeSlot()
-{
+{LOGMEIN("FuncInfo.cpp] 197\n");
     if (this->superCtorScopeSlot == Js::Constants::NoProperty)
-    {
+    {LOGMEIN("FuncInfo.cpp] 199\n");
         // In case of split scope param and body has separate closures. So we have to use different scope slots for them.
         bool isSplitScope = this->paramScope && !this->paramScope->GetCanMergeWithBodyScope();
         Scope* scope = isSplitScope ? this->paramScope : this->bodyScope;
 
         this->superCtorScopeSlot = scope->AddScopeSlot();
         if (isSplitScope)
-        {
+        {LOGMEIN("FuncInfo.cpp] 206\n");
             this->innerSuperCtorScopeSlot = this->bodyScope->AddScopeSlot();
         }
     }
 }
 
 void FuncInfo::EnsureNewTargetScopeSlot()
-{
+{LOGMEIN("FuncInfo.cpp] 213\n");
     if (this->newTargetScopeSlot == Js::Constants::NoProperty)
-    {
+    {LOGMEIN("FuncInfo.cpp] 215\n");
         // In case of split scope param and body has separate closures. So we have to use different scope slots for them.
         bool isSplitScope = this->paramScope && !this->paramScope->GetCanMergeWithBodyScope();
         Scope* scope = isSplitScope ? this->paramScope : this->bodyScope;
 
         this->newTargetScopeSlot = scope->AddScopeSlot();
         if (isSplitScope)
-        {
+        {LOGMEIN("FuncInfo.cpp] 222\n");
             this->innerNewTargetScopeSlot = this->bodyScope->AddScopeSlot();
         }
     }
 }
 
 void FuncInfo::UseInnerSpecialScopeSlots()
-{
+{LOGMEIN("FuncInfo.cpp] 229\n");
     Assert(this->paramScope != nullptr && !this->paramScope->GetCanMergeWithBodyScope());
     Js::PropertyId temp = Js::Constants::NoProperty;
     if (this->thisScopeSlot != Js::Constants::NoProperty)
-    {
+    {LOGMEIN("FuncInfo.cpp] 233\n");
         Assert(this->innerThisScopeSlot != Js::Constants::NoProperty);
         temp = this->thisScopeSlot;
         this->thisScopeSlot = this->innerThisScopeSlot;
         this->innerThisScopeSlot = temp;
     }
     if (this->superScopeSlot != Js::Constants::NoProperty)
-    {
+    {LOGMEIN("FuncInfo.cpp] 240\n");
         Assert(this->innerSuperScopeSlot != Js::Constants::NoProperty);
         temp = this->superScopeSlot;
         this->superScopeSlot = this->innerSuperScopeSlot;
         this->innerSuperScopeSlot = temp;
     }
     if (this->superCtorScopeSlot != Js::Constants::NoProperty)
-    {
+    {LOGMEIN("FuncInfo.cpp] 247\n");
         Assert(this->innerSuperCtorScopeSlot != Js::Constants::NoProperty);
         temp = this->superCtorScopeSlot;
         this->superCtorScopeSlot = this->innerSuperCtorScopeSlot;
         this->innerSuperCtorScopeSlot = temp;
     }
     if (this->newTargetScopeSlot != Js::Constants::NoProperty)
-    {
+    {LOGMEIN("FuncInfo.cpp] 254\n");
         Assert(this->innerNewTargetScopeSlot != Js::Constants::NoProperty);
         temp = this->newTargetScopeSlot;
         this->newTargetScopeSlot = this->innerNewTargetScopeSlot;
@@ -262,7 +262,7 @@ void FuncInfo::UseInnerSpecialScopeSlots()
 
 Scope *
 FuncInfo::GetGlobalBlockScope() const
-{
+{LOGMEIN("FuncInfo.cpp] 264\n");
     Assert(this->IsGlobalFunction());
     Scope * scope = this->root->sxFnc.pnodeScopes->sxBlock.scope;
     Assert(scope == nullptr || scope == this->GetBodyScope() || scope->GetEnclosingScope() == this->GetBodyScope());
@@ -270,7 +270,7 @@ FuncInfo::GetGlobalBlockScope() const
 }
 
 Scope * FuncInfo::GetGlobalEvalBlockScope() const
-{
+{LOGMEIN("FuncInfo.cpp] 272\n");
     Scope * globalEvalBlockScope = this->GetGlobalBlockScope();
     Assert(globalEvalBlockScope->GetEnclosingScope() == this->GetBodyScope());
     Assert(globalEvalBlockScope->GetScopeType() == ScopeType_GlobalEvalBlock);
@@ -278,16 +278,16 @@ Scope * FuncInfo::GetGlobalEvalBlockScope() const
 }
 
 uint FuncInfo::FindOrAddReferencedPropertyId(Js::PropertyId propertyId)
-{
+{LOGMEIN("FuncInfo.cpp] 280\n");
     Assert(propertyId != Js::Constants::NoProperty);
     Assert(referencedPropertyIdToMapIndex != nullptr);
     if (propertyId < TotalNumberOfBuiltInProperties)
-    {
+    {LOGMEIN("FuncInfo.cpp] 284\n");
         return propertyId;
     }
     uint index;
     if (!referencedPropertyIdToMapIndex->TryGetValue(propertyId, &index))
-    {
+    {LOGMEIN("FuncInfo.cpp] 289\n");
         index = this->NewReferencedPropertyId();
         referencedPropertyIdToMapIndex->Add(propertyId, index);
     }
@@ -295,13 +295,13 @@ uint FuncInfo::FindOrAddReferencedPropertyId(Js::PropertyId propertyId)
 }
 
 uint FuncInfo::FindOrAddRootObjectInlineCacheId(Js::PropertyId propertyId, bool isLoadMethod, bool isStore)
-{
+{LOGMEIN("FuncInfo.cpp] 297\n");
     Assert(propertyId != Js::Constants::NoProperty);
     Assert(!isLoadMethod || !isStore);
     uint cacheId;
     RootObjectInlineCacheIdMap * idMap = isStore ? rootObjectStoreInlineCacheMap : isLoadMethod ? rootObjectLoadMethodInlineCacheMap : rootObjectLoadInlineCacheMap;
     if (!idMap->TryGetValue(propertyId, &cacheId))
-    {
+    {LOGMEIN("FuncInfo.cpp] 303\n");
         cacheId = isStore ? this->NewRootObjectStoreInlineCache() : isLoadMethod ? this->NewRootObjectLoadMethodInlineCache() : this->NewRootObjectLoadInlineCache();
         idMap->Add(propertyId, cacheId);
     }
@@ -310,7 +310,7 @@ uint FuncInfo::FindOrAddRootObjectInlineCacheId(Js::PropertyId propertyId, bool 
 
 #if DBG_DUMP
 void FuncInfo::Dump()
-{
+{LOGMEIN("FuncInfo.cpp] 312\n");
     Output::Print(_u("FuncInfo: CallsEval:%s ChildCallsEval:%s HasArguments:%s HasHeapArguments:%s\n"),
         IsTrueOrFalse(this->GetCallsEval()),
         IsTrueOrFalse(this->GetChildCallsEval()),
@@ -320,43 +320,43 @@ void FuncInfo::Dump()
 #endif
 
 Js::RegSlot FuncInfo::AcquireLoc(ParseNode *pnode)
-{
+{LOGMEIN("FuncInfo.cpp] 322\n");
     // Assign a new temp pseudo-register to this expression.
     if (pnode->location == Js::Constants::NoRegister)
-    {
+    {LOGMEIN("FuncInfo.cpp] 325\n");
         pnode->location = this->AcquireTmpRegister();
     }
     return pnode->location;
 }
 
 Js::RegSlot FuncInfo::AcquireTmpRegister()
-{
+{LOGMEIN("FuncInfo.cpp] 332\n");
     Assert(this->firstTmpReg != Js::Constants::NoRegister);
     // Allocate a new temp pseudo-register, increasing the locals count if necessary.
     Assert(this->curTmpReg <= this->varRegsCount && this->curTmpReg >= this->firstTmpReg);
     Js::RegSlot tmpReg = this->curTmpReg;
     UInt32Math::Inc(this->curTmpReg);
     if (this->curTmpReg > this->varRegsCount)
-    {
+    {LOGMEIN("FuncInfo.cpp] 339\n");
         this->varRegsCount = this->curTmpReg;
     }
     return tmpReg;
 }
 
 void FuncInfo::ReleaseLoc(ParseNode *pnode)
-{
+{LOGMEIN("FuncInfo.cpp] 346\n");
     // Release the temp assigned to this expression so it can be re-used.
     if (pnode && pnode->location != Js::Constants::NoRegister)
-    {
+    {LOGMEIN("FuncInfo.cpp] 349\n");
         this->ReleaseTmpRegister(pnode->location);
     }
 }
 
 void FuncInfo::ReleaseLoad(ParseNode *pnode)
-{
+{LOGMEIN("FuncInfo.cpp] 355\n");
     // Release any temp register(s) acquired by an EmitLoad.
     switch (pnode->nop)
-    {
+    {LOGMEIN("FuncInfo.cpp] 358\n");
     case knopDot:
     case knopIndex:
     case knopCall:
@@ -367,10 +367,10 @@ void FuncInfo::ReleaseLoad(ParseNode *pnode)
 }
 
 void FuncInfo::ReleaseReference(ParseNode *pnode)
-{
+{LOGMEIN("FuncInfo.cpp] 369\n");
     // Release any temp(s) assigned to this reference expression so they can be re-used.
     switch (pnode->nop)
-    {
+    {LOGMEIN("FuncInfo.cpp] 372\n");
     case knopDot:
         this->ReleaseLoc(pnode->sxBin.pnode1);
         break;
@@ -391,19 +391,19 @@ void FuncInfo::ReleaseReference(ParseNode *pnode)
         // Fortunately, we know that the set we have to release is sequential.
         // So find the endpoints of the list and release them in descending order.
         if (pnode->sxCall.pnodeArgs)
-        {
+        {LOGMEIN("FuncInfo.cpp] 393\n");
             ParseNode *pnodeArg = pnode->sxCall.pnodeArgs;
             Js::RegSlot firstArg = Js::Constants::NoRegister;
             Js::RegSlot lastArg = Js::Constants::NoRegister;
             if (pnodeArg->nop == knopList)
-            {
+            {LOGMEIN("FuncInfo.cpp] 398\n");
                 do
-                {
+                {LOGMEIN("FuncInfo.cpp] 400\n");
                     if (this->IsTmpReg(pnodeArg->sxBin.pnode1->location))
-                    {
+                    {LOGMEIN("FuncInfo.cpp] 402\n");
                         lastArg = pnodeArg->sxBin.pnode1->location;
                         if (firstArg == Js::Constants::NoRegister)
-                        {
+                        {LOGMEIN("FuncInfo.cpp] 405\n");
                             firstArg = lastArg;
                         }
                     }
@@ -412,20 +412,20 @@ void FuncInfo::ReleaseReference(ParseNode *pnode)
                 while (pnodeArg->nop == knopList);
             }
             if (this->IsTmpReg(pnodeArg->location))
-            {
+            {LOGMEIN("FuncInfo.cpp] 414\n");
                 lastArg = pnodeArg->location;
                 if (firstArg == Js::Constants::NoRegister)
-                {
+                {LOGMEIN("FuncInfo.cpp] 417\n");
                     // Just one: first and last point to the same node.
                     firstArg = lastArg;
                 }
             }
             if (lastArg != Js::Constants::NoRegister)
-            {
+            {LOGMEIN("FuncInfo.cpp] 423\n");
                 Assert(firstArg != Js::Constants::NoRegister);
                 Assert(lastArg >= firstArg);
                 do
-                {
+                {LOGMEIN("FuncInfo.cpp] 427\n");
                     // Walk down from last to first.
                     this->ReleaseTmpRegister(lastArg);
                 } while (lastArg-- > firstArg); // these are unsigned, so (--lastArg >= firstArg) will cause an infinite loop if firstArg is 0 (although that shouldn't happen)
@@ -433,7 +433,7 @@ void FuncInfo::ReleaseReference(ParseNode *pnode)
         }
         // Now release the call target.
         switch (pnode->sxCall.pnodeTarget->nop)
-        {
+        {LOGMEIN("FuncInfo.cpp] 435\n");
         case knopDot:
         case knopIndex:
             this->ReleaseReference(pnode->sxCall.pnodeTarget);
@@ -451,18 +451,18 @@ void FuncInfo::ReleaseReference(ParseNode *pnode)
 }
 
 void FuncInfo::ReleaseTmpRegister(Js::RegSlot tmpReg)
-{
+{LOGMEIN("FuncInfo.cpp] 453\n");
     // Put this reg back on top of the temp stack (if it's a temp).
     Assert(tmpReg != Js::Constants::NoRegister);
     if (this->IsTmpReg(tmpReg))
-    {
+    {LOGMEIN("FuncInfo.cpp] 457\n");
         Assert(tmpReg == this->curTmpReg - 1);
         this->curTmpReg--;
     }
 }
 
 Js::RegSlot FuncInfo::InnerScopeToRegSlot(Scope *scope) const
-{
+{LOGMEIN("FuncInfo.cpp] 464\n");
     Js::RegSlot reg = FirstInnerScopeReg();
     Assert(reg != Js::Constants::NoRegister);
 
@@ -472,7 +472,7 @@ Js::RegSlot FuncInfo::InnerScopeToRegSlot(Scope *scope) const
 }
 
 Js::RegSlot FuncInfo::FirstInnerScopeReg() const
-{
+{LOGMEIN("FuncInfo.cpp] 474\n");
     // FunctionBody stores this as a mapped reg. Callers of this function want the pre-mapped value.
 
     Js::RegSlot reg = this->GetParsedFunctionBody()->GetFirstInnerScopeRegister();
@@ -482,22 +482,22 @@ Js::RegSlot FuncInfo::FirstInnerScopeReg() const
 }
 
 void FuncInfo::SetFirstInnerScopeReg(Js::RegSlot reg)
-{
+{LOGMEIN("FuncInfo.cpp] 484\n");
     // Just forward to the FunctionBody.
     this->GetParsedFunctionBody()->MapAndSetFirstInnerScopeRegister(reg);
 }
 
 void FuncInfo::AddCapturedSym(Symbol *sym)
-{
+{LOGMEIN("FuncInfo.cpp] 490\n");
     if (this->capturedSyms == nullptr)
-    {
+    {LOGMEIN("FuncInfo.cpp] 492\n");
         this->capturedSyms = Anew(alloc, SymbolTable, alloc);
     }
     this->capturedSyms->AddNew(sym);
 }
 
 void FuncInfo::OnStartVisitFunction(ParseNode *pnodeFnc)
-{
+{LOGMEIN("FuncInfo.cpp] 499\n");
     Assert(pnodeFnc->nop == knopFncDecl);
     Assert(this->GetCurrentChildFunction() == nullptr);
 
@@ -505,7 +505,7 @@ void FuncInfo::OnStartVisitFunction(ParseNode *pnodeFnc)
 }
 
 void FuncInfo::OnEndVisitFunction(ParseNode *pnodeFnc)
-{
+{LOGMEIN("FuncInfo.cpp] 507\n");
     Assert(pnodeFnc->nop == knopFncDecl);
     Assert(this->GetCurrentChildFunction() == pnodeFnc->sxFnc.funcInfo);
 
@@ -514,25 +514,25 @@ void FuncInfo::OnEndVisitFunction(ParseNode *pnodeFnc)
 }
 
 void FuncInfo::OnStartVisitScope(Scope *scope, bool *pisMergedScope)
-{
+{LOGMEIN("FuncInfo.cpp] 516\n");
     *pisMergedScope = false;
 
     if (scope == nullptr)
-    {
+    {LOGMEIN("FuncInfo.cpp] 520\n");
         return;
     }
 
     Scope* childScope = this->GetCurrentChildScope();
     if (childScope)
-    {
+    {LOGMEIN("FuncInfo.cpp] 526\n");
         if (scope->GetScopeType() == ScopeType_Parameter)
-        {
+        {LOGMEIN("FuncInfo.cpp] 528\n");
             Assert(childScope->GetEnclosingScope() == scope);
         }
         else if (childScope->GetScopeType() == ScopeType_Parameter
                  && childScope->GetCanMergeWithBodyScope()
                  && scope->GetScopeType() == ScopeType_Block)
-        {
+        {LOGMEIN("FuncInfo.cpp] 534\n");
             // If param and body are merged then the class declaration in param scope will have body as the parent
             *pisMergedScope = true;
             Assert(childScope == scope->GetEnclosingScope()->GetEnclosingScope());
@@ -548,9 +548,9 @@ void FuncInfo::OnStartVisitScope(Scope *scope, bool *pisMergedScope)
 }
 
 void FuncInfo::OnEndVisitScope(Scope *scope, bool isMergedScope)
-{
+{LOGMEIN("FuncInfo.cpp] 550\n");
     if (scope == nullptr)
-    {
+    {LOGMEIN("FuncInfo.cpp] 552\n");
         return;
     }
     Assert(this->GetCurrentChildScope() == scope || (scope->GetScopeType() == ScopeType_Parameter && this->GetParamScope() == scope));
@@ -559,18 +559,18 @@ void FuncInfo::OnEndVisitScope(Scope *scope, bool isMergedScope)
 }
 
 CapturedSymMap *FuncInfo::EnsureCapturedSymMap()
-{
+{LOGMEIN("FuncInfo.cpp] 561\n");
     if (this->capturedSymMap == nullptr)
-    {
+    {LOGMEIN("FuncInfo.cpp] 563\n");
         this->capturedSymMap = Anew(alloc, CapturedSymMap, alloc);
     }
     return this->capturedSymMap;
 }
 
 void FuncInfo::SetHasMaybeEscapedNestedFunc(DebugOnly(char16 const * reason))
-{
+{LOGMEIN("FuncInfo.cpp] 570\n");
     if (PHASE_TESTTRACE(Js::StackFuncPhase, this->byteCodeFunction) && !hasEscapedUseNestedFunc)
-    {
+    {LOGMEIN("FuncInfo.cpp] 572\n");
         char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
         char16 const * r = _u("");
 
@@ -585,22 +585,22 @@ void FuncInfo::SetHasMaybeEscapedNestedFunc(DebugOnly(char16 const * reason))
 }
 
 uint FuncInfo::AcquireInnerScopeIndex()
-{
+{LOGMEIN("FuncInfo.cpp] 587\n");
     uint index = this->currentInnerScopeIndex;
     if (index == (uint)-1)
-    {
+    {LOGMEIN("FuncInfo.cpp] 590\n");
         index = 0;
     }
     else
     {
         index++;
         if (index == (uint)-1)
-        {
+        {LOGMEIN("FuncInfo.cpp] 597\n");
             Js::Throw::OutOfMemory();
         }
     }
     if (index == this->innerScopeCount)
-    {
+    {LOGMEIN("FuncInfo.cpp] 602\n");
         this->innerScopeCount = index + 1;
     }
     this->currentInnerScopeIndex = index;
@@ -608,12 +608,12 @@ uint FuncInfo::AcquireInnerScopeIndex()
 }
 
 void FuncInfo::ReleaseInnerScopeIndex()
-{
+{LOGMEIN("FuncInfo.cpp] 610\n");
     uint index = this->currentInnerScopeIndex;
     Assert(index != (uint)-1);
 
     if (index == 0)
-    {
+    {LOGMEIN("FuncInfo.cpp] 615\n");
         index = (uint)-1;
     }
     else

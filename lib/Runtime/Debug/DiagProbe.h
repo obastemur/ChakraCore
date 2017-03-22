@@ -19,12 +19,12 @@ namespace Js
 
     struct ReturnedValue
     {
-        ReturnedValue() {}
+        ReturnedValue() {LOGMEIN("DiagProbe.h] 21\n");}
         ReturnedValue(Js::Var _returnedValue, Js::JavascriptFunction * _calledFunction, bool _isValueOfReturnStatement)
             : returnedValue(_returnedValue), calledFunction(_calledFunction), isValueOfReturnStatement(_isValueOfReturnStatement)
-        {
+        {LOGMEIN("DiagProbe.h] 24\n");
             if (isValueOfReturnStatement)
-            {
+            {LOGMEIN("DiagProbe.h] 26\n");
                 Assert(returnedValue == nullptr);
                 Assert(calledFunction == nullptr);
             }
@@ -66,10 +66,10 @@ namespace Js
         virtual bool CanHalt(InterpreterHaltState* pHaltState) = 0;
         virtual void DispatchHalt(InterpreterHaltState* pHaltState) = 0;
         virtual void CleanupHalt() = 0;
-        virtual bool IsInClosedState() { return false; }
+        virtual bool IsInClosedState() {LOGMEIN("DiagProbe.h] 68\n"); return false; }
 
         // Mentions the policy if the hitting a breakpoint is allowed (based on the fact whether we are at callback from the breakpoint)
-        virtual bool CanAllowBreakpoints() { return false; }
+        virtual bool CanAllowBreakpoints() {LOGMEIN("DiagProbe.h] 71\n"); return false; }
     };
 
     struct Probe : HaltCallback
@@ -94,10 +94,10 @@ namespace Js
 
     struct DebuggerOptionsCallback
     {
-        virtual bool IsExceptionReportingEnabled() { return true; }
-        virtual bool IsFirstChanceExceptionEnabled() { return false; }
-        virtual bool IsNonUserCodeSupportEnabled() { return false; }
-        virtual bool IsLibraryStackFrameSupportEnabled() { return false; }
+        virtual bool IsExceptionReportingEnabled() {LOGMEIN("DiagProbe.h] 96\n"); return true; }
+        virtual bool IsFirstChanceExceptionEnabled() {LOGMEIN("DiagProbe.h] 97\n"); return false; }
+        virtual bool IsNonUserCodeSupportEnabled() {LOGMEIN("DiagProbe.h] 98\n"); return false; }
+        virtual bool IsLibraryStackFrameSupportEnabled() {LOGMEIN("DiagProbe.h] 99\n"); return false; }
     };
 
     class StepController
@@ -125,7 +125,7 @@ namespace Js
 
         StepController();
         ~StepController()
-        {
+        {LOGMEIN("DiagProbe.h] 127\n");
             this->Deactivate();
         }
 
@@ -137,27 +137,27 @@ namespace Js
         bool ContinueFromInlineBreakpoint();
 
         ScriptContext* GetActivatedContext() const
-        {
+        {LOGMEIN("DiagProbe.h] 139\n");
             return this->pActivatedContext;
         }
 
         const StepType* GetAddressOfStepType() const
-        {
+        {LOGMEIN("DiagProbe.h] 144\n");
             return &stepType;
         }
 
         void* GetAddressOfScriptIdWhenSet() const
-        {
+        {LOGMEIN("DiagProbe.h] 149\n");
             return (void*)&scriptIdWhenSet;
         }
 
         void* GetAddressOfFrameAddress() const
-        {
+        {LOGMEIN("DiagProbe.h] 154\n");
             return (void*)&frameAddrWhenSet;
         }
 
         void SetFrameAddr(DWORD_PTR value)
-        {
+        {LOGMEIN("DiagProbe.h] 159\n");
             this->frameAddrWhenSet = value;
         }
 
@@ -166,7 +166,7 @@ namespace Js
         void StartRecordingCall();
         void EndRecordingCall(Js::Var returnValue, Js::JavascriptFunction * function);
 
-        ReturnedValueList* GetReturnedValueList() const { return this->returnedValueList; }
+        ReturnedValueList* GetReturnedValueList() const {LOGMEIN("DiagProbe.h] 168\n"); return this->returnedValueList; }
         void ResetReturnedValueList();
         void HandleResumeAction(Js::InterpreterHaltState* haltState, BREAKRESUMEACTION resumeAction);
 

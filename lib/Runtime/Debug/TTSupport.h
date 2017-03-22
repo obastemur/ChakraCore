@@ -60,7 +60,7 @@ void _NOINLINE __declspec(noreturn) TTDAbort_fatal_error(const char* msg);
 //Memory allocators used by the TT code
 template <typename T>
 T* TTD_MEM_ALLOC_CHECK(T* alloc)
-{
+{LOGMEIN("TTSupport.h] 62\n");
     if(alloc == nullptr)
     {
         TTDAssert(false, "OOM in TTD");
@@ -151,7 +151,7 @@ typedef const char16* TTD_WELLKNOWN_TOKEN;
 #define TTD_MARK_TABLE_HASH2(X, P) ((uint32)((X) % P))
 #define TTD_MARK_TABLE_INDEX(X, M) ((uint32)((X) & (M - 1)))
 
-#define TTD_TABLE_FACTORLOAD_BASE(C, P1, P2) if(targetSize < C) { *powerOf2 = C; *closePrime = P1; *midPrime = P2; }
+#define TTD_TABLE_FACTORLOAD_BASE(C, P1, P2) if(targetSize < C) {LOGMEIN("TTSupport.h] 153\n"); *powerOf2 = C; *closePrime = P1; *midPrime = P2; }
 #define TTD_TABLE_FACTORLOAD(C, P1, P2) else TTD_TABLE_FACTORLOAD_BASE(C, P1, P2)
 #define TTD_TABLE_FACTORLOAD_FINAL(C, P1, P2) else { *powerOf2 = C; *closePrime = P1; *midPrime = P2; }
 
@@ -419,7 +419,7 @@ namespace TTD
 
         //Get a new block in the slab
         void AddNewBlock()
-        {
+        {LOGMEIN("TTSupport.h] 421\n");
             byte* allocBlock = TT_HEAP_ALLOC_ARRAY(byte, this->m_slabBlockSize);
             TTDAssert((reinterpret_cast<uint64>(allocBlock) & 0x3) == 0, "We have non-word aligned allocations so all our later work is not so useful");
 
@@ -441,7 +441,7 @@ namespace TTD
         //Allocate a byte* of the the template size (word aligned)
         template <size_t n>
         byte* SlabAllocateTypeRawSize()
-        {
+        {LOGMEIN("TTSupport.h] 443\n");
             TTDAssert(this->m_reserveActiveBytes == 0, "Don't double allocate memory.");
             TTDAssert(n <= TTD_SLAB_LARGE_BLOCK_SIZE, "Don't allocate large requests in the bump pool.");
 
@@ -449,7 +449,7 @@ namespace TTD
             TTDAssert((desiredsize % 4 == 0) & (desiredsize >= (n + canUnlink)) & (desiredsize < TTD_SLAB_BLOCK_USABLE_SIZE(this->m_slabBlockSize)), "We can never allocate a block this big with the slab allocator!!");
 
             if(this->m_currPos + desiredsize > this->m_endPos)
-            {
+            {LOGMEIN("TTSupport.h] 451\n");
                 this->AddNewBlock();
             }
 
@@ -461,7 +461,7 @@ namespace TTD
 #endif
 
             if(canUnlink)
-            {
+            {LOGMEIN("TTSupport.h] 463\n");
                 TTDAssert(canUnlink == sizeof(ptrdiff_t), "We need enough space for a ptr to the meta-data.");
 
                 //record the block associated with this allocation
@@ -479,7 +479,7 @@ namespace TTD
         //Allocate a byte* of the the given size (word aligned)
         template <bool reserve, bool commit>
         byte* SlabAllocateRawSize(size_t requestedBytes)
-        {
+        {LOGMEIN("TTSupport.h] 481\n");
             TTDAssert(requestedBytes != 0, "Don't allocate empty arrays.");
             TTDAssert(requestedBytes <= TTD_SLAB_LARGE_BLOCK_SIZE, "Don't allocate large requests in the bump pool.");
 
@@ -488,18 +488,18 @@ namespace TTD
             TTDAssert((desiredsize % 4 == 0) & (desiredsize >= (requestedBytes + canUnlink)) & (desiredsize < TTD_SLAB_BLOCK_USABLE_SIZE(this->m_slabBlockSize)), "We can never allocate a block this big with the slab allocator!!");
 
             if(reserve)
-            {
+            {LOGMEIN("TTSupport.h] 490\n");
                 TTDAssert(this->m_reserveActiveBytes == 0, "Don't double allocate memory.");
 
                 if(this->m_currPos + desiredsize > this->m_endPos)
-                {
+                {LOGMEIN("TTSupport.h] 494\n");
                     this->AddNewBlock();
                 }
 
                 res = this->m_currPos;
 
                 if(canUnlink)
-                {
+                {LOGMEIN("TTSupport.h] 501\n");
                     TTDAssert(canUnlink == sizeof(ptrdiff_t), "We need enough space for a ptr to the meta-data.");
 
                     //record the block associated with this allocation
@@ -510,7 +510,7 @@ namespace TTD
             }
 
             if(commit)
-            {
+            {LOGMEIN("TTSupport.h] 512\n");
                 this->m_currPos += desiredsize;
 
 #if ENABLE_TTD_INTERNAL_DIAGNOSTICS
@@ -518,18 +518,18 @@ namespace TTD
 #endif
 
                 if(canUnlink)
-                {
+                {LOGMEIN("TTSupport.h] 520\n");
                     this->m_headBlock->RefCounter++;
                 }
             }
 
             if(reserve && !commit)
-            {
+            {LOGMEIN("TTSupport.h] 526\n");
                 this->m_reserveActiveBytes = desiredsize;
             }
 
             if(!reserve && commit)
-            {
+            {LOGMEIN("TTSupport.h] 531\n");
                 TTDAssert(desiredsize <= this->m_reserveActiveBytes, "We are commiting more that we reserved.");
 
                 this->m_reserveActiveBytes = 0;
@@ -540,13 +540,13 @@ namespace TTD
 
         //Commit the allocation of a large block
         void CommitLargeBlockAllocation(LargeSlabBlock* newBlock, size_t blockSize)
-        {
+        {LOGMEIN("TTSupport.h] 542\n");
 #if ENABLE_TTD_INTERNAL_DIAGNOSTICS
             this->m_totalAllocatedSize += blockSize;
 #endif
 
             if(this->m_largeBlockList != nullptr)
-            {
+            {LOGMEIN("TTSupport.h] 548\n");
                 this->m_largeBlockList->Next = newBlock;
             }
 
@@ -556,7 +556,7 @@ namespace TTD
         //Allocate a byte* of the the given size (word aligned) in the large block pool
         template<bool commit>
         byte* SlabAllocateLargeBlockSize(size_t requestedBytes)
-        {
+        {LOGMEIN("TTSupport.h] 558\n");
             TTDAssert(requestedBytes > TTD_SLAB_LARGE_BLOCK_SIZE, "Don't allocate small requests in the large pool.");
 
             uint32 desiredsize = TTD_WORD_ALIGN_ALLOC_SIZE(requestedBytes + TTD_LARGE_SLAB_BLOCK_SIZE); //make alloc size word aligned
@@ -576,7 +576,7 @@ namespace TTD
             newBlock->MetaDataSential = 0;
 
             if(commit)
-            {
+            {LOGMEIN("TTSupport.h] 578\n");
                 this->CommitLargeBlockAllocation(newBlock, desiredsize);
             }
             else
@@ -591,7 +591,7 @@ namespace TTD
     public:
         SlabAllocatorBase(uint32 slabBlockSize)
             : m_largeBlockList(nullptr), m_slabBlockSize(slabBlockSize)
-        {
+        {LOGMEIN("TTSupport.h] 593\n");
             byte* allocBlock = TT_HEAP_ALLOC_ARRAY(byte, this->m_slabBlockSize);
             TTDAssert((reinterpret_cast<uint64>(allocBlock) & 0x3) == 0, "We have non-word aligned allocations so all our later work is not so useful");
 
@@ -617,10 +617,10 @@ namespace TTD
         }
 
         ~SlabAllocatorBase()
-        {
+        {LOGMEIN("TTSupport.h] 619\n");
             SlabBlock* currBlock = this->m_headBlock;
             while(currBlock != nullptr)
-            {
+            {LOGMEIN("TTSupport.h] 622\n");
                 SlabBlock* tmp = currBlock;
                 currBlock = currBlock->Previous;
 
@@ -629,7 +629,7 @@ namespace TTD
 
             LargeSlabBlock* currLargeBlock = this->m_largeBlockList;
             while(currLargeBlock != nullptr)
-            {
+            {LOGMEIN("TTSupport.h] 631\n");
                 LargeSlabBlock* tmp = currLargeBlock;
                 currLargeBlock = currLargeBlock->Previous;
 
@@ -649,9 +649,9 @@ namespace TTD
 
         //clone a null terminated char16* string (or nullptr) into the allocator -- currently only used for wellknown tokens
         const char16* CopyRawNullTerminatedStringInto(const char16* str)
-        {
+        {LOGMEIN("TTSupport.h] 651\n");
             if(str == nullptr)
-            {
+            {LOGMEIN("TTSupport.h] 653\n");
                 return nullptr;
             }
             else
@@ -668,7 +668,7 @@ namespace TTD
 
         //clone a string into the allocator of a known length
         void CopyStringIntoWLength(const char16* str, uint32 length, TTString& into)
-        {
+        {LOGMEIN("TTSupport.h] 670\n");
             TTDAssert(str != nullptr, "Not allowed for string + length");
 
             into.Length = length;
@@ -681,7 +681,7 @@ namespace TTD
 
         //initialize and allocate the memory for a string of a given length (but don't set contents yet)
         void InitializeAndAllocateWLength(uint32 length, TTString& into)
-        {
+        {LOGMEIN("TTSupport.h] 683\n");
             into.Length = length;
             into.Contents = this->SlabAllocateArray<char16>(into.Length + 1);
             into.Contents[0] = '\0';
@@ -689,9 +689,9 @@ namespace TTD
 
         //clone a string into the allocator
         void CopyNullTermStringInto(const char16* str, TTString& into)
-        {
+        {LOGMEIN("TTSupport.h] 691\n");
             if(str == nullptr)
-            {
+            {LOGMEIN("TTSupport.h] 693\n");
                 into.Length = 0;
                 into.Contents = nullptr;
             }
@@ -703,16 +703,16 @@ namespace TTD
 
         //Return the memory that contains useful data in this slab & the same as the reserved space
         void ComputeMemoryUsed(uint64* usedSpace, uint64* reservedSpace) const
-        {
+        {LOGMEIN("TTSupport.h] 705\n");
             uint64 memreserved = 0;
 
             for(SlabBlock* currBlock = this->m_headBlock; currBlock != nullptr; currBlock = currBlock->Previous)
-            {
+            {LOGMEIN("TTSupport.h] 709\n");
                 memreserved += (uint64)this->m_slabBlockSize;
             }
 
             for(LargeSlabBlock* currLargeBlock = this->m_largeBlockList; currLargeBlock != nullptr; currLargeBlock = currLargeBlock->Previous)
-            {
+            {LOGMEIN("TTSupport.h] 714\n");
                 memreserved += (uint64)(currLargeBlock->TotalBlockSize);
             }
 
@@ -728,24 +728,24 @@ namespace TTD
         //Allocate with "new" from the slab allocator
         template<typename T, typename... Args>
         T* SlabNew(Args... args)
-        {
+        {LOGMEIN("TTSupport.h] 730\n");
             return new (this->SlabAllocateTypeRawSize<sizeof(T)>()) T(args...);
         }
 
         //Allocate a T* of the size needed for the template type
         template <typename T>
         T* SlabAllocateStruct()
-        {
+        {LOGMEIN("TTSupport.h] 737\n");
             return (T*)this->SlabAllocateTypeRawSize<sizeof(T)>();
         }
 
         //Allocate T* of the size needed to hold count elements of the given type
         template <typename T>
         T* SlabAllocateArray(size_t count)
-        {
+        {LOGMEIN("TTSupport.h] 744\n");
             size_t size = count * sizeof(T);
             if(size <= TTD_SLAB_LARGE_BLOCK_SIZE)
-            {
+            {LOGMEIN("TTSupport.h] 747\n");
                 return (T*)this->SlabAllocateRawSize<true, true>(size);
             }
             else
@@ -757,12 +757,12 @@ namespace TTD
         //Allocate T* of the size needed to hold count elements of the given type
         template <typename T>
         T* SlabAllocateArrayZ(size_t count)
-        {
+        {LOGMEIN("TTSupport.h] 759\n");
             T* res = nullptr;
 
             size_t size = count * sizeof(T);
             if(size <= TTD_SLAB_LARGE_BLOCK_SIZE)
-            {
+            {LOGMEIN("TTSupport.h] 764\n");
                 res = (T*)this->SlabAllocateRawSize<true, true>(size);
             }
             else
@@ -777,9 +777,9 @@ namespace TTD
         //Allocate T* of the size needed to hold count (a compile time constant) number of elements of the given type
         template <typename T, size_t count>
         T* SlabAllocateFixedSizeArray()
-        {
+        {LOGMEIN("TTSupport.h] 779\n");
             if(count * sizeof(T) <= TTD_SLAB_LARGE_BLOCK_SIZE)
-            {
+            {LOGMEIN("TTSupport.h] 781\n");
                 return (T*)this->SlabAllocateRawSize<true, true>(count * sizeof(T));
             }
             else
@@ -791,10 +791,10 @@ namespace TTD
         //Reserve BUT DO NOT COMMIT and allocation of size needed to hold count elements of the given type
         template <typename T>
         T* SlabReserveArraySpace(size_t count)
-        {
+        {LOGMEIN("TTSupport.h] 793\n");
             size_t size = count * sizeof(T);
             if(size <= TTD_SLAB_LARGE_BLOCK_SIZE)
-            {
+            {LOGMEIN("TTSupport.h] 796\n");
                 return (T*)this->SlabAllocateRawSize<true, false>(size);
             }
             else
@@ -806,12 +806,12 @@ namespace TTD
         //Commit the allocation of count (or fewer) elements of the given type that were reserved previously
         template <typename T>
         void SlabCommitArraySpace(size_t actualCount, size_t reservedCount)
-        {
+        {LOGMEIN("TTSupport.h] 808\n");
             TTDAssert(this->m_reserveActiveBytes != 0, "We don't have anything reserved.");
 
             size_t reservedSize = reservedCount * sizeof(T);
             if(reservedSize <= TTD_SLAB_LARGE_BLOCK_SIZE)
-            {
+            {LOGMEIN("TTSupport.h] 813\n");
                 TTDAssert(this->m_reserveActiveLargeBlock == nullptr, "We should not have a large block active!!!");
 
                 size_t actualSize = actualCount * sizeof(T);
@@ -831,12 +831,12 @@ namespace TTD
         //Abort the allocation of the elements of the given type that were reserved previously
         template <typename T>
         void SlabAbortArraySpace(size_t reservedCount)
-        {
+        {LOGMEIN("TTSupport.h] 833\n");
             TTDAssert(this->m_reserveActiveBytes != 0, "We don't have anything reserved.");
 
             size_t reservedSize = reservedCount * sizeof(T);
             if(reservedSize <= TTD_SLAB_LARGE_BLOCK_SIZE)
-            {
+            {LOGMEIN("TTSupport.h] 838\n");
                 TTDAssert(this->m_reserveActiveLargeBlock == nullptr, "We should not have a large block active!!!");
 
                 this->m_reserveActiveBytes = 0;
@@ -854,7 +854,7 @@ namespace TTD
 
         //If allowed unlink the memory allocation specified and free the block if it is no longer used by anyone
         void UnlinkAllocation(const void* allocation)
-        {
+        {LOGMEIN("TTSupport.h] 856\n");
             TTDAssert(canUnlink != 0, "Unlink not allowed with this slab allocator.");
             TTDAssert(this->m_reserveActiveBytes == 0, "We don't have anything reserved.");
 
@@ -863,29 +863,29 @@ namespace TTD
             ptrdiff_t offset = *((ptrdiff_t*)realBase);
 
             if(offset == 0)
-            {
+            {LOGMEIN("TTSupport.h] 865\n");
                 //it is a large allocation just free it
                 LargeSlabBlock* largeBlock = (LargeSlabBlock*)(((byte*)allocation) - TTD_LARGE_SLAB_BLOCK_SIZE);
 
                 if(largeBlock == this->m_largeBlockList)
-                {
+                {LOGMEIN("TTSupport.h] 870\n");
                     TTDAssert(largeBlock->Next == nullptr, "Should always have a null next at head");
 
                     this->m_largeBlockList = this->m_largeBlockList->Previous;
                     if(this->m_largeBlockList != nullptr)
-                    {
+                    {LOGMEIN("TTSupport.h] 875\n");
                         this->m_largeBlockList->Next = nullptr;
                     }
                 }
                 else
                 {
                     if(largeBlock->Next != nullptr)
-                    {
+                    {LOGMEIN("TTSupport.h] 882\n");
                         largeBlock->Next->Previous = largeBlock->Previous;
                     }
 
                     if(largeBlock->Previous != nullptr)
-                    {
+                    {LOGMEIN("TTSupport.h] 887\n");
                         largeBlock->Previous->Next = largeBlock->Next;
                     }
                 }
@@ -899,9 +899,9 @@ namespace TTD
 
                 block->RefCounter--;
                 if(block->RefCounter == 0)
-                {
+                {LOGMEIN("TTSupport.h] 901\n");
                     if(block == this->m_headBlock)
-                    {
+                    {LOGMEIN("TTSupport.h] 903\n");
                         //we always need a head block to allocate out of -- so instead of deleting just reset it
                         this->m_currPos = this->m_headBlock->BlockData;
                         this->m_endPos = this->m_headBlock->BlockData + TTD_SLAB_BLOCK_USABLE_SIZE(this->m_slabBlockSize);
@@ -913,12 +913,12 @@ namespace TTD
                     else
                     {
                         if(block->Next != nullptr)
-                        {
+                        {LOGMEIN("TTSupport.h] 915\n");
                             block->Next->Previous = block->Previous;
                         }
 
                         if(block->Previous != nullptr)
-                        {
+                        {LOGMEIN("TTSupport.h] 920\n");
                             block->Previous->Next = block->Next;
                         }
 
@@ -930,9 +930,9 @@ namespace TTD
 
         //Unlink the memory used by a string
         void UnlinkString(const TTString& str)
-        {
+        {LOGMEIN("TTSupport.h] 932\n");
             if(str.Contents != nullptr)
-            {
+            {LOGMEIN("TTSupport.h] 934\n");
                 this->UnlinkAllocation(str.Contents);
             }
         }
@@ -973,7 +973,7 @@ namespace TTD
         SlabAllocator* m_alloc;
 
         void AddArrayLink()
-        {
+        {LOGMEIN("TTSupport.h] 975\n");
             UnorderedArrayListLink* copiedOldBlock = this->m_alloc->template SlabAllocateStruct<UnorderedArrayListLink>();
             *copiedOldBlock = this->m_inlineHeadBlock;
 
@@ -989,7 +989,7 @@ namespace TTD
     public:
         UnorderedArrayList(SlabAllocator* alloc)
             : m_alloc(alloc)
-        {
+        {LOGMEIN("TTSupport.h] 991\n");
             T* newBlockData = this->m_alloc->template SlabAllocateFixedSizeArray<T, allocSize>();
 
             this->m_inlineHeadBlock.BlockData = newBlockData;
@@ -1000,18 +1000,18 @@ namespace TTD
         }
 
         ~UnorderedArrayList()
-        {
+        {LOGMEIN("TTSupport.h] 1002\n");
             //everything is slab allocated so disapears with that
         }
 
         //Add the entry to the unordered list
         void AddEntry(T data)
-        {
+        {LOGMEIN("TTSupport.h] 1008\n");
             TTDAssert(this->m_inlineHeadBlock.CurrPos <= this->m_inlineHeadBlock.EndPos, "We are off the end of the array");
             TTDAssert((((byte*)this->m_inlineHeadBlock.CurrPos) - ((byte*)this->m_inlineHeadBlock.BlockData)) / sizeof(T) <= allocSize, "We are off the end of the array");
 
             if(this->m_inlineHeadBlock.CurrPos == this->m_inlineHeadBlock.EndPos)
-            {
+            {LOGMEIN("TTSupport.h] 1013\n");
                 this->AddArrayLink();
             }
 
@@ -1022,12 +1022,12 @@ namespace TTD
         //Get the next uninitialized entry (at the front of the sequence)
         //We expect the caller to initialize this memory appropriately
         T* NextOpenEntry()
-        {
+        {LOGMEIN("TTSupport.h] 1024\n");
             TTDAssert(this->m_inlineHeadBlock.CurrPos <= this->m_inlineHeadBlock.EndPos, "We are off the end of the array");
             TTDAssert((((byte*)this->m_inlineHeadBlock.CurrPos) - ((byte*)this->m_inlineHeadBlock.BlockData)) / sizeof(T) <= allocSize, "We are off the end of the array");
 
             if(this->m_inlineHeadBlock.CurrPos == this->m_inlineHeadBlock.EndPos)
-            {
+            {LOGMEIN("TTSupport.h] 1029\n");
                 this->AddArrayLink();
             }
 
@@ -1039,12 +1039,12 @@ namespace TTD
 
         //NOT constant time
         uint32 Count() const
-        {
+        {LOGMEIN("TTSupport.h] 1041\n");
             size_t count = (((byte*)this->m_inlineHeadBlock.CurrPos) - ((byte*)this->m_inlineHeadBlock.BlockData)) / sizeof(T);
             TTDAssert(count <= allocSize, "We somehow wrote in too much data.");
 
             for(UnorderedArrayListLink* curr = this->m_inlineHeadBlock.Next; curr != nullptr; curr = curr->Next)
-            {
+            {LOGMEIN("TTSupport.h] 1046\n");
                 size_t ncount = (((byte*)curr->CurrPos) - ((byte*)curr->BlockData)) / sizeof(T);
                 TTDAssert(ncount <= allocSize, "We somehow wrote in too much data.");
 
@@ -1063,37 +1063,37 @@ namespace TTD
         public:
             Iterator(const UnorderedArrayListLink& head)
                 : m_currLink(head), m_currEntry(head.BlockData)
-            {
+            {LOGMEIN("TTSupport.h] 1065\n");
                 //check for empty list and invalidate the iter if it is
                 if(this->m_currEntry == this->m_currLink.CurrPos)
-                {
+                {LOGMEIN("TTSupport.h] 1068\n");
                     this->m_currEntry = nullptr;
                 }
             }
 
             const T* Current() const
-            {
+            {LOGMEIN("TTSupport.h] 1074\n");
                 return this->m_currEntry;
             }
 
             T* Current()
-            {
+            {LOGMEIN("TTSupport.h] 1079\n");
                 return this->m_currEntry;
             }
 
             bool IsValid() const
-            {
+            {LOGMEIN("TTSupport.h] 1084\n");
                 return this->m_currEntry != nullptr;
             }
 
             void MoveNext()
-            {
+            {LOGMEIN("TTSupport.h] 1089\n");
                 this->m_currEntry++;
 
                 if(this->m_currEntry == this->m_currLink.CurrPos)
-                {
+                {LOGMEIN("TTSupport.h] 1093\n");
                     if(this->m_currLink.Next == nullptr)
-                    {
+                    {LOGMEIN("TTSupport.h] 1095\n");
                         this->m_currEntry = nullptr;
                     }
                     else
@@ -1106,7 +1106,7 @@ namespace TTD
         };
 
         Iterator GetIterator() const
-        {
+        {LOGMEIN("TTSupport.h] 1108\n");
             return Iterator(this->m_inlineHeadBlock);
         }
     };
@@ -1138,7 +1138,7 @@ namespace TTD
 
         template <bool findEmpty>
         Entry* FindSlotForId(Tag id) const
-        {
+        {LOGMEIN("TTSupport.h] 1140\n");
             TTDAssert(this->m_h1Prime != 0 && this->m_h2Prime != 0, "Not valid!!");
             TTDAssert(this->m_hashArray != nullptr, "Not valid!!");
 
@@ -1147,7 +1147,7 @@ namespace TTD
             //h1Prime is less than table size by construction so we dont need to re-index
             uint32 primaryIndex = TTD_DICTIONARY_HASH(id, this->m_h1Prime);
             if(this->m_hashArray[primaryIndex].Key == searchKey)
-            {
+            {LOGMEIN("TTSupport.h] 1149\n");
                 return (this->m_hashArray + primaryIndex);
             }
 
@@ -1155,10 +1155,10 @@ namespace TTD
             uint32 offset = TTD_DICTIONARY_HASH(id, this->m_h2Prime);
             uint32 probeIndex = TTD_DICTIONARY_INDEX(primaryIndex + offset, this->m_capacity);
             while(true)
-            {
+            {LOGMEIN("TTSupport.h] 1157\n");
                 Entry* curr = (this->m_hashArray + probeIndex);
                 if(curr->Key == searchKey)
-                {
+                {LOGMEIN("TTSupport.h] 1160\n");
                     return curr;
                 }
                 probeIndex = TTD_DICTIONARY_INDEX(probeIndex + 1, this->m_capacity);
@@ -1168,14 +1168,14 @@ namespace TTD
         }
 
         void InitializeEntry(Entry* entry, Tag id, const T& item)
-        {
+        {LOGMEIN("TTSupport.h] 1170\n");
             entry->Key = id;
             entry->Data = item;
         }
 
     public:
         void Unload()
-        {
+        {LOGMEIN("TTSupport.h] 1177\n");
             if(this->m_hashArray != nullptr)
             {
                 TT_HEAP_FREE_ARRAY(Entry, this->m_hashArray, this->m_capacity);
@@ -1190,7 +1190,7 @@ namespace TTD
         }
 
         void Initialize(uint32 capacity)
-        {
+        {LOGMEIN("TTSupport.h] 1192\n");
             TTDAssert(this->m_hashArray == nullptr, "Should not already be initialized.");
 
             uint32 desiredSize = capacity * TTD_DICTIONARY_LOAD_FACTOR;
@@ -1202,16 +1202,16 @@ namespace TTD
 
         TTDIdentifierDictionary()
             : m_h1Prime(0), m_h2Prime(0), m_capacity(0), m_hashArray(nullptr), m_count(0)
-        {
+        {LOGMEIN("TTSupport.h] 1204\n");
         }
 
         ~TTDIdentifierDictionary()
-        {
+        {LOGMEIN("TTSupport.h] 1208\n");
             this->Unload();
         }
 
         void MoveDataInto(TTDIdentifierDictionary& src)
-        {
+        {LOGMEIN("TTSupport.h] 1213\n");
             this->m_h1Prime = src.m_h1Prime;
             this->m_h2Prime = src.m_h2Prime;
             this->m_capacity = src.m_capacity;
@@ -1223,29 +1223,29 @@ namespace TTD
         }
 
         bool IsValid() const
-        {
+        {LOGMEIN("TTSupport.h] 1225\n");
             return this->m_hashArray != nullptr;
         }
 
         uint32 Count() const
-        {
+        {LOGMEIN("TTSupport.h] 1230\n");
             return this->m_count;
         }
 
         bool Contains(Tag id) const
-        {
+        {LOGMEIN("TTSupport.h] 1235\n");
             TTDAssert(this->m_h1Prime != 0 && this->m_h2Prime != 0, "Not valid!!");
             TTDAssert(this->m_hashArray != nullptr, "Not valid!!");
 
             //h1Prime is less than table size by construction so we dont need to re-index
             uint32 primaryIndex = TTD_DICTIONARY_HASH(id, this->m_h1Prime);
             if(this->m_hashArray[primaryIndex].Key == id)
-            {
+            {LOGMEIN("TTSupport.h] 1242\n");
                 return true;
             }
 
             if(this->m_hashArray[primaryIndex].Key == 0)
-            {
+            {LOGMEIN("TTSupport.h] 1247\n");
                 return false;
             }
 
@@ -1253,15 +1253,15 @@ namespace TTD
             uint32 offset = TTD_DICTIONARY_HASH(id, this->m_h2Prime);
             uint32 probeIndex = TTD_DICTIONARY_INDEX(primaryIndex + offset, this->m_capacity);
             while(true)
-            {
+            {LOGMEIN("TTSupport.h] 1255\n");
                 Entry* curr = (this->m_hashArray + probeIndex);
                 if(curr->Key == id)
-                {
+                {LOGMEIN("TTSupport.h] 1258\n");
                     return true;
                 }
 
                 if(curr->Key == 0)
-                {
+                {LOGMEIN("TTSupport.h] 1263\n");
                     return false;
                 }
 
@@ -1272,7 +1272,7 @@ namespace TTD
         }
 
         void AddItem(Tag id, const T& item)
-        {
+        {LOGMEIN("TTSupport.h] 1274\n");
             Entry* entry = this->FindSlotForId<true>(id);
 
             InitializeEntry(entry, id, item);
@@ -1281,7 +1281,7 @@ namespace TTD
 
         //Lookup an item which is known to exist in the dictionary (and errors if it is not present)
         const T& LookupKnownItem(Tag id) const
-        {
+        {LOGMEIN("TTSupport.h] 1283\n");
             Entry* entry = this->FindSlotForId<false>(id);
 
             return entry->Data;
@@ -1335,7 +1335,7 @@ namespace TTD
         uint32 m_handlerCounts[(uint32)MarkTableTag::KindTagCount];
 
         int32 FindIndexForKey(uint64 addr) const
-        {
+        {LOGMEIN("TTSupport.h] 1337\n");
             TTDAssert(this->m_addrArray != nullptr, "Not valid!!");
 
             uint32 primaryMask = this->m_capcity - 1;
@@ -1343,7 +1343,7 @@ namespace TTD
             uint32 primaryIndex = TTD_MARK_TABLE_HASH1(addr, this->m_capcity);
             uint64 primaryAddr = this->m_addrArray[primaryIndex];
             if((primaryAddr == addr) | (primaryAddr == 0))
-            {
+            {LOGMEIN("TTSupport.h] 1345\n");
                 return (int32)primaryIndex;
             }
 
@@ -1351,10 +1351,10 @@ namespace TTD
             uint32 offset = TTD_MARK_TABLE_HASH2(addr, this->m_h2Prime);
             uint32 probeIndex = TTD_MARK_TABLE_INDEX(primaryIndex + offset, this->m_capcity);
             while(true)
-            {
+            {LOGMEIN("TTSupport.h] 1353\n");
                 uint64 currAddr = this->m_addrArray[probeIndex];
                 if((currAddr == addr) | (currAddr == 0))
-                {
+                {LOGMEIN("TTSupport.h] 1356\n");
                     return (int32)probeIndex;
                 }
                 probeIndex = TTD_MARK_TABLE_INDEX(probeIndex + 1, this->m_capcity);
@@ -1364,7 +1364,7 @@ namespace TTD
         }
 
         void Grow()
-        {
+        {LOGMEIN("TTSupport.h] 1366\n");
             uint32 oldCapacity = this->m_capcity;
             uint64* oldAddrArray = this->m_addrArray;
             MarkTableTag* oldMarkArray = this->m_markArray;
@@ -1379,7 +1379,7 @@ namespace TTD
             this->m_markArray = TT_HEAP_ALLOC_ARRAY_ZERO(MarkTableTag, this->m_capcity);
 
             for(uint32 i = 0; i < oldCapacity; ++i)
-            {
+            {LOGMEIN("TTSupport.h] 1381\n");
                 int32 idx = this->FindIndexForKey(oldAddrArray[i]);
                 this->m_addrArray[idx] = oldAddrArray[i];
                 this->m_markArray[idx] = oldMarkArray[i];
@@ -1390,10 +1390,10 @@ namespace TTD
         }
 
         int32 FindIndexForKeyWGrow(const void* addr)
-        {
+        {LOGMEIN("TTSupport.h] 1392\n");
             //keep the load factor < 25%
             if((this->m_capcity >> 2) < this->m_count)
-            {
+            {LOGMEIN("TTSupport.h] 1395\n");
                 this->Grow();
             }
 
@@ -1409,14 +1409,14 @@ namespace TTD
         //Check if the address has the given tag (return true if it *DOES NOT*) and put the mark tag value in the location
         template <MarkTableTag kindtag>
         bool MarkAndTestAddr(const void* vaddr)
-        {
+        {LOGMEIN("TTSupport.h] 1411\n");
             int32 idx = this->FindIndexForKeyWGrow(vaddr);
 
             //we really want to do the check on m_markArray but since we know nothing has been cleared we can check the addrArray for better cache behavior
             bool notMarked = this->m_addrArray[idx] == 0;
 
             if(notMarked)
-            {
+            {LOGMEIN("TTSupport.h] 1418\n");
                 this->m_addrArray[idx] = reinterpret_cast<uint64>(vaddr);
                 this->m_markArray[idx] = kindtag;
 
@@ -1431,18 +1431,18 @@ namespace TTD
         //Mark the address as containing a well known object of the given kind
         template <MarkTableTag specialtag>
         void MarkAddrWithSpecialInfo(const void* vaddr)
-        {
+        {LOGMEIN("TTSupport.h] 1433\n");
             int32 idx = this->FindIndexForKey(reinterpret_cast<uint64>(vaddr));
 
             if(this->m_markArray[idx] != MarkTableTag::Clear)
-            {
+            {LOGMEIN("TTSupport.h] 1437\n");
                 this->m_markArray[idx] |= specialtag;
             }
         }
 
         //Return true if the location is marked
         bool IsMarked(const void* vaddr) const
-        {
+        {LOGMEIN("TTSupport.h] 1444\n");
             int32 idx = this->FindIndexForKey(reinterpret_cast<uint64>(vaddr));
 
             return this->m_markArray[idx] != MarkTableTag::Clear;
@@ -1450,7 +1450,7 @@ namespace TTD
 
         //Return true if the location is tagged as well-known
         bool IsTaggedAsWellKnown(const void* vaddr) const
-        {
+        {LOGMEIN("TTSupport.h] 1452\n");
             int32 idx = this->FindIndexForKey(reinterpret_cast<uint64>(vaddr));
 
             return (this->m_markArray[idx] & MarkTableTag::JsWellKnownObj) != MarkTableTag::Clear;
@@ -1458,9 +1458,9 @@ namespace TTD
 
         //return clear if no more addresses
         MarkTableTag GetTagValue() const
-        {
+        {LOGMEIN("TTSupport.h] 1460\n");
             if(this->m_iterPos >= this->m_capcity)
-            {
+            {LOGMEIN("TTSupport.h] 1462\n");
                 return MarkTableTag::Clear;
             }
             else
@@ -1470,19 +1470,19 @@ namespace TTD
         }
 
         bool GetTagValueIsWellKnown() const
-        {
+        {LOGMEIN("TTSupport.h] 1472\n");
             return (this->m_markArray[this->m_iterPos] & MarkTableTag::JsWellKnownObj) != MarkTableTag::Clear;
         }
 
         template<typename T>
         T GetPtrValue() const
-        {
+        {LOGMEIN("TTSupport.h] 1478\n");
             return reinterpret_cast<T>(this->m_addrArray[this->m_iterPos]);
         }
 
         //Clear the mark at the given address
         void ClearMark(const void* vaddr)
-        {
+        {LOGMEIN("TTSupport.h] 1484\n");
             int32 idx = this->FindIndexForKey(reinterpret_cast<uint64>(vaddr));
 
             //DON'T CLEAR THE ADDR JUST CLEAR THE MARK
@@ -1491,20 +1491,20 @@ namespace TTD
 
         template <MarkTableTag kindtag>
         uint32 GetCountForTag()
-        {
+        {LOGMEIN("TTSupport.h] 1493\n");
             return this->m_handlerCounts[(uint32)kindtag];
         }
 
         void MoveToNextAddress()
-        {
+        {LOGMEIN("TTSupport.h] 1498\n");
             this->m_iterPos++;
 
             while(this->m_iterPos < this->m_capcity)
-            {
+            {LOGMEIN("TTSupport.h] 1502\n");
                 MarkTableTag tag = this->m_markArray[this->m_iterPos];
 
                 if((tag & MarkTableTag::AllKindMask) != MarkTableTag::Clear)
-                {
+                {LOGMEIN("TTSupport.h] 1506\n");
                     return;
                 }
 
@@ -1513,11 +1513,11 @@ namespace TTD
         }
 
         void InitializeIter()
-        {
+        {LOGMEIN("TTSupport.h] 1515\n");
             this->m_iterPos = 0;
 
             if(this->m_markArray[0] == MarkTableTag::Clear)
-            {
+            {LOGMEIN("TTSupport.h] 1519\n");
                 this->MoveToNextAddress();
             }
         }

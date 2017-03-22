@@ -12,13 +12,13 @@ namespace Js
 #endif
 
     void* AsmJsJitTemplate::InitTemplateData()
-    {
+    {LOGMEIN("AsmJsJitTemplate.cpp] 14\n");
         __debugbreak();
         return nullptr;
     }
 
     void AsmJsJitTemplate::FreeTemplateData(void* userData)
-    {
+    {LOGMEIN("AsmJsJitTemplate.cpp] 20\n");
         __debugbreak();
     }
 }

@@ -21,7 +21,7 @@ namespace TTD
         //Handle the replay of the result of an action for the the given action type and tag
         template <typename T, EventKind tag>
         void JsRTActionHandleResultForReplay(ThreadContextTTD* executeContext, const EventLogEntry* evt, Js::Var result)
-        {
+        {LOGMEIN("TTActionEvents.h] 23\n");
             TTDVar origResult = GetInlineEventDataAs<T, tag>(evt)->Result;
             PassVarToHostInReplay(executeContext, origResult, result);
         }
@@ -39,7 +39,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTVarsArgumentAction_Emit(const EventLogEntry* evt, FileWriter* writer, ThreadContext* threadContext)
-        {
+        {LOGMEIN("TTActionEvents.h] 41\n");
             const JsRTVarsArgumentAction* vAction = GetInlineEventDataAs<JsRTVarsArgumentAction, tag>(evt);
 
             writer->WriteKey(NSTokens::Key::argRetVal, NSTokens::Separator::CommaSeparator);
@@ -54,7 +54,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTVarsArgumentAction_Parse(EventLogEntry* evt, ThreadContext* threadContext, FileReader* reader, UnlinkableSlabAllocator& alloc)
-        {
+        {LOGMEIN("TTActionEvents.h] 56\n");
             JsRTVarsArgumentAction* vAction = GetInlineEventDataAs<JsRTVarsArgumentAction, tag>(evt);
 
             reader->ReadKey(NSTokens::Key::argRetVal, true);
@@ -78,7 +78,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTVarsWithIntegralUnionArgumentAction_Emit(const EventLogEntry* evt, FileWriter* writer, ThreadContext* threadContext)
-        {
+        {LOGMEIN("TTActionEvents.h] 80\n");
             const JsRTVarsWithIntegralUnionArgumentAction* vAction = GetInlineEventDataAs<JsRTVarsWithIntegralUnionArgumentAction, tag>(evt);
 
             writer->WriteKey(NSTokens::Key::argRetVal, NSTokens::Separator::CommaSeparator);
@@ -94,7 +94,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTVarsWithIntegralUnionArgumentAction_Parse(EventLogEntry* evt, ThreadContext* threadContext, FileReader* reader, UnlinkableSlabAllocator& alloc)
-        {
+        {LOGMEIN("TTActionEvents.h] 96\n");
             JsRTVarsWithIntegralUnionArgumentAction* vAction = GetInlineEventDataAs<JsRTVarsWithIntegralUnionArgumentAction, tag>(evt);
 
             reader->ReadKey(NSTokens::Key::argRetVal, true);
@@ -120,7 +120,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTVarsWithBoolAndPIDArgumentAction_Emit(const EventLogEntry* evt, FileWriter* writer, ThreadContext* threadContext)
-        {
+        {LOGMEIN("TTActionEvents.h] 122\n");
             const JsRTVarsWithBoolAndPIDArgumentAction* vAction = GetInlineEventDataAs<JsRTVarsWithBoolAndPIDArgumentAction, tag>(evt);
 
             writer->WriteKey(NSTokens::Key::argRetVal, NSTokens::Separator::CommaSeparator);
@@ -137,7 +137,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTVarsWithBoolAndPIDArgumentAction_Parse(EventLogEntry* evt, ThreadContext* threadContext, FileReader* reader, UnlinkableSlabAllocator& alloc)
-        {
+        {LOGMEIN("TTActionEvents.h] 139\n");
             JsRTVarsWithBoolAndPIDArgumentAction* vAction = GetInlineEventDataAs<JsRTVarsWithBoolAndPIDArgumentAction, tag>(evt);
 
             reader->ReadKey(NSTokens::Key::argRetVal, true);
@@ -161,7 +161,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTDoubleArgumentAction_Emit(const EventLogEntry* evt, FileWriter* writer, ThreadContext* threadContext)
-        {
+        {LOGMEIN("TTActionEvents.h] 163\n");
             const JsRTDoubleArgumentAction* dblAction = GetInlineEventDataAs<JsRTDoubleArgumentAction, tag>(evt);
 
             writer->WriteKey(NSTokens::Key::argRetVal, NSTokens::Separator::CommaSeparator);
@@ -172,7 +172,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTDoubleArgumentAction_Parse(EventLogEntry* evt, ThreadContext* threadContext, FileReader* reader, UnlinkableSlabAllocator& alloc)
-        {
+        {LOGMEIN("TTActionEvents.h] 174\n");
             JsRTDoubleArgumentAction* dblAction = GetInlineEventDataAs<JsRTDoubleArgumentAction, tag>(evt);
 
             reader->ReadKey(NSTokens::Key::argRetVal, true);
@@ -190,7 +190,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTStringArgumentAction_UnloadEventMemory(EventLogEntry* evt, UnlinkableSlabAllocator& alloc)
-        {
+        {LOGMEIN("TTActionEvents.h] 192\n");
             JsRTStringArgumentAction* strAction = GetInlineEventDataAs<JsRTStringArgumentAction, tag>(evt);
 
             alloc.UnlinkString(strAction->StringValue);
@@ -198,7 +198,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTStringArgumentAction_Emit(const EventLogEntry* evt, FileWriter* writer, ThreadContext* threadContext)
-        {
+        {LOGMEIN("TTActionEvents.h] 200\n");
             const JsRTStringArgumentAction* strAction = GetInlineEventDataAs<JsRTStringArgumentAction, tag>(evt);
 
             writer->WriteKey(NSTokens::Key::argRetVal, NSTokens::Separator::CommaSeparator);
@@ -209,7 +209,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTStringArgumentAction_Parse(EventLogEntry* evt, ThreadContext* threadContext, FileReader* reader, UnlinkableSlabAllocator& alloc)
-        {
+        {LOGMEIN("TTActionEvents.h] 211\n");
             JsRTStringArgumentAction* strAction = GetInlineEventDataAs<JsRTStringArgumentAction, tag>(evt);
 
             reader->ReadKey(NSTokens::Key::argRetVal, true);
@@ -228,18 +228,18 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTByteBufferAction_UnloadEventMemory(EventLogEntry* evt, UnlinkableSlabAllocator& alloc)
-        {
+        {LOGMEIN("TTActionEvents.h] 230\n");
             JsRTByteBufferAction* bufferAction = GetInlineEventDataAs<JsRTByteBufferAction, tag>(evt);
 
             if(bufferAction->Buffer != nullptr)
-            {
+            {LOGMEIN("TTActionEvents.h] 234\n");
                 alloc.UnlinkAllocation(bufferAction->Buffer);
             }
         }
 
         template <EventKind tag>
         void JsRTByteBufferAction_Emit(const EventLogEntry* evt, FileWriter* writer, ThreadContext* threadContext)
-        {
+        {LOGMEIN("TTActionEvents.h] 241\n");
             const JsRTByteBufferAction* bufferAction = GetInlineEventDataAs<JsRTByteBufferAction, tag>(evt);
 
             writer->WriteKey(NSTokens::Key::argRetVal, NSTokens::Separator::CommaSeparator);
@@ -251,9 +251,9 @@ namespace TTD
             writer->WriteLengthValue(bufferAction->Length, NSTokens::Separator::CommaSeparator);
             writer->WriteSequenceStart_DefaultKey(NSTokens::Separator::CommaSeparator);
             if(!badValue)
-            {
+            {LOGMEIN("TTActionEvents.h] 253\n");
                 for(uint32 i = 0; i < bufferAction->Length; ++i)
-                {
+                {LOGMEIN("TTActionEvents.h] 255\n");
                     writer->WriteNakedByte(bufferAction->Buffer[i], i != 0 ? NSTokens::Separator::CommaSeparator : NSTokens::Separator::NoSeparator);
                 }
             }
@@ -262,7 +262,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTByteBufferAction_Parse(EventLogEntry* evt, ThreadContext* threadContext, FileReader* reader, UnlinkableSlabAllocator& alloc)
-        {
+        {LOGMEIN("TTActionEvents.h] 264\n");
             JsRTByteBufferAction* bufferAction = GetInlineEventDataAs<JsRTByteBufferAction, tag>(evt);
 
             reader->ReadKey(NSTokens::Key::argRetVal, true);
@@ -275,11 +275,11 @@ namespace TTD
 
             reader->ReadSequenceStart_WDefaultKey(true);
             if(!badValue)
-            {
+            {LOGMEIN("TTActionEvents.h] 277\n");
                 bufferAction->Buffer = (bufferAction->Length != 0) ? alloc.SlabAllocateArray<byte>(bufferAction->Length) : nullptr;
 
                 for(uint32 i = 0; i < bufferAction->Length; ++i)
-                {
+                {LOGMEIN("TTActionEvents.h] 281\n");
                     bufferAction->Buffer[i] = reader->ReadNakedByte(i != 0);
                 }
                 reader->ReadSequenceEnd();
@@ -344,7 +344,7 @@ namespace TTD
 
         template<EventKind errorKind>
         void CreateError_Execute(const EventLogEntry* evt, ThreadContextTTD* executeContext)
-        {
+        {LOGMEIN("TTActionEvents.h] 346\n");
             const JsRTVarsArgumentAction* action = GetInlineEventDataAs<JsRTVarsArgumentAction, errorKind>(evt);
 
             Js::Var res = nullptr;
@@ -422,18 +422,18 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTRawBufferModifyAction_UnloadEventMemory(EventLogEntry* evt, UnlinkableSlabAllocator& alloc)
-        {
+        {LOGMEIN("TTActionEvents.h] 424\n");
             JsRTRawBufferModifyAction* bufferAction = GetInlineEventDataAs<JsRTRawBufferModifyAction, tag>(evt);
 
             if(bufferAction->Data != nullptr)
-            {
+            {LOGMEIN("TTActionEvents.h] 428\n");
                 alloc.UnlinkAllocation(bufferAction->Data);
             }
         }
 
         template <EventKind tag>
         void JsRTRawBufferModifyAction_Emit(const EventLogEntry* evt, FileWriter* writer, ThreadContext* threadContext)
-        {
+        {LOGMEIN("TTActionEvents.h] 435\n");
             const JsRTRawBufferModifyAction* bufferAction = GetInlineEventDataAs<JsRTRawBufferModifyAction, tag>(evt);
 
             writer->WriteKey(NSTokens::Key::argRetVal, NSTokens::Separator::CommaSeparator);
@@ -444,7 +444,7 @@ namespace TTD
             writer->WriteLengthValue(bufferAction->Length, NSTokens::Separator::CommaSeparator);
             writer->WriteSequenceStart_DefaultKey(NSTokens::Separator::CommaSeparator);
             for(uint32 i = 0; i < bufferAction->Length; ++i)
-            {
+            {LOGMEIN("TTActionEvents.h] 446\n");
                 writer->WriteNakedByte(bufferAction->Data[i], i != 0 ? NSTokens::Separator::CommaSeparator : NSTokens::Separator::NoSeparator);
             }
             writer->WriteSequenceEnd();
@@ -452,7 +452,7 @@ namespace TTD
 
         template <EventKind tag>
         void JsRTRawBufferModifyAction_Parse(EventLogEntry* evt, ThreadContext* threadContext, FileReader* reader, UnlinkableSlabAllocator& alloc)
-        {
+        {LOGMEIN("TTActionEvents.h] 454\n");
             JsRTRawBufferModifyAction* bufferAction = GetInlineEventDataAs<JsRTRawBufferModifyAction, tag>(evt);
 
             reader->ReadKey(NSTokens::Key::argRetVal, true);
@@ -465,7 +465,7 @@ namespace TTD
 
             reader->ReadSequenceStart_WDefaultKey(true);
             for(uint32 i = 0; i < bufferAction->Length; ++i)
-            {
+            {LOGMEIN("TTActionEvents.h] 467\n");
                 bufferAction->Data[i] = reader->ReadNakedByte(i != 0);
             }
             reader->ReadSequenceEnd();

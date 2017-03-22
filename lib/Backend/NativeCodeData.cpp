@@ -6,16 +6,16 @@
 
 NativeCodeData::NativeCodeData(DataChunk * chunkList) 
     : chunkList(chunkList)
-{
+{LOGMEIN("NativeCodeData.cpp] 8\n");
 #ifdef PERF_COUNTERS
     this->size = 0;
 #endif
 }
 
 NativeCodeData::~NativeCodeData()
-{
+{LOGMEIN("NativeCodeData.cpp] 15\n");
     if (JITManager::GetJITManager()->IsJITServer())
-    {
+    {LOGMEIN("NativeCodeData.cpp] 17\n");
         NativeCodeData::DeleteChunkList(this->chunkList);
     }
     else
@@ -28,7 +28,7 @@ NativeCodeData::~NativeCodeData()
 
 void
 NativeCodeData::AddFixupEntry(void* targetAddr, void* addrToFixup, void* startAddress, DataChunk * chunkList)
-{
+{LOGMEIN("NativeCodeData.cpp] 30\n");
     return NativeCodeData::AddFixupEntry(targetAddr, targetAddr, addrToFixup, startAddress, chunkList);
 }
 
@@ -38,12 +38,12 @@ NativeCodeData::AddFixupEntry(void* targetAddr, void* addrToFixup, void* startAd
 // addrToFixup: address that currently pointing to dataAddr, which need to be updated
 void
 NativeCodeData::AddFixupEntry(void* targetAddr, void* targetStartAddr, void* addrToFixup, void* startAddress, DataChunk * chunkList)
-{
+{LOGMEIN("NativeCodeData.cpp] 40\n");
     Assert(addrToFixup >= startAddress);
     Assert(((__int64)addrToFixup) % sizeof(void*) == 0);
 
     if (targetAddr == nullptr)
-    {
+    {LOGMEIN("NativeCodeData.cpp] 45\n");
         return;
     }
 
@@ -56,7 +56,7 @@ NativeCodeData::AddFixupEntry(void* targetAddr, void* targetStartAddr, void* add
 #if DBG
     bool foundTargetChunk = false;
     while (chunkList)
-    {
+    {LOGMEIN("NativeCodeData.cpp] 58\n");
         foundTargetChunk |= (chunkList == targetChunk);
         chunkList = chunkList->next;
     }
@@ -67,7 +67,7 @@ NativeCodeData::AddFixupEntry(void* targetAddr, void* targetStartAddr, void* add
 
     NativeDataFixupEntry* entry = (NativeDataFixupEntry*)midl_user_allocate(sizeof(NativeDataFixupEntry));
     if (!entry)
-    {
+    {LOGMEIN("NativeCodeData.cpp] 69\n");
         Js::Throw::OutOfMemory();
     }
     __analysis_assume(entry);
@@ -80,7 +80,7 @@ NativeCodeData::AddFixupEntry(void* targetAddr, void* targetStartAddr, void* add
 
 #if DBG
     if (PHASE_TRACE1(Js::NativeCodeDataPhase))
-    {
+    {LOGMEIN("NativeCodeData.cpp] 82\n");
         Output::Print(_u("NativeCodeData Add Fixup: %p(%p+%d, chunk:%p)  -->  %p(chunk:%p)  %S\n"),
             addrToFixup, startAddress, entry->addrOffset, (void*)chunk, targetAddr, (void*)targetChunk, chunk->dataType);
     }
@@ -89,16 +89,16 @@ NativeCodeData::AddFixupEntry(void* targetAddr, void* targetStartAddr, void* add
 
 void
 NativeCodeData::AddFixupEntryForPointerArray(void* startAddress, DataChunk * chunkList)
-{
+{LOGMEIN("NativeCodeData.cpp] 91\n");
     DataChunk* chunk = NativeCodeData::GetDataChunk(startAddress);
     Assert(chunk->len % sizeof(void*) == 0);
     for (unsigned int i = 0; i < chunk->len / sizeof(void*); i++)
-    {
+    {LOGMEIN("NativeCodeData.cpp] 95\n");
         size_t offset = i * sizeof(void*);
         void* targetAddr = *(void**)((char*)startAddress + offset);
 
         if (targetAddr == nullptr)
-        {
+        {LOGMEIN("NativeCodeData.cpp] 100\n");
             continue;
         }
 
@@ -108,7 +108,7 @@ NativeCodeData::AddFixupEntryForPointerArray(void* startAddress, DataChunk * chu
         bool foundTargetChunk = false;
         DataChunk* chunk1 = chunkList;
         while (chunk1 && !foundTargetChunk)
-        {
+        {LOGMEIN("NativeCodeData.cpp] 110\n");
             foundTargetChunk = (chunk1 == targetChunk);
             chunk1 = chunk1->next;
         }
@@ -117,7 +117,7 @@ NativeCodeData::AddFixupEntryForPointerArray(void* startAddress, DataChunk * chu
 
         NativeDataFixupEntry* entry = (NativeDataFixupEntry*)midl_user_allocate(sizeof(NativeDataFixupEntry));
         if (!entry)
-        {
+        {LOGMEIN("NativeCodeData.cpp] 119\n");
             Js::Throw::OutOfMemory();
         }
         __analysis_assume(entry);
@@ -128,7 +128,7 @@ NativeCodeData::AddFixupEntryForPointerArray(void* startAddress, DataChunk * chu
 
 #if DBG
         if (PHASE_TRACE1(Js::NativeCodeDataPhase))
-        {
+        {LOGMEIN("NativeCodeData.cpp] 130\n");
             Output::Print(_u("NativeCodeData Add Fixup: %p[%d](+%d, chunk:%p)  -->  %p(chunk:%p)  %S\n"),
                 startAddress, i, entry->addrOffset, (void*)chunk, targetAddr, (void*)targetChunk, chunk->dataType);
         }
@@ -138,7 +138,7 @@ NativeCodeData::AddFixupEntryForPointerArray(void* startAddress, DataChunk * chu
 
 char16*
 NativeCodeData::GetDataDescription(void* data, JitArenaAllocator * alloc)
-{
+{LOGMEIN("NativeCodeData.cpp] 140\n");
     auto chunk = GetDataChunk(data);
     char16 buf[1024] = { 0 };
 #if DBG
@@ -154,11 +154,11 @@ NativeCodeData::GetDataDescription(void* data, JitArenaAllocator * alloc)
 
 void
 NativeCodeData::VerifyExistFixupEntry(void* targetAddr, void* addrToFixup, void* startAddress)
-{
+{LOGMEIN("NativeCodeData.cpp] 156\n");
     DataChunk* chunk = NativeCodeData::GetDataChunk(startAddress);
     DataChunk* targetChunk = NativeCodeData::GetDataChunk(targetAddr);
     if (chunk->len == 0)
-    {
+    {LOGMEIN("NativeCodeData.cpp] 160\n");
         return;
     }
     unsigned int offset = (unsigned int)((char*)addrToFixup - (char*)startAddress);
@@ -166,9 +166,9 @@ NativeCodeData::VerifyExistFixupEntry(void* targetAddr, void* addrToFixup, void*
 
     NativeDataFixupEntry* entry = chunk->fixupList;
     while (entry)
-    {
+    {LOGMEIN("NativeCodeData.cpp] 168\n");
         if (entry->addrOffset == offset)
-        {
+        {LOGMEIN("NativeCodeData.cpp] 170\n");
             // The following assertions can be false positive in case a data field happen to 
             // have value fall into NativeCodeData memory range
             AssertMsg(entry->targetTotalOffset == targetChunk->offset, "Missing fixup");
@@ -182,10 +182,10 @@ NativeCodeData::VerifyExistFixupEntry(void* targetAddr, void* addrToFixup, void*
 template<class DataChunkT>
 void
 NativeCodeData::DeleteChunkList(DataChunkT * chunkList)
-{
+{LOGMEIN("NativeCodeData.cpp] 184\n");
     DataChunkT * next = chunkList;
     while (next != nullptr)
-    {
+    {LOGMEIN("NativeCodeData.cpp] 187\n");
         DataChunkT * current = next;
         next = next->next;
         delete current;
@@ -196,7 +196,7 @@ NativeCodeData::Allocator::Allocator()
     : chunkList(nullptr), 
     lastChunkList(nullptr),
     isOOPJIT(JITManager::GetJITManager()->IsJITServer())
-{
+{LOGMEIN("NativeCodeData.cpp] 198\n");
     this->totalSize = 0;
     this->allocCount = 0;
 #if DBG
@@ -208,10 +208,10 @@ NativeCodeData::Allocator::Allocator()
 }
 
 NativeCodeData::Allocator::~Allocator()
-{
+{LOGMEIN("NativeCodeData.cpp] 210\n");
     Assert(!finalized || this->chunkList == nullptr);
     if (JITManager::GetJITManager()->IsJITServer())
-    {
+    {LOGMEIN("NativeCodeData.cpp] 213\n");
         NativeCodeData::DeleteChunkList(this->chunkList);
     }
     else
@@ -224,13 +224,13 @@ NativeCodeData::Allocator::~Allocator()
 
 char *
 NativeCodeData::Allocator::Alloc(DECLSPEC_GUARD_OVERFLOW size_t requestSize)
-{
+{LOGMEIN("NativeCodeData.cpp] 226\n");
     Assert(!finalized);
     char * data = nullptr;    
     requestSize = Math::Align(requestSize, sizeof(void*));
 
     if (isOOPJIT)
-    {
+    {LOGMEIN("NativeCodeData.cpp] 232\n");
 
 #if DBG
         // Always zero out the data for chk build to reduce the chance of false
@@ -257,7 +257,7 @@ NativeCodeData::Allocator::Alloc(DECLSPEC_GUARD_OVERFLOW size_t requestSize)
         newChunk->fixupFunc = nullptr;
         newChunk->offset = this->totalSize;
         if (this->chunkList == nullptr)
-        {
+        {LOGMEIN("NativeCodeData.cpp] 259\n");
             this->chunkList = newChunk;
             this->lastChunkList = newChunk;
         }
@@ -289,13 +289,13 @@ NativeCodeData::Allocator::Alloc(DECLSPEC_GUARD_OVERFLOW size_t requestSize)
 
 char *
 NativeCodeData::Allocator::AllocLeaf(DECLSPEC_GUARD_OVERFLOW size_t requestSize)
-{
+{LOGMEIN("NativeCodeData.cpp] 291\n");
     return Alloc(requestSize);
 }
 
 char *
 NativeCodeData::Allocator::AllocZero(DECLSPEC_GUARD_OVERFLOW size_t requestSize)
-{
+{LOGMEIN("NativeCodeData.cpp] 297\n");
     char * data = Alloc(requestSize);
 #if !DBG
     // Allocated with HeapNewStructPlusZ for chk build
@@ -311,10 +311,10 @@ NativeCodeData::Allocator::AllocZero(DECLSPEC_GUARD_OVERFLOW size_t requestSize)
 
 NativeCodeData *
 NativeCodeData::Allocator::Finalize()
-{
+{LOGMEIN("NativeCodeData.cpp] 313\n");
     NativeCodeData * data = nullptr;
     if (this->chunkList != nullptr)
-    {
+    {LOGMEIN("NativeCodeData.cpp] 316\n");
         data = HeapNew(NativeCodeData, this->chunkList);
         this->chunkList = nullptr;
 #ifdef PERF_COUNTERS
@@ -336,5 +336,5 @@ NativeCodeData::Allocator::Finalize()
 //////////////////////////////////////////////////////////////////////////
 void
 NativeCodeData::Allocator::Free(void * buffer, size_t byteSize)
-{
+{LOGMEIN("NativeCodeData.cpp] 338\n");
 }

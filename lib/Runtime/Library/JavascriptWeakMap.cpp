@@ -9,11 +9,11 @@ namespace Js
     JavascriptWeakMap::JavascriptWeakMap(DynamicType* type)
         : DynamicObject(type),
         keySet(type->GetScriptContext()->GetRecycler())
-    {
+    {LOGMEIN("JavascriptWeakMap.cpp] 11\n");
     }
 
     bool JavascriptWeakMap::Is(Var aValue)
-    {
+    {LOGMEIN("JavascriptWeakMap.cpp] 15\n");
         return JavascriptOperators::GetTypeId(aValue) == TypeIds_WeakMap;
     }
 
@@ -25,15 +25,15 @@ namespace Js
     }
 
     JavascriptWeakMap::WeakMapKeyMap* JavascriptWeakMap::GetWeakMapKeyMapFromKey(DynamicObject* key) const
-    {
+    {LOGMEIN("JavascriptWeakMap.cpp] 27\n");
         Var weakMapKeyData = nullptr;
         if (!key->GetInternalProperty(key, InternalPropertyIds::WeakMapKeyMap, &weakMapKeyData, nullptr, key->GetScriptContext()))
-        {
+        {LOGMEIN("JavascriptWeakMap.cpp] 30\n");
             return nullptr;
         }
 
         if (key->GetScriptContext()->GetLibrary()->GetUndefined() == weakMapKeyData)
-        {
+        {LOGMEIN("JavascriptWeakMap.cpp] 35\n");
             // Assert to find out where this can happen.
             Assert(false);
             return nullptr;
@@ -43,7 +43,7 @@ namespace Js
     }
 
     JavascriptWeakMap::WeakMapKeyMap* JavascriptWeakMap::AddWeakMapKeyMapToKey(DynamicObject* key)
-    {
+    {LOGMEIN("JavascriptWeakMap.cpp] 45\n");
         // The internal property may exist on an object that has had DynamicObject::ResetObject called on itself.
         // In that case the value stored in the property slot should be null.
         DebugOnly(Var unused = nullptr);
@@ -57,9 +57,9 @@ namespace Js
     }
 
     bool JavascriptWeakMap::KeyMapGet(WeakMapKeyMap* map, Var* value) const
-    {
+    {LOGMEIN("JavascriptWeakMap.cpp] 59\n");
         if (map->ContainsKey(GetWeakMapId()))
-        {
+        {LOGMEIN("JavascriptWeakMap.cpp] 61\n");
             *value = map->Item(GetWeakMapId());
             return true;
         }
@@ -83,7 +83,7 @@ namespace Js
         JavascriptWeakMap* weakMapObject = nullptr;
 
         if (callInfo.Flags & CallFlags_New)
-        {
+        {LOGMEIN("JavascriptWeakMap.cpp] 85\n");
             weakMapObject = library->CreateWeakMap();
         }
         else
@@ -98,23 +98,23 @@ namespace Js
         RecyclableObject* adder = nullptr;
 
         if (JavascriptConversion::CheckObjectCoercible(iterable, scriptContext))
-        {
+        {LOGMEIN("JavascriptWeakMap.cpp] 100\n");
             iter = JavascriptOperators::GetIterator(iterable, scriptContext);
             Var adderVar = JavascriptOperators::GetProperty(weakMapObject, PropertyIds::set, scriptContext);
             if (!JavascriptConversion::IsCallable(adderVar))
-            {
+            {LOGMEIN("JavascriptWeakMap.cpp] 104\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedFunction);
             }
             adder = RecyclableObject::FromVar(adderVar);
         }
 
         if (iter != nullptr)
-        {
+        {LOGMEIN("JavascriptWeakMap.cpp] 111\n");
             Var undefined = library->GetUndefined();
 
             JavascriptOperators::DoIteratorStepAndValue(iter, scriptContext, [&](Var nextItem) {
                 if (!JavascriptOperators::IsObject(nextItem))
-                {
+                {LOGMEIN("JavascriptWeakMap.cpp] 116\n");
                     JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedObject);
                 }
 
@@ -123,12 +123,12 @@ namespace Js
                 Var key, value;
 
                 if (!JavascriptOperators::GetItem(obj, 0u, &key, scriptContext))
-                {
+                {LOGMEIN("JavascriptWeakMap.cpp] 125\n");
                     key = undefined;
                 }
 
                 if (!JavascriptOperators::GetItem(obj, 1u, &value, scriptContext))
-                {
+                {LOGMEIN("JavascriptWeakMap.cpp] 130\n");
                     value = undefined;
                 }
 
@@ -149,7 +149,7 @@ namespace Js
         ScriptContext* scriptContext = function->GetScriptContext();
 
         if (!JavascriptWeakMap::Is(args[0]))
-        {
+        {LOGMEIN("JavascriptWeakMap.cpp] 151\n");
             JavascriptError::ThrowTypeErrorVar(scriptContext, JSERR_NeedObjectOfType, _u("WeakMap.prototype.delete"), _u("WeakMap"));
         }
 
@@ -159,7 +159,7 @@ namespace Js
         bool didDelete = false;
 
         if (JavascriptOperators::IsObject(key) && JavascriptOperators::GetTypeId(key) != TypeIds_HostDispatch)
-        {
+        {LOGMEIN("JavascriptWeakMap.cpp] 161\n");
             DynamicObject* keyObj = DynamicObject::FromVar(key);
 
             didDelete = weakMap->Delete(keyObj);
@@ -176,7 +176,7 @@ namespace Js
         ScriptContext* scriptContext = function->GetScriptContext();
 
         if (!JavascriptWeakMap::Is(args[0]))
-        {
+        {LOGMEIN("JavascriptWeakMap.cpp] 178\n");
             JavascriptError::ThrowTypeErrorVar(scriptContext, JSERR_NeedObjectOfType, _u("WeakMap.prototype.get"), _u("WeakMap"));
         }
 
@@ -185,12 +185,12 @@ namespace Js
         Var key = (args.Info.Count > 1) ? args[1] : scriptContext->GetLibrary()->GetUndefined();
 
         if (JavascriptOperators::IsObject(key) && JavascriptOperators::GetTypeId(key) != TypeIds_HostDispatch)
-        {
+        {LOGMEIN("JavascriptWeakMap.cpp] 187\n");
             DynamicObject* keyObj = DynamicObject::FromVar(key);
             Var value = nullptr;
 
             if (weakMap->Get(keyObj, &value))
-            {
+            {LOGMEIN("JavascriptWeakMap.cpp] 192\n");
                 return value;
             }
         }
@@ -206,7 +206,7 @@ namespace Js
         ScriptContext* scriptContext = function->GetScriptContext();
 
         if (!JavascriptWeakMap::Is(args[0]))
-        {
+        {LOGMEIN("JavascriptWeakMap.cpp] 208\n");
             JavascriptError::ThrowTypeErrorVar(scriptContext, JSERR_NeedObjectOfType, _u("WeakMap.prototype.has"), _u("WeakMap"));
         }
 
@@ -216,7 +216,7 @@ namespace Js
         bool hasValue = false;
 
         if (JavascriptOperators::IsObject(key) && JavascriptOperators::GetTypeId(key) != TypeIds_HostDispatch)
-        {
+        {LOGMEIN("JavascriptWeakMap.cpp] 218\n");
             DynamicObject* keyObj = DynamicObject::FromVar(key);
 
             hasValue = weakMap->Has(keyObj);
@@ -233,7 +233,7 @@ namespace Js
         ScriptContext* scriptContext = function->GetScriptContext();
 
         if (!JavascriptWeakMap::Is(args[0]))
-        {
+        {LOGMEIN("JavascriptWeakMap.cpp] 235\n");
             JavascriptError::ThrowTypeErrorVar(scriptContext, JSERR_NeedObjectOfType, _u("WeakMap.prototype.set"), _u("WeakMap"));
         }
 
@@ -243,7 +243,7 @@ namespace Js
         Var value = (args.Info.Count > 2) ? args[2] : scriptContext->GetLibrary()->GetUndefined();
 
         if (!JavascriptOperators::IsObject(key) || JavascriptOperators::GetTypeId(key) == TypeIds_HostDispatch)
-        {
+        {LOGMEIN("JavascriptWeakMap.cpp] 245\n");
             // HostDispatch can not expand so can't have internal property added to it.
             // TODO: Support HostDispatch as WeakMap key
             JavascriptError::ThrowTypeError(scriptContext, JSERR_WeakMapSetKeyNotAnObject, _u("WeakMap.prototype.set"));
@@ -257,7 +257,7 @@ namespace Js
         //      We want to improve this.
         //
         if(scriptContext->IsTTDRecordOrReplayModeEnabled())
-        {
+        {LOGMEIN("JavascriptWeakMap.cpp] 259\n");
             scriptContext->TTDContextInfo->TTDWeakReferencePinSet->Add(keyObj);
         }
 #endif
@@ -268,14 +268,14 @@ namespace Js
     }
 
     void JavascriptWeakMap::Clear()
-    {
+    {LOGMEIN("JavascriptWeakMap.cpp] 270\n");
         keySet.Map([&](DynamicObject* key, bool value, const RecyclerWeakReference<DynamicObject>* weakRef) {
             WeakMapKeyMap* keyMap = GetWeakMapKeyMapFromKey(key);
 
             // It may be the case that a CEO has been reset and the keyMap is now null.
             // Just ignore it in this case, the keyMap has already been collected.
             if (keyMap != nullptr)
-            {
+            {LOGMEIN("JavascriptWeakMap.cpp] 277\n");
                 // It may also be the case that a CEO has been reset and then added to a separate WeakMap,
                 // creating a new WeakMapKeyMap on the CEO.  In this case GetWeakMapId() may not be in the
                 // keyMap, so don't assert successful removal here.
@@ -286,11 +286,11 @@ namespace Js
     }
 
     bool JavascriptWeakMap::Delete(DynamicObject* key)
-    {
+    {LOGMEIN("JavascriptWeakMap.cpp] 288\n");
         WeakMapKeyMap* keyMap = GetWeakMapKeyMapFromKey(key);
 
         if (keyMap != nullptr)
-        {
+        {LOGMEIN("JavascriptWeakMap.cpp] 292\n");
             bool unused = false;
             bool inSet = keySet.TryGetValueAndRemove(key, &unused);
             bool inData = keyMap->Remove(GetWeakMapId());
@@ -303,11 +303,11 @@ namespace Js
     }
 
     bool JavascriptWeakMap::Get(DynamicObject* key, Var* value) const
-    {
+    {LOGMEIN("JavascriptWeakMap.cpp] 305\n");
         WeakMapKeyMap* keyMap = GetWeakMapKeyMapFromKey(key);
 
         if (keyMap != nullptr)
-        {
+        {LOGMEIN("JavascriptWeakMap.cpp] 309\n");
             return KeyMapGet(keyMap, value);
         }
 
@@ -315,11 +315,11 @@ namespace Js
     }
 
     bool JavascriptWeakMap::Has(DynamicObject* key) const
-    {
+    {LOGMEIN("JavascriptWeakMap.cpp] 317\n");
         WeakMapKeyMap* keyMap = GetWeakMapKeyMapFromKey(key);
 
         if (keyMap != nullptr)
-        {
+        {LOGMEIN("JavascriptWeakMap.cpp] 321\n");
             return keyMap->ContainsKey(GetWeakMapId());
         }
 
@@ -327,11 +327,11 @@ namespace Js
     }
 
     void JavascriptWeakMap::Set(DynamicObject* key, Var value)
-    {
+    {LOGMEIN("JavascriptWeakMap.cpp] 329\n");
         WeakMapKeyMap* keyMap = GetWeakMapKeyMapFromKey(key);
 
         if (keyMap == nullptr)
-        {
+        {LOGMEIN("JavascriptWeakMap.cpp] 333\n");
             keyMap = AddWeakMapKeyMapToKey(key);
         }
 
@@ -340,14 +340,14 @@ namespace Js
     }
 
     BOOL JavascriptWeakMap::GetDiagTypeString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptWeakMap.cpp] 342\n");
         stringBuilder->AppendCppLiteral(_u("WeakMap"));
         return TRUE;
     }
 
 #if ENABLE_TTD
     void JavascriptWeakMap::MarkVisitKindSpecificPtrs(TTD::SnapshotExtractor* extractor)
-    {
+    {LOGMEIN("JavascriptWeakMap.cpp] 349\n");
         this->Map([&](DynamicObject* key, Js::Var value)
         {
             extractor->MarkVisitVar(key);
@@ -356,12 +356,12 @@ namespace Js
     }
 
     TTD::NSSnapObjects::SnapObjectType JavascriptWeakMap::GetSnapTag_TTD() const
-    {
+    {LOGMEIN("JavascriptWeakMap.cpp] 358\n");
         return TTD::NSSnapObjects::SnapObjectType::SnapMapObject;
     }
 
     void JavascriptWeakMap::ExtractSnapObjectDataInto(TTD::NSSnapObjects::SnapObject* objData, TTD::SlabAllocator& alloc)
-    {
+    {LOGMEIN("JavascriptWeakMap.cpp] 363\n");
         TTD::NSSnapObjects::SnapMapInfo* smi = alloc.SlabAllocateStruct<TTD::NSSnapObjects::SnapMapInfo>();
         uint32 mapCountEst = this->Size() * 2;
 
@@ -378,7 +378,7 @@ namespace Js
         });
 
         if(smi->MapSize == 0)
-        {
+        {LOGMEIN("JavascriptWeakMap.cpp] 380\n");
             smi->MapKeyValueArray = nullptr;
             alloc.SlabAbortArraySpace<TTD::TTDVar>(mapCountEst + 1);
         }

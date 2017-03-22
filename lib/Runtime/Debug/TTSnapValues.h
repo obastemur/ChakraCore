@@ -16,17 +16,17 @@ namespace TTD
     public:
         TTDTimer()
             : m_timer()
-        {
+        {LOGMEIN("TTSnapValues.h] 18\n");
             ;
         }
 
         ~TTDTimer()
-        {
+        {LOGMEIN("TTSnapValues.h] 23\n");
             ;
         }
 
         double Now()
-        {
+        {LOGMEIN("TTSnapValues.h] 28\n");
             return this->m_timer.Now();
         }
     };

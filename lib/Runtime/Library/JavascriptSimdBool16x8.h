@@ -29,9 +29,9 @@ namespace Js
         static JavascriptSIMDBool16x8* New(SIMDValue *val, ScriptContext* requestContext);
         static bool Is(Var instance);
         static JavascriptSIMDBool16x8* FromVar(Var aValue);
-        static size_t GetOffsetOfValue() { return offsetof(JavascriptSIMDBool16x8, value); }
+        static size_t GetOffsetOfValue() {LOGMEIN("JavascriptSimdBool16x8.h] 31\n"); return offsetof(JavascriptSIMDBool16x8, value); }
         static Var CallToLocaleString(RecyclableObject&, ScriptContext&, SIMDValue, const Var, uint, CallInfo) 
-        { 
+        {LOGMEIN("JavascriptSimdBool16x8.h] 33\n"); 
             Assert(UNREACHED);
             return nullptr;
         };
@@ -46,7 +46,7 @@ namespace Js
         virtual RecyclableObject * CloneToScriptContext(ScriptContext* requestContext) override;
 
         static const char16* GetTypeName();
-        inline SIMDValue GetValue() { return value; }
+        inline SIMDValue GetValue() {LOGMEIN("JavascriptSimdBool16x8.h] 48\n"); return value; }
         Var  Copy(ScriptContext* requestContext);
     };
 }

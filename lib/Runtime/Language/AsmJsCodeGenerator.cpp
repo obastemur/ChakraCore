@@ -12,7 +12,7 @@ namespace Js
     AsmJsCodeGenerator::AsmJsCodeGenerator( ScriptContext* scriptContext ) :
         mScriptContext( scriptContext )
         ,mPageAllocator(scriptContext->GetThreadContext()->GetPageAllocator())
-    {
+    {LOGMEIN("AsmJsCodeGenerator.cpp] 14\n");
         //use the same foreground allocator as NativeCodeGen
         mForegroundAllocators = GetForegroundAllocator(scriptContext->GetNativeCodeGenerator(),mPageAllocator);
         mEncoder.SetPageAllocator( mPageAllocator );
@@ -20,13 +20,13 @@ namespace Js
     }
 
     void AsmJsCodeGenerator::CodeGen( FunctionBody* functionBody )
-    {
+    {LOGMEIN("AsmJsCodeGenerator.cpp] 22\n");
         AsmJsFunctionInfo* asmInfo = functionBody->GetAsmJsFunctionInfo();
         Assert( asmInfo );
 
         void* address = mEncoder.Encode( functionBody );
         if( address )
-        {
+        {LOGMEIN("AsmJsCodeGenerator.cpp] 28\n");
             FunctionEntryPointInfo* funcEntrypointInfo = (FunctionEntryPointInfo*)functionBody->GetDefaultEntryPointInfo();
             EntryPointInfo* entrypointInfo = (EntryPointInfo*)funcEntrypointInfo;
             Assert(entrypointInfo->GetIsAsmJSFunction());
@@ -38,7 +38,7 @@ namespace Js
             funcEntrypointInfo->SetIsTJMode(true);
 #endif
             if (!PreReservedVirtualAllocWrapper::IsInRange((void*)mScriptContext->GetThreadContext()->GetPreReservedRegionAddr(), (void*)address))
-            {
+            {LOGMEIN("AsmJsCodeGenerator.cpp] 40\n");
                 Assert(entrypointInfo->GetCodeSize() < (uint64)((uint64)1 << 32));
                 mScriptContext->GetJitFuncRangeCache()->AddFuncRange((void*)address, (uint)entrypointInfo->GetCodeSize());
             }

@@ -15,10 +15,10 @@ namespace Js
     {
         EmitExpressionInfo( RegSlot location_, const AsmJsType& type_ ) :
             WAsmJs::EmitInfoBase( location_ ), type( type_ )
-        {
+        {LOGMEIN("AsmJsByteCodeGenerator.h] 17\n");
         }
-        EmitExpressionInfo( const AsmJsType& type_ ) : type( type_ ) {}
-        EmitExpressionInfo(): type( AsmJsType::Void ) {}
+        EmitExpressionInfo( const AsmJsType& type_ ) : type( type_ ) {LOGMEIN("AsmJsByteCodeGenerator.h] 19\n");}
+        EmitExpressionInfo(): type( AsmJsType::Void ) {LOGMEIN("AsmJsByteCodeGenerator.h] 20\n");}
 
         AsmJsType type;
     };
@@ -30,18 +30,18 @@ namespace Js
     public:
         AsmJsFunctionCompilation( AsmJSByteCodeGenerator* gen ) :
             mGenerator( gen )
-        {
+        {LOGMEIN("AsmJsByteCodeGenerator.h] 32\n");
 
         }
         ~AsmJsFunctionCompilation()
-        {
+        {LOGMEIN("AsmJsByteCodeGenerator.h] 36\n");
             CleanUp();
         }
 
         void CleanUp();
 
         void FinishCompilation()
-        {
+        {LOGMEIN("AsmJsByteCodeGenerator.h] 43\n");
             mGenerator = nullptr;
         }
 
@@ -137,27 +137,27 @@ namespace Js
         bool IsValidSimdFcnRetType(AsmJsSIMDFunction& simdFunction, const AsmJsRetType& expectedType, const AsmJsRetType& retType);
         /// TODO:: Finish removing references to old bytecode generator
         ByteCodeGenerator* GetOldByteCodeGenerator() const
-        {
+        {LOGMEIN("AsmJsByteCodeGenerator.h] 139\n");
             return mByteCodeGenerator;
         }
 
         bool IsSimdjsEnabled()
-        {
+        {LOGMEIN("AsmJsByteCodeGenerator.h] 144\n");
             return mFunction->GetFuncBody()->GetScriptContext()->GetConfig()->IsSimdjsEnabled();
         }
         // try to reuse a tmp register or acquire a new one
         // also takes care of releasing tmp register
         template<typename T>
         RegSlot GetAndReleaseBinaryLocations( const EmitExpressionInfo* lhs, const EmitExpressionInfo* rhs )
-        {
+        {LOGMEIN("AsmJsByteCodeGenerator.h] 151\n");
             RegSlot tmpRegToUse;
             if( mFunction->IsTmpLocation<T>( lhs ) )
-            {
+            {LOGMEIN("AsmJsByteCodeGenerator.h] 154\n");
                 tmpRegToUse = lhs->location;
                 mFunction->ReleaseLocation<T>( rhs );
             }
             else if( mFunction->IsTmpLocation<T>( rhs ) )
-            {
+            {LOGMEIN("AsmJsByteCodeGenerator.h] 159\n");
                 tmpRegToUse = rhs->location;
                 mFunction->ReleaseLocation<T>( lhs );
             }
@@ -172,10 +172,10 @@ namespace Js
 
         template<typename T>
         RegSlot GetAndReleaseUnaryLocations( const EmitExpressionInfo* rhs )
-        {
+        {LOGMEIN("AsmJsByteCodeGenerator.h] 174\n");
             RegSlot tmpRegToUse;
             if( mFunction->IsTmpLocation<T>( rhs ) )
-            {
+            {LOGMEIN("AsmJsByteCodeGenerator.h] 177\n");
                 tmpRegToUse = rhs->location;
             }
             else

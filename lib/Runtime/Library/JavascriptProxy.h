@@ -51,13 +51,13 @@ namespace Js
         JavascriptProxy(DynamicType * type);
         JavascriptProxy(DynamicType * type, ScriptContext * scriptContext, RecyclableObject* target, RecyclableObject* handler);
         static BOOL Is(Var obj);
-        static JavascriptProxy* FromVar(Var obj) { Assert(Is(obj)); return static_cast<JavascriptProxy*>(obj); }
+        static JavascriptProxy* FromVar(Var obj) {LOGMEIN("JavascriptProxy.h] 53\n"); Assert(Is(obj)); return static_cast<JavascriptProxy*>(obj); }
 #ifndef IsJsDiag
         RecyclableObject* GetTarget();
         RecyclableObject* GetHandler();
 #else
-        RecyclableObject* GetTarget() { return target; }
-        RecyclableObject* GetHandler() { return handler; }
+        RecyclableObject* GetTarget() {LOGMEIN("JavascriptProxy.h] 58\n"); return target; }
+        RecyclableObject* GetHandler() {LOGMEIN("JavascriptProxy.h] 59\n"); return handler; }
 #endif
         static Var NewInstance(RecyclableObject* function, CallInfo callInfo, ...);
         static Var EntryRevocable(RecyclableObject* function, CallInfo callInfo, ...);
@@ -69,7 +69,7 @@ namespace Js
         static BOOL GetOwnPropertyDescriptor(RecyclableObject* obj, PropertyId propertyId, ScriptContext* scriptContext, PropertyDescriptor* propertyDescriptor);
         static BOOL DefineOwnPropertyDescriptor(RecyclableObject* obj, PropertyId propId, const PropertyDescriptor& descriptor, bool throwOnError, ScriptContext* scriptContext);
 
-        static DWORD GetOffsetOfTarget() { return offsetof(JavascriptProxy, target); }
+        static DWORD GetOffsetOfTarget() {LOGMEIN("JavascriptProxy.h] 71\n"); return offsetof(JavascriptProxy, target); }
 
         virtual BOOL HasProperty(PropertyId propertyId) override;
         virtual BOOL HasOwnProperty(PropertyId propertyId) override;
@@ -111,8 +111,8 @@ namespace Js
         virtual BOOL IsEnumerable(PropertyId propertyId) override;
         virtual BOOL IsExtensible() override;
         virtual BOOL PreventExtensions() override;
-        virtual void ThrowIfCannotDefineProperty(PropertyId propId, const PropertyDescriptor& descriptor) { }
-        virtual void ThrowIfCannotGetOwnPropertyDescriptor(PropertyId propId) {};
+        virtual void ThrowIfCannotDefineProperty(PropertyId propId, const PropertyDescriptor& descriptor) {LOGMEIN("JavascriptProxy.h] 113\n"); }
+        virtual void ThrowIfCannotGetOwnPropertyDescriptor(PropertyId propId) {LOGMEIN("JavascriptProxy.h] 114\n");};
         virtual BOOL GetDefaultPropertyDescriptor(PropertyDescriptor& descriptor) override;
         virtual BOOL Seal() override;
         virtual BOOL Freeze() override;
@@ -122,9 +122,9 @@ namespace Js
         virtual BOOL SetConfigurable(PropertyId propertyId, BOOL value) override;
         virtual BOOL SetEnumerable(PropertyId propertyId, BOOL value) override;
         virtual BOOL SetAttributes(PropertyId propertyId, PropertyAttributes attributes) override;
-        virtual BOOL GetSpecialPropertyName(uint32 index, Var *propertyName, ScriptContext * requestContext) { return false; }
-        virtual uint GetSpecialPropertyCount() const { return 0; }
-        virtual PropertyId const * GetSpecialPropertyIds() const { return nullptr; }
+        virtual BOOL GetSpecialPropertyName(uint32 index, Var *propertyName, ScriptContext * requestContext) {LOGMEIN("JavascriptProxy.h] 124\n"); return false; }
+        virtual uint GetSpecialPropertyCount() const {LOGMEIN("JavascriptProxy.h] 125\n"); return 0; }
+        virtual PropertyId const * GetSpecialPropertyIds() const {LOGMEIN("JavascriptProxy.h] 126\n"); return nullptr; }
         virtual BOOL HasInstance(Var instance, ScriptContext* scriptContext, IsInstInlineCache* inlineCache = NULL) override;
         // This is used for external object only; should not be called for proxy
         virtual RecyclableObject* GetConfigurablePrototype(ScriptContext * requestContext) override;
@@ -133,7 +133,7 @@ namespace Js
         virtual Js::JavascriptString* GetClassName(ScriptContext * requestContext) override;
 
 #if DBG
-        virtual bool CanStorePropertyValueDirectly(PropertyId propertyId, bool allowLetConst) { Assert(false); return false; };
+        virtual bool CanStorePropertyValueDirectly(PropertyId propertyId, bool allowLetConst) {LOGMEIN("JavascriptProxy.h] 135\n"); Assert(false); return false; };
 #endif
 
         virtual void RemoveFromPrototype(ScriptContext * requestContext) override;
@@ -161,18 +161,18 @@ namespace Js
         template <class Fn>
         void GetOwnPropertyKeysHelper(ScriptContext* scriptContext, RecyclableObject* trapResultArray, uint32 len, JavascriptArray* trapResult,
             JsUtil::BaseDictionary<Js::PropertyId, bool, ArenaAllocator>& targetToTrapResultMap, Fn fn)
-        {
+        {LOGMEIN("JavascriptProxy.h] 163\n");
             Var element;
             const PropertyRecord* propertyRecord;
             uint32 trapResultIndex = 0;
             PropertyId propertyId;
             for (uint32 i = 0; i < len; i++)
-            {
+            {LOGMEIN("JavascriptProxy.h] 169\n");
                 if (!JavascriptOperators::GetItem(trapResultArray, i, &element, scriptContext))
                     continue;
 
                 if (!(JavascriptString::Is(element) || JavascriptSymbol::Is(element)))
-                {
+                {LOGMEIN("JavascriptProxy.h] 174\n");
                     JavascriptError::ThrowTypeError(scriptContext, JSERR_InconsistentTrapResult, _u("ownKeys"));
                 }
 
@@ -180,14 +180,14 @@ namespace Js
                 propertyId = propertyRecord->GetPropertyId();
 
                 if (!targetToTrapResultMap.ContainsKey(propertyId))
-                {
+                {LOGMEIN("JavascriptProxy.h] 182\n");
                     if (propertyId != Constants::NoProperty)
-                    {
+                    {LOGMEIN("JavascriptProxy.h] 184\n");
                         targetToTrapResultMap.Add(propertyId, true);
                     }
 
                     if (fn(propertyRecord))
-                    {
+                    {LOGMEIN("JavascriptProxy.h] 189\n");
                         trapResult->DirectSetItemAt(trapResultIndex++, element);
                     }
                 }

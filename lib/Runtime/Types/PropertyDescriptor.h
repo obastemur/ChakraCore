@@ -25,7 +25,7 @@ namespace Js
             Enumerable(other.Enumerable),
             Configurable(other.Configurable),
             fromProxy(other.fromProxy)
-        {
+        {LOGMEIN("PropertyDescriptor.h] 27\n");
         }
 
     private:
@@ -47,39 +47,39 @@ namespace Js
         Field(bool) fromProxy;
 
     public:
-        bool IsDataDescriptor() const { return writableSpecified | valueSpecified;}
-        bool IsAccessorDescriptor() const { return getterSpecified | setterSpecified;}
-        bool IsGenericDescriptor() const { return !IsAccessorDescriptor() && !IsDataDescriptor(); }
+        bool IsDataDescriptor() const {LOGMEIN("PropertyDescriptor.h] 49\n"); return writableSpecified | valueSpecified;}
+        bool IsAccessorDescriptor() const {LOGMEIN("PropertyDescriptor.h] 50\n"); return getterSpecified | setterSpecified;}
+        bool IsGenericDescriptor() const {LOGMEIN("PropertyDescriptor.h] 51\n"); return !IsAccessorDescriptor() && !IsDataDescriptor(); }
         void SetEnumerable(bool value);
         void SetWritable(bool value);
         void SetConfigurable(bool value);
 
         void SetValue(Var value);
-        Var GetValue() const { return Value; }
+        Var GetValue() const {LOGMEIN("PropertyDescriptor.h] 57\n"); return Value; }
 
         void SetGetter(Var getter);
-        Var GetGetter() const { Assert(getterSpecified || Getter == nullptr);  return Getter; }
+        Var GetGetter() const {LOGMEIN("PropertyDescriptor.h] 60\n"); Assert(getterSpecified || Getter == nullptr);  return Getter; }
         void SetSetter(Var setter);
-        Var GetSetter() const { Assert(setterSpecified || Setter == nullptr); return Setter; }
+        Var GetSetter() const {LOGMEIN("PropertyDescriptor.h] 62\n"); Assert(setterSpecified || Setter == nullptr); return Setter; }
 
         PropertyAttributes GetAttributes() const;
 
-        bool IsFromProxy() const { return fromProxy; }
-        void SetFromProxy(bool value) { fromProxy = value; }
+        bool IsFromProxy() const {LOGMEIN("PropertyDescriptor.h] 66\n"); return fromProxy; }
+        void SetFromProxy(bool value) {LOGMEIN("PropertyDescriptor.h] 67\n"); fromProxy = value; }
 
-        void SetOriginal(Var original) { originalVar = original; }
-        Var GetOriginal() const { return originalVar; }
+        void SetOriginal(Var original) {LOGMEIN("PropertyDescriptor.h] 69\n"); originalVar = original; }
+        Var GetOriginal() const {LOGMEIN("PropertyDescriptor.h] 70\n"); return originalVar; }
 
-        bool ValueSpecified() const { return valueSpecified; }
-        bool WritableSpecified() const { return writableSpecified; };
-        bool ConfigurableSpecified() const { return configurableSpecified; }
-        bool EnumerableSpecified() const { return enumerableSpecified; }
-        bool GetterSpecified() const { return getterSpecified; }
-        bool SetterSpecified() const { return setterSpecified; }
+        bool ValueSpecified() const {LOGMEIN("PropertyDescriptor.h] 72\n"); return valueSpecified; }
+        bool WritableSpecified() const {LOGMEIN("PropertyDescriptor.h] 73\n"); return writableSpecified; };
+        bool ConfigurableSpecified() const {LOGMEIN("PropertyDescriptor.h] 74\n"); return configurableSpecified; }
+        bool EnumerableSpecified() const {LOGMEIN("PropertyDescriptor.h] 75\n"); return enumerableSpecified; }
+        bool GetterSpecified() const {LOGMEIN("PropertyDescriptor.h] 76\n"); return getterSpecified; }
+        bool SetterSpecified() const {LOGMEIN("PropertyDescriptor.h] 77\n"); return setterSpecified; }
 
-        bool IsWritable() const { Assert(writableSpecified);  return Writable; }
-        bool IsEnumerable() const { Assert(enumerableSpecified); return Enumerable; }
-        bool IsConfigurable() const { Assert(configurableSpecified);  return Configurable; }
+        bool IsWritable() const {LOGMEIN("PropertyDescriptor.h] 79\n"); Assert(writableSpecified);  return Writable; }
+        bool IsEnumerable() const {LOGMEIN("PropertyDescriptor.h] 80\n"); Assert(enumerableSpecified); return Enumerable; }
+        bool IsConfigurable() const {LOGMEIN("PropertyDescriptor.h] 81\n"); Assert(configurableSpecified);  return Configurable; }
 
         // Set configurable/enumerable/writable.
         // attributes: attribute values.

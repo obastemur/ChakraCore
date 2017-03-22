@@ -76,7 +76,7 @@ namespace TTD
         //Access the AddtlSnapObjectInfo for the snap object as the specified kind (asserts on the tag and casts the data)
         template <typename T, SnapObjectType tag>
         T SnapObjectGetAddtlInfoAs(const SnapObject* snpObject)
-        {
+        {LOGMEIN("TTSnapObjects.h] 78\n");
             TTDAssert(snpObject->SnapObjectTag == tag, "Tag does not match.");
 
             return reinterpret_cast<T>(snpObject->AddtlSnapObjectInfo);
@@ -84,7 +84,7 @@ namespace TTD
 
         template <typename T, SnapObjectType tag>
         void SnapObjectSetAddtlInfoAs(SnapObject* snpObject, T addtlInfo)
-        {
+        {LOGMEIN("TTSnapObjects.h] 86\n");
             TTDAssert(sizeof(T) <= sizeof(void*), "Make sure your info fits into the space we have for it.");
             TTDAssert(snpObject->SnapObjectTag == tag, "Tag does not match.");
 
@@ -294,7 +294,7 @@ namespace TTD
 
         template <SnapObjectType argsKind>
         void EmitAddtlInfo_SnapHeapArgumentsInfo(const SnapObject* snpObject, FileWriter* writer)
-        {
+        {LOGMEIN("TTSnapObjects.h] 296\n");
             SnapHeapArgumentsInfo* argsInfo = SnapObjectGetAddtlInfoAs<SnapHeapArgumentsInfo*, argsKind>(snpObject);
 
             writer->WriteUInt32(NSTokens::Key::numberOfArgs, argsInfo->NumOfArguments, NSTokens::Separator::CommaAndBigSpaceSeparator);
@@ -308,7 +308,7 @@ namespace TTD
             writer->WriteKey(NSTokens::Key::deletedArgs, NSTokens::Separator::CommaSeparator);
             writer->WriteSequenceStart();
             for(uint32 i = 0; i < argsInfo->FormalCount; ++i)
-            {
+            {LOGMEIN("TTSnapObjects.h] 310\n");
                 writer->WriteNakedByte(argsInfo->DeletedArgFlags[i], i != 0 ? NSTokens::Separator::CommaSeparator : NSTokens::Separator::NoSeparator);
             }
             writer->WriteSequenceEnd();
@@ -316,7 +316,7 @@ namespace TTD
 
         template <SnapObjectType argsKind>
         void ParseAddtlInfo_SnapHeapArgumentsInfo(SnapObject* snpObject, FileReader* reader, SlabAllocator& alloc)
-        {
+        {LOGMEIN("TTSnapObjects.h] 318\n");
             SnapHeapArgumentsInfo* argsInfo = alloc.SlabAllocateStruct<SnapHeapArgumentsInfo>();
 
             argsInfo->NumOfArguments = reader->ReadUInt32(NSTokens::Key::numberOfArgs, true);
@@ -328,7 +328,7 @@ namespace TTD
             argsInfo->FormalCount = reader->ReadLengthValue(true);
 
             if(argsInfo->FormalCount == 0)
-            {
+            {LOGMEIN("TTSnapObjects.h] 330\n");
                 argsInfo->DeletedArgFlags = nullptr;
             }
             else
@@ -339,7 +339,7 @@ namespace TTD
             reader->ReadKey(NSTokens::Key::deletedArgs, true);
             reader->ReadSequenceStart();
             for(uint32 i = 0; i < argsInfo->FormalCount; ++i)
-            {
+            {LOGMEIN("TTSnapObjects.h] 341\n");
                 argsInfo->DeletedArgFlags[i] = reader->ReadNakedByte(i != 0);
             }
             reader->ReadSequenceEnd();
@@ -350,7 +350,7 @@ namespace TTD
 #if ENABLE_SNAPSHOT_COMPARE
         template <SnapObjectType argsKind>
         void AssertSnapEquiv_SnapHeapArgumentsInfo(const SnapObject* sobj1, const SnapObject* sobj2, TTDCompareMap& compareMap)
-        {
+        {LOGMEIN("TTSnapObjects.h] 352\n");
             SnapHeapArgumentsInfo* argsInfo1 = SnapObjectGetAddtlInfoAs<SnapHeapArgumentsInfo*, argsKind>(sobj1);
             SnapHeapArgumentsInfo* argsInfo2 = SnapObjectGetAddtlInfoAs<SnapHeapArgumentsInfo*, argsKind>(sobj2);
 
@@ -362,7 +362,7 @@ namespace TTD
 
             compareMap.DiagnosticAssert(argsInfo1->FormalCount == argsInfo2->FormalCount);
             for(uint32 i = 0; i < argsInfo1->FormalCount; ++i)
-            {
+            {LOGMEIN("TTSnapObjects.h] 364\n");
                 compareMap.DiagnosticAssert(argsInfo1->DeletedArgFlags[i] == argsInfo2->DeletedArgFlags[i]);
             }
         }
@@ -554,7 +554,7 @@ namespace TTD
 
         template<typename T, bool zeroFillValid>
         SnapArrayInfoBlock<T>* AllocateArrayInfoBlock(SlabAllocator& alloc, uint32 firstIndex, uint32 lastIndex)
-        {
+        {LOGMEIN("TTSnapObjects.h] 556\n");
             SnapArrayInfoBlock<T>* sai = alloc.SlabAllocateStruct< SnapArrayInfoBlock<T> >();
             sai->FirstIndex = firstIndex;
             sai->LastIndex = lastIndex;
@@ -564,7 +564,7 @@ namespace TTD
 
             //only zero valid flags (which guard the contents values)
             if(zeroFillValid)
-            {
+            {LOGMEIN("TTSnapObjects.h] 566\n");
                 memset(sai->ArrayValidTags, 0, lastIndex - firstIndex);
             }
 
@@ -575,19 +575,19 @@ namespace TTD
 
         template<typename T>
         SnapArrayInfo<T>* ExtractArrayValues(Js::JavascriptArray* arrayObject, SlabAllocator& alloc)
-        {
+        {LOGMEIN("TTSnapObjects.h] 577\n");
             SnapArrayInfoBlock<T>* sai = nullptr;
 
             uint32 length = arrayObject->GetLength();
             if(length == 0)
-            {
+            {LOGMEIN("TTSnapObjects.h] 582\n");
                 ; //just leave it as a null ptr
             }
             else if(length <= TTD_ARRAY_SMALL_ARRAY)
-            {
+            {LOGMEIN("TTSnapObjects.h] 586\n");
                 sai = AllocateArrayInfoBlock<T, false>(alloc, 0, length);
                 for(uint32 i = 0; i < length; ++i)
-                {
+                {LOGMEIN("TTSnapObjects.h] 589\n");
                     sai->ArrayValidTags[i] = (byte)arrayObject->DirectGetItemAt<T>(i, sai->ArrayRangeContents + i);
                 }
             }
@@ -595,9 +595,9 @@ namespace TTD
             {
                 SnapArrayInfoBlock<T>* curr = nullptr;
                 for(uint32 idx = arrayObject->GetNextIndex(Js::JavascriptArray::InvalidIndex); idx != Js::JavascriptArray::InvalidIndex; idx = arrayObject->GetNextIndex(idx))
-                {
+                {LOGMEIN("TTSnapObjects.h] 597\n");
                     if(sai == nullptr)
-                    {
+                    {LOGMEIN("TTSnapObjects.h] 599\n");
                         uint32 endIdx = (idx <= (Js::JavascriptArray::MaxArrayLength - TTD_ARRAY_BLOCK_SIZE)) ? (idx + TTD_ARRAY_BLOCK_SIZE) : Js::JavascriptArray::MaxArrayLength;
                         sai = AllocateArrayInfoBlock<T, true>(alloc, idx, endIdx);
                         curr = sai;
@@ -605,7 +605,7 @@ namespace TTD
 
                     TTDAssert(curr != nullptr, "Should get set with variable sai above when needed!");
                     if(idx >= curr->LastIndex)
-                    {
+                    {LOGMEIN("TTSnapObjects.h] 607\n");
                         uint32 endIdx = (idx <= (Js::JavascriptArray::MaxArrayLength - TTD_ARRAY_BLOCK_SIZE)) ? (idx + TTD_ARRAY_BLOCK_SIZE) : Js::JavascriptArray::MaxArrayLength;
                         curr->Next = AllocateArrayInfoBlock<T, true>(alloc, idx, endIdx);
                         curr = curr->Next;
@@ -646,7 +646,7 @@ namespace TTD
 
         template<typename T, SnapObjectType snapArrayKind>
         Js::RecyclableObject* DoObjectInflation_SnapArrayInfo(const SnapObject* snpObject, InflateMap* inflator)
-        {
+        {LOGMEIN("TTSnapObjects.h] 648\n");
             //Arrays can change type on us so seems easiest to always re-create them.
             //We can re-evaluate this choice later if needed and add checks for same type-ness.
 
@@ -657,21 +657,21 @@ namespace TTD
             Js::JavascriptLibrary* jslib = ctx->GetLibrary();
             uint32 preAllocSpace = 0;
             if(dataBlock != nullptr && dataBlock->Next == nullptr && dataBlock->FirstIndex == 0 && dataBlock->LastIndex <= TTD_ARRAY_SMALL_ARRAY)
-            {
+            {LOGMEIN("TTSnapObjects.h] 659\n");
                 preAllocSpace = dataBlock->LastIndex; //first index is 0
             }
 
             if(snpObject->SnapType->JsTypeId == Js::TypeIds_Array)
-            {
+            {LOGMEIN("TTSnapObjects.h] 664\n");
                 if(preAllocSpace == 0)
-                {
+                {LOGMEIN("TTSnapObjects.h] 666\n");
                     return jslib->CreateArray();
                 }
                 else
                 {
                     Js::DynamicObject* rcObj = ReuseObjectCheckAndReset(snpObject, inflator);
                     if(rcObj != nullptr)
-                    {
+                    {LOGMEIN("TTSnapObjects.h] 673\n");
                         Js::JavascriptArray::FromVar(rcObj)->SetLength(preAllocSpace);
                         return rcObj;
                     }
@@ -682,11 +682,11 @@ namespace TTD
                 }
             }
             else if(snpObject->SnapType->JsTypeId == Js::TypeIds_NativeIntArray)
-            {
+            {LOGMEIN("TTSnapObjects.h] 684\n");
                 return (preAllocSpace > 0) ? ctx->GetLibrary()->CreateNativeIntArray(preAllocSpace) : ctx->GetLibrary()->CreateNativeIntArray();
             }
             else if(snpObject->SnapType->JsTypeId == Js::TypeIds_NativeFloatArray)
-            {
+            {LOGMEIN("TTSnapObjects.h] 688\n");
                 return (preAllocSpace > 0) ? ctx->GetLibrary()->CreateNativeFloatArray(preAllocSpace) : ctx->GetLibrary()->CreateNativeFloatArray();
             }
             else
@@ -698,15 +698,15 @@ namespace TTD
 
         template<typename T, typename U>
         void DoAddtlValueInstantiation_SnapArrayInfoCore(SnapArrayInfo<T>* arrayInfo, Js::JavascriptArray* arrayObj, InflateMap* inflator)
-        {
+        {LOGMEIN("TTSnapObjects.h] 700\n");
             const SnapArrayInfoBlock<T>* dataBlock = arrayInfo->Data;
 
             while(dataBlock != nullptr)
-            {
+            {LOGMEIN("TTSnapObjects.h] 704\n");
                 for(uint32 i = 0; i < (dataBlock->LastIndex - dataBlock->FirstIndex); ++i)
-                {
+                {LOGMEIN("TTSnapObjects.h] 706\n");
                     if(dataBlock->ArrayValidTags[i])
-                    {
+                    {LOGMEIN("TTSnapObjects.h] 708\n");
                         T ttdVal = dataBlock->ArrayRangeContents[i];
                         U jsVal = SnapArrayInfo_InflateValue(ttdVal, inflator);
 
@@ -722,7 +722,7 @@ namespace TTD
 
         template<typename T, typename U, SnapObjectType snapArrayKind>
         void DoAddtlValueInstantiation_SnapArrayInfo(const SnapObject* snpObject, Js::RecyclableObject* obj, InflateMap* inflator)
-        {
+        {LOGMEIN("TTSnapObjects.h] 724\n");
             SnapArrayInfo<T>* arrayInfo = SnapObjectGetAddtlInfoAs<SnapArrayInfo<T>*, snapArrayKind>(snpObject);
             Js::JavascriptArray* arrayObj = static_cast<Js::JavascriptArray*>(obj);
 
@@ -731,12 +731,12 @@ namespace TTD
 
         template<typename T>
         void EmitAddtlInfo_SnapArrayInfoCore(SnapArrayInfo<T>* arrayInfo, FileWriter* writer)
-        {
+        {LOGMEIN("TTSnapObjects.h] 733\n");
             writer->WriteLengthValue(arrayInfo->Length, NSTokens::Separator::CommaSeparator);
 
             uint32 blockCount = 0;
             for(SnapArrayInfoBlock<T>* currInfo = arrayInfo->Data; currInfo != nullptr; currInfo = currInfo->Next)
-            {
+            {LOGMEIN("TTSnapObjects.h] 738\n");
                 blockCount++;
             }
 
@@ -744,20 +744,20 @@ namespace TTD
             writer->WriteSequenceStart_DefaultKey(NSTokens::Separator::CommaSeparator);
             writer->AdjustIndent(1);
             for(SnapArrayInfoBlock<T>* currInfo = arrayInfo->Data; currInfo != nullptr; currInfo = currInfo->Next)
-            {
+            {LOGMEIN("TTSnapObjects.h] 746\n");
                 writer->WriteRecordStart(currInfo == arrayInfo->Data ? NSTokens::Separator::BigSpaceSeparator : NSTokens::Separator::CommaAndBigSpaceSeparator);
                 writer->WriteUInt32(NSTokens::Key::index, currInfo->FirstIndex);
                 writer->WriteUInt32(NSTokens::Key::offset, currInfo->LastIndex, NSTokens::Separator::CommaSeparator);
 
                 writer->WriteSequenceStart_DefaultKey(NSTokens::Separator::CommaSeparator);
                 for(uint32 i = currInfo->FirstIndex; i < currInfo->LastIndex; ++i)
-                {
+                {LOGMEIN("TTSnapObjects.h] 753\n");
                     uint32 j = (i - currInfo->FirstIndex);
                     writer->WriteRecordStart(j == 0 ? NSTokens::Separator::NoSeparator : NSTokens::Separator::CommaSeparator);
 
                     writer->WriteInt32(NSTokens::Key::isValid, currInfo->ArrayValidTags[j]);
                     if(currInfo->ArrayValidTags[j])
-                    {
+                    {LOGMEIN("TTSnapObjects.h] 759\n");
                         SnapArrayInfo_EmitValue(currInfo->ArrayRangeContents[j], writer);
                     }
                     writer->WriteRecordEnd();
@@ -771,7 +771,7 @@ namespace TTD
 
         template<typename T, SnapObjectType snapArrayKind>
         void EmitAddtlInfo_SnapArrayInfo(const SnapObject* snpObject, FileWriter* writer)
-        {
+        {LOGMEIN("TTSnapObjects.h] 773\n");
             SnapArrayInfo<T>* arrayInfo = SnapObjectGetAddtlInfoAs<SnapArrayInfo<T>*, snapArrayKind>(snpObject);
 
             EmitAddtlInfo_SnapArrayInfoCore<T>(arrayInfo, writer);
@@ -779,7 +779,7 @@ namespace TTD
 
         template<typename T>
         SnapArrayInfo<T>* ParseAddtlInfo_SnapArrayInfoCore(FileReader* reader, SlabAllocator& alloc)
-        {
+        {LOGMEIN("TTSnapObjects.h] 781\n");
             uint32 alength = reader->ReadLengthValue(true);
 
             SnapArrayInfoBlock<T>* arrayInfo = nullptr;
@@ -788,7 +788,7 @@ namespace TTD
             uint32 blockCount = reader->ReadLengthValue(true);
             reader->ReadSequenceStart_WDefaultKey(true);
             for(uint32 k = 0; k < blockCount; ++k)
-            {
+            {LOGMEIN("TTSnapObjects.h] 790\n");
                 reader->ReadRecordStart(k != 0);
 
                 SnapArrayInfoBlock<T>* tmp = alloc.SlabAllocateStruct< SnapArrayInfoBlock<T> >();
@@ -800,26 +800,26 @@ namespace TTD
                 tmp->Next = nullptr;
 
                 if(curr != nullptr)
-                {
+                {LOGMEIN("TTSnapObjects.h] 802\n");
                     curr->Next = tmp;
                 }
                 curr = tmp;
                 TTDAssert(curr != nullptr, "Sanity assert failed.");
 
                 if(arrayInfo == nullptr)
-                {
+                {LOGMEIN("TTSnapObjects.h] 809\n");
                     arrayInfo = curr;
                 }
 
                 reader->ReadSequenceStart_WDefaultKey(true);
                 for(uint32 i = curr->FirstIndex; i < curr->LastIndex; ++i)
-                {
+                {LOGMEIN("TTSnapObjects.h] 815\n");
                     uint32 j = (i - curr->FirstIndex);
                     reader->ReadRecordStart(j != 0);
 
                     curr->ArrayValidTags[j] = (byte)reader->ReadInt32(NSTokens::Key::isValid);
                     if(curr->ArrayValidTags[j])
-                    {
+                    {LOGMEIN("TTSnapObjects.h] 821\n");
                         SnapArrayInfo_ParseValue(curr->ArrayRangeContents + j, reader, alloc);
                     }
                     reader->ReadRecordEnd();
@@ -838,7 +838,7 @@ namespace TTD
 
         template<typename T, SnapObjectType snapArrayKind>
         void ParseAddtlInfo_SnapArrayInfo(SnapObject* snpObject, FileReader* reader, SlabAllocator& alloc)
-        {
+        {LOGMEIN("TTSnapObjects.h] 840\n");
             SnapArrayInfo<T>* arrayInfo = ParseAddtlInfo_SnapArrayInfoCore<T>(reader, alloc);
 
             SnapObjectSetAddtlInfoAs<SnapArrayInfo<T>*, snapArrayKind>(snpObject, arrayInfo);
@@ -847,15 +847,15 @@ namespace TTD
 #if ENABLE_SNAPSHOT_COMPARE
         template<typename T>
         void AdvanceArrayIndex_SnapArrayInfoCompare(uint32* index, uint32* pos, const SnapArrayInfoBlock<T>** segment)
-        {
+        {LOGMEIN("TTSnapObjects.h] 849\n");
             *index = *index + 1;
             if(*index >= (*segment)->LastIndex)
-            {
+            {LOGMEIN("TTSnapObjects.h] 852\n");
                 *segment = (*segment)->Next;
                 *pos = 0;
 
                 if(*segment != nullptr)
-                {
+                {LOGMEIN("TTSnapObjects.h] 857\n");
                     *index = (*segment)->FirstIndex;
                 }
             }
@@ -869,7 +869,7 @@ namespace TTD
 
         template<typename T>
         void AssertSnapEquiv_SnapArrayInfoCore(const SnapArrayInfoBlock<T>* arrayInfo1, const SnapArrayInfoBlock<T>* arrayInfo2, TTDCompareMap& compareMap)
-        {
+        {LOGMEIN("TTSnapObjects.h] 871\n");
             uint32 index1 = (arrayInfo1 != nullptr) ? arrayInfo1->FirstIndex : 0;
             uint32 pos1 = 0;
 
@@ -877,14 +877,14 @@ namespace TTD
             uint32 pos2 = 0;
 
             while(arrayInfo1 != nullptr && arrayInfo2 != nullptr)
-            {
+            {LOGMEIN("TTSnapObjects.h] 879\n");
                 if(index1 < index2)
-                {
+                {LOGMEIN("TTSnapObjects.h] 881\n");
                     compareMap.DiagnosticAssert(!arrayInfo1->ArrayValidTags[pos1]);
                     AdvanceArrayIndex_SnapArrayInfoCompare(&index1, &pos1, &arrayInfo1);
                 }
                 else if(index1 > index2)
-                {
+                {LOGMEIN("TTSnapObjects.h] 886\n");
                     compareMap.DiagnosticAssert(!arrayInfo2->ArrayValidTags[pos2]);
                     AdvanceArrayIndex_SnapArrayInfoCompare(&index2, &pos2, &arrayInfo2);
                 }
@@ -892,7 +892,7 @@ namespace TTD
                 {
                     compareMap.DiagnosticAssert(arrayInfo1->ArrayValidTags[pos1] == arrayInfo2->ArrayValidTags[pos2]);
                     if(arrayInfo1->ArrayValidTags[pos1])
-                    {
+                    {LOGMEIN("TTSnapObjects.h] 894\n");
                         SnapArrayInfo_EquivValue(arrayInfo1->ArrayRangeContents[pos1], arrayInfo2->ArrayRangeContents[pos2], compareMap, index1);
                     }
 
@@ -903,13 +903,13 @@ namespace TTD
 
             //make sure any remaining entries an empty
             while(arrayInfo1 != nullptr)
-            {
+            {LOGMEIN("TTSnapObjects.h] 905\n");
                 compareMap.DiagnosticAssert(!arrayInfo1->ArrayValidTags[pos1]);
                 AdvanceArrayIndex_SnapArrayInfoCompare(&index1, &pos1, &arrayInfo1);
             }
 
             while(arrayInfo1 != nullptr)
-            {
+            {LOGMEIN("TTSnapObjects.h] 911\n");
                 compareMap.DiagnosticAssert(!arrayInfo2->ArrayValidTags[pos2]);
                 AdvanceArrayIndex_SnapArrayInfoCompare(&index2, &pos2, &arrayInfo2);
             }
@@ -917,7 +917,7 @@ namespace TTD
 
         template<typename T, SnapObjectType snapArrayKind>
         void AssertSnapEquiv_SnapArrayInfo(const SnapObject* sobj1, const SnapObject* sobj2, TTDCompareMap& compareMap)
-        {
+        {LOGMEIN("TTSnapObjects.h] 919\n");
             const SnapArrayInfo<T>* arrayInfo1 = SnapObjectGetAddtlInfoAs<SnapArrayInfo<T>*, snapArrayKind>(sobj1);
             const SnapArrayInfo<T>* arrayInfo2 = SnapObjectGetAddtlInfoAs<SnapArrayInfo<T>*, snapArrayKind>(sobj2);
 

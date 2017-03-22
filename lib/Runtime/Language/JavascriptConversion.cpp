@@ -20,10 +20,10 @@ namespace Js
     // This allows the caller to provide more context in the error message without having to unnecessarily
     // construct the message string before knowing whether or not the object is coercible.
     BOOL JavascriptConversion::CheckObjectCoercible(Var aValue, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 22\n");
         TypeId typeId = JavascriptOperators::GetTypeId(aValue);
         if (typeId == TypeIds_Null || typeId == TypeIds_Undefined)
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 25\n");
             return FALSE;
         }
         return TRUE;
@@ -32,9 +32,9 @@ namespace Js
     //ES5 9.11  Undefined, Null, Boolean, Number, String - return false
     //If Object has a [[Call]] internal method, then return true, otherwise return false
     bool JavascriptConversion::IsCallable(Var aValue)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 34\n");
         if (!RecyclableObject::Is(aValue))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 36\n");
             return false;
         }
         JavascriptMethod entryPoint = RecyclableObject::FromVar(aValue)->GetEntryPoint();
@@ -58,28 +58,28 @@ namespace Js
     //----------------------------------------------------------------------------
     template<bool zero>
     bool JavascriptConversion::SameValueCommon(Var aLeft, Var aRight)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 60\n");
         TypeId leftType = JavascriptOperators::GetTypeId(aLeft);
         TypeId rightType = JavascriptOperators::GetTypeId(aRight);
 
         //Check for undefined and null type;
         if (leftType == TypeIds_Undefined )
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 66\n");
             return rightType == TypeIds_Undefined;
         }
 
         if (leftType == TypeIds_Null)
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 71\n");
             return rightType == TypeIds_Null;
         }
 
         double dblLeft, dblRight;
 
         switch (leftType)
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 78\n");
         case TypeIds_Integer:
             switch (rightType)
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 81\n");
             case TypeIds_Integer:
                 return aLeft == aRight;
             case TypeIds_Number:
@@ -87,13 +87,13 @@ namespace Js
                 dblRight    = JavascriptNumber::GetValue(aRight);
                 goto CommonNumber;
             case TypeIds_Int64Number:
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 89\n");
                 int leftValue = TaggedInt::ToInt32(aLeft);
                 __int64 rightValue = JavascriptInt64Number::FromVar(aRight)->GetValue();
                 return leftValue == rightValue;
                 }
             case TypeIds_UInt64Number:
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 95\n");
                 int leftValue = TaggedInt::ToInt32(aLeft);
                 unsigned __int64 rightValue = JavascriptInt64Number::FromVar(aRight)->GetValue();
                 return leftValue == rightValue;
@@ -102,9 +102,9 @@ namespace Js
             break;
         case TypeIds_Int64Number:
             switch (rightType)
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 104\n");
             case TypeIds_Integer:
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 106\n");
                 __int64 leftValue = JavascriptInt64Number::FromVar(aLeft)->GetValue();
                 int rightValue = TaggedInt::ToInt32(aRight);
                 return leftValue == rightValue;
@@ -114,13 +114,13 @@ namespace Js
                 dblRight    = JavascriptNumber::GetValue(aRight);
                 goto CommonNumber;
             case TypeIds_Int64Number:
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 116\n");
                 __int64 leftValue = JavascriptInt64Number::FromVar(aLeft)->GetValue();
                 __int64 rightValue = JavascriptInt64Number::FromVar(aRight)->GetValue();
                 return leftValue == rightValue;
                 }
             case TypeIds_UInt64Number:
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 122\n");
                 __int64 leftValue = JavascriptInt64Number::FromVar(aLeft)->GetValue();
                 unsigned __int64 rightValue = JavascriptInt64Number::FromVar(aRight)->GetValue();
                 return ((unsigned __int64)leftValue == rightValue);
@@ -129,9 +129,9 @@ namespace Js
             break;
         case TypeIds_UInt64Number:
             switch (rightType)
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 131\n");
             case TypeIds_Integer:
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 133\n");
                 unsigned __int64 leftValue = JavascriptUInt64Number::FromVar(aLeft)->GetValue();
                 __int64 rightValue = TaggedInt::ToInt32(aRight);
                 return (leftValue == (unsigned __int64)rightValue);
@@ -141,13 +141,13 @@ namespace Js
                 dblRight    = JavascriptNumber::GetValue(aRight);
                 goto CommonNumber;
             case TypeIds_Int64Number:
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 143\n");
                 unsigned __int64 leftValue = JavascriptUInt64Number::FromVar(aLeft)->GetValue();
                 __int64 rightValue = JavascriptInt64Number::FromVar(aRight)->GetValue();
                 return (leftValue == (unsigned __int64)rightValue);
                 }
             case TypeIds_UInt64Number:
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 149\n");
                 unsigned __int64 leftValue = JavascriptUInt64Number::FromVar(aLeft)->GetValue();
                 unsigned __int64 rightValue = JavascriptInt64Number::FromVar(aRight)->GetValue();
                 return leftValue == rightValue;
@@ -156,7 +156,7 @@ namespace Js
             break;
         case TypeIds_Number:
             switch (rightType)
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 158\n");
             case TypeIds_Integer:
                 dblLeft     = JavascriptNumber::GetValue(aLeft);
                 dblRight    = TaggedInt::ToDouble(aRight);
@@ -174,12 +174,12 @@ namespace Js
                 dblRight    = JavascriptNumber::GetValue(aRight);
 CommonNumber:
                 if (JavascriptNumber::IsNan(dblLeft) && JavascriptNumber::IsNan(dblRight))
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 176\n");
                     return true;
                 }
 
                 if (zero)
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 181\n");
                     // SameValueZero(+0,-0) returns true;
                     return dblLeft == dblRight;
                 }
@@ -193,23 +193,23 @@ CommonNumber:
             break;
         case TypeIds_Boolean:
             switch (rightType)
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 195\n");
             case TypeIds_Boolean:
                 return aLeft == aRight;
             }
             break;
         case TypeIds_String:
             switch (rightType)
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 202\n");
             case TypeIds_String:
                 return JavascriptString::Equals(aLeft, aRight);
             }
             break;
         case TypeIds_Symbol:
             switch (rightType)
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 209\n");
             case TypeIds_Symbol:
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 211\n");
                     JavascriptSymbol* leftSymbol = JavascriptSymbol::FromVar(aLeft);
                     JavascriptSymbol* rightSymbol = JavascriptSymbol::FromVar(aRight);
                     return leftSymbol->GetValue() == rightSymbol->GetValue();
@@ -251,11 +251,11 @@ CommonNumber:
     //              Return TRUE.
     //----------------------------------------------------------------------------
     BOOL JavascriptConversion::ToObject(Var aValue, ScriptContext* scriptContext, RecyclableObject** object)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 253\n");
         Assert(object);
 
         switch (JavascriptOperators::GetTypeId(aValue))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 257\n");
             case TypeIds_Undefined:
             case TypeIds_Null:
                 return FALSE;
@@ -266,10 +266,10 @@ CommonNumber:
                 return TRUE;
 
             default:
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 268\n");
 #ifdef ENABLE_SIMDJS
                 if (SIMDUtils::IsSimdType(aValue))
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 271\n");
                     *object = scriptContext->GetLibrary()->CreateSIMDObject(aValue, JavascriptOperators::GetTypeId(aValue));
                 }
                 else
@@ -287,11 +287,11 @@ CommonNumber:
     // Implementation of ES6 7.1.14
     //----------------------------------------------------------------------------
     void JavascriptConversion::ToPropertyKey(Var argument, ScriptContext* scriptContext, const PropertyRecord** propertyRecord)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 289\n");
         Var key = JavascriptConversion::ToPrimitive(argument, JavascriptHint::HintString, scriptContext);
 
         if (JavascriptSymbol::Is(key))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 293\n");
             // If we are looking up a property keyed by a symbol, we already have the PropertyId in the symbol
             *propertyRecord = JavascriptSymbol::FromVar(key)->GetValue();
         }
@@ -301,7 +301,7 @@ CommonNumber:
             JavascriptString * propName = JavascriptConversion::ToString(key, scriptContext);
 
             if (VirtualTableInfo<Js::PropertyString>::HasVirtualTable(propName))
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 303\n");
                 PropertyString * propertyString = (PropertyString *)propName;
                 *propertyRecord = propertyString->GetPropertyRecord();
             }
@@ -329,9 +329,9 @@ CommonNumber:
     //              for all native ECMAScript objects (8.12.9).
     //----------------------------------------------------------------------------
     Var JavascriptConversion::ToPrimitive(Var aValue, JavascriptHint hint, ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 331\n");
         switch (JavascriptOperators::GetTypeId(aValue))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 333\n");
         case TypeIds_Undefined:
         case TypeIds_Null:
         case TypeIds_Integer:
@@ -342,21 +342,21 @@ CommonNumber:
             return aValue;
 
         case TypeIds_VariantDate:
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 344\n");
                 Var result = nullptr;
                 if (JavascriptVariantDate::FromVar(aValue)->ToPrimitive(hint, &result, requestContext) != TRUE)
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 347\n");
                     result = nullptr;
                 }
                 return result;
             }
 
         case TypeIds_StringObject:
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 354\n");
                 JavascriptStringObject * stringObject = JavascriptStringObject::FromVar(aValue);
 
                 if (stringObject->GetScriptContext()->optimizationOverrides.GetSideEffects() & (hint == JavascriptHint::HintString ? SideEffects_ToString : SideEffects_ValueOf))
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 358\n");
                     return MethodCallToPrimitive(aValue, hint, requestContext);
                 }
 
@@ -364,13 +364,13 @@ CommonNumber:
             }
 
         case TypeIds_NumberObject:
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 366\n");
                 JavascriptNumberObject * numberObject = JavascriptNumberObject::FromVar(aValue);
 
                 if (hint == JavascriptHint::HintString)
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 370\n");
                     if (numberObject->GetScriptContext()->optimizationOverrides.GetSideEffects() & SideEffects_ToString)
-                    {
+                    {LOGMEIN("JavascriptConversion.cpp] 372\n");
                         return MethodCallToPrimitive(aValue, hint, requestContext);
                     }
                     return JavascriptNumber::ToStringRadix10(numberObject->GetValue(), requestContext);
@@ -378,7 +378,7 @@ CommonNumber:
                 else
                 {
                     if (numberObject->GetScriptContext()->optimizationOverrides.GetSideEffects() & SideEffects_ValueOf)
-                    {
+                    {LOGMEIN("JavascriptConversion.cpp] 380\n");
                         return MethodCallToPrimitive(aValue, hint, requestContext);
                     }
                     return CrossSite::MarshalVar(requestContext, numberObject->Unwrap());
@@ -387,7 +387,7 @@ CommonNumber:
 
 
         case TypeIds_SymbolObject:
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 389\n");
                 JavascriptSymbolObject* symbolObject = JavascriptSymbolObject::FromVar(aValue);
 
                 return requestContext->GetLibrary()->CreateSymbol(symbolObject->GetValue());
@@ -395,12 +395,12 @@ CommonNumber:
 
         case TypeIds_Date:
         case TypeIds_WinRTDate:
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 397\n");
                 JavascriptDate* dateObject = JavascriptDate::FromVar(aValue);
                 if(hint == JavascriptHint::HintNumber)
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 400\n");
                     if (dateObject->GetScriptContext()->optimizationOverrides.GetSideEffects() & SideEffects_ValueOf)
-                    {
+                    {LOGMEIN("JavascriptConversion.cpp] 402\n");
                         // if no Method exists this function falls back to OrdinaryToPrimitive
                         // if IsES6ToPrimitiveEnabled flag is off we also fall back to OrdinaryToPrimitive
                         return MethodCallToPrimitive(aValue, hint, requestContext);
@@ -410,7 +410,7 @@ CommonNumber:
                 else
                 {
                     if (dateObject->GetScriptContext()->optimizationOverrides.GetSideEffects() & SideEffects_ToString)
-                    {
+                    {LOGMEIN("JavascriptConversion.cpp] 412\n");
                         // if no Method exists this function falls back to OrdinaryToPrimitive
                         // if IsES6ToPrimitiveEnabled flag is off we also fall back to OrdinaryToPrimitive
                         return MethodCallToPrimitive(aValue, hint, requestContext);
@@ -429,7 +429,7 @@ CommonNumber:
         default:
 #ifdef ENABLE_SIMDJS
             if (SIMDUtils::IsSimdType(aValue))
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 431\n");
                 return aValue;
             }
             else
@@ -451,16 +451,16 @@ CommonNumber:
     //5. Return n.
     //----------------------------------------------------------------------------
     BOOL JavascriptConversion::CanonicalNumericIndexString(Var aValue, double *indexValue, ScriptContext * scriptContext)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 453\n");
         AssertMsg(JavascriptString::Is(aValue), "CanonicalNumericIndexString expects only string");
         if (JavascriptString::IsNegZero(JavascriptString::FromVar(aValue)))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 456\n");
             *indexValue = -0;
             return TRUE;
         }
         Var indexNumberValue = JavascriptOperators::ToNumber(aValue, scriptContext);
         if (JavascriptString::Equals(JavascriptConversion::ToString(indexNumberValue, scriptContext), aValue))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 462\n");
             *indexValue = JavascriptNumber::GetValue(indexNumberValue);
             return TRUE;
         }
@@ -468,7 +468,7 @@ CommonNumber:
     }
 
     Var JavascriptConversion::MethodCallToPrimitive(Var aValue, JavascriptHint hint, ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 470\n");
         Var result = nullptr;
         RecyclableObject *const recyclableObject = RecyclableObject::FromVar(aValue);
         ScriptContext *const scriptContext = recyclableObject->GetScriptContext();
@@ -487,11 +487,11 @@ CommonNumber:
         if (!(requestContext->GetConfig()->IsES6ToPrimitiveEnabled()
             && JavascriptOperators::GetPropertyReference(recyclableObject, PropertyIds::_symbolToPrimitive, &varMethod, requestContext)
             && !JavascriptOperators::IsUndefinedOrNull(varMethod)))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 489\n");
             return OrdinaryToPrimitive(aValue, hint, requestContext);
         }
         if (!JavascriptFunction::Is(varMethod))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 493\n");
             // Don't error if we disabled implicit calls
             JavascriptError::TryThrowTypeError(scriptContext, requestContext, JSERR_Property_NeedFunction, requestContext->GetPropertyName(PropertyIds::_symbolToPrimitive)->GetBuffer());
             return requestContext->GetLibrary()->GetNull();
@@ -502,11 +502,11 @@ CommonNumber:
         JavascriptString* hintString = nullptr;
 
         if (hint == JavascriptHint::HintString)
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 504\n");
             hintString = requestContext->GetLibrary()->CreateStringFromCppLiteral(_u("string"));
         }
         else if (hint == JavascriptHint::HintNumber)
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 508\n");
             hintString = requestContext->GetLibrary()->CreateStringFromCppLiteral(_u("number"));
         }
         else
@@ -516,7 +516,7 @@ CommonNumber:
 
         // If exoticToPrim is not undefined, then
         if (nullptr != exoticToPrim)
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 518\n");
             ThreadContext * threadContext = requestContext->GetThreadContext();
             result = threadContext->ExecuteImplicitCall(exoticToPrim, ImplicitCall_ToPrimitive, [=]()->Js::Var
             {
@@ -528,7 +528,7 @@ CommonNumber:
             });
 
             if (!result)
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 530\n");
                 // There was an implicit call and implicit calls are disabled. This would typically cause a bailout.
                 Assert(threadContext->IsDisableImplicitCall());
                 return requestContext->GetLibrary()->GetNull();
@@ -538,7 +538,7 @@ CommonNumber:
         }
         // If result is an ECMAScript language value and Type(result) is not Object, then return result.
         if (TaggedInt::Is(result) || !JavascriptOperators::IsObjectType(JavascriptOperators::GetTypeId(result)))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 540\n");
             return result;
         }
         // Else, throw a TypeError exception.
@@ -551,17 +551,17 @@ CommonNumber:
     }
 
     Var JavascriptConversion::OrdinaryToPrimitive(Var aValue, JavascriptHint hint, ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 553\n");
         Var result;
         RecyclableObject *const recyclableObject = RecyclableObject::FromVar(aValue);
         if (!recyclableObject->ToPrimitive(hint, &result, requestContext))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 557\n");
             ScriptContext *const scriptContext = recyclableObject->GetScriptContext();
 
             int32 hCode;
 
             switch (hint)
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 563\n");
             case JavascriptHint::HintNumber:
                 hCode = JSERR_NeedNumber;
                 break;
@@ -579,9 +579,9 @@ CommonNumber:
     }
 
     JavascriptString *JavascriptConversion::CoerseString(Var aValue, ScriptContext* scriptContext, const char16* apiNameForErrorMsg)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 581\n");
         if (!JavascriptConversion::CheckObjectCoercible(aValue, scriptContext))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 583\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NullOrUndefined, apiNameForErrorMsg);
         }
 
@@ -608,14 +608,14 @@ CommonNumber:
     // 2. Return ToString(primValue).
     //----------------------------------------------------------------------------
     JavascriptString *JavascriptConversion::ToString(Var aValue, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 610\n");
         Assert(scriptContext->GetThreadContext()->IsScriptActive());
 
         BOOL fPrimitiveOnly = false;
         while(true)
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 615\n");
             switch (JavascriptOperators::GetTypeId(aValue))
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 617\n");
             case TypeIds_Undefined:
                 return scriptContext->GetLibrary()->GetUndefinedDisplayString();
 
@@ -632,10 +632,10 @@ CommonNumber:
                 return JavascriptNumber::ToStringRadix10(JavascriptNumber::GetValue(aValue), scriptContext);
 
             case TypeIds_Int64Number:
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 634\n");
                     __int64 value = JavascriptInt64Number::FromVar(aValue)->GetValue();
                     if (!TaggedInt::IsOverflow(value))
-                    {
+                    {LOGMEIN("JavascriptConversion.cpp] 637\n");
                         return scriptContext->GetIntegerString((int)value);
                     }
                     else
@@ -645,10 +645,10 @@ CommonNumber:
                 }
 
             case TypeIds_UInt64Number:
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 647\n");
                     unsigned __int64 value = JavascriptUInt64Number::FromVar(aValue)->GetValue();
                     if (!TaggedInt::IsOverflow(value))
-                    {
+                    {LOGMEIN("JavascriptConversion.cpp] 650\n");
                         return scriptContext->GetIntegerString((uint)value);
                     }
                     else
@@ -680,11 +680,11 @@ CommonNumber:
             case TypeIds_SIMDUint16x8:
             case TypeIds_SIMDUint32x4:
             case TypeIds_SIMDFloat32x4:
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 682\n");
                 Assert(aValue);
                 RecyclableObject *obj = nullptr;
                 if (!JavascriptConversion::ToObject(aValue, scriptContext, &obj))
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 686\n");
                     JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedSimd, _u("SIMDType.toString"));
                 }
                 JavascriptSIMDObject* simdObject = static_cast<JavascriptSIMDObject*>(obj);
@@ -697,7 +697,7 @@ CommonNumber:
                 // fall through
 
             default:
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 699\n");
                     AssertMsg(JavascriptOperators::IsObject(aValue), "bad type object in conversion ToString");
                     if(fPrimitiveOnly)
                     {
@@ -712,9 +712,9 @@ CommonNumber:
     }
 
     JavascriptString *JavascriptConversion::ToLocaleString(Var aValue, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 714\n");
         switch (JavascriptOperators::GetTypeId(aValue))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 716\n");
         case TypeIds_Undefined:
             return scriptContext->GetLibrary()->GetUndefinedDisplayString();
 
@@ -747,16 +747,16 @@ CommonNumber:
             return JavascriptSymbol::FromVar(aValue)->ToString(scriptContext);
 
         default:
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 749\n");
                 RecyclableObject* object = RecyclableObject::FromVar(aValue);
                 Var value = JavascriptOperators::GetProperty(object, PropertyIds::toLocaleString, scriptContext, NULL);
 
                 if (JavascriptConversion::IsCallable(value))
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 754\n");
                     RecyclableObject* toLocaleStringFunction = RecyclableObject::FromVar(value);
                     Var aResult = CALL_FUNCTION(toLocaleStringFunction, CallInfo(1), aValue);
                     if (JavascriptString::Is(aResult))
-                    {
+                    {LOGMEIN("JavascriptConversion.cpp] 758\n");
                         return JavascriptString::FromVar(aResult);
                     }
                     else
@@ -787,14 +787,14 @@ CommonNumber:
     // Falsy Object 'false'
     //----------------------------------------------------------------------------
     BOOL JavascriptConversion::ToBoolean_Full(Var aValue, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 789\n");
         AssertMsg(!TaggedInt::Is(aValue), "Should be detected");
         AssertMsg(RecyclableObject::Is(aValue), "Should be handled already");
 
         auto type = RecyclableObject::FromVar(aValue)->GetType();
 
         switch (type->GetTypeId())
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 796\n");
         case TypeIds_Undefined:
         case TypeIds_Null:
         case TypeIds_VariantDate:
@@ -808,26 +808,26 @@ CommonNumber:
 
 #if !FLOATVAR
         case TypeIds_Number:
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 810\n");
                 double value = JavascriptNumber::GetValue(aValue);
                 return (!JavascriptNumber::IsNan(value)) && (!JavascriptNumber::IsZero(value));
             }
 #endif
 
         case TypeIds_Int64Number:
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 817\n");
                 __int64 value = JavascriptInt64Number::FromVar(aValue)->GetValue();
                 return value != 0;
             }
 
         case TypeIds_UInt64Number:
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 823\n");
                 unsigned __int64 value = JavascriptUInt64Number::FromVar(aValue)->GetValue();
                 return value != 0;
             }
 
         case TypeIds_String:
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 829\n");
                 JavascriptString * pstValue = JavascriptString::FromVar(aValue);
                 return pstValue->GetLength() > 0;
             }
@@ -844,7 +844,7 @@ CommonNumber:
         case TypeIds_SIMDUint32x4:
         case TypeIds_SIMDUint16x8:
         case TypeIds_SIMDUint8x16:
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 846\n");
             return true;
         }
 #endif
@@ -860,12 +860,12 @@ CommonNumber:
     }
 
     void JavascriptConversion::ToFloat_Helper(Var aValue, float *pResult, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 862\n");
         *pResult = (float)ToNumber_Full(aValue, scriptContext);
     }
 
     void JavascriptConversion::ToNumber_Helper(Var aValue, double *pResult, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 867\n");
         Assert(Js::JavascriptStackWalker::ValidateTopJitFrame(scriptContext));
         *pResult = ToNumber_Full(aValue, scriptContext);
     }
@@ -873,18 +873,18 @@ CommonNumber:
     // Used for the JIT's float type specialization
     // Convert aValue to double, but only allow primitives.  Return false otherwise.
     BOOL JavascriptConversion::ToNumber_FromPrimitive(Var aValue, double *pResult, BOOL allowUndefined, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 875\n");
         Assert(Js::JavascriptStackWalker::ValidateTopJitFrame(scriptContext));
         Assert(!TaggedNumber::Is(aValue));
         RecyclableObject *obj = RecyclableObject::FromVar(aValue);
 
         // NOTE: Don't allow strings, otherwise JIT's float type specialization has to worry about concats
         if (obj->GetTypeId() >= TypeIds_String)
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 882\n");
             return false;
         }
         if (!allowUndefined && obj->GetTypeId() == TypeIds_Undefined)
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 886\n");
             return false;
         }
 
@@ -905,14 +905,14 @@ CommonNumber:
     // Symbol:    TypeError
     //----------------------------------------------------------------------------
     double JavascriptConversion::ToNumber_Full(Var aValue,ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 907\n");
         AssertMsg(!TaggedInt::Is(aValue), "Should be detected");
         ScriptContext * objectScriptContext = RecyclableObject::Is(aValue) ? RecyclableObject::FromVar(aValue)->GetScriptContext() : nullptr;
         BOOL fPrimitiveOnly = false;
         while(true)
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 912\n");
             switch (JavascriptOperators::GetTypeId(aValue))
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 914\n");
             case TypeIds_Symbol:
                 JavascriptError::TryThrowTypeError(objectScriptContext, scriptContext, JSERR_NeedNumber);
                 // Fallthrough to return NaN if exceptions are disabled
@@ -960,10 +960,10 @@ CommonNumber:
 #endif
 
             default:
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 962\n");
                     AssertMsg(JavascriptOperators::IsObject(aValue), "bad type object in conversion ToInteger");
                     if(fPrimitiveOnly)
-                    {
+                    {LOGMEIN("JavascriptConversion.cpp] 965\n");
                         JavascriptError::ThrowError(scriptContext, VBSERR_OLENoPropOrMethod);
                     }
                     fPrimitiveOnly = true;
@@ -977,14 +977,14 @@ CommonNumber:
     // second part of the ToInteger() implementation.(ES5.0: S9.4).
     //----------------------------------------------------------------------------
     double JavascriptConversion::ToInteger_Full(Var aValue,ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 979\n");
         AssertMsg(!TaggedInt::Is(aValue), "Should be detected");
         ScriptContext * objectScriptContext = RecyclableObject::Is(aValue) ? RecyclableObject::FromVar(aValue)->GetScriptContext() : nullptr;
         BOOL fPrimitiveOnly = false;
         while(true)
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 984\n");
             switch (JavascriptOperators::GetTypeId(aValue))
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 986\n");
             case TypeIds_Symbol:
                 JavascriptError::TryThrowTypeError(objectScriptContext, scriptContext, JSERR_NeedNumber);
                 // Fallthrough to return 0 if exceptions are disabled
@@ -1029,7 +1029,7 @@ CommonNumber:
 #endif
 
             default:
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 1031\n");
                     AssertMsg(JavascriptOperators::IsObject(aValue), "bad type object in conversion ToInteger");
                     if(fPrimitiveOnly)
                     {
@@ -1044,12 +1044,12 @@ CommonNumber:
     }
 
     double JavascriptConversion::ToInteger(double val)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 1046\n");
         if(JavascriptNumber::IsNan(val))
             return 0;
         if(JavascriptNumber::IsPosInf(val) || JavascriptNumber::IsNegInf(val) ||
             JavascriptNumber::IsZero(val))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 1051\n");
             return val;
         }
 
@@ -1061,7 +1061,7 @@ CommonNumber:
     // (ES3.0: S9.5).
     //----------------------------------------------------------------------------
     int32 JavascriptConversion::ToInt32_Full(Var aValue, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 1063\n");
         Assert(Js::JavascriptStackWalker::ValidateTopJitFrame(scriptContext));
         AssertMsg(!TaggedInt::Is(aValue), "Should be detected");
 
@@ -1072,12 +1072,12 @@ CommonNumber:
         TypeId typeId = JavascriptOperators::GetTypeId(aValue);
 
         if (typeId == TypeIds_Number)
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 1074\n");
             return JavascriptMath::ToInt32Core(JavascriptNumber::GetValue(aValue));
         }
 
         switch (typeId)
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 1079\n");
         case TypeIds_Symbol:
             JavascriptError::TryThrowTypeError(objectScriptContext, scriptContext, JSERR_NeedNumber);
             // Fallthrough to return 0 if exceptions are disabled
@@ -1102,10 +1102,10 @@ CommonNumber:
             return JavascriptMath::ToInt32Core((double)JavascriptUInt64Number::FromVar(aValue)->GetValue());
 
         case TypeIds_String:
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 1104\n");
             double result;
             if (JavascriptString::FromVar(aValue)->ToDouble(&result))
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 1107\n");
                 return JavascriptMath::ToInt32Core(result);
             }
             // If the string isn't a valid number, ToDouble returns NaN, and ToInt32 of that is 0
@@ -1136,7 +1136,7 @@ CommonNumber:
         }
 
         switch (JavascriptOperators::GetTypeId(aValue))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 1138\n");
         case TypeIds_Symbol:
             JavascriptError::TryThrowTypeError(objectScriptContext, scriptContext, JSERR_NeedNumber);
             // Fallthrough to return 0 if exceptions are disabled
@@ -1164,10 +1164,10 @@ CommonNumber:
             return JavascriptMath::ToInt32Core((double)JavascriptUInt64Number::FromVar(aValue)->GetValue());
 
         case TypeIds_String:
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 1166\n");
             double result;
             if (JavascriptString::FromVar(aValue)->ToDouble(&result))
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 1169\n");
                 return ToInt32(result);
             }
             // If the string isn't a valid number, ToDouble returns NaN, and ToInt32 of that is 0
@@ -1185,13 +1185,13 @@ CommonNumber:
 
     // a strict version of ToInt32 conversion that returns false for non int32 values like, inf, NaN, undef
     BOOL JavascriptConversion::ToInt32Finite(Var aValue, ScriptContext* scriptContext, int32* result)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 1187\n");
         ScriptContext * objectScriptContext = RecyclableObject::Is(aValue) ? RecyclableObject::FromVar(aValue)->GetScriptContext() : nullptr;
         BOOL fPrimitiveOnly = false;
         while(true)
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 1191\n");
             switch (JavascriptOperators::GetTypeId(aValue))
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 1193\n");
             case TypeIds_Symbol:
                 JavascriptError::TryThrowTypeError(objectScriptContext, scriptContext, JSERR_NeedNumber);
                 // Fallthrough to return false and set result to 0 if exceptions are disabled
@@ -1246,7 +1246,7 @@ CommonNumber:
 #endif
 
             default:
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 1248\n");
                     AssertMsg(JavascriptOperators::IsObject(aValue), "bad type object in conversion ToInteger32");
                     if(fPrimitiveOnly)
                     {
@@ -1261,25 +1261,25 @@ CommonNumber:
     }
 
     int32 JavascriptConversion::ToInt32(double T1)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 1263\n");
         return JavascriptMath::ToInt32Core(T1);
     }
 
     __int64 JavascriptConversion::ToInt64(Var aValue, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 1268\n");
         switch (JavascriptOperators::GetTypeId(aValue))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 1270\n");
         case TypeIds_Integer:
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 1272\n");
                 return TaggedInt::ToInt32(aValue);
             }
         case TypeIds_Int64Number:
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 1276\n");
             JavascriptInt64Number* int64Number = JavascriptInt64Number::FromVar(aValue);
             return int64Number->GetValue();
             }
         case TypeIds_UInt64Number:
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 1281\n");
             JavascriptUInt64Number* uint64Number = JavascriptUInt64Number::FromVar(aValue);
             return (__int64)uint64Number->GetValue();
             }
@@ -1291,20 +1291,20 @@ CommonNumber:
     }
 
     unsigned __int64 JavascriptConversion::ToUInt64(Var aValue, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 1293\n");
         switch (JavascriptOperators::GetTypeId(aValue))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 1295\n");
         case TypeIds_Integer:
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 1297\n");
                 return (unsigned __int64)TaggedInt::ToInt32(aValue);
             }
         case TypeIds_Int64Number:
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 1301\n");
             JavascriptInt64Number* int64Number = JavascriptInt64Number::FromVar(aValue);
             return (unsigned __int64)int64Number->GetValue();
             }
         case TypeIds_UInt64Number:
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 1306\n");
             JavascriptUInt64Number* uint64Number = JavascriptUInt64Number::FromVar(aValue);
             return uint64Number->GetValue();
             }
@@ -1316,9 +1316,9 @@ CommonNumber:
     }
 
     BOOL JavascriptConversion::ToInt32Finite(double value, int32* result)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 1318\n");
         if((!NumberUtilities::IsFinite(value)) || JavascriptNumber::IsNan(value))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 1320\n");
             *result = 0;
             return false;
         }
@@ -1333,14 +1333,14 @@ CommonNumber:
     // (ES3.0: S9.6).
     //----------------------------------------------------------------------------
     uint32 JavascriptConversion::ToUInt32_Full(Var aValue, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 1335\n");
         AssertMsg(!TaggedInt::Is(aValue), "Should be detected");
         ScriptContext * objectScriptContext = RecyclableObject::Is(aValue) ? RecyclableObject::FromVar(aValue)->GetScriptContext() : nullptr;
         BOOL fPrimitiveOnly = false;
         while(true)
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 1340\n");
             switch (JavascriptOperators::GetTypeId(aValue))
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 1342\n");
             case TypeIds_Symbol:
                 JavascriptError::TryThrowTypeError(objectScriptContext, scriptContext, JSERR_NeedNumber);
                 // Fallthrough to return 0 if exceptions are disabled
@@ -1368,10 +1368,10 @@ CommonNumber:
                 return JavascriptMath::ToUInt32((double)JavascriptUInt64Number::FromVar(aValue)->GetValue());
 
             case TypeIds_String:
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 1370\n");
                 double result;
                 if (JavascriptString::FromVar(aValue)->ToDouble(&result))
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 1373\n");
                     return JavascriptMath::ToUInt32(result);
                 }
                 // If the string isn't a valid number, ToDouble returns NaN, and ToUInt32 of that is 0
@@ -1397,7 +1397,7 @@ CommonNumber:
 #endif
 
             default:
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 1399\n");
                     AssertMsg(JavascriptOperators::IsObject(aValue), "bad type object in conversion ToUInt32");
                     if(fPrimitiveOnly)
                     {
@@ -1412,7 +1412,7 @@ CommonNumber:
     }
 
     uint32 JavascriptConversion::ToUInt32(double T1)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 1414\n");
         // Same as doing ToInt32 and reinterpret the bits as uint32
         return (uint32)JavascriptMath::ToInt32Core(T1);
     }
@@ -1422,14 +1422,14 @@ CommonNumber:
     // (ES3.0: S9.6).
     //----------------------------------------------------------------------------
     uint16 JavascriptConversion::ToUInt16_Full(IN  Var aValue, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 1424\n");
         AssertMsg(!TaggedInt::Is(aValue), "Should be detected");
         ScriptContext * objectScriptContext = RecyclableObject::Is(aValue) ? RecyclableObject::FromVar(aValue)->GetScriptContext() : nullptr;
         BOOL fPrimitiveOnly = false;
         while(true)
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 1429\n");
             switch (JavascriptOperators::GetTypeId(aValue))
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 1431\n");
             case TypeIds_Symbol:
                 JavascriptError::TryThrowTypeError(objectScriptContext, scriptContext, JSERR_NeedNumber);
                 // Fallthrough to return 0 if exceptions are disabled
@@ -1457,10 +1457,10 @@ CommonNumber:
                 return ToUInt16((double)JavascriptUInt64Number::FromVar(aValue)->GetValue());
 
             case TypeIds_String:
-            {
+            {LOGMEIN("JavascriptConversion.cpp] 1459\n");
                 double result;
                 if (JavascriptString::FromVar(aValue)->ToDouble(&result))
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 1462\n");
                     return ToUInt16(result);
                 }
                 // If the string isn't a valid number, ToDouble is NaN, and ToUInt16 of that is 0
@@ -1486,7 +1486,7 @@ CommonNumber:
 #endif
 
             default:
-                {
+                {LOGMEIN("JavascriptConversion.cpp] 1488\n");
                     AssertMsg(JavascriptOperators::IsObject(aValue), "bad type object in conversion ToUIn16");
                     if(fPrimitiveOnly)
                     {
@@ -1501,7 +1501,7 @@ CommonNumber:
     }
 
     inline uint16 JavascriptConversion::ToUInt16(double T1)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 1503\n");
         //
         // VC does the right thing here, if we first convert to uint32 and then to uint16
         // Spec says mod should be done.
@@ -1521,36 +1521,36 @@ CommonNumber:
     }
 
     JavascriptString * JavascriptConversion::ToPrimitiveString(Var aValue, ScriptContext * scriptContext)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 1523\n");
         return ToString(ToPrimitive(aValue, JavascriptHint::None, scriptContext), scriptContext);
     }
 
     double JavascriptConversion::LongToDouble(__int64 aValue)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 1528\n");
         return static_cast<double>(aValue);
     }
 
     double JavascriptConversion::ULongToDouble(unsigned __int64 aValue)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 1533\n");
         return static_cast<double>(aValue);
     }
 
     float JavascriptConversion::LongToFloat(__int64 aValue)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 1538\n");
         return static_cast<float>(aValue);
     }
 
     float JavascriptConversion::ULongToFloat (unsigned __int64 aValue)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 1543\n");
         return static_cast<float>(aValue);
     }
 
     int32 JavascriptConversion::F32TOI32(float src, ScriptContext * ctx)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 1548\n");
         if (Wasm::WasmMath::isInRange<float, uint32, NumberConstants::k_Float32TwoTo31, NumberConstants::k_Float32NegZero, NumberConstants::k_Float32NegTwoTo31,
             &Wasm::WasmMath::LessThan<uint32>, &Wasm::WasmMath::LessOrEqual<uint32>>(src) &&
             !Wasm::WasmMath::isNaN<float>(src))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 1552\n");
             return (int32)src;
         }
 
@@ -1558,11 +1558,11 @@ CommonNumber:
     }
 
     uint32 JavascriptConversion::F32TOU32(float src, ScriptContext * ctx)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 1560\n");
         if (Wasm::WasmMath::isInRange<float, uint32, NumberConstants::k_Float32TwoTo32, NumberConstants::k_Float32NegZero, NumberConstants::k_Float32NegOne,
             &Wasm::WasmMath::LessThan<uint32>, &Wasm::WasmMath::LessThan<uint32>>(src) &&
             !Wasm::WasmMath::isNaN<float>(src))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 1564\n");
             return (uint32)src;
         }
 
@@ -1570,11 +1570,11 @@ CommonNumber:
     }
 
     int32 JavascriptConversion::F64TOI32(double src, ScriptContext * ctx)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 1572\n");
         if (Wasm::WasmMath::isInRange<double, uint64, NumberConstants::k_TwoTo31, NumberConstants::k_NegZero, NumberConstants::k_NegTwoTo31,
             &Wasm::WasmMath::LessOrEqual<uint64>, &Wasm::WasmMath::LessOrEqual<uint64>>(src) &&
             !Wasm::WasmMath::isNaN<double>(src))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 1576\n");
             return (int32)src;
         }
 
@@ -1582,11 +1582,11 @@ CommonNumber:
     }
 
     uint32 JavascriptConversion::F64TOU32(double src, ScriptContext * ctx)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 1584\n");
         if (Wasm::WasmMath::isInRange<double, uint64, NumberConstants::k_TwoTo32, NumberConstants::k_NegZero, NumberConstants::k_NegOne,
             &Wasm::WasmMath::LessOrEqual<uint64>, &Wasm::WasmMath::LessThan<uint64>>(src)
             && !Wasm::WasmMath::isNaN<double>(src))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 1588\n");
             return (uint32)src;
         }
 
@@ -1594,11 +1594,11 @@ CommonNumber:
     }
 
     int64 JavascriptConversion::F32TOI64(float src, ScriptContext * ctx)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 1596\n");
         if (Wasm::WasmMath::isInRange<float, uint32, NumberConstants::k_Float32TwoTo63, NumberConstants::k_Float32NegZero, NumberConstants::k_Float32NegTwoTo63,
             &Wasm::WasmMath::LessThan<uint32>, &Wasm::WasmMath::LessOrEqual<uint32>>(src) &&
             !Wasm::WasmMath::isNaN<float>(src))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 1600\n");
             return (int64)src;
         }
 
@@ -1606,11 +1606,11 @@ CommonNumber:
     }
 
     uint64 JavascriptConversion::F32TOU64(float src, ScriptContext * ctx)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 1608\n");
         if (Wasm::WasmMath::isInRange<float, uint32, NumberConstants::k_Float32TwoTo64, NumberConstants::k_Float32NegZero, NumberConstants::k_Float32NegOne,
             &Wasm::WasmMath::LessThan<uint32>, &Wasm::WasmMath::LessThan<uint32>>(src) &&
             !Wasm::WasmMath::isNaN<float>(src))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 1612\n");
             return (uint64)src;
         }
 
@@ -1618,11 +1618,11 @@ CommonNumber:
     }
 
     int64 JavascriptConversion::F64TOI64(double src, ScriptContext * ctx)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 1620\n");
         if (Wasm::WasmMath::isInRange<double, uint64, NumberConstants::k_TwoTo63, NumberConstants::k_NegZero, NumberConstants::k_NegTwoTo63,
             &Wasm::WasmMath::LessThan<uint64>, &Wasm::WasmMath::LessOrEqual<uint64>>(src) &&
             !Wasm::WasmMath::isNaN<double>(src))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 1624\n");
             return (int64)src;
         }
 
@@ -1630,11 +1630,11 @@ CommonNumber:
     }
 
     uint64 JavascriptConversion::F64TOU64(double src, ScriptContext * ctx)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 1632\n");
         if (Wasm::WasmMath::isInRange<double, uint64, NumberConstants::k_TwoTo64, NumberConstants::k_NegZero, NumberConstants::k_NegOne,
             &Wasm::WasmMath::LessThan<uint64>, &Wasm::WasmMath::LessThan<uint64>>(src) &&
             !Wasm::WasmMath::isNaN<double>(src))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 1636\n");
             return (uint64)src;
         }
 
@@ -1642,9 +1642,9 @@ CommonNumber:
     }
 
     int64 JavascriptConversion::ToLength(Var aValue, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptConversion.cpp] 1644\n");
         if (TaggedInt::Is(aValue))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 1646\n");
             int64 length = TaggedInt::ToInt64(aValue);
             return (length < 0) ? 0 : length;
         }
@@ -1652,11 +1652,11 @@ CommonNumber:
         double length = JavascriptConversion::ToInteger(aValue, scriptContext);
 
         if (length < 0.0 || JavascriptNumber::IsNegZero(length))
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 1654\n");
             length = 0.0;
         }
         else if (length > Math::MAX_SAFE_INTEGER)
-        {
+        {LOGMEIN("JavascriptConversion.cpp] 1658\n");
             length = Math::MAX_SAFE_INTEGER;
         }
 

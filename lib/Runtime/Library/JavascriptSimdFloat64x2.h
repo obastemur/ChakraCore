@@ -36,7 +36,7 @@ namespace Js
         static JavascriptSIMDFloat64x2* FromInt32x4(JavascriptSIMDInt32x4   *instance, ScriptContext* requestContext);
 
 
-        inline SIMDValue GetValue() { return value; }
+        inline SIMDValue GetValue() {LOGMEIN("JavascriptSimdFloat64x2.h] 38\n"); return value; }
 
         virtual BOOL GetPropertyReference(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext) override;
         virtual BOOL GetProperty(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext) override;

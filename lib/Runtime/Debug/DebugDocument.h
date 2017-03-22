@@ -34,19 +34,19 @@ namespace Js
         BOOL GetStatementLocation(int32 ibos, StatementLocation* plocation);
 
         virtual bool HasDocumentText() const
-        {
+        {LOGMEIN("DebugDocument.h] 36\n");
             Assert(false);
             return false;
         }
         virtual void* GetDocumentText() const
-        {
+        {LOGMEIN("DebugDocument.h] 41\n");
             Assert(false);
             return nullptr;
         };
 
         Js::FunctionBody * GetFunctionBodyAt(int32 ibos);
 
-        Utf8SourceInfo* GetUtf8SourceInfo() { return this->utf8SourceInfo; }
+        Utf8SourceInfo* GetUtf8SourceInfo() {LOGMEIN("DebugDocument.h] 48\n"); return this->utf8SourceInfo; }
 
     private:
         Utf8SourceInfo* utf8SourceInfo;

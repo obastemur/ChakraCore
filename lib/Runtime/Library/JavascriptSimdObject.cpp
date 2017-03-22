@@ -8,16 +8,16 @@ namespace Js
 {
     JavascriptSIMDObject::JavascriptSIMDObject(DynamicType * type)
         : DynamicObject(type), value(Js::TaggedInt::ToVarUnchecked(0))
-    {
+    {LOGMEIN("JavascriptSimdObject.cpp] 10\n");
         Assert(type->GetTypeId() == TypeIds_SIMDObject);
     }
 
     JavascriptSIMDObject::JavascriptSIMDObject(Var value,  DynamicType * type, TypeId typeDescriptor)
         : DynamicObject(type), typeDescriptor(typeDescriptor), value(value)
-    {
+    {LOGMEIN("JavascriptSimdObject.cpp] 16\n");
         Assert(type->GetTypeId() == TypeIds_SIMDObject);
         switch (typeDescriptor)
-        {
+        {LOGMEIN("JavascriptSimdObject.cpp] 19\n");
         //typeDescriptor is TypeIds_SIMDObject only while initializing the SIMDObject prototypes.
         //Dynamically created wrapper objects must have a concrete typeDescriptor of a SIMDType.
         case TypeIds_SIMDObject: 
@@ -44,12 +44,12 @@ namespace Js
         }
     }
     void JavascriptSIMDObject::SetTypeDescriptor(TypeId tid)
-    {
+    {LOGMEIN("JavascriptSimdObject.cpp] 46\n");
         Assert(tid != TypeIds_SIMDObject);
 
         typeDescriptor = tid;
         switch (typeDescriptor)
-        {
+        {LOGMEIN("JavascriptSimdObject.cpp] 51\n");
         case TypeIds_SIMDBool8x16:
         case TypeIds_SIMDInt8x16:
         case TypeIds_SIMDUint8x16:
@@ -72,7 +72,7 @@ namespace Js
     }
 
     bool JavascriptSIMDObject::Is(Var aValue)
-    {
+    {LOGMEIN("JavascriptSimdObject.cpp] 74\n");
         return JavascriptOperators::GetTypeId(aValue) == TypeIds_SIMDObject;
     }
 
@@ -84,12 +84,12 @@ namespace Js
     }
 
     Var JavascriptSIMDObject::Unwrap() const
-    {        
+    {LOGMEIN("JavascriptSimdObject.cpp] 86\n");        
         return value;
     }
 
     Var JavascriptSIMDObject::ToString(ScriptContext* scriptContext) const
-    {
+    {LOGMEIN("JavascriptSimdObject.cpp] 91\n");
         Assert(scriptContext);
         Assert(typeDescriptor != TypeIds_SIMDObject);
 
@@ -97,7 +97,7 @@ namespace Js
         char16* stringBuffer = AnewArray(tempAllocator, char16, SIMD_STRING_BUFFER_MAX);
         SIMDValue simdValue;
         switch (typeDescriptor)
-        {
+        {LOGMEIN("JavascriptSimdObject.cpp] 99\n");
         case TypeIds_SIMDBool8x16:
             simdValue = JavascriptSIMDBool8x16::FromVar(value)->GetValue();
             JavascriptSIMDBool8x16::ToStringBuffer(simdValue, stringBuffer, SIMD_STRING_BUFFER_MAX, scriptContext);
@@ -149,19 +149,19 @@ namespace Js
     template <typename T, size_t N>
     Var JavascriptSIMDObject::ToLocaleString(const Var* args, uint numArgs, const char16 *typeString, const T(&laneValues)[N],
         CallInfo* callInfo, ScriptContext* scriptContext) const
-    {
+    {LOGMEIN("JavascriptSimdObject.cpp] 151\n");
         Assert(args);
         Assert(N == 4 || N == 8 || N == 16);
         if (typeDescriptor == TypeIds_SIMDBool8x16 ||
             typeDescriptor == TypeIds_SIMDBool16x8 ||
             typeDescriptor == TypeIds_SIMDBool32x4)
-        {
+        {LOGMEIN("JavascriptSimdObject.cpp] 157\n");
             return ToString(scriptContext);   //Boolean types does not have toLocaleString.
         }
 
         // Clamp to the first 3 arguments - we'll ignore more.
         if (numArgs > 3)
-        {
+        {LOGMEIN("JavascriptSimdObject.cpp] 163\n");
             numArgs = 3;
         }
 
@@ -171,11 +171,11 @@ namespace Js
         CallInfo newCallInfo((ushort)numArgs);
 
         if (numArgs > 1)
-        {
+        {LOGMEIN("JavascriptSimdObject.cpp] 173\n");
             newArgs[1] = args[1];
         }
         if (numArgs > 2)
-        {
+        {LOGMEIN("JavascriptSimdObject.cpp] 177\n");
             newArgs[2] = args[2];
         }
 
@@ -191,9 +191,9 @@ namespace Js
         result = JavascriptString::NewCopySzFromArena(stringBuffer, scriptContext, scriptContext->GeneralAllocator());
 
         if (typeDescriptor == TypeIds_SIMDFloat32x4)
-        {
+        {LOGMEIN("JavascriptSimdObject.cpp] 193\n");
             for (; idx < numLanes - 1; ++idx)
-            {
+            {LOGMEIN("JavascriptSimdObject.cpp] 195\n");
                 laneVar = JavascriptNumber::ToVarWithCheck(laneValues[idx], scriptContext);
                 newArgs[0] = laneVar;
                 JavascriptString *laneValue = JavascriptNumber::ToLocaleStringIntl(newArgs, newCallInfo, scriptContext);
@@ -205,9 +205,9 @@ namespace Js
             result = JavascriptString::Concat(result, JavascriptNumber::ToLocaleStringIntl(newArgs, newCallInfo, scriptContext));
         }
         else if (typeDescriptor == TypeIds_SIMDInt8x16 || typeDescriptor == TypeIds_SIMDInt16x8 || typeDescriptor == TypeIds_SIMDInt32x4)
-        {
+        {LOGMEIN("JavascriptSimdObject.cpp] 207\n");
             for (; idx < numLanes - 1; ++idx)
-            {
+            {LOGMEIN("JavascriptSimdObject.cpp] 209\n");
                 laneVar = JavascriptNumber::ToVar(static_cast<int>(laneValues[idx]), scriptContext);
                 newArgs[0] = laneVar;
                 JavascriptString *laneValue = JavascriptNumber::ToLocaleStringIntl(newArgs, newCallInfo, scriptContext);
@@ -222,7 +222,7 @@ namespace Js
         {
             Assert((typeDescriptor == TypeIds_SIMDUint8x16 || typeDescriptor == TypeIds_SIMDUint16x8 || typeDescriptor == TypeIds_SIMDUint32x4));
             for (; idx < numLanes - 1; ++idx)
-            {
+            {LOGMEIN("JavascriptSimdObject.cpp] 224\n");
                 laneVar = JavascriptNumber::ToVar(static_cast<uint>(laneValues[idx]), scriptContext);
                 newArgs[0] = laneVar;
                 JavascriptString *laneValue = JavascriptNumber::ToLocaleStringIntl(newArgs, newCallInfo, scriptContext);
@@ -252,7 +252,7 @@ namespace Js
         const uint8(&laneValues)[16], CallInfo* callInfo, ScriptContext* scriptContext) const;
 
     Var JavascriptSIMDObject::GetValue() const
-    {
+    {LOGMEIN("JavascriptSimdObject.cpp] 254\n");
         Assert(SIMDUtils::IsSimdType(value));
         return value;
     }

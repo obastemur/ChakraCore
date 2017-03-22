@@ -8,14 +8,14 @@
 #if ENABLE_DEBUG_CONFIG_OPTIONS
 #define BAILOUT_VERBOSE_TRACE(functionBody, ...) \
     if (Js::Configuration::Global.flags.Verbose && Js::Configuration::Global.flags.Trace.IsEnabled(Js::BailOutPhase,functionBody->GetSourceContextId(),functionBody->GetLocalFunctionId())) \
-    { \
+    {LOGMEIN("InlineeFrameInfo.cpp] 10\n"); \
         Output::Print(__VA_ARGS__); \
     }
 
 #define BAILOUT_FLUSH(functionBody) \
     if (Js::Configuration::Global.flags.TestTrace.IsEnabled(Js::BailOutPhase, functionBody->GetSourceContextId(),functionBody->GetLocalFunctionId()) || \
     Js::Configuration::Global.flags.Trace.IsEnabled(Js::BailOutPhase, functionBody->GetSourceContextId(),functionBody->GetLocalFunctionId())) \
-    { \
+    {LOGMEIN("InlineeFrameInfo.cpp] 17\n"); \
         Output::Flush(); \
     }
 #else
@@ -27,25 +27,25 @@
 unsigned int NativeOffsetInlineeFrameRecordOffset::InvalidRecordOffset = (unsigned int)(-1);
 
 void BailoutConstantValue::InitVarConstValue(Js::Var value)
-{
+{LOGMEIN("InlineeFrameInfo.cpp] 29\n");
     this->type = TyVar;
     this->u.varConst.value = value;
 }
 
 Js::Var BailoutConstantValue::ToVar(Func* func) const
-{
+{LOGMEIN("InlineeFrameInfo.cpp] 35\n");
     Assert(this->type == TyVar || this->type == TyFloat64 || IRType_IsSignedInt(this->type));
     Js::Var varValue;
     if (this->type == TyVar)
-    {
+    {LOGMEIN("InlineeFrameInfo.cpp] 39\n");
         varValue = this->u.varConst.value;
     }
     else if (this->type == TyFloat64)
-    {
+    {LOGMEIN("InlineeFrameInfo.cpp] 43\n");
         varValue = func->AllocateNumber((double)this->u.floatConst.value);
     }
     else if (IRType_IsSignedInt(this->type) && TySize[this->type] <= 4 && !Js::TaggedInt::IsOverflow((int32)this->u.intConst.value))
-    {
+    {LOGMEIN("InlineeFrameInfo.cpp] 47\n");
         varValue = Js::TaggedInt::ToVarUnchecked((int32)this->u.intConst.value);
     }
     else
@@ -57,15 +57,15 @@ Js::Var BailoutConstantValue::ToVar(Func* func) const
 }
 
 bool BailoutConstantValue::IsEqual(const BailoutConstantValue & bailoutConstValue)
-{
+{LOGMEIN("InlineeFrameInfo.cpp] 59\n");
     if (this->type == bailoutConstValue.type)
-    {
+    {LOGMEIN("InlineeFrameInfo.cpp] 61\n");
         if (this->type == TyInt32)
-        {
+        {LOGMEIN("InlineeFrameInfo.cpp] 63\n");
             return this->u.intConst.value == bailoutConstValue.u.intConst.value;
         }
         else if (this->type == TyVar)
-        {
+        {LOGMEIN("InlineeFrameInfo.cpp] 67\n");
             return this->u.varConst.value == bailoutConstValue.u.varConst.value;
         }
         else
@@ -78,19 +78,19 @@ bool BailoutConstantValue::IsEqual(const BailoutConstantValue & bailoutConstValu
 
 
 void InlineeFrameInfo::AllocateRecord(Func* func, intptr_t functionBodyAddr)
-{
+{LOGMEIN("InlineeFrameInfo.cpp] 80\n");
     uint constantCount = 0;
 
     // If there are no helper calls there is a chance that frame record is not required after all;
     arguments->Map([&](uint index, InlineFrameInfoValue& value){
         if (value.IsConst())
-        {
+        {LOGMEIN("InlineeFrameInfo.cpp] 86\n");
             constantCount++;
         }
     });
 
     if (function.IsConst())
-    {
+    {LOGMEIN("InlineeFrameInfo.cpp] 92\n");
         constantCount++;
     }
 
@@ -99,7 +99,7 @@ void InlineeFrameInfo::AllocateRecord(Func* func, intptr_t functionBodyAddr)
     // In particular, if the first InlineeEnd resulted in no calls and spills, subsequent might still spill - so it's a good idea to
     // update the record
     if (!this->record)
-    {
+    {LOGMEIN("InlineeFrameInfo.cpp] 101\n");
         this->record = InlineeFrameRecord::New(func->GetNativeCodeDataAllocator(), (uint)arguments->Count(), constantCount, functionBodyAddr, this);
     }
 
@@ -108,7 +108,7 @@ void InlineeFrameInfo::AllocateRecord(Func* func, intptr_t functionBodyAddr)
     arguments->Map([&](uint index, InlineFrameInfoValue& value){
         Assert(value.type != InlineeFrameInfoValueType_None);
         if (value.type == InlineeFrameInfoValueType_Sym)
-        {
+        {LOGMEIN("InlineeFrameInfo.cpp] 110\n");
             int offset;
 #ifdef MD_GROW_LOCALS_AREA_UP
             offset = -((int)value.sym->m_offset + BailOutInfo::StackSymBias);
@@ -119,11 +119,11 @@ void InlineeFrameInfo::AllocateRecord(Func* func, intptr_t functionBodyAddr)
             Assert(offset < 0);
             this->record->argOffsets[i] = offset;
             if (value.sym->IsFloat64())
-            {
+            {LOGMEIN("InlineeFrameInfo.cpp] 121\n");
                 this->record->floatArgs.Set(i);
             }
             else if (value.sym->IsInt32())
-            {
+            {LOGMEIN("InlineeFrameInfo.cpp] 125\n");
                 this->record->losslessInt32Args.Set(i);
             }
         }
@@ -139,7 +139,7 @@ void InlineeFrameInfo::AllocateRecord(Func* func, intptr_t functionBodyAddr)
     });
 
     if (function.type == InlineeFrameInfoValueType_Sym)
-    {
+    {LOGMEIN("InlineeFrameInfo.cpp] 141\n");
         int offset;
 
 #ifdef MD_GROW_LOCALS_AREA_UP
@@ -159,18 +159,18 @@ void InlineeFrameInfo::AllocateRecord(Func* func, intptr_t functionBodyAddr)
 }
 
 void InlineeFrameRecord::PopulateParent(Func* func)
-{
+{LOGMEIN("InlineeFrameInfo.cpp] 161\n");
     Assert(this->parent == nullptr);
     Assert(!func->IsTopFunc());
     if (func->GetParentFunc()->m_hasInlineArgsOpt)
-    {
+    {LOGMEIN("InlineeFrameInfo.cpp] 165\n");
         this->parent = func->GetParentFunc()->frameInfo->record;
         Assert(this->parent != nullptr);
     }
 }
 
 void InlineeFrameRecord::Finalize(Func* inlinee, uint32 currentOffset)
-{
+{LOGMEIN("InlineeFrameInfo.cpp] 172\n");
     this->PopulateParent(inlinee);
     this->inlineeStartOffset = currentOffset;
     this->inlineDepth = inlinee->inlineDepth;
@@ -184,7 +184,7 @@ void InlineeFrameRecord::Finalize(Func* inlinee, uint32 currentOffset)
     {
         int realOffset = -(offset + BailOutInfo::StackSymBias);
         if (realOffset < 0)
-        {
+        {LOGMEIN("InlineeFrameInfo.cpp] 186\n");
             // Not stack offset
             return;
         }
@@ -200,7 +200,7 @@ void InlineeFrameRecord::Finalize(Func* inlinee, uint32 currentOffset)
 }
 
 void InlineeFrameRecord::Restore(Js::FunctionBody* functionBody, InlinedFrameLayout *inlinedFrame, Js::JavascriptCallStackLayout * layout) const
-{
+{LOGMEIN("InlineeFrameInfo.cpp] 202\n");
     Assert(this->inlineDepth != 0);
     Assert(inlineeStartOffset != 0);
 
@@ -222,7 +222,7 @@ void InlineeFrameRecord::Restore(Js::FunctionBody* functionBody, InlinedFrameLay
         Js::Var var = this->Restore(this->argOffsets[i], isFloat64, isInt32, layout, functionBody);
 #if DBG
         if (!Js::TaggedNumber::Is(var))
-        {
+        {LOGMEIN("InlineeFrameInfo.cpp] 224\n");
             Js::RecyclableObject *const recyclableObject = Js::RecyclableObject::FromVar(var);
             Assert(!ThreadContext::IsOnStack(recyclableObject));
         }
@@ -234,19 +234,19 @@ void InlineeFrameRecord::Restore(Js::FunctionBody* functionBody, InlinedFrameLay
 }
 
 void InlineeFrameRecord::RestoreFrames(Js::FunctionBody* functionBody, InlinedFrameLayout* outerMostFrame, Js::JavascriptCallStackLayout* callstack)
-{
+{LOGMEIN("InlineeFrameInfo.cpp] 236\n");
     InlineeFrameRecord* innerMostRecord = this;
     class AutoReverse
     {
     public:
         InlineeFrameRecord* record;
         AutoReverse(InlineeFrameRecord* record)
-        {
+        {LOGMEIN("InlineeFrameInfo.cpp] 243\n");
             this->record = record->Reverse();
         }
 
         ~AutoReverse()
-        {
+        {LOGMEIN("InlineeFrameInfo.cpp] 248\n");
             record->Reverse();
         }
     } autoReverse(innerMostRecord);
@@ -258,19 +258,19 @@ void InlineeFrameRecord::RestoreFrames(Js::FunctionBody* functionBody, InlinedFr
 
     // Find an inlined frame that needs to be restored.
     while (currentFrame->callInfo.Count != 0)
-    {
+    {LOGMEIN("InlineeFrameInfo.cpp] 260\n");
         inlineDepth++;
         currentFrame = currentFrame->Next();
     }
 
     // Align the inline depth of the record with the frame that needs to be restored
     while (currentRecord && currentRecord->inlineDepth != inlineDepth)
-    {
+    {LOGMEIN("InlineeFrameInfo.cpp] 267\n");
         currentRecord = currentRecord->parent;
     }
 
     while (currentRecord)
-    {
+    {LOGMEIN("InlineeFrameInfo.cpp] 272\n");
         currentRecord->Restore(functionBody, currentFrame, callstack);
         currentRecord = currentRecord->parent;
         currentFrame = currentFrame->Next();
@@ -281,12 +281,12 @@ void InlineeFrameRecord::RestoreFrames(Js::FunctionBody* functionBody, InlinedFr
 }
 
 Js::Var InlineeFrameRecord::Restore(int offset, bool isFloat64, bool isInt32, Js::JavascriptCallStackLayout * layout, Js::FunctionBody* functionBody) const
-{
+{LOGMEIN("InlineeFrameInfo.cpp] 283\n");
     Js::Var value;
     bool boxStackInstance = true;
     double dblValue;
     if (offset >= 0)
-    {
+    {LOGMEIN("InlineeFrameInfo.cpp] 288\n");
         Assert(static_cast<uint>(offset) < constantCount);
         value = this->constants[offset];
         boxStackInstance = false;
@@ -295,13 +295,13 @@ Js::Var InlineeFrameRecord::Restore(int offset, bool isFloat64, bool isInt32, Js
     {
         BAILOUT_VERBOSE_TRACE(functionBody, _u("Stack offset %10d"), offset);
         if (isFloat64)
-        {
+        {LOGMEIN("InlineeFrameInfo.cpp] 297\n");
             dblValue = layout->GetDoubleAtOffset(offset);
             value = Js::JavascriptNumber::New(dblValue, functionBody->GetScriptContext());
             BAILOUT_VERBOSE_TRACE(functionBody, _u(", value: %f (ToVar: 0x%p)"), dblValue, value);
         }
         else if (isInt32)
-        {
+        {LOGMEIN("InlineeFrameInfo.cpp] 303\n");
             value = (Js::Var)layout->GetInt32AtOffset(offset);
         }
         else
@@ -311,7 +311,7 @@ Js::Var InlineeFrameRecord::Restore(int offset, bool isFloat64, bool isInt32, Js
     }
 
     if (isInt32)
-    {
+    {LOGMEIN("InlineeFrameInfo.cpp] 313\n");
         int32 int32Value = ::Math::PointerCastToIntegralTruncate<int32>(value);
         value = Js::JavascriptNumber::ToVar(int32Value, functionBody->GetScriptContext());
         BAILOUT_VERBOSE_TRACE(functionBody, _u(", value: %10d (ToVar: 0x%p)"), int32Value, value);
@@ -320,7 +320,7 @@ Js::Var InlineeFrameRecord::Restore(int offset, bool isFloat64, bool isInt32, Js
     {
         BAILOUT_VERBOSE_TRACE(functionBody, _u(", value: 0x%p"), value);
         if (boxStackInstance)
-        {
+        {LOGMEIN("InlineeFrameInfo.cpp] 322\n");
             Js::Var oldValue = value;
             value = Js::JavascriptOperators::BoxStackInstance(oldValue, functionBody->GetScriptContext(), /* allowStackFunction */ true);
 
@@ -337,11 +337,11 @@ Js::Var InlineeFrameRecord::Restore(int offset, bool isFloat64, bool isInt32, Js
 }
 
 InlineeFrameRecord* InlineeFrameRecord::Reverse()
-{
+{LOGMEIN("InlineeFrameInfo.cpp] 339\n");
     InlineeFrameRecord * prev = nullptr;
     InlineeFrameRecord * current = this;
     while (current)
-    {
+    {LOGMEIN("InlineeFrameInfo.cpp] 343\n");
         InlineeFrameRecord * next = current->parent;
         current->parent = prev;
         prev = current;
@@ -353,17 +353,17 @@ InlineeFrameRecord* InlineeFrameRecord::Reverse()
 #if DBG_DUMP
 
 void InlineeFrameRecord::Dump() const
-{
+{LOGMEIN("InlineeFrameInfo.cpp] 355\n");
     Output::Print(_u("%s [#%u.%u] args:"), this->functionBody->GetExternalDisplayName(), this->functionBody->GetSourceContextId(), this->functionBody->GetLocalFunctionId());
     for (uint i = 0; i < argCount; i++)
-    {
+    {LOGMEIN("InlineeFrameInfo.cpp] 358\n");
         DumpOffset(argOffsets[i]);
         if (floatArgs.Test(i))
-        {
+        {LOGMEIN("InlineeFrameInfo.cpp] 361\n");
             Output::Print(_u("f "));
         }
         else if (losslessInt32Args.Test(i))
-        {
+        {LOGMEIN("InlineeFrameInfo.cpp] 365\n");
             Output::Print(_u("i "));
         }
         Output::Print(_u(", "));
@@ -374,15 +374,15 @@ void InlineeFrameRecord::Dump() const
     DumpOffset(functionOffset);
 
     if (this->parent)
-    {
+    {LOGMEIN("InlineeFrameInfo.cpp] 376\n");
         parent->Dump();
     }
 }
 
 void InlineeFrameRecord::DumpOffset(int offset) const
-{
+{LOGMEIN("InlineeFrameInfo.cpp] 382\n");
     if (offset >= 0)
-    {
+    {LOGMEIN("InlineeFrameInfo.cpp] 384\n");
         Output::Print(_u("%p "), constants[offset]);
     }
     else
@@ -392,14 +392,14 @@ void InlineeFrameRecord::DumpOffset(int offset) const
 }
 
 void InlineeFrameInfo::Dump() const
-{
+{LOGMEIN("InlineeFrameInfo.cpp] 394\n");
     Output::Print(_u("func: "));
     if (this->function.type == InlineeFrameInfoValueType_Const)
-    {
+    {LOGMEIN("InlineeFrameInfo.cpp] 397\n");
         Output::Print(_u("%p(Var) "), this->function.constValue);
     }
     else if (this->function.type == InlineeFrameInfoValueType_Sym)
-    {
+    {LOGMEIN("InlineeFrameInfo.cpp] 401\n");
         this->function.sym->Dump();
         Output::Print(_u(" "));
     }
@@ -408,11 +408,11 @@ void InlineeFrameInfo::Dump() const
     arguments->Map([=](uint i, InlineFrameInfoValue& value)
     {
         if (value.type == InlineeFrameInfoValueType_Const)
-        {
+        {LOGMEIN("InlineeFrameInfo.cpp] 410\n");
             Output::Print(_u("%p(Var) "), value.constValue);
         }
         else if (value.type == InlineeFrameInfoValueType_Sym)
-        {
+        {LOGMEIN("InlineeFrameInfo.cpp] 414\n");
             value.sym->Dump();
             Output::Print(_u(" "));
         }

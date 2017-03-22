@@ -26,23 +26,23 @@ namespace Js
             dynamicProfileInfoMapSaving(&NoThrowHeapAllocator::Instance),
 #endif
             dynamicProfileInfoMap(allocator), startupFunctions(nullptr), profileDataCache(nullptr) 
-        {
+        {LOGMEIN("SourceDynamicProfileManager.h] 28\n");
         }
 
         ExecutionFlags IsFunctionExecuted(Js::LocalFunctionId functionId);
         DynamicProfileInfo * GetDynamicProfileInfo(FunctionBody * functionBody);
-        Recycler* GetRecycler() { return recycler; }
+        Recycler* GetRecycler() {LOGMEIN("SourceDynamicProfileManager.h] 33\n"); return recycler; }
         void UpdateDynamicProfileInfo(LocalFunctionId functionId, DynamicProfileInfo * dynamicProfileInfo);
         void MarkAsExecuted(LocalFunctionId functionId);
         static SourceDynamicProfileManager * LoadFromDynamicProfileStorage(SourceContextInfo* info, ScriptContext* scriptContext, IActiveScriptDataCache* profileDataCache);
         void EnsureStartupFunctions(uint numberOfFunctions);
         void Reuse();
         uint SaveToProfileCacheAndRelease(SourceContextInfo* info);
-        bool IsProfileLoaded() { return cachedStartupFunctions != nullptr; }
-        bool IsProfileLoadedFromWinInet() { return profileDataCache != nullptr; }
+        bool IsProfileLoaded() {LOGMEIN("SourceDynamicProfileManager.h] 40\n"); return cachedStartupFunctions != nullptr; }
+        bool IsProfileLoadedFromWinInet() {LOGMEIN("SourceDynamicProfileManager.h] 41\n"); return profileDataCache != nullptr; }
         bool LoadFromProfileCache(IActiveScriptDataCache* profileDataCache, LPCWSTR url);
-        IActiveScriptDataCache* GetProfileCache() { return profileDataCache; }
-        uint GetStartupFunctionsLength() { return (this->startupFunctions ? this->startupFunctions->Length() : 0); }
+        IActiveScriptDataCache* GetProfileCache() {LOGMEIN("SourceDynamicProfileManager.h] 43\n"); return profileDataCache; }
+        uint GetStartupFunctionsLength() {LOGMEIN("SourceDynamicProfileManager.h] 44\n"); return (this->startupFunctions ? this->startupFunctions->Length() : 0); }
 #ifdef DYNAMIC_PROFILE_STORAGE
         void ClearSavingData();
         void CopySavingData();
@@ -85,15 +85,15 @@ namespace Js
         class SimpleStreamReader
         {
         public:
-            SimpleStreamReader(IStream* stream) : stream(stream) {}
+            SimpleStreamReader(IStream* stream) : stream(stream) {LOGMEIN("SourceDynamicProfileManager.h] 87\n");}
             ~SimpleStreamReader()
-            {
+            {LOGMEIN("SourceDynamicProfileManager.h] 89\n");
                 this->Close();
             }
 
             template <typename T>
             bool Read(T * data)
-            {
+            {LOGMEIN("SourceDynamicProfileManager.h] 95\n");
                 ULONG bytesRead;
                 HRESULT hr = stream->Read(data, sizeof(T), &bytesRead);
                 // hr is S_FALSE if bytesRead < sizeOf(T)
@@ -102,7 +102,7 @@ namespace Js
 
             template <typename T>
             bool ReadArray(_Out_writes_(len) T * data, ULONG len)
-            {
+            {LOGMEIN("SourceDynamicProfileManager.h] 104\n");
                 ULONG bytesSize = sizeof(T) * len;
                 ULONG bytesRead;
                 HRESULT hr = stream->Read(data, bytesSize, &bytesRead);
@@ -111,7 +111,7 @@ namespace Js
             }
         private:
             void Close()
-            {
+            {LOGMEIN("SourceDynamicProfileManager.h] 113\n");
                 Assert(stream);
 
                 stream->Release();
@@ -127,15 +127,15 @@ namespace Js
         class SimpleStreamWriter
         {
         public:
-            SimpleStreamWriter(IStream* stream) : stream(stream) {}
+            SimpleStreamWriter(IStream* stream) : stream(stream) {LOGMEIN("SourceDynamicProfileManager.h] 129\n");}
             ~SimpleStreamWriter()
-            {
+            {LOGMEIN("SourceDynamicProfileManager.h] 131\n");
                 this->Close();
             }
 
             template <typename T>
             bool Write(_In_ T const& data)
-            {
+            {LOGMEIN("SourceDynamicProfileManager.h] 137\n");
                 ULONG bytesWritten;
                 HRESULT hr = stream->Write(&data, sizeof(T), &bytesWritten);
                 // hr is S_FALSE if bytesRead < sizeOf(T)
@@ -144,7 +144,7 @@ namespace Js
 
             template <typename T>
             bool WriteArray(_In_reads_(len) T * data, _In_ ULONG len)
-            {
+            {LOGMEIN("SourceDynamicProfileManager.h] 146\n");
                 ULONG bytesSize = sizeof(T) * len;
                 ULONG bytesWritten;
                 HRESULT hr = stream->Write(data, bytesSize, &bytesWritten);
@@ -153,7 +153,7 @@ namespace Js
             }
         private:
             void Close()
-            {
+            {LOGMEIN("SourceDynamicProfileManager.h] 155\n");
                 Assert(stream);
 
                 stream->Release();

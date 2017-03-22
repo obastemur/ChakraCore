@@ -7,7 +7,7 @@
 namespace Js
 {
     bool JavascriptSymbol::Is(Var aValue)
-    {
+    {LOGMEIN("JavascriptSymbol.cpp] 9\n");
         return JavascriptOperators::GetTypeId(aValue) == TypeIds_Symbol;
     }
 
@@ -36,14 +36,14 @@ namespace Js
             || JavascriptOperators::GetTypeId(args[0]) == TypeIds_HostDispatch);
 
         if (callInfo.Flags & CallFlags_New)
-        {
+        {LOGMEIN("JavascriptSymbol.cpp] 38\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_ErrorOnNew, _u("Symbol"));
         }
 
         JavascriptString* description;
 
         if (args.Info.Count > 1 && !JavascriptOperators::IsUndefined(args[1]))
-        {
+        {LOGMEIN("JavascriptSymbol.cpp] 45\n");
             description = JavascriptConversion::ToString(args[1], scriptContext);
         }
         else
@@ -65,11 +65,11 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (JavascriptSymbol::Is(args[0]))
-        {
+        {LOGMEIN("JavascriptSymbol.cpp] 67\n");
             return args[0];
         }
         else if (JavascriptSymbolObject::Is(args[0]))
-        {
+        {LOGMEIN("JavascriptSymbol.cpp] 71\n");
             return scriptContext->GetLibrary()->CreateSymbol(JavascriptSymbolObject::FromVar(args[0])->GetValue());
         }
         else
@@ -92,11 +92,11 @@ namespace Js
         const PropertyRecord* val;
         Var aValue = args[0];
         if (JavascriptSymbol::Is(aValue))
-        {
+        {LOGMEIN("JavascriptSymbol.cpp] 94\n");
             val = JavascriptSymbol::FromVar(aValue)->GetValue();
         }
         else if (JavascriptSymbolObject::Is(aValue))
-        {
+        {LOGMEIN("JavascriptSymbol.cpp] 98\n");
             val = JavascriptSymbolObject::FromVar(aValue)->GetValue();
         }
         else
@@ -121,7 +121,7 @@ namespace Js
 
         JavascriptString* key;
         if (args.Info.Count > 1)
-        {
+        {LOGMEIN("JavascriptSymbol.cpp] 123\n");
             key = JavascriptConversion::ToString(args[1], scriptContext);
         }
         else
@@ -138,7 +138,7 @@ namespace Js
         // This is the only place we add new PropertyRecords to the map, so we should never have multiple PropertyRecords in the
         // map with the same string key value (since we would return the one we found above instead of creating a new one).
         if (propertyRecord == nullptr)
-        {
+        {LOGMEIN("JavascriptSymbol.cpp] 140\n");
             propertyRecord = scriptContext->GetThreadContext()->AddSymbolToRegistrationMap(key->GetString(), key->GetLength());
         }
 
@@ -160,7 +160,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count < 2 || !JavascriptSymbol::Is(args[1]))
-        {
+        {LOGMEIN("JavascriptSymbol.cpp] 162\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedSymbol, _u("Symbol.keyFor"));
         }
 
@@ -176,7 +176,7 @@ namespace Js
         // If the two are different, it means the symbol passed to keyFor has the same description as a symbol registered via
         // Symbol.for _but_ is not the symbol returned from Symbol.for.
         if (propertyRecord != nullptr && propertyRecord == sym->GetValue())
-        {
+        {LOGMEIN("JavascriptSymbol.cpp] 178\n");
             return JavascriptString::NewCopyBuffer(key, sym->GetValue()->GetLength(), scriptContext);
         }
 
@@ -194,11 +194,11 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (JavascriptSymbol::Is(args[0]))
-        {
+        {LOGMEIN("JavascriptSymbol.cpp] 196\n");
             return args[0];
         }
         else if (JavascriptSymbolObject::Is(args[0]))
-        {
+        {LOGMEIN("JavascriptSymbol.cpp] 200\n");
             return scriptContext->GetLibrary()->CreateSymbol(JavascriptSymbolObject::FromVar(args[0])->GetValue());
         }
         else
@@ -208,25 +208,25 @@ namespace Js
     }
 
     RecyclableObject * JavascriptSymbol::CloneToScriptContext(ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptSymbol.cpp] 210\n");
         // PropertyRecords are per-ThreadContext so we can just create a new primitive wrapper
         // around the PropertyRecord stored in this symbol via the other context library.
         return requestContext->GetLibrary()->CreateSymbol(this->GetValue());
     }
 
     Var JavascriptSymbol::TryInvokeRemotelyOrThrow(JavascriptMethod entryPoint, ScriptContext * scriptContext, Arguments & args, int32 errorCode, PCWSTR varName)
-    {
+    {LOGMEIN("JavascriptSymbol.cpp] 217\n");
         if (JavascriptOperators::GetTypeId(args[0]) == TypeIds_HostDispatch)
-        {
+        {LOGMEIN("JavascriptSymbol.cpp] 219\n");
             Var result;
             if (RecyclableObject::FromVar(args[0])->InvokeBuiltInOperationRemotely(entryPoint, args, &result))
-            {
+            {LOGMEIN("JavascriptSymbol.cpp] 222\n");
                 return result;
             }
         }
         // Don't error if we disabled implicit calls
         if (scriptContext->GetThreadContext()->RecordImplicitException())
-        {
+        {LOGMEIN("JavascriptSymbol.cpp] 228\n");
             JavascriptError::ThrowTypeError(scriptContext, errorCode, varName);
         }
         else
@@ -236,21 +236,21 @@ namespace Js
     }
 
     BOOL JavascriptSymbol::Equals(Var other, BOOL* value, ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptSymbol.cpp] 238\n");
         return JavascriptSymbol::Equals(this, other, value, requestContext);
     }
 
     BOOL JavascriptSymbol::Equals(JavascriptSymbol* left, Var right, BOOL* value, ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptSymbol.cpp] 243\n");
         TypeId typeId = JavascriptOperators::GetTypeId(right);
         if (typeId != TypeIds_Symbol && typeId != TypeIds_SymbolObject)
-        {
+        {LOGMEIN("JavascriptSymbol.cpp] 246\n");
             right = JavascriptConversion::ToPrimitive(right, JavascriptHint::None, requestContext);
             typeId = JavascriptOperators::GetTypeId(right);
         }
 
         switch (typeId)
-        {
+        {LOGMEIN("JavascriptSymbol.cpp] 252\n");
         case TypeIds_Symbol:
             *value = left->GetValue() == JavascriptSymbol::FromVar(right)->GetValue();
             break;
@@ -266,9 +266,9 @@ namespace Js
     }
 
     BOOL JavascriptSymbol::GetDiagValueString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptSymbol.cpp] 268\n");
         if (this->GetValue())
-        {
+        {LOGMEIN("JavascriptSymbol.cpp] 270\n");
             stringBuilder->AppendCppLiteral(_u("Symbol("));
             stringBuilder->Append(this->GetValue()->GetBuffer(), this->GetValue()->GetLength());
             stringBuilder->Append(_u(')'));
@@ -277,25 +277,25 @@ namespace Js
     }
 
     BOOL JavascriptSymbol::GetDiagTypeString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptSymbol.cpp] 279\n");
         stringBuilder->AppendCppLiteral(_u("Symbol"));
         return TRUE;
     }
 
     RecyclableObject* JavascriptSymbol::ToObject(ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptSymbol.cpp] 285\n");
         return requestContext->GetLibrary()->CreateSymbolObject(this);
     }
 
     Var JavascriptSymbol::GetTypeOfString(ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptSymbol.cpp] 290\n");
         return requestContext->GetLibrary()->GetSymbolTypeDisplayString();
     }
 
     JavascriptString* JavascriptSymbol::ToString(ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptSymbol.cpp] 295\n");
         if (requestContext->GetThreadContext()->RecordImplicitException())
-        {
+        {LOGMEIN("JavascriptSymbol.cpp] 297\n");
             JavascriptError::ThrowTypeError(requestContext, VBSERR_OLENoPropOrMethod, _u("ToString"));
         }
 
@@ -303,7 +303,7 @@ namespace Js
     }
 
     JavascriptString* JavascriptSymbol::ToString(const PropertyRecord* propertyRecord, ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptSymbol.cpp] 305\n");
         const char16* description = propertyRecord->GetBuffer();
         uint len = propertyRecord->GetLength();
         CompoundString* str = CompoundString::NewWithCharCapacity(len + _countof(_u("Symbol()")), requestContext->GetLibrary());

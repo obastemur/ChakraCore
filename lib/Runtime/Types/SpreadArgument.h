@@ -23,9 +23,9 @@ namespace Js
         static bool Is(Var aValue);
         static SpreadArgument* FromVar(Var value);
         SpreadArgument(Var iterable, RecyclableObject* iterator, DynamicType * type);
-        Var GetArgument() const { return iterable; }
-        const Var* GetArgumentSpread() const { return iteratorIndices ? iteratorIndices->GetBuffer() : nullptr; }
-        uint GetArgumentSpreadCount()  const { return iteratorIndices ? iteratorIndices->Count() : 0; }
+        Var GetArgument() const {LOGMEIN("SpreadArgument.h] 25\n"); return iterable; }
+        const Var* GetArgumentSpread() const {LOGMEIN("SpreadArgument.h] 26\n"); return iteratorIndices ? iteratorIndices->GetBuffer() : nullptr; }
+        uint GetArgumentSpreadCount()  const {LOGMEIN("SpreadArgument.h] 27\n"); return iteratorIndices ? iteratorIndices->Count() : 0; }
 
         // A SpreadArgument should never call the Functions defined below this comment
         virtual BOOL HasProperty(PropertyId propertyId) override { AssertAndFailFast();  return FALSE; };

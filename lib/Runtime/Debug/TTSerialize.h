@@ -93,11 +93,11 @@ namespace TTD
 
         template <size_t requestedSpace>
         byte* ReserveSpaceForSmallData()
-        {
+        {LOGMEIN("TTSerialize.h] 95\n");
             TTDAssert(requestedSpace < TTD_SERIALIZATION_BUFFER_SIZE, "Must be small data element!");
 
             if(this->m_cursor + requestedSpace >= TTD_SERIALIZATION_BUFFER_SIZE)
-            {
+            {LOGMEIN("TTSerialize.h] 99\n");
                 this->WriteBlock(this->m_buffer, this->m_cursor);
                 this->m_cursor = 0;
             }
@@ -106,7 +106,7 @@ namespace TTD
         }
 
         void CommitSpaceForSmallData(size_t usedSpace)
-        {
+        {LOGMEIN("TTSerialize.h] 108\n");
             TTDAssert(this->m_cursor + usedSpace < TTD_SERIALIZATION_BUFFER_SIZE, "Must have already reserved the space!");
 
             this->m_cursor += usedSpace;
@@ -115,7 +115,7 @@ namespace TTD
     protected:
         template <typename T>
         void WriteRawByteBuff_Fixed(const T& data)
-        {
+        {LOGMEIN("TTSerialize.h] 117\n");
             byte* trgt = this->ReserveSpaceForSmallData<sizeof(T)>();
 
             js_memcpy_s(trgt, sizeof(T), (const byte*)(&data), sizeof(T));
@@ -124,9 +124,9 @@ namespace TTD
         }
 
         void WriteRawByteBuff(const byte* buff, size_t bufflen)
-        {
+        {LOGMEIN("TTSerialize.h] 126\n");
             if(this->m_cursor + bufflen < TTD_SERIALIZATION_BUFFER_SIZE)
-            {
+            {LOGMEIN("TTSerialize.h] 128\n");
                 size_t sizeAvailable = (TTD_SERIALIZATION_BUFFER_SIZE - this->m_cursor);
                 TTDAssert(sizeAvailable >= bufflen, "Our size computation is off somewhere.");
 
@@ -141,7 +141,7 @@ namespace TTD
                 const byte* remainingBuff = buff;
                 size_t remainingBytes = bufflen;
                 while(remainingBytes > TTD_SERIALIZATION_BUFFER_SIZE)
-                {
+                {LOGMEIN("TTSerialize.h] 143\n");
                     TTDAssert(this->m_cursor == 0, "Should be empty.");
 
                     this->WriteBlock(remainingBuff, TTD_SERIALIZATION_BUFFER_SIZE);
@@ -150,7 +150,7 @@ namespace TTD
                 }
 
                 if(remainingBytes > 0)
-                {
+                {LOGMEIN("TTSerialize.h] 152\n");
                     js_memcpy_s(this->m_buffer, TTD_SERIALIZATION_BUFFER_SIZE, remainingBuff, remainingBytes);
                     this->m_cursor += remainingBytes;
                 }
@@ -158,18 +158,18 @@ namespace TTD
         }
 
         void WriteRawCharBuff(const char16* buff, size_t bufflen)
-        {
+        {LOGMEIN("TTSerialize.h] 160\n");
             this->WriteRawByteBuff((const byte*)buff, bufflen * sizeof(char16));
         }
 
         void WriteRawChar(char16 c)
-        {
+        {LOGMEIN("TTSerialize.h] 165\n");
             this->WriteRawByteBuff_Fixed<char16>(c);
         }
 
         template <size_t N, typename T>
         void WriteFormattedCharData(const char16(&formatString)[N], T data)
-        {
+        {LOGMEIN("TTSerialize.h] 171\n");
             byte* trgtBuff = this->ReserveSpaceForSmallData<TTD_SERIALIZATION_MAX_FORMATTED_DATA_SIZE>();
 
             int addedChars = swprintf_s((char16*)trgtBuff, (TTD_SERIALIZATION_MAX_FORMATTED_DATA_SIZE / sizeof(char16)), formatString, data);
@@ -236,7 +236,7 @@ namespace TTD
 
         template <typename T>
         void WriteTag(NSTokens::Key key, T tag, NSTokens::Separator separator = NSTokens::Separator::NoSeparator)
-        {
+        {LOGMEIN("TTSerialize.h] 238\n");
             this->WriteKey(key, separator);
             this->WriteNakedTag((uint32)tag);
         }
@@ -376,7 +376,7 @@ namespace TTD
     protected:
         template <typename T>
         void ReadBytesInto_Fixed(T& data)
-        {
+        {LOGMEIN("TTSerialize.h] 378\n");
             size_t sizeAvailable = (this->m_buffCount - this->m_cursor);
             byte* buff = (byte*)&data;
 
@@ -397,7 +397,7 @@ namespace TTD
                 size_t remainingBytes = (sizeof(T) - sizeAvailable);
 
                 if(remainingBytes > 0)
-                {
+                {LOGMEIN("TTSerialize.h] 399\n");
                     this->ReadBlock(this->m_buffer, &this->m_buffCount);
                     this->m_cursor = 0;
 
@@ -409,7 +409,7 @@ namespace TTD
         }
 
         void ReadBytesInto(byte* buff, size_t requiredBytes)
-        {
+        {LOGMEIN("TTSerialize.h] 411\n");
             size_t sizeAvailable = (this->m_buffCount - this->m_cursor);
 
             if(sizeAvailable >= requiredBytes)
@@ -429,7 +429,7 @@ namespace TTD
                 size_t remainingBytes = (requiredBytes - sizeAvailable);
 
                 while(remainingBytes > TTD_SERIALIZATION_BUFFER_SIZE)
-                {
+                {LOGMEIN("TTSerialize.h] 431\n");
                     size_t readCount = 0;
                     this->ReadBlock(remainingBuff, &readCount);
                     remainingBuff += readCount;
@@ -437,7 +437,7 @@ namespace TTD
                 }
 
                 if(remainingBytes > 0)
-                {
+                {LOGMEIN("TTSerialize.h] 439\n");
                     this->ReadBlock(this->m_buffer, &this->m_buffCount);
                     this->m_cursor = 0;
 
@@ -449,9 +449,9 @@ namespace TTD
         }
 
         bool PeekRawChar(char16* c)
-        {
+        {LOGMEIN("TTSerialize.h] 451\n");
             if(this->m_peekChar != -1)
-            {
+            {LOGMEIN("TTSerialize.h] 453\n");
                 *c = (char16)this->m_peekChar;
                 return true;
             }
@@ -459,7 +459,7 @@ namespace TTD
             {
                 bool success = this->ReadRawChar(c);
                 if(success)
-                {
+                {LOGMEIN("TTSerialize.h] 461\n");
                     this->m_peekChar = *c;
                 }
                 return success;
@@ -467,9 +467,9 @@ namespace TTD
         }
 
         bool ReadRawChar(char16* c)
-        {
+        {LOGMEIN("TTSerialize.h] 469\n");
             if(this->m_peekChar != -1)
-            {
+            {LOGMEIN("TTSerialize.h] 471\n");
                 *c = (char16)this->m_peekChar;
                 this->m_peekChar = -1;
 
@@ -478,13 +478,13 @@ namespace TTD
             else
             {
                 if(this->m_cursor == this->m_buffCount)
-                {
+                {LOGMEIN("TTSerialize.h] 480\n");
                     this->ReadBlock(this->m_buffer, &this->m_buffCount);
                     this->m_cursor = 0;
                 }
 
                 if(this->m_cursor == this->m_buffCount)
-                {
+                {LOGMEIN("TTSerialize.h] 486\n");
                     return false;
                 }
                 else
@@ -547,7 +547,7 @@ namespace TTD
 
         template <typename T>
         T ReadTag(NSTokens::Key keyCheck, bool readSeparator = false)
-        {
+        {LOGMEIN("TTSerialize.h] 549\n");
             this->ReadKey(keyCheck, readSeparator);
             uint32 tval = this->ReadNakedTag();
 
@@ -561,7 +561,7 @@ namespace TTD
 
         template <typename Allocator>
         void ReadString(NSTokens::Key keyCheck, Allocator& alloc, TTString& into, bool readSeparator = false)
-        {
+        {LOGMEIN("TTSerialize.h] 563\n");
             this->ReadKey(keyCheck, readSeparator);
             return this->ReadNakedString(alloc, into);
         }
@@ -571,7 +571,7 @@ namespace TTD
 
         template <typename Allocator>
         TTD_WELLKNOWN_TOKEN ReadWellKnownToken(NSTokens::Key keyCheck, Allocator& alloc, bool readSeparator = false)
-        {
+        {LOGMEIN("TTSerialize.h] 573\n");
             this->ReadKey(keyCheck, readSeparator);
             return this->ReadNakedWellKnownToken(alloc);
         }
@@ -729,9 +729,9 @@ namespace TTD
         FILE* m_outfile;
 
         void EnsureSpace(uint32 length)
-        {
+        {LOGMEIN("TTSerialize.h] 731\n");
             if(this->m_currLength + length >= TRACE_LOGGER_BUFFER_SIZE)
-            {
+            {LOGMEIN("TTSerialize.h] 733\n");
                 fwrite(this->m_buffer, sizeof(char), this->m_currLength, this->m_outfile);
                 fflush(this->m_outfile);
 
@@ -740,9 +740,9 @@ namespace TTD
         }
 
         void AppendRaw(const char* str, uint32 length)
-        {
+        {LOGMEIN("TTSerialize.h] 742\n");
             if(length >= TRACE_LOGGER_BUFFER_SIZE)
-            {
+            {LOGMEIN("TTSerialize.h] 744\n");
                 const char* msg = "Oversize string ... omitting from output";
                 fwrite(msg, sizeof(char), strlen(msg), this->m_outfile);
             }
@@ -756,9 +756,9 @@ namespace TTD
         }
 
         void AppendRaw(const char16* str, uint32 length)
-        {
+        {LOGMEIN("TTSerialize.h] 758\n");
             if(length >= TRACE_LOGGER_BUFFER_SIZE)
-            {
+            {LOGMEIN("TTSerialize.h] 760\n");
                 const char* msg = "Oversize string ... omitting from output";
                 fwrite(msg, sizeof(char), strlen(msg), this->m_outfile);
             }
@@ -770,7 +770,7 @@ namespace TTD
                 const char16* currw = str;
 
                 for(uint32 i = 0; i < length; ++i)
-                {
+                {LOGMEIN("TTSerialize.h] 772\n");
                     *currs = (char)(*currw);
                     ++currs;
                     ++currw;
@@ -782,7 +782,7 @@ namespace TTD
 
         template<size_t N>
         void AppendLiteral(const char(&str)[N])
-        {
+        {LOGMEIN("TTSerialize.h] 784\n");
             this->EnsureSpace(N - 1);
             this->AppendRaw(str, N - 1);
         }
@@ -805,7 +805,7 @@ namespace TTD
 
         template<size_t N>
         void WriteLiteralMsg(const char(&str)[N])
-        {
+        {LOGMEIN("TTSerialize.h] 807\n");
             this->AppendIndent();
             this->AppendLiteral(str);
 

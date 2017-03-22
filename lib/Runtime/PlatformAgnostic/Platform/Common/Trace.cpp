@@ -75,13 +75,13 @@ static int BUFFER_POS = 0;
 __attribute__((no_instrument_function))
 static void
 GetBinaryLocation()
-{
+{LOGMEIN("Trace.cpp] 77\n");
 #if defined(__APPLE__)
     uint32_t path_size = SELF_PATH_SIZE;
     char *tmp = nullptr;
 
     if (_NSGetExecutablePath(SELF_PATH, &path_size))
-    {
+    {LOGMEIN("Trace.cpp] 83\n");
         SELF_PATH_LENGTH = 0;
         SELF_PATH[0] = char(0); // failed
         return;
@@ -96,7 +96,7 @@ GetBinaryLocation()
 #elif defined(__linux__)
     SELF_PATH_LENGTH = readlink("/proc/self/exe", SELF_PATH, SELF_PATH_SIZE - 1);
     if (SELF_PATH_LENGTH <= 0)
-    {
+    {LOGMEIN("Trace.cpp] 98\n");
         SELF_PATH_LENGTH = 0;
         SELF_PATH[0] = char(0); // failed
         return;
@@ -111,7 +111,7 @@ template <class T>
 __attribute__((no_instrument_function))
 static void
 print_to_buffer(const char* format, const T data)
-{
+{LOGMEIN("Trace.cpp] 113\n");
 #ifndef TRACE_OUTPUT_TARGET_FILE
     PRINT_ERROR(format, data);
 #else
@@ -119,12 +119,12 @@ print_to_buffer(const char* format, const T data)
     int length = 0;
 
     if (format)
-    {
+    {LOGMEIN("Trace.cpp] 121\n");
         length = snprintf(TEMP, FILE_BUFFER_SIZE, format, data);
     }
 
     if (format && (length + BUFFER_POS < FILE_BUFFER_SIZE - 1))
-    {
+    {LOGMEIN("Trace.cpp] 126\n");
         memcpy(FILE_BUFFER + BUFFER_POS, TEMP, length);
         BUFFER_POS += length;
     }
@@ -145,7 +145,7 @@ print_to_buffer(const char* format, const T data)
 __attribute__((no_instrument_function))
 static inline size_t
 rdtsc()
-{
+{LOGMEIN("Trace.cpp] 147\n");
 #if !defined(_X86_) && !defined(__AMD64__) && !defined(__x86_64__)
     struct timeval tv;
     gettimeofday(&tv, nullptr);
@@ -164,7 +164,7 @@ rdtsc()
 __attribute__((no_instrument_function))
 static double
 CPUFreq()
-{
+{LOGMEIN("Trace.cpp] 166\n");
     struct timeval tstart, tend;
     size_t start, end;
 
@@ -189,7 +189,7 @@ CPUFreq()
 __attribute__ ((constructor, no_instrument_function))
 void
 INIT_TRACE_FILE ()
-{
+{LOGMEIN("Trace.cpp] 191\n");
     GetBinaryLocation();
     print_to_buffer("%s\n", TRACE_VERSION_STRING);
     print_to_buffer("CPU Freq at ~%f\n", CPUFreq());
@@ -206,7 +206,7 @@ INIT_TRACE_FILE ()
 __attribute__ ((destructor, no_instrument_function))
 void
 CLOSE_TRACE_FILE ()
-{
+{LOGMEIN("Trace.cpp] 208\n");
     IN_TRACE = 1; // no_instrument_function does not block sub calls
 #ifdef TRACE_OUTPUT_TARGET_FILE
     if(FTRACE != NULL)
@@ -223,7 +223,7 @@ CLOSE_TRACE_FILE ()
 __attribute__((no_instrument_function))
 static bool
 CMP_REVERSE(const char * fname)
-{
+{LOGMEIN("Trace.cpp] 225\n");
     if (SELF_PATH_LENGTH == 0) return false;
 
     // linux dli_fname may not return the full path
@@ -232,7 +232,7 @@ CMP_REVERSE(const char * fname)
     int self_pos = SELF_PATH_LENGTH - 1;
     if (self_pos < pos) return false;
     while(pos >= 0)
-    {
+    {LOGMEIN("Trace.cpp] 234\n");
         if (fname[pos--] != SELF_PATH[self_pos--]) return false;
     }
 
@@ -243,15 +243,15 @@ CMP_REVERSE(const char * fname)
 __attribute__((no_instrument_function))
 static void
 print_function(void *func)
-{
+{LOGMEIN("Trace.cpp] 245\n");
     print_to_buffer("[%p]", func);
 
 #ifdef TRACE_FIND_DLI_FNAME
     Dl_info info;
     if (dladdr(func, &info) != 0)
-    {
+    {LOGMEIN("Trace.cpp] 251\n");
         if(CMP_REVERSE(info.dli_fname))
-        {
+        {LOGMEIN("Trace.cpp] 253\n");
             print_to_buffer("<%s>", "self");
         }
         else
@@ -265,7 +265,7 @@ print_function(void *func)
 __attribute__((no_instrument_function))
 static void
 print_indent()
-{
+{LOGMEIN("Trace.cpp] 267\n");
     char space[512 + 1]; // max spaces
     int length = (CALL_IN_COUNTER * 2) + 1;
     if (length > 512) length = 512;
@@ -278,7 +278,7 @@ print_indent()
 __attribute__((no_instrument_function))
 static void
 print_trace(void *func, void *caller, bool is_enter)
-{
+{LOGMEIN("Trace.cpp] 280\n");
     if (FTRACE == NULL) return;
     if (LAST_TICK == -1) return; // wrong thread
     if (IN_TRACE) return;        // clang doesn't support finstrument_functions_exclude_file_list
@@ -286,7 +286,7 @@ print_trace(void *func, void *caller, bool is_enter)
 
     size_t tick = rdtsc();
     if (!is_enter)
-    {
+    {LOGMEIN("Trace.cpp] 288\n");
         CALL_IN_COUNTER--;
         LAST_TICK = tick;
         IN_TRACE = 0;

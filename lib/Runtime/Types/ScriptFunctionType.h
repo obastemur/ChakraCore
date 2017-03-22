@@ -10,9 +10,9 @@ namespace Js
     {
     public:
         static ScriptFunctionType * New(FunctionProxy * proxy, bool isShared);
-        static DWORD GetEntryPointInfoOffset() { return offsetof(ScriptFunctionType, entryPointInfo); }
-        ProxyEntryPointInfo * GetEntryPointInfo() const { return entryPointInfo; }
-        void SetEntryPointInfo(ProxyEntryPointInfo * entryPointInfo) { this->entryPointInfo = entryPointInfo; }
+        static DWORD GetEntryPointInfoOffset() {LOGMEIN("ScriptFunctionType.h] 12\n"); return offsetof(ScriptFunctionType, entryPointInfo); }
+        ProxyEntryPointInfo * GetEntryPointInfo() const {LOGMEIN("ScriptFunctionType.h] 13\n"); return entryPointInfo; }
+        void SetEntryPointInfo(ProxyEntryPointInfo * entryPointInfo) {LOGMEIN("ScriptFunctionType.h] 14\n"); this->entryPointInfo = entryPointInfo; }
     private:
         ScriptFunctionType(ScriptFunctionType * type);
         ScriptFunctionType(ScriptContext* scriptContext, RecyclableObject* prototype,

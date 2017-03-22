@@ -12,33 +12,33 @@ private:
 
 public:
     IntConstantBounds() : lowerBound(0), upperBound(0)
-    {
+    {LOGMEIN("IntConstantBounds.h] 14\n");
     }
 
     IntConstantBounds(const int32 lowerBound, const int32 upperBound)
         : lowerBound(lowerBound), upperBound(upperBound)
-    {
+    {LOGMEIN("IntConstantBounds.h] 19\n");
         Assert(lowerBound <= upperBound);
     }
 
 public:
     int32 LowerBound() const
-    {
+    {LOGMEIN("IntConstantBounds.h] 25\n");
         return lowerBound;
     }
 
     int32 UpperBound() const
-    {
+    {LOGMEIN("IntConstantBounds.h] 30\n");
         return upperBound;
     }
 
     bool IsConstant() const
-    {
+    {LOGMEIN("IntConstantBounds.h] 35\n");
         return lowerBound == upperBound;
     }
 
     bool IsTaggable() const
-    {
+    {LOGMEIN("IntConstantBounds.h] 40\n");
 #if INT32VAR
         // All 32-bit ints are taggable on 64-bit architectures
         return true;
@@ -48,7 +48,7 @@ public:
     }
 
     bool IsLikelyTaggable() const
-    {
+    {LOGMEIN("IntConstantBounds.h] 50\n");
 #if INT32VAR
         // All 32-bit ints are taggable on 64-bit architectures
         return true;
@@ -58,16 +58,16 @@ public:
     }
 
     ValueType GetValueType() const
-    {
+    {LOGMEIN("IntConstantBounds.h] 60\n");
         return ValueType::GetInt(IsLikelyTaggable());
     }
 
     IntConstantBounds And_0x1f() const
-    {
+    {LOGMEIN("IntConstantBounds.h] 65\n");
         const int32 mask = 0x1f;
         if(static_cast<UIntConstType>(upperBound) - static_cast<UIntConstType>(lowerBound) >= static_cast<UIntConstType>(mask) ||
             (lowerBound & mask) > (upperBound & mask))
-        {
+        {LOGMEIN("IntConstantBounds.h] 69\n");
             // The range contains all items in the set {0-mask}, or the range crosses a boundary of {0-mask}. Since we cannot
             // represent ranges like {0-5,8-mask}, just use {0-mask}.
             return IntConstantBounds(0, mask);
@@ -76,12 +76,12 @@ public:
     }
 
     bool Contains(const int32 value) const
-    {
+    {LOGMEIN("IntConstantBounds.h] 78\n");
         return lowerBound <= value && value <= upperBound;
     }
 
     bool operator ==(const IntConstantBounds &other) const
-    {
+    {LOGMEIN("IntConstantBounds.h] 83\n");
         return lowerBound == other.lowerBound && upperBound == other.upperBound;
     }
 };

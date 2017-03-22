@@ -14,38 +14,38 @@
 
 void
 IRBuilderSwitchAdapter::AddBranchInstr(IR::BranchInstr * instr, uint32 offset, uint32 targetOffset, bool clearBackEdge)
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 16\n");
     BranchReloc * reloc = m_builder->AddBranchInstr(instr, offset, targetOffset);
 
     if (clearBackEdge)
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 20\n");
         reloc->SetNotBackEdge();
     }
 }
 
 void
 IRBuilderSwitchAdapter::AddInstr(IR::Instr * instr, uint32 offset)
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 27\n");
     m_builder->AddInstr(instr, offset);
 }
 
 void
 IRBuilderSwitchAdapter::CreateRelocRecord(IR::BranchInstr * branchInstr, uint32 offset, uint32 targetOffset, bool clearBackEdge)
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 33\n");
     BranchReloc * reloc = m_builder->CreateRelocRecord(
         branchInstr,
         offset,
         targetOffset);
 
     if (clearBackEdge)
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 40\n");
         reloc->SetNotBackEdge();
     }
 }
 
 void
 IRBuilderSwitchAdapter::ConvertToBailOut(IR::Instr * instr, IR::BailOutKind kind)
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 47\n");
     instr = instr->ConvertToBailOutInstr(instr, kind);
 
     Assert(instr->GetByteCodeOffset() < m_builder->m_offsetToInstructionCount);
@@ -63,38 +63,38 @@ IRBuilderSwitchAdapter::ConvertToBailOut(IR::Instr * instr, IR::BailOutKind kind
 #ifdef ASMJS_PLAT
 void
 IRBuilderAsmJsSwitchAdapter::AddBranchInstr(IR::BranchInstr * instr, uint32 offset, uint32 targetOffset, bool clearBackEdge)
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 65\n");
     BranchReloc * reloc = m_builder->AddBranchInstr(instr, offset, targetOffset);
 
     if (clearBackEdge)
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 69\n");
         reloc->SetNotBackEdge();
     }
 }
 
 void
 IRBuilderAsmJsSwitchAdapter::AddInstr(IR::Instr * instr, uint32 offset)
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 76\n");
     m_builder->AddInstr(instr, offset);
 }
 
 void
 IRBuilderAsmJsSwitchAdapter::CreateRelocRecord(IR::BranchInstr * branchInstr, uint32 offset, uint32 targetOffset, bool clearBackEdge)
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 82\n");
     BranchReloc * reloc = m_builder->CreateRelocRecord(
         branchInstr,
         offset,
         targetOffset);
 
     if (clearBackEdge)
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 89\n");
         reloc->SetNotBackEdge();
     }
 }
 
 void
 IRBuilderAsmJsSwitchAdapter::ConvertToBailOut(IR::Instr * instr, IR::BailOutKind kind)
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 96\n");
     Assert(false);
     // ConvertToBailOut should never get called for AsmJs
     // switches, since we already know ahead of time that the
@@ -111,7 +111,7 @@ IRBuilderAsmJsSwitchAdapter::ConvertToBailOut(IR::Instr * instr, IR::BailOutKind
 
 void
 SwitchIRBuilder::Init(Func * func, JitArenaAllocator * tempAlloc, bool isAsmJs)
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 113\n");
     m_func = func;
     m_tempAlloc = tempAlloc;
     m_isAsmJs = isAsmJs;
@@ -139,12 +139,12 @@ SwitchIRBuilder::Init(Func * func, JitArenaAllocator * tempAlloc, bool isAsmJs)
 
 void
 SwitchIRBuilder::BeginSwitch()
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 141\n");
     m_intConstSwitchCases->ClearAll();
     m_strConstSwitchCases->Clear();
 
     if (m_isAsmJs)
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 146\n");
         // never build bailout information for asmjs
         m_switchOptBuildBail = false;
         // asm.js switch is always integer
@@ -162,7 +162,7 @@ SwitchIRBuilder::BeginSwitch()
 
 void
 SwitchIRBuilder::EndSwitch(uint32 offset, uint32 targetOffset)
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 164\n");
     FlushCases(targetOffset);
     AssertMsg(m_caseNodes->Count() == 0, "Not all switch case nodes built by end of switch");
 
@@ -185,7 +185,7 @@ SwitchIRBuilder::EndSwitch(uint32 offset, uint32 targetOffset)
 
 void
 SwitchIRBuilder::SetProfiledInstruction(IR::Instr * instr, Js::ProfileId profileId)
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 187\n");
     m_profiledSwitchInstr = instr;
     m_switchOptBuildBail = true;
 
@@ -194,14 +194,14 @@ SwitchIRBuilder::SetProfiledInstruction(IR::Instr * instr, Js::ProfileId profile
     bool hasProfile = m_profiledSwitchInstr->IsProfiledInstr() && m_profiledSwitchInstr->m_func->HasProfileInfo();
 
     if (hasProfile)
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 196\n");
         const ValueType valueType(m_profiledSwitchInstr->m_func->GetReadOnlyProfileInfo()->GetSwitchProfileInfo(profileId));
         instr->AsProfiledInstr()->u.FldInfo().valueType = valueType;
         m_switchIntDynProfile = valueType.IsLikelyTaggedInt();
         m_switchStrDynProfile = valueType.IsLikelyString();
 
         if (PHASE_TESTTRACE1(Js::SwitchOptPhase))
-        {
+        {LOGMEIN("SwitchIRBuilder.cpp] 203\n");
             char valueTypeStr[VALUE_TYPE_MAX_STRING_SIZE];
             valueType.ToString(valueTypeStr);
 #if ENABLE_DEBUG_CONFIG_OPTIONS
@@ -225,7 +225,7 @@ SwitchIRBuilder::SetProfiledInstruction(IR::Instr * instr, Js::ProfileId profile
 
 void
 SwitchIRBuilder::OnCase(IR::RegOpnd * src1Opnd, IR::Opnd * src2Opnd, uint32 offset, uint32 targetOffset)
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 227\n");
     IR::BranchInstr * branchInstr;
 
     Assert(src2Opnd->IsIntConstOpnd() || src2Opnd->IsRegOpnd());
@@ -238,14 +238,14 @@ SwitchIRBuilder::OnCase(IR::RegOpnd * src1Opnd, IR::Opnd * src2Opnd, uint32 offs
     if (GlobOpt::IsSwitchOptEnabled(m_func->GetTopFunc()) && 
         isIntConst && 
         m_intConstSwitchCases->TestAndSet(sym ? sym->GetIntConstValue() : src2Opnd->AsIntConstOpnd()->AsInt32()))
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 240\n");
         // We've already seen a case statement with the same int const value. No need to emit anything for this.
         return;
     }
 
     if (GlobOpt::IsSwitchOptEnabled(m_func->GetTopFunc()) && isStrConst
         && TestAndAddStringCaseConst(JITJavascriptString::FromVar(sym->GetConstAddress(true))))
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 247\n");
         // We've already seen a case statement with the same string const value. No need to emit anything for this.
         return;
     }
@@ -265,15 +265,15 @@ SwitchIRBuilder::OnCase(IR::RegOpnd * src1Opnd, IR::Opnd * src2Opnd, uint32 offs
     bool deferred = false;
 
     if (GlobOpt::IsSwitchOptEnabled(m_func->GetTopFunc()))
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 267\n");
         if (m_switchIntDynProfile && isIntConst)
-        {
+        {LOGMEIN("SwitchIRBuilder.cpp] 269\n");
             CaseNode* caseNode = JitAnew(m_tempAlloc, CaseNode, branchInstr, offset, targetOffset, src2Opnd);
             m_caseNodes->Add(caseNode);
             deferred = true;
         }
         else if (m_switchStrDynProfile && isStrConst)
-        {
+        {LOGMEIN("SwitchIRBuilder.cpp] 275\n");
             CaseNode* caseNode = JitAnew(m_tempAlloc, CaseNode, branchInstr, offset, targetOffset, src2Opnd);
             m_caseNodes->Add(caseNode);
             m_seenOnlySingleCharStrCaseNodes = m_seenOnlySingleCharStrCaseNodes && caseNode->GetUpperBoundStringConstLocal()->GetLength() == 1;
@@ -282,7 +282,7 @@ SwitchIRBuilder::OnCase(IR::RegOpnd * src1Opnd, IR::Opnd * src2Opnd, uint32 offs
     }
 
     if (!deferred)
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 284\n");
         FlushCases(offset);
         m_adapter->AddBranchInstr(branchInstr, offset, targetOffset);
     }
@@ -301,18 +301,18 @@ SwitchIRBuilder::OnCase(IR::RegOpnd * src1Opnd, IR::Opnd * src2Opnd, uint32 offs
 
 void
 SwitchIRBuilder::FlushCases(uint32 targetOffset)
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 303\n");
     if (m_caseNodes->Empty())
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 305\n");
         return;
     }
 
     if (m_switchIntDynProfile)
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 310\n");
         BuildCaseBrInstr(targetOffset);
     }
     else if (m_switchStrDynProfile)
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 314\n");
         BuildMultiBrCaseInstrForStrings(targetOffset);
     }
     else
@@ -332,13 +332,13 @@ SwitchIRBuilder::FlushCases(uint32 targetOffset)
 
 void
 SwitchIRBuilder::RefineCaseNodes()
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 334\n");
     m_caseNodes->Sort();
 
     CaseNodeList * tmpCaseNodes = CaseNodeList::New(m_tempAlloc);
 
     for (int currCaseIndex = 1; currCaseIndex < m_caseNodes->Count(); currCaseIndex++)
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 340\n");
         CaseNode * prevCaseNode = m_caseNodes->Item(currCaseIndex - 1);
         CaseNode * currCaseNode = m_caseNodes->Item(currCaseIndex);
         uint32 prevCaseTargetOffset = prevCaseNode->GetTargetOffset();
@@ -349,17 +349,17 @@ SwitchIRBuilder::RefineCaseNodes()
         /*To handle empty case statements with/without repetition*/
         if (prevCaseTargetOffset == currCaseTargetOffset &&
             (prevCaseConstValue + 1 == currCaseConstValue || prevCaseConstValue == currCaseConstValue))
-        {
+        {LOGMEIN("SwitchIRBuilder.cpp] 351\n");
             m_caseNodes->Item(currCaseIndex)->SetLowerBound(prevCaseNode->GetLowerBound());
         }
         else
         {
             if (tmpCaseNodes->Count() != 0)
-            {
+            {LOGMEIN("SwitchIRBuilder.cpp] 357\n");
                 int lastTmpCaseConstValue = tmpCaseNodes->Item(tmpCaseNodes->Count() - 1)->GetUpperBoundIntConst();
                 /*To handle duplicate non empty case statements*/
                 if (lastTmpCaseConstValue != prevCaseConstValue)
-                {
+                {LOGMEIN("SwitchIRBuilder.cpp] 361\n");
                     tmpCaseNodes->Add(prevCaseNode);
                 }
             }
@@ -388,11 +388,11 @@ SwitchIRBuilder::RefineCaseNodes()
 
 void
 SwitchIRBuilder::BuildBinaryTraverseInstr(int start, int end, uint32 defaultLeafBranch)
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 390\n");
     int mid;
 
     if (start > end)
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 394\n");
         return;
     }
 
@@ -430,7 +430,7 @@ SwitchIRBuilder::BuildBinaryTraverseInstr(int start, int end, uint32 defaultLeaf
 
 void
 SwitchIRBuilder::BuildEmptyCasesInstr(CaseNode* caseNode, uint32 fallThrOffset)
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 432\n");
     IR::BranchInstr* branchInstr;
     IR::Opnd* src1Opnd;
 
@@ -463,26 +463,26 @@ SwitchIRBuilder::BuildEmptyCasesInstr(CaseNode* caseNode, uint32 fallThrOffset)
 
 void
 SwitchIRBuilder::BuildLinearTraverseInstr(int start, int end, uint fallThrOffset)
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 465\n");
     Assert(fallThrOffset);
     for (int index = start; index <= end; index++)
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 468\n");
         CaseNode* currCaseNode = m_caseNodes->Item(index);
 
         bool dontBuildEmptyCases = false;
 
         if (currCaseNode->IsUpperBoundIntConst())
-        {
+        {LOGMEIN("SwitchIRBuilder.cpp] 474\n");
             int lowerBoundCaseConstValue = currCaseNode->GetLowerBoundIntConst();
             int upperBoundCaseConstValue = currCaseNode->GetUpperBoundIntConst();
 
             if (lowerBoundCaseConstValue == upperBoundCaseConstValue)
-            {
+            {LOGMEIN("SwitchIRBuilder.cpp] 479\n");
                 dontBuildEmptyCases = true;
             }
         }
         else if (currCaseNode->IsUpperBoundStrConst())
-        {
+        {LOGMEIN("SwitchIRBuilder.cpp] 484\n");
             dontBuildEmptyCases = true;
         }
         else
@@ -491,7 +491,7 @@ SwitchIRBuilder::BuildLinearTraverseInstr(int start, int end, uint fallThrOffset
         }
 
         if (dontBuildEmptyCases)
-        {
+        {LOGMEIN("SwitchIRBuilder.cpp] 493\n");
             // only if the instruction is not part of a cluster of empty consecutive case statements.
             m_adapter->AddBranchInstr(currCaseNode->GetCaseInstr(), currCaseNode->GetOffset(), currCaseNode->GetTargetOffset());
         }
@@ -518,7 +518,7 @@ SwitchIRBuilder::BuildLinearTraverseInstr(int start, int end, uint fallThrOffset
 
 void
 SwitchIRBuilder::ResetCaseNodes()
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 520\n");
     m_caseNodes->Clear();
     m_seenOnlySingleCharStrCaseNodes = true;
 }
@@ -532,7 +532,7 @@ SwitchIRBuilder::ResetCaseNodes()
 
 void
 SwitchIRBuilder::BuildCaseBrInstr(uint32 targetOffset)
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 534\n");
     Assert(m_isAsmJs || m_profiledSwitchInstr);
 
     int start = 0;
@@ -553,7 +553,7 @@ SwitchIRBuilder::BuildCaseBrInstr(uint32 targetOffset)
 
                       //optimization is definitely performed when the number of cases is greater than the threshold
     if (end - start > CONFIG_FLAG(MaxLinearIntCaseCount) - 1) // -1 for handling zero index as the base
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 555\n");
         BuildBailOnNotInteger();
     }
 }
@@ -568,7 +568,7 @@ SwitchIRBuilder::BuildCaseBrInstr(uint32 targetOffset)
 
 void
 SwitchIRBuilder::BuildOptimizedIntegerCaseInstrs(uint32 targetOffset)
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 570\n");
     int startjmpTableIndex = 0;
     int endjmpTableIndex = 0;
     int startBinaryTravIndex = 0;
@@ -585,11 +585,11 @@ SwitchIRBuilder::BuildOptimizedIntegerCaseInstrs(uint32 targetOffset)
     *   -Blocks of BinaryTrav/Jump table are traversed in a linear fashion.
     **/
     for (int currentIndex = 0; currentIndex < m_caseNodes->Count() - 1; currentIndex++)
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 587\n");
         int nextIndex = currentIndex + 1;
         //Check if there is no missing value between subsequent case arms
         if (m_caseNodes->Item(currentIndex)->GetUpperBoundIntConst() + 1 != m_caseNodes->Item(nextIndex)->GetUpperBoundIntConst())
-        {
+        {LOGMEIN("SwitchIRBuilder.cpp] 591\n");
             //value of the case nodes are guaranteed to be 32 bits or less than 32bits at this point(if it is more, the Switch Opt will not kick in)
             Assert(nextIndex == endjmpTableIndex + 1);
             int64 speculatedEndJmpCaseValue = m_caseNodes->Item(nextIndex)->GetUpperBoundIntConst();
@@ -603,9 +603,9 @@ SwitchIRBuilder::BuildOptimizedIntegerCaseInstrs(uint32 targetOffset)
 
             //Checks if the % of filled entries(unique targets from the case arms) in the jump table is within the threshold
             if (speculatedJmpTableSize != 0 && ((numFilledEntries)* 100 / speculatedJmpTableSize) < (100 - CONFIG_FLAG(SwitchOptHolesThreshold)))
-            {
+            {LOGMEIN("SwitchIRBuilder.cpp] 605\n");
                 if (jmpTableSize >= CONFIG_FLAG(MinSwitchJumpTableSize))
-                {
+                {LOGMEIN("SwitchIRBuilder.cpp] 607\n");
                     uint32 fallThrOffset = m_caseNodes->Item(endjmpTableIndex)->GetOffset();
                     TryBuildBinaryTreeOrMultiBrForSwitchInts(multiBranchInstr, fallThrOffset, startjmpTableIndex, endjmpTableIndex, startBinaryTravIndex, targetOffset);
 
@@ -634,7 +634,7 @@ SwitchIRBuilder::BuildOptimizedIntegerCaseInstrs(uint32 targetOffset)
     int64 jmpTableSize = endJmpCaseValue - startJmpCaseValue + 1;
 
     if (jmpTableSize < CONFIG_FLAG(MinSwitchJumpTableSize))
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 636\n");
         endBinaryTravIndex = endjmpTableIndex;
         BuildBinaryTraverseInstr(startBinaryTravIndex, endBinaryTravIndex, targetOffset);
         if (multiBranchInstr)
@@ -660,12 +660,12 @@ SwitchIRBuilder::BuildOptimizedIntegerCaseInstrs(uint32 targetOffset)
 
 void
 SwitchIRBuilder::TryBuildBinaryTreeOrMultiBrForSwitchInts(IR::MultiBranchInstr * &multiBranchInstr, uint32 fallthrOffset, int startjmpTableIndex, int endjmpTableIndex, int startBinaryTravIndex, uint32 defaultTargetOffset)
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 662\n");
     int endBinaryTravIndex = startjmpTableIndex;
 
     //Try Building Binary tree, if there are available case arms, as indicated by the boundary offsets
     if (endBinaryTravIndex != startBinaryTravIndex)
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 667\n");
         endBinaryTravIndex = startjmpTableIndex - 1;
         BuildBinaryTraverseInstr(startBinaryTravIndex, endBinaryTravIndex, fallthrOffset);
         //Fix up the fallthrOffset for the previous multiBrInstr, if one existed
@@ -699,7 +699,7 @@ SwitchIRBuilder::TryBuildBinaryTreeOrMultiBrForSwitchInts(IR::MultiBranchInstr *
 
 void
 SwitchIRBuilder::FixUpMultiBrJumpTable(IR::MultiBranchInstr * multiBranchInstr, uint32 targetOffset)
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 701\n");
     multiBranchInstr->FixMultiBrDefaultTarget(targetOffset);
 
     uint32 offset = multiBranchInstr->GetByteCodeOffset();
@@ -726,9 +726,9 @@ SwitchIRBuilder::FixUpMultiBrJumpTable(IR::MultiBranchInstr * multiBranchInstr, 
 
 void
 SwitchIRBuilder::BuildBailOnNotInteger()
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 728\n");
     if (!m_switchOptBuildBail)
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 730\n");
         return;
     }
 
@@ -753,9 +753,9 @@ SwitchIRBuilder::BuildBailOnNotInteger()
 
 void
 SwitchIRBuilder::BuildBailOnNotString()
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 755\n");
     if (!m_switchOptBuildBail)
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 757\n");
         return;
     }
 
@@ -782,11 +782,11 @@ SwitchIRBuilder::BuildBailOnNotString()
 
 bool
 SwitchIRBuilder::TestAndAddStringCaseConst(JITJavascriptString * str)
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 784\n");
     Assert(m_strConstSwitchCases);
 
     if (m_strConstSwitchCases->Contains(str))
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 788\n");
         return true;
     }
     else
@@ -807,11 +807,11 @@ SwitchIRBuilder::TestAndAddStringCaseConst(JITJavascriptString * str)
 
 void
 SwitchIRBuilder::BuildMultiBrCaseInstrForStrings(uint32 targetOffset)
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 809\n");
     Assert(m_caseNodes && m_caseNodes->Count() && m_profiledSwitchInstr && !m_isAsmJs);
 
     if (m_caseNodes->Count() < CONFIG_FLAG(MaxLinearStringCaseCount))
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 813\n");
         int start = 0;
         int end = m_caseNodes->Count() - 1;
         BuildLinearTraverseInstr(start, end, targetOffset);
@@ -832,17 +832,17 @@ SwitchIRBuilder::BuildMultiBrCaseInstrForStrings(uint32 targetOffset)
     // Either the jump table is within the limit (<= 128) or it is dense (<= 2 * case Count)
     uint const maxJumpTableSize = max<uint>(CONFIG_FLAG(MaxSingleCharStrJumpTableSize), CONFIG_FLAG(MaxSingleCharStrJumpTableRatio) * caseCount);
     if (this->m_seenOnlySingleCharStrCaseNodes)
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 834\n");
         generateDictionary = false;
         for (uint i = 0; i < caseCount; i++)
-        {
+        {LOGMEIN("SwitchIRBuilder.cpp] 837\n");
             JITJavascriptString * str = m_caseNodes->Item(i)->GetUpperBoundStringConstLocal();
             Assert(str->GetLength() == 1);
             char16 currChar = str->GetString()[0];
             minChar = min(minChar, currChar);
             maxChar = max(maxChar, currChar);
             if ((uint)(maxChar - minChar) > maxJumpTableSize)
-            {
+            {LOGMEIN("SwitchIRBuilder.cpp] 844\n");
                 generateDictionary = true;
                 break;
             }
@@ -851,12 +851,12 @@ SwitchIRBuilder::BuildMultiBrCaseInstrForStrings(uint32 targetOffset)
 
 
     if (generateDictionary)
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 853\n");
         multiBranchInstr->CreateBranchTargetsAndSetDefaultTarget(caseCount, IR::MultiBranchInstr::StrDictionary, targetOffset);
 
         //Adding normal cases to the instruction (except the default case, which we do it later)
         for (uint i = 0; i < caseCount; i++)
-        {
+        {LOGMEIN("SwitchIRBuilder.cpp] 858\n");
             JITJavascriptString * str = m_caseNodes->Item(i)->GetUpperBoundStringConstLocal();
             uint32 caseTargetOffset = m_caseNodes->Item(i)->GetTargetOffset();
             multiBranchInstr->AddtoDictionary(caseTargetOffset, str, m_caseNodes->Item(i)->GetUpperBoundStrConst());
@@ -866,7 +866,7 @@ SwitchIRBuilder::BuildMultiBrCaseInstrForStrings(uint32 targetOffset)
     {
         // If we are only going to save 16 entries, just start from 0 so we don't have to subtract
         if (minChar < 16)
-        {
+        {LOGMEIN("SwitchIRBuilder.cpp] 868\n");
             minChar = 0;
         }
         multiBranchInstr->m_baseCaseValue = minChar;
@@ -875,13 +875,13 @@ SwitchIRBuilder::BuildMultiBrCaseInstrForStrings(uint32 targetOffset)
         multiBranchInstr->CreateBranchTargetsAndSetDefaultTarget(jumpTableSize, IR::MultiBranchInstr::SingleCharStrJumpTable, targetOffset);
 
         for (uint i = 0; i < jumpTableSize; i++)
-        {
+        {LOGMEIN("SwitchIRBuilder.cpp] 877\n");
             // Initialize all the entries to the default target first.
             multiBranchInstr->AddtoJumpTable(targetOffset, i);
         }
         //Adding normal cases to the instruction (except the default case, which we do it later)
         for (uint i = 0; i < caseCount; i++)
-        {
+        {LOGMEIN("SwitchIRBuilder.cpp] 883\n");
             JITJavascriptString * str = m_caseNodes->Item(i)->GetUpperBoundStringConstLocal();
             Assert(str->GetLength() == 1);
             uint32 caseTargetOffset = m_caseNodes->Item(i)->GetTargetOffset();
@@ -910,7 +910,7 @@ SwitchIRBuilder::BuildMultiBrCaseInstrForStrings(uint32 targetOffset)
 
 IR::MultiBranchInstr *
 SwitchIRBuilder::BuildMultiBrCaseInstrForInts(uint32 start, uint32 end, uint32 targetOffset)
-{
+{LOGMEIN("SwitchIRBuilder.cpp] 912\n");
     Assert(m_caseNodes && m_caseNodes->Count() && (m_profiledSwitchInstr || m_isAsmJs));
 
     IR::Opnd * srcOpnd = m_caseNodes->Item(start)->GetCaseInstr()->GetSrc1(); // Src1 is same in all the caseNodes
@@ -933,9 +933,9 @@ SwitchIRBuilder::BuildMultiBrCaseInstrForInts(uint32 start, uint32 end, uint32 t
     uint32 caseTargetOffset = 0;
 
     for (int jmpIndex = jmpTableSize - 1; jmpIndex >= 0; jmpIndex--)
-    {
+    {LOGMEIN("SwitchIRBuilder.cpp] 935\n");
         if (caseIndex >= 0 && jmpIndex == m_caseNodes->Item(caseIndex)->GetUpperBoundIntConst() - baseCaseValue)
-        {
+        {LOGMEIN("SwitchIRBuilder.cpp] 937\n");
             lowerBoundCaseConstValue = m_caseNodes->Item(caseIndex)->GetLowerBoundIntConst();
             upperBoundCaseConstValue = m_caseNodes->Item(caseIndex)->GetUpperBoundIntConst();
             caseTargetOffset = m_caseNodes->Item(caseIndex--)->GetTargetOffset();
@@ -944,7 +944,7 @@ SwitchIRBuilder::BuildMultiBrCaseInstrForInts(uint32 start, uint32 end, uint32 t
         else
         {
             if (jmpIndex >= lowerBoundCaseConstValue - baseCaseValue && jmpIndex <= upperBoundCaseConstValue - baseCaseValue)
-            {
+            {LOGMEIN("SwitchIRBuilder.cpp] 946\n");
                 multiBranchInstr->AddtoJumpTable(caseTargetOffset, jmpIndex);
             }
             else

@@ -17,7 +17,7 @@ namespace Js
         static ModuleNamespaceEnumerator* New(ModuleNamespace* nsObject, EnumeratorFlags flags, ScriptContext* scriptContext, ForInCache * forInCache);        
         virtual void Reset() override;
         virtual Var MoveAndGetNext(PropertyId& propertyId, PropertyAttributes* attributes = nullptr) override;
-        virtual Var GetCurrentValue() { Assert(false); return nullptr; }
+        virtual Var GetCurrentValue() {LOGMEIN("ModuleNamespaceEnumerator.h] 19\n"); Assert(false); return nullptr; }
 
     private:
         Field(ModuleNamespace*) nsObject;

@@ -17,7 +17,7 @@ struct OpHelperSpilledLifetime
 class OpHelperBlock
 {
 public:
-    OpHelperBlock(JitArenaAllocator * alloc) : spilledLifetime(alloc) {}
+    OpHelperBlock(JitArenaAllocator * alloc) : spilledLifetime(alloc) {LOGMEIN("SccLiveness.h] 19\n");}
 
     IR::LabelInstr * opHelperLabel;
     IR::Instr * opHelperEndInstr;
@@ -49,7 +49,7 @@ public:
         curLoop(NULL), lastOpHelperLabel(NULL), opHelperBlockList(tempAlloc),
         curRegion(NULL), lifetimeList(tempAlloc),
         totalOpHelperFullVisitedLength(0)
-    {
+    {LOGMEIN("SccLiveness.h] 51\n");
         extendedLifetimesLoopList = JitAnew(tempAlloc, SListBase<Loop *>);
     }
 

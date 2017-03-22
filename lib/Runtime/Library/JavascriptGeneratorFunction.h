@@ -28,7 +28,7 @@ namespace Js
         JavascriptGeneratorFunction(DynamicType* type, GeneratorVirtualScriptFunction* scriptFunction);
 
         virtual JavascriptString* GetDisplayNameImpl() const override;
-        GeneratorVirtualScriptFunction* GetGeneratorVirtualScriptFunction() { return scriptFunction; }
+        GeneratorVirtualScriptFunction* GetGeneratorVirtualScriptFunction() {LOGMEIN("JavascriptGeneratorFunction.h] 30\n"); return scriptFunction; }
 
         static JavascriptGeneratorFunction* FromVar(Var var);
         static bool Is(Var var);
@@ -36,7 +36,7 @@ namespace Js
         static JavascriptGeneratorFunction* OP_NewScGenFunc(FrameDisplay* environment, FunctionInfoPtrPtr infoRef);
         static Var EntryGeneratorFunctionImplementation(RecyclableObject* function, CallInfo callInfo, ...);
         static Var EntryAsyncFunctionImplementation(RecyclableObject* function, CallInfo callInfo, ...);
-        static DWORD GetOffsetOfScriptFunction() { return offsetof(JavascriptGeneratorFunction, scriptFunction); }
+        static DWORD GetOffsetOfScriptFunction() {LOGMEIN("JavascriptGeneratorFunction.h] 38\n"); return offsetof(JavascriptGeneratorFunction, scriptFunction); }
 
         virtual Var GetHomeObj() const override;
         virtual void SetHomeObj(Var homeObj) override;
@@ -64,7 +64,7 @@ namespace Js
 
         virtual BOOL IsWritable(PropertyId propertyId) override;
         virtual BOOL IsEnumerable(PropertyId propertyId) override;
-        virtual bool IsGeneratorFunction() const { return true; };
+        virtual bool IsGeneratorFunction() const {LOGMEIN("JavascriptGeneratorFunction.h] 66\n"); return true; };
 
         class EntryInfo
         {
@@ -96,7 +96,7 @@ namespace Js
         JavascriptAsyncFunction(DynamicType* type, GeneratorVirtualScriptFunction* scriptFunction);
 
         static JavascriptAsyncFunction* New(ScriptContext* scriptContext, GeneratorVirtualScriptFunction* scriptFunction);
-        static DWORD GetOffsetOfScriptFunction() { return JavascriptGeneratorFunction::GetOffsetOfScriptFunction(); }
+        static DWORD GetOffsetOfScriptFunction() {LOGMEIN("JavascriptGeneratorFunction.h] 98\n"); return JavascriptGeneratorFunction::GetOffsetOfScriptFunction(); }
 
         static JavascriptAsyncFunction* FromVar(Var var);
         static bool Is(Var var);
@@ -115,12 +115,12 @@ namespace Js
 
         Field(JavascriptGeneratorFunction*) realFunction;
 
-        void SetRealGeneratorFunction(JavascriptGeneratorFunction* realFunction) { this->realFunction = realFunction; }
+        void SetRealGeneratorFunction(JavascriptGeneratorFunction* realFunction) {LOGMEIN("JavascriptGeneratorFunction.h] 117\n"); this->realFunction = realFunction; }
 
     public:
-        GeneratorVirtualScriptFunction(FunctionProxy* proxy, ScriptFunctionType* deferredPrototypeType) : ScriptFunction(proxy, deferredPrototypeType) { }
+        GeneratorVirtualScriptFunction(FunctionProxy* proxy, ScriptFunctionType* deferredPrototypeType) : ScriptFunction(proxy, deferredPrototypeType) {LOGMEIN("JavascriptGeneratorFunction.h] 120\n"); }
 
-        static uint32 GetRealFunctionOffset() { return offsetof(GeneratorVirtualScriptFunction, realFunction); }
+        static uint32 GetRealFunctionOffset() {LOGMEIN("JavascriptGeneratorFunction.h] 122\n"); return offsetof(GeneratorVirtualScriptFunction, realFunction); }
 
         virtual JavascriptFunction* GetRealFunctionObject() override { return realFunction; }
 

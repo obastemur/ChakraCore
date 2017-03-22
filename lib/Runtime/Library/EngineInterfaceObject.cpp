@@ -12,7 +12,7 @@
 
 #define IfFailThrowHr(op) \
     if (FAILED(hr=(op))) \
-    { \
+    {LOGMEIN("EngineInterfaceObject.cpp] 14\n"); \
     JavascriptError::MapAndThrowError(scriptContext, hr); \
     } \
 
@@ -75,10 +75,10 @@
 namespace Js
 {
     EngineExtensionObjectBase* EngineInterfaceObject::GetEngineExtension(EngineInterfaceExtensionKind extensionKind) const
-    {
+    {LOGMEIN("EngineInterfaceObject.cpp] 77\n");
         AnalysisAssert(extensionKind >= 0 && extensionKind <= MaxEngineInterfaceExtensionKind);
         if (extensionKind <= MaxEngineInterfaceExtensionKind)
-        {
+        {LOGMEIN("EngineInterfaceObject.cpp] 80\n");
             Assert(engineExtensions[extensionKind] == nullptr || engineExtensions[extensionKind]->GetExtensionKind() == extensionKind);
             return engineExtensions[extensionKind];
         }
@@ -86,10 +86,10 @@ namespace Js
     }
 
     void EngineInterfaceObject::SetEngineExtension(EngineInterfaceExtensionKind extensionKind, EngineExtensionObjectBase* extensionObject)
-    {
+    {LOGMEIN("EngineInterfaceObject.cpp] 88\n");
         AnalysisAssert(extensionKind >= 0 && extensionKind <= MaxEngineInterfaceExtensionKind);
         if (extensionKind <= MaxEngineInterfaceExtensionKind)
-        {
+        {LOGMEIN("EngineInterfaceObject.cpp] 91\n");
             Assert(engineExtensions[extensionKind] == nullptr);
             engineExtensions[extensionKind] = extensionObject;
         }
@@ -123,17 +123,17 @@ namespace Js
 #endif
 
     EngineInterfaceObject * EngineInterfaceObject::New(Recycler * recycler, DynamicType * type)
-    {
+    {LOGMEIN("EngineInterfaceObject.cpp] 125\n");
         EngineInterfaceObject* newObject = NewObject<EngineInterfaceObject>(recycler, type);
         for (uint i = 0; i <= MaxEngineInterfaceExtensionKind; i++)
-        {
+        {LOGMEIN("EngineInterfaceObject.cpp] 128\n");
             newObject->engineExtensions[i] = nullptr;
         }
         return newObject;
     }
 
     bool EngineInterfaceObject::Is(Var aValue)
-    {
+    {LOGMEIN("EngineInterfaceObject.cpp] 135\n");
         return JavascriptOperators::GetTypeId(aValue) == TypeIds_EngineInterfaceObject;
     }
 
@@ -145,7 +145,7 @@ namespace Js
     }
 
     void EngineInterfaceObject::Initialize()
-    {
+    {LOGMEIN("EngineInterfaceObject.cpp] 147\n");
         Recycler* recycler = this->GetRecycler();
         ScriptContext* scriptContext = this->GetScriptContext();
         JavascriptLibrary* library = scriptContext->GetLibrary();
@@ -158,9 +158,9 @@ namespace Js
         library->AddMember(this, Js::PropertyIds::Common, this->commonNativeInterfaces);
 
         for (uint i = 0; i <= MaxEngineInterfaceExtensionKind; i++)
-        {
+        {LOGMEIN("EngineInterfaceObject.cpp] 160\n");
             if (engineExtensions[i] != nullptr)
-            {
+            {LOGMEIN("EngineInterfaceObject.cpp] 162\n");
                 engineExtensions[i]->Initialize();
             }
         }
@@ -168,28 +168,28 @@ namespace Js
 
 #if ENABLE_TTD
     void EngineInterfaceObject::MarkVisitKindSpecificPtrs(TTD::SnapshotExtractor* extractor)
-    {
+    {LOGMEIN("EngineInterfaceObject.cpp] 170\n");
         extractor->MarkVisitVar(this->commonNativeInterfaces);
     }
 
     void EngineInterfaceObject::ProcessCorePaths()
-    {
+    {LOGMEIN("EngineInterfaceObject.cpp] 175\n");
         this->GetScriptContext()->TTDWellKnownInfo->EnqueueNewPathVarAsNeeded(this, this->commonNativeInterfaces, L"!commonNativeInterfaces");
     }
 
     TTD::NSSnapObjects::SnapObjectType EngineInterfaceObject::GetSnapTag_TTD() const
-    {
+    {LOGMEIN("EngineInterfaceObject.cpp] 180\n");
         return TTD::NSSnapObjects::SnapObjectType::SnapWellKnownObject;
     }
 
     void EngineInterfaceObject::ExtractSnapObjectDataInto(TTD::NSSnapObjects::SnapObject* objData, TTD::SlabAllocator& alloc)
-    {
+    {LOGMEIN("EngineInterfaceObject.cpp] 185\n");
         TTD::NSSnapObjects::StdExtractSetKindSpecificInfo<void*, TTD::NSSnapObjects::SnapObjectType::SnapWellKnownObject>(objData, nullptr);
     }
 #endif
 
     void EngineInterfaceObject::InitializeCommonNativeInterfaces(DynamicObject* commonNativeInterfaces, DeferredTypeHandlerBase * typeHandler, DeferredInitializeMode mode)
-    {
+    {LOGMEIN("EngineInterfaceObject.cpp] 191\n");
         typeHandler->Convert(commonNativeInterfaces, mode, 38);
 
         ScriptContext* scriptContext = commonNativeInterfaces->GetScriptContext();
@@ -235,7 +235,7 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo);
 
         if (callInfo.Count < 2)
-        {
+        {LOGMEIN("EngineInterfaceObject.cpp] 237\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -243,7 +243,7 @@ namespace Js
         int resourceId;
 
         switch(hr)
-        {
+        {LOGMEIN("EngineInterfaceObject.cpp] 245\n");
         case ASYNCERR_NoErrorInErrorState:
             resourceId = 5200;
             break;
@@ -262,7 +262,7 @@ namespace Js
         OLECHAR errorString[strLength];
 
         if(FGetResourceString(resourceId, errorString, strLength))
-        {
+        {LOGMEIN("EngineInterfaceObject.cpp] 264\n");
             return Js::JavascriptString::NewCopySz(errorString, scriptContext);
         }
 
@@ -276,7 +276,7 @@ namespace Js
 
 #if DBG
         if (callInfo.Count < 2 || !JavascriptString::Is(args.Values[1]))
-        {
+        {LOGMEIN("EngineInterfaceObject.cpp] 278\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -294,18 +294,18 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo);
 
         if (callInfo.Count >= 2 && JavascriptFunction::Is(args.Values[1]))
-        {
+        {LOGMEIN("EngineInterfaceObject.cpp] 296\n");
             JavascriptFunction* func = JavascriptFunction::FromVar(args.Values[1]);
             func->GetFunctionProxy()->SetIsPublicLibraryCode();
 
             if (callInfo.Count >= 3 && JavascriptString::Is(args.Values[2]))
-            {
+            {LOGMEIN("EngineInterfaceObject.cpp] 301\n");
                 JavascriptString* customFunctionName = JavascriptString::FromVar(args.Values[2]);
                 // tagPublicFunction("Intl.Collator", Collator); in Intl.js calls TagPublicLibraryCode the expected name is Collator so we need to calculate the offset
                 const char16 * shortName = wcsrchr(customFunctionName->GetString(), _u('.'));
                 uint shortNameOffset = 0;
                 if (shortName != nullptr)
-                {
+                {LOGMEIN("EngineInterfaceObject.cpp] 307\n");
                     // JavascriptString length is bounded by uint max
                     shortName++;
                     shortNameOffset = static_cast<uint>(shortName - customFunctionName->GetString());
@@ -337,7 +337,7 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo); \
         \
         if(args.Info.Count < 2 || !JavascriptString::Is(args.Values[1])) \
-        { \
+        {LOGMEIN("EngineInterfaceObject.cpp] 339\n"); \
             Assert(false); \
             JavascriptError::Throw##exceptionType(scriptContext, JSERR_##exceptionID); \
         } \
@@ -350,7 +350,7 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo); \
         \
         if(args.Info.Count < 3 || !JavascriptString::Is(args.Values[1]) || !JavascriptString::Is(args.Values[2])) \
-        { \
+        {LOGMEIN("EngineInterfaceObject.cpp] 352\n"); \
             Assert(false); \
             JavascriptError::Throw##exceptionType(scriptContext, JSERR_##exceptionID); \
         } \
@@ -363,7 +363,7 @@ namespace Js
         EngineInterfaceObject_CommonFunctionProlog(function, callInfo); \
         \
         if(args.Info.Count < 4 || !JavascriptString::Is(args.Values[1]) || !JavascriptString::Is(args.Values[2]) || !JavascriptString::Is(args.Values[3])) \
-        { \
+        {LOGMEIN("EngineInterfaceObject.cpp] 365\n"); \
             Assert(false); \
             JavascriptError::Throw##exceptionType(scriptContext, JSERR_##exceptionID); \
         } \

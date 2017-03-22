@@ -7,16 +7,16 @@
 // PeepsMD::Init
 void
 PeepsMD::Init(Peeps *peeps)
-{
+{LOGMEIN("PeepsMD.cpp] 9\n");
     this->peeps = peeps;
 }
 
 // PeepsMD::ProcessImplicitRegs
 void
 PeepsMD::ProcessImplicitRegs(IR::Instr *instr)
-{
+{LOGMEIN("PeepsMD.cpp] 16\n");
     if (LowererMD::IsCall(instr))
-    {
+    {LOGMEIN("PeepsMD.cpp] 18\n");
         this->peeps->ClearReg(RegR0);
         this->peeps->ClearReg(RegR1);
         this->peeps->ClearReg(RegR2);
@@ -34,7 +34,7 @@ PeepsMD::ProcessImplicitRegs(IR::Instr *instr)
     }
     else if (instr->m_opcode == Js::OpCode::SMULL ||
              instr->m_opcode == Js::OpCode::SMLAL)
-    {
+    {LOGMEIN("PeepsMD.cpp] 36\n");
         // As we don't currently have support for 4 operand instrs, we use R12 as 4th operand,
         // Notify the peeps that we use r12: SMULL, dst, r12, src1, src2.
         this->peeps->ClearReg(RegR12);
@@ -43,6 +43,6 @@ PeepsMD::ProcessImplicitRegs(IR::Instr *instr)
 
 void
 PeepsMD::PeepAssign(IR::Instr *instr)
-{
+{LOGMEIN("PeepsMD.cpp] 45\n");
     return;
 }

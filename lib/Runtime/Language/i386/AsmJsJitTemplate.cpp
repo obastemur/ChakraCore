@@ -44,21 +44,21 @@ namespace Js
 
     // Template version to access register mask
     template<typename T> uint GetRegMask();
-    template<> uint GetRegMask<int>() { return Mask32BitsReg; }
-    template<> uint GetRegMask<double>() { return Mask64BitsReg; }
-    template<> uint GetRegMask<float>() { return Mask64BitsReg; }
-    template<> uint GetRegMask<AsmJsSIMDValue>() { return Mask64BitsReg; }
+    template<> uint GetRegMask<int>() {LOGMEIN("AsmJsJitTemplate.cpp] 46\n"); return Mask32BitsReg; }
+    template<> uint GetRegMask<double>() {LOGMEIN("AsmJsJitTemplate.cpp] 47\n"); return Mask64BitsReg; }
+    template<> uint GetRegMask<float>() {LOGMEIN("AsmJsJitTemplate.cpp] 48\n"); return Mask64BitsReg; }
+    template<> uint GetRegMask<AsmJsSIMDValue>() {LOGMEIN("AsmJsJitTemplate.cpp] 49\n"); return Mask64BitsReg; }
 
 
     // Template version to access first register available
     template<typename T> RegNum GetFirstReg();
-    template<> RegNum GetFirstReg<int>() { return FIRST_INT_REG; }
-    template<> RegNum GetFirstReg<double>() { return FIRST_FLOAT_REG; }
-    template<> RegNum GetFirstReg<float>() { return FIRST_FLOAT_REG; }
-    template<> RegNum GetFirstReg<AsmJsSIMDValue>() { return FIRST_FLOAT_REG; }
+    template<> RegNum GetFirstReg<int>() {LOGMEIN("AsmJsJitTemplate.cpp] 54\n"); return FIRST_INT_REG; }
+    template<> RegNum GetFirstReg<double>() {LOGMEIN("AsmJsJitTemplate.cpp] 55\n"); return FIRST_FLOAT_REG; }
+    template<> RegNum GetFirstReg<float>() {LOGMEIN("AsmJsJitTemplate.cpp] 56\n"); return FIRST_FLOAT_REG; }
+    template<> RegNum GetFirstReg<AsmJsSIMDValue>() {LOGMEIN("AsmJsJitTemplate.cpp] 57\n"); return FIRST_FLOAT_REG; }
 
     // Returns the last register available + 1, forms an upper bound  [GetFirstReg, GetLastReg[
-    template<typename T> RegNum GetLastReg() { return RegNum(GetFirstReg<T>()+8); }
+    template<typename T> RegNum GetLastReg() {LOGMEIN("AsmJsJitTemplate.cpp] 60\n"); return RegNum(GetFirstReg<T>()+8); }
 
     struct InternalCallInfo
     {
@@ -92,27 +92,27 @@ namespace Js
         // Applies the register choosing algorithm and returns it
         template<typename T> RegNum GetNextReg(RegNum reg);
         template<> RegNum GetNextReg<int>(RegNum reg)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 94\n");
             return RegNum((reg + 1) % GetLastReg<int>());
         }
         template<> RegNum GetNextReg<double>(RegNum reg)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 98\n");
             RegNum nextReg = RegNum((reg + 1) % GetLastReg<double>());
             if (nextReg < GetFirstReg<double>())
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 101\n");
                 return RegNum(GetFirstReg<double>());
             }
             return nextReg;
         }
         template<typename T> RegNum NextReg(const int registerRestriction)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 107\n");
             RegNum reg = GetNextRegister<T>();
             const uint unavailable = registerRestriction | MaskUnavailableReg;
             Assert( unavailable != GetRegMask<T>() );
             if( (1<<reg) & unavailable )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 112\n");
                 while( (1<<reg) & unavailable )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 114\n");
                     reg = GetNextReg<T>(reg);
                 }
                 Assert( !(1 << reg & unavailable) );
@@ -120,7 +120,7 @@ namespace Js
             }
             RegNum next = reg;
             do
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 122\n");
                 next = GetNextReg<T>(next);
             } while( ( 1 << next ) & MaskUnavailableReg );
             SetNextRegister<T>( next );
@@ -129,7 +129,7 @@ namespace Js
         }
     public:
         X86TemplateData()
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 131\n");
             Assert( !( (1<<GetFirstReg<int>()) & MaskUnavailableReg ) );
             Assert(!((1 << GetFirstReg<double>()) & MaskUnavailableReg));
             Assert(!((1 << GetFirstReg<float>()) & MaskUnavailableReg));
@@ -138,23 +138,23 @@ namespace Js
             mAnyStackSaved = 0;
             mCallInfoList = nullptr;
             for (int i = 0; i < RegNumCount ; i++)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 140\n");
                 mRegisterStackOffsetSaved[i] = 0;
             }
         }
 
         ~X86TemplateData()
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 146\n");
             Assert( !mCallInfoList );
         }
 
         InternalCallInfo* GetInternalCallInfo() const
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 151\n");
             return mCallInfoList;
         }
 
         void StartInternalCall( int argSizeByte )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 156\n");
             InternalCallInfo* info = HeapNew( InternalCallInfo );
             info->argByteSize = argSizeByte;
             info->currentOffset = 0;
@@ -164,7 +164,7 @@ namespace Js
         }
 
         void InternalCallDone()
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 166\n");
             Assert( mCallInfoList );
             Assert( mCallInfoList->currentOffset + MachPtr == mCallInfoList->argByteSize );
             InternalCallInfo* next = mCallInfoList->next;
@@ -174,7 +174,7 @@ namespace Js
 
         // Tells this register is holding the content located at the stackOffset
         void SetStackInfo( RegNum reg, int stackOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 176\n");
             Assert( !( 1 << reg & MaskUnavailableReg ) );
             mRegisterStackOffsetSaved[reg] = stackOffset;
             mAnyStackSaved |= 1 << reg;
@@ -182,40 +182,40 @@ namespace Js
 
         // Call when register content is data dependent
         void InvalidateReg( RegNum reg )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 184\n");
             mAnyStackSaved &= ~( 1 << reg );
         }
 
         void InvalidateAllVolatileReg()
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 189\n");
             mAnyStackSaved &= MaskNonVolatileReg;
         }
 
         void InvalidateAllReg()
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 194\n");
             mAnyStackSaved = 0;
         }
 
         // Call when stack value has changed
         void OverwriteStack( int stackOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 200\n");
             if( mAnyStackSaved )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 202\n");
                 // check all register with a stack offset saved
                 int stackSavedReg = mAnyStackSaved;
                 int reg = 0;
                 while( stackSavedReg )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 207\n");
                     // skip reg with no stack info
                     while( !(stackSavedReg & 1) )
-                    {
+                    {LOGMEIN("AsmJsJitTemplate.cpp] 210\n");
                         stackSavedReg >>= 1;
                         ++reg;
                     }
 
                     // invalidate register with this stack location
                     if( mRegisterStackOffsetSaved[reg] == stackOffset )
-                    {
+                    {LOGMEIN("AsmJsJitTemplate.cpp] 217\n");
                         InvalidateReg( RegNum( reg ) );
                     }
 
@@ -230,14 +230,14 @@ namespace Js
         // Gets a register to use
         // registerRestriction : bit vector, 1 means the register cannot be chosen
         template<typename T> RegNum GetReg(const int registerRestriction = 0)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 232\n");
             CompileAssert( sizeof(T) == 4 || sizeof(T) == 8 );
             const int mask = GetRegMask<T>() & ~registerRestriction;
             int stackSavedReg = mAnyStackSaved & mask;
 
             // No more register available
             if( stackSavedReg == mask )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 239\n");
                 RegNum reg = NextReg<T>(registerRestriction);
                 Assert( !(1 << reg & registerRestriction) );
                 return reg;
@@ -249,10 +249,10 @@ namespace Js
             stackSavedReg >>= reg;
             // will always find a value under these conditions
             while( 1 )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 251\n");
                 // if the register hold no useful info, return it
                 if( !( stackSavedReg & 1 ) )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 254\n");
                      Assert( !(1 << reg & registerRestriction) );
                     return RegNum( reg );
                 }
@@ -264,13 +264,13 @@ namespace Js
         // Gets a register to use
         // registerRestriction : bit vector, 1 means the register cannot be chosen
         template<> RegNum GetReg<float>(const int registerRestriction)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 266\n");
             const int mask = GetRegMask<double>() & ~registerRestriction;
             int stackSavedReg = mAnyStackSaved & mask;
 
             // No more register available
             if (stackSavedReg == mask)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 272\n");
                 RegNum reg = NextReg<double>(registerRestriction);
                 Assert(!(1 << reg & registerRestriction));
                 return reg;
@@ -282,10 +282,10 @@ namespace Js
             stackSavedReg >>= reg;
             // will always find a value under these conditions
             while (1)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 284\n");
                 // if the register hold no useful info, return it
                 if (!(stackSavedReg & 1))
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 287\n");
                     Assert(!(1 << reg & registerRestriction));
                     return RegNum(reg);
                 }
@@ -295,32 +295,32 @@ namespace Js
         }
 
         template<> RegNum GetReg<AsmJsSIMDValue>(const int registerRestriction)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 297\n");
             return GetReg<float>(registerRestriction);
         }
 
         // Search for a register already holding the value at this location
         template<typename T> bool FindRegWithStackOffset( RegNum& outReg, int stackOffset, int registerRestriction = 0 )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 303\n");
             CompileAssert( sizeof(T) == 4 || sizeof(T) == 8 || sizeof(T) == 16);
 
             int stackSavedReg = mAnyStackSaved & GetRegMask<T>() & ~registerRestriction;
             if( stackSavedReg )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 308\n");
                 int reg = GetFirstReg<T>();
                 stackSavedReg >>= reg;
                 while( stackSavedReg )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 312\n");
                     // skip reg with no stack info
                     while( !(stackSavedReg & 1) )
-                    {
+                    {LOGMEIN("AsmJsJitTemplate.cpp] 315\n");
                         stackSavedReg >>= 1;
                         ++reg;
                     }
 
                     // invalidate register with this stack location
                     if( mRegisterStackOffsetSaved[reg] == stackOffset )
-                    {
+                    {LOGMEIN("AsmJsJitTemplate.cpp] 322\n");
                         outReg = RegNum( reg );
                         return true;
                     }
@@ -333,7 +333,7 @@ namespace Js
             return false;
         }
         void SetBaseOffset(int baseOffSet)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 335\n");
             // We subtract with the baseoffset as the layout of the stack has changed from the interpreter
             // Assume Stack is growing downwards
             // Interpreter - Stack is above EBP and offsets are positive
@@ -346,44 +346,44 @@ namespace Js
             mScriptContextOffSet = AsmJsJitTemplate::Globals::ScriptContextOffset - mBaseOffset;
         }
         int GetBaseOffSet()
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 348\n");
             return mBaseOffset;
         }
         int GetModuleSlotOffset()
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 352\n");
             return mModuleSlotOffset;
         }
         int GetModuleEnvOffset()
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 356\n");
             return mModuleEnvOffset;
         }
         int GetArrayBufferOffset()
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 360\n");
             return mArrayBufferOffSet;
         }
         int GetArraySizeOffset()
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 364\n");
             return mArraySizeOffset;
         }
         int GetScriptContextOffset()
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 368\n");
             return mScriptContextOffSet;
         }
         const int GetCalleSavedRegSizeInByte()
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 372\n");
             //EBX,ESI,EDI
             return 3 * sizeof(void*);
         }
         const int GetEBPOffsetCorrection()
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 377\n");
             //We computed the offset in BCG adjusting for push ebp and ret address
             return 2 * sizeof(void*);
         }
     };
-    template<> RegNum X86TemplateData::GetNextRegister<int>() { return mNext32BitsReg; }
-    template<> RegNum X86TemplateData::GetNextRegister<double>() { return mNext64BitsReg; }
-    template<> void X86TemplateData::SetNextRegister<int>(RegNum reg) { mNext32BitsReg = reg; }
-    template<> void X86TemplateData::SetNextRegister<double>(RegNum reg) { mNext64BitsReg = reg; }
+    template<> RegNum X86TemplateData::GetNextRegister<int>() {LOGMEIN("AsmJsJitTemplate.cpp] 382\n"); return mNext32BitsReg; }
+    template<> RegNum X86TemplateData::GetNextRegister<double>() {LOGMEIN("AsmJsJitTemplate.cpp] 383\n"); return mNext64BitsReg; }
+    template<> void X86TemplateData::SetNextRegister<int>(RegNum reg) {LOGMEIN("AsmJsJitTemplate.cpp] 384\n"); mNext32BitsReg = reg; }
+    template<> void X86TemplateData::SetNextRegister<double>(RegNum reg) {LOGMEIN("AsmJsJitTemplate.cpp] 385\n"); mNext64BitsReg = reg; }
 
 
 
@@ -400,35 +400,35 @@ namespace Js
 #endif
     };
     template<> int ReturnContent::GetReturnVal<int>()const
-    {
+    {LOGMEIN("AsmJsJitTemplate.cpp] 402\n");
         return intVal;
     }
     template<> float ReturnContent::GetReturnVal<float>()const
-    {
+    {LOGMEIN("AsmJsJitTemplate.cpp] 406\n");
         return (float)doubleVal;
     }
     template<> double ReturnContent::GetReturnVal<double>()const
-    {
+    {LOGMEIN("AsmJsJitTemplate.cpp] 410\n");
         return doubleVal;
     }
 #if DBG_DUMP
     template<> void ReturnContent::Print<int>()const
-    {
+    {LOGMEIN("AsmJsJitTemplate.cpp] 415\n");
         Output::Print( _u(" = %d"), intVal );
     }
     template<> void ReturnContent::Print<double>()const
-    {
+    {LOGMEIN("AsmJsJitTemplate.cpp] 419\n");
         Output::Print( _u(" = %.4f"), doubleVal );
     }
     template<> void ReturnContent::Print<float>()const
-    {
+    {LOGMEIN("AsmJsJitTemplate.cpp] 423\n");
         Output::Print( _u(" = %.4f"), doubleVal );
     }
     int AsmJsCallDepth = 0;
 #endif
 
     uint CallLoopBody(JavascriptMethod address, ScriptFunction* function, Var frameAddress)
-    {
+    {LOGMEIN("AsmJsJitTemplate.cpp] 430\n");
         void *savedEsp = NULL;
         __asm
         {
@@ -448,7 +448,7 @@ namespace Js
     }
 
     uint DoLoopBodyStart(Js::ScriptFunction* function,Var ebpPtr,uint32 loopNumber)
-    {
+    {LOGMEIN("AsmJsJitTemplate.cpp] 450\n");
 
         FunctionBody* fn = function->GetFunctionBody();
         Assert(loopNumber < fn->GetLoopCount());
@@ -458,10 +458,10 @@ namespace Js
         ScriptContext* scriptContext = fn->GetScriptContext();
         // If we have JITted the loop, call the JITted code
         if (entryPointInfo != NULL && entryPointInfo->IsCodeGenDone())
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 460\n");
 #if DBG_DUMP
             if (PHASE_TRACE1(Js::JITLoopBodyPhase) && CONFIG_FLAG(Verbose))
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 463\n");
                 fn->DumpFunctionId(true);
                 Output::Print(_u(": %-20s LoopBody Execute  Loop: %2d\n"), fn->GetDisplayName(), loopNumber);
                 Output::Flush();
@@ -483,9 +483,9 @@ namespace Js
         // interpreCount for loopHeader is incremented before calling DoLoopBody
         const uint loopInterpretCount = fn->GetLoopInterpretCount(loopHeader);
         if (loopHeader->interpretCount > loopInterpretCount)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 485\n");
             if (!fn->DoJITLoopBody())
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 487\n");
                 return 0;
             }
 
@@ -499,7 +499,7 @@ namespace Js
             // by checking the state we are safe from racing with the JIT thread when looking at the other fields
             // of the entry point.
             if (entryPointInfo != NULL && entryPointInfo->IsNotScheduled())
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 501\n");
                 entryPointInfo->SetIsAsmJSFunction(true);
                 entryPointInfo->SetIsTJMode(true);
                 GenerateLoopBody(scriptContext->GetNativeCodeGenerator(), fn, loopHeader, entryPointInfo, fn->GetLocalsCount(), &ebpPtr);
@@ -516,18 +516,18 @@ namespace Js
     // void InterpreterStackFrame::AlignMemoryForAsmJs()  (InterpreterStackFrame.cpp)
     // update any changes there
     void AsmJsCommonEntryPoint(Js::ScriptFunction* func, void* savedEbpPtr)
-    {
+    {LOGMEIN("AsmJsJitTemplate.cpp] 518\n");
         int savedEbp = (int)savedEbpPtr;
         FunctionBody* body = func->GetFunctionBody();
         Js::FunctionEntryPointInfo * entryPointInfo = body->GetDefaultFunctionEntryPointInfo();
         //CodeGenDone status is set by TJ
         if ((entryPointInfo->IsNotScheduled() || entryPointInfo->IsCodeGenDone()) && !PHASE_OFF(BackEndPhase, body) && !PHASE_OFF(FullJitPhase, body))
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 524\n");
             const uint32 minTemplatizedJitRunCount = (uint32)CONFIG_FLAG(MinTemplatizedJitRunCount);
             if ((entryPointInfo->callsCount >= minTemplatizedJitRunCount || body->IsHotAsmJsLoop()))
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 527\n");
                 if (PHASE_TRACE1(AsmjsEntryPointInfoPhase))
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 529\n");
                     Output::Print(_u("Scheduling %s For Full JIT at callcount:%d\n"), body->GetDisplayName(), entryPointInfo->callsCount);
                 }
                 GenerateFunction(body->GetScriptContext()->GetNativeCodeGenerator(), body, func);
@@ -565,7 +565,7 @@ namespace Js
         int arraySize = 0;
         BYTE* arrayPtr = nullptr;
         if (*arrayBufferVar && JavascriptArrayBuffer::Is(*arrayBufferVar))
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 567\n");
             JavascriptArrayBuffer* arrayBuffer = *(JavascriptArrayBuffer**)arrayBufferVar;
             arrayPtr = arrayBuffer->GetBuffer();
             arraySize = arrayBuffer->GetByteLength();
@@ -579,9 +579,9 @@ namespace Js
 #if DBG_DUMP
         const bool tracingFunc = PHASE_TRACE( AsmjsFunctionEntryPhase, body );
         if( tracingFunc )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 581\n");
             if( AsmJsCallDepth )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 583\n");
                 Output::Print( _u("%*c"), AsmJsCallDepth,' ');
             }
             Output::Print( _u("Executing function %s("), body->GetDisplayName());
@@ -615,7 +615,7 @@ namespace Js
             memcpy_s(m_localDoubleSlots, doubleConstCount*sizeof(double), constTable, doubleConstCount*sizeof(double));
 
             if (func->GetScriptContext()->GetConfig()->IsSimdjsEnabled())
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 617\n");
                 // Copy SIMD constants to TJ stack frame. No data alignment.
                 constTable = (void*)(((double*)constTable) + doubleConstCount);
                 m_localSimdSlots = (AsmJsSIMDValue*)((char*)m_localSlots + simdByteOffset);
@@ -628,11 +628,11 @@ namespace Js
             simdArg = m_localSimdSlots + simdConstCount;
 
             for(ArgSlot i = 0; i < argCount; i++ )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 630\n");
                 if(asmInfo->GetArgType(i).isInt())
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 632\n");
                     __asm
-                    {
+                    {LOGMEIN("AsmJsJitTemplate.cpp] 634\n");
                         mov eax, argoffset
                         mov eax, [eax]
                         mov ecx, intArg
@@ -640,7 +640,7 @@ namespace Js
                     };
 #if DBG_DUMP
                     if( tracingFunc )
-                    {
+                    {LOGMEIN("AsmJsJitTemplate.cpp] 642\n");
                         Output::Print( _u(" %d%c"), *intArg, i+1 < argCount ? ',':' ');
                     }
 #endif
@@ -648,9 +648,9 @@ namespace Js
                     argoffset += sizeof( int );
                 }
                 else if (asmInfo->GetArgType(i).isFloat())
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 650\n");
                     __asm
-                    {
+                    {LOGMEIN("AsmJsJitTemplate.cpp] 652\n");
                         mov eax, argoffset
                         movss xmm0, [eax]
                         mov eax, floatArg
@@ -658,7 +658,7 @@ namespace Js
                     };
 #if DBG_DUMP
                     if (tracingFunc)
-                    {
+                    {LOGMEIN("AsmJsJitTemplate.cpp] 660\n");
                         Output::Print(_u(" %.4f%c"), *floatArg, i + 1 < argCount ? ',' : ' ');
                     }
 #endif
@@ -666,9 +666,9 @@ namespace Js
                     argoffset += sizeof(float);
                 }
                 else if (asmInfo->GetArgType(i).isDouble())
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 668\n");
                     __asm
-                    {
+                    {LOGMEIN("AsmJsJitTemplate.cpp] 670\n");
                         mov eax, argoffset
                         movsd xmm0, [eax]
                         mov eax, doubleArg
@@ -676,7 +676,7 @@ namespace Js
                     };
 #if DBG_DUMP
                     if( tracingFunc )
-                    {
+                    {LOGMEIN("AsmJsJitTemplate.cpp] 678\n");
                         Output::Print( _u(" %.4f%c"), *doubleArg, i+1 < argCount ? ',':' ');
                     }
 #endif
@@ -684,9 +684,9 @@ namespace Js
                     argoffset += sizeof( double );
                 }
                 else if (asmInfo->GetArgType(i).isSIMD())
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 686\n");
                     __asm
-                    {
+                    {LOGMEIN("AsmJsJitTemplate.cpp] 688\n");
                         mov eax, argoffset
                         movups xmm0, [eax]
                         mov eax, simdArg
@@ -695,9 +695,9 @@ namespace Js
 
 #if DBG_DUMP
                     if (tracingFunc)
-                    {
+                    {LOGMEIN("AsmJsJitTemplate.cpp] 697\n");
                         switch (asmInfo->GetArgType(i).which())
-                        {
+                        {LOGMEIN("AsmJsJitTemplate.cpp] 699\n");
                         case AsmJsType::Int32x4:
                             Output::Print(_u(" I4(%d, %d, %d, %d)"), \
                                 simdArg->i32[SIMD_X], simdArg->i32[SIMD_Y], simdArg->i32[SIMD_Z], simdArg->i32[SIMD_W]);
@@ -721,22 +721,22 @@ namespace Js
         }
 #if DBG_DUMP
         if( tracingFunc )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 723\n");
             Output::Print( _u("){\n"));
         }
 #endif
     }
 #if DBG_DUMP
     void AsmJSCommonCallHelper(Js::ScriptFunction* func)
-    {
+    {LOGMEIN("AsmJsJitTemplate.cpp] 730\n");
         FunctionBody* body = func->GetFunctionBody();
         AsmJsFunctionInfo* asmInfo = body->GetAsmJsFunctionInfo();
         const bool tracingFunc = PHASE_TRACE(AsmjsFunctionEntryPhase, body);
         if (tracingFunc)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 735\n");
             --AsmJsCallDepth;
             if (AsmJsCallDepth)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 738\n");
                 Output::Print(_u("%*c}"), AsmJsCallDepth, ' ');
             }
             else
@@ -744,7 +744,7 @@ namespace Js
                 Output::Print(_u("}"));
             }
             if (asmInfo->GetReturnType() != AsmJsRetType::Void)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 746\n");
                 //returnContent.Print<T>();
             }
             Output::Print(_u(";\n"));
@@ -752,7 +752,7 @@ namespace Js
     }
 #endif
     Var ExternalCallHelper( JavascriptFunction* function, int nbArgs, Var* paramsAddr )
-    {
+    {LOGMEIN("AsmJsJitTemplate.cpp] 754\n");
         int flags = CallFlags_Value;
         Arguments args(CallInfo((CallFlags)flags, (ushort)nbArgs), paramsAddr);
         return JavascriptFunction::CallFunction<true>(function, function->GetEntryPoint(), args);
@@ -775,7 +775,7 @@ namespace Js
             // buffer : where the instruction will be encoded
             // size : address of a variable tracking the instructions size encoded after the jump
             JumpRelocation( BYTE* buffer, int* size )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 777\n");
 #if DBG
                 mRelocDone = false;
                 mEncodingImmSize = -1;
@@ -785,7 +785,7 @@ namespace Js
 
             // Default Constructor, must call Init before using
             JumpRelocation()
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 787\n");
 #if DBG
                 mRelocDone = false;
                 mEncodingImmSize = -1;
@@ -794,14 +794,14 @@ namespace Js
 
 #if DBG
             ~JumpRelocation()
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 796\n");
                 // Make sure the relocation is done when destruction the object
                 Assert( mRelocDone );
             }
 #endif
 
             void Init( BYTE* buffer, int* size )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 803\n");
 #if DBG
                 // this cannot be called twice
                 Assert( mEncodingImmSize == -1 );
@@ -813,7 +813,7 @@ namespace Js
 
             // to be called right after encoding a jump
             void JumpEncoded( const EncodingInfo& info )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 815\n");
 #if DBG
                 // this cannot be called twice
                 Assert( mEncodingImmSize == -1 );
@@ -830,7 +830,7 @@ namespace Js
             // use when only 1 Byte was allocated
             template<typename OffsetType>
             void ApplyReloc()
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 832\n");
 #if DBG
                 Assert( mEncodingImmSize == sizeof(OffsetType) );
                 mRelocDone = true;
@@ -855,13 +855,13 @@ namespace Js
 
         // Initialize template data
         void* InitTemplateData()
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 857\n");
             return HeapNew( X86TemplateData );
         }
 
         // Free template data for architecture specific
         void FreeTemplateData( void* userData )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 863\n");
             HeapDelete( (X86TemplateData*)userData );
         }
 
@@ -876,10 +876,10 @@ namespace Js
             // put the value on the stack into a register
             template<typename RegisterSize>
             RegNum GetStackReg( BYTE*& buffer, X86TemplateData* templateData, int varOffset, int &size, const int registerRestriction = 0 )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 878\n");
                 RegNum reg;
                 if( !templateData->FindRegWithStackOffset<RegisterSize>( reg, varOffset, registerRestriction ) )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 881\n");
                     reg = templateData->GetReg<RegisterSize>( registerRestriction );
                     size += InstructionBySize<RegisterSize>::MoveInstruction::EncodeInstruction<RegisterSize>( buffer, InstrParamsRegAddr( reg, RegEBP, varOffset ) );
                     templateData->SetStackInfo( reg, varOffset );
@@ -890,7 +890,7 @@ namespace Js
             // put the value of a register on the stack
             template<typename RegisterSize>
             int SetStackReg( BYTE*& buffer, X86TemplateData* templateData, int targetOffset, RegNum reg )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 892\n");
                 CompileAssert(sizeof(RegisterSize) == 4 || sizeof(RegisterSize) == 8);
                 templateData->OverwriteStack( targetOffset );
                 templateData->SetStackInfo( reg, targetOffset );
@@ -898,14 +898,14 @@ namespace Js
             }
             template<typename LaneType=int>
             int SIMDSetStackReg(BYTE*& buffer, X86TemplateData* templateData, int targetOffset, RegNum reg)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 900\n");
                 CompileAssert(sizeof(LaneType) == 4 || sizeof(LaneType) == 8);
                 AssertMsg(((1<<reg) & GetRegMask<AsmJsSIMDValue>()), "Expecting XMM reg.");
 
                 // On a stack spill, we need to invalidate any registers holding lane values.
                 int laneOffset = 0;
                 while (laneOffset < sizeof(AsmJsSIMDValue))
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 907\n");
                     templateData->OverwriteStack(targetOffset + laneOffset);
                     laneOffset += sizeof(LaneType);
                 }
@@ -918,7 +918,7 @@ namespace Js
             */
             template<typename LaneType>
             int SIMDInitFromPrimitives(BYTE*& buffer, X86TemplateData* templateData, int targetOffset, int srcOffset1, int srcOffset2, int srcOffset3 = 0, int srcOffset4 = 0)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 920\n");
                 CompileAssert(sizeof(LaneType) == 4 || sizeof(LaneType) == 8);
 
                 int size = 0;
@@ -942,7 +942,7 @@ namespace Js
                 templateData->InvalidateReg(reg);
                 laneOffset += sizeof(LaneType);
                 if (laneOffset < sizeof(AsmJsSIMDValue))
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 944\n");
 
                     reg = EncodingHelpers::GetStackReg<LaneType>(buffer, templateData, srcOffset3, size);
                     size += EncodingHelpers::SetStackReg<LaneType>(buffer, templateData, targetOffset + laneOffset, reg);
@@ -959,7 +959,7 @@ namespace Js
             // Since SIMD data is unaligned, we cannot support "OP reg, [mem]" operations.
             template <typename Operation, typename LaneType=int>
             int SIMDUnaryOperation(BYTE*& buffer, X86TemplateData* templateData, int targetOffset, int srcOffset, int registerRestriction = 0)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 961\n");
                 int size = 0;
                 RegNum dstReg, srcReg;
 
@@ -979,7 +979,7 @@ namespace Js
 
             template <typename Operation, typename LaneType = int>
             int SIMDBinaryOperation(BYTE*& buffer, X86TemplateData* templateData, int targetOffset, int srcOffset1, int srcOffset2)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 981\n");
                 int size = 0;
                 RegNum srcReg1, srcReg2, dstReg;
 
@@ -1005,7 +1005,7 @@ namespace Js
             // for CMP and Shuffle operations
             template <typename Operation, typename LaneType = int>
             int SIMDBinaryOperation(BYTE*& buffer, X86TemplateData* templateData, int targetOffset, int srcOffset1, int srcOffset2, byte imm8)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1007\n");
                 int size = 0;
                 RegNum srcReg1, srcReg2, dstReg;
 
@@ -1030,7 +1030,7 @@ namespace Js
 
             template <typename Operation, typename LaneType>
             RegNum SIMDRcpOperation(BYTE*& buffer, X86TemplateData* templateData, RegNum srcReg, void *ones, int &size)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1032\n");
                 RegNum reg;
                 // MOVAPS reg, [mask]
                 reg = templateData->GetReg<AsmJsSIMDValue>(1 << srcReg);
@@ -1042,7 +1042,7 @@ namespace Js
 
             template <typename Operation, typename LaneType>
             int SIMDLdLaneOperation(BYTE*& buffer, X86TemplateData* templateData, int targetOffset, int srcOffset, const int index, const bool reUseResult = true)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1044\n");
                 CompileAssert(sizeof(LaneType) == 4 || sizeof(LaneType) == 8);
 
                 targetOffset -= templateData->GetBaseOffSet();
@@ -1062,7 +1062,7 @@ namespace Js
 
                 templateData->OverwriteStack(targetOffset);
                 if (reUseResult)
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 1064\n");
                     // can re-use register for floats and doubles only.
                     templateData->SetStackInfo(tmpReg, targetOffset);
                 }
@@ -1072,7 +1072,7 @@ namespace Js
 
             template <typename LaneType, typename ShufOperation = SHUFPS>
             int SIMDSetLaneOperation(BYTE*& buffer, X86TemplateData* templateData, int targetOffset, int srcOffset, int valOffset, const int laneIndex)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1074\n");
                 CompileAssert(sizeof(LaneType) == 4);
 
                 targetOffset -= templateData->GetBaseOffSet();
@@ -1092,13 +1092,13 @@ namespace Js
                 // MOVSS valReg, [val] ; valReg is XMM
                 valReg = EncodingHelpers::GetStackReg<float>(buffer, templateData, valOffset, size, (1 << srcReg) | (1 << tmpReg));
                 if (laneIndex == 0)
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 1094\n");
                     // MOVSS tmpReg, valReg
                     // Note: we use MOVSS for both F4 and I4. MOVD sets upper bits to zero, MOVSS leaves them unmodified.
                     size += MOVSS::EncodeInstruction<LaneType>(buffer, InstrParams2Reg(tmpReg, valReg));
                 }
                 else if (laneIndex == 1 || laneIndex == 3)
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 1100\n");
                     // shuf, mov, shuf
 
                     byte shufMask;
@@ -1132,7 +1132,7 @@ namespace Js
 
             template <>
             int SIMDSetLaneOperation<double>(BYTE*& buffer, X86TemplateData* templateData, int targetOffset, int srcOffset, int valOffset, const int laneIndex)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1134\n");
                 targetOffset -= templateData->GetBaseOffSet();
                 srcOffset -= templateData->GetBaseOffSet();
                 valOffset -= templateData->GetBaseOffSet();
@@ -1147,7 +1147,7 @@ namespace Js
                 tmpReg = templateData->GetReg<AsmJsSIMDValue>(1 << srcReg);
                 size += MOVAPS::EncodeInstruction<AsmJsSIMDValue>(buffer, InstrParams2Reg(tmpReg, srcReg));
                 if (laneIndex == 0)
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 1149\n");
                     // We have to load val to reg. MOVSD reg, [val] will zero upper bits.
                     // MOVSD valReg, [val]
                     valReg = EncodingHelpers::GetStackReg<double>(buffer, templateData, valOffset, size, (1 << srcReg) | (1 << tmpReg));
@@ -1167,26 +1167,26 @@ namespace Js
 
             // Retrieve the value of the array buffer and put it in a register to use
             RegNum GetArrayBufferRegister( BYTE*& buffer, TemplateContext context, int &size, const int registerRestriction = 0 )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1169\n");
                 return ArrayBufferReg;
             }
 
             // Retrieve the value of the module environment and put it in a register to use
             RegNum GetModuleEnvironmentRegister( BYTE*& buffer, TemplateContext context, int &size, const int registerRestriction = 0 )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1175\n");
                 return ModuleEnvReg;
             }
 
             // Retrieve the value of the script context and put it in a register to use
             RegNum GetScriptContextRegister( BYTE*& buffer, TemplateContext context, int &size, const int registerRestriction = 0 )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1181\n");
                 X86TemplateData* templateData = GetTemplateData(context);
                 return GetStackReg<int>(buffer, GetTemplateData(context), templateData->GetScriptContextOffset(), size, registerRestriction);
             }
 
             // Encode a Compare instruction between a register and the array length : format   cmp length, reg
             int CompareRegisterToArrayLength( BYTE*& buffer, TemplateContext context, RegNum reg, const int registerRestriction = 0 )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1188\n");
                 X86TemplateData* templateData = GetTemplateData(context);
                 return CMP::EncodeInstruction<int>(buffer, InstrParamsAddrReg(RegEBP, templateData->GetArraySizeOffset(), reg));
             }
@@ -1194,7 +1194,7 @@ namespace Js
             // Encode a Compare instruction between an immutable value and the array length : format   cmp length, imm
             template<typename T>
             int CompareImmutableToArrayLength( BYTE*& buffer, TemplateContext context, T imm, const int registerRestriction = 0 )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1196\n");
                 X86TemplateData* templateData = GetTemplateData(context);
                 return CMP::EncodeInstruction<int>(buffer, InstrParamsAddrImm<T>(RegEBP, templateData->GetArraySizeOffset(), imm));
             }
@@ -1202,7 +1202,7 @@ namespace Js
             // Encodes a short(1 Byte offset) jump instruction
             template<typename JCC>
             void EncodeShortJump( BYTE*& buffer, JumpRelocation& reloc, int* size )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1204\n");
                 Assert( size != nullptr );
                 reloc.Init( buffer, size );
                 EncodingInfo info;
@@ -1212,7 +1212,7 @@ namespace Js
 
             template<typename Operation, typename OperationSize>
             int CommutativeOperation( TemplateContext context, BYTE*& buffer, int leftOffset, int rightOffset, int* targetOffset = nullptr, RegNum* outReg = nullptr, int registerRestriction = 0 )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1214\n");
 
                 X86TemplateData* templateData = GetTemplateData( context );
                 leftOffset -= templateData->GetBaseOffSet();
@@ -1225,12 +1225,12 @@ namespace Js
                 const int reg2Found = templateData->FindRegWithStackOffset<OperationSize>( reg2, rightOffset, registerRestriction );
                 int size = 0;
                 switch( reg1Found & ( reg2Found << 1 ) )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 1227\n");
                 case 0: // none found
                     reg1 = templateData->GetReg<OperationSize>( registerRestriction );
                     size += InstructionBySize<OperationSize>::MoveInstruction::EncodeInstruction<OperationSize>(buffer, InstrParamsRegAddr(reg1, RegEBP, leftOffset));
                     if( leftOffset == rightOffset )
-                    {
+                    {LOGMEIN("AsmJsJitTemplate.cpp] 1232\n");
                         size += Operation::EncodeInstruction<OperationSize>( buffer, InstrParams2Reg( reg1, reg1 ) );
                     }
                     else
@@ -1256,12 +1256,12 @@ namespace Js
                 }
 
                 if( Operation::Flags & AffectOp1 )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 1258\n");
                     templateData->InvalidateReg( resultReg );
                 }
 
                 if( targetOffset )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 1263\n");
                     const int offset = *targetOffset;
                     size += InstructionBySize<OperationSize>::MoveInstruction::EncodeInstruction<OperationSize>(buffer, InstrParamsAddrReg(RegEBP, offset, resultReg));
                     templateData->OverwriteStack( offset );
@@ -1269,7 +1269,7 @@ namespace Js
                 }
 
                 if( outReg )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 1271\n");
                     *outReg = resultReg;
                 }
 
@@ -1278,7 +1278,7 @@ namespace Js
 
             template<typename Operation, typename OperationSize>
             int NonCommutativeOperation( TemplateContext context, BYTE*& buffer, int leftOffset, int rightOffset, int* targetOffset = nullptr, RegNum* outReg = nullptr, int registerRestriction = 0 )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1280\n");
                 X86TemplateData* templateData = GetTemplateData( context );
                 leftOffset -= templateData->GetBaseOffSet();
                 rightOffset -= templateData->GetBaseOffSet();
@@ -1287,7 +1287,7 @@ namespace Js
                 const int reg1Found = templateData->FindRegWithStackOffset<OperationSize>( reg1, leftOffset, registerRestriction );
                 int size = 0;
                 if( !reg1Found )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 1289\n");
                     reg1 = templateData->GetReg<OperationSize>( registerRestriction );
                     size += InstructionBySize<OperationSize>::MoveInstruction::EncodeInstruction<OperationSize>( buffer, InstrParamsRegAddr( reg1, RegEBP, leftOffset ) );
                     templateData->SetStackInfo( reg1, leftOffset );
@@ -1295,7 +1295,7 @@ namespace Js
 
                 const int reg2Found = templateData->FindRegWithStackOffset<OperationSize>( reg2, rightOffset, registerRestriction );
                 if( reg2Found )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 1297\n");
                     size += Operation::EncodeInstruction<OperationSize>( buffer, InstrParams2Reg( reg1, reg2 ) );
                 }
                 else
@@ -1305,7 +1305,7 @@ namespace Js
 
                 templateData->InvalidateReg( reg1 );
                 if( targetOffset )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 1307\n");
                     int offset = *targetOffset;
                     offset -= templateData->GetBaseOffSet();
                     size += InstructionBySize<OperationSize>::MoveInstruction::EncodeInstruction<OperationSize>( buffer, InstrParamsAddrReg( RegEBP, offset, reg1 ) );
@@ -1313,7 +1313,7 @@ namespace Js
                     templateData->SetStackInfo( reg1, offset );
                 }
                 if( outReg )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 1315\n");
                     *outReg = reg1;
                 }
 
@@ -1321,10 +1321,10 @@ namespace Js
             }
 
             int ReloadArrayBuffer(TemplateContext context, BYTE*& buffer)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1323\n");
                 int size = 0;
                 if (!context->GetFunctionBody()->GetAsmJsFunctionInfo()->IsHeapBufferConst())
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 1326\n");
                     X86TemplateData* templateData = GetTemplateData(context);
                     // mov buffer, [mod+bufferOffset]
                     size += MOV::EncodeInstruction<int>(buffer, InstrParamsRegAddr(ArrayBufferReg, ModuleEnvReg, AsmJsModuleMemory::MemoryTableBeginOffset));
@@ -1341,10 +1341,10 @@ namespace Js
             }
 
             int CheckForArrayBufferDetached(TemplateContext context, BYTE*& buffer)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1343\n");
                 int size = 0;
                 if (context->GetFunctionBody()->GetAsmJsFunctionInfo()->UsesHeapBuffer())
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 1346\n");
                     X86TemplateData* templateData = GetTemplateData(context);
                     RegNum reg = templateData->GetReg<int>(1 << RegEAX);
                     templateData->InvalidateReg(reg);
@@ -1369,11 +1369,11 @@ namespace Js
         }
 
         int Br::ApplyTemplate(TemplateContext context, BYTE*& buffer, BYTE** relocAddr, bool isBackEdge)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1371\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             if (isBackEdge)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1375\n");
                 RegNum regInc = templateData->GetReg<int>(0);
                 size += MOV::EncodeInstruction<int>(buffer, InstrParamsRegImm<int32>(regInc, (int32)context->GetFunctionBody()));
                 size += INC::EncodeInstruction<int>(buffer, InstrParamsAddr(regInc, context->GetFunctionBody()->GetAsmJsTotalLoopCountOffset()));
@@ -1388,16 +1388,16 @@ namespace Js
         }
 
         int BrEq::ApplyTemplate(TemplateContext context, BYTE*& buffer, int leftOffset, int rightOffset, BYTE** relocAddr, bool isBackEdge, bool isSrc2Const /*= false*/)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1390\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             leftOffset -= templateData->GetBaseOffSet();
             if (!isSrc2Const) 
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1395\n");
                 rightOffset -= templateData->GetBaseOffSet();
             }
             if (isBackEdge)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1399\n");
                 RegNum regInc = templateData->GetReg<int>(0);
                 size += MOV::EncodeInstruction<int>(buffer, InstrParamsRegImm<int32>(regInc, (int32)context->GetFunctionBody()));
                 size += INC::EncodeInstruction<int>(buffer, InstrParamsAddr(regInc, context->GetFunctionBody()->GetAsmJsTotalLoopCountOffset()));
@@ -1407,7 +1407,7 @@ namespace Js
             const int reg1Found = templateData->FindRegWithStackOffset<int>( reg1, leftOffset );
             const int reg2Found = isSrc2Const || templateData->FindRegWithStackOffset<int>( reg2, rightOffset );
             switch( reg1Found & (reg2Found<<1) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1409\n");
             case 0:
                 reg1 = templateData->GetReg<int>();
                 size += MOV::EncodeInstruction<int32>( buffer, InstrParamsRegAddr( reg1, RegEBP, leftOffset ) );
@@ -1419,7 +1419,7 @@ namespace Js
                 break;
             case 2:
                 if (isSrc2Const) 
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 1421\n");
                     size += CMP::EncodeInstruction<int32>(buffer, InstrParamsAddrImm<int32>(RegEBP, leftOffset, rightOffset));
                 }
                 else 
@@ -1429,11 +1429,11 @@ namespace Js
                 break;
             case 3:
                 if (isSrc2Const)
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 1431\n");
                     size += CMP::EncodeInstruction<int32>(buffer, InstrParamsRegImm<int32>(reg1, rightOffset));
                 }
                 else if( reg1 == reg2 )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 1435\n");
                     templateData->InvalidateAllReg();
                     *relocAddr = buffer;
                     EncodingInfo info;
@@ -1458,13 +1458,13 @@ namespace Js
         }
 
         int BrTrue::ApplyTemplate( TemplateContext context, BYTE*& buffer, int offset, BYTE** relocAddr, bool isBackEdge)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1460\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             offset -= templateData->GetBaseOffSet();
             RegNum reg;
             if (isBackEdge)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1466\n");
                 RegNum regInc = templateData->GetReg<int>(0);
                 //see if we can change this to just Inc
                 size += MOV::EncodeInstruction<int>(buffer, InstrParamsRegImm<int32>(regInc, (int32)context->GetFunctionBody()));
@@ -1473,7 +1473,7 @@ namespace Js
             }
 
             if( templateData->FindRegWithStackOffset<int>( reg, offset ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1475\n");
                 size += CMP::EncodeInstruction<int>( buffer, InstrParamsRegImm<int32>( reg, 0 ) );
             }
             else
@@ -1489,14 +1489,14 @@ namespace Js
         }
 
         int Label::ApplyTemplate( TemplateContext context, BYTE*& buffer )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1491\n");
             X86TemplateData* templateData = GetTemplateData( context );
             templateData->InvalidateAllReg();
             return 0;
         }
 
         int FunctionEntry::ApplyTemplate( TemplateContext context, BYTE*& buffer )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1498\n");
             int size = 0;
             X86TemplateData* templateData = GetTemplateData(context);
             Var CommonEntryPoint = (void(*)(Js::ScriptFunction*, void*))AsmJsCommonEntryPoint;
@@ -1546,7 +1546,7 @@ namespace Js
 
             //End Stack Probe:
             if (stackSize <= PAGESIZE)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1548\n");
                 //Stack Size
                 size += SUB::EncodeInstruction<int>(buffer, InstrParamsRegImm<int32>(RegESP, stackSize));
             }
@@ -1596,11 +1596,11 @@ namespace Js
         }
 
         int FunctionExit::ApplyTemplate( TemplateContext context, BYTE*& buffer )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1598\n");
             int size = 0;
 #if DBG_DUMP
             if (PHASE_ON1(AsmjsFunctionEntryPhase))
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1602\n");
                 Var CommonCallHelper = (void(*)(Js::ScriptFunction*))AsmJSCommonCallHelper;
                 size += MOV::EncodeInstruction<int>(buffer, InstrParamsRegImm<int32>(RegEAX, (int32)CommonCallHelper));
                 size += CALL::EncodeInstruction<int>(buffer, InstrParamsReg(RegEAX));
@@ -1623,7 +1623,7 @@ namespace Js
         }
 
         int LdSlot_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int slotIndex )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1625\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -1637,7 +1637,7 @@ namespace Js
         }
 
         int LdSlot_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int slotIndex)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1639\n");
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -1651,7 +1651,7 @@ namespace Js
         }
 
         int StSlot_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int srcOffset, int slotIndex )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1653\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             srcOffset -= templateData->GetBaseOffSet();
@@ -1659,7 +1659,7 @@ namespace Js
             RegNum reg = EncodingHelpers::GetModuleEnvironmentRegister( buffer, context, size );
             RegNum reg2;
             if( !templateData->FindRegWithStackOffset<int>( reg2, srcOffset ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1661\n");
                 reg2 = templateData->GetReg<int>( 1 << reg );
                 size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( reg2, RegEBP, srcOffset ) );
                 templateData->SetStackInfo( reg2, srcOffset );
@@ -1670,7 +1670,7 @@ namespace Js
         }
 
         int StSlot_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int srcOffset, int slotIndex)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1672\n");
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             srcOffset -= templateData->GetBaseOffSet();
@@ -1678,7 +1678,7 @@ namespace Js
             RegNum reg = EncodingHelpers::GetModuleEnvironmentRegister(buffer, context, size);
             RegNum reg2;
             if (!templateData->FindRegWithStackOffset<float>(reg2, srcOffset))
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1680\n");
                 reg2 = templateData->GetReg<float>(1 << reg);
                 size += MOVSS::EncodeInstruction<float>(buffer, InstrParamsRegAddr(reg2, RegEBP, srcOffset));
                 templateData->SetStackInfo(reg2, srcOffset);
@@ -1688,12 +1688,12 @@ namespace Js
             return size;
         }
         int Ld_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1690\n");
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffset -= templateData->GetBaseOffSet();
             rightOffset -= templateData->GetBaseOffSet();
             if( targetOffset == rightOffset )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1695\n");
                 return 0;
             }
 
@@ -1709,7 +1709,7 @@ namespace Js
         }
 
         int LdConst_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int offset, int value )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1711\n");
             X86TemplateData* templateData = GetTemplateData( context );
             offset -= templateData->GetBaseOffSet();
             templateData->OverwriteStack( offset );
@@ -1719,17 +1719,17 @@ namespace Js
         }
 
         int SetReturn_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int offset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1721\n");
             X86TemplateData* templateData = GetTemplateData( context );
             offset -= templateData->GetBaseOffSet();
             RegNum reg = RegEAX;
             if( !templateData->FindRegWithStackOffset<int>( reg, offset ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1726\n");
                 templateData->SetStackInfo( RegEAX, offset );
                 return MOV::EncodeInstruction<int32>( buffer, InstrParamsRegAddr(RegEAX, RegEBP, offset) );
             }
             else if( reg != RegEAX )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1731\n");
                 templateData->SetStackInfo( RegEAX, offset );
                 return MOV::EncodeInstruction<int32>( buffer, InstrParams2Reg(RegEAX, reg) );
             }
@@ -1738,14 +1738,14 @@ namespace Js
         }
 
         int Neg_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1740\n");
             X86TemplateData* templateData = GetTemplateData( context );
             rightOffset -= templateData->GetBaseOffSet();
             targetOffset -= templateData->GetBaseOffSet();
             int size = 0;
 
             if( targetOffset == rightOffset )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1747\n");
                 size += NEG::EncodeInstruction<int32>( buffer, InstrParamsAddr( RegEBP, targetOffset ) );
                 templateData->OverwriteStack( targetOffset );
             }
@@ -1753,7 +1753,7 @@ namespace Js
             {
                 RegNum reg;
                 if( !templateData->FindRegWithStackOffset<int>( reg, rightOffset ) )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 1755\n");
                     reg = templateData->GetReg<int>();
                     MOV::EncodeInstruction<int32>( buffer, InstrParamsRegAddr( reg, RegEBP, rightOffset ) );
                 }
@@ -1765,14 +1765,14 @@ namespace Js
         }
 
         int Not_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1767\n");
             X86TemplateData* templateData = GetTemplateData( context );
             targetOffset -= templateData->GetBaseOffSet();
             rightOffset -= templateData->GetBaseOffSet();
             int size = 0;
 
             if( targetOffset == rightOffset )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1774\n");
                 size += NOT::EncodeInstruction<int32>( buffer, InstrParamsAddr( RegEBP, targetOffset ) );
                 templateData->OverwriteStack( targetOffset );
             }
@@ -1780,7 +1780,7 @@ namespace Js
             {
                 RegNum reg;
                 if( !templateData->FindRegWithStackOffset<int>( reg, rightOffset ) )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 1782\n");
                     reg = templateData->GetReg<int>();
                     MOV::EncodeInstruction<int32>( buffer, InstrParamsRegAddr( reg, RegEBP, rightOffset ) );
                 }
@@ -1792,7 +1792,7 @@ namespace Js
         }
 
         int Int_To_Bool::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1794\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -1807,7 +1807,7 @@ namespace Js
         }
 
         int LogNot_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1809\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -1823,27 +1823,27 @@ namespace Js
         }
 
         int Or_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1825\n");
             int size = 0;
             size += EncodingHelpers::CommutativeOperation<OR,int32>( context, buffer, leftOffset, rightOffset, &targetOffset );
             return size;
         }
         int And_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1831\n");
             int size = 0;
             size += EncodingHelpers::CommutativeOperation<AND,int32>( context, buffer, leftOffset, rightOffset, &targetOffset );
             return size;
         }
 
         int Xor_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1838\n");
             int size = 0;
             size += EncodingHelpers::CommutativeOperation<XOR,int32>( context, buffer, leftOffset, rightOffset, &targetOffset );
             return size;
         }
 
         int Shr_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1845\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -1852,9 +1852,9 @@ namespace Js
 
             RegNum reg1, reg2;
             if( leftOffset != rightOffset )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1854\n");
                 if( !templateData->FindRegWithStackOffset<int>( reg1, leftOffset, 1<<RegECX ) )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 1856\n");
                     reg1 = templateData->GetReg<int>( 1 << RegECX );
                     size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( reg1, RegEBP, leftOffset ) );
                     templateData->SetStackInfo( reg1, leftOffset );
@@ -1866,12 +1866,12 @@ namespace Js
             }
 
             if( !templateData->FindRegWithStackOffset<int>( reg2, rightOffset ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1868\n");
                 size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( RegECX, RegEBP, rightOffset ) );
                 templateData->SetStackInfo( RegECX, rightOffset );
             }
             else if( reg2 != RegECX )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1873\n");
                 size += MOV::EncodeInstruction<int>( buffer, InstrParams2Reg( RegECX, reg2) );
                 templateData->SetStackInfo( RegECX, rightOffset );
             }
@@ -1884,7 +1884,7 @@ namespace Js
         }
 
         int Shl_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1886\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -1893,9 +1893,9 @@ namespace Js
 
             RegNum reg1, reg2;
             if( leftOffset != rightOffset )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1895\n");
                 if( !templateData->FindRegWithStackOffset<int>( reg1, leftOffset, 1<<RegECX ) )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 1897\n");
                     reg1 = templateData->GetReg<int>( 1 << RegECX );
                     size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( reg1, RegEBP, leftOffset ) );
                     templateData->SetStackInfo( reg1, leftOffset );
@@ -1907,12 +1907,12 @@ namespace Js
             }
 
             if( !templateData->FindRegWithStackOffset<int>( reg2, rightOffset ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1909\n");
                 size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( RegECX, RegEBP, rightOffset ) );
                 templateData->SetStackInfo( RegECX, rightOffset );
             }
             else if( reg2 != RegECX )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1914\n");
                 size += MOV::EncodeInstruction<int>( buffer, InstrParams2Reg( RegECX, reg2) );
                 templateData->SetStackInfo( RegECX, rightOffset );
             }
@@ -1926,7 +1926,7 @@ namespace Js
         }
 
         int Shr_UInt::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1928\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -1935,9 +1935,9 @@ namespace Js
 
             RegNum reg1, reg2;
             if( leftOffset != rightOffset )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1937\n");
                 if( !templateData->FindRegWithStackOffset<int>( reg1, leftOffset, 1<<RegECX ) )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 1939\n");
                     reg1 = templateData->GetReg<int>( 1 << RegECX );
                     size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( reg1, RegEBP, leftOffset ) );
                     templateData->SetStackInfo( reg1, leftOffset );
@@ -1949,12 +1949,12 @@ namespace Js
             }
 
             if( !templateData->FindRegWithStackOffset<int>( reg2, rightOffset ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1951\n");
                 size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( RegECX, RegEBP, rightOffset ) );
                 templateData->SetStackInfo( RegECX, rightOffset );
             }
             else if( reg2 != RegECX )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 1956\n");
                 size += MOV::EncodeInstruction<int>( buffer, InstrParams2Reg( RegECX, reg2) );
                 templateData->SetStackInfo( RegECX, rightOffset );
             }
@@ -1968,28 +1968,28 @@ namespace Js
         }
 
         int Add_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset  )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1970\n");
             int size = 0;
             size += EncodingHelpers::CommutativeOperation<ADD,int32>( context, buffer, leftOffset, rightOffset, &targetOffset );
             return size;
         }
 
         int Sub_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset  )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1977\n");
             int size = 0;
             size += EncodingHelpers::NonCommutativeOperation<SUB,int32>( context, buffer, leftOffset, rightOffset, &targetOffset );
             return size;
         }
 
         int Mul_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset  )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1984\n");
             int size = 0;
             size += EncodingHelpers::CommutativeOperation<IMUL,int32>( context, buffer, leftOffset, rightOffset, &targetOffset );
             return size;
         }
 
         int Div_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset  )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 1991\n");
             X86TemplateData* templateData = GetTemplateData( context );
 
             int size = 0;
@@ -2015,11 +2015,11 @@ namespace Js
             // MOV  eax, [leftOffset]
             RegNum lhsReg;
             if (!templateData->FindRegWithStackOffset<int>(lhsReg, leftOffset))
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2017\n");
                 size += MOV::EncodeInstruction<int32>( buffer, InstrParamsRegAddr(RegEAX, RegEBP, leftOffset) );
             }
             else if (lhsReg != RegEAX)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2021\n");
                 size += MOV::EncodeInstruction<int32>(buffer, InstrParams2Reg(RegEAX, lhsReg));
             }
 
@@ -2056,7 +2056,7 @@ namespace Js
         }
 
         int Rem_Int::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2058\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2133,7 +2133,7 @@ namespace Js
 
 #define IntCmp(name, jmp) \
         int name::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )\
-        {\
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2135\n");\
             X86TemplateData* templateData = GetTemplateData( context );\
             int size = 0;\
             RegNum resultReg = templateData->GetReg<int>();\
@@ -2159,7 +2159,7 @@ namespace Js
 #undef IntCmp
 
         int Min_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2161\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
 
@@ -2169,7 +2169,7 @@ namespace Js
             targetOffset -= templateData->GetBaseOffSet();
             rightOffset -= templateData->GetBaseOffSet();
             if( templateData->FindRegWithStackOffset<int>( reg2, rightOffset ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2171\n");
                 size += CMOVG::EncodeInstruction<int>( buffer, InstrParams2Reg( reg1, reg2 ) );
             }
             else
@@ -2183,7 +2183,7 @@ namespace Js
         }
 
         int Max_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2185\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             RegNum reg1;
@@ -2193,7 +2193,7 @@ namespace Js
             rightOffset -= templateData->GetBaseOffSet();
 
             if( templateData->FindRegWithStackOffset<int>( reg2, rightOffset ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2195\n");
                 size += CMOVL::EncodeInstruction<int>( buffer, InstrParams2Reg( reg1, reg2 ) );
             }
             else
@@ -2207,7 +2207,7 @@ namespace Js
         }
 
         int Abs_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2209\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2215,9 +2215,9 @@ namespace Js
 
             RegNum reg;
             if( templateData->FindRegWithStackOffset<int>( reg, rightOffset ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2217\n");
                 if( reg != RegEAX )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 2219\n");
                     size += MOV::EncodeInstruction<int>( buffer, InstrParams2Reg( RegEAX, reg ) );
                 }
             }
@@ -2236,7 +2236,7 @@ namespace Js
         }
 
         int Clz32_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2238\n");
             // BSR tmp, src
             // JE  $label32
             // MOV dst, 31
@@ -2253,7 +2253,7 @@ namespace Js
             RegNum tmpReg = templateData->GetReg<int>();
             RegNum srcReg;
             if (templateData->FindRegWithStackOffset<int>(srcReg, rightOffset))
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2255\n");
                 size += BSR::EncodeInstruction<int>(buffer, InstrParams2Reg(tmpReg, srcReg));
             }
             else
@@ -2282,7 +2282,7 @@ namespace Js
         }
 
         int Mul_UInt::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2284\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2295,7 +2295,7 @@ namespace Js
 
             size += XOR::EncodeInstruction<int>( buffer, InstrParams2Reg(RegEDX,RegEDX) );
             switch( reg1Found & ( reg2Found << 1 ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2297\n");
             case 0: // none found
                 reg1 = RegEAX;
                 size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( reg1, RegEBP, leftOffset ) );
@@ -2304,7 +2304,7 @@ namespace Js
                 break;
             case 1: // found 2
                 if( reg2 == RegEAX )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 2306\n");
                     size += MUL::EncodeInstruction<int>( buffer, InstrParamsAddr(RegEBP, leftOffset) );
                 }
                 else
@@ -2315,7 +2315,7 @@ namespace Js
                 break;
             case 2: // found 1
                 if( reg1 == RegEAX )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 2317\n");
                     size += MUL::EncodeInstruction<int>( buffer, InstrParamsAddr(RegEBP, rightOffset) );
                 }
                 else
@@ -2326,11 +2326,11 @@ namespace Js
                 break;
             case 3: // found both
                 if( reg1 == RegEAX )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 2328\n");
                     size += MUL::EncodeInstruction<int>( buffer, InstrParamsReg(reg2) );
                 }
                 else if( reg2 == RegEAX )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 2332\n");
                     size += MUL::EncodeInstruction<int>( buffer, InstrParamsReg(reg1) );
                 }
                 else
@@ -2356,7 +2356,7 @@ namespace Js
         }
 
         int Div_UInt::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2358\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2389,7 +2389,7 @@ namespace Js
         }
 
         int Rem_UInt::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2391\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2414,41 +2414,41 @@ namespace Js
         }
 
         int SetReturn_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int offset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2416\n");
             X86TemplateData* templateData = GetTemplateData(context);
             offset -= templateData->GetBaseOffSet();
             RegNum reg = RegXMM0;
             if (!templateData->FindRegWithStackOffset<double>(reg, offset))
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2421\n");
                 templateData->SetStackInfo(RegXMM0, offset);
                 return MOVSD::EncodeInstruction<double>(buffer, InstrParamsRegAddr(RegXMM0, RegEBP, offset));
             }
             if (reg != RegXMM0)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2426\n");
                 return MOVSD::EncodeInstruction<double>(buffer, InstrParams2Reg(RegXMM0, reg));
             }
             return 0;
         }
 
         int SetReturn_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int offset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2433\n");
             X86TemplateData* templateData = GetTemplateData(context);
             offset -= templateData->GetBaseOffSet();
             RegNum reg = RegXMM0;
             if (!templateData->FindRegWithStackOffset<float>(reg, offset))
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2438\n");
                 templateData->SetStackInfo(RegXMM0, offset);
                 return MOVSS::EncodeInstruction<float>(buffer, InstrParamsRegAddr(RegXMM0, RegEBP, offset));
             }
             if (reg != RegXMM0)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2443\n");
                 return MOVSS::EncodeInstruction<float>(buffer, InstrParams2Reg(RegXMM0, reg));
             }
             return 0;
         }
 
         int SetFround_Db::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset,int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2450\n");
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffset -= templateData->GetBaseOffSet();
             rightOffset -= templateData->GetBaseOffSet();
@@ -2457,7 +2457,7 @@ namespace Js
             RegNum reg1;
             int size = 0;
             if (templateData->FindRegWithStackOffset<double>(reg1, rightOffset))
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2459\n");
                 size += CVTSD2SS::EncodeInstruction<double>(buffer, InstrParams2Reg(reg, reg1));
             }
             else
@@ -2471,7 +2471,7 @@ namespace Js
         }
 
         int SetFround_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2473\n");
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffset -= templateData->GetBaseOffSet();
             rightOffset -= templateData->GetBaseOffSet();
@@ -2480,7 +2480,7 @@ namespace Js
 
             int size = 0;
             if (!templateData->FindRegWithStackOffset<float>(reg, rightOffset))
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2482\n");
                 size += MOVSS::EncodeInstruction<float>(buffer, InstrParamsRegAddr(reg, RegEBP, rightOffset));
                 templateData->SetStackInfo(reg, rightOffset);
             }
@@ -2490,7 +2490,7 @@ namespace Js
         }
 
         int SetFround_Int::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2492\n");
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffset -= templateData->GetBaseOffSet();
             rightOffset -= templateData->GetBaseOffSet();
@@ -2500,7 +2500,7 @@ namespace Js
 
             int size = 0;
             if (templateData->FindRegWithStackOffset<int32>(reg1, rightOffset))
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2502\n");
                 size += CVTSI2SS::EncodeInstruction<int32>(buffer, InstrParams2Reg(reg, reg1));
             }
             else
@@ -2516,14 +2516,14 @@ namespace Js
         }
 
         int StSlot_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int srcOffset, int slotIndex )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2518\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             srcOffset -= templateData->GetBaseOffSet();
             RegNum reg = EncodingHelpers::GetModuleEnvironmentRegister( buffer, context, size );
             RegNum reg2;
             if( !templateData->FindRegWithStackOffset<double>( reg2, srcOffset ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2525\n");
                 reg2 = templateData->GetReg<double>();
                 size += MOVSD::EncodeInstruction<double>( buffer, InstrParamsRegAddr( reg2, RegEBP, srcOffset ) );
                 templateData->SetStackInfo( reg2, srcOffset );
@@ -2534,7 +2534,7 @@ namespace Js
         }
 
         int LdSlot_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int slotIndex )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2536\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2548,7 +2548,7 @@ namespace Js
         }
 
         int LdAddr_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, const double* dbAddr )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2550\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2560,13 +2560,13 @@ namespace Js
         }
 
         int Ld_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2562\n");
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffset -= templateData->GetBaseOffSet();
             rightOffset -= templateData->GetBaseOffSet();
 
             if( targetOffset == rightOffset )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2568\n");
                 return 0;
             }
 
@@ -2574,7 +2574,7 @@ namespace Js
 
             int size = 0;
             if( !templateData->FindRegWithStackOffset<double>( reg, rightOffset ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2576\n");
                 size += MOVSD::EncodeInstruction<double>( buffer, InstrParamsRegAddr(reg, RegEBP, rightOffset) );
                 templateData->SetStackInfo( reg, rightOffset );
             }
@@ -2584,13 +2584,13 @@ namespace Js
             return size;
         }
         int Ld_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2586\n");
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffset -= templateData->GetBaseOffSet();
             rightOffset -= templateData->GetBaseOffSet();
 
             if (targetOffset == rightOffset)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2592\n");
                 return 0;
             }
             //get reg can be double registers for float too
@@ -2598,7 +2598,7 @@ namespace Js
 
             int size = 0;
             if (!templateData->FindRegWithStackOffset<float>(reg, rightOffset))
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2600\n");
                 size += MOVSS::EncodeInstruction<float>(buffer, InstrParamsRegAddr(reg, RegEBP, rightOffset));
                 templateData->SetStackInfo(reg, rightOffset);
             }
@@ -2608,7 +2608,7 @@ namespace Js
         }
 
         int Add_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2610\n");
             int size = 0;
 
             size += EncodingHelpers::CommutativeOperation<ADDSS, float>(context, buffer, leftOffset, rightOffset, &targetOffset);
@@ -2616,7 +2616,7 @@ namespace Js
         }
 
         int Add_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2618\n");
             int size = 0;
 
             size += EncodingHelpers::CommutativeOperation<ADDSD, double>( context, buffer, leftOffset, rightOffset, &targetOffset );
@@ -2624,7 +2624,7 @@ namespace Js
         }
 
         int Sub_Db::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2626\n");
             int size = 0;
 
             size += EncodingHelpers::NonCommutativeOperation<SUBSD, double>(context, buffer, leftOffset, rightOffset, &targetOffset);
@@ -2632,7 +2632,7 @@ namespace Js
         }
 
         int Mul_Db::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2634\n");
             int size = 0;
 
             size += EncodingHelpers::CommutativeOperation<MULSD, double>(context, buffer, leftOffset, rightOffset, &targetOffset);
@@ -2640,28 +2640,28 @@ namespace Js
         }
 
         int Div_Db::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2642\n");
             int size = 0;
             size += EncodingHelpers::CommutativeOperation<DIVSD, double>(context, buffer, leftOffset, rightOffset, &targetOffset);
             return size;
         }
 
         int Sub_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2649\n");
             int size = 0;
             size += EncodingHelpers::NonCommutativeOperation<SUBSS, float>(context, buffer, leftOffset, rightOffset, &targetOffset);
             return size;
         }
 
         int Mul_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2656\n");
             int size = 0;
             size += EncodingHelpers::CommutativeOperation<MULSS, float>(context, buffer, leftOffset, rightOffset, &targetOffset);
             return size;
         }
 
         int Div_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2663\n");
             int size = 0;
 
             size += EncodingHelpers::CommutativeOperation<DIVSS, double>(context, buffer, leftOffset, rightOffset, &targetOffset);
@@ -2671,7 +2671,7 @@ namespace Js
 
 
         int Rem_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2673\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2699,7 +2699,7 @@ namespace Js
 
         template<typename JCC, typename OperationSignature, typename Size>
         int CompareEq(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2701\n");
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             RegNum resultReg = templateData->GetReg<int>(1 << RegEAX);
@@ -2717,28 +2717,28 @@ namespace Js
         }
 
         int CmpEq_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2719\n");
             return CompareEq<JP, UCOMISS, float>(context, buffer, targetOffset, leftOffset, rightOffset);
         }
 
         int CmpNe_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2724\n");
             return CompareEq<JNP, UCOMISS, float>(context, buffer, targetOffset, leftOffset, rightOffset);
         }
 
         int CmpEq_Db::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2729\n");
             return CompareEq<JP, UCOMISD, double>(context, buffer, targetOffset, leftOffset, rightOffset);
         }
 
         int CmpNe_Db::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2734\n");
             return CompareEq<JNP, UCOMISD, double>(context, buffer, targetOffset, leftOffset, rightOffset);
         }
 
         template<typename JCC, typename OperationSignature, typename Size>
         int CompareDbOrFlt( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2740\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             // we are modifying the rightoffset and leftoffset in the call to  EncodingHelpers::NonCommutativeOperation
@@ -2753,43 +2753,43 @@ namespace Js
             return size;
         }
         int CmpLt_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2755\n");
             return CompareDbOrFlt<JBE, COMISS, float>(context, buffer, targetOffset, rightOffset, leftOffset);
         }
         int CmpLe_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2759\n");
             return CompareDbOrFlt<JB, COMISS, float>(context, buffer, targetOffset, rightOffset, leftOffset);
         }
         int CmpGt_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2763\n");
             return CompareDbOrFlt<JBE, COMISS, float>(context, buffer, targetOffset, leftOffset, rightOffset);
         }
         int CmpGe_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2767\n");
             return CompareDbOrFlt<JB, COMISS, float>(context, buffer, targetOffset, leftOffset, rightOffset);
         }
 
         int CmpLt_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2772\n");
             return CompareDbOrFlt<JBE, COMISD, double>(context, buffer, targetOffset, rightOffset, leftOffset);
         }
         int CmpLe_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2776\n");
             return CompareDbOrFlt<JB, COMISD, double>(context, buffer, targetOffset, rightOffset, leftOffset);
         }
         int CmpGt_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2780\n");
             return CompareDbOrFlt<JBE, COMISD, double>(context, buffer, targetOffset, leftOffset, rightOffset);
         }
         int CmpGe_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int leftOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2784\n");
             return CompareDbOrFlt<JB, COMISD, double>(context, buffer, targetOffset, leftOffset, rightOffset);
         }
 
         __declspec(align(8)) const double MaskConvUintDouble[] = { 0.0, 4294967296.0 };
 
         int UInt_To_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2791\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2798,7 +2798,7 @@ namespace Js
             RegNum regInt;
             RegNum regDouble = templateData->GetReg<double>();
             if( !templateData->FindRegWithStackOffset<int>( regInt, rightOffset ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2800\n");
                 regInt = templateData->GetReg<int>();
                 size += MOV::EncodeInstruction<int32>( buffer, InstrParamsRegAddr( regInt, RegEBP, rightOffset ) );
             }
@@ -2816,7 +2816,7 @@ namespace Js
 
 
         int Int_To_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2818\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2824,7 +2824,7 @@ namespace Js
 
             RegNum reg = templateData->GetReg<double>(), regInt;
             if( templateData->FindRegWithStackOffset<int>( regInt, rightOffset ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2826\n");
                 size += CVTSI2SD::EncodeInstruction<double>( buffer, InstrParams2Reg( reg, regInt ) );
             }
             else
@@ -2837,7 +2837,7 @@ namespace Js
         }
 
         int Float_To_Db::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2839\n");
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2846,7 +2846,7 @@ namespace Js
             RegNum reg = templateData->GetReg<double>();
             RegNum reg1;
             if (templateData->FindRegWithStackOffset<float>(reg1, rightOffset))
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2848\n");
                 size += CVTSS2SD::EncodeInstruction<float>(buffer, InstrParams2Reg(reg, reg1));
             }
             else
@@ -2859,7 +2859,7 @@ namespace Js
         }
 
         int Float_To_Int::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2861\n");
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2868,7 +2868,7 @@ namespace Js
             RegNum reg = templateData->GetReg<int>();
             RegNum reg1;
             if (templateData->FindRegWithStackOffset<float>(reg1, rightOffset))
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2870\n");
                 size += CVTTSS2SI::EncodeInstruction<float>(buffer, InstrParams2Reg(reg, reg1));
             }
             else
@@ -2881,7 +2881,7 @@ namespace Js
         }
 
         int Db_To_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2883\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2890,7 +2890,7 @@ namespace Js
             RegNum reg;
             size += SUB::EncodeInstruction<int>( buffer, InstrParamsRegImm<int8>( RegESP, 8 ) );
             if( !templateData->FindRegWithStackOffset<double>( reg, rightOffset ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2892\n");
                 reg = templateData->GetReg<double>();
                 size += MOVSD::EncodeInstruction<double>( buffer, InstrParamsRegAddr( reg, RegEBP, rightOffset ) );
                 templateData->SetStackInfo( reg, rightOffset );
@@ -2915,7 +2915,7 @@ namespace Js
         };
 
         int Neg_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2917\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2923,7 +2923,7 @@ namespace Js
 
             RegNum reg;
             if( !templateData->FindRegWithStackOffset<double>( reg, rightOffset ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2925\n");
                 reg = templateData->GetReg<double>();
                 size += MOVSD::EncodeInstruction<double>( buffer, InstrParamsRegAddr( reg, RegEBP, rightOffset ) );
             }
@@ -2946,7 +2946,7 @@ namespace Js
         };
 
         int Neg_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int rightOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2948\n");
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -2954,7 +2954,7 @@ namespace Js
 
             RegNum reg;
             if (!templateData->FindRegWithStackOffset<float>(reg, rightOffset))
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2956\n");
                 reg = templateData->GetReg<float>();
                 size += MOVSS::EncodeInstruction<float>(buffer, InstrParamsRegAddr(reg, RegEBP, rightOffset));
             }
@@ -2970,7 +2970,7 @@ namespace Js
         }
 
         int Call_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer, int nbOffsets, int* offsets, void* addr, bool addEsp )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 2972\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             *offsets -= templateData->GetBaseOffSet();
@@ -2983,10 +2983,10 @@ namespace Js
             Assert( stackSize > nbArgs ); // check for overflow
 
             if( nbArgs > 0 )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 2985\n");
                 RegNum reg = templateData->GetReg<double>();
                 if( FitsInByte( stackSize ) )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 2988\n");
                     size += SUB::EncodeInstruction<int>( buffer, InstrParamsRegImm<int8>( RegESP, (int8)( stackSize ) ) );
                 }
                 else
@@ -2996,7 +2996,7 @@ namespace Js
 
                 int espOffset = stackSize - 8;
                 for( int i = nbArgs - 1; i >= 0; i-- )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 2998\n");
                     // TODO: check for reg in template
                     int argOffset = args[i] - templateData->GetBaseOffSet();
                     size += MOVSD::EncodeInstruction<double>(buffer, InstrParamsRegAddr(reg, RegEBP, argOffset));
@@ -3015,9 +3015,9 @@ namespace Js
             templateData->OverwriteStack( targetOffset );
 
             if( addEsp )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 3017\n");
                 if( FitsInByte( stackSize ) )
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 3019\n");
                     size += ADD::EncodeInstruction<int>( buffer, InstrParamsRegImm<int8>( RegESP, (int8)stackSize ) );
                 }
                 else
@@ -3030,7 +3030,7 @@ namespace Js
         }
 
         int Call_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int nbOffsets, int* offsets, void* addr, bool addEsp)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3032\n");
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             *offsets -= templateData->GetBaseOffSet();
@@ -3044,10 +3044,10 @@ namespace Js
             Assert(stackSize > nbArgs); // check for overflow
 
             if (nbArgs > 0)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 3046\n");
                 RegNum reg = templateData->GetReg<float>();
                 if (FitsInByte(stackSize))
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 3049\n");
                     size += SUB::EncodeInstruction<int>(buffer, InstrParamsRegImm<int8>(RegESP, (int8)(stackSize)));
                 }
                 else
@@ -3057,7 +3057,7 @@ namespace Js
 
                 int espOffset = stackSize - 4;
                 for (int i = nbArgs - 1; i >= 0; i--)
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 3059\n");
                     // TODO: check for reg in template
                     int argOffset = args[i] - templateData->GetBaseOffSet();
                     size += MOVSS::EncodeInstruction<float>(buffer, InstrParamsRegAddr(reg, RegEBP, argOffset));
@@ -3076,9 +3076,9 @@ namespace Js
             templateData->OverwriteStack(targetOffset);
 
             if (addEsp)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 3078\n");
                 if (FitsInByte(stackSize))
-                {
+                {LOGMEIN("AsmJsJitTemplate.cpp] 3080\n");
                     size += ADD::EncodeInstruction<int>(buffer, InstrParamsRegImm<int8>(RegESP, (int8)stackSize));
                 }
                 else
@@ -3090,12 +3090,12 @@ namespace Js
             return size;
         }
         int StartCall::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int argBytesSize )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3092\n");
             int size = 0;
             // remove extra var from sub because we are using push to add it
             argBytesSize -= sizeof(Var);
             if( FitsInByte( argBytesSize ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 3097\n");
                 size += SUB::EncodeInstruction<int>( buffer, InstrParamsRegImm<int8>( RegESP, (int8)argBytesSize ) );
             }
             else
@@ -3109,14 +3109,14 @@ namespace Js
             return size;
         }
         int ArgOut_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int argIndex, int offset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3111\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             offset -= templateData->GetBaseOffSet();
 
             RegNum regScriptContext, regVariable;
             if( !templateData->FindRegWithStackOffset<int>( regScriptContext, templateData->GetScriptContextOffset() ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 3118\n");
                 regScriptContext = templateData->GetReg<int>(1<<RegEAX);
                 size += MOV::EncodeInstruction<int>(buffer, InstrParamsRegAddr(regScriptContext, RegEBP, templateData->GetScriptContextOffset()));
                 templateData->SetStackInfo(regScriptContext, templateData->GetScriptContextOffset());
@@ -3124,7 +3124,7 @@ namespace Js
             size += PUSH::EncodeInstruction<int>( buffer, InstrParamsReg( regScriptContext ) );
 
             if( !templateData->FindRegWithStackOffset<int>( regVariable, offset ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 3126\n");
                 regVariable = templateData->GetReg<int>(1<<RegEAX);
                 size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( regVariable, RegEBP, offset ) );
                 templateData->SetStackInfo( regVariable, offset );
@@ -3140,7 +3140,7 @@ namespace Js
             return size;
         }
         int ArgOut_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int argIndex, int offset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3142\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             offset -= templateData->GetBaseOffSet();
@@ -3149,7 +3149,7 @@ namespace Js
             size += PUSH::EncodeInstruction<int>( buffer, InstrParamsReg( regScriptContext ) );
 
             if( !templateData->FindRegWithStackOffset<double>( regVariable, offset ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 3151\n");
                 regVariable = templateData->GetReg<double>();
                 size += MOVSD::EncodeInstruction<double>( buffer, InstrParamsRegAddr( regVariable, RegEBP, offset ) );
                 templateData->SetStackInfo( regVariable, offset );
@@ -3168,7 +3168,7 @@ namespace Js
         }
 
         int Call::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int targetOffset, int funcOffset, int nbArgs )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3170\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -3178,7 +3178,7 @@ namespace Js
             size += PUSH::EncodeInstruction<int>( buffer, InstrParamsImm<int8>( (int8)nbArgs ) );
             RegNum reg;
             if( !templateData->FindRegWithStackOffset<int>( reg, funcOffset ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 3180\n");
                 size += PUSH::EncodeInstruction<int>( buffer, InstrParamsAddr( RegEBP, funcOffset ) );
             }
             else
@@ -3195,7 +3195,7 @@ namespace Js
             size += EncodingHelpers::ReloadArrayBuffer(context, buffer);
             size += EncodingHelpers::CheckForArrayBufferDetached(context, buffer);
             if (targetOffset != templateData->GetModuleSlotOffset())
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 3197\n");
                 size += EncodingHelpers::SetStackReg<int>( buffer, templateData, targetOffset , RegEAX);
             }
             templateData->SetStackInfo( RegEAX, targetOffset );
@@ -3204,7 +3204,7 @@ namespace Js
         }
 
         int Conv_VTI::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int targetOffset, int srcOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3206\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -3212,7 +3212,7 @@ namespace Js
 
             RegNum reg;
             if( !templateData->FindRegWithStackOffset<int>( reg, srcOffset ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 3214\n");
                 reg = templateData->GetReg<int>();
                 size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( reg, RegEBP, srcOffset ) );
                 templateData->SetStackInfo( reg, srcOffset );
@@ -3230,7 +3230,7 @@ namespace Js
             return size;
         }
         int Conv_VTD::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int targetOffset, int srcOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3232\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -3238,7 +3238,7 @@ namespace Js
 
             RegNum reg;
             if( !templateData->FindRegWithStackOffset<int>( reg, srcOffset ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 3240\n");
                 reg = templateData->GetReg<int>();
                 size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( reg, RegEBP, srcOffset ) );
                 templateData->SetStackInfo( reg, srcOffset );
@@ -3257,7 +3257,7 @@ namespace Js
         }
         //TODO - consider changing this to template (Conv_vtd and Conv_vtf)
         int Conv_VTF::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int srcOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3259\n");
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -3265,7 +3265,7 @@ namespace Js
 
             RegNum reg;
             if (!templateData->FindRegWithStackOffset<int>(reg, srcOffset))
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 3267\n");
                 reg = templateData->GetReg<int>();
                 size += MOV::EncodeInstruction<int>(buffer, InstrParamsRegAddr(reg, RegEBP, srcOffset));
                 templateData->SetStackInfo(reg, srcOffset);
@@ -3284,14 +3284,14 @@ namespace Js
         }
 
         int I_StartCall::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int argBytesSize )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3286\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
 
             templateData->StartInternalCall(argBytesSize);
             argBytesSize = ::Math::Align<int32>(argBytesSize - MachPtr, 8);
             if( FitsInByte( argBytesSize ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 3293\n");
                 size += SUB::EncodeInstruction<int>( buffer, InstrParamsRegImm<int8>( RegESP, (int8)argBytesSize ) );
             }
             else
@@ -3301,7 +3301,7 @@ namespace Js
             return size;
         }
         int I_ArgOut_Int::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int argIndex, int offset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3303\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             offset -= templateData->GetBaseOffSet();
@@ -3317,7 +3317,7 @@ namespace Js
             return size;
         }
         int I_ArgOut_Db::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int argIndex, int offset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3319\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             offset -= templateData->GetBaseOffSet();
@@ -3334,7 +3334,7 @@ namespace Js
         }
 
         int I_ArgOut_Flt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int argIndex, int offset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3336\n");
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             offset -= templateData->GetBaseOffSet();
@@ -3351,7 +3351,7 @@ namespace Js
         }
 
         int I_Call::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int funcOffset, int nbArgs, AsmJsRetType retType)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3353\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -3376,7 +3376,7 @@ namespace Js
             return size;
         }
         int AsmJsLoopBody::ApplyTemplate(TemplateContext context, BYTE*& buffer, int loopNumber)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3378\n");
             int size = 0;
             X86TemplateData* templateData = GetTemplateData(context);
             AsmJsFunctionInfo* funcInfo = context->GetFunctionBody()->GetAsmJsFunctionInfo();
@@ -3425,7 +3425,7 @@ namespace Js
             //get the output in the right register
             Js::AsmJsRetType retType = funcInfo->GetReturnType();
             switch (retType.which())
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 3427\n");
             case Js::AsmJsRetType::Signed:
             case Js::AsmJsRetType::Void:
                 size += MOV::EncodeInstruction<int>(buffer, InstrParamsRegAddr(RegEAX, RegEBP, intOffset));
@@ -3455,7 +3455,7 @@ namespace Js
         }
 
         int I_Conv_VTI::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int targetOffset, int srcOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3457\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -3466,7 +3466,7 @@ namespace Js
             return size;
         }
         int I_Conv_VTD::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int targetOffset, int srcOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3468\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -3479,7 +3479,7 @@ namespace Js
         }
 
         int I_Conv_VTF::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int srcOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3481\n");
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -3492,7 +3492,7 @@ namespace Js
         }
 
         int LdUndef::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int targetOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3494\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -3504,7 +3504,7 @@ namespace Js
         }
 
         int LdArr_Func::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int targetOffset, int arrOffset, int slotVarIndexOffset )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3506\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -3513,14 +3513,14 @@ namespace Js
 
             RegNum regArr, regIndex;
             if( !templateData->FindRegWithStackOffset<int>( regArr, arrOffset ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 3515\n");
                 regArr = templateData->GetReg<int>();
                 size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( regArr, RegEBP, arrOffset ) );
                 templateData->SetStackInfo( regArr, arrOffset );
             }
 
             if( !templateData->FindRegWithStackOffset<int>(regIndex,slotVarIndexOffset) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 3522\n");
                 regIndex = templateData->GetReg<int>( 1 << regArr );
                 size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( regIndex, RegEBP, slotVarIndexOffset ) );
                 templateData->SetStackInfo( regIndex, slotVarIndexOffset );
@@ -3531,7 +3531,7 @@ namespace Js
             size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( targetReg, regArr, regIndex, 4, 0 ) );
 
             if (targetOffset == templateData->GetModuleSlotOffset())
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 3533\n");
                 templateData->OverwriteStack( targetOffset );
                 templateData->SetStackInfo( RegEAX, targetOffset );
             }
@@ -3544,7 +3544,7 @@ namespace Js
         }
 
         int LdSlot::ApplyTemplate( TemplateContext context, BYTE*& buffer,  int targetOffset, int arrOffset, int slotIndex )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3546\n");
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -3552,13 +3552,13 @@ namespace Js
 
             RegNum reg;
             if( !templateData->FindRegWithStackOffset<int>( reg, arrOffset ) )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 3554\n");
                 reg = templateData->GetReg<int>();
                 size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( reg, RegEBP, arrOffset ) );
                 templateData->SetStackInfo( reg, arrOffset );
             }
             if (targetOffset == templateData->GetModuleSlotOffset())
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 3560\n");
                 size += MOV::EncodeInstruction<int>( buffer, InstrParamsRegAddr( RegEAX, reg, slotIndex*sizeof(Var) ) );
                 templateData->OverwriteStack( targetOffset );
                 templateData->SetStackInfo( RegEAX, targetOffset );
@@ -3610,7 +3610,7 @@ namespace Js
         };
 
         int LdArrDb::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int slotVarIndex, ArrayBufferView::ViewType viewType )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3612\n");
             AnalysisAssert(viewType == ArrayBufferView::TYPE_FLOAT64);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
@@ -3649,7 +3649,7 @@ namespace Js
         }
 
         int LdArrFlt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int slotVarIndex, ArrayBufferView::ViewType viewType)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3651\n");
             AnalysisAssert(viewType == ArrayBufferView::TYPE_FLOAT32);
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
@@ -3690,7 +3690,7 @@ namespace Js
         }
 
         int LdArr::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int slotVarIndex, ArrayBufferView::ViewType viewType )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3692\n");
             AnalysisAssert(viewType >= ArrayBufferView::TYPE_INT8 && viewType < ArrayBufferView::TYPE_FLOAT32);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
@@ -3701,7 +3701,7 @@ namespace Js
             RegNum resultReg = templateData->GetReg<int>( 1 << regIndex );
             RegNum regArrayBuffer = EncodingHelpers::GetArrayBufferRegister( buffer, context, size, 1 << regIndex | 1 << resultReg );
             if( viewType != ArrayBufferView::TYPE_INT8 && viewType != ArrayBufferView::TYPE_UINT8 )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 3703\n");
                 size += AND::EncodeInstruction<int>( buffer, InstrParamsRegImm<int32>( regIndex, TypedArrayViewMask[viewType] ) );
                 templateData->InvalidateReg( regIndex );
             }
@@ -3730,7 +3730,7 @@ namespace Js
         }
 
         int StArrDb::ApplyTemplate( TemplateContext context, BYTE*& buffer, int srcOffset, int slotVarIndex, ArrayBufferView::ViewType viewType )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3732\n");
             AnalysisAssert(viewType == ArrayBufferView::TYPE_FLOAT64);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
@@ -3760,7 +3760,7 @@ namespace Js
         }
 
         int StArrFlt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int srcOffset, int slotVarIndex, ArrayBufferView::ViewType viewType)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3762\n");
             AnalysisAssert(viewType == ArrayBufferView::TYPE_FLOAT32);
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
@@ -3789,7 +3789,7 @@ namespace Js
         }
 
         int StArr::ApplyTemplate( TemplateContext context, BYTE*& buffer, int srcOffset, int slotVarIndex, ArrayBufferView::ViewType viewType )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3791\n");
             AnalysisAssert(viewType >= ArrayBufferView::TYPE_INT8 && viewType < ArrayBufferView::TYPE_FLOAT32);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
@@ -3799,7 +3799,7 @@ namespace Js
             RegNum regIndex = EncodingHelpers::GetStackReg<int>( buffer, templateData, slotVarIndex, size );
             RegNum regArrayBuffer = EncodingHelpers::GetArrayBufferRegister( buffer, context, size, 1 << regIndex );
             if( viewType != ArrayBufferView::TYPE_INT8 && viewType != ArrayBufferView::TYPE_UINT8 )
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 3801\n");
                 size += AND::EncodeInstruction<int>( buffer, InstrParamsRegImm<int32>( regIndex, TypedArrayViewMask[viewType] ) );
                 templateData->InvalidateReg( regIndex );
             }
@@ -3822,7 +3822,7 @@ namespace Js
 
         // Version with const index
         int ConstLdArrDb::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int constIndex, ArrayBufferView::ViewType viewType )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3824\n");
             AnalysisAssert(viewType == ArrayBufferView::TYPE_FLOAT64);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
@@ -3858,7 +3858,7 @@ namespace Js
 
         // Version with const index
         int ConstLdArrFlt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int constIndex, ArrayBufferView::ViewType viewType)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3860\n");
             AnalysisAssert(viewType == ArrayBufferView::TYPE_FLOAT32);
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
@@ -3894,7 +3894,7 @@ namespace Js
         }
 
         int ConstLdArr::ApplyTemplate( TemplateContext context, BYTE*& buffer, int targetOffset, int constIndex, ArrayBufferView::ViewType viewType )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3896\n");
             AnalysisAssert(viewType < ArrayBufferView::TYPE_FLOAT32 && viewType >= ArrayBufferView::TYPE_INT8);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
@@ -3929,7 +3929,7 @@ namespace Js
 
         template<typename Size>
         int ConstStArrDbOrFlt(TemplateContext context, BYTE*& buffer, int srcOffset, int constIndex, ArrayBufferView::ViewType viewType)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3931\n");
             AnalysisAssert(viewType == ArrayBufferView::TYPE_FLOAT32 || viewType == ArrayBufferView::TYPE_FLOAT64);
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
@@ -3955,19 +3955,19 @@ namespace Js
         }
 
         int ConstStArrDb::ApplyTemplate( TemplateContext context, BYTE*& buffer, int srcOffset, int constIndex, ArrayBufferView::ViewType viewType )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3957\n");
             Assert(viewType == ArrayBufferView::TYPE_FLOAT64);
             return ConstStArrDbOrFlt<double>(context, buffer, srcOffset, constIndex, viewType);
         }
 
         int ConstStArrFlt::ApplyTemplate(TemplateContext context, BYTE*& buffer, int srcOffset, int constIndex, ArrayBufferView::ViewType viewType)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3963\n");
             Assert(viewType == ArrayBufferView::TYPE_FLOAT32);
             return ConstStArrDbOrFlt<float>(context, buffer, srcOffset, constIndex, viewType);
         }
 
         int ConstStArr::ApplyTemplate( TemplateContext context, BYTE*& buffer, int srcOffset, int constIndex, ArrayBufferView::ViewType viewType )
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3969\n");
             AnalysisAssert(viewType < ArrayBufferView::TYPE_FLOAT32 && viewType >= ArrayBufferView::TYPE_INT8);
             X86TemplateData* templateData = GetTemplateData( context );
             int size = 0;
@@ -3993,12 +3993,12 @@ namespace Js
         }
 
         int Simd128_Ld_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4, int srcOffsetF4)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 3995\n");
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetF4 -= templateData->GetBaseOffSet();
             srcOffsetF4 -= templateData->GetBaseOffSet();
             if (targetOffsetF4 == srcOffsetF4)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 4000\n");
                 return 0;
             }
 
@@ -4011,17 +4011,17 @@ namespace Js
         }
 
         int Simd128_Ld_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4, int srcOffsetI4)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4013\n");
             return Simd128_Ld_F4::ApplyTemplate(context, buffer, targetOffsetI4, srcOffsetI4);
         }
 
         int Simd128_Ld_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2, int srcOffsetD2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4018\n");
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetD2 -= templateData->GetBaseOffSet();
             srcOffsetD2 -= templateData->GetBaseOffSet();
             if (targetOffsetD2 == srcOffsetD2)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 4023\n");
                 return 0;
             }
 
@@ -4034,7 +4034,7 @@ namespace Js
         }
 
         int Simd128_LdSlot_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int slotIndex)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4036\n");
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             targetOffset -= templateData->GetBaseOffSet();
@@ -4048,17 +4048,17 @@ namespace Js
         }
 
         int Simd128_LdSlot_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int slotIndex)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4050\n");
             return Simd128_LdSlot_F4::ApplyTemplate(context, buffer, targetOffset, slotIndex);
         }
 
         int Simd128_LdSlot_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int slotIndex)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4055\n");
             return Simd128_LdSlot_F4::ApplyTemplate(context, buffer, targetOffset, slotIndex);
         }
 
         int Simd128_StSlot_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int srcOffset, int slotIndex)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4060\n");
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             srcOffset -= templateData->GetBaseOffSet();
@@ -4072,62 +4072,62 @@ namespace Js
         }
 
         int Simd128_StSlot_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int srcOffset, int slotIndex)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4074\n");
             return Simd128_StSlot_F4::ApplyTemplate(context, buffer, srcOffset, slotIndex);
         }
 
         int Simd128_StSlot_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int srcOffset, int slotIndex)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4079\n");
             return Simd128_StSlot_F4::ApplyTemplate(context, buffer, srcOffset, slotIndex);
         }
 
         int Simd128_FloatsToF4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF1, int srcOffsetF2, int srcOffsetF3, int srcOffsetF4)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4084\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDInitFromPrimitives<float>(buffer, templateData, targetOffsetF4_0, srcOffsetF1, srcOffsetF2, srcOffsetF3, srcOffsetF4);
         }
 
         int Simd128_IntsToI4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI1, int srcOffsetI2, int srcOffsetI3, int srcOffsetI4)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4090\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDInitFromPrimitives<int>(buffer, templateData, targetOffsetI4_0, srcOffsetI1, srcOffsetI2, srcOffsetI3, srcOffsetI4);
         }
 
         int Simd128_DoublesToD2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD1, int srcOffsetD2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4096\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDInitFromPrimitives<double>(buffer, templateData, targetOffsetD2_0, srcOffsetD1, srcOffsetD2);
         }
 
         int Simd128_Return_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int srcOffsetF4)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4102\n");
             X86TemplateData* templateData = GetTemplateData(context);
             srcOffsetF4 -= templateData->GetBaseOffSet();
             RegNum reg = RegXMM0;
             if (!templateData->FindRegWithStackOffset<AsmJsSIMDValue>(reg, srcOffsetF4))
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 4107\n");
                 templateData->SetStackInfo(RegXMM0, srcOffsetF4);
                 return MOVUPS::EncodeInstruction<AsmJsSIMDValue>(buffer, InstrParamsRegAddr(RegXMM0, RegEBP, srcOffsetF4));
             }
             if (reg != RegXMM0)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 4112\n");
                 return MOVUPS::EncodeInstruction<AsmJsSIMDValue>(buffer, InstrParams2Reg(RegXMM0, reg));
             }
             return 0;
         }
 
         int Simd128_Return_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int srcOffsetI4)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4119\n");
             return Simd128_Return_F4::ApplyTemplate(context, buffer, srcOffsetI4);
         }
 
         int Simd128_Return_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int srcOffsetD2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4124\n");
             return Simd128_Return_F4::ApplyTemplate(context, buffer, srcOffsetD2);
         }
 
         int Simd128_Splat_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4129\n");
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetF4_0 -= templateData->GetBaseOffSet();
             srcOffsetF1 -= templateData->GetBaseOffSet();
@@ -4140,7 +4140,7 @@ namespace Js
         }
 
         int Simd128_Splat_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4142\n");
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetI4_0 -= templateData->GetBaseOffSet();
             srcOffsetI1 -= templateData->GetBaseOffSet();
@@ -4158,7 +4158,7 @@ namespace Js
         }
 
         int Simd128_Splat_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4160\n");
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetD2_0 -= templateData->GetBaseOffSet();
             srcOffsetD1 -= templateData->GetBaseOffSet();
@@ -4175,59 +4175,59 @@ namespace Js
 
         // Type conversions
         int Simd128_FromFloat64x2_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetD2_1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4177\n");
             return EncodingHelpers::SIMDUnaryOperation<CVTPD2PS, float>(buffer, GetTemplateData(context), targetOffsetF4_0, srcOffsetD2_1);
         }
         int Simd128_FromInt32x4_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetI4_1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4181\n");
             return EncodingHelpers::SIMDUnaryOperation<CVTDQ2PS, float>(buffer, GetTemplateData(context), targetOffsetF4_0, srcOffsetI4_1);
         }
         int Simd128_FromFloat32x4_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetF4_1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4185\n");
             return EncodingHelpers::SIMDUnaryOperation<CVTTPS2DQ, int>(buffer, GetTemplateData(context), targetOffsetI4_0, srcOffsetF4_1);
         }
         int Simd128_FromFloat64x2_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetD2_1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4189\n");
             return EncodingHelpers::SIMDUnaryOperation<CVTTPD2DQ, int>(buffer, GetTemplateData(context), targetOffsetI4_0, srcOffsetD2_1);
         }
         int Simd128_FromFloat32x4_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetF4_1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4193\n");
             return EncodingHelpers::SIMDUnaryOperation<CVTPS2PD, double>(buffer, GetTemplateData(context), targetOffsetD2_0, srcOffsetF4_1);
         }
         int Simd128_FromInt32x4_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetI4_1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4197\n");
             return EncodingHelpers::SIMDUnaryOperation<CVTDQ2PD, float>(buffer, GetTemplateData(context), targetOffsetD2_0, srcOffsetI4_1);
         }
 
         // Bits conversions
         int Simd128_FromFloat64x2Bits_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetD2_1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4203\n");
             return Simd128_Ld_F4::ApplyTemplate(context, buffer, targetOffsetF4_0, srcOffsetD2_1);
         }
         int Simd128_FromInt32x4Bits_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetI4_1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4207\n");
             return Simd128_Ld_F4::ApplyTemplate(context, buffer, targetOffsetF4_0, srcOffsetI4_1);
         }
         int Simd128_FromFloat32x4Bits_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetF4_1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4211\n");
             return Simd128_Ld_I4::ApplyTemplate(context, buffer, targetOffsetI4_0, srcOffsetF4_1);
         }
         int Simd128_FromFloat64x2Bits_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetD2_1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4215\n");
             return Simd128_Ld_I4::ApplyTemplate(context, buffer, targetOffsetI4_0, srcOffsetD2_1);
         }
         int Simd128_FromFloat32x4Bits_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetF4_1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4219\n");
             return Simd128_Ld_D2::ApplyTemplate(context, buffer, targetOffsetD2_0, srcOffsetF4_1);
         }
         int Simd128_FromInt32x4Bits_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetI4_1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4223\n");
             return Simd128_Ld_D2::ApplyTemplate(context, buffer, targetOffsetD2_0, srcOffsetI4_1);
         }
 
         // Unary operations
         int Simd128_Abs_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4229\n");
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetF4_0 -= templateData->GetBaseOffSet();
             srcOffsetF4_1 -= templateData->GetBaseOffSet();
@@ -4245,7 +4245,7 @@ namespace Js
         }
 
         int Simd128_Abs_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4247\n");
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetD2_0 -= templateData->GetBaseOffSet();
             srcOffsetD2_1 -= templateData->GetBaseOffSet();
@@ -4262,7 +4262,7 @@ namespace Js
         }
 
         int Simd128_Neg_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4264\n");
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetF4_0 -= templateData->GetBaseOffSet();
             srcOffsetF4_1 -= templateData->GetBaseOffSet();
@@ -4279,7 +4279,7 @@ namespace Js
         }
 
         int Simd128_Neg_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4281\n");
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetI4_0 -= templateData->GetBaseOffSet();
             srcOffsetI4_1 -= templateData->GetBaseOffSet();
@@ -4298,7 +4298,7 @@ namespace Js
         }
 
         int Simd128_Neg_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4300\n");
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetD2_0 -= templateData->GetBaseOffSet();
             srcOffsetD2_1 -= templateData->GetBaseOffSet();
@@ -4316,7 +4316,7 @@ namespace Js
         }
 
         int Simd128_Rcp_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4318\n");
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetF4_0 -= templateData->GetBaseOffSet();
             srcOffsetF4_1 -= templateData->GetBaseOffSet();
@@ -4330,7 +4330,7 @@ namespace Js
         }
 
         int Simd128_Rcp_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4332\n");
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetD2_0 -= templateData->GetBaseOffSet();
             srcOffsetD2_1 -= templateData->GetBaseOffSet();
@@ -4344,7 +4344,7 @@ namespace Js
         }
 
         int Simd128_RcpSqrt_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4346\n");
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetF4_0 -= templateData->GetBaseOffSet();
             srcOffsetF4_1 -= templateData->GetBaseOffSet();
@@ -4360,7 +4360,7 @@ namespace Js
         }
 
         int Simd128_RcpSqrt_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4362\n");
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetD2_0 -= templateData->GetBaseOffSet();
             srcOffsetD2_1 -= templateData->GetBaseOffSet();
@@ -4376,7 +4376,7 @@ namespace Js
         }
 
         int Simd128_Sqrt_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4378\n");
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetF4_0 -= templateData->GetBaseOffSet();
             srcOffsetF4_1 -= templateData->GetBaseOffSet();
@@ -4390,7 +4390,7 @@ namespace Js
         }
 
         int Simd128_Sqrt_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4392\n");
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetD2_0 -= templateData->GetBaseOffSet();
             srcOffsetD2_1 -= templateData->GetBaseOffSet();
@@ -4404,7 +4404,7 @@ namespace Js
         }
 
         int Simd128_Not_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4406\n");
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetF4_0 -= templateData->GetBaseOffSet();
             srcOffsetF4_1 -= templateData->GetBaseOffSet();
@@ -4421,54 +4421,54 @@ namespace Js
         }
 
         int Simd128_Not_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4423\n");
             return Simd128_Not_F4::ApplyTemplate(context, buffer, targetOffsetI4_0, srcOffsetI4_1);
         }
 
         int Simd128_Add_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4428\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<ADDPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_1, srcOffsetF4_2);
         }
 
         int Simd128_Add_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1, int srcOffsetI4_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4434\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<PADDD, int>(buffer, templateData, targetOffsetI4_0, srcOffsetI4_1, srcOffsetI4_2);
         }
 
         int Simd128_Add_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1, int srcOffsetD2_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4440\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<ADDPD, double>(buffer, templateData, targetOffsetD2_0, srcOffsetD2_1, srcOffsetD2_2);
         }
 
         int Simd128_Sub_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4446\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<SUBPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_1, srcOffsetF4_2);
         }
 
         int Simd128_Sub_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1, int srcOffsetI4_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4452\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<PSUBD, int>(buffer, templateData, targetOffsetI4_0, srcOffsetI4_1, srcOffsetI4_2);
         }
 
         int Simd128_Sub_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1, int srcOffsetD2_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4458\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<SUBPD, double>(buffer, templateData, targetOffsetD2_0, srcOffsetD2_1, srcOffsetD2_2);
         }
 
         int Simd128_Mul_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4464\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<MULPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_1, srcOffsetF4_2);
         }
 
         int Simd128_Mul_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1, int srcOffsetI4_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4470\n");
             X86TemplateData* templateData = GetTemplateData(context);
             RegNum srcReg1, srcReg2, tmpReg;
             int size = 0;
@@ -4492,7 +4492,7 @@ namespace Js
             templateData->InvalidateReg(srcReg1);
 
             if (srcReg1 != srcReg2)
-            {
+            {LOGMEIN("AsmJsJitTemplate.cpp] 4494\n");
                 // PSRLDQ srcReg2, 0x04
                 size += PSRLDQ::EncodeInstruction<AsmJsSIMDValue>(buffer, InstrParamsRegImm<byte>(srcReg2, 0x04));
                 templateData->InvalidateReg(srcReg2);
@@ -4513,173 +4513,173 @@ namespace Js
         }
 
         int Simd128_Mul_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1, int srcOffsetD2_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4515\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<MULPD, double>(buffer, templateData, targetOffsetD2_0, srcOffsetD2_1, srcOffsetD2_2);
         }
 
         int Simd128_Div_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4521\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<DIVPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_1, srcOffsetF4_2);
         }
 
         int Simd128_Div_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1, int srcOffsetD2_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4527\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<DIVPD, double>(buffer, templateData, targetOffsetD2_0, srcOffsetD2_1, srcOffsetD2_2);
         }
 
         int Simd128_Min_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4533\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<MINPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_1, srcOffsetF4_2);
         }
 
         int Simd128_Min_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1, int srcOffsetD2_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4539\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<MINPD, double>(buffer, templateData, targetOffsetD2_0, srcOffsetD2_1, srcOffsetD2_2);
         }
 
         int Simd128_Max_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4545\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<MAXPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_1, srcOffsetF4_2);
         }
 
         int Simd128_Max_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1, int srcOffsetD2_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4551\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<MAXPD, double>(buffer, templateData, targetOffsetD2_0, srcOffsetD2_1, srcOffsetD2_2);
         }
 
         // comparison
         int Simd128_Lt_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4558\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<CMPPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_1, srcOffsetF4_2, CMP_IMM8::LT);
         }
         int Simd128_Lt_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1, int srcOffsetI4_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4563\n");
             X86TemplateData* templateData = GetTemplateData(context);
             // reversed operands
             return EncodingHelpers::SIMDBinaryOperation<PCMPGTD, int>(buffer, templateData, targetOffsetI4_0, srcOffsetI4_2, srcOffsetI4_1);
         }
         int Simd128_Lt_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1, int srcOffsetD2_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4569\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<CMPPD, double>(buffer, templateData, targetOffsetD2_0, srcOffsetD2_1, srcOffsetD2_2, CMP_IMM8::LT);
         }
 
         int Simd128_Gt_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4575\n");
             X86TemplateData* templateData = GetTemplateData(context);
             // reversed operands
             return EncodingHelpers::SIMDBinaryOperation<CMPPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_2, srcOffsetF4_1, CMP_IMM8::LT);
         }
         int Simd128_Gt_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1, int srcOffsetI4_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4581\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<PCMPGTD, int>(buffer, templateData, targetOffsetI4_0, srcOffsetI4_1, srcOffsetI4_2);
         }
         int Simd128_Gt_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1, int srcOffsetD2_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4586\n");
             X86TemplateData* templateData = GetTemplateData(context);
             // reversed operands
             return EncodingHelpers::SIMDBinaryOperation<CMPPD, double>(buffer, templateData, targetOffsetD2_0, srcOffsetD2_2, srcOffsetD2_1, CMP_IMM8::LT);
         }
 
         int Simd128_LtEq_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4593\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<CMPPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_1, srcOffsetF4_2, CMP_IMM8::LE);
         }
         int Simd128_LtEq_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1, int srcOffsetD2_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4598\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<CMPPD, double>(buffer, templateData, targetOffsetD2_0, srcOffsetD2_1, srcOffsetD2_2, CMP_IMM8::LE);
         }
 
         int Simd128_GtEq_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4604\n");
             X86TemplateData* templateData = GetTemplateData(context);
             // reversed operands
             return EncodingHelpers::SIMDBinaryOperation<CMPPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_2, srcOffsetF4_1, CMP_IMM8::LE);
         }
         int Simd128_GtEq_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1, int srcOffsetD2_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4610\n");
             X86TemplateData* templateData = GetTemplateData(context);
             // reversed operands
             return EncodingHelpers::SIMDBinaryOperation<CMPPD, double>(buffer, templateData, targetOffsetD2_0, srcOffsetD2_2, srcOffsetD2_1, CMP_IMM8::LE);
         }
 
         int Simd128_Eq_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4617\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<CMPPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_1, srcOffsetF4_2, CMP_IMM8::EQ);
         }
         int Simd128_Eq_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1, int srcOffsetI4_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4622\n");
             X86TemplateData* templateData = GetTemplateData(context);
             // reversed operands
             return EncodingHelpers::SIMDBinaryOperation<PCMPEQD, int>(buffer, templateData, targetOffsetI4_0, srcOffsetI4_2, srcOffsetI4_1);
         }
         int Simd128_Eq_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1, int srcOffsetD2_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4628\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<CMPPD, double>(buffer, templateData, targetOffsetD2_0, srcOffsetD2_1, srcOffsetD2_2, CMP_IMM8::EQ);
         }
 
         int Simd128_Neq_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4634\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<CMPPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_1, srcOffsetF4_2, CMP_IMM8::NEQ);
         }
         int Simd128_Neq_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetD2_1, int srcOffsetD2_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4639\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<CMPPD, double>(buffer, templateData, targetOffsetD2_0, srcOffsetD2_1, srcOffsetD2_2, CMP_IMM8::NEQ);
         }
 
         int Simd128_And_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4645\n");
             X86TemplateData* templateData = GetTemplateData(context);
             // reversed operands
             return EncodingHelpers::SIMDBinaryOperation<ANDPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_2, srcOffsetF4_1);
         }
         int Simd128_And_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1, int srcOffsetI4_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4651\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<PAND, int>(buffer, templateData, targetOffsetI4_0, srcOffsetI4_1, srcOffsetI4_2);
         }
 
         int Simd128_Or_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4657\n");
             X86TemplateData* templateData = GetTemplateData(context);
             // reversed operands
             return EncodingHelpers::SIMDBinaryOperation<ORPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_2, srcOffsetF4_1);
         }
         int Simd128_Or_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1, int srcOffsetI4_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4663\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<POR, int>(buffer, templateData, targetOffsetI4_0, srcOffsetI4_1, srcOffsetI4_2);
         }
 
         int Simd128_Xor_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF4_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4669\n");
             X86TemplateData* templateData = GetTemplateData(context);
             // reversed operands
             return EncodingHelpers::SIMDBinaryOperation<XORPS, float>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_2, srcOffsetF4_1);
         }
         int Simd128_Xor_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1, int srcOffsetI4_2)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4675\n");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDBinaryOperation<PXOR, int>(buffer, templateData, targetOffsetI4_0, srcOffsetI4_1, srcOffsetI4_2);
         }
 
         int Simd128_Select_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetI4_1, int srcOffsetF4_2, int srcOffsetF4_3)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4681\n");
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffsetF4_0 -= templateData->GetBaseOffSet();
             srcOffsetI4_1 -= templateData->GetBaseOffSet();
@@ -4717,34 +4717,34 @@ namespace Js
         }
 
         int Simd128_Select_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1, int srcOffsetI4_2, int srcOffsetI4_3)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4719\n");
             // ok to re-use F4, size of I4 lane >= size of F4 lane. Important for correct invalidation of regs upon store to stack.
             return Simd128_Select_F4::ApplyTemplate(context, buffer, targetOffsetI4_0, srcOffsetI4_1, srcOffsetI4_2, srcOffsetI4_3);
         }
 
         int Simd128_Select_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetD2_0, int srcOffsetI4_1, int srcOffsetD2_2, int srcOffsetD2_3)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4725\n");
             // ok to re-use F4, size of D2 lane >= size of F4 lane. Important for correct invalidation of regs upon store to stack.
             return Simd128_Select_F4::ApplyTemplate(context, buffer, targetOffsetD2_0, srcOffsetI4_1, srcOffsetD2_2, srcOffsetD2_3);
         }
 
         //Lane Access
         int Simd128_ExtractLane_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI0, int srcOffsetI4_1, int index)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4732\n");
             AssertMsg(index >= 0 && index < 4, "Invalid lane index");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDLdLaneOperation<MOVSS, int>(buffer, templateData, targetOffsetI0, srcOffsetI4_1, index, false);
         }
 
         int Simd128_ExtractLane_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF0, int srcOffsetF4_1, int index)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4739\n");
             AssertMsg(index >= 0 && index < 4, "Invalid lane index");
             X86TemplateData* templateData = GetTemplateData(context);
             return EncodingHelpers::SIMDLdLaneOperation<MOVSS, int>(buffer, templateData, targetOffsetF0, srcOffsetF4_1, index, false);
         }
 
         int Simd128_ReplaceLane_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetF4_0, int srcOffsetF4_1, int srcOffsetF2, int laneIndex)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4746\n");
             X86TemplateData* templateData = GetTemplateData(context);
             AssertMsg(laneIndex >= 0 && laneIndex < 4, "Invalid lane index");
             return EncodingHelpers::SIMDSetLaneOperation<float, SHUFPS>(buffer, templateData, targetOffsetF4_0, srcOffsetF4_1, srcOffsetF2, laneIndex);
@@ -4752,14 +4752,14 @@ namespace Js
         }
 
         int Simd128_ReplaceLane_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffsetI4_0, int srcOffsetI4_1, int srcOffsetI2, int laneIndex)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4754\n");
             X86TemplateData* templateData = GetTemplateData(context);
             AssertMsg(laneIndex >= 0 && laneIndex < 4, "Invalid lane index");
             return EncodingHelpers::SIMDSetLaneOperation<int, PSHUFD>(buffer, templateData, targetOffsetI4_0, srcOffsetI4_1, srcOffsetI2, laneIndex);
         }
 
         int Simd128_I_ArgOut_F4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int argIndex, int offset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4761\n");
             X86TemplateData* templateData = GetTemplateData(context);
             int size = 0;
             offset -= templateData->GetBaseOffSet();
@@ -4774,16 +4774,16 @@ namespace Js
             return size;
         }
         int Simd128_I_ArgOut_I4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int argIndex, int offset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4776\n");
             return Simd128_I_ArgOut_F4::ApplyTemplate(context, buffer, argIndex, offset);
         }
         int Simd128_I_ArgOut_D2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int argIndex, int offset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4780\n");
             return Simd128_I_ArgOut_F4::ApplyTemplate(context, buffer, argIndex, offset);
         }
 
         int Simd128_I_Conv_VTF4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int srcOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4785\n");
             X86TemplateData* templateData = GetTemplateData(context);
             targetOffset -= templateData->GetBaseOffSet();
             srcOffset -= templateData->GetBaseOffSet();
@@ -4791,11 +4791,11 @@ namespace Js
             return EncodingHelpers::SIMDSetStackReg(buffer, templateData, targetOffset, RegXMM0);
         }
         int Simd128_I_Conv_VTI4::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int srcOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4793\n");
             return Simd128_I_Conv_VTF4::ApplyTemplate(context, buffer, targetOffset, srcOffset);
         }
         int Simd128_I_Conv_VTD2::ApplyTemplate(TemplateContext context, BYTE*& buffer, int targetOffset, int srcOffset)
-        {
+        {LOGMEIN("AsmJsJitTemplate.cpp] 4797\n");
             return Simd128_I_Conv_VTF4::ApplyTemplate(context, buffer, targetOffset, srcOffset);
         }
     };

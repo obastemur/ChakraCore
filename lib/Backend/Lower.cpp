@@ -26,7 +26,7 @@
 ///----------------------------------------------------------------------------
 void
 Lowerer::Lower()
-{
+{LOGMEIN("Lower.cpp] 28\n");
 
     this->m_func->StopMaintainByteCodeOffset();
 
@@ -44,23 +44,23 @@ Lowerer::Lower()
     bool loopFastPath = this->m_func->DoLoopFastPaths();
 
     if (m_func->HasAnyStackNestedFunc())
-    {
+    {LOGMEIN("Lower.cpp] 46\n");
         EnsureStackFunctionListStackSym();
     }
     if (m_func->DoStackFrameDisplay() && !m_func->IsLoopBody())
-    {
+    {LOGMEIN("Lower.cpp] 50\n");
         AllocStackClosure();
     }
 
     AllocStackForInObjectEnumeratorArray();
 
     if (m_func->IsJitInDebugMode())
-    {
+    {LOGMEIN("Lower.cpp] 57\n");
         // Initialize metadata of local var slots.
         // Too late to wait until Register Allocator, as we need the offset when lowerering bailout for debugger.
         int32 hasLocalVarChangedOffset = m_func->GetHasLocalVarChangedOffset();
         if (hasLocalVarChangedOffset != Js::Constants::InvalidOffset)
-        {
+        {LOGMEIN("Lower.cpp] 62\n");
             // MOV [EBP + m_func->GetHasLocalVarChangedOffset()], 0
             StackSym* sym = StackSym::New(TyInt8, m_func);
             sym->m_offset = hasLocalVarChangedOffset;
@@ -74,7 +74,7 @@ Lowerer::Lower()
             // Note that in the beginning of the function in bytecode we should initialize all locals to undefined.
             uint32 localSlotCount = m_func->GetJITFunctionBody()->GetEndNonTempLocalIndex() - m_func->GetJITFunctionBody()->GetFirstNonTempLocalIndex();
             for (uint i = 0; i < localSlotCount; ++i)
-            {
+            {LOGMEIN("Lower.cpp] 76\n");
                 int offset = m_func->GetLocalVarSlotOffset(i);
 
                 IRType opnd1Type;
@@ -110,10 +110,10 @@ Lowerer::Lower()
         // should do this in LowererMD::GenerateWriteBarrier, however, can't insert call instruction there
         FOREACH_INSTR_EDITING(instr, instrNext, m_func->m_headInstr)
             if (instr->m_src1 && instr->m_src1->IsAddrOpnd())
-            {
+            {LOGMEIN("Lower.cpp] 112\n");
                 IR::AddrOpnd* addrOpnd = instr->m_src1->AsAddrOpnd();
                 if (addrOpnd->GetAddrOpndKind() == IR::AddrOpndKindWriteBarrierCardTable)
-                {
+                {LOGMEIN("Lower.cpp] 115\n");
                     auto& leaInstr = instr->m_prev->m_prev->m_prev;
                     auto& movInstr = instr->m_prev->m_prev;
                     auto& shrInstr = instr->m_prev;
@@ -134,12 +134,12 @@ Lowerer::Lower()
     this->m_func->ClearCloneMap();
 
     if (m_func->HasAnyStackNestedFunc())
-    {
+    {LOGMEIN("Lower.cpp] 136\n");
         EnsureZeroLastStackFunctionNext();
     }
 
     if (!m_func->IsSimpleJit())
-    {
+    {LOGMEIN("Lower.cpp] 141\n");
 #if 0 // TODO michhol oop jit, reenable assert
         Js::EntryPointInfo* entryPointInfo = this->m_func->m_workItem->GetEntryPoint();
         Assert(entryPointInfo->GetJitTransferData() != nullptr && !entryPointInfo->GetJitTransferData()->GetIsReady());
@@ -154,7 +154,7 @@ Lowerer::Lower()
 
 void
 Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFastPath, bool defaultDoLoopFastPath)
-{
+{LOGMEIN("Lower.cpp] 156\n");
     bool noMathFastPath;
     bool noFieldFastPath;
     bool fNoLower = false;
@@ -167,7 +167,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 #endif
 
     FOREACH_INSTR_BACKWARD_EDITING_IN_RANGE(instr, instrPrev, instrEnd, instrStart)
-    {
+    {LOGMEIN("Lower.cpp] 169\n");
         // Try to peep this`
         instr = this->PreLowerPeepInstr(instr, &instrPrev);
 
@@ -182,7 +182,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         if (m_func->IsJitInDebugMode() && instr->HasBailOutInfo() &&
             (((instr->GetBailOutKind() & IR::BailOutForDebuggerBits) && instr->m_opcode != Js::OpCode::BailForDebugger) ||
             instr->HasAuxBailOut()))
-        {
+        {LOGMEIN("Lower.cpp] 184\n");
             instr = this->SplitBailForDebugger(instr);  // Change instr, as returned is the one we need to lower next.
             instrPrev = instr->m_prev;                  // Change just in case if instr got changed.
         }
@@ -198,9 +198,9 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             PHASE_DUMP(Js::EmitterPhase, m_func) ||
             PHASE_DUMP(Js::EncoderPhase, m_func) ||
             PHASE_DUMP(Js::BackEndPhase, m_func)))
-        {
+        {LOGMEIN("Lower.cpp] 200\n");
             if(instr->m_next && instr->m_next->m_opcode != Js::OpCode::StatementBoundary && !instr->m_next->IsLabelInstr())
-            {
+            {LOGMEIN("Lower.cpp] 202\n");
                 instr->m_next->globOptInstrString = globOptInstrString;
             }
 
@@ -211,13 +211,13 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         IR::RegOpnd *srcReg2;
 
         if (instr->IsBranchInstr() && !instr->AsBranchInstr()->IsMultiBranch() && instr->AsBranchInstr()->GetTarget()->m_isLoopTop)
-        {
+        {LOGMEIN("Lower.cpp] 213\n");
             Loop * loop = instr->AsBranchInstr()->GetTarget()->GetLoop();
             if (this->outerMostLoopLabel == nullptr && !loop->isProcessed)
-            {
+            {LOGMEIN("Lower.cpp] 216\n");
                 while (loop && loop->GetLoopTopInstr()) // some loops are optimized away so that they are not loops anymore.
                                                         // They do, however, stay in the loop graph but don't have loop top labels assigned to them
-                {
+                {LOGMEIN("Lower.cpp] 219\n");
                     this->outerMostLoopLabel = loop->GetLoopTopInstr();
                     Assert(this->outerMostLoopLabel->m_isLoopTop);
                     // landing pad must fall through to the loop
@@ -233,14 +233,14 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
 #ifdef INLINE_CACHE_STATS
         if(PHASE_STATS1(Js::PolymorphicInlineCachePhase))
-        {
+        {LOGMEIN("Lower.cpp] 235\n");
             // Always use the slow path, so we can track property accesses
             noFieldFastPath = true;
         }
 #endif
 
         switch (instr->m_opcode)
-        {
+        {LOGMEIN("Lower.cpp] 242\n");
         case Js::OpCode::LdHandlerScope:
             this->LowerUnaryHelperMem(instr, IR::HelperScrObj_LdHandlerScope);
             break;
@@ -281,7 +281,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::InitCachedScope:
             if (instr->m_func->GetJITFunctionBody()->GetDoScopeObjectCreation() || !instr->m_func->IsStackArgsEnabled())
-            {
+            {LOGMEIN("Lower.cpp] 283\n");
                 instrPrev = this->LowerInitCachedScope(instr);
             }
             else
@@ -291,25 +291,25 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 instrPrev = instr;
 
                 if (PHASE_TRACE1(Js::StackArgFormalsOptPhase))
-                {
+                {LOGMEIN("Lower.cpp] 293\n");
                     Output::Print(_u("StackArgFormals : %s (%d) :Removing Scope object creation in Lowerer and replacing it with MOV NULL. \n"), instr->m_func->GetJITFunctionBody()->GetDisplayName(), instr->m_func->GetFunctionNumber());
                     Output::Flush();
                 }
             }
             break;
         case Js::OpCode::NewScopeObject:
-        {
+        {LOGMEIN("Lower.cpp] 300\n");
             Func * currFunc = instr->m_func;
             if (currFunc->GetJITFunctionBody()->GetDoScopeObjectCreation() || !currFunc->IsStackArgsEnabled())
-            {
+            {LOGMEIN("Lower.cpp] 303\n");
                 //Call Helper that creates scope object and does type transition for the formals
                 if (currFunc->IsStackArgsEnabled() && currFunc->GetJITFunctionBody()->GetInParamsCount() != 1)
-                {
+                {LOGMEIN("Lower.cpp] 306\n");
                     // s3 = formals are let decls
                     this->m_lowererMD.LoadHelperArgument(instr, IR::IntConstOpnd::New(currFunc->GetHasNonSimpleParams() ? TRUE : FALSE, TyUint8, currFunc));
 
                     if (currFunc->IsInlinee())
-                    {
+                    {LOGMEIN("Lower.cpp] 311\n");
                         // s2 = current function.
                         this->m_lowererMD.LoadHelperArgument(instr, currFunc->GetInlineeFunctionObjectSlotOpnd());
                     }
@@ -321,7 +321,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                         IR::Opnd * srcOpnd = IR::SymOpnd::New(paramSym, TyMachReg, currFunc);
 
                         if (currFunc->GetJITFunctionBody()->IsCoroutine())
-                        {
+                        {LOGMEIN("Lower.cpp] 323\n");
                             // the function object for generator calls is a GeneratorVirtualScriptFunction object
                             // and we need to pass the real JavascriptGeneratorFunction object so grab it instead
                             IR::RegOpnd *tmpOpnd = IR::RegOpnd::New(TyMachReg, currFunc);
@@ -346,7 +346,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 instrPrev = instr;
 
                 if (PHASE_TRACE1(Js::StackArgFormalsOptPhase))
-                {
+                {LOGMEIN("Lower.cpp] 348\n");
                     Output::Print(_u("StackArgFormals : %s (%d) :Removing Scope object creation in Lowerer and replacing it with MOV NULL. \n"), currFunc->GetJITFunctionBody()->GetDisplayName(), currFunc->GetFunctionNumber());
                     Output::Flush();
                 }
@@ -449,7 +449,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::LdMethodFromFlags:
-        {
+        {LOGMEIN("Lower.cpp] 451\n");
             Assert(instr->HasBailOutInfo());
             bool success = m_lowererMD.GenerateFastLdMethodFromFlags(instr);
             AssertMsg(success, "Not expected to generate helper block here");
@@ -491,7 +491,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::ScopedLdFldForTypeOf:
             if (!noFieldFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 493\n");
                 m_lowererMD.GenerateFastScopedLdFld(instr);
             }
             instrPrev = this->LowerScopedLdFld(instr, IR::HelperOp_PatchGetPropertyForTypeOfScoped, true);
@@ -499,7 +499,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::ScopedLdFld:
             if (!noFieldFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 501\n");
                 m_lowererMD.GenerateFastScopedLdFld(instr);
             }
             instrPrev = this->LowerScopedLdFld(instr, IR::HelperOp_PatchGetPropertyScoped, true);
@@ -563,7 +563,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::ScopedStFld:
         case Js::OpCode::ScopedStFldStrict:
             if (!noFieldFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 565\n");
                 m_lowererMD.GenerateFastScopedStFld(instr);
             }
             instrPrev = this->LowerScopedStFld(instr, IR::HelperOp_PatchSetPropertyScoped, true, true,
@@ -571,9 +571,9 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::ConsoleScopedStFld:
-        {
+        {LOGMEIN("Lower.cpp] 573\n");
             if (!noFieldFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 575\n");
                 m_lowererMD.GenerateFastScopedStFld(instr);
             }
             Js::PropertyOperationFlags flags = static_cast<Js::PropertyOperationFlags>(Js::PropertyOperation_None | Js::PropertyOperation_AllowUndeclInConsoleScope);
@@ -586,7 +586,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::CloneStr:
-        {
+        {LOGMEIN("Lower.cpp] 588\n");
             GenerateGetImmutableOrScriptUnreferencedString(instr->GetSrc1()->AsRegOpnd(), instr, IR::HelperOp_CompoundStringCloneForAppending, false);
             instr->Remove();
             break;
@@ -683,7 +683,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::InlineMathFloor:
 #if defined(ASMJS_PLAT) && (defined(_M_X64) || defined(_M_IX86))
             if (!AutoSystemInfo::Data.SSE4_1Available() && instr->m_func->GetJITFunctionBody()->IsAsmJsMode())
-            {
+            {LOGMEIN("Lower.cpp] 685\n");
                 m_lowererMD.HelperCallForAsmMathBuiltin(instr, IR::HelperDirectMath_FloorFlt, IR::HelperDirectMath_FloorDb);
                 break;
             }
@@ -694,7 +694,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::InlineMathCeil:
 #if defined(ASMJS_PLAT) && (defined(_M_X64) || defined(_M_IX86))
             if (!AutoSystemInfo::Data.SSE4_1Available() && instr->m_func->GetJITFunctionBody()->IsAsmJsMode())
-            {
+            {LOGMEIN("Lower.cpp] 696\n");
                 m_lowererMD.HelperCallForAsmMathBuiltin(instr, IR::HelperDirectMath_CeilFlt, IR::HelperDirectMath_CeilDb);
                 break;
             }
@@ -760,11 +760,11 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             //Now retrieve the function object from the ArgOut_A_InlineSpecialized instruction opcode to push it on the stack after all the other arguments have been pushed.
             //The lowering of the direct call to helper is handled by GenerateDirectCall (architecture specific).
         case Js::OpCode::CallDirect:
-        {
+        {LOGMEIN("Lower.cpp] 762\n");
             IR::Opnd * src1 = instr->GetSrc1();
             Assert(src1->IsHelperCallOpnd());
             switch (src1->AsHelperCallOpnd()->m_fnHelper)
-            {
+            {LOGMEIN("Lower.cpp] 766\n");
             case IR::JnHelperMethod::HelperString_Split:
             case IR::JnHelperMethod::HelperString_Match:
                 GenerateFastInlineStringSplitMatch(instr);
@@ -796,13 +796,13 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         }
 
         case Js::OpCode::CallIDynamic:
-        {
+        {LOGMEIN("Lower.cpp] 798\n");
             Js::CallFlags flags = instr->GetDst() ? Js::CallFlags_Value : Js::CallFlags_NotUsed;
             instrPrev = this->LowerCallIDynamic(instr, (ushort)flags);
             break;
         }
         case Js::OpCode::CallIDynamicSpread:
-        {
+        {LOGMEIN("Lower.cpp] 804\n");
             Js::CallFlags flags = instr->GetDst() ? Js::CallFlags_Value : Js::CallFlags_NotUsed;
             instrPrev = this->LowerCallIDynamicSpread(instr, (ushort)flags);
             break;
@@ -812,25 +812,25 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::CallINew:
         case Js::OpCode::CallIFixed:
         case Js::OpCode::CallINewTargetNew:
-        {
+        {LOGMEIN("Lower.cpp] 814\n");
             Js::CallFlags flags = Js::CallFlags_None;
 
             if (instr->isCtorCall)
-            {
+            {LOGMEIN("Lower.cpp] 818\n");
                 flags = Js::CallFlags_New;
             }
             else
             {
                 if (instr->m_opcode == Js::OpCode::CallINew)
-                {
+                {LOGMEIN("Lower.cpp] 824\n");
                     flags = Js::CallFlags_New;
                 }
                 else if (instr->m_opcode == Js::OpCode::CallINewTargetNew)
-                {
+                {LOGMEIN("Lower.cpp] 828\n");
                     flags = (Js::CallFlags) (Js::CallFlags_New | Js::CallFlags_ExtraArg | Js::CallFlags_NewTarget);
                 }
                 if (instr->GetDst())
-                {
+                {LOGMEIN("Lower.cpp] 832\n");
                     flags = (Js::CallFlags) (flags | Js::CallFlags_Value);
                 }
                 else
@@ -840,7 +840,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             }
 
             if (!PHASE_OFF(Js::CallFastPathPhase, this->m_func) && !noMathFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 842\n");
                 // We shouldn't have turned this instruction into a fixed method call if we're calling one of the
                 // built-ins we still inline in the lowerer.
                 Assert(instr->m_opcode != Js::OpCode::CallIFixed || !Func::IsBuiltInInlinedInLowerer(instr->GetSrc1()));
@@ -873,10 +873,10 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::CallIEval:
-        {
+        {LOGMEIN("Lower.cpp] 875\n");
             Js::CallFlags flags = (Js::CallFlags)(Js::CallFlags_ExtraArg | (instr->GetDst() ? Js::CallFlags_Value : Js::CallFlags_NotUsed));
             if (IsSpreadCall(instr))
-            {
+            {LOGMEIN("Lower.cpp] 878\n");
                 instrPrev = LowerSpreadCall(instr, flags);
             }
             else
@@ -886,7 +886,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
 #ifdef PERF_HINT
             if (PHASE_TRACE1(Js::PerfHintPhase))
-            {
+            {LOGMEIN("Lower.cpp] 888\n");
                 WritePerfHint(PerfHints::CallsEval, this->m_func, instr->GetByteCodeOffset());
             }
 #endif
@@ -903,13 +903,13 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::Ret:
             if (instr->m_next->m_opcode != Js::OpCode::FunctionExit)
-            {
+            {LOGMEIN("Lower.cpp] 905\n");
                 // If this RET isn't at the end of the function, insert a branch to
                 // the epilog.
 
                 IR::Instr *exitPrev = m_func->m_exitInstr->m_prev;
                 if (!exitPrev->IsLabelInstr())
-                {
+                {LOGMEIN("Lower.cpp] 911\n");
                     exitPrev = IR::LabelInstr::New(Js::OpCode::Label, m_func);
                     m_func->m_exitInstr->InsertBefore(exitPrev);
                 }
@@ -927,7 +927,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::LdC_A_I4:
-        {
+        {LOGMEIN("Lower.cpp] 929\n");
             IR::Opnd *src1 = instr->UnlinkSrc1();
             AssertMsg(src1->IsIntConstOpnd(), "Source of LdC_A_I4 should be an IntConst...");
 
@@ -938,7 +938,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         }
 
         case Js::OpCode::LdC_A_R8:
-        {
+        {LOGMEIN("Lower.cpp] 940\n");
             IR::Opnd *src1 = instr->UnlinkSrc1();
             AssertMsg(src1->IsFloatConstOpnd(), "Source of LdC_A_R8 should be a FloatConst...");
             instrPrev = this->LowerLoadVar(instr, src1->AsFloatConstOpnd()->GetAddrOpnd(this->m_func));
@@ -947,7 +947,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         }
 
         case Js::OpCode::LdC_F8_R8:
-        {
+        {LOGMEIN("Lower.cpp] 949\n");
             IR::Opnd *src1 = instr->UnlinkSrc1();
             AssertMsg(src1->IsFloatConstOpnd(), "Source of LdC_F8_R8 should be a FloatConst...");
             instrPrev = m_lowererMD.LoadFloatValue(instr->UnlinkDst()->AsRegOpnd(), src1->AsFloatConstOpnd()->m_value, instr);
@@ -980,7 +980,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::Incr_A:
             if (PHASE_OFF(Js::MathFastPathPhase, this->m_func) || noMathFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 982\n");
                 this->LowerUnaryHelperMem(instr, IR::HelperOp_Increment);
             }
             else
@@ -994,7 +994,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::Decr_A:
             if (PHASE_OFF(Js::MathFastPathPhase, this->m_func) || noMathFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 996\n");
                 this->LowerUnaryHelperMem(instr, IR::HelperOp_Decrement);
             }
             else
@@ -1008,27 +1008,27 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::Neg_A:
             if (instr->GetDst()->IsFloat())
-            {
+            {LOGMEIN("Lower.cpp] 1010\n");
                 Assert(instr->GetSrc1()->IsFloat());
                 m_lowererMD.LowerToFloat(instr);
             }
             else if (PHASE_OFF(Js::MathFastPathPhase, this->m_func) || noMathFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 1015\n");
                 this->LowerUnaryHelperMem(instr, IR::HelperOp_Negate);
             }
             else if (m_lowererMD.GenerateFastNeg(instr))
-            {
+            {LOGMEIN("Lower.cpp] 1019\n");
                 this->LowerUnaryHelperMemWithTemp2(instr, IR_HELPER_OP_FULL_OR_INPLACE(Negate));
             }
             break;
 
         case Js::OpCode::Not_A:
             if (PHASE_OFF(Js::BitopsFastPathPhase, this->m_func) || noMathFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 1026\n");
                 this->LowerUnaryHelperMem(instr, IR::HelperOp_Not);
             }
             else if (m_lowererMD.GenerateFastNot(instr))
-            {
+            {LOGMEIN("Lower.cpp] 1030\n");
                 this->LowerUnaryHelperMemWithTemp2(instr, IR_HELPER_OP_FULL_OR_INPLACE(Not));
             }
             break;
@@ -1043,18 +1043,18 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::BrUnGe_I4:
         case Js::OpCode::BrUnLt_I4:
         case Js::OpCode::BrUnLe_I4:
-        {
+        {LOGMEIN("Lower.cpp] 1045\n");
             // See calls to MarkOneFltTmpSym under BrSrEq. This is to handle the case
             // where a branch is type-specialized and uses the result of a float pref op,
             // which must then be saved to var at the def.
             StackSym *sym = instr->GetSrc1()->GetStackSym();
             if (sym)
-            {
+            {LOGMEIN("Lower.cpp] 1051\n");
                 sym = sym->GetVarEquivSym(nullptr);
             }
             sym = instr->GetSrc2()->GetStackSym();
             if (sym)
-            {
+            {LOGMEIN("Lower.cpp] 1056\n");
                 sym = sym->GetVarEquivSym(nullptr);
             }
         }
@@ -1081,24 +1081,24 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 instr->GetSrc1() && instr->GetSrc1()->IsInt64() ||
                 instr->GetSrc2() && instr->GetSrc2()->IsInt64()
                 )
-            {
+            {LOGMEIN("Lower.cpp] 1083\n");
                 m_lowererMD.EmitInt64Instr(instr);
                 break;
             }
 #endif
             if(instr->HasBailOutInfo())
-            {
+            {LOGMEIN("Lower.cpp] 1089\n");
                 const auto bailOutKind = instr->GetBailOutKind();
                 if(bailOutKind & IR::BailOutOnResultConditions ||
                     bailOutKind == IR::BailOutOnFailedHoistedLoopCountBasedBoundCheck)
-                {
+                {LOGMEIN("Lower.cpp] 1093\n");
                     const auto nonBailOutInstr = SplitBailOnResultCondition(instr);
                     IR::LabelInstr *bailOutLabel, *skipBailOutLabel;
                     LowerBailOnResultCondition(instr, &bailOutLabel, &skipBailOutLabel);
                     LowerInstrWithBailOnResultCondition(nonBailOutInstr, bailOutKind, bailOutLabel, skipBailOutLabel);
                 }
                 else if(bailOutKind == IR::BailOnModByPowerOf2)
-                {
+                {LOGMEIN("Lower.cpp] 1100\n");
                     Assert(instr->m_opcode == Js::OpCode::Rem_I4);
                     bool fastPath = GenerateSimplifiedInt4Rem(instr);
                     Assert(fastPath);
@@ -1110,7 +1110,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             else
             {
                 if (instr->m_opcode == Js::OpCode::Rem_I4)
-                {
+                {LOGMEIN("Lower.cpp] 1112\n");
                     // fast path
                     this->GenerateSimplifiedInt4Rem(instr);
                     // slow path
@@ -1118,9 +1118,9 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 }
 #if defined(_M_IX86) || defined(_M_X64)
                 else if (instr->m_opcode == Js::OpCode::Mul_I4)
-                {
+                {LOGMEIN("Lower.cpp] 1120\n");
                     if (!LowererMD::GenerateSimplifiedInt4Mul(instr))
-                    {
+                    {LOGMEIN("Lower.cpp] 1122\n");
                         m_lowererMD.EmitInt4Instr(instr);
                     }
                 }
@@ -1154,15 +1154,15 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::LdLen_A:
-        {
+        {LOGMEIN("Lower.cpp] 1156\n");
             bool fastPath = !noMathFastPath;
             if(!fastPath && instr->HasBailOutInfo())
-            {
+            {LOGMEIN("Lower.cpp] 1159\n");
                 // Some bailouts are generated around the helper call, and will work even if the fast path is disabled. Other
                 // bailouts require the fast path.
                 const IR::BailOutKind bailOutKind = instr->GetBailOutKind();
                 if(bailOutKind & IR::BailOutKindBits)
-                {
+                {LOGMEIN("Lower.cpp] 1164\n");
                     fastPath = true;
                 }
                 else
@@ -1181,7 +1181,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 LowerLdLen(instr, false);
             }
             else if(GenerateFastLdLen(instr, &instrIsInHelperBlock))
-            {
+            {LOGMEIN("Lower.cpp] 1183\n");
                 Assert(
                     !instr->HasBailOutInfo() ||
                     (instr->GetBailOutKind() & ~IR::BailOutKindBits) != IR::BailOutOnIrregularLength);
@@ -1191,12 +1191,12 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         }
 
         case Js::OpCode::LdThis:
-        {
+        {LOGMEIN("Lower.cpp] 1193\n");
             if (noFieldFastPath || !m_lowererMD.GenerateLdThisCheck(instr))
-            {
+            {LOGMEIN("Lower.cpp] 1195\n");
                 IR::JnHelperMethod meth;
                 if (instr->IsJitProfilingInstr())
-                {
+                {LOGMEIN("Lower.cpp] 1198\n");
                     Assert(instr->AsJitProfilingInstr()->profileId == Js::Constants::NoProfileId);
                     m_lowererMD.LoadHelperArgument(instr, CreateFunctionBodyOpnd(instr->m_func));
                     meth = IR::HelperSimpleProfiledLdThis;
@@ -1221,10 +1221,10 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
         case Js::OpCode::StrictLdThis:
             if (noFieldFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 1223\n");
                 IR::JnHelperMethod meth;
                 if (instr->IsJitProfilingInstr())
-                {
+                {LOGMEIN("Lower.cpp] 1226\n");
                     Assert(instr->AsJitProfilingInstr()->profileId == Js::Constants::NoProfileId);
                     m_lowererMD.LoadHelperArgument(instr, CreateFunctionBodyOpnd(instr->m_func));
                     meth = IR::HelperSimpleProfiledStrictLdThis;
@@ -1277,7 +1277,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::Add_A:
             if (instr->GetDst()->IsFloat())
-            {
+            {LOGMEIN("Lower.cpp] 1279\n");
                 Assert(instr->GetSrc1()->IsFloat());
                 Assert(instr->GetSrc2()->IsFloat());
                 // we don't want to mix float32 and float64
@@ -1286,11 +1286,11 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 m_lowererMD.LowerToFloat(instr);
             }
             else if (PHASE_OFF(Js::MathFastPathPhase, this->m_func) || noMathFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 1288\n");
                 this->LowerBinaryHelperMem(instr, IR::HelperOp_Add);
             }
             else if (m_lowererMD.TryGenerateFastMulAdd(instr, &instrPrev))
-            {
+            {LOGMEIN("Lower.cpp] 1292\n");
             }
             else
             {
@@ -1300,12 +1300,12 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::Div_A:
-        {
-            if (instr->IsJitProfilingInstr()) {
+        {LOGMEIN("Lower.cpp] 1302\n");
+            if (instr->IsJitProfilingInstr()) {LOGMEIN("Lower.cpp] 1303\n");
                 LowerProfiledBinaryOp(instr->AsJitProfilingInstr(), IR::HelperSimpleProfiledDivide);
             }
             else if (instr->GetDst()->IsFloat())
-            {
+            {LOGMEIN("Lower.cpp] 1307\n");
                 Assert(instr->GetSrc1()->IsFloat());
                 Assert(instr->GetSrc2()->IsFloat());
                 Assert(instr->GetDst()->GetType() == instr->GetSrc1()->GetType());
@@ -1316,13 +1316,13 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             else
             {
                 if (!PHASE_OFF(Js::MathFastPathPhase, this->m_func) && !noMathFastPath)
-                {
+                {LOGMEIN("Lower.cpp] 1318\n");
                     IR::AddrOpnd *src2 = instr->GetSrc2()->IsAddrOpnd() ? instr->GetSrc2()->AsAddrOpnd() : nullptr;
                     if (src2 && src2->IsVar() && Js::TaggedInt::Is(src2->m_address))
-                    {
+                    {LOGMEIN("Lower.cpp] 1321\n");
                         int32 value = Js::TaggedInt::ToInt32(src2->m_address);
                         if (Math::IsPow2(value))
-                        {
+                        {LOGMEIN("Lower.cpp] 1324\n");
                             m_lowererMD.GenerateFastDivByPow2(instr);
                         }
                     }
@@ -1333,9 +1333,9 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         }
 
         case Js::OpCode::Expo_A:
-        {
+        {LOGMEIN("Lower.cpp] 1335\n");
             if (instr->GetDst()->IsFloat())
-            {
+            {LOGMEIN("Lower.cpp] 1337\n");
                 Assert(instr->GetSrc1()->IsFloat());
                 Assert(instr->GetSrc2()->IsFloat());
                 Assert(instr->GetDst()->GetType() == instr->GetSrc1()->GetType());
@@ -1352,7 +1352,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::Mul_A:
             if (instr->GetDst()->IsFloat())
-            {
+            {LOGMEIN("Lower.cpp] 1354\n");
                 Assert(instr->GetSrc1()->IsFloat());
                 Assert(instr->GetSrc2()->IsFloat());
                 Assert(instr->GetDst()->GetType() == instr->GetSrc1()->GetType());
@@ -1361,22 +1361,22 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 m_lowererMD.LowerToFloat(instr);
             }
             else if (PHASE_OFF(Js::MathFastPathPhase, this->m_func) || noMathFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 1363\n");
                 this->LowerBinaryHelperMem(instr, IR::HelperOp_Multiply);
             }
             else if (m_lowererMD.GenerateFastMul(instr))
-            {
+            {LOGMEIN("Lower.cpp] 1367\n");
                 this->LowerBinaryHelperMemWithTemp2(instr, IR_HELPER_OP_FULL_OR_INPLACE(Multiply));
             }
             break;
 
         case Js::OpCode::Rem_A:
             if (instr->GetDst()->IsFloat64())
-            {
+            {LOGMEIN("Lower.cpp] 1374\n");
                 this->LowerRemR8(instr);
             }
             else if (instr->IsJitProfilingInstr())
-            {
+            {LOGMEIN("Lower.cpp] 1378\n");
                 this->LowerProfiledBinaryOp(instr->AsJitProfilingInstr(), IR::HelperSimpleProfiledRemainder);
             }
             else
@@ -1387,7 +1387,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::Sub_A:
             if (instr->GetDst()->IsFloat())
-            {
+            {LOGMEIN("Lower.cpp] 1389\n");
                 Assert(instr->GetSrc1()->IsFloat());
                 Assert(instr->GetSrc2()->IsFloat());
                 Assert(instr->GetDst()->GetType() == instr->GetSrc1()->GetType());
@@ -1396,11 +1396,11 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 m_lowererMD.LowerToFloat(instr);
             }
             else if (PHASE_OFF(Js::MathFastPathPhase, this->m_func) || noMathFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 1398\n");
                 this->LowerBinaryHelperMem(instr, IR::HelperOp_Subtract);
             }
             else if (m_lowererMD.TryGenerateFastMulAdd(instr, &instrPrev))
-            {
+            {LOGMEIN("Lower.cpp] 1402\n");
             }
             else
             {
@@ -1411,73 +1411,73 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::And_A:
             if (PHASE_OFF(Js::BitopsFastPathPhase, this->m_func) || noMathFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 1413\n");
                 this->LowerBinaryHelperMem(instr, IR::HelperOp_And);
             }
             else if (m_lowererMD.GenerateFastAnd(instr))
-            {
+            {LOGMEIN("Lower.cpp] 1417\n");
                 this->LowerBinaryHelperMemWithTemp2(instr, IR_HELPER_OP_FULL_OR_INPLACE(And));
             }
             break;
 
         case Js::OpCode::Or_A:
             if (PHASE_OFF(Js::BitopsFastPathPhase, this->m_func) || noMathFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 1424\n");
                 this->LowerBinaryHelperMem(instr, IR::HelperOp_Or);
             }
             else if (m_lowererMD.GenerateFastOr(instr))
-            {
+            {LOGMEIN("Lower.cpp] 1428\n");
                 this->LowerBinaryHelperMemWithTemp2(instr, IR_HELPER_OP_FULL_OR_INPLACE(Or));
             }
             break;
 
         case Js::OpCode::Xor_A:
             if (PHASE_OFF(Js::BitopsFastPathPhase, this->m_func) || noMathFastPath || m_lowererMD.GenerateFastXor(instr))
-            {
+            {LOGMEIN("Lower.cpp] 1435\n");
                 this->LowerBinaryHelperMemWithTemp2(instr, IR_HELPER_OP_FULL_OR_INPLACE(Xor));
             }
             break;
 
         case Js::OpCode::Shl_A:
             if (PHASE_OFF(Js::BitopsFastPathPhase, this->m_func) || noMathFastPath || m_lowererMD.GenerateFastShiftLeft(instr))
-            {
+            {LOGMEIN("Lower.cpp] 1442\n");
                 this->LowerBinaryHelperMem(instr, IR::HelperOp_ShiftLeft);
             }
             break;
 
         case Js::OpCode::Shr_A:
             if (PHASE_OFF(Js::BitopsFastPathPhase, this->m_func) || noMathFastPath || m_lowererMD.GenerateFastShiftRight(instr))
-            {
+            {LOGMEIN("Lower.cpp] 1449\n");
                 this->LowerBinaryHelperMem(instr, IR::HelperOp_ShiftRight);
             }
             break;
 
         case Js::OpCode::ShrU_A:
             if (PHASE_OFF(Js::BitopsFastPathPhase, this->m_func) || noMathFastPath || m_lowererMD.GenerateFastShiftRight(instr))
-            {
+            {LOGMEIN("Lower.cpp] 1456\n");
                 this->LowerBinaryHelperMem(instr, IR::HelperOp_ShiftRightU);
             }
             break;
 
         case Js::OpCode::CmEq_A:
-        {
+        {LOGMEIN("Lower.cpp] 1462\n");
             bool needHelper = true;
             if (instr->GetSrc1()->IsFloat())
-            {
+            {LOGMEIN("Lower.cpp] 1465\n");
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 this->m_lowererMD.GenerateFastCmXxR8(instr);
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath && this->TryGenerateFastBrOrCmTypeOf(instr, &instrPrev, false /*isNeqOp*/, &fNoLower))
-            {
+            {LOGMEIN("Lower.cpp] 1470\n");
                 if (!fNoLower)
-                {
+                {LOGMEIN("Lower.cpp] 1472\n");
                     this->LowerBinaryHelperMem(instr, IR::HelperOP_CmEq_A);
                 }
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath && (this->m_lowererMD.GenerateFastBrOrCmString(instr) || this->GenerateFastCmEqLikely(instr, &needHelper) || this->GenerateFastEqBoolInt(instr, &needHelper)))
-            {
+            {LOGMEIN("Lower.cpp] 1477\n");
                 if (needHelper)
-                {
+                {LOGMEIN("Lower.cpp] 1479\n");
                     this->LowerBinaryHelperMem(instr, IR::HelperOP_CmEq_A);
                 }
                 else
@@ -1486,30 +1486,30 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 }
             }
             else if (PHASE_OFF(Js::BranchFastPathPhase, this->m_func) || noMathFastPath || !m_lowererMD.GenerateFastCmXxTaggedInt(instr))
-            {
+            {LOGMEIN("Lower.cpp] 1488\n");
                 this->LowerBinaryHelperMem(instr, IR::HelperOP_CmEq_A);
             }
             break;
         }
         case Js::OpCode::CmNeq_A:
-        {
+        {LOGMEIN("Lower.cpp] 1494\n");
             bool needHelper = true;
             if (instr->GetSrc1()->IsFloat())
-            {
+            {LOGMEIN("Lower.cpp] 1497\n");
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 this->m_lowererMD.GenerateFastCmXxR8(instr);
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath && this->TryGenerateFastBrOrCmTypeOf(instr, &instrPrev, true /*isNeqOp*/, &fNoLower))
-            {
+            {LOGMEIN("Lower.cpp] 1502\n");
                 if (!fNoLower)
-                {
+                {LOGMEIN("Lower.cpp] 1504\n");
                     this->LowerBinaryHelperMem(instr, IR::HelperOP_CmNeq_A);
                 }
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath && (this->m_lowererMD.GenerateFastBrOrCmString(instr) || this->GenerateFastCmEqLikely(instr, &needHelper) || this->GenerateFastEqBoolInt(instr,&needHelper)))
-            {
+            {LOGMEIN("Lower.cpp] 1509\n");
                 if (needHelper)
-                {
+                {LOGMEIN("Lower.cpp] 1511\n");
                     this->LowerBinaryHelperMem(instr, IR::HelperOP_CmNeq_A);
                 }
                 else
@@ -1518,28 +1518,28 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 }
             }
             else if (PHASE_OFF(Js::BranchFastPathPhase, this->m_func) || noMathFastPath || !m_lowererMD.GenerateFastCmXxTaggedInt(instr))
-            {
+            {LOGMEIN("Lower.cpp] 1520\n");
                 this->LowerBinaryHelperMem(instr, IR::HelperOP_CmNeq_A);
             }
             break;
         }
         case Js::OpCode::CmSrEq_A:
-        {
+        {LOGMEIN("Lower.cpp] 1526\n");
             bool needHelper = true;
             if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath && this->TryGenerateFastBrOrCmTypeOf(instr, &instrPrev, false /*isNeqOp*/, &fNoLower))
-            {
+            {LOGMEIN("Lower.cpp] 1529\n");
                 if (!fNoLower)
-                {
+                {LOGMEIN("Lower.cpp] 1531\n");
                     this->LowerBinaryHelperMem(instr, IR::HelperOP_CmSrEq_A);
                 }
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath && this->TryGenerateFastCmSrEq(instr))
-            {
+            {LOGMEIN("Lower.cpp] 1536\n");
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath && (this->m_lowererMD.GenerateFastBrOrCmString(instr) || this->GenerateFastCmEqLikely(instr, &needHelper) || this->GenerateFastEqBoolInt(instr, &needHelper)))
-            {
+            {LOGMEIN("Lower.cpp] 1539\n");
                 if (needHelper)
-                {
+                {LOGMEIN("Lower.cpp] 1541\n");
                     this->LowerBinaryHelperMem(instr, IR::HelperOP_CmSrEq_A);
                 }
                 else
@@ -1548,25 +1548,25 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 }
             }
             else if (PHASE_OFF(Js::BranchFastPathPhase, this->m_func) || noMathFastPath || !m_lowererMD.GenerateFastCmXxTaggedInt(instr))
-            {
+            {LOGMEIN("Lower.cpp] 1550\n");
                 this->LowerBinaryHelperMem(instr, IR::HelperOP_CmSrEq_A);
             }
             break;
         }
         case Js::OpCode::CmSrNeq_A:
-        {
+        {LOGMEIN("Lower.cpp] 1556\n");
             bool needHelper = true;
             if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath && this->TryGenerateFastBrOrCmTypeOf(instr, &instrPrev, true /*isNeqOp*/, &fNoLower))
-            {
+            {LOGMEIN("Lower.cpp] 1559\n");
                 if (!fNoLower)
-                {
+                {LOGMEIN("Lower.cpp] 1561\n");
                     this->LowerBinaryHelperMem(instr, IR::HelperOP_CmSrNeq_A);
                 }
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath && (this->m_lowererMD.GenerateFastBrOrCmString(instr) || this->GenerateFastCmEqLikely(instr, &needHelper) || this->GenerateFastEqBoolInt(instr, &needHelper)))
-            {
+            {LOGMEIN("Lower.cpp] 1566\n");
                 if (needHelper)
-                {
+                {LOGMEIN("Lower.cpp] 1568\n");
                     this->LowerBinaryHelperMem(instr, IR::HelperOP_CmSrNeq_A);
                 }
                 else
@@ -1575,55 +1575,55 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 }
             }
             else if (PHASE_OFF(Js::BranchFastPathPhase, this->m_func) || noMathFastPath || !m_lowererMD.GenerateFastCmXxTaggedInt(instr))
-            {
+            {LOGMEIN("Lower.cpp] 1577\n");
                 this->LowerBinaryHelperMem(instr, IR::HelperOP_CmSrNeq_A);
             }
             break;
         }
         case Js::OpCode::CmGt_A:
             if (instr->GetSrc1()->IsFloat())
-            {
+            {LOGMEIN("Lower.cpp] 1584\n");
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 this->m_lowererMD.GenerateFastCmXxR8(instr);
             }
             else if (PHASE_OFF(Js::BranchFastPathPhase, this->m_func) || noMathFastPath || !m_lowererMD.GenerateFastCmXxTaggedInt(instr))
-            {
+            {LOGMEIN("Lower.cpp] 1589\n");
                 this->LowerBinaryHelperMem(instr, IR::HelperOP_CmGt_A);
             }
             break;
 
         case Js::OpCode::CmGe_A:
             if (instr->GetSrc1()->IsFloat())
-            {
+            {LOGMEIN("Lower.cpp] 1596\n");
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 this->m_lowererMD.GenerateFastCmXxR8(instr);
             }
             else if (PHASE_OFF(Js::BranchFastPathPhase, this->m_func) || noMathFastPath || !m_lowererMD.GenerateFastCmXxTaggedInt(instr))
-            {
+            {LOGMEIN("Lower.cpp] 1601\n");
                 this->LowerBinaryHelperMem(instr, IR::HelperOP_CmGe_A);
             }
             break;
 
         case Js::OpCode::CmLt_A:
             if (instr->GetSrc1()->IsFloat())
-            {
+            {LOGMEIN("Lower.cpp] 1608\n");
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 this->m_lowererMD.GenerateFastCmXxR8(instr);
             }
             else if (PHASE_OFF(Js::BranchFastPathPhase, this->m_func) || noMathFastPath || !m_lowererMD.GenerateFastCmXxTaggedInt(instr))
-            {
+            {LOGMEIN("Lower.cpp] 1613\n");
                 this->LowerBinaryHelperMem(instr, IR::HelperOP_CmLt_A);
             }
             break;
 
         case Js::OpCode::CmLe_A:
             if (instr->GetSrc1()->IsFloat())
-            {
+            {LOGMEIN("Lower.cpp] 1620\n");
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 this->m_lowererMD.GenerateFastCmXxR8(instr);
             }
             else if (PHASE_OFF(Js::BranchFastPathPhase, this->m_func) || noMathFastPath || !m_lowererMD.GenerateFastCmXxTaggedInt(instr))
-            {
+            {LOGMEIN("Lower.cpp] 1625\n");
                 this->LowerBinaryHelperMem(instr, IR::HelperOP_CmLe_A);
             }
             break;
@@ -1668,7 +1668,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::Memset:
         case Js::OpCode::Memcopy:
-        {
+        {LOGMEIN("Lower.cpp] 1670\n");
             instrPrev = LowerMemOp(instr);
             break;
         }
@@ -1679,18 +1679,18 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::StElemI_A:
         case Js::OpCode::StElemI_A_Strict:
-        {
+        {LOGMEIN("Lower.cpp] 1681\n");
             // Note: under debugger (Fast F12) don't let GenerateFastStElemI which calls into ToNumber_Helper
             //       which takes double, and currently our helper wrapper doesn't support double.
             bool fastPath = !noMathFastPath && !m_func->IsJitInDebugMode();
             if(!fastPath && instr->HasBailOutInfo())
-            {
+            {LOGMEIN("Lower.cpp] 1686\n");
                 // Some bailouts are generated around the helper call, and will work even if the fast path is disabled. Other
                 // bailouts require the fast path.
                 const IR::BailOutKind bailOutKind = instr->GetBailOutKind();
                 const IR::BailOutKind bailOutKindBits = bailOutKind & IR::BailOutKindBits;
                 if(bailOutKindBits & ~(IR::BailOutOnMissingValue | IR::BailOutConvertedNativeArray))
-                {
+                {LOGMEIN("Lower.cpp] 1692\n");
                     fastPath = true;
                 }
                 else
@@ -1707,23 +1707,23 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             IR::Opnd * baseOpnd = opnd->AsIndirOpnd()->GetBaseOpnd();
             ValueType profiledBaseValueType = baseOpnd->AsRegOpnd()->GetValueType();
             if (profiledBaseValueType.IsUninitialized() && baseOpnd->AsRegOpnd()->m_sym->IsSingleDef())
-            {
+            {LOGMEIN("Lower.cpp] 1709\n");
                 baseOpnd->SetValueType(baseOpnd->FindProfiledValueType());
             }
 
             bool instrIsInHelperBlock;
             if (!fastPath)
-            {
+            {LOGMEIN("Lower.cpp] 1715\n");
                 this->LowerStElemI(
                     instr,
                     instr->m_opcode == Js::OpCode::StElemI_A ? Js::PropertyOperation_None : Js::PropertyOperation_StrictMode,
                     false);
             }
             else if (GenerateFastStElemI(instr, &instrIsInHelperBlock))
-            {
+            {LOGMEIN("Lower.cpp] 1722\n");
 #if DBG
                 if(instr->HasBailOutInfo())
-                {
+                {LOGMEIN("Lower.cpp] 1725\n");
                     const IR::BailOutKind bailOutKind = instr->GetBailOutKind();
                     Assert(
                         (bailOutKind & ~IR::BailOutKindBits) != IR::BailOutConventionalTypedArrayAccessOnly &&
@@ -1743,7 +1743,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::LdElemI_A:
         case Js::OpCode::LdMethodElem:
-        {
+        {LOGMEIN("Lower.cpp] 1745\n");
             bool fastPath =
                 !noMathFastPath &&
                 (
@@ -1751,12 +1751,12 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                     instr->GetSrc1()->AsIndirOpnd()->GetBaseOpnd()->GetValueType().IsLikelyObject()
                 );
             if(!fastPath && instr->HasBailOutInfo())
-            {
+            {LOGMEIN("Lower.cpp] 1753\n");
                 // Some bailouts are generated around the helper call, and will work even if the fast path is disabled. Other
                 // bailouts require the fast path.
                 const IR::BailOutKind bailOutKind = instr->GetBailOutKind();
                 if(bailOutKind & IR::BailOutKindBits)
-                {
+                {LOGMEIN("Lower.cpp] 1758\n");
                     fastPath = true;
                 }
                 else
@@ -1773,24 +1773,24 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             IR::Opnd * baseOpnd = opnd->AsIndirOpnd()->GetBaseOpnd();
             ValueType profiledBaseValueType = baseOpnd->AsRegOpnd()->GetValueType();
             if (profiledBaseValueType.IsUninitialized() && baseOpnd->AsRegOpnd()->m_sym->IsSingleDef())
-            {
+            {LOGMEIN("Lower.cpp] 1775\n");
                 baseOpnd->SetValueType(baseOpnd->FindProfiledValueType());
             }
 
             bool instrIsInHelperBlock;
 
             if (!fastPath)
-            {
+            {LOGMEIN("Lower.cpp] 1782\n");
                 this->LowerLdElemI(
                     instr,
                     instr->m_opcode == Js::OpCode::LdElemI_A ? IR::HelperOp_GetElementI : IR::HelperOp_GetMethodElement,
                     false);
             }
             else if (GenerateFastLdElemI(instr, &instrIsInHelperBlock))
-            {
+            {LOGMEIN("Lower.cpp] 1789\n");
 #if DBG
                 if(instr->HasBailOutInfo())
-                {
+                {LOGMEIN("Lower.cpp] 1792\n");
                     const IR::BailOutKind bailOutKind = instr->GetBailOutKind();
                     Assert(
                         (bailOutKind & ~IR::BailOutKindBits) != IR::BailOutConventionalTypedArrayAccessOnly &&
@@ -1853,11 +1853,11 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 #endif
         case Js::OpCode::LdAsmJsFunc:
             if (instr->GetSrc1()->IsIndirOpnd())
-            {
+            {LOGMEIN("Lower.cpp] 1855\n");
                 IR::IndirOpnd* indir = instr->GetSrc1()->AsIndirOpnd();
                 byte scale = m_lowererMD.GetDefaultIndirScale();
                 if (!indir->GetIndexOpnd())
-                {
+                {LOGMEIN("Lower.cpp] 1859\n");
                     // If we have a constant offset, we need to apply the scale now
                     int32 offset;
                     if (Int32Math::Shl(1, scale, &offset) || Int32Math::Mul(offset, indir->GetOffset(), &offset))
@@ -1878,22 +1878,22 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::Ld_A:
         case Js::OpCode::InitConst:
             if (instr->GetDst() && instr->GetDst()->IsInt64())
-            {
+            {LOGMEIN("Lower.cpp] 1880\n");
                 instrPrev = m_lowererMD.LowerInt64Assign(instr);
                 break;
             }
 
-            if (instr->IsJitProfilingInstr() && instr->AsJitProfilingInstr()->isBeginSwitch) {
+            if (instr->IsJitProfilingInstr() && instr->AsJitProfilingInstr()->isBeginSwitch) {LOGMEIN("Lower.cpp] 1885\n");
                 LowerProfiledBeginSwitch(instr->AsJitProfilingInstr());
                 break;
             }
             m_lowererMD.ChangeToAssign(instr);
             if(instr->HasBailOutInfo())
-            {
+            {LOGMEIN("Lower.cpp] 1891\n");
                 IR::BailOutKind bailOutKind = instr->GetBailOutKind();
 
                 if(bailOutKind == IR::BailOutExpectingString)
-                {
+                {LOGMEIN("Lower.cpp] 1895\n");
                     this->LowerBailOnNotString(instr);
                 }
                 else
@@ -1916,9 +1916,9 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::FromVar:
             Assert(instr->GetSrc1()->GetType() == TyVar);
             if (instr->GetDst()->GetType() == TyInt32)
-            {
+            {LOGMEIN("Lower.cpp] 1918\n");
                 if(m_lowererMD.EmitLoadInt32(instr, !(instr->HasBailOutInfo() && (instr->GetBailOutKind() == IR::BailOutOnNotPrimitive))))
-                {
+                {LOGMEIN("Lower.cpp] 1920\n");
                     // Bail out instead of calling a helper
                     Assert(instr->GetBailOutKind() == IR::BailOutIntOnly || instr->GetBailOutKind() == IR::BailOutExpectingInteger);
                     Assert(!instr->GetSrc1()->GetValueType().IsInt());  // when we know it's an int, it should not have bailout info, to avoid generating a bailout path that will never be taken
@@ -1928,9 +1928,9 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 }
             }
             else if (instr->GetDst()->IsFloat())
-            {
+            {LOGMEIN("Lower.cpp] 1930\n");
                 if (m_func->GetJITFunctionBody()->IsAsmJsMode())
-                {
+                {LOGMEIN("Lower.cpp] 1932\n");
                     m_lowererMD.EmitLoadFloat(instr->GetDst(), instr->GetSrc1(), instr);
                     instr->Remove();
                 }
@@ -1949,7 +1949,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             // Support on IA only
 #if defined(_M_IX86) || defined(_M_X64)
             else if (instr->GetDst()->IsSimd128())
-            {
+            {LOGMEIN("Lower.cpp] 1951\n");
                 // SIMD_JS
                 m_lowererMD.GenerateCheckedSimdLoad(instr);
             }
@@ -1968,7 +1968,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::ArgOut_A_Inline:
         case Js::OpCode::ArgOut_A_Dynamic:
-            {
+            {LOGMEIN("Lower.cpp] 1970\n");
                 // ArgOut/StartCall are normally lowered by the lowering of the associated call instr.
                 // If the call becomes unreachable, we could end up with an orphan ArgOut or StartCall.
                 // Change the ArgOut into a store to the stack for bailouts
@@ -1990,15 +1990,15 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::ToVar:
             Assert(instr->GetDst()->GetType() == TyVar);
             if (instr->GetSrc1()->GetType() == TyInt32)
-            {
+            {LOGMEIN("Lower.cpp] 1992\n");
                 m_lowererMD.EmitLoadVar(instr);
             }
             else if (instr->GetSrc1()->IsFloat())
-            {
+            {LOGMEIN("Lower.cpp] 1996\n");
                 Assert(instr->GetSrc1()->IsRegOpnd());
                 IR::RegOpnd* float64Opnd = instr->GetSrc1()->AsRegOpnd();
                 if (float64Opnd->IsFloat32())
-                {
+                {LOGMEIN("Lower.cpp] 2000\n");
                     IR::RegOpnd* float64ConvOpnd = IR::RegOpnd::New(TyFloat64, m_func);
                     m_lowererMD.EmitFloat32ToFloat64(float64ConvOpnd, float64Opnd, instr);
                     float64Opnd = float64ConvOpnd;
@@ -2017,7 +2017,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 #ifdef ENABLE_SIMDJS
 #if defined(_M_IX86) || defined(_M_X64)
             else if (IRType_IsSimd128(instr->GetSrc1()->GetType()))
-            {
+            {LOGMEIN("Lower.cpp] 2019\n");
                 m_lowererMD.GenerateSimdStore(instr);
             }
 #endif
@@ -2028,29 +2028,29 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             }
             break;
         case Js::OpCode::Conv_Prim:
-        {
+        {LOGMEIN("Lower.cpp] 2030\n");
             if (IR::Instr::FindSingleDefInstr(Js::OpCode::TrapIfTruncOverflow, instr->GetSrc1()))
-            {
+            {LOGMEIN("Lower.cpp] 2032\n");
                 GenerateTruncWithCheck(instr);
                 break;
             }
 
             if (instr->GetDst()->IsFloat())
-            {
+            {LOGMEIN("Lower.cpp] 2038\n");
                 if (instr->GetSrc1()->IsIntConstOpnd())
-                {
+                {LOGMEIN("Lower.cpp] 2040\n");
                     LoadFloatFromNonReg(instr->UnlinkSrc1(), instr->UnlinkDst(), instr);
                 }
                 else if (instr->GetSrc1()->IsInt32())
-                {
+                {LOGMEIN("Lower.cpp] 2044\n");
                     m_lowererMD.EmitIntToFloat(instr->GetDst(), instr->GetSrc1(), instr);
                 }
                 else if (instr->GetSrc1()->IsUInt32())
-                {
+                {LOGMEIN("Lower.cpp] 2048\n");
                     m_lowererMD.EmitUIntToFloat(instr->GetDst(), instr->GetSrc1(), instr);
                 }
                 else if (instr->GetSrc1()->IsInt64())
-                {
+                {LOGMEIN("Lower.cpp] 2052\n");
                     m_lowererMD.EmitInt64toFloat(instr->GetDst(), instr->GetSrc1(), instr);
                 }
                 else
@@ -2061,13 +2061,13 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 }
             }
             else if (instr->GetDst()->IsInt64())
-            {
+            {LOGMEIN("Lower.cpp] 2063\n");
                 if (instr->GetSrc1()->IsInt32())
-                {
+                {LOGMEIN("Lower.cpp] 2065\n");
                     m_lowererMD.EmitIntToLong(instr->GetDst(), instr->GetSrc1(), instr);
                 }
                 else if (instr->GetSrc1()->IsUInt32())
-                {
+                {LOGMEIN("Lower.cpp] 2069\n");
                     m_lowererMD.EmitUIntToLong(instr->GetDst(), instr->GetSrc1(), instr);
                 }
                 else
@@ -2079,7 +2079,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             {
                 Assert(instr->GetDst()->IsInt32());
                 if (instr->GetSrc1()->IsInt64())
-                {
+                {LOGMEIN("Lower.cpp] 2081\n");
                     m_lowererMD.EmitLongToInt(instr->GetDst(), instr->GetSrc1(), instr);
                 }
                 else
@@ -2104,7 +2104,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::ArgIn_Rest:
         case Js::OpCode::ArgIn_A:
             if (m_func->GetJITFunctionBody()->IsAsmJsMode() && !m_func->IsLoopBody())
-            {
+            {LOGMEIN("Lower.cpp] 2106\n");
                 instrPrev = LowerArgInAsmJs(instr);
             }
             else
@@ -2115,9 +2115,9 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::Label:
             if (instr->AsLabelInstr()->m_isLoopTop)
-            {
+            {LOGMEIN("Lower.cpp] 2117\n");
                 if (this->outerMostLoopLabel == instr)
-                {
+                {LOGMEIN("Lower.cpp] 2119\n");
                     noFieldFastPath = !defaultDoFastPath;
                     noMathFastPath = !defaultDoFastPath;
                     this->outerMostLoopLabel = nullptr;
@@ -2127,13 +2127,13 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 instr->AsLabelInstr()->GetLoop()->regAlloc.liveOnBackEdgeSyms->Or(this->addToLiveOnBackEdgeSyms);
 #ifndef _M_X64
                 if (m_int64RegPairMap)
-                {
+                {LOGMEIN("Lower.cpp] 2129\n");
                     // If we have replaced any sym that was live on the back edge for 2 other syms, these 2 syms needs to be live on back edge as well.
                     BVSparse<JitArenaAllocator> *liveOnBackEdgeSyms = instr->AsLabelInstr()->GetLoop()->regAlloc.liveOnBackEdgeSyms;
                     m_int64RegPairMap->Map([&](SymID key, Int64SymPair value)
                     {
                         if (liveOnBackEdgeSyms->Test(key))
-                        {
+                        {LOGMEIN("Lower.cpp] 2135\n");
                             liveOnBackEdgeSyms->Set(value.low->m_id);
                             liveOnBackEdgeSyms->Set(value.high->m_id);
                         }
@@ -2163,20 +2163,20 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::BrFalse_A:
         case Js::OpCode::BrTrue_A:
             if (instr->GetSrc1()->IsFloat())
-            {
+            {LOGMEIN("Lower.cpp] 2165\n");
                 GenerateFastBrBool(instr->AsBranchInstr());
             }
             else if (PHASE_OFF(Js::BranchFastPathPhase, this->m_func) ||
                 noMathFastPath ||
                 GenerateFastBrBool(instr->AsBranchInstr()))
-            {
+            {LOGMEIN("Lower.cpp] 2171\n");
                 this->LowerBrBMem(instr, IR::HelperConv_ToBoolean);
             }
             break;
 
         case Js::OpCode::BrOnObject_A:
             if (PHASE_OFF(Js::BranchFastPathPhase, this->m_func) || noMathFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 2178\n");
                 this->LowerBrOnObject(instr, IR::HelperOp_IsObject);
             }
             else
@@ -2202,39 +2202,39 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::BrEq_A:
         case Js::OpCode::BrNotNeq_A:
             if (instr->GetSrc1()->IsFloat())
-            {
+            {LOGMEIN("Lower.cpp] 2204\n");
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 m_lowererMD.LowerToFloat(instr);
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 2209\n");
                 bool needHelper = true;
                 if (this->TryGenerateFastBrOrCmTypeOf(instr, &instrPrev, false /*isNeqOp*/, &fNoLower))
-                {
+                {LOGMEIN("Lower.cpp] 2212\n");
                     if (!fNoLower)
-                    {
+                    {LOGMEIN("Lower.cpp] 2214\n");
                         this->LowerBrCMem(instr, IR::HelperOp_Equal, false, false /*isHelper*/);
                     }
                 }
                 else if (this->TryGenerateFastBrEq(instr))
-                {
+                {LOGMEIN("Lower.cpp] 2219\n");
                 }
                 else if (m_lowererMD.GenerateFastBrOrCmString(instr) || this->GenerateFastBrEqLikely(instr->AsBranchInstr(), &needHelper) || this->GenerateFastEqBoolInt(instr, &needHelper))
-                {
+                {LOGMEIN("Lower.cpp] 2222\n");
                     if (needHelper)
-                    {
+                    {LOGMEIN("Lower.cpp] 2224\n");
                         this->LowerBrCMem(instr, IR::HelperOp_Equal, false);
                     }
                 }
                 else
                 {
                     if (needHelper)
-                    {
+                    {LOGMEIN("Lower.cpp] 2231\n");
                         this->LowerBrCMem(instr, IR::HelperOp_Equal, false, false /*isHelper*/);
                     }
                 }
                 if (!needHelper)
-                {
+                {LOGMEIN("Lower.cpp] 2236\n");
                     instr->Remove();
                 }
             }
@@ -2247,12 +2247,12 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::BrGe_A:
         case Js::OpCode::BrNotGe_A:
             if (instr->GetSrc1()->IsFloat())
-            {
+            {LOGMEIN("Lower.cpp] 2249\n");
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 m_lowererMD.LowerToFloat(instr);
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 2254\n");
                 this->LowerBrCMem(instr, IR::HelperOp_GreaterEqual, false, false /*isHelper*/);
             }
             else
@@ -2264,12 +2264,12 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::BrGt_A:
         case Js::OpCode::BrNotGt_A:
             if (instr->GetSrc1()->IsFloat())
-            {
+            {LOGMEIN("Lower.cpp] 2266\n");
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 m_lowererMD.LowerToFloat(instr);
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 2271\n");
                 this->LowerBrCMem(instr, IR::HelperOp_Greater, false, false /*isHelper*/);
             }
             else
@@ -2281,12 +2281,12 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::BrLt_A:
         case Js::OpCode::BrNotLt_A:
             if (instr->GetSrc1()->IsFloat())
-            {
+            {LOGMEIN("Lower.cpp] 2283\n");
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 m_lowererMD.LowerToFloat(instr);
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 2288\n");
                 this->LowerBrCMem(instr, IR::HelperOp_Less, false, false /*isHelper*/);
             }
             else
@@ -2298,12 +2298,12 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::BrLe_A:
         case Js::OpCode::BrNotLe_A:
             if (instr->GetSrc1()->IsFloat())
-            {
+            {LOGMEIN("Lower.cpp] 2300\n");
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 m_lowererMD.LowerToFloat(instr);
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 2305\n");
                 this->LowerBrCMem(instr, IR::HelperOp_LessEqual, false, false /*isHelper*/);
             }
             else
@@ -2315,31 +2315,31 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::BrNeq_A:
         case Js::OpCode::BrNotEq_A:
             if (instr->GetSrc1()->IsFloat())
-            {
+            {LOGMEIN("Lower.cpp] 2317\n");
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 m_lowererMD.LowerToFloat(instr);
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 2322\n");
                 bool needHelper = true;
                 if (this->TryGenerateFastBrOrCmTypeOf(instr, &instrPrev, true /*isNeqOp*/, &fNoLower))
-                {
+                {LOGMEIN("Lower.cpp] 2325\n");
                     if (!fNoLower)
-                    {
+                    {LOGMEIN("Lower.cpp] 2327\n");
                         this->LowerBrCMem(instr, IR::HelperOp_NotEqual, false, false /*isHelper*/);
                     }
                 }
                 else if (this->TryGenerateFastBrNeq(instr))
-                {
+                {LOGMEIN("Lower.cpp] 2332\n");
                 }
                 else if (m_lowererMD.GenerateFastBrOrCmString(instr) || this->GenerateFastBrEqLikely(instr->AsBranchInstr(), &needHelper))
-                {
+                {LOGMEIN("Lower.cpp] 2335\n");
                     this->LowerBrCMem(instr, IR::HelperOp_NotEqual, false);
                 }
                 else if (this->GenerateFastEqBoolInt(instr, &needHelper))
-                {
+                {LOGMEIN("Lower.cpp] 2339\n");
                     if (needHelper)
-                    {
+                    {LOGMEIN("Lower.cpp] 2341\n");
                         this->LowerBrCMem(instr, IR::HelperOp_NotEqual, false);
                     }
                     else
@@ -2359,10 +2359,10 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::MultiBr:
-        {
+        {LOGMEIN("Lower.cpp] 2361\n");
             IR::MultiBranchInstr * multiBranchInstr = instr->AsBranchInstr()->AsMultiBrInstr();
             switch (multiBranchInstr->m_kind)
-            {
+            {LOGMEIN("Lower.cpp] 2364\n");
             case IR::MultiBranchInstr::StrDictionary:
                 this->GenerateSwitchStringLookup(instr);
                 break;
@@ -2382,46 +2382,46 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::BrSrEq_A:
         case Js::OpCode::BrSrNotNeq_A:
-        {
+        {LOGMEIN("Lower.cpp] 2384\n");
             srcReg1 = instr->GetSrc1()->IsRegOpnd() ? instr->GetSrc1()->AsRegOpnd() : nullptr;
             srcReg2 = instr->GetSrc2()->IsRegOpnd() ? instr->GetSrc2()->AsRegOpnd() : nullptr;
 
             if (instr->GetSrc1()->IsFloat())
-            {
+            {LOGMEIN("Lower.cpp] 2389\n");
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 m_lowererMD.LowerToFloat(instr);
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath && this->TryGenerateFastBrOrCmTypeOf(instr, &instrPrev, false /*isNeqOp*/, &fNoLower))
-            {
+            {LOGMEIN("Lower.cpp] 2394\n");
                 if (!fNoLower)
-                {
+                {LOGMEIN("Lower.cpp] 2396\n");
                     this->LowerBrCMem(instr, IR::HelperOp_StrictEqual, false, false /*isHelper*/);
                 }
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath && this->GenerateFastBrSrEq(instr, srcReg1, srcReg2, &instrPrev, noMathFastPath))
-            {
+            {LOGMEIN("Lower.cpp] 2401\n");
             }
             else
             {
                 bool needHelper = true;
                 if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath)
-                {
+                {LOGMEIN("Lower.cpp] 2407\n");
                     if (m_lowererMD.GenerateFastBrOrCmString(instr) || this->GenerateFastBrEqLikely(instr->AsBranchInstr(), &needHelper) || this->GenerateFastEqBoolInt(instr, &needHelper))
-                    {
+                    {LOGMEIN("Lower.cpp] 2409\n");
                         if (needHelper)
-                        {
+                        {LOGMEIN("Lower.cpp] 2411\n");
                             this->LowerBrCMem(instr, IR::HelperOp_StrictEqual, false);
                         }
                     }
                     else
                     {
                         if (needHelper)
-                        {
+                        {LOGMEIN("Lower.cpp] 2418\n");
                             this->LowerBrCMem(instr, IR::HelperOp_StrictEqual, false, false /*isHelper*/);
                         }
                     }
                     if (!needHelper)
-                    {
+                    {LOGMEIN("Lower.cpp] 2423\n");
                         instr->Remove();
                     }
                 }
@@ -2436,39 +2436,39 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::BrSrNeq_A:
         case Js::OpCode::BrSrNotEq_A:
             if (instr->GetSrc1()->IsFloat())
-            {
+            {LOGMEIN("Lower.cpp] 2438\n");
                 Assert(instr->GetSrc1()->GetType() == instr->GetSrc2()->GetType());
                 m_lowererMD.LowerToFloat(instr);
             }
             else if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func) && !noMathFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 2443\n");
                 bool needHelper = true;
                 if (this->TryGenerateFastBrOrCmTypeOf(instr, &instrPrev, true /*isNeqOp*/, &fNoLower))
-                {
+                {LOGMEIN("Lower.cpp] 2446\n");
                     if (!fNoLower)
-                    {
+                    {LOGMEIN("Lower.cpp] 2448\n");
                         this->LowerBrCMem(instr, IR::HelperOp_NotStrictEqual, false, false /*isHelper*/);
                     }
                 }
                 else if (this->GenerateFastBrSrNeq(instr, &instrPrev))
-                {
+                {LOGMEIN("Lower.cpp] 2453\n");
                 }
                 else if (m_lowererMD.GenerateFastBrOrCmString(instr) || this->GenerateFastBrEqLikely(instr->AsBranchInstr(), &needHelper) || this->GenerateFastEqBoolInt(instr, &needHelper))
-                {
+                {LOGMEIN("Lower.cpp] 2456\n");
                     if (needHelper)
-                    {
+                    {LOGMEIN("Lower.cpp] 2458\n");
                         this->LowerBrCMem(instr, IR::HelperOp_NotStrictEqual, false);
                     }
                 }
                 else
                 {
                     if (needHelper)
-                    {
+                    {LOGMEIN("Lower.cpp] 2465\n");
                         this->LowerBrCMem(instr, IR::HelperOp_NotStrictEqual, false, false /*isHelper*/);
                     }
                 }
                 if (!needHelper)
-                {
+                {LOGMEIN("Lower.cpp] 2470\n");
                     instr->Remove();
                 }
             }
@@ -2481,7 +2481,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         case Js::OpCode::BrOnEmpty:
         case Js::OpCode::BrOnNotEmpty:
             if (!PHASE_OFF(Js::BranchFastPathPhase, this->m_func))
-            {
+            {LOGMEIN("Lower.cpp] 2483\n");
                 this->GenerateFastBrBReturn(instr);
                 this->LowerBrBReturn(instr, IR::HelperOp_OP_BrOnEmpty, true);
             }
@@ -2514,14 +2514,14 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::ProfiledLoopStart:
-            {
+            {LOGMEIN("Lower.cpp] 2516\n");
                 Assert(m_func->DoSimpleJitDynamicProfile());
                 Assert(instr->IsJitProfilingInstr());
 
                 // Check for the helper instr from IRBuilding (it won't be there if there are no LoopEnds due to an infinite loop)
                 auto prev = instr->m_prev;
                 if (prev->IsJitProfilingInstr() && prev->AsJitProfilingInstr()->isLoopHelper)
-                {
+                {LOGMEIN("Lower.cpp] 2523\n");
                     auto saveOpnd = prev->UnlinkDst();
                     instrPrev = prev->m_prev;
                     prev->Remove();
@@ -2538,7 +2538,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                     auto cur = instr;
                     auto loopNumber = instr->AsJitProfilingInstr()->loopNumber;
                     while (cur)
-                    {
+                    {LOGMEIN("Lower.cpp] 2540\n");
                         Assert(cur->m_opcode != Js::OpCode::ProfiledLoopEnd || cur->IsJitProfilingInstr() && cur->AsJitProfilingInstr()->loopNumber != loopNumber);
                         cur = cur->m_next;
                     }
@@ -2547,7 +2547,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
                 // If we turned off fulljit, there's no reason to do this.
                 if (PHASE_OFF(Js::FullJitPhase, m_func))
-                {
+                {LOGMEIN("Lower.cpp] 2549\n");
                     instr->Remove();
                 }
                 else
@@ -2561,7 +2561,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 break;
             }
         case Js::OpCode::ProfiledLoopBodyStart:
-            {
+            {LOGMEIN("Lower.cpp] 2563\n");
                 Assert(m_func->DoSimpleJitDynamicProfile());
 
                 const auto loopNum = instr->AsJitProfilingInstr()->loopNumber;
@@ -2595,13 +2595,13 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
                 //   }
 
                 if (PHASE_OFF(Js::FullJitPhase, m_func) || !m_func->GetJITFunctionBody()->DoJITLoopBody())
-                {
+                {LOGMEIN("Lower.cpp] 2597\n");
                     // If we're not doing fulljit, we've turned off JitLoopBodies, or if we don't have loop headers allocated (the function has a Try,  etc)
                     //      just move false to dobailout
                     this->InsertMove(dobailout, IR::IntConstOpnd::New(0, dobailoutType, m_func, true), instr->m_next);
                 }
                 else if (m_func->GetWorkItem()->GetJITTimeInfo()->ForceJITLoopBody())
-                {
+                {LOGMEIN("Lower.cpp] 2603\n");
                     // If we're forcing jit loop bodies, move true to dobailout
                     this->InsertMove(dobailout, IR::IntConstOpnd::New(1, dobailoutType, m_func, true), instr->m_next);
                 }
@@ -2641,7 +2641,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::ProfiledLoopEnd:
-            {
+            {LOGMEIN("Lower.cpp] 2643\n");
                 Assert(m_func->DoSimpleJitDynamicProfile());
 
                 // This is set up in IRBuilding
@@ -2668,7 +2668,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::IncrLoopBodyCount:
-        {
+        {LOGMEIN("Lower.cpp] 2670\n");
             Assert(this->m_func->IsLoopBody());
             instr->m_opcode = Js::OpCode::Add_I4;
             instr->SetSrc2(IR::IntConstOpnd::New(1, TyUint32, this->m_func));
@@ -2688,11 +2688,11 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::LdSlot:
         case Js::OpCode::LdSlotArr:
-        {
+        {LOGMEIN("Lower.cpp] 2690\n");
             Js::ProfileId profileId;
             IR::Instr *profileBeforeInstr;
             if(instr->IsJitProfilingInstr())
-            {
+            {LOGMEIN("Lower.cpp] 2694\n");
                 profileId = instr->AsJitProfilingInstr()->profileId;
                 Assert(profileId != Js::Constants::NoProfileId);
                 profileBeforeInstr = instr->m_next;
@@ -2706,7 +2706,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             this->LowerLdSlot(instr);
 
             if(profileId != Js::Constants::NoProfileId)
-            {
+            {LOGMEIN("Lower.cpp] 2708\n");
                 LowerProfileLdSlot(instr->GetDst(), instr->m_func, profileId, profileBeforeInstr);
             }
             break;
@@ -2858,7 +2858,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::Leave:
             if (this->m_func->HasTry() && this->m_func->DoOptimizeTryCatch())
-            {
+            {LOGMEIN("Lower.cpp] 2860\n");
                 // Required in Register Allocator to mark region boundaries
                 break;
             }
@@ -2937,7 +2937,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::BailOnNotArray:
-        {
+        {LOGMEIN("Lower.cpp] 2939\n");
             IR::Instr *bailOnNotArray, *bailOnMissingValue;
             SplitBailOnNotArray(instr, &bailOnNotArray, &bailOnMissingValue);
             IR::RegOpnd *const arrayOpnd = LowerBailOnNotArray(bailOnNotArray);
@@ -2976,7 +2976,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::ExtendArg_A:
             if (instr->GetSrc1()->IsRegOpnd())
-            {
+            {LOGMEIN("Lower.cpp] 2978\n");
                 IR::RegOpnd *src1 = instr->GetSrc1()->AsRegOpnd();
                 this->addToLiveOnBackEdgeSyms->Clear(src1->m_sym->m_id);
             }
@@ -3064,7 +3064,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::CallIExtended:
-        {
+        {LOGMEIN("Lower.cpp] 3066\n");
             // Currently, the only use for CallIExtended is a call that uses spread.
             Assert(IsSpreadCall(instr));
             instrPrev = this->LowerSpreadCall(instr, Js::CallFlags_None);
@@ -3072,7 +3072,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         }
 
         case Js::OpCode::CallIExtendedNew:
-        {
+        {LOGMEIN("Lower.cpp] 3074\n");
             // Currently, the only use for CallIExtended is a call that uses spread.
             Assert(IsSpreadCall(instr));
             instrPrev = this->LowerSpreadCall(instr, Js::CallFlags_New);
@@ -3080,7 +3080,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         }
 
         case Js::OpCode::CallIExtendedNewTargetNew:
-        {
+        {LOGMEIN("Lower.cpp] 3082\n");
             // Currently, the only use for CallIExtended is a call that uses spread.
             Assert(IsSpreadCall(instr));
             instrPrev = this->LowerSpreadCall(instr, (Js::CallFlags)(Js::CallFlags_New | Js::CallFlags_ExtraArg | Js::CallFlags_NewTarget));
@@ -3116,13 +3116,13 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             break;
 
         case Js::OpCode::SetHomeObj:
-        {
+        {LOGMEIN("Lower.cpp] 3118\n");
             this->GenerateSetHomeObj(instr);
             break;
         }
 
         case Js::OpCode::SetComputedNameVar:
-        {
+        {LOGMEIN("Lower.cpp] 3124\n");
             IR::Opnd *src2Opnd = instr->UnlinkSrc2();
             IR::Opnd *src1Opnd = instr->UnlinkSrc1();
 
@@ -3135,13 +3135,13 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         }
 
         case Js::OpCode::InlineeMetaArg:
-        {
+        {LOGMEIN("Lower.cpp] 3137\n");
             m_lowererMD.ChangeToAssign(instr);
             break;
         }
 
         case Js::OpCode::Yield:
-        {
+        {LOGMEIN("Lower.cpp] 3143\n");
             instr->FreeSrc1(); // Source is not actually used by the backend other than to calculate lifetime
             IR::Opnd* dstOpnd = instr->UnlinkDst();
 
@@ -3163,7 +3163,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::ResumeYield:
         case Js::OpCode::ResumeYieldStar:
-        {
+        {LOGMEIN("Lower.cpp] 3165\n");
             IR::Opnd *srcOpnd1 = instr->UnlinkSrc1();
             IR::Opnd *srcOpnd2 = instr->m_opcode == Js::OpCode::ResumeYieldStar ? instr->UnlinkSrc2() : IR::AddrOpnd::NewNull(m_func);
             m_lowererMD.LoadHelperArgument(instr, srcOpnd2);
@@ -3173,7 +3173,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
         }
 
         case Js::OpCode::GeneratorResumeJumpTable:
-        {
+        {LOGMEIN("Lower.cpp] 3175\n");
             // Lowered in LowerPrologEpilog so that the jumps introduced are not considered to be part of the flow for the RegAlloc phase.
 
             // Introduce a BailOutNoSave label if there were yield points that were elided due to optimizations.  They could still be hit
@@ -3185,9 +3185,9 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
             m_func->MapUntilYieldOffsetResumeLabels([this, &bailOutNoSaveLabel](int, const YieldOffsetResumeLabel& yorl)
             {
                 if (yorl.Second() == nullptr)
-                {
+                {LOGMEIN("Lower.cpp] 3187\n");
                     if (bailOutNoSaveLabel == nullptr)
-                    {
+                    {LOGMEIN("Lower.cpp] 3189\n");
                         bailOutNoSaveLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func);
                     }
 
@@ -3199,11 +3199,11 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
             // Insert the bailoutnosave label somewhere along with a call to BailOutNoSave helper
             if (bailOutNoSaveLabel != nullptr)
-            {
+            {LOGMEIN("Lower.cpp] 3201\n");
                 IR::Instr * exitPrevInstr = this->m_func->m_exitInstr->m_prev;
                 IR::LabelInstr * exitTargetInstr;
                 if (exitPrevInstr->IsLabelInstr())
-                {
+                {LOGMEIN("Lower.cpp] 3205\n");
                     exitTargetInstr = exitPrevInstr->AsLabelInstr();
                     exitPrevInstr = exitPrevInstr->m_prev;
                 }
@@ -3248,7 +3248,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::Trunc_A:
             if (!AutoSystemInfo::Data.SSE4_1Available())
-            {
+            {LOGMEIN("Lower.cpp] 3250\n");
                 m_lowererMD.HelperCallForAsmMathBuiltin(instr, IR::HelperDirectMath_TruncFlt, IR::HelperDirectMath_TruncDb);
                 break;
             }
@@ -3258,7 +3258,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
         case Js::OpCode::Nearest_A:
             if (!AutoSystemInfo::Data.SSE4_1Available())
-            {
+            {LOGMEIN("Lower.cpp] 3260\n");
                 m_lowererMD.HelperCallForAsmMathBuiltin(instr, IR::HelperDirectMath_NearestFlt, IR::HelperDirectMath_NearestDb);
                 break;
             }
@@ -3276,7 +3276,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 #ifdef ENABLE_SIMDJS
 #if defined(_M_IX86) || defined(_M_X64)
             if (IsSimd128Opcode(instr->m_opcode))
-            {
+            {LOGMEIN("Lower.cpp] 3278\n");
                 instrPrev = m_lowererMD.Simd128Instruction(instr);
                 break;
             }
@@ -3284,7 +3284,7 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 #endif
             AssertMsg(instr->IsLowered(), "Unknown opcode");
             if(!instr->IsLowered())
-            {
+            {LOGMEIN("Lower.cpp] 3286\n");
                 Fatal();
             }
             break;
@@ -3301,40 +3301,40 @@ Lowerer::LowerRange(IR::Instr *instrStart, IR::Instr *instrEnd, bool defaultDoFa
 
 IR::Opnd *
 Lowerer::LoadFunctionInfoOpnd(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 3303\n");
     return IR::AddrOpnd::New(instr->m_func->GetWorkItem()->GetJITTimeInfo()->GetFunctionInfoAddr(), IR::AddrOpndKindDynamicFunctionInfo, instr->m_func);
 }
 
 IR::Instr *
 Lowerer::LoadFunctionBody(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 3309\n");
     return m_lowererMD.LoadHelperArgument(instr, LoadFunctionBodyOpnd(instr));
 }
 
 IR::Instr *
 Lowerer::LoadScriptContext(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 3315\n");
     return m_lowererMD.LoadHelperArgument(instr, LoadScriptContextOpnd(instr));
 }
 
 IR::Opnd *
 Lowerer::LoadFunctionBodyOpnd(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 3321\n");
     return IR::AddrOpnd::New(instr->m_func->GetJITFunctionBody()->GetAddr(), IR::AddrOpndKindDynamicFunctionBody, instr->m_func);
 }
 
 IR::Opnd *
 Lowerer::LoadScriptContextOpnd(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 3327\n");
     return IR::AddrOpnd::New(m_func->GetScriptContextInfo()->GetAddr(), IR::AddrOpndKindDynamicScriptContext, this->m_func);
 }
 
 IR::Opnd *
 Lowerer::LoadScriptContextValueOpnd(IR::Instr * instr, ScriptContextValue valueType)
-{
+{LOGMEIN("Lower.cpp] 3333\n");
     ScriptContextInfo *scriptContextInfo = instr->m_func->GetScriptContextInfo();
     switch (valueType)
-    {
+    {LOGMEIN("Lower.cpp] 3336\n");
     case ScriptContextValue::ScriptContextNumberAllocator:
         return IR::AddrOpnd::New(scriptContextInfo->GetNumberAllocatorAddr(), IR::AddrOpndKindDynamicMisc, instr->m_func);
     case ScriptContextValue::ScriptContextRecycler:
@@ -3348,10 +3348,10 @@ Lowerer::LoadScriptContextValueOpnd(IR::Instr * instr, ScriptContextValue valueT
 
 IR::Opnd *
 Lowerer::LoadLibraryValueOpnd(IR::Instr * instr, LibraryValue valueType)
-{
+{LOGMEIN("Lower.cpp] 3350\n");
     ScriptContextInfo *scriptContextInfo = instr->m_func->GetScriptContextInfo();
     switch (valueType)
-    {
+    {LOGMEIN("Lower.cpp] 3353\n");
     case LibraryValue::ValueEmptyString:
         return IR::AddrOpnd::New(scriptContextInfo->GetEmptyStringAddr(), IR::AddrOpndKindDynamicVar, instr->m_func, true);
     case LibraryValue::ValueUndeclBlockVar:
@@ -3398,15 +3398,15 @@ Lowerer::LoadLibraryValueOpnd(IR::Instr * instr, LibraryValue valueType)
 
 IR::Opnd *
 Lowerer::LoadVTableValueOpnd(IR::Instr * instr, VTableValue vtableType)
-{
+{LOGMEIN("Lower.cpp] 3400\n");
     return IR::AddrOpnd::New((Js::Var)instr->m_func->GetScriptContextInfo()->GetVTableAddress(vtableType), IR::AddrOpndKindDynamicVtable, this->m_func);
 }
 
 IR::Opnd *
 Lowerer::LoadOptimizationOverridesValueOpnd(IR::Instr *instr, OptimizationOverridesValue valueType)
-{
+{LOGMEIN("Lower.cpp] 3406\n");
     switch (valueType)
-    {
+    {LOGMEIN("Lower.cpp] 3408\n");
     case OptimizationOverridesValue::OptimizationOverridesSideEffects:
         return IR::MemRefOpnd::New(m_func->GetScriptContextInfo()->GetSideEffectsAddr(), TyInt32, instr->m_func);
     case OptimizationOverridesValue::OptimizationOverridesArraySetElementFastPathVtable:
@@ -3423,12 +3423,12 @@ Lowerer::LoadOptimizationOverridesValueOpnd(IR::Instr *instr, OptimizationOverri
 
 IR::Opnd *
 Lowerer::LoadNumberAllocatorValueOpnd(IR::Instr *instr, NumberAllocatorValue valueType)
-{
+{LOGMEIN("Lower.cpp] 3425\n");
     ScriptContextInfo *scriptContext = instr->m_func->GetScriptContextInfo();
     bool allowNativeCodeBumpAllocation = scriptContext->GetRecyclerAllowNativeCodeBumpAllocation();
 
     switch (valueType)
-    {
+    {LOGMEIN("Lower.cpp] 3430\n");
     case NumberAllocatorValue::NumberAllocatorEndAddress:
         return IR::MemRefOpnd::New(((char *)scriptContext->GetNumberAllocatorAddr()) + Js::RecyclerJavascriptNumberAllocator::GetEndAddressOffset(), TyMachPtr, instr->m_func);
     case NumberAllocatorValue::NumberAllocatorFreeObjectList:
@@ -3444,18 +3444,18 @@ Lowerer::LoadNumberAllocatorValueOpnd(IR::Instr *instr, NumberAllocatorValue val
 
 IR::Opnd *
 Lowerer::LoadIsInstInlineCacheOpnd(IR::Instr * instr, uint inlineCacheIndex)
-{
+{LOGMEIN("Lower.cpp] 3446\n");
     intptr_t inlineCache = instr->m_func->GetJITFunctionBody()->GetIsInstInlineCache(inlineCacheIndex);
     return IR::AddrOpnd::New(inlineCache,  IR::AddrOpndKindDynamicInlineCache, this->m_func);
 }
 
 IR::Opnd *
 Lowerer::LoadRuntimeInlineCacheOpnd(IR::Instr * instr, IR::PropertySymOpnd * propertySymOpnd, bool isHelper)
-{
+{LOGMEIN("Lower.cpp] 3453\n");
     Assert(propertySymOpnd->m_runtimeInlineCache != 0);
     IR::Opnd * inlineCacheOpnd = nullptr;
     if (instr->m_func->GetJITFunctionBody()->HasInlineCachesOnFunctionObject() && !instr->m_func->IsInlinee())
-    {
+    {LOGMEIN("Lower.cpp] 3457\n");
         inlineCacheOpnd = this->GetInlineCacheFromFuncObjectForRuntimeUse(instr, propertySymOpnd, isHelper);
     }
     else
@@ -3468,37 +3468,37 @@ Lowerer::LoadRuntimeInlineCacheOpnd(IR::Instr * instr, IR::PropertySymOpnd * pro
 
 bool
 Lowerer::TryGenerateFastCmSrEq(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 3470\n");
     IR::RegOpnd *srcReg1 = instr->GetSrc1()->IsRegOpnd() ? instr->GetSrc1()->AsRegOpnd() : nullptr;
     IR::RegOpnd *srcReg2 = instr->GetSrc2()->IsRegOpnd() ? instr->GetSrc2()->AsRegOpnd() : nullptr;
 
     if (srcReg2 && IsConstRegOpnd(srcReg2))
-    {
+    {LOGMEIN("Lower.cpp] 3475\n");
         return m_lowererMD.GenerateFastCmSrEqConst(instr);
     }
     else if (srcReg1 && IsConstRegOpnd(srcReg1))
-    {
+    {LOGMEIN("Lower.cpp] 3479\n");
         instr->SwapOpnds();
         return m_lowererMD.GenerateFastCmSrEqConst(instr);
     }
     else if (srcReg2 && (srcReg2->m_sym->m_isStrConst))
-    {
+    {LOGMEIN("Lower.cpp] 3484\n");
         this->LowerBinaryHelperMem(instr, IR::HelperOP_CmSrEq_String);
         return true;
     }
     else if (srcReg1 && (srcReg1->m_sym->m_isStrConst))
-    {
+    {LOGMEIN("Lower.cpp] 3489\n");
         instr->SwapOpnds();
         this->LowerBinaryHelperMem(instr, IR::HelperOP_CmSrEq_String);
         return true;
     }
     else if (srcReg2 && (srcReg2->m_sym->m_isStrEmpty))
-    {
+    {LOGMEIN("Lower.cpp] 3495\n");
         this->LowerBinaryHelperMem(instr, IR::HelperOP_CmSrEq_EmptyString);
         return true;
     }
     else if (srcReg1 && (srcReg1->m_sym->m_isStrEmpty))
-    {
+    {LOGMEIN("Lower.cpp] 3500\n");
         instr->SwapOpnds();
         this->LowerBinaryHelperMem(instr, IR::HelperOP_CmSrEq_EmptyString);
         return true;
@@ -3509,38 +3509,38 @@ Lowerer::TryGenerateFastCmSrEq(IR::Instr * instr)
 
 bool
 Lowerer::GenerateFastBrSrEq(IR::Instr * instr, IR::RegOpnd * srcReg1, IR::RegOpnd * srcReg2, IR::Instr ** pInstrPrev, bool noMathFastPath)
-{
+{LOGMEIN("Lower.cpp] 3511\n");
     if (srcReg2 && IsConstRegOpnd(srcReg2))
-    {
+    {LOGMEIN("Lower.cpp] 3513\n");
         this->GenerateFastBrConst(instr->AsBranchInstr(), srcReg2->m_sym->GetConstOpnd(), true);
         instr->Remove();
         return true;
     }
     else if (srcReg1 && IsConstRegOpnd(srcReg1))
-    {
+    {LOGMEIN("Lower.cpp] 3519\n");
         instr->SwapOpnds();
         this->GenerateFastBrConst(instr->AsBranchInstr(), srcReg1->m_sym->GetConstOpnd(), true);
         instr->Remove();
         return true;
     }
     else if (srcReg2 && (srcReg2->m_sym->m_isStrConst))
-    {
+    {LOGMEIN("Lower.cpp] 3526\n");
         this->LowerBrCMem(instr, IR::HelperOp_StrictEqualString, noMathFastPath, false);
         return true;
     }
     else if (srcReg1 && (srcReg1->m_sym->m_isStrConst))
-    {
+    {LOGMEIN("Lower.cpp] 3531\n");
         instr->SwapOpnds();
         this->LowerBrCMem(instr, IR::HelperOp_StrictEqualString, noMathFastPath, false);
         return true;
     }
     else if (srcReg2 && (srcReg2->m_sym->m_isStrEmpty))
-    {
+    {LOGMEIN("Lower.cpp] 3537\n");
         this->LowerBrCMem(instr, IR::HelperOp_StrictEqualEmptyString, noMathFastPath, false);
         return true;
     }
     else if (srcReg1 && (srcReg1->m_sym->m_isStrEmpty))
-    {
+    {LOGMEIN("Lower.cpp] 3542\n");
         instr->SwapOpnds();
         this->LowerBrCMem(instr, IR::HelperOp_StrictEqualEmptyString, noMathFastPath, false);
         return true;
@@ -3556,7 +3556,7 @@ Lowerer::GenerateFastBrSrEq(IR::Instr * instr, IR::RegOpnd * srcReg1, IR::RegOpn
 ///----------------------------------------------------------------------------
 IR::BranchInstr *
 Lowerer::GenerateFastBrConst(IR::BranchInstr *branchInstr, IR::Opnd * constOpnd, bool isEqual)
-{
+{LOGMEIN("Lower.cpp] 3558\n");
     Assert(constOpnd->IsAddrOpnd() || constOpnd->IsIntConstOpnd());
 
     //
@@ -3576,7 +3576,7 @@ Lowerer::GenerateFastBrConst(IR::BranchInstr *branchInstr, IR::Opnd * constOpnd,
     IR::Opnd    *opnd    = branchInstr->GetSrc1();
 
     if (!opnd->IsRegOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 3578\n");
         IR::RegOpnd *lhsReg = IR::RegOpnd::New(TyVar, m_func);
         LowererMD::CreateAssign(lhsReg, opnd, branchInstr);
 
@@ -3593,13 +3593,13 @@ Lowerer::GenerateFastBrConst(IR::BranchInstr *branchInstr, IR::Opnd * constOpnd,
 
 bool
 Lowerer::TryGenerateFastBrEq(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 3595\n");
     IR::RegOpnd *srcReg1 = instr->GetSrc1()->IsRegOpnd() ? instr->GetSrc1()->AsRegOpnd() : nullptr;
     IR::RegOpnd *srcReg2 = instr->GetSrc2()->IsRegOpnd() ? instr->GetSrc2()->AsRegOpnd() : nullptr;
 
     bool isConst = false;
     if (srcReg1 && this->IsNullOrUndefRegOpnd(srcReg1))
-    {
+    {LOGMEIN("Lower.cpp] 3601\n");
         instr->SwapOpnds();
         isConst = true;
     }
@@ -3607,7 +3607,7 @@ Lowerer::TryGenerateFastBrEq(IR::Instr * instr)
     // Fast path for == null or == undefined
     // if (src == null || src == undefined)
     if (isConst || (srcReg2 && this->IsNullOrUndefRegOpnd(srcReg2)))
-    {
+    {LOGMEIN("Lower.cpp] 3609\n");
         IR::BranchInstr *newBranch;
         newBranch = this->GenerateFastBrConst(instr->AsBranchInstr(),
             this->LoadLibraryValueOpnd(instr, LibraryValue::ValueNull),
@@ -3626,13 +3626,13 @@ Lowerer::TryGenerateFastBrEq(IR::Instr * instr)
 
 bool
 Lowerer::TryGenerateFastBrNeq(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 3628\n");
     IR::RegOpnd *srcReg1 = instr->GetSrc1()->IsRegOpnd() ? instr->GetSrc1()->AsRegOpnd() : nullptr;
     IR::RegOpnd *srcReg2 = instr->GetSrc2()->IsRegOpnd() ? instr->GetSrc2()->AsRegOpnd() : nullptr;
 
     bool isConst = false;
     if (srcReg1 && this->IsNullOrUndefRegOpnd(srcReg1))
-    {
+    {LOGMEIN("Lower.cpp] 3634\n");
         instr->SwapOpnds();
         isConst = true;
     }
@@ -3646,7 +3646,7 @@ Lowerer::TryGenerateFastBrNeq(IR::Instr * instr)
     //    labelEq:
 
     if (isConst || (srcReg2 && this->IsNullOrUndefRegOpnd(srcReg2)))
-    {
+    {LOGMEIN("Lower.cpp] 3648\n");
         IR::LabelInstr *labelEq = instr->GetOrCreateContinueLabel();
 
         IR::BranchInstr *newBranch;
@@ -3668,18 +3668,18 @@ Lowerer::TryGenerateFastBrNeq(IR::Instr * instr)
 
 bool
 Lowerer::GenerateFastBrSrNeq(IR::Instr * instr, IR::Instr ** pInstrPrev)
-{
+{LOGMEIN("Lower.cpp] 3670\n");
     IR::RegOpnd *srcReg1 = instr->GetSrc1()->IsRegOpnd() ? instr->GetSrc1()->AsRegOpnd() : nullptr;
     IR::RegOpnd *srcReg2 = instr->GetSrc2()->IsRegOpnd() ? instr->GetSrc2()->AsRegOpnd() : nullptr;
 
     if (srcReg2 && IsConstRegOpnd(srcReg2))
-    {
+    {LOGMEIN("Lower.cpp] 3675\n");
         this->GenerateFastBrConst(instr->AsBranchInstr(), srcReg2->m_sym->GetConstOpnd(), false);
         instr->Remove();
         return true;
     }
     else if (srcReg1 && IsConstRegOpnd(srcReg1))
-    {
+    {LOGMEIN("Lower.cpp] 3681\n");
         instr->SwapOpnds();
         this->GenerateFastBrConst(instr->AsBranchInstr(), srcReg1->m_sym->GetConstOpnd(), false);
         instr->Remove();
@@ -3691,7 +3691,7 @@ Lowerer::GenerateFastBrSrNeq(IR::Instr * instr, IR::Instr ** pInstrPrev)
 
 void
 Lowerer::GenerateDynamicObjectAlloc(IR::Instr * newObjInstr, uint inlineSlotCount, uint slotCount, IR::RegOpnd * newObjDst, IR::Opnd * typeSrc)
-{
+{LOGMEIN("Lower.cpp] 3693\n");
     size_t headerAllocSize = sizeof(Js::DynamicObject) + inlineSlotCount * sizeof(Js::Var);
     IR::SymOpnd * tempObjectSymOpnd;
     bool isZeroed = GenerateRecyclerOrMarkTempAlloc(newObjInstr, newObjDst, IR::HelperAllocMemForScObject, headerAllocSize, &tempObjectSymOpnd);
@@ -3712,7 +3712,7 @@ Lowerer::GenerateDynamicObjectAlloc(IR::Instr * newObjInstr, uint inlineSlotCoun
 
     // CALL JavascriptOperators::AllocMemForVarArray((slotCount - inlineSlotCount) * sizeof(Js::Var))
     if (slotCount > inlineSlotCount)
-    {
+    {LOGMEIN("Lower.cpp] 3714\n");
         size_t auxSlotsAllocSize = (slotCount - inlineSlotCount) * sizeof(Js::Var);
         IR::RegOpnd* auxSlots = IR::RegOpnd::New(TyMachPtr, m_func);
 
@@ -3748,7 +3748,7 @@ Lowerer::LowerNewScObjectSimple(IR::Instr * instr)
 
 void
 Lowerer::LowerNewScObjectLiteral(IR::Instr *newObjInstr)
-{
+{LOGMEIN("Lower.cpp] 3750\n");
     Func * func = m_func;
     IR::IntConstOpnd * literalObjectIdOpnd = newObjInstr->UnlinkSrc2()->AsIntConstOpnd();
     intptr_t literalTypeRef = newObjInstr->m_func->GetJITFunctionBody()->GetObjectLiteralTypeRef(literalObjectIdOpnd->AsUint32());
@@ -3774,7 +3774,7 @@ Lowerer::LowerNewScObjectLiteral(IR::Instr *newObjInstr)
     Js::DynamicType * literalType = func->IsOOPJIT() || !CONFIG_FLAG(OOPJITMissingOpts) ? nullptr : *(Js::DynamicType **)literalTypeRef;
 
     if (literalType == nullptr || !literalType->GetIsShared())
-    {
+    {LOGMEIN("Lower.cpp] 3776\n");
         helperLabel = IR::LabelInstr::New(Js::OpCode::Label, func, true);
         allocLabel = IR::LabelInstr::New(Js::OpCode::Label, func);
 
@@ -3796,7 +3796,7 @@ Lowerer::LowerNewScObjectLiteral(IR::Instr *newObjInstr)
     }
 
     if (helperLabel)
-    {
+    {LOGMEIN("Lower.cpp] 3798\n");
         InsertBranch(Js::OpCode::Br, allocLabel, newObjInstr);
 
         // Slow path to ensure the type is there
@@ -3822,7 +3822,7 @@ Lowerer::LowerNewScObjectLiteral(IR::Instr *newObjInstr)
     //     inlineSlotCapacity == Number of slots to allocate beyond the DynamicObject header
     //     slotCapacity - inlineSlotCapacity == Number of aux slots to allocate
     if(Js::FunctionBody::DoObjectHeaderInliningForObjectLiteral(propIds))
-    {
+    {LOGMEIN("Lower.cpp] 3824\n");
         Assert(inlineSlotCapacity >= Js::DynamicTypeHandler::GetObjectHeaderInlinableSlotCapacity());
         Assert(inlineSlotCapacity == slotCapacity);
         slotCapacity = inlineSlotCapacity -= Js::DynamicTypeHandler::GetObjectHeaderInlinableSlotCapacity();
@@ -3839,7 +3839,7 @@ Lowerer::LowerNewScObjectLiteral(IR::Instr *newObjInstr)
 
 IR::Instr*
 Lowerer::LowerProfiledNewScArray(IR::JitProfilingInstr* arrInstr)
-{
+{LOGMEIN("Lower.cpp] 3841\n");
     IR::Instr *instrPrev = arrInstr->m_prev;
 
     /*
@@ -3860,9 +3860,9 @@ Lowerer::LowerProfiledNewScArray(IR::JitProfilingInstr* arrInstr)
 
 IR::Instr *
 Lowerer::LowerNewScArray(IR::Instr *arrInstr)
-{
+{LOGMEIN("Lower.cpp] 3862\n");
     if (arrInstr->IsJitProfilingInstr())
-    {
+    {LOGMEIN("Lower.cpp] 3864\n");
         return LowerProfiledNewScArray(arrInstr->AsJitProfilingInstr());
     }
 
@@ -3870,7 +3870,7 @@ Lowerer::LowerNewScArray(IR::Instr *arrInstr)
     IR::JnHelperMethod helperMethod = IR::HelperScrArr_OP_NewScArray;
 
     if (arrInstr->IsProfiledInstr() && arrInstr->m_func->HasProfileInfo())
-    {
+    {LOGMEIN("Lower.cpp] 3872\n");
         intptr_t weakFuncRef = arrInstr->m_func->GetWeakFuncRef();
         Assert(weakFuncRef);
 
@@ -3882,7 +3882,7 @@ Lowerer::LowerNewScArray(IR::Instr *arrInstr)
         GenerateProfiledNewScArrayFastPath(arrInstr, arrayInfo, arrayInfoAddr, weakFuncRef, arrInstr->GetSrc1()->AsIntConstOpnd()->AsUint32());
 
         if (arrInstr->GetDst() && arrInstr->GetDst()->GetValueType().IsLikelyNativeArray())
-        {
+        {LOGMEIN("Lower.cpp] 3884\n");
             m_lowererMD.LoadHelperArgument(arrInstr, IR::AddrOpnd::New(weakFuncRef, IR::AddrOpndKindDynamicFunctionBodyWeakRef, m_func));
             m_lowererMD.LoadHelperArgument(arrInstr, IR::AddrOpnd::New(arrayInfoAddr, IR::AddrOpndKindDynamicArrayCallSiteInfo, m_func));
             helperMethod = IR::HelperScrArr_ProfiledNewScArray;
@@ -3900,7 +3900,7 @@ Lowerer::LowerNewScArray(IR::Instr *arrInstr)
 
 template <typename ArrayType>
 BOOL Lowerer::IsSmallObject(uint32 length)
-{
+{LOGMEIN("Lower.cpp] 3902\n");
     if (ArrayType::HasInlineHeadSegment(length))
         return true;
     uint32 alignedHeadSegmentSize = Js::SparseArraySegment<typename ArrayType::TElement>::GetAlignedSize(length);
@@ -3910,9 +3910,9 @@ BOOL Lowerer::IsSmallObject(uint32 length)
 
 void
 Lowerer::GenerateProfiledNewScArrayFastPath(IR::Instr *instr, Js::ArrayCallSiteInfo * arrayInfo, intptr_t arrayInfoAddr, intptr_t weakFuncRef, uint32 length)
-{
+{LOGMEIN("Lower.cpp] 3912\n");
     if (PHASE_OFF(Js::ArrayCtorFastPathPhase, m_func) || CONFIG_FLAG(ForceES5Array))
-    {
+    {LOGMEIN("Lower.cpp] 3914\n");
         return;
     }
 
@@ -3925,9 +3925,9 @@ Lowerer::GenerateProfiledNewScArrayFastPath(IR::Instr *instr, Js::ArrayCallSiteI
     uint32 i = length;
 
     if (instr->GetDst() && instr->GetDst()->GetValueType().IsLikelyNativeIntArray())
-    {
+    {LOGMEIN("Lower.cpp] 3927\n");
         if (!IsSmallObject<Js::JavascriptNativeIntArray>(length))
-        {
+        {LOGMEIN("Lower.cpp] 3929\n");
             return;
         }
         GenerateArrayInfoIsNativeIntArrayTest(instr, arrayInfo, arrayInfoAddr, helperLabel);
@@ -3943,9 +3943,9 @@ Lowerer::GenerateProfiledNewScArrayFastPath(IR::Instr *instr, Js::ArrayCallSiteI
         }
     }
     else if (instr->GetDst() && instr->GetDst()->GetValueType().IsLikelyNativeFloatArray())
-    {
+    {LOGMEIN("Lower.cpp] 3945\n");
         if (!IsSmallObject<Js::JavascriptNativeFloatArray>(length))
-        {
+        {LOGMEIN("Lower.cpp] 3947\n");
             return;
         }
         GenerateArrayInfoIsNativeFloatAndNotIntArrayTest(instr, arrayInfo, arrayInfoAddr, helperLabel);
@@ -3969,7 +3969,7 @@ Lowerer::GenerateProfiledNewScArrayFastPath(IR::Instr *instr, Js::ArrayCallSiteI
     else
     {
         if (!IsSmallObject<Js::JavascriptArray>(length))
-        {
+        {LOGMEIN("Lower.cpp] 3971\n");
             return;
         }
         uint const offsetStart = sizeof(Js::SparseArraySegmentBase);
@@ -3994,7 +3994,7 @@ Lowerer::GenerateProfiledNewScArrayFastPath(IR::Instr *instr, Js::ArrayCallSiteI
 
 void
 Lowerer::GenerateArrayInfoIsNativeIntArrayTest(IR::Instr *instr, Js::ArrayCallSiteInfo * arrayInfo, intptr_t arrayInfoAddr, IR::LabelInstr * helperLabel)
-{
+{LOGMEIN("Lower.cpp] 3996\n");
     Func * func = this->m_func;
     InsertTestBranch(IR::MemRefOpnd::New(((char *)arrayInfoAddr) + Js::ArrayCallSiteInfo::GetOffsetOfBits(), TyUint8, func),
         IR::IntConstOpnd::New(Js::ArrayCallSiteInfo::NotNativeIntBit, TyUint8, func), Js::OpCode::BrNeq_A, helperLabel, instr);
@@ -4002,7 +4002,7 @@ Lowerer::GenerateArrayInfoIsNativeIntArrayTest(IR::Instr *instr, Js::ArrayCallSi
 
 void
 Lowerer::GenerateArrayInfoIsNativeFloatAndNotIntArrayTest(IR::Instr *instr, Js::ArrayCallSiteInfo * arrayInfo, intptr_t arrayInfoAddr, IR::LabelInstr * helperLabel)
-{
+{LOGMEIN("Lower.cpp] 4004\n");
     Func * func = this->m_func;
     InsertCompareBranch(IR::MemRefOpnd::New(((char *)arrayInfoAddr) + Js::ArrayCallSiteInfo::GetOffsetOfBits(), TyUint8, func),
         IR::IntConstOpnd::New(Js::ArrayCallSiteInfo::NotNativeIntBit, TyUint8, func), Js::OpCode::BrNeq_A, helperLabel, instr);
@@ -4012,31 +4012,31 @@ template <typename ArrayType>
 static IR::JnHelperMethod GetArrayAllocMemHelper();
 template <>
 IR::JnHelperMethod GetArrayAllocMemHelper<Js::JavascriptArray>()
-{
+{LOGMEIN("Lower.cpp] 4014\n");
     return IR::HelperAllocMemForJavascriptArray;
 }
 template <>
 IR::JnHelperMethod GetArrayAllocMemHelper<Js::JavascriptNativeIntArray>()
-{
+{LOGMEIN("Lower.cpp] 4019\n");
     return IR::HelperAllocMemForJavascriptNativeIntArray;
 }
 template <>
 IR::JnHelperMethod GetArrayAllocMemHelper<Js::JavascriptNativeFloatArray>()
-{
+{LOGMEIN("Lower.cpp] 4024\n");
     return IR::HelperAllocMemForJavascriptNativeFloatArray;
 }
 
 template <typename ArrayType>
 IR::RegOpnd *
 Lowerer::GenerateArrayLiteralsAlloc(IR::Instr *instr, uint32 * psize, Js::ArrayCallSiteInfo * arrayInfo, bool * pIsHeadSegmentZeroed)
-{
+{LOGMEIN("Lower.cpp] 4031\n");
     return GenerateArrayAllocHelper<ArrayType>(instr, psize, arrayInfo, pIsHeadSegmentZeroed, false /* isArrayObjCtor */, false /* isNoArgs */);
 }
 
 template <typename ArrayType>
 IR::RegOpnd *
 Lowerer::GenerateArrayObjectsAlloc(IR::Instr *instr, uint32 * psize, Js::ArrayCallSiteInfo * arrayInfo, bool * pIsHeadSegmentZeroed, bool isNoArgs)
-{
+{LOGMEIN("Lower.cpp] 4038\n");
     return GenerateArrayAllocHelper<ArrayType>(instr, psize, arrayInfo, pIsHeadSegmentZeroed, true /* isArrayObjCtor */, isNoArgs);
 }
 
@@ -4044,7 +4044,7 @@ Lowerer::GenerateArrayObjectsAlloc(IR::Instr *instr, uint32 * psize, Js::ArrayCa
 template <typename ArrayType>
 IR::RegOpnd *
 Lowerer::GenerateArrayAllocHelper(IR::Instr *instr, uint32 * psize, Js::ArrayCallSiteInfo * arrayInfo, bool * pIsHeadSegmentZeroed, bool isArrayObjCtor, bool isNoArgs)
-{
+{LOGMEIN("Lower.cpp] 4046\n");
     Func * func = this->m_func;
     IR::RegOpnd * dstOpnd = instr->GetDst()->AsRegOpnd();
 
@@ -4059,9 +4059,9 @@ Lowerer::GenerateArrayAllocHelper(IR::Instr *instr, uint32 * psize, Js::ArrayCal
     bool isHeadSegmentZeroed = false;
 
     if (ArrayType::HasInlineHeadSegment(count))
-    {
+    {LOGMEIN("Lower.cpp] 4061\n");
         if (isArrayObjCtor)
-        {
+        {LOGMEIN("Lower.cpp] 4063\n");
             uint32 allocCount = isNoArgs ? Js::SparseArraySegmentBase::SMALL_CHUNK_SIZE : count;
             arrayAllocSize = Js::JavascriptArray::DetermineAllocationSizeForArrayObjects<ArrayType, 0>(allocCount, nullptr, &alignedHeadSegmentSize);
         }
@@ -4117,7 +4117,7 @@ Lowerer::GenerateArrayAllocHelper(IR::Instr *instr, uint32 * psize, Js::ArrayCal
     Js::ProfileId arrayCallSiteIndex = (Js::ProfileId)instr->AsProfiledInstr()->u.profileId;
 #if DBG
     if (instr->AsProfiledInstr()->u.profileId < Js::Constants::NoProfileId)
-    {
+    {LOGMEIN("Lower.cpp] 4119\n");
         Assert((uint32)(arrayInfo - instr->m_func->GetReadOnlyProfileInfo()->GetArrayCallSiteInfo(0)) == arrayCallSiteIndex);
     }
     else
@@ -4133,7 +4133,7 @@ Lowerer::GenerateArrayAllocHelper(IR::Instr *instr, uint32 * psize, Js::ArrayCal
     GenerateMemInit(dstOpnd, ArrayType::GetOffsetOfLength(), count, instr, isZeroed);
 
     if (leaHeadInstr != nullptr)
-    {
+    {LOGMEIN("Lower.cpp] 4135\n");
         instr->InsertBefore(leaHeadInstr);
         LowererMD::ChangeToLea(leaHeadInstr);
     }
@@ -4154,7 +4154,7 @@ Lowerer::GenerateArrayAllocHelper(IR::Instr *instr, uint32 * psize, Js::ArrayCal
 template <typename ArrayType>
 IR::RegOpnd *
 Lowerer::GenerateArrayAlloc(IR::Instr *instr, IR::Opnd * arrayLenOpnd, Js::ArrayCallSiteInfo * arrayInfo)
-{
+{LOGMEIN("Lower.cpp] 4156\n");
     Func * func = this->m_func;
     IR::RegOpnd * dstOpnd = instr->GetDst()->AsRegOpnd();
 
@@ -4172,7 +4172,7 @@ Lowerer::GenerateArrayAlloc(IR::Instr *instr, IR::Opnd * arrayLenOpnd, Js::Array
     Js::JavascriptArray::EnsureCalculationOfAllocationBuckets<ArrayType>();
 
     for (uint8 i = 0;i < bucketsCount;i++)
-    {
+    {LOGMEIN("Lower.cpp] 4174\n");
         uint elementsCountToInitialize = ArrayType::allocationBuckets[i][Js::JavascriptArray::MissingElementsCountIndex];
         uint allocationSize = ArrayType::allocationBuckets[i][Js::JavascriptArray::AllocationSizeIndex];
 
@@ -4183,7 +4183,7 @@ Lowerer::GenerateArrayAlloc(IR::Instr *instr, IR::Opnd * arrayLenOpnd, Js::Array
         //  CMP  arrayLen, currentBucket
         //  JG   $checkNextBucket
         if (i != (bucketsCount - 1))
-        {
+        {LOGMEIN("Lower.cpp] 4185\n");
             Lowerer::InsertCompare(arrayLenOpnd, IR::IntConstOpnd::New((uint16)ArrayType::allocationBuckets[i][Js::JavascriptArray::AllocationBucketIndex], TyUint32, func), instr);
 
             skipToNextBucket = IR::LabelInstr::New(Js::OpCode::Label, func);
@@ -4197,7 +4197,7 @@ Lowerer::GenerateArrayAlloc(IR::Instr *instr, IR::Opnd * arrayLenOpnd, Js::Array
 
         //  JMP  $doneCalculatingAllocSize
         if (i != (bucketsCount - 1))
-        {
+        {LOGMEIN("Lower.cpp] 4199\n");
             Lowerer::InsertBranch(Js::OpCode::Br, doneCalculatingAllocSize, instr);
             instr->InsertBefore(skipToNextBucket);
         }
@@ -4221,7 +4221,7 @@ Lowerer::GenerateArrayAlloc(IR::Instr *instr, IR::Opnd * arrayLenOpnd, Js::Array
     Js::ProfileId arrayCallSiteIndex = (Js::ProfileId)instr->AsProfiledInstr()->u.profileId;
 #if DBG
     if (instr->AsProfiledInstr()->u.profileId < Js::Constants::NoProfileId)
-    {
+    {LOGMEIN("Lower.cpp] 4223\n");
         Assert((uint32)(arrayInfo - instr->m_func->GetReadOnlyProfileInfo()->GetArrayCallSiteInfo(0)) == arrayCallSiteIndex);
     }
     else
@@ -4235,7 +4235,7 @@ Lowerer::GenerateArrayAlloc(IR::Instr *instr, IR::Opnd * arrayLenOpnd, Js::Array
     GenerateMemInit(dstOpnd, ArrayType::GetOffsetOfLength(), arrayLenOpnd, instr, true);
 
     if (leaHeadInstr != nullptr)
-    {
+    {LOGMEIN("Lower.cpp] 4237\n");
         instr->InsertBefore(leaHeadInstr);
         LowererMD::ChangeToLea(leaHeadInstr);
     }
@@ -4253,9 +4253,9 @@ Lowerer::GenerateArrayAlloc(IR::Instr *instr, IR::Opnd * arrayLenOpnd, Js::Array
 
 void
 Lowerer::GenerateProfiledNewScObjArrayFastPath(IR::Instr *instr, Js::ArrayCallSiteInfo * arrayInfo, intptr_t arrayInfoAddr, intptr_t weakFuncRef, uint32 length, IR::LabelInstr* labelDone, bool isNoArgs)
-{
+{LOGMEIN("Lower.cpp] 4255\n");
     if (PHASE_OFF(Js::ArrayCtorFastPathPhase, m_func))
-    {
+    {LOGMEIN("Lower.cpp] 4257\n");
         return;
     }
 
@@ -4323,9 +4323,9 @@ template <typename ArrayType>
 void
 Lowerer::GenerateProfiledNewScObjArrayFastPath(IR::Instr *instr, Js::ArrayCallSiteInfo * arrayInfo, intptr_t arrayInfoAddr, intptr_t weakFuncRef, IR::LabelInstr* helperLabel,
                    IR::LabelInstr* labelDone, IR::Opnd* lengthOpnd, uint32 offsetOfCallSiteIndex, uint32 offsetOfWeakFuncRef)
-{
+{LOGMEIN("Lower.cpp] 4325\n");
     if (PHASE_OFF(Js::ArrayCtorFastPathPhase, m_func))
-    {
+    {LOGMEIN("Lower.cpp] 4327\n");
         return;
     }
 
@@ -4345,12 +4345,12 @@ Lowerer::GenerateProfiledNewScObjArrayFastPath(IR::Instr *instr, Js::ArrayCallSi
     bool isNativeArray = arrayInfo && (arrayInfo->IsNativeIntArray() || arrayInfo->IsNativeFloatArray());
 
     if (arrayInfo && arrayInfo->IsNativeIntArray())
-    {
+    {LOGMEIN("Lower.cpp] 4347\n");
         sizeOfElement = sizeof(int32);
         GenerateArrayInfoIsNativeIntArrayTest(instr, arrayInfo, arrayInfoAddr, helperLabel);
     }
     else if (arrayInfo && arrayInfo->IsNativeFloatArray())
-    {
+    {LOGMEIN("Lower.cpp] 4352\n");
         // Js::JavascriptArray::MissingItem is a Var, so it may be 32-bit or 64 bit.
         sizeFactor = sizeof(double) / sizeof(Js::JavascriptArray::MissingItem);
         sizeOfElement = sizeof(Js::JavascriptArray::MissingItem);
@@ -4368,7 +4368,7 @@ Lowerer::GenerateProfiledNewScObjArrayFastPath(IR::Instr *instr, Js::ArrayCallSi
     headOpnd = GenerateArrayAlloc<ArrayType>(instr, lengthOpnd, arrayInfo);
 
     if (isNativeArray)
-    {
+    {LOGMEIN("Lower.cpp] 4370\n");
         Assert(ArrayType::GetOffsetOfArrayFlags() + sizeof(uint16) == offsetOfCallSiteIndex);
         Assert(offsetOfWeakFuncRef > 0);
         GenerateMemInit(dstOpnd, offsetOfCallSiteIndex, IR::IntConstOpnd::New(profileId, TyUint16, func, true), instr, true /* isZeroed */);
@@ -4382,18 +4382,18 @@ Lowerer::GenerateProfiledNewScObjArrayFastPath(IR::Instr *instr, Js::ArrayCallSi
     uint maxAllocationSize = allocationBuckets[allocationBucketsCount - 1][Js::JavascriptArray::AllocationSizeIndex];
 
     for (uint8 i = 0;i < allocationBucketsCount;i++)
-    {
+    {LOGMEIN("Lower.cpp] 4384\n");
         missingItemCount = allocationBuckets[i][Js::JavascriptArray::MissingElementsCountIndex] * sizeFactor;
 
         if (i > 0)
-        {
+        {LOGMEIN("Lower.cpp] 4388\n");
             // Reduce missingItemCount we have already set so far
             missingItemCount -= missingItemInitializedSoFar;
         }
 
         // Generate array initialization with MissingItem
         for (uint j = 0;j < missingItemCount;j++)
-        {
+        {LOGMEIN("Lower.cpp] 4395\n");
             // Ensure we don't write missingItems past allocation size
             Assert(offsetStart + missingItemIndex * sizeOfElement <= maxAllocationSize);
             GenerateMemInit(headOpnd, offsetStart + missingItemIndex * sizeOfElement, GetMissingItemOpnd(missingItemType, func), instr, true /*isZeroed*/);
@@ -4403,7 +4403,7 @@ Lowerer::GenerateProfiledNewScObjArrayFastPath(IR::Instr *instr, Js::ArrayCallSi
         //  CMP  arrayLen, currentBucket
         //  JG   $checkNextBucket
         if (i != (allocationBucketsCount - 1))
-        {
+        {LOGMEIN("Lower.cpp] 4405\n");
             Lowerer::InsertCompare(lengthOpnd, IR::IntConstOpnd::New(allocationBuckets[i][Js::JavascriptArray::AllocationBucketIndex], TyUint32, func), instr);
 
             Lowerer::InsertBranch(Js::OpCode::BrLe_A, arrayInitDone, instr);
@@ -4424,20 +4424,20 @@ Lowerer::GenerateProfiledNewScObjArrayFastPath(IR::Instr *instr, Js::ArrayCallSi
 
 void
 Lowerer::GenerateProfiledNewScIntArrayFastPath(IR::Instr *instr, Js::ArrayCallSiteInfo * arrayInfo, intptr_t arrayInfoAddr, intptr_t weakFuncRef)
-{
+{LOGMEIN("Lower.cpp] 4426\n");
     // Helper will deal with ForceES5ARray
     if (PHASE_OFF(Js::ArrayLiteralFastPathPhase, m_func) || CONFIG_FLAG(ForceES5Array))
-    {
+    {LOGMEIN("Lower.cpp] 4429\n");
         return;
     }
 
     if (!arrayInfo->IsNativeIntArray())
-    {
+    {LOGMEIN("Lower.cpp] 4434\n");
         return;
     }
 
     if (instr->GetSrc1()->AsAddrOpnd()->GetAddrOpndKind() != IR::AddrOpndKindDynamicAuxBufferRef)
-    {
+    {LOGMEIN("Lower.cpp] 4439\n");
         return;
     }
 
@@ -4462,7 +4462,7 @@ Lowerer::GenerateProfiledNewScIntArrayFastPath(IR::Instr *instr, Js::ArrayCallSi
     // Initialize the elements
     uint i = 0;
     if (ints->count > 16)
-    {
+    {LOGMEIN("Lower.cpp] 4464\n");
         // Do memcpy if > 16
         IR::RegOpnd * dstElementsOpnd = IR::RegOpnd::New(TyMachPtr, func);
         const IR::AutoReuseOpnd autoReuseDstElementsOpnd(dstElementsOpnd, func);
@@ -4495,19 +4495,19 @@ Lowerer::GenerateProfiledNewScIntArrayFastPath(IR::Instr *instr, Js::ArrayCallSi
 
 void
 Lowerer::GenerateProfiledNewScFloatArrayFastPath(IR::Instr *instr, Js::ArrayCallSiteInfo * arrayInfo, intptr_t arrayInfoAddr, intptr_t weakFuncRef)
-{
+{LOGMEIN("Lower.cpp] 4497\n");
     if (PHASE_OFF(Js::ArrayLiteralFastPathPhase, m_func) || CONFIG_FLAG(ForceES5Array))
-    {
+    {LOGMEIN("Lower.cpp] 4499\n");
         return;
     }
 
     if (!arrayInfo->IsNativeFloatArray())
-    {
+    {LOGMEIN("Lower.cpp] 4504\n");
         return;
     }
 
     if (instr->GetSrc1()->AsAddrOpnd()->GetAddrOpndKind() != IR::AddrOpndKindDynamicAuxBufferRef)
-    {
+    {LOGMEIN("Lower.cpp] 4509\n");
         return;
     }
 
@@ -4557,15 +4557,15 @@ Lowerer::GenerateProfiledNewScFloatArrayFastPath(IR::Instr *instr, Js::ArrayCall
 
 IR::Instr *
 Lowerer::LowerNewScIntArray(IR::Instr *arrInstr)
-{
+{LOGMEIN("Lower.cpp] 4559\n");
     IR::Instr *instrPrev = arrInstr->m_prev;
     IR::JnHelperMethod helperMethod = IR::HelperScrArr_OP_NewScIntArray;
 
     if ((arrInstr->IsJitProfilingInstr() || arrInstr->IsProfiledInstr()) && arrInstr->m_func->HasProfileInfo())
-    {
+    {LOGMEIN("Lower.cpp] 4564\n");
         intptr_t weakFuncRef = arrInstr->m_func->GetWeakFuncRef();
         if (weakFuncRef)
-        {
+        {LOGMEIN("Lower.cpp] 4567\n");
             // Technically a load of the same memory address either way.
             Js::ProfileId profileId =
                 arrInstr->IsJitProfilingInstr()
@@ -4601,15 +4601,15 @@ Lowerer::LowerNewScIntArray(IR::Instr *arrInstr)
 
 IR::Instr *
 Lowerer::LowerNewScFltArray(IR::Instr *arrInstr)
-{
+{LOGMEIN("Lower.cpp] 4603\n");
     IR::Instr *instrPrev = arrInstr->m_prev;
     IR::JnHelperMethod helperMethod = IR::HelperScrArr_OP_NewScFltArray;
 
     if ((arrInstr->IsJitProfilingInstr() || arrInstr->IsProfiledInstr()) && arrInstr->m_func->HasProfileInfo())
-    {
+    {LOGMEIN("Lower.cpp] 4608\n");
         intptr_t weakFuncRef = arrInstr->m_func->GetWeakFuncRef();
         if (weakFuncRef)
-        {
+        {LOGMEIN("Lower.cpp] 4611\n");
             Js::ProfileId profileId =
                 arrInstr->IsJitProfilingInstr()
                     ? arrInstr->AsJitProfilingInstr()->profileId
@@ -4640,7 +4640,7 @@ Lowerer::LowerNewScFltArray(IR::Instr *arrInstr)
 
 IR::Instr *
 Lowerer::LowerArraySegmentVars(IR::Instr *arrayInstr)
-{
+{LOGMEIN("Lower.cpp] 4642\n");
     IR::Instr * instrPrev;
     IR::HelperCallOpnd * opndHelper = IR::HelperCallOpnd::New(IR::HelperArraySegmentVars, m_func);
 
@@ -4656,7 +4656,7 @@ Lowerer::LowerArraySegmentVars(IR::Instr *arrayInstr)
 }
 
 IR::Instr* Lowerer::LowerProfiledNewArray(IR::JitProfilingInstr* instr, bool hasArgs)
-{
+{LOGMEIN("Lower.cpp] 4658\n");
     // Use the special helper which checks whether Array has been overwritten by the user and if
     //   it hasn't, possibly allocates a native array
 
@@ -4674,7 +4674,7 @@ IR::Instr* Lowerer::LowerProfiledNewArray(IR::JitProfilingInstr* instr, bool has
     m_lowererMD.LoadNewScObjFirstArg(instr, IR::AddrOpnd::New(nullptr, IR::AddrOpndKindConstantVar, m_func, true), isSpreadCall ? 1 : 0);
 
     if (isSpreadCall)
-    {
+    {LOGMEIN("Lower.cpp] 4676\n");
         this->LowerSpreadCall(instr, Js::CallFlags_New, true);
     }
     else
@@ -4702,9 +4702,9 @@ IR::Instr* Lowerer::LowerProfiledNewArray(IR::JitProfilingInstr* instr, bool has
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, bool isBaseClassConstructorNewScObject)
-{
+{LOGMEIN("Lower.cpp] 4704\n");
     if (newObjInstr->IsJitProfilingInstr() && newObjInstr->AsJitProfilingInstr()->isNewArray)
-    {
+    {LOGMEIN("Lower.cpp] 4706\n");
         Assert(callCtor);
         return LowerProfiledNewArray(newObjInstr->AsJitProfilingInstr(), hasArgs);
     }
@@ -4744,7 +4744,7 @@ Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, b
 
 #if DBG && 0 // TODO: OOP JIT, enable assert
     if (usedFixedCtorCache)
-    {
+    {LOGMEIN("Lower.cpp] 4746\n");
         Js::JavascriptFunction* ctor = newObjInstr->GetFixedFunction();
         Js::FunctionInfo* ctorInfo = ctor->GetFunctionInfo();
         Assert((ctorInfo->GetAttributes() & Js::FunctionInfo::Attributes::ErrorOnNew) == 0);
@@ -4754,7 +4754,7 @@ Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, b
 
     IR::Instr* startCallInstr = nullptr;
     if (callCtor && hasArgs)
-    {
+    {LOGMEIN("Lower.cpp] 4756\n");
         hasArgs = !newObjInstr->HasEmptyArgOutChain(&startCallInstr);
     }
 
@@ -4762,15 +4762,15 @@ Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, b
     IR::JnHelperMethod newScHelper = IR::HelperInvalid;
     IR::Instr *newScObjCall = nullptr;
     if (!skipNewScObj)
-    {
+    {LOGMEIN("Lower.cpp] 4764\n");
         // If we emitted the fast path, this block is a helper block.
         if (usedFixedCtorCache)
-        {
+        {LOGMEIN("Lower.cpp] 4767\n");
             newObjInstr->InsertBefore(helperOrBailoutLabel);
         }
 
         if (emitBailOut)
-        {
+        {LOGMEIN("Lower.cpp] 4772\n");
             IR::Instr* bailOutInstr = newObjInstr;
 
             newObjInstr = IR::Instr::New(newObjInstr->m_opcode, func);
@@ -4808,7 +4808,7 @@ Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, b
     newObjInstr->InsertBefore(callCtorLabel);
 
     if (callCtor && usedFixedCtorCache)
-    {
+    {LOGMEIN("Lower.cpp] 4810\n");
         IR::JnHelperMethod ctorHelper = IR::JnHelperMethodCount;
 
         // If we have no arguments (i.e. the argument chain is empty), we can recognize a couple of common special cases, such
@@ -4816,22 +4816,22 @@ Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, b
         JITTimeFixedField* ctor = newObjInstr->GetFixedFunction();
         intptr_t ctorInfo = ctor->GetFuncInfoAddr();
         if (!hasArgs && (ctorInfo == m_func->GetThreadContextInfo()->GetJavascriptObjectNewInstanceAddr() || ctorInfo == m_func->GetThreadContextInfo()->GetJavascriptArrayNewInstanceAddr()))
-        {
+        {LOGMEIN("Lower.cpp] 4818\n");
             if (ctorInfo == m_func->GetThreadContextInfo()->GetJavascriptObjectNewInstanceAddr())
-            {
+            {LOGMEIN("Lower.cpp] 4820\n");
                 Assert(skipNewScObj);
                 ctorHelper = IR::HelperNewJavascriptObjectNoArg;
                 callCtor = false;
             }
             else if (ctorInfo == m_func->GetThreadContextInfo()->GetJavascriptArrayNewInstanceAddr())
-            {
+            {LOGMEIN("Lower.cpp] 4826\n");
                 Assert(skipNewScObj);
                 ctorHelper = IR::HelperNewJavascriptArrayNoArg;
                 callCtor = false;
             }
 
             if (!callCtor)
-            {
+            {LOGMEIN("Lower.cpp] 4833\n");
                 LoadScriptContext(newObjInstr);
 
                 IR::Instr *ctorCall = IR::Instr::New(Js::OpCode::Call, newObjDst,  IR::HelperCallOpnd::New(ctorHelper, func), func);
@@ -4843,20 +4843,20 @@ Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, b
 
     IR::AutoReuseOpnd autoReuseSavedCtorOpnd;
     if (callCtor)
-    {
+    {LOGMEIN("Lower.cpp] 4845\n");
         // Load the first argument, which is either the object just created or null. Spread has an extra argument.
         IR::Instr * argInstr = this->m_lowererMD.LoadNewScObjFirstArg(newObjInstr, createObjDst, isSpreadCall ? 1 : 0);
 
         IR::Instr * insertAfterCtorInstr = newObjInstr->m_next;
 
         if (skipNewScObj)
-        {
+        {LOGMEIN("Lower.cpp] 4852\n");
             // Since we skipped the default new object, we must be returning whatever the constructor returns
             // (which better be an Object), so let's just use newObjDst directly.
             // newObjDst = newObjInstr->m_src1(createObjDst, ...)
             Assert(newObjInstr->GetDst() == newObjDst);
             if (isSpreadCall)
-            {
+            {LOGMEIN("Lower.cpp] 4858\n");
                 newObjInstr = this->LowerSpreadCall(newObjInstr, Js::CallFlags_New);
             }
             else
@@ -4874,7 +4874,7 @@ Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, b
             newObjInstr->SetDst(ctorResultObjOpnd);
 
             if (isSpreadCall)
-            {
+            {LOGMEIN("Lower.cpp] 4876\n");
                 newObjInstr = this->LowerSpreadCall(newObjInstr, Js::CallFlags_New);
             }
             else
@@ -4883,7 +4883,7 @@ Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, b
             }
 
             if (returnNewScObj)
-            {
+            {LOGMEIN("Lower.cpp] 4885\n");
                 // MOV newObjDst, createObjDst
                 this->m_lowererMD.CreateAssign(newObjDst, createObjDst, insertAfterCtorInstr);
             }
@@ -4904,7 +4904,7 @@ Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, b
     else
     {
         if (newObjInstr->IsJitProfilingInstr())
-        {
+        {LOGMEIN("Lower.cpp] 4906\n");
             Assert(m_func->IsSimpleJit());
             Assert(!CONFIG_FLAG(NewSimpleJit));
 
@@ -4915,7 +4915,7 @@ Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, b
                 newObjDst &&
                 ctorOpnd->IsRegOpnd() &&
                 newObjDst->AsRegOpnd()->m_sym == ctorOpnd->AsRegOpnd()->m_sym)
-            {
+            {LOGMEIN("Lower.cpp] 4917\n");
                 Assert(newObjInstr->m_func->IsSimpleJit());
                 Assert(createObjDst != newObjDst);
 
@@ -4944,7 +4944,7 @@ Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, b
 
         // MOV newObjDst, createObjDst
         if (!skipNewScObj && createObjDst != newObjDst)
-        {
+        {LOGMEIN("Lower.cpp] 4946\n");
             this->m_lowererMD.CreateAssign(newObjDst, createObjDst, newObjInstr);
         }
         newObjInstr->Remove();
@@ -4956,7 +4956,7 @@ Lowerer::LowerNewScObject(IR::Instr *newObjInstr, bool callCtor, bool hasArgs, b
 
 IR::Instr*
 Lowerer::GenerateCallProfiling(Js::ProfileId profileId, Js::InlineCacheIndex inlineCacheIndex, IR::Opnd* retval, IR::Opnd*calleeFunctionObjOpnd, IR::Opnd* callInfo, bool returnTypeOnly, IR::Instr*callInstr,IR::Instr*insertAfter)
-{
+{LOGMEIN("Lower.cpp] 4958\n");
     // This should only ever happen in profiling simplejit
     Assert(m_func->DoSimpleJitDynamicProfile());
 
@@ -4984,9 +4984,9 @@ Lowerer::GenerateCallProfiling(Js::ProfileId profileId, Js::InlineCacheIndex inl
     // Profile a call that just happened: push some extra info on the stack and call the helper
 
     if (!retval)
-    {
+    {LOGMEIN("Lower.cpp] 4986\n");
         if (returnTypeOnly)
-        {
+        {LOGMEIN("Lower.cpp] 4988\n");
             // If we are only supposed to profile the return type but don't use the return value, we might
             // as well do nothing!
             return insertAfter;
@@ -4999,12 +4999,12 @@ Lowerer::GenerateCallProfiling(Js::ProfileId profileId, Js::InlineCacheIndex inl
     bool needInlineCacheIndex;
     IR::JnHelperMethod helperMethod;
     if (returnTypeOnly)
-    {
+    {LOGMEIN("Lower.cpp] 5001\n");
         needInlineCacheIndex = false;
         helperMethod = IR::HelperSimpleProfileReturnTypeCall;
     }
     else if(inlineCacheIndex == Js::Constants::NoInlineCacheIndex)
-    {
+    {LOGMEIN("Lower.cpp] 5006\n");
         needInlineCacheIndex = false;
         helperMethod = IR::HelperSimpleProfileCall_DefaultInlineCacheIndex;
     }
@@ -5021,7 +5021,7 @@ Lowerer::GenerateCallProfiling(Js::ProfileId profileId, Js::InlineCacheIndex inl
     m_lowererMD.LoadHelperArgument(profileCall, calleeFunctionObjOpnd);
     m_lowererMD.LoadHelperArgument(profileCall, retval);
     if(needInlineCacheIndex)
-    {
+    {LOGMEIN("Lower.cpp] 5023\n");
         m_lowererMD.LoadHelperArgument(profileCall, IR::Opnd::CreateInlineCacheIndexOpnd(inlineCacheIndex, func));
     }
     m_lowererMD.LoadHelperArgument(profileCall, IR::Opnd::CreateProfileIdOpnd(profileId, func));
@@ -5034,7 +5034,7 @@ Lowerer::GenerateCallProfiling(Js::ProfileId profileId, Js::InlineCacheIndex inl
 
 bool Lowerer::TryLowerNewScObjectWithFixedCtorCache(IR::Instr* newObjInstr, IR::RegOpnd* newObjDst,
     IR::LabelInstr* helperOrBailoutLabel, IR::LabelInstr* callCtorLabel, bool& skipNewScObj, bool& returnNewScObj, bool& emitBailOut)
-{
+{LOGMEIN("Lower.cpp] 5036\n");
     skipNewScObj = false;
     returnNewScObj = false;
 
@@ -5042,14 +5042,14 @@ bool Lowerer::TryLowerNewScObjectWithFixedCtorCache(IR::Instr* newObjInstr, IR::
         "Why do we have bailout on NewScObject when ObjTypeSpecNewObj is off?");
 
     if (PHASE_OFF(Js::FixedNewObjPhase, newObjInstr->m_func) && PHASE_OFF(Js::ObjTypeSpecNewObjPhase, this->m_func))
-    {
+    {LOGMEIN("Lower.cpp] 5044\n");
         return false;
     }
 
     JITTimeConstructorCache * ctorCache;
 
     if (newObjInstr->HasBailOutInfo())
-    {
+    {LOGMEIN("Lower.cpp] 5051\n");
         Assert(newObjInstr->IsNewScObjectInstr());
         Assert(newObjInstr->IsProfiledInstr());
         Assert(newObjInstr->GetBailOutKind() == IR::BailOutFailedCtorGuardCheck);
@@ -5066,7 +5066,7 @@ bool Lowerer::TryLowerNewScObjectWithFixedCtorCache(IR::Instr* newObjInstr, IR::
     else
     {
         if (newObjInstr->m_opcode == Js::OpCode::NewScObjArray || newObjInstr->m_opcode == Js::OpCode::NewScObjArraySpread)
-        {
+        {LOGMEIN("Lower.cpp] 5068\n");
             // These instr's carry a profile that indexes the array call site info, not the ctor cache.
             return false;
         }
@@ -5074,9 +5074,9 @@ bool Lowerer::TryLowerNewScObjectWithFixedCtorCache(IR::Instr* newObjInstr, IR::
         ctorCache = newObjInstr->IsProfiledInstr() ? newObjInstr->m_func->GetConstructorCache(static_cast<Js::ProfileId>(newObjInstr->AsProfiledInstr()->u.profileId)) : nullptr;
 
         if (ctorCache == nullptr)
-        {
+        {LOGMEIN("Lower.cpp] 5076\n");
             if (PHASE_TRACE(Js::FixedNewObjPhase, newObjInstr->m_func) || PHASE_TESTTRACE(Js::FixedNewObjPhase, newObjInstr->m_func))
-            {
+            {LOGMEIN("Lower.cpp] 5078\n");
                 char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                 Output::Print(_u("FixedNewObj: function %s (%s): lowering non-fixed new script object for %s, because %s.\n"),
                     newObjInstr->m_func->GetJITFunctionBody()->GetDisplayName(), newObjInstr->m_func->GetDebugNumberSet(debugStringBuffer), Js::OpCodeUtil::GetOpCodeName(newObjInstr->m_opcode),
@@ -5097,10 +5097,10 @@ bool Lowerer::TryLowerNewScObjectWithFixedCtorCache(IR::Instr* newObjInstr, IR::
     // Built-in constructors don't need a default new object.  Since we know which constructor we're calling, we can skip creating a default
     // object and call a specialized helper (or even constructor, directly) avoiding the checks in generic NewScObjectCommon.
     if (ctorCache->SkipNewScObject())
-    {
+    {LOGMEIN("Lower.cpp] 5099\n");
 #if 0 // TODO: oop jit, add constructor info for tracing
         if (PHASE_TRACE(Js::FixedNewObjPhase, newObjInstr->m_func) || PHASE_TESTTRACE(Js::FixedNewObjPhase, newObjInstr->m_func))
-        {
+        {LOGMEIN("Lower.cpp] 5102\n");
             const Js::JavascriptFunction* ctor = ctorCache->constructor;
             Js::FunctionBody* ctorBody = ctor->GetFunctionInfo()->HasBody() ? ctor->GetFunctionInfo()->GetFunctionBody() : nullptr;
             const char16* ctorName = ctorBody != nullptr ? ctorBody->GetDisplayName() : _u("<unknown>");
@@ -5131,7 +5131,7 @@ bool Lowerer::TryLowerNewScObjectWithFixedCtorCache(IR::Instr* newObjInstr, IR::
 
 #if 0 // TODO: oop jit, add constructor info for tracing
     if (PHASE_TRACE(Js::FixedNewObjPhase, newObjInstr->m_func) || PHASE_TESTTRACE(Js::FixedNewObjPhase, newObjInstr->m_func))
-    {
+    {LOGMEIN("Lower.cpp] 5133\n");
         const Js::JavascriptFunction* constructor = ctorCache->constructor;
         Js::FunctionBody* constructorBody = constructor->GetFunctionInfo()->HasBody() ? constructor->GetFunctionInfo()->GetFunctionBody() : nullptr;
         const char16* constructorName = constructorBody != nullptr ? constructorBody->GetDisplayName() : _u("<unknown>");
@@ -5140,7 +5140,7 @@ bool Lowerer::TryLowerNewScObjectWithFixedCtorCache(IR::Instr* newObjInstr, IR::
         char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
         if (PHASE_TRACE(Js::FixedNewObjPhase, newObjInstr->m_func))
-        {
+        {LOGMEIN("Lower.cpp] 5142\n");
             Output::Print(_u("FixedNewObj: function %s (%s): lowering fixed new script object for %s with %s ctor <unknown> (%s %s): type = %p, slots = %d, inlined slots = %d.\n"),
                 newObjInstr->m_func->GetJITFunctionBody()->GetDisplayName(), newObjInstr->m_func->GetDebugNumberSet(debugStringBuffer2), Js::OpCodeUtil::GetOpCodeName(newObjInstr->m_opcode),
                 newObjInstr->m_opcode == Js::OpCode::NewScObjectNoCtor ? _u("inlined") : _u("called"),
@@ -5173,7 +5173,7 @@ bool Lowerer::TryLowerNewScObjectWithFixedCtorCache(IR::Instr* newObjInstr, IR::
     JITTimeFixedField* ctor = newObjInstr->GetFixedFunction();
 
     if (ctor->IsClassCtor())
-    {
+    {LOGMEIN("Lower.cpp] 5175\n");
         // MOV newObjDst, function
         this->m_lowererMD.CreateAssign(newObjDst, newObjInstr->GetSrc1(), newObjInstr);
     }
@@ -5190,7 +5190,7 @@ bool Lowerer::TryLowerNewScObjectWithFixedCtorCache(IR::Instr* newObjInstr, IR::
         int inlineSlotSize = ctorCache->GetInlineSlotCount();
         int slotSize = ctorCache->GetSlotCount();
         if (newObjectType->GetTypeHandler()->IsObjectHeaderInlinedTypeHandler())
-        {
+        {LOGMEIN("Lower.cpp] 5192\n");
             Assert(inlineSlotSize >= Js::DynamicTypeHandler::GetObjectHeaderInlinableSlotCapacity());
             Assert(inlineSlotSize == slotSize);
             slotSize = inlineSlotSize -= Js::DynamicTypeHandler::GetObjectHeaderInlinableSlotCapacity();
@@ -5208,11 +5208,11 @@ bool Lowerer::TryLowerNewScObjectWithFixedCtorCache(IR::Instr* newObjInstr, IR::
 
 void
 Lowerer::GenerateRecyclerAllocAligned(IR::JnHelperMethod allocHelper, size_t allocSize, IR::RegOpnd* newObjDst, IR::Instr* insertionPointInstr, bool inOpHelper)
-{
+{LOGMEIN("Lower.cpp] 5210\n");
     IR::LabelInstr * allocDoneLabel = nullptr;
 
     if (!PHASE_OFF(Js::JitAllocNewObjPhase, insertionPointInstr->m_func) && HeapInfo::IsSmallObject(allocSize))
-    {
+    {LOGMEIN("Lower.cpp] 5214\n");
         IR::LabelInstr * allocHelperLabel = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
         allocDoneLabel = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, inOpHelper);
 
@@ -5230,7 +5230,7 @@ Lowerer::GenerateRecyclerAllocAligned(IR::JnHelperMethod allocHelper, size_t all
     this->m_lowererMD.LowerCall(newObjCall, 0);
 
     if (allocDoneLabel != nullptr)
-    {
+    {LOGMEIN("Lower.cpp] 5232\n");
         // $allocDone:
         insertionPointInstr->InsertBefore(allocDoneLabel);
     }
@@ -5238,7 +5238,7 @@ Lowerer::GenerateRecyclerAllocAligned(IR::JnHelperMethod allocHelper, size_t all
 
 IR::Instr *
 Lowerer::LowerGetNewScObject(IR::Instr *instr)
-{
+{LOGMEIN("Lower.cpp] 5240\n");
     Assert(instr);
     Assert(instr->m_opcode == Js::OpCode::GetNewScObject);
     Assert(instr->GetDst());
@@ -5264,7 +5264,7 @@ Lowerer::LowerGetNewScObjectCommon(
     IR::RegOpnd *const constructorReturnOpnd,
     IR::RegOpnd *const newObjOpnd,
     IR::Instr *insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 5266\n");
     Assert(resultObjOpnd);
     Assert(constructorReturnOpnd);
     Assert(newObjOpnd);
@@ -5279,7 +5279,7 @@ Lowerer::LowerGetNewScObjectCommon(
     // resultObjOpnd = newObjOpnd
 
     if(!constructorReturnOpnd->IsEqual(newObjOpnd))
-    {
+    {LOGMEIN("Lower.cpp] 5281\n");
         // Need to check whether the constructor returned an object
 
         IR::LabelInstr *notObjectLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func);
@@ -5303,7 +5303,7 @@ Lowerer::LowerGetNewScObjectCommon(
 
         // Value returned by constructor is an object (use constructorReturnOpnd)
         if(!resultObjOpnd->IsEqual(constructorReturnOpnd))
-        {
+        {LOGMEIN("Lower.cpp] 5305\n");
             this->m_lowererMD.CreateAssign(resultObjOpnd, constructorReturnOpnd, insertBeforeInstr);
         }
         insertBeforeInstr->InsertBefore(
@@ -5314,7 +5314,7 @@ Lowerer::LowerGetNewScObjectCommon(
     }
 
     if(!resultObjOpnd->IsEqual(newObjOpnd))
-    {
+    {LOGMEIN("Lower.cpp] 5316\n");
         this->m_lowererMD.CreateAssign(resultObjOpnd, newObjOpnd, insertBeforeInstr);
     }
 
@@ -5328,7 +5328,7 @@ Lowerer::LowerGetNewScObjectCommon(
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerUpdateNewScObjectCache(IR::Instr * insertInstr, IR::Opnd *dst, IR::Opnd *src1, const bool isCtorFunction)
-{
+{LOGMEIN("Lower.cpp] 5330\n");
     // if (!isCtorFunction)
     // {
     //     MOV r1, [src1 + offset(type)]       -- check base TypeIds_Function
@@ -5344,7 +5344,7 @@ Lowerer::LowerUpdateNewScObjectCache(IR::Instr * insertInstr, IR::Opnd *dst, IR:
     IR::LabelInstr *labelFallThru = IR::LabelInstr::New(Js::OpCode::Label, m_func);
 
     if (!src1->IsRegOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 5346\n");
         IR::RegOpnd *srcRegOpnd = IR::RegOpnd::New(TyMachReg, this->m_func);
         LowererMD::CreateAssign(srcRegOpnd, src1, insertInstr);
         src1 = srcRegOpnd;
@@ -5352,7 +5352,7 @@ Lowerer::LowerUpdateNewScObjectCache(IR::Instr * insertInstr, IR::Opnd *dst, IR:
 
     // Check if constructor is a function if we don't already know it.
     if (!isCtorFunction)
-    {
+    {LOGMEIN("Lower.cpp] 5354\n");
         //  MOV r1, [src1 + offset(type)]       -- check base TypeIds_Function
         IR::RegOpnd *r1 = IR::RegOpnd::New(TyMachReg, this->m_func);
         IR::IndirOpnd *indirOpnd = IR::IndirOpnd::New(src1->AsRegOpnd(), Js::RecyclableObject::GetOffsetOfType(), TyMachReg, this->m_func);
@@ -5401,10 +5401,10 @@ Lowerer::LowerUpdateNewScObjectCache(IR::Instr * insertInstr, IR::Opnd *dst, IR:
 
 IR::Instr *
 Lowerer::LowerNewScObjArray(IR::Instr *newObjInstr)
-{
+{LOGMEIN("Lower.cpp] 5403\n");
     IR::Instr* startCallInstr;
     if (newObjInstr->HasEmptyArgOutChain(&startCallInstr))
-    {
+    {LOGMEIN("Lower.cpp] 5406\n");
         newObjInstr->FreeSrc2();
         return LowerNewScObjArrayNoArg(newObjInstr);
     }
@@ -5415,9 +5415,9 @@ Lowerer::LowerNewScObjArray(IR::Instr *newObjInstr)
     Func *func = newObjInstr->m_func;
 
     if (!targetOpnd->IsAddrOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 5417\n");
         if (!newObjInstr->HasBailOutInfo())
-        {
+        {LOGMEIN("Lower.cpp] 5419\n");
             return this->LowerNewScObject(newObjInstr, true, true);
         }
 
@@ -5467,7 +5467,7 @@ Lowerer::LowerNewScObjArray(IR::Instr *newObjInstr)
 
     // We may not have profileId if we converted a NewScObject to NewScObjArray
     if (profileId != Js::Constants::NoProfileId)
-    {
+    {LOGMEIN("Lower.cpp] 5469\n");
         arrayInfo = func->GetReadOnlyProfileInfo()->GetArrayCallSiteInfo(profileId);
         arrayInfoAddr = func->GetReadOnlyProfileInfo()->GetArrayCallSiteInfoAddr(profileId);
         Assert(arrayInfo);
@@ -5491,25 +5491,25 @@ Lowerer::LowerNewScObjArray(IR::Instr *newObjInstr)
     // 2b. If 1st paramter is a constant, it is in range 0 and upperBoundValue (inclusive)
     if (opndOfArrayCtor->IsAddrOpnd() || opndOfArrayCtor->IsRegOpnd()) // #1
 
-    {
+    {LOGMEIN("Lower.cpp] 5493\n");
         if ((linkSym->GetArgSlotNum() == 2)) // 1. It is the only parameter
-        {
+        {LOGMEIN("Lower.cpp] 5495\n");
             AssertMsg(linkSym->IsArgSlotSym(), "Not an argSlot symbol...");
             linkOpnd = argInstr->GetSrc2();
 
             bool emittedFastPath = true;
             // 2a. If 1st paramter is a variable, emit fast path with checks
             if (opndOfArrayCtor->IsRegOpnd())
-            {
+            {LOGMEIN("Lower.cpp] 5502\n");
                 // 3. GenerateFastPath
                 if (arrayInfo && arrayInfo->IsNativeIntArray())
-                {
+                {LOGMEIN("Lower.cpp] 5505\n");
                     GenerateProfiledNewScObjArrayFastPath<Js::JavascriptNativeIntArray>(newObjInstr, arrayInfo, arrayInfoAddr, weakFuncRef, helperLabel, labelDone, opndOfArrayCtor,
                                                             Js::JavascriptNativeIntArray::GetOffsetOfArrayCallSiteIndex(),
                                                             Js::JavascriptNativeIntArray::GetOffsetOfWeakFuncRef());
                 }
                 else if (arrayInfo && arrayInfo->IsNativeFloatArray())
-                {
+                {LOGMEIN("Lower.cpp] 5511\n");
                     GenerateProfiledNewScObjArrayFastPath<Js::JavascriptNativeFloatArray>(newObjInstr, arrayInfo, arrayInfoAddr, weakFuncRef, helperLabel, labelDone, opndOfArrayCtor,
                                                               Js::JavascriptNativeFloatArray::GetOffsetOfArrayCallSiteIndex(),
                                                               Js::JavascriptNativeFloatArray::GetOffsetOfWeakFuncRef());
@@ -5534,7 +5534,7 @@ Lowerer::LowerNewScObjArray(IR::Instr *newObjInstr)
             }
             // Since we emitted fast path above, move the startCall/argOut instruction right before helper
             if (emittedFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 5536\n");
                 linkSym = linkOpnd->AsRegOpnd()->m_sym->AsStackSym();
                 AssertMsg(!linkSym->IsArgSlotSym() && linkSym->m_isSingleDef, "Arg tree not single def...");
 
@@ -5580,16 +5580,16 @@ Lowerer::LowerNewScObjArray(IR::Instr *newObjInstr)
 
 IR::Instr *
 Lowerer::LowerNewScObjArrayNoArg(IR::Instr *newObjInstr)
-{
+{LOGMEIN("Lower.cpp] 5582\n");
     IR::Opnd *targetOpnd = newObjInstr->GetSrc1();
     Func *func = newObjInstr->m_func;
 
     IR::Instr* startMarkerInstr = nullptr;
 
     if (!targetOpnd->IsAddrOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 5589\n");
         if (!newObjInstr->HasBailOutInfo())
-        {
+        {LOGMEIN("Lower.cpp] 5591\n");
             return this->LowerNewScObject(newObjInstr, true, false);
         }
 
@@ -5634,7 +5634,7 @@ Lowerer::LowerNewScObjArrayNoArg(IR::Instr *newObjInstr)
     Js::ArrayCallSiteInfo *arrayInfo = nullptr;
     Js::ProfileId profileId = static_cast<Js::ProfileId>(newObjInstr->AsProfiledInstr()->u.profileId);
     if (profileId != Js::Constants::NoProfileId)
-    {
+    {LOGMEIN("Lower.cpp] 5636\n");
         arrayInfo = func->GetReadOnlyProfileInfo()->GetArrayCallSiteInfo(profileId);
         arrayInfoAddr = func->GetReadOnlyProfileInfo()->GetArrayCallSiteInfoAddr(profileId);
         Assert(arrayInfo);
@@ -5666,9 +5666,9 @@ Lowerer::LowerNewScObjArrayNoArg(IR::Instr *newObjInstr)
 ///----------------------------------------------------------------------------
 void
 Lowerer::LowerPrologEpilog()
-{
+{LOGMEIN("Lower.cpp] 5668\n");
     if (m_func->GetJITFunctionBody()->IsCoroutine())
-    {
+    {LOGMEIN("Lower.cpp] 5670\n");
         LowerGeneratorResumeJumpTable();
     }
 
@@ -5687,7 +5687,7 @@ Lowerer::LowerPrologEpilog()
 
 void
 Lowerer::LowerPrologEpilogAsmJs()
-{
+{LOGMEIN("Lower.cpp] 5689\n");
     IR::Instr * instr;
 
     instr = m_func->m_headInstr;
@@ -5703,7 +5703,7 @@ Lowerer::LowerPrologEpilogAsmJs()
 
 void
 Lowerer::LowerGeneratorResumeJumpTable()
-{
+{LOGMEIN("Lower.cpp] 5705\n");
     Assert(m_func->GetJITFunctionBody()->IsCoroutine());
 
     IR::Instr * jumpTableInstr = m_func->m_headInstr;
@@ -5711,7 +5711,7 @@ Lowerer::LowerGeneratorResumeJumpTable()
 
     // Hope to do away with this linked list scan by moving this lowering to a post-prolog-epilog/pre-encoder phase that is common to all architectures (currently such phase is only available on amd64/arm)
     while (jumpTableInstr->m_opcode != Js::OpCode::GeneratorResumeJumpTable)
-    {
+    {LOGMEIN("Lower.cpp] 5713\n");
         jumpTableInstr = jumpTableInstr->m_next;
     }
 
@@ -5723,13 +5723,13 @@ Lowerer::LowerGeneratorResumeJumpTable()
         IR::LabelInstr * label = yorl.Second();
 
         if (label != nullptr && label->m_hasNonBranchRef)
-        {
+        {LOGMEIN("Lower.cpp] 5725\n");
             // Also fix up the bailout at the label with the jump to epilog that was not emitted in GenerateBailOut()
             Assert(label->m_prev->HasBailOutInfo());
             GenerateJumpToEpilogForBailOut(label->m_prev->GetBailOutInfo(), label->m_prev);
         }
         else if (label == nullptr)
-        {
+        {LOGMEIN("Lower.cpp] 5731\n");
             label = m_func->m_bailOutNoSaveLabel;
         }
 
@@ -5742,17 +5742,17 @@ Lowerer::LowerGeneratorResumeJumpTable()
 
 void
 Lowerer::DoInterruptProbes()
-{
+{LOGMEIN("Lower.cpp] 5744\n");
     this->m_func->SetHasInstrNumber(true);
     uint instrCount = 1;
     FOREACH_INSTR_IN_FUNC(instr, this->m_func)
-    {
+    {LOGMEIN("Lower.cpp] 5748\n");
         instr->SetNumber(instrCount++);
         if (instr->IsLabelInstr())
-        {
+        {LOGMEIN("Lower.cpp] 5751\n");
             IR::LabelInstr *labelInstr = instr->AsLabelInstr();
             if (labelInstr->m_isLoopTop)
-            {
+            {LOGMEIN("Lower.cpp] 5754\n");
                 // For every loop top label, insert the following:
 
                 //   cmp sp, ThreadContext::stackLimitForCurrentThread
@@ -5775,10 +5775,10 @@ Lowerer::DoInterruptProbes()
 // probes at loop tops instead of back edges, but kept around because it may prove useful.)
 uint
 Lowerer::DoLoopProbeAndNumber(IR::BranchInstr *branchInstr)
-{
+{LOGMEIN("Lower.cpp] 5777\n");
     IR::LabelInstr *labelInstr = branchInstr->GetTarget();
     if (labelInstr == nullptr || labelInstr->GetNumber() == 0)
-    {
+    {LOGMEIN("Lower.cpp] 5780\n");
         // Forward branch (possibly an indirect jump after try-catch-finally); nothing to do.
         return branchInstr->GetNumber() + 1;
     }
@@ -5792,7 +5792,7 @@ Lowerer::DoLoopProbeAndNumber(IR::BranchInstr *branchInstr)
     IR::Instr *instrPrev = branchInstr->m_prev;
     IR::Instr *instrNext = branchInstr->m_next;
     if (branchInstr->IsUnconditional())
-    {
+    {LOGMEIN("Lower.cpp] 5794\n");
         // B $loop ==>
 
         // cmp [], 0
@@ -5825,7 +5825,7 @@ Lowerer::DoLoopProbeAndNumber(IR::BranchInstr *branchInstr)
     }
 
     FOREACH_INSTR_IN_RANGE(instr, instrPrev->m_next, instrNext->m_prev)
-    {
+    {LOGMEIN("Lower.cpp] 5827\n");
         instr->SetNumber(number++);
     }
     NEXT_INSTR_IN_RANGE;
@@ -5835,7 +5835,7 @@ Lowerer::DoLoopProbeAndNumber(IR::BranchInstr *branchInstr)
 
 void
 Lowerer::InsertOneLoopProbe(IR::Instr *insertInstr, IR::LabelInstr *loopLabel)
-{
+{LOGMEIN("Lower.cpp] 5837\n");
     // Insert one interrupt probe at the given instruction. Probe the stack and call the abort helper
     // directly if the probe fails.
 
@@ -5862,7 +5862,7 @@ Lowerer::InsertOneLoopProbe(IR::Instr *insertInstr, IR::LabelInstr *loopLabel)
     // be executed).
     instr = this->m_func->m_exitInstr->GetPrevRealInstrOrLabel();
     if (instr->IsLabelInstr())
-    {
+    {LOGMEIN("Lower.cpp] 5864\n");
         helperLabel = instr->AsLabelInstr();
     }
     else
@@ -5883,7 +5883,7 @@ Lowerer::InsertOneLoopProbe(IR::Instr *insertInstr, IR::LabelInstr *loopLabel)
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LoadPropertySymAsArgument(IR::Instr *instr, IR::Opnd *fieldSrc)
-{
+{LOGMEIN("Lower.cpp] 5885\n");
     IR::Instr * instrPrev;
     AssertMsg(fieldSrc->IsSymOpnd() && fieldSrc->AsSymOpnd()->m_sym->IsPropertySym(), "Expected fieldSym as src of LdFld");
 
@@ -5907,7 +5907,7 @@ Lowerer::LoadPropertySymAsArgument(IR::Instr *instr, IR::Opnd *fieldSrc)
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LoadFunctionBodyAsArgument(IR::Instr *instr, IR::IntConstOpnd * functionBodySlotOpnd, IR::RegOpnd * envOpnd)
-{
+{LOGMEIN("Lower.cpp] 5909\n");
     IR::Instr * instrPrev;
 
     // We need to pass in the function reference, we can't embed the pointer to the function proxy here.
@@ -5928,7 +5928,7 @@ Lowerer::LoadFunctionBodyAsArgument(IR::Instr *instr, IR::IntConstOpnd * functio
 
 IR::Instr *
 Lowerer::LowerProfiledLdFld(IR::JitProfilingInstr *ldFldInstr)
-{
+{LOGMEIN("Lower.cpp] 5930\n");
     const auto instrPrev = ldFldInstr->m_prev;
 
     auto src = ldFldInstr->UnlinkSrc1();
@@ -5936,7 +5936,7 @@ Lowerer::LowerProfiledLdFld(IR::JitProfilingInstr *ldFldInstr)
 
     IR::JnHelperMethod helper;
     switch (ldFldInstr->m_opcode)
-    {
+    {LOGMEIN("Lower.cpp] 5938\n");
         case Js::OpCode::LdFld:
             helper = IR::HelperProfiledLdFld;
             goto ldFldCommon;
@@ -5960,7 +5960,7 @@ Lowerer::LowerProfiledLdFld(IR::JitProfilingInstr *ldFldInstr)
             goto ldFldCommon;
 
 ldFldCommon:
-        {
+        {LOGMEIN("Lower.cpp] 5962\n");
             Assert(ldFldInstr->profileId == Js::Constants::NoProfileId);
 
             /*
@@ -5980,7 +5980,7 @@ ldFldCommon:
         }
 
         case Js::OpCode::LdSuperFld:
-        {
+        {LOGMEIN("Lower.cpp] 5982\n");
             Assert(ldFldInstr->profileId == Js::Constants::NoProfileId);
 
             IR::Opnd * src2 = nullptr;
@@ -6041,9 +6041,9 @@ Lowerer::LowerLdFld(
     bool useInlineCache,
     IR::LabelInstr *labelBailOut,
     bool isHelper)
-{
+{LOGMEIN("Lower.cpp] 6043\n");
     if (ldFldInstr->IsJitProfilingInstr())
-    {
+    {LOGMEIN("Lower.cpp] 6045\n");
         // If we want to profile then do something completely different
         return this->LowerProfiledLdFld(ldFldInstr->AsJitProfilingInstr());
     }
@@ -6053,7 +6053,7 @@ Lowerer::LowerLdFld(
 
     src = ldFldInstr->UnlinkSrc1();
     if (ldFldInstr->m_opcode == Js::OpCode::LdSuperFld)
-    {
+    {LOGMEIN("Lower.cpp] 6055\n");
         IR::Opnd * src2 = nullptr;
         src2 = ldFldInstr->UnlinkSrc2();
         m_lowererMD.LoadHelperArgument(ldFldInstr, src2);
@@ -6062,11 +6062,11 @@ Lowerer::LowerLdFld(
     AssertMsg(src->IsSymOpnd() && src->AsSymOpnd()->m_sym->IsPropertySym(), "Expected property sym as src");
 
     if (useInlineCache)
-    {
+    {LOGMEIN("Lower.cpp] 6064\n");
         IR::Opnd * inlineCacheOpnd;
         AssertMsg(src->AsSymOpnd()->IsPropertySymOpnd(), "Need property sym operand to find the inline cache");
         if (src->AsPropertySymOpnd()->m_runtimePolymorphicInlineCache && polymorphicHelperMethod != helperMethod)
-        {
+        {LOGMEIN("Lower.cpp] 6068\n");
             JITTimePolymorphicInlineCache * polymorphicInlineCache = src->AsPropertySymOpnd()->m_runtimePolymorphicInlineCache;
             helperMethod = polymorphicHelperMethod;
             inlineCacheOpnd = IR::AddrOpnd::New(polymorphicInlineCache->GetAddr(), IR::AddrOpndKindDynamicInlineCache, this->m_func);
@@ -6102,7 +6102,7 @@ Lowerer::LowerLdFld(
 
 bool
 Lowerer::GenerateLdFldWithCachedType(IR::Instr * instrLdFld, bool* continueAsHelperOut, IR::LabelInstr** labelHelperOut, IR::RegOpnd** typeOpndOut)
-{
+{LOGMEIN("Lower.cpp] 6104\n");
     IR::Instr *instr;
     IR::Opnd *opnd;
     IR::LabelInstr *labelObjCheckFailed = nullptr;
@@ -6120,20 +6120,20 @@ Lowerer::GenerateLdFldWithCachedType(IR::Instr * instrLdFld, bool* continueAsHel
 
     Assert(instrLdFld->GetSrc1()->IsSymOpnd());
     if (!instrLdFld->GetSrc1()->AsSymOpnd()->IsPropertySymOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 6122\n");
         return false;
     }
 
     IR::PropertySymOpnd *propertySymOpnd = instrLdFld->GetSrc1()->AsPropertySymOpnd();
     if (!propertySymOpnd->IsTypeCheckSeqCandidate())
-    {
+    {LOGMEIN("Lower.cpp] 6128\n");
         return false;
     }
 
     AssertMsg(propertySymOpnd->TypeCheckSeqBitsSetOnlyIfCandidate(), "Property sym operand optimized despite not being a candidate?");
 
     if (!propertySymOpnd->IsTypeCheckSeqParticipant() && !propertySymOpnd->NeedsLocalTypeCheck())
-    {
+    {LOGMEIN("Lower.cpp] 6135\n");
         return false;
     }
 
@@ -6155,7 +6155,7 @@ Lowerer::GenerateLdFldWithCachedType(IR::Instr * instrLdFld, bool* continueAsHel
         propertySymOpnd->IsTypeChecked() ? _u("true") : _u("false"));
 
     if (propertySymOpnd->HasFinalType() && !propertySymOpnd->IsLoadedFromProto())
-    {
+    {LOGMEIN("Lower.cpp] 6157\n");
         propertySymOpnd->UpdateSlotForFinalType();
     }
 
@@ -6173,9 +6173,9 @@ Lowerer::GenerateLdFldWithCachedType(IR::Instr * instrLdFld, bool* continueAsHel
     bool emitLoadFromProtoTypeCheck = propertySymOpnd->NeedsLoadFromProtoTypeCheck();
 
     if (emitPrimaryTypeCheck || emitLocalTypeCheck || emitLoadFromProtoTypeCheck)
-    {
+    {LOGMEIN("Lower.cpp] 6175\n");
         if (emitLoadFromProtoTypeCheck)
-        {
+        {LOGMEIN("Lower.cpp] 6177\n");
             propertySymOpnd->EnsureGuardedPropOps(this->m_func->m_alloc);
             propertySymOpnd->SetGuardedPropOp(propertySymOpnd->GetObjTypeSpecFldId());
         }
@@ -6186,7 +6186,7 @@ Lowerer::GenerateLdFldWithCachedType(IR::Instr * instrLdFld, bool* continueAsHel
 
     IR::Opnd *opndSlotArray;
     if (propertySymOpnd->IsLoadedFromProto())
-    {
+    {LOGMEIN("Lower.cpp] 6188\n");
         opndSlotArray = this->LoadSlotArrayWithCachedProtoType(instrLdFld, propertySymOpnd);
     }
     else
@@ -6199,7 +6199,7 @@ Lowerer::GenerateLdFldWithCachedType(IR::Instr * instrLdFld, bool* continueAsHel
     Assert(index != -1);
 
     if (opndSlotArray->IsRegOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 6201\n");
         opnd = IR::IndirOpnd::New(opndSlotArray->AsRegOpnd(), index * sizeof(Js::Var), TyMachReg, this->m_func);
     }
     else
@@ -6212,7 +6212,7 @@ Lowerer::GenerateLdFldWithCachedType(IR::Instr * instrLdFld, bool* continueAsHel
     // We eliminate the helper, or the type check succeeds, or we bail out before the operation.
     // Either delete the original instruction or replace it with a bailout.
     if (!emitPrimaryTypeCheck && !emitLocalTypeCheck && !emitLoadFromProtoTypeCheck)
-    {
+    {LOGMEIN("Lower.cpp] 6214\n");
         Assert(labelTypeCheckFailed == nullptr);
         AssertMsg(!instrLdFld->HasBailOutInfo(), "Why does a direct field load have bailout?");
         instrLdFld->Remove();
@@ -6229,13 +6229,13 @@ Lowerer::GenerateLdFldWithCachedType(IR::Instr * instrLdFld, bool* continueAsHel
     instrLdFld->InsertAfter(labelDone);
 
     if (hasTypeCheckBailout)
-    {
+    {LOGMEIN("Lower.cpp] 6231\n");
         AssertMsg(PHASE_ON1(Js::ObjTypeSpecIsolatedFldOpsWithBailOutPhase) || !propertySymOpnd->IsTypeDead(),
             "Why does a field load have a type check bailout, if its type is dead?");
 
         // Convert the original instruction to a bailout.
         if (instrLdFld->GetBailOutInfo()->bailOutInstr != instrLdFld)
-        {
+        {LOGMEIN("Lower.cpp] 6237\n");
             // Set the cache index in the bailout info so that the bailout code will write it into the
             // bailout record at runtime.
             instrLdFld->GetBailOutInfo()->polymorphicCacheIndex = propertySymOpnd->m_inlineCacheIndex;
@@ -6259,9 +6259,9 @@ Lowerer::GenerateLdFldWithCachedType(IR::Instr * instrLdFld, bool* continueAsHel
 template<bool isRoot>
 IR::Instr* Lowerer::GenerateCompleteLdFld(IR::Instr* instr, bool emitFastPath, IR::JnHelperMethod monoHelperAfterFastPath, IR::JnHelperMethod polyHelperAfterFastPath,
     IR::JnHelperMethod monoHelperWithoutFastPath, IR::JnHelperMethod polyHelperWithoutFastPath)
-{
+{LOGMEIN("Lower.cpp] 6261\n");
     if(instr->CallsAccessor() && instr->HasBailOutInfo())
-    {
+    {LOGMEIN("Lower.cpp] 6263\n");
         IR::BailOutKind kindMinusBits = instr->GetBailOutKind() & ~IR::BailOutKindBits;
         Assert(kindMinusBits != IR::BailOutOnImplicitCalls && kindMinusBits != IR::BailOutOnImplicitCallsPreOp);
     }
@@ -6274,10 +6274,10 @@ IR::Instr* Lowerer::GenerateCompleteLdFld(IR::Instr* instr, bool emitFastPath, I
     IR::RegOpnd* typeOpnd = nullptr;
 
     if (isRoot)
-    {
+    {LOGMEIN("Lower.cpp] 6276\n");
         // Don't do the fast path here if emitFastPath is false, even if we can.
         if (emitFastPath && (this->GenerateLdFldWithCachedType(instr, &isHelper, &labelHelper, &typeOpnd) || this->GenerateNonConfigurableLdRootFld(instr)))
-        {
+        {LOGMEIN("Lower.cpp] 6279\n");
             Assert(labelHelper == nullptr);
             return prevInstr;
         }
@@ -6285,7 +6285,7 @@ IR::Instr* Lowerer::GenerateCompleteLdFld(IR::Instr* instr, bool emitFastPath, I
     else
     {
         if (this->GenerateLdFldWithCachedType(instr, &isHelper, &labelHelper, &typeOpnd))
-        {
+        {LOGMEIN("Lower.cpp] 6287\n");
             Assert(labelHelper == nullptr);
             return prevInstr;
         }
@@ -6294,9 +6294,9 @@ IR::Instr* Lowerer::GenerateCompleteLdFld(IR::Instr* instr, bool emitFastPath, I
     if (emitFastPath)
     {
         if (!GenerateFastLdFld(instr, monoHelperWithoutFastPath, polyHelperWithoutFastPath, &labelBailOut, typeOpnd, &isHelper, &labelHelper))
-        {
+        {LOGMEIN("Lower.cpp] 6296\n");
             if (labelHelper != nullptr)
-            {
+            {LOGMEIN("Lower.cpp] 6298\n");
                 labelHelper->isOpHelper = isHelper;
                 instr->InsertBefore(labelHelper);
             }
@@ -6306,7 +6306,7 @@ IR::Instr* Lowerer::GenerateCompleteLdFld(IR::Instr* instr, bool emitFastPath, I
     else
     {
         if (labelHelper != nullptr)
-        {
+        {LOGMEIN("Lower.cpp] 6308\n");
             labelHelper->isOpHelper = isHelper;
             instr->InsertBefore(labelHelper);
         }
@@ -6318,7 +6318,7 @@ IR::Instr* Lowerer::GenerateCompleteLdFld(IR::Instr* instr, bool emitFastPath, I
 
 bool
 Lowerer::GenerateCheckFixedFld(IR::Instr * instrChkFld)
-{
+{LOGMEIN("Lower.cpp] 6320\n");
     IR::Instr *instr;
     IR::LabelInstr *labelBailOut = nullptr;
     IR::LabelInstr *labelDone = nullptr;
@@ -6360,11 +6360,11 @@ Lowerer::GenerateCheckFixedFld(IR::Instr * instrChkFld)
         propertySymOpnd->GetGuardedPropOps() ? propertySymOpnd->GetGuardedPropOps()->Count() : 0);
 
     if (emitPrimaryTypeCheck || emitFixedFieldTypeCheck)
-    {
+    {LOGMEIN("Lower.cpp] 6362\n");
         labelBailOut = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
 
         if(emitFixedFieldTypeCheck && propertySymOpnd->IsRootObjectNonConfigurableFieldLoad())
-        {
+        {LOGMEIN("Lower.cpp] 6366\n");
             AssertMsg(!propertySymOpnd->GetGuardedPropOps() || propertySymOpnd->GetGuardedPropOps()->IsEmpty(), "This property Guard is used only for one property");
             //We need only cheaper Guard check, if the property belongs to the GlobalObject.
             GenerateFixedFieldGuardCheck(instrChkFld, propertySymOpnd, labelBailOut);
@@ -6372,7 +6372,7 @@ Lowerer::GenerateCheckFixedFld(IR::Instr * instrChkFld)
         else
         {
             if (emitFixedFieldTypeCheck)
-            {
+            {LOGMEIN("Lower.cpp] 6374\n");
                 propertySymOpnd->EnsureGuardedPropOps(this->m_func->m_alloc);
                 propertySymOpnd->SetGuardedPropOp(propertySymOpnd->GetObjTypeSpecFldId());
             }
@@ -6385,9 +6385,9 @@ Lowerer::GenerateCheckFixedFld(IR::Instr * instrChkFld)
     // primary type check and here. Note that we don't need a type check, because we know the fixed field exists on the
     // object even if it has been written since primary type check, but we need to verify the fixed value didn't get overwritten.
     if (!emitPrimaryTypeCheck && !emitFixedFieldTypeCheck && !propertySymOpnd->IsWriteGuardChecked())
-    {
+    {LOGMEIN("Lower.cpp] 6387\n");
         if (!PHASE_OFF(Js::FixedFieldGuardCheckPhase, this->m_func))
-        {
+        {LOGMEIN("Lower.cpp] 6389\n");
             Assert(labelBailOut == nullptr);
             labelBailOut = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
             GenerateFixedFieldGuardCheck(instrChkFld, propertySymOpnd, labelBailOut);
@@ -6403,7 +6403,7 @@ Lowerer::GenerateCheckFixedFld(IR::Instr * instrChkFld)
     // to access a fixed field from an instance that has been collected.
 
     if (!emitPrimaryTypeCheck && !emitFixedFieldTypeCheck && propertySymOpnd->IsWriteGuardChecked())
-    {
+    {LOGMEIN("Lower.cpp] 6405\n");
         Assert(labelBailOut == nullptr);
         AssertMsg(!instrChkFld->HasBailOutInfo(), "Why does a direct fixed field check have bailout?");
         instrChkFld->Remove();
@@ -6422,7 +6422,7 @@ Lowerer::GenerateCheckFixedFld(IR::Instr * instrChkFld)
     Assert(instrChkFld->HasBailOutInfo());
 
     if (instrChkFld->GetBailOutInfo()->bailOutInstr != instrChkFld)
-    {
+    {LOGMEIN("Lower.cpp] 6424\n");
         // Set the cache index in the bailout info so that the bailout code will write it into the
         // bailout record at runtime.
         instrChkFld->GetBailOutInfo()->polymorphicCacheIndex = inlineCacheIndex;
@@ -6437,7 +6437,7 @@ Lowerer::GenerateCheckFixedFld(IR::Instr * instrChkFld)
 
 void
 Lowerer::GenerateCheckObjType(IR::Instr * instrChkObjType)
-{
+{LOGMEIN("Lower.cpp] 6439\n");
     Assert(instrChkObjType->GetSrc1()->IsSymOpnd() && instrChkObjType->GetSrc1()->AsSymOpnd()->IsPropertySymOpnd());
     IR::PropertySymOpnd *propertySymOpnd = instrChkObjType->GetSrc1()->AsPropertySymOpnd();
 
@@ -6475,7 +6475,7 @@ Lowerer::GenerateCheckObjType(IR::Instr * instrChkObjType)
     Assert(instrChkObjType->HasBailOutInfo());
 
     if (instrChkObjType->GetBailOutInfo()->bailOutInstr != instrChkObjType)
-    {
+    {LOGMEIN("Lower.cpp] 6477\n");
         // Set the cache index in the bailout info so that the bailout code will write it into the
         // bailout record at runtime.
         instrChkObjType->GetBailOutInfo()->polymorphicCacheIndex = inlineCacheIndex;
@@ -6488,7 +6488,7 @@ Lowerer::GenerateCheckObjType(IR::Instr * instrChkObjType)
 
 void
 Lowerer::LowerAdjustObjType(IR::Instr * instrAdjustObjType)
-{
+{LOGMEIN("Lower.cpp] 6490\n");
     IR::AddrOpnd *finalTypeOpnd = instrAdjustObjType->UnlinkDst()->AsAddrOpnd();
     IR::AddrOpnd *initialTypeOpnd = instrAdjustObjType->UnlinkSrc2()->AsAddrOpnd();
     IR::RegOpnd  *baseOpnd = instrAdjustObjType->UnlinkSrc1()->AsRegOpnd();
@@ -6507,14 +6507,14 @@ Lowerer::LowerAdjustObjType(IR::Instr * instrAdjustObjType)
 
 bool
 Lowerer::GenerateNonConfigurableLdRootFld(IR::Instr * instrLdFld)
-{
+{LOGMEIN("Lower.cpp] 6509\n");
     if (!instrLdFld->GetSrc1()->AsSymOpnd()->IsPropertySymOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 6511\n");
         return false;
     }
     IR::PropertySymOpnd *propertySymOpnd = instrLdFld->GetSrc1()->AsPropertySymOpnd();
     if (!propertySymOpnd->IsRootObjectNonConfigurableFieldLoad())
-    {
+    {LOGMEIN("Lower.cpp] 6516\n");
         return false;
     }
 
@@ -6523,7 +6523,7 @@ Lowerer::GenerateNonConfigurableLdRootFld(IR::Instr * instrLdFld)
     IR::Opnd * srcOpnd;
     intptr_t rootObject = this->m_func->GetJITFunctionBody()->GetRootObject();
     if (propertySymOpnd->UsesAuxSlot())
-    {
+    {LOGMEIN("Lower.cpp] 6525\n");
         IR::RegOpnd * auxSlotOpnd = IR::RegOpnd::New(TyMachPtr, this->m_func);
         this->InsertMove(auxSlotOpnd, IR::MemRefOpnd::New((byte *)rootObject + Js::DynamicObject::GetOffsetOfAuxSlots(),
                 TyMachPtr, this->m_func), instrLdFld);
@@ -6544,13 +6544,13 @@ Lowerer::GenerateNonConfigurableLdRootFld(IR::Instr * instrLdFld)
 
 IR::Instr *
 Lowerer::LowerDelFld(IR::Instr *delFldInstr, IR::JnHelperMethod helperMethod, bool useInlineCache, bool strictMode)
-{
+{LOGMEIN("Lower.cpp] 6546\n");
     IR::Instr *instrPrev;
 
     Js::PropertyOperationFlags propertyOperationFlag = Js::PropertyOperation_None;
 
     if (strictMode)
-    {
+    {LOGMEIN("Lower.cpp] 6552\n");
         propertyOperationFlag = Js::PropertyOperation_StrictMode;
     }
 
@@ -6563,7 +6563,7 @@ Lowerer::LowerDelFld(IR::Instr *delFldInstr, IR::JnHelperMethod helperMethod, bo
 
 IR::Instr *
 Lowerer::LowerIsInst(IR::Instr * isInstInstr, IR::JnHelperMethod helperMethod)
-{
+{LOGMEIN("Lower.cpp] 6565\n");
     IR::Instr * instrPrev;
     IR::Instr * instrArg;
     IR::RegOpnd * argOpnd;
@@ -6604,7 +6604,7 @@ Lowerer::LowerIsInst(IR::Instr * isInstInstr, IR::JnHelperMethod helperMethod)
 
 void
 Lowerer::GenerateStackScriptFunctionInit(StackSym * stackSym, Js::FunctionInfoPtrPtr nestedInfo)
-{
+{LOGMEIN("Lower.cpp] 6606\n");
     Func * func = this->m_func;
     Assert(func->HasAnyStackNestedFunc());
     Assert(nextStackFunctionOpnd);
@@ -6628,7 +6628,7 @@ Lowerer::GenerateStackScriptFunctionInit(StackSym * stackSym, Js::FunctionInfoPt
 void
 Lowerer::GenerateScriptFunctionInit(IR::RegOpnd * regOpnd, IR::Opnd * vtableAddressOpnd,
     Js::FunctionInfoPtrPtr nestedInfo, IR::Opnd * envOpnd, IR::Instr * insertBeforeInstr, bool isZeroed)
-{
+{LOGMEIN("Lower.cpp] 6630\n");
     Func * func = this->m_func;
 
     IR::Opnd * functionInfoOpnd = IR::RegOpnd::New(TyMachPtr, func);
@@ -6668,7 +6668,7 @@ Lowerer::GenerateScriptFunctionInit(IR::RegOpnd * regOpnd, IR::Opnd * vtableAddr
 
 void
 Lowerer::GenerateStackScriptFunctionInit(IR::RegOpnd * regOpnd, Js::FunctionInfoPtrPtr nestedInfo, IR::Opnd * envOpnd, IR::Instr * insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 6670\n");
     Func * func = this->m_func;
     GenerateScriptFunctionInit(regOpnd,
         LoadVTableValueOpnd(insertBeforeInstr, VTableValue::VtableStackScriptFunction),
@@ -6679,7 +6679,7 @@ Lowerer::GenerateStackScriptFunctionInit(IR::RegOpnd * regOpnd, Js::FunctionInfo
 
 void
 Lowerer::EnsureStackFunctionListStackSym()
-{
+{LOGMEIN("Lower.cpp] 6681\n");
     Func * func = this->m_func;
     Assert(func->HasAnyStackNestedFunc());
 #if defined(_M_IX86) || defined(_M_X64)
@@ -6696,14 +6696,14 @@ Lowerer::EnsureStackFunctionListStackSym()
 
 void
 Lowerer::AllocStackClosure()
-{
+{LOGMEIN("Lower.cpp] 6698\n");
     m_func->StackAllocate(m_func->GetLocalFrameDisplaySym(), sizeof(Js::Var));
     m_func->StackAllocate(m_func->GetLocalClosureSym(), sizeof(Js::Var));
 }
 
 void
 Lowerer::EnsureZeroLastStackFunctionNext()
-{
+{LOGMEIN("Lower.cpp] 6705\n");
     Assert(nextStackFunctionOpnd != nullptr);
     Func * func = this->m_func;
     IR::Instr * insertBeforeInstr = func->GetFunctionEntryInsertionPoint();
@@ -6712,7 +6712,7 @@ Lowerer::EnsureZeroLastStackFunctionNext()
 
 IR::Instr *
 Lowerer::GenerateNewStackScFunc(IR::Instr * newScFuncInstr, IR::RegOpnd ** ppEnvOpnd)
-{
+{LOGMEIN("Lower.cpp] 6714\n");
     Assert(newScFuncInstr->m_func->DoStackNestedFunc());
     Func * func = newScFuncInstr->m_func;
     uint index = newScFuncInstr->GetSrc1()->AsIntConstOpnd()->AsUint32();
@@ -6729,7 +6729,7 @@ Lowerer::GenerateNewStackScFunc(IR::Instr * newScFuncInstr, IR::RegOpnd ** ppEnv
     IR::Instr * instrAssignDst;
     IR::RegOpnd * envOpnd = *ppEnvOpnd;
     if (!func->IsLoopBody())
-    {
+    {LOGMEIN("Lower.cpp] 6731\n");
         // the stackAllocate Call below for this sym is passing a size that is not represented by any IRType and hence passing TyMisc for the constructor
         StackSym * stackSym = StackSym::New(TyMisc, func);
         // ScriptFunction and it's next pointer
@@ -6758,7 +6758,7 @@ Lowerer::GenerateNewStackScFunc(IR::Instr * newScFuncInstr, IR::RegOpnd ** ppEnv
         envDefInstr->Remove();
 
         if (index != 0)
-        {
+        {LOGMEIN("Lower.cpp] 6760\n");
             IR::RegOpnd * opnd = IR::RegOpnd::New(TyVar, func);
             InsertAdd(false, opnd, opndFuncPtr, IR::IntConstOpnd::New(index * sizeof(Js::StackScriptFunction), TyMachPtr, func), newScFuncInstr);
             opndFuncPtr = opnd;
@@ -6780,12 +6780,12 @@ Lowerer::GenerateNewStackScFunc(IR::Instr * newScFuncInstr, IR::RegOpnd ** ppEnv
 
 IR::Instr *
 Lowerer::LowerNewScFunc(IR::Instr * newScFuncInstr)
-{
+{LOGMEIN("Lower.cpp] 6782\n");
     IR::Instr *stackNewScFuncInstr = nullptr;
     IR::RegOpnd * envOpnd = newScFuncInstr->UnlinkSrc2()->AsRegOpnd();
 
     if (newScFuncInstr->m_func->DoStackNestedFunc())
-    {
+    {LOGMEIN("Lower.cpp] 6787\n");
         stackNewScFuncInstr = GenerateNewStackScFunc(newScFuncInstr, &envOpnd);
     }
 
@@ -6799,7 +6799,7 @@ Lowerer::LowerNewScFunc(IR::Instr * newScFuncInstr)
 
 IR::Instr *
 Lowerer::LowerNewScGenFunc(IR::Instr * newScFuncInstr)
-{
+{LOGMEIN("Lower.cpp] 6801\n");
     IR::IntConstOpnd * functionBodySlotOpnd = newScFuncInstr->UnlinkSrc1()->AsIntConstOpnd();
     IR::RegOpnd * envOpnd = newScFuncInstr->UnlinkSrc2()->AsRegOpnd();
 
@@ -6819,12 +6819,12 @@ Lowerer::LowerNewScGenFunc(IR::Instr * newScFuncInstr)
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerScopedLdFld(IR::Instr * ldFldInstr, IR::JnHelperMethod helperMethod, bool withInlineCache)
-{
+{LOGMEIN("Lower.cpp] 6821\n");
     IR::Opnd *src;
     IR::Instr *instrPrev = ldFldInstr->m_prev;
 
     if(!withInlineCache)
-    {
+    {LOGMEIN("Lower.cpp] 6826\n");
         LoadScriptContext(ldFldInstr);
     }
 
@@ -6837,7 +6837,7 @@ Lowerer::LowerScopedLdFld(IR::Instr * ldFldInstr, IR::JnHelperMethod helperMetho
     this->LoadPropertySymAsArgument(ldFldInstr, src);
 
     if (withInlineCache)
-    {
+    {LOGMEIN("Lower.cpp] 6839\n");
         AssertMsg(src->AsSymOpnd()->IsPropertySymOpnd(), "Need property sym operand to find the inline cache");
 
         m_lowererMD.LoadHelperArgument(
@@ -6864,7 +6864,7 @@ Lowerer::LowerScopedLdFld(IR::Instr * ldFldInstr, IR::JnHelperMethod helperMetho
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerScopedLdInst(IR::Instr *instr, IR::JnHelperMethod helperMethod)
-{
+{LOGMEIN("Lower.cpp] 6866\n");
     IR::Opnd *src;
     IR::Instr *instrPrev;
 
@@ -6903,13 +6903,13 @@ Lowerer::LowerScopedLdInst(IR::Instr *instr, IR::JnHelperMethod helperMethod)
 
 IR::Instr *
 Lowerer::LowerScopedDelFld(IR::Instr * delFldInstr, IR::JnHelperMethod helperMethod, bool withInlineCache, bool strictMode)
-{
+{LOGMEIN("Lower.cpp] 6905\n");
     IR::Instr *instrPrev;
 
     Js::PropertyOperationFlags propertyOperationFlag = Js::PropertyOperation_None;
 
     if (strictMode)
-    {
+    {LOGMEIN("Lower.cpp] 6911\n");
         propertyOperationFlag = Js::PropertyOperation_StrictMode;
     }
 
@@ -6922,7 +6922,7 @@ Lowerer::LowerScopedDelFld(IR::Instr * delFldInstr, IR::JnHelperMethod helperMet
 
 IR::Instr *
 Lowerer::LowerProfiledStFld(IR::JitProfilingInstr *stFldInstr, Js::PropertyOperationFlags flags)
-{
+{LOGMEIN("Lower.cpp] 6924\n");
     Assert(stFldInstr->profileId == Js::Constants::NoProfileId);
 
     IR::Instr *const instrPrev = stFldInstr->m_prev;
@@ -6955,7 +6955,7 @@ Lowerer::LowerProfiledStFld(IR::JitProfilingInstr *stFldInstr, Js::PropertyOpera
     m_lowererMD.LoadHelperArgument(stFldInstr, IR::Opnd::CreateFramePointerOpnd(m_func));
 
     if (stFldInstr->m_opcode == Js::OpCode::StSuperFld)
-    {
+    {LOGMEIN("Lower.cpp] 6957\n");
         m_lowererMD.LoadHelperArgument(stFldInstr, stFldInstr->UnlinkSrc2());
     }
 
@@ -6971,7 +6971,7 @@ Lowerer::LowerProfiledStFld(IR::JitProfilingInstr *stFldInstr, Js::PropertyOpera
 
     IR::JnHelperMethod helper;
     switch (stFldInstr->m_opcode)
-    {
+    {LOGMEIN("Lower.cpp] 6973\n");
     case Js::OpCode::InitFld:
     case Js::OpCode::InitRootFld:
         helper = IR::HelperProfiledInitFld;
@@ -7009,9 +7009,9 @@ Lowerer::LowerStFld(
     bool isHelper,
     bool withPutFlags,
     Js::PropertyOperationFlags flags)
-{
+{LOGMEIN("Lower.cpp] 7011\n");
     if (stFldInstr->IsJitProfilingInstr())
-    {
+    {LOGMEIN("Lower.cpp] 7013\n");
         // If we want to profile then do something completely different
         return this->LowerProfiledStFld(stFldInstr->AsJitProfilingInstr(), flags);
     }
@@ -7023,10 +7023,10 @@ Lowerer::LowerStFld(
 
     IR::Opnd * inlineCacheOpnd = nullptr;
     if (withInlineCache)
-    {
+    {LOGMEIN("Lower.cpp] 7025\n");
         AssertMsg(dst->AsSymOpnd()->IsPropertySymOpnd(), "Need property sym operand to find the inline cache");
         if (dst->AsPropertySymOpnd()->m_runtimePolymorphicInlineCache && polymorphicHelperMethod != helperMethod)
-        {
+        {LOGMEIN("Lower.cpp] 7028\n");
             JITTimePolymorphicInlineCache * polymorphicInlineCache = dst->AsPropertySymOpnd()->m_runtimePolymorphicInlineCache;
             helperMethod = polymorphicHelperMethod;
             inlineCacheOpnd = IR::AddrOpnd::New(polymorphicInlineCache->GetAddr(), IR::AddrOpndKindDynamicInlineCache, this->m_func);
@@ -7040,14 +7040,14 @@ Lowerer::LowerStFld(
         }
     }
     if (withPutFlags)
-    {
+    {LOGMEIN("Lower.cpp] 7042\n");
         m_lowererMD.LoadHelperArgument(stFldInstr,
             IR::IntConstOpnd::New(static_cast<IntConstType>(flags), IRType::TyInt32, m_func, true));
     }
 
     IR::Opnd *src = stFldInstr->UnlinkSrc1();
     if (stFldInstr->m_opcode == Js::OpCode::StSuperFld)
-    {
+    {LOGMEIN("Lower.cpp] 7049\n");
         m_lowererMD.LoadHelperArgument(stFldInstr, stFldInstr->UnlinkSrc2());
     }
 
@@ -7056,7 +7056,7 @@ Lowerer::LowerStFld(
     this->LoadPropertySymAsArgument(stFldInstr, dst);
 
     if (withInlineCache)
-    {
+    {LOGMEIN("Lower.cpp] 7058\n");
         Assert(inlineCacheOpnd != nullptr);
         this->m_lowererMD.LoadHelperArgument(
             stFldInstr,
@@ -7074,9 +7074,9 @@ Lowerer::LowerStFld(
 
 IR::Instr* Lowerer::GenerateCompleteStFld(IR::Instr* instr, bool emitFastPath, IR::JnHelperMethod monoHelperAfterFastPath, IR::JnHelperMethod polyHelperAfterFastPath,
     IR::JnHelperMethod monoHelperWithoutFastPath, IR::JnHelperMethod polyHelperWithoutFastPath, bool withPutFlags, Js::PropertyOperationFlags flags)
-{
+{LOGMEIN("Lower.cpp] 7076\n");
     if(instr->CallsAccessor() && instr->HasBailOutInfo())
-    {
+    {LOGMEIN("Lower.cpp] 7078\n");
         IR::BailOutKind kindMinusBits = instr->GetBailOutKind() & ~IR::BailOutKindBits;
         Assert(kindMinusBits != IR::BailOutOnImplicitCalls && kindMinusBits != IR::BailOutOnImplicitCallsPreOp);
     }
@@ -7088,9 +7088,9 @@ IR::Instr* Lowerer::GenerateCompleteStFld(IR::Instr* instr, bool emitFastPath, I
     bool isHelper = false;
     IR::RegOpnd* typeOpnd = nullptr;
     if(emitFastPath && GenerateFastStFldForCustomProperty(instr, &labelHelper))
-    {
+    {LOGMEIN("Lower.cpp] 7090\n");
         if(labelHelper)
-        {
+        {LOGMEIN("Lower.cpp] 7092\n");
             Assert(labelHelper->isOpHelper);
             instr->InsertBefore(labelHelper);
             prevInstr = this->LowerStFld(instr, monoHelperWithoutFastPath, polyHelperWithoutFastPath, true, labelBailOut, isHelper, withPutFlags, flags);
@@ -7102,16 +7102,16 @@ IR::Instr* Lowerer::GenerateCompleteStFld(IR::Instr* instr, bool emitFastPath, I
         }
     }
     else if (this->GenerateStFldWithCachedType(instr, &isHelper, &labelHelper, &typeOpnd))
-    {
+    {LOGMEIN("Lower.cpp] 7104\n");
         Assert(labelHelper == nullptr);
         return prevInstr;
     }
     else if (emitFastPath)
     {
         if (!GenerateFastStFld(instr, monoHelperWithoutFastPath, polyHelperWithoutFastPath, &labelBailOut, typeOpnd, &isHelper, &labelHelper, withPutFlags, flags))
-        {
+        {LOGMEIN("Lower.cpp] 7111\n");
             if (labelHelper != nullptr)
-            {
+            {LOGMEIN("Lower.cpp] 7113\n");
                 labelHelper->isOpHelper = isHelper;
                 instr->InsertBefore(labelHelper);
             }
@@ -7121,7 +7121,7 @@ IR::Instr* Lowerer::GenerateCompleteStFld(IR::Instr* instr, bool emitFastPath, I
     else
     {
         if (labelHelper != nullptr)
-        {
+        {LOGMEIN("Lower.cpp] 7123\n");
             labelHelper->isOpHelper = isHelper;
             instr->InsertBefore(labelHelper);
         }
@@ -7133,7 +7133,7 @@ IR::Instr* Lowerer::GenerateCompleteStFld(IR::Instr* instr, bool emitFastPath, I
 
 void
 Lowerer::GenerateDirectFieldStore(IR::Instr* instrStFld, IR::PropertySymOpnd* propertySymOpnd)
-{
+{LOGMEIN("Lower.cpp] 7135\n");
     Func* func = instrStFld->m_func;
 
     IR::Opnd *opndSlotArray = this->LoadSlotArrayWithCachedLocalType(instrStFld, propertySymOpnd);
@@ -7144,7 +7144,7 @@ Lowerer::GenerateDirectFieldStore(IR::Instr* instrStFld, IR::PropertySymOpnd* pr
 
 #if defined(RECYCLER_WRITE_BARRIER_JIT) && (defined(_M_IX86) || defined(_M_AMD64))
     if (opndSlotArray->IsRegOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 7146\n");
         IR::IndirOpnd * opndDst = IR::IndirOpnd::New(opndSlotArray->AsRegOpnd(), index * sizeof(Js::Var), TyMachReg, func);
         this->GetLowererMD()->GenerateWriteBarrierAssign(opndDst, instrStFld->GetSrc1(), instrStFld);
     }
@@ -7158,7 +7158,7 @@ Lowerer::GenerateDirectFieldStore(IR::Instr* instrStFld, IR::PropertySymOpnd* pr
     IR::Opnd *opnd;
 
     if (opndSlotArray->IsRegOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 7160\n");
         opnd = IR::IndirOpnd::New(opndSlotArray->AsRegOpnd(), index * sizeof(Js::Var), TyMachReg, func);
     }
     else
@@ -7172,7 +7172,7 @@ Lowerer::GenerateDirectFieldStore(IR::Instr* instrStFld, IR::PropertySymOpnd* pr
 
 bool
 Lowerer::GenerateStFldWithCachedType(IR::Instr *instrStFld, bool* continueAsHelperOut, IR::LabelInstr** labelHelperOut, IR::RegOpnd** typeOpndOut)
-{
+{LOGMEIN("Lower.cpp] 7174\n");
     IR::Instr *instr;
     IR::RegOpnd *typeOpnd = nullptr;
     IR::LabelInstr* labelObjCheckFailed  = nullptr;
@@ -7191,7 +7191,7 @@ Lowerer::GenerateStFldWithCachedType(IR::Instr *instrStFld, bool* continueAsHelp
 
     Assert(instrStFld->GetDst()->IsSymOpnd());
     if (!instrStFld->GetDst()->AsSymOpnd()->IsPropertySymOpnd() || !instrStFld->GetDst()->AsPropertySymOpnd()->IsTypeCheckSeqCandidate())
-    {
+    {LOGMEIN("Lower.cpp] 7193\n");
         return false;
     }
 
@@ -7204,12 +7204,12 @@ Lowerer::GenerateStFldWithCachedType(IR::Instr *instrStFld, bool* continueAsHelp
     AssertMsg(propertySymOpnd->TypeCheckSeqBitsSetOnlyIfCandidate(), "Property sym operand optimized despite not being a candidate?");
 
     if (!propertySymOpnd->IsTypeCheckSeqCandidate())
-    {
+    {LOGMEIN("Lower.cpp] 7206\n");
         return false;
     }
 
     if (!propertySymOpnd->IsTypeCheckSeqParticipant() && !propertySymOpnd->NeedsLocalTypeCheck())
-    {
+    {LOGMEIN("Lower.cpp] 7211\n");
         return false;
     }
 
@@ -7230,7 +7230,7 @@ Lowerer::GenerateStFldWithCachedType(IR::Instr *instrStFld, bool* continueAsHelp
         propertySymOpnd->IsTypeChecked() ? _u("true") : _u("false"));
 
     if (propertySymOpnd->HasFinalType() && !propertySymOpnd->IsLoadedFromProto())
-    {
+    {LOGMEIN("Lower.cpp] 7232\n");
         propertySymOpnd->UpdateSlotForFinalType();
     }
 
@@ -7244,18 +7244,18 @@ Lowerer::GenerateStFldWithCachedType(IR::Instr *instrStFld, bool* continueAsHelp
     // If the type hasn't been checked upstream, see if it makes sense to check it here.
     bool isTypeChecked = propertySymOpnd->IsTypeChecked();
     if (!isTypeChecked)
-    {
+    {LOGMEIN("Lower.cpp] 7246\n");
         // If the initial type has been checked, we can do a hard coded type transition without any type checks
         // (see GenerateStFldWithCachedFinalType), which is always worth doing, even if the type is not needed
         // downstream.  We're not introducing any additional bailouts.
         if (propertySymOpnd->HasFinalType() && propertySymOpnd->HasInitialType() && !propertySymOpnd->IsTypeDead())
-        {
+        {LOGMEIN("Lower.cpp] 7251\n");
             // We have a final type in hand, so we can JIT (most of) the type transition work.
             return this->GenerateStFldWithCachedFinalType(instrStFld, propertySymOpnd);
         }
 
         if (propertySymOpnd->HasTypeMismatch())
-        {
+        {LOGMEIN("Lower.cpp] 7257\n");
             // So we have a type mismatch, which happens when the type (and the type without property if ObjTypeSpecStore
             // is on) on this instruction didn't match the live type value according to the flow. We must have hit some
             // stale inline cache (perhaps inlined from a different function, or on a code path not taken for a while).
@@ -7286,7 +7286,7 @@ Lowerer::GenerateStFldWithCachedType(IR::Instr *instrStFld, bool* continueAsHelp
     // If we are protected by a type check upstream, we don't need a bailout or helper here, delete the instruction
     // and return "true" to indicate that we succeeded in eliminating it.
     if (isTypeChecked)
-    {
+    {LOGMEIN("Lower.cpp] 7288\n");
         Assert(labelTypeCheckFailed == nullptr && labelBothTypeChecksFailed == nullptr);
         AssertMsg(!instrStFld->HasBailOutInfo(), "Why does a direct field store have bailout?");
         instrStFld->Remove();
@@ -7320,12 +7320,12 @@ Lowerer::GenerateStFldWithCachedType(IR::Instr *instrStFld, bool* continueAsHelp
     instrStFld->InsertAfter(labelDone);
 
     if (hasTypeCheckBailout)
-    {
+    {LOGMEIN("Lower.cpp] 7322\n");
         AssertMsg(PHASE_ON1(Js::ObjTypeSpecIsolatedFldOpsWithBailOutPhase) || !propertySymOpnd->IsTypeDead(),
             "Why does a field store have a type check bailout, if its type is dead?");
 
         if (instrStFld->GetBailOutInfo()->bailOutInstr != instrStFld)
-        {
+        {LOGMEIN("Lower.cpp] 7327\n");
             // Set the cache index in the bailout info so that the generated code will write it into the
             // bailout record at runtime.
             instrStFld->GetBailOutInfo()->polymorphicCacheIndex = propertySymOpnd->m_inlineCacheIndex;
@@ -7353,7 +7353,7 @@ Lowerer::GenerateStFldWithCachedType(IR::Instr *instrStFld, bool* continueAsHelp
 
 IR::RegOpnd *
 Lowerer::GenerateCachedTypeCheck(IR::Instr *instrChk, IR::PropertySymOpnd *propertySymOpnd, IR::LabelInstr* labelObjCheckFailed, IR::LabelInstr *labelTypeCheckFailed, IR::LabelInstr *labelSecondChance)
-{
+{LOGMEIN("Lower.cpp] 7355\n");
     Assert(propertySymOpnd->MayNeedTypeCheckProtection());
 
     Func* func = instrChk->m_func;
@@ -7361,7 +7361,7 @@ Lowerer::GenerateCachedTypeCheck(IR::Instr *instrChk, IR::PropertySymOpnd *prope
     regOpnd->SetValueType(propertySymOpnd->GetPropertyOwnerValueType());
 
     if (!regOpnd->IsNotTaggedValue())
-    {
+    {LOGMEIN("Lower.cpp] 7363\n");
         m_lowererMD.GenerateObjectTest(regOpnd, instrChk, labelObjCheckFailed);
     }
 
@@ -7385,7 +7385,7 @@ Lowerer::GenerateCachedTypeCheck(IR::Instr *instrChk, IR::PropertySymOpnd *prope
         (Js::PropertyGuard*)CreateTypePropertyGuardForGuardedProperties(type, propertySymOpnd);
 
     if (typeCheckGuard == nullptr)
-    {
+    {LOGMEIN("Lower.cpp] 7387\n");
         Assert(type != nullptr);
         expectedTypeOpnd = IR::AddrOpnd::New(type->GetAddr(), IR::AddrOpndKindDynamicType, func, true);
     }
@@ -7394,7 +7394,7 @@ Lowerer::GenerateCachedTypeCheck(IR::Instr *instrChk, IR::PropertySymOpnd *prope
         Assert(Js::PropertyGuard::GetSizeOfValue() == static_cast<size_t>(TySize[TyMachPtr]));
 
         if (this->m_func->IsOOPJIT())
-        {
+        {LOGMEIN("Lower.cpp] 7396\n");
             int typeCheckGuardOffset = NativeCodeData::GetDataTotalOffset(typeCheckGuard);
             expectedTypeOpnd = IR::IndirOpnd::New(IR::RegOpnd::New(func->GetTopFunc()->GetNativeCodeDataSym(), TyVar, m_func), typeCheckGuardOffset, TyMachPtr,
 #if DBG
@@ -7411,12 +7411,12 @@ Lowerer::GenerateCachedTypeCheck(IR::Instr *instrChk, IR::PropertySymOpnd *prope
     }
 
     if (PHASE_VERBOSE_TRACE(Js::ObjTypeSpecPhase, this->m_func))
-    {
+    {LOGMEIN("Lower.cpp] 7413\n");
         OUTPUT_VERBOSE_TRACE_FUNC(Js::ObjTypeSpecPhase, this->m_func, _u("Emitted %s type check for type 0x%p"),
             emitDirectCheck ? _u("direct") : propertySymOpnd->IsPoly() ? _u("equivalent") : _u("indirect"), type);
 #if DBG
         if (propertySymOpnd->GetGuardedPropOps() != nullptr)
-        {
+        {LOGMEIN("Lower.cpp] 7418\n");
             Output::Print(_u(" guarding operations:\n    "));
             propertySymOpnd->GetGuardedPropOps()->Dump();
         }
@@ -7433,7 +7433,7 @@ Lowerer::GenerateCachedTypeCheck(IR::Instr *instrChk, IR::PropertySymOpnd *prope
     IR::RegOpnd* typeOpnd = IR::RegOpnd::New(TyMachReg, func);
     IR::Opnd *sourceType;
     if (regOpnd->m_sym->IsConst() && !regOpnd->m_sym->IsIntConst() && !regOpnd->m_sym->IsFloatConst())
-    {
+    {LOGMEIN("Lower.cpp] 7435\n");
         sourceType = IR::MemRefOpnd::New((BYTE*)regOpnd->m_sym->GetConstAddress() +
             Js::RecyclableObject::GetOffsetOfType(), TyMachReg, func, IR::AddrOpndKindDynamicObjectTypeRef);
     }
@@ -7444,7 +7444,7 @@ Lowerer::GenerateCachedTypeCheck(IR::Instr *instrChk, IR::PropertySymOpnd *prope
     m_lowererMD.CreateAssign(typeOpnd, sourceType, instrChk);
 
     if (doEquivTypeCheck)
-    {
+    {LOGMEIN("Lower.cpp] 7446\n");
         // TODO (ObjTypeSpec): For isolated equivalent type checks it would be good to emit a check if the cache is still valid, and
         // if not go straight to live polymorphic cache.  This way we wouldn't have to bail out and re-JIT, and also wouldn't continue
         // to try the equivalent type cache, miss it and do the slow comparison. This may be as easy as sticking a null on the main
@@ -7459,7 +7459,7 @@ Lowerer::GenerateCachedTypeCheck(IR::Instr *instrChk, IR::PropertySymOpnd *prope
 
         IR::Opnd* typeCheckGuardOpnd = nullptr;
         if (this->m_func->IsOOPJIT())
-        {
+        {LOGMEIN("Lower.cpp] 7461\n");
             typeCheckGuardOpnd = IR::RegOpnd::New(TyMachPtr, func);
 
             int typeCheckGuardOffset = NativeCodeData::GetDataTotalOffset(typeCheckGuard);
@@ -7517,11 +7517,11 @@ Lowerer::GenerateCachedTypeCheck(IR::Instr *instrChk, IR::PropertySymOpnd *prope
 
 void
 Lowerer::PinTypeRef(JITTypeHolder type, void* typeRef, IR::Instr* instr, Js::PropertyId propertyId)
-{
+{LOGMEIN("Lower.cpp] 7519\n");
     this->m_func->PinTypeRef(typeRef);
 
     if (PHASE_TRACE(Js::TracePinnedTypesPhase, this->m_func))
-    {
+    {LOGMEIN("Lower.cpp] 7523\n");
         char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
         Output::Print(_u("PinnedTypes: function %s(%s) instr %s property ID %u pinned %s reference 0x%p to type 0x%p.\n"),
             this->m_func->GetJITFunctionBody()->GetDisplayName(), this->m_func->GetDebugNumberSet(debugStringBuffer),
@@ -7533,7 +7533,7 @@ Lowerer::PinTypeRef(JITTypeHolder type, void* typeRef, IR::Instr* instr, Js::Pro
 
 void
 Lowerer::GenerateCachedTypeWithoutPropertyCheck(IR::Instr *instrInsert, IR::PropertySymOpnd *propertySymOpnd, IR::Opnd *typeOpnd, IR::LabelInstr *labelTypeCheckFailed)
-{
+{LOGMEIN("Lower.cpp] 7535\n");
     Assert(propertySymOpnd->IsMonoObjTypeSpecCandidate());
     Assert(propertySymOpnd->HasInitialType());
 
@@ -7543,11 +7543,11 @@ Lowerer::GenerateCachedTypeWithoutPropertyCheck(IR::Instr *instrInsert, IR::Prop
     Assert(Js::DynamicType::Is(typeWithoutProperty->GetTypeId()));
 
     if (typeOpnd == nullptr)
-    {
+    {LOGMEIN("Lower.cpp] 7545\n");
         // No opnd holding the type was passed in, so we have to load the type here.
         IR::RegOpnd *baseOpnd = propertySymOpnd->CreatePropertyOwnerOpnd(m_func);
         if (!baseOpnd->IsNotTaggedValue())
-        {
+        {LOGMEIN("Lower.cpp] 7549\n");
             m_lowererMD.GenerateObjectTest(baseOpnd, instrInsert, labelTypeCheckFailed);
         }
         IR::Opnd *opnd = IR::IndirOpnd::New(baseOpnd, Js::RecyclableObject::GetOffsetOfType(), TyMachReg, this->m_func);
@@ -7560,14 +7560,14 @@ Lowerer::GenerateCachedTypeWithoutPropertyCheck(IR::Instr *instrInsert, IR::Prop
     IR::Opnd *expectedTypeOpnd;
 
     if (typePropertyGuard)
-    {
+    {LOGMEIN("Lower.cpp] 7562\n");
         bool emitDirectCheck = true;
 
         Assert(typePropertyGuard != nullptr);
         Assert(Js::PropertyGuard::GetSizeOfValue() == static_cast<size_t>(TySize[TyMachPtr]));
 
         if (this->m_func->IsOOPJIT())
-        {
+        {LOGMEIN("Lower.cpp] 7569\n");
             int typeCheckGuardOffset = NativeCodeData::GetDataTotalOffset(typePropertyGuard);
             expectedTypeOpnd = IR::IndirOpnd::New(IR::RegOpnd::New(m_func->GetTopFunc()->GetNativeCodeDataSym(), TyVar, m_func), typeCheckGuardOffset, TyMachPtr,
 #if DBG
@@ -7607,14 +7607,14 @@ Lowerer::GenerateFixedFieldGuardCheck(IR::Instr *insertPointInstr, IR::PropertyS
 
 Js::JitTypePropertyGuard*
 Lowerer::CreateTypePropertyGuardForGuardedProperties(JITTypeHolder type, IR::PropertySymOpnd* propertySymOpnd)
-{
+{LOGMEIN("Lower.cpp] 7609\n");
     // We should always have a list of guarded properties.
     Assert(propertySymOpnd->GetGuardedPropOps() != nullptr);
 
     Js::JitTypePropertyGuard* guard = nullptr;
 
     if (m_func->GetWorkItem()->GetJITTimeInfo()->HasSharedPropertyGuards())
-    {
+    {LOGMEIN("Lower.cpp] 7616\n");
         // Consider (ObjTypeSpec): Because we allocate these guards from the JIT thread we can't share guards for the same type across multiple functions.
         // This leads to proliferation of property guards on the thread context.  The alternative would be to pre-allocate shared (by value) guards
         // from the thread context during work item creation.  We would create too many of them (because some types aren't actually used as guards),
@@ -7623,18 +7623,18 @@ Lowerer::CreateTypePropertyGuardForGuardedProperties(JITTypeHolder type, IR::Pro
         LinkGuardToGuardedProperties(propertySymOpnd->GetGuardedPropOps(), [this, type, &guard](Js::PropertyId propertyId)
         {
             if (DoLazyFixedTypeBailout(this->m_func))
-            {
+            {LOGMEIN("Lower.cpp] 7625\n");
                 this->m_func->lazyBailoutProperties.Item(propertyId);
             }
             else
             {
                 if (guard == nullptr)
-                {
+                {LOGMEIN("Lower.cpp] 7631\n");
                     guard = this->m_func->GetOrCreateSingleTypeGuard(type->GetAddr());
                 }
 
                 if (PHASE_TRACE(Js::ObjTypeSpecPhase, this->m_func) || PHASE_TRACE(Js::TracePropertyGuardsPhase, this->m_func))
-                {
+                {LOGMEIN("Lower.cpp] 7636\n");
                     char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                     Output::Print(_u("ObjTypeSpec: function %s(%s) registered guard 0x%p with value 0x%p for property ID %u.\n"),
                         m_func->GetJITFunctionBody()->GetDisplayName(), this->m_func->GetDebugNumberSet(debugStringBuffer),
@@ -7653,18 +7653,18 @@ Lowerer::CreateTypePropertyGuardForGuardedProperties(JITTypeHolder type, IR::Pro
 
 Js::JitEquivalentTypeGuard*
 Lowerer::CreateEquivalentTypeGuardAndLinkToGuardedProperties(JITTypeHolder type, IR::PropertySymOpnd* propertySymOpnd)
-{
+{LOGMEIN("Lower.cpp] 7655\n");
     // We should always have a list of guarded properties.
     Assert(propertySymOpnd->HasObjTypeSpecFldInfo() && propertySymOpnd->HasEquivalentTypeSet() && propertySymOpnd->GetGuardedPropOps());
 
     Js::JitEquivalentTypeGuard* guard = this->m_func->CreateEquivalentTypeGuard(type, propertySymOpnd->GetObjTypeSpecFldId());
 
     if (m_func->GetWorkItem()->GetJITTimeInfo()->HasSharedPropertyGuards())
-    {
+    {LOGMEIN("Lower.cpp] 7662\n");
         LinkGuardToGuardedProperties(propertySymOpnd->GetGuardedPropOps(), [=](Js::PropertyId propertyId)
         {
             if (PHASE_TRACE(Js::ObjTypeSpecPhase, this->m_func) || PHASE_TRACE(Js::TracePropertyGuardsPhase, this->m_func))
-            {
+            {LOGMEIN("Lower.cpp] 7666\n");
                 char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                 Output::Print(_u("ObjTypeSpec: function %s(%s) registered equivalent type spec guard 0x%p with value 0x%p for property ID %u.\n"),
                     this->m_func->GetJITFunctionBody()->GetDisplayName(), this->m_func->GetDebugNumberSet(debugStringBuffer),
@@ -7689,7 +7689,7 @@ Lowerer::CreateEquivalentTypeGuardAndLinkToGuardedProperties(JITTypeHolder type,
     Js::EquivalentTypeSet* typeSet = propertySymOpnd->GetEquivalentTypeSet();
     uint16 cachedTypeCount = typeSet->GetCount() < EQUIVALENT_TYPE_CACHE_SIZE ? typeSet->GetCount() : EQUIVALENT_TYPE_CACHE_SIZE;
     for (uint16 ti = 0; ti < cachedTypeCount; ti++)
-    {
+    {LOGMEIN("Lower.cpp] 7691\n");
         cache->types[ti] = (Js::Type*)typeSet->GetType(ti)->GetAddr();
     }
 
@@ -7707,18 +7707,18 @@ Lowerer::CreateEquivalentTypeGuardAndLinkToGuardedProperties(JITTypeHolder type,
     uint propIdCount = 0;
 
     FOREACH_BITSET_IN_SPARSEBV(propOpId, propOps)
-    {
+    {LOGMEIN("Lower.cpp] 7709\n");
         JITObjTypeSpecFldInfo* propOpInfo = this->m_func->GetGlobalObjTypeSpecFldInfo(propOpId);
         Js::PropertyId propertyId = propOpInfo->GetPropertyId();
         Js::PropertyIndex propOpIndex = Js::Constants::NoSlot;
         bool hasFixedValue = propOpInfo->HasFixedValue();
         if (hasFixedValue)
-        {
+        {LOGMEIN("Lower.cpp] 7715\n");
             cache->SetHasFixedValue();
         }
         bool isLoadedFromProto = propOpInfo->IsLoadedFromProto();
         if (isLoadedFromProto)
-        {
+        {LOGMEIN("Lower.cpp] 7720\n");
             cache->SetIsLoadedFromProto();
         }
         else
@@ -7731,9 +7731,9 @@ Lowerer::CreateEquivalentTypeGuardAndLinkToGuardedProperties(JITTypeHolder type,
 
         Js::EquivalentPropertyEntry* entry;
         if (propIds.TryGetValue(propertyId, &entry))
-        {
+        {LOGMEIN("Lower.cpp] 7733\n");
             if (propOpIndex == entry->slotIndex && propOpUsesAuxSlot == entry->isAuxSlot)
-            {
+            {LOGMEIN("Lower.cpp] 7735\n");
                 entry->mustBeWritable |= propOpInfo->IsBeingStored();
             }
             else
@@ -7743,7 +7743,7 @@ Lowerer::CreateEquivalentTypeGuardAndLinkToGuardedProperties(JITTypeHolder type,
                 // We'll just let it happen and turn off the optimization for this function. We could avoid
                 // this problem by tracking property information on the value type in glob opt.
                 if (PHASE_TRACE(Js::EquivObjTypeSpecPhase, this->m_func))
-                {
+                {LOGMEIN("Lower.cpp] 7745\n");
                     char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                     Output::Print(_u("EquivObjTypeSpec: top function %s (%s): duplicate property clash on %d \n"),
                         m_func->GetJITFunctionBody()->GetDisplayName(), m_func->GetDebugNumberSet(debugStringBuffer), propertyId);
@@ -7783,22 +7783,22 @@ Lowerer::CreateEquivalentTypeGuardAndLinkToGuardedProperties(JITTypeHolder type,
 
 bool
 Lowerer::LinkCtorCacheToGuardedProperties(JITTimeConstructorCache* ctorCache)
-{
+{LOGMEIN("Lower.cpp] 7785\n");
     // We do not always have guarded properties. If the constructor is empty and the subsequent code doesn't load or store any of
     // the constructed object's properties, or if all inline caches are empty then this ctor cache doesn't guard any properties.
     if (ctorCache->GetGuardedPropOps() == nullptr)
-    {
+    {LOGMEIN("Lower.cpp] 7789\n");
         return false;
     }
 
     bool linked = false;
 
     if (this->m_func->GetWorkItem()->GetJITTimeInfo()->HasSharedPropertyGuards())
-    {
+    {LOGMEIN("Lower.cpp] 7796\n");
         linked = LinkGuardToGuardedProperties(ctorCache->GetGuardedPropOps(), [=](Js::PropertyId propertyId)
         {
             if (PHASE_TRACE(Js::ObjTypeSpecPhase, this->m_func) || PHASE_TRACE(Js::TracePropertyGuardsPhase, this->m_func))
-            {
+            {LOGMEIN("Lower.cpp] 7800\n");
                 char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                 Output::Print(_u("ObjTypeSpec: function %s(%s) registered ctor cache 0x%p with value 0x%p for property %u.\n"),
                     this->m_func->GetJITFunctionBody()->GetDisplayName(), this->m_func->GetDebugNumberSet(debugStringBuffer),
@@ -7816,14 +7816,14 @@ Lowerer::LinkCtorCacheToGuardedProperties(JITTimeConstructorCache* ctorCache)
 template<typename LinkFunc>
 bool
 Lowerer::LinkGuardToGuardedProperties(const BVSparse<JitArenaAllocator>* guardedPropOps, LinkFunc link)
-{
+{LOGMEIN("Lower.cpp] 7818\n");
     Assert(this->m_func->GetWorkItem()->GetJITTimeInfo()->HasSharedPropertyGuards());
     Assert(guardedPropOps != nullptr);
     bool linked = false;
 
     // For every entry in the bit vector, register the guard for the corresponding property ID.
     FOREACH_BITSET_IN_SPARSEBV(propertyOpId, guardedPropOps)
-    {
+    {LOGMEIN("Lower.cpp] 7825\n");
         JITObjTypeSpecFldInfo* propertyOpInfo = this->m_func->GetGlobalObjTypeSpecFldInfo(propertyOpId);
         Js::PropertyId propertyId = propertyOpInfo->GetPropertyId();
 
@@ -7836,13 +7836,13 @@ Lowerer::LinkGuardToGuardedProperties(const BVSparse<JitArenaAllocator>* guarded
         // AssertMsg(!propertyOpInfo->IsBeingAdded() || !isEquivalentTypeGuard, "Why do we have an equivalent type check protecting a property add?");
 
         if (propertyOpInfo->IsBeingAdded() || propertyOpInfo->IsLoadedFromProto() || propertyOpInfo->HasFixedValue())
-        {
+        {LOGMEIN("Lower.cpp] 7838\n");
             // Equivalent object type spec only supports fixed fields on prototypes.  This is to simplify the slow type equivalence check.
             // See JavascriptOperators::CheckIfTypeIsEquivalent.
             Assert(!propertyOpInfo->IsPoly() || (!propertyOpInfo->HasFixedValue() || propertyOpInfo->IsLoadedFromProto() || propertyOpInfo->UsesAccessor()));
 
             if (this->m_func->GetWorkItem()->GetJITTimeInfo()->HasSharedPropertyGuard(propertyId))
-            {
+            {LOGMEIN("Lower.cpp] 7844\n");
                 link(propertyId);
                 linked = true;
             }
@@ -7859,12 +7859,12 @@ Lowerer::LinkGuardToGuardedProperties(const BVSparse<JitArenaAllocator>* guarded
 
 void
 Lowerer::GeneratePropertyGuardCheck(IR::Instr *insertPointInstr, IR::PropertySymOpnd *propertySymOpnd, IR::LabelInstr *labelBailOut)
-{
+{LOGMEIN("Lower.cpp] 7861\n");
     intptr_t guard = propertySymOpnd->GetPropertyGuardValueAddr();
     Assert(guard != 0);
 
     if (!DoLazyFixedDataBailout(this->m_func))
-    {
+    {LOGMEIN("Lower.cpp] 7866\n");
         Assert(Js::PropertyGuard::GetSizeOfValue() == static_cast<size_t>(TySize[TyMachPtr]));
         IR::AddrOpnd* zeroOpnd = IR::AddrOpnd::NewNull(this->m_func);
         IR::MemRefOpnd* guardOpnd = IR::MemRefOpnd::New(guard, TyMachPtr, this->m_func, IR::AddrOpndKindDynamicGuardValueRef);
@@ -7878,7 +7878,7 @@ Lowerer::GeneratePropertyGuardCheck(IR::Instr *insertPointInstr, IR::PropertySym
 
 IR::Instr*
 Lowerer::GeneratePropertyGuardCheckBailoutAndLoadType(IR::Instr *insertInstr)
-{
+{LOGMEIN("Lower.cpp] 7880\n");
     IR::Instr* instrPrev = insertInstr->m_prev;
 
     IR::Opnd* numberTypeOpnd = IR::AddrOpnd::New(insertInstr->m_func->GetScriptContextInfo()->GetNumberTypeStaticAddr(), IR::AddrOpndKindDynamicType, insertInstr->m_func);
@@ -7912,7 +7912,7 @@ Lowerer::GeneratePropertyGuardCheckBailoutAndLoadType(IR::Instr *insertInstr)
 
 void
 Lowerer::GenerateNonWritablePropertyCheck(IR::Instr *instrInsert, IR::PropertySymOpnd *propertySymOpnd, IR::LabelInstr *labelBailOut)
-{
+{LOGMEIN("Lower.cpp] 7914\n");
     IR::Opnd *opnd;
     IR::Instr *instr;
 
@@ -7959,18 +7959,18 @@ Lowerer::GenerateNonWritablePropertyCheck(IR::Instr *instrInsert, IR::PropertySy
 
 void
 Lowerer::GenerateAdjustSlots(IR::Instr *instrInsert, IR::PropertySymOpnd *propertySymOpnd, JITTypeHolder initialType, JITTypeHolder finalType)
-{
+{LOGMEIN("Lower.cpp] 7961\n");
     IR::RegOpnd *baseOpnd = propertySymOpnd->CreatePropertyOwnerOpnd(m_func);
     bool adjusted = this->GenerateAdjustBaseSlots(instrInsert, baseOpnd, initialType, finalType);
     if (!adjusted)
-    {
+    {LOGMEIN("Lower.cpp] 7965\n");
         baseOpnd->Free(m_func);
     }
 }
 
 bool
 Lowerer::GenerateAdjustBaseSlots(IR::Instr *instrInsert, IR::RegOpnd *baseOpnd, JITTypeHolder initialType, JITTypeHolder finalType)
-{
+{LOGMEIN("Lower.cpp] 7972\n");
     // Possibly allocate new slot capacity to accommodate a type transition.
     AssertMsg(JITTypeHandler::IsTypeHandlerCompatibleForObjectHeaderInlining(initialType->GetTypeHandler(), finalType->GetTypeHandler()),
         "Incompatible typeHandler transition?");
@@ -7980,7 +7980,7 @@ Lowerer::GenerateAdjustBaseSlots(IR::Instr *instrInsert, IR::RegOpnd *baseOpnd, 
     Js::PropertyIndex newInlineSlotCapacity = finalType->GetTypeHandler()->GetInlineSlotCapacity();
 
     if (oldCount >= newCount || newCount <= inlineSlotCapacity)
-    {
+    {LOGMEIN("Lower.cpp] 7982\n");
         // Already have enough slot capacity. Do nothing.
         return false;
     }
@@ -8013,7 +8013,7 @@ Lowerer::GenerateAdjustBaseSlots(IR::Instr *instrInsert, IR::RegOpnd *baseOpnd, 
 
 void
 Lowerer::GenerateFieldStoreWithTypeChange(IR::Instr * instrStFld, IR::PropertySymOpnd *propertySymOpnd, JITTypeHolder initialType, JITTypeHolder finalType)
-{
+{LOGMEIN("Lower.cpp] 8015\n");
     // Adjust instance slots, if necessary.
     this->GenerateAdjustSlots(instrStFld, propertySymOpnd, initialType, finalType);
 
@@ -8035,7 +8035,7 @@ Lowerer::GenerateFieldStoreWithTypeChange(IR::Instr * instrStFld, IR::PropertySy
 
 bool
 Lowerer::GenerateStFldWithCachedFinalType(IR::Instr * instrStFld, IR::PropertySymOpnd *propertySymOpnd)
-{
+{LOGMEIN("Lower.cpp] 8037\n");
     // This function tries to treat a sequence of add-property stores as a single type transition.
     Assert(propertySymOpnd == instrStFld->GetDst()->AsPropertySymOpnd());
     Assert(propertySymOpnd->IsMonoObjTypeSpecCandidate());
@@ -8064,7 +8064,7 @@ Lowerer::GenerateStFldWithCachedFinalType(IR::Instr * instrStFld, IR::PropertySy
     instrStFld->InsertBefore(instr);
 
     if (instrStFld->HasBailOutInfo())
-    {
+    {LOGMEIN("Lower.cpp] 8066\n");
         Assert(labelBailOut != nullptr);
         instrStFld->InsertBefore(labelBailOut);
         instrStFld->InsertAfter(labelDone);
@@ -8089,17 +8089,17 @@ Lowerer::GenerateStFldWithCachedFinalType(IR::Instr * instrStFld, IR::PropertySy
 IR::Instr *
 Lowerer::LowerScopedStFld(IR::Instr * stFldInstr, IR::JnHelperMethod helperMethod, bool withInlineCache,
     bool withPropertyOperationFlags, Js::PropertyOperationFlags flags)
-{
+{LOGMEIN("Lower.cpp] 8091\n");
     IR::Instr *instrPrev = stFldInstr->m_prev;
 
     if (withPropertyOperationFlags)
-    {
+    {LOGMEIN("Lower.cpp] 8095\n");
         m_lowererMD.LoadHelperArgument(stFldInstr,
             IR::IntConstOpnd::New(static_cast<IntConstType>(flags), IRType::TyInt32, m_func, true));
     }
 
     if(!withInlineCache)
-    {
+    {LOGMEIN("Lower.cpp] 8101\n");
         LoadScriptContext(stFldInstr);
     }
 
@@ -8118,7 +8118,7 @@ Lowerer::LowerScopedStFld(IR::Instr * stFldInstr, IR::JnHelperMethod helperMetho
     this->LoadPropertySymAsArgument(stFldInstr, dst);
 
     if (withInlineCache)
-    {
+    {LOGMEIN("Lower.cpp] 8120\n");
         AssertMsg(dst->AsSymOpnd()->IsPropertySymOpnd(), "Need property sym operand to find the inline cache");
 
         m_lowererMD.LoadHelperArgument(
@@ -8143,14 +8143,14 @@ Lowerer::LowerScopedStFld(IR::Instr * stFldInstr, IR::JnHelperMethod helperMetho
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerLoadVar(IR::Instr *instr, IR::Opnd *opnd)
-{
+{LOGMEIN("Lower.cpp] 8145\n");
     instr->SetSrc1(opnd);
     return m_lowererMD.ChangeToAssign(instr);
 }
 
 IR::Instr *
 Lowerer::LoadHelperTemp(IR::Instr * instr, IR::Instr * instrInsert)
-{
+{LOGMEIN("Lower.cpp] 8152\n");
     IR::Opnd *tempOpnd;
     IR::Opnd *dst = instr->GetDst();
     AssertMsg(dst != nullptr, "Always expect a dst for these.");
@@ -8168,20 +8168,20 @@ Lowerer::LoadHelperTemp(IR::Instr * instr, IR::Instr * instrInsert)
 
 void
 Lowerer::LoadArgumentCount(IR::Instr *const instr)
-{
+{LOGMEIN("Lower.cpp] 8170\n");
     Assert(instr);
     Assert(instr->GetDst());
     Assert(!instr->GetSrc1());
     Assert(!instr->GetSrc2());
 
     if(instr->m_func->IsInlinee())
-    {
+    {LOGMEIN("Lower.cpp] 8177\n");
         // Argument count including 'this'
         instr->SetSrc1(IR::IntConstOpnd::New(instr->m_func->actualCount, TyUint32, instr->m_func, true));
         LowererMD::ChangeToAssign(instr);
     }
     else if (instr->m_func->GetJITFunctionBody()->IsCoroutine())
-    {
+    {LOGMEIN("Lower.cpp] 8183\n");
         IR::SymOpnd* symOpnd = LoadCallInfo(instr);
         instr->SetSrc1(symOpnd);
         LowererMD::ChangeToAssign(instr);
@@ -8194,14 +8194,14 @@ Lowerer::LoadArgumentCount(IR::Instr *const instr)
 
 void
 Lowerer::LoadStackArgPtr(IR::Instr *const instr)
-{
+{LOGMEIN("Lower.cpp] 8196\n");
     Assert(instr);
     Assert(instr->GetDst());
     Assert(!instr->GetSrc1());
     Assert(!instr->GetSrc2());
 
     if(instr->m_func->IsInlinee())
-    {
+    {LOGMEIN("Lower.cpp] 8203\n");
         // Address of argument after 'this'
         const auto firstRealArgStackSym = instr->m_func->GetInlineeArgvSlotOpnd()->m_sym->AsStackSym();
         this->m_func->SetArgOffset(firstRealArgStackSym, firstRealArgStackSym->m_offset + MachPtr);
@@ -8216,14 +8216,14 @@ Lowerer::LoadStackArgPtr(IR::Instr *const instr)
 
 void
 Lowerer::LoadArgumentsFromFrame(IR::Instr *const instr)
-{
+{LOGMEIN("Lower.cpp] 8218\n");
     Assert(instr);
     Assert(instr->GetDst());
     Assert(!instr->GetSrc1());
     Assert(!instr->GetSrc2());
 
     if(instr->m_func->IsInlinee())
-    {
+    {LOGMEIN("Lower.cpp] 8225\n");
         // Use the inline object meta arg slot for the arguments object
         instr->SetSrc1(instr->m_func->GetInlineeArgumentsObjectSlotOpnd());
         LowererMD::ChangeToAssign(instr);
@@ -8237,7 +8237,7 @@ Lowerer::LoadArgumentsFromFrame(IR::Instr *const instr)
 #ifdef ENABLE_WASM
 IR::Instr *
 Lowerer::LowerCheckWasmSignature(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 8239\n");
     Assert(m_func->GetJITFunctionBody()->IsWasmFunction());
     Assert(instr->GetSrc1());
     Assert(instr->GetSrc2()->IsIntConstOpnd());
@@ -8250,7 +8250,7 @@ Lowerer::LowerCheckWasmSignature(IR::Instr * instr)
 
     Wasm::WasmSignature * expectedSig = m_func->GetJITFunctionBody()->GetAsmJsInfo()->GetWasmSignature(sigId);
     if (expectedSig->GetShortSig() == Js::Constants::InvalidSignature)
-    {
+    {LOGMEIN("Lower.cpp] 8252\n");
         intptr_t sigAddr = m_func->GetJITFunctionBody()->GetAsmJsInfo()->GetWasmSignatureAddr(sigId);
         IR::AddrOpnd * expectedOpnd = IR::AddrOpnd::New(sigAddr, IR::AddrOpndKindConstantAddress, m_func);
         m_lowererMD.LoadHelperArgument(instr, expectedOpnd);
@@ -8284,7 +8284,7 @@ Lowerer::LowerCheckWasmSignature(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::LowerLdWasmFunc(IR::Instr* instr)
-{
+{LOGMEIN("Lower.cpp] 8286\n");
     IR::Instr * prev = instr->m_prev;
 
     IR::RegOpnd * tableReg = instr->UnlinkSrc1()->AsRegOpnd();
@@ -8299,7 +8299,7 @@ Lowerer::LowerLdWasmFunc(IR::Instr* instr)
     byte scale = m_lowererMD.GetDefaultIndirScale();
     IR::IndirOpnd * funcIndirOpnd;
     if (indexOpnd->IsIntConstOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 8301\n");
         funcIndirOpnd = IR::IndirOpnd::New(valuesRegOpnd, indexOpnd->AsIntConstOpnd()->AsInt32() << scale, TyMachPtr, m_func);
     }
     else
@@ -8330,7 +8330,7 @@ Lowerer::LowerLdWasmFunc(IR::Instr* instr)
 
 IR::Instr *
 Lowerer::LowerGrowWasmMemory(IR::Instr* instr)
-{
+{LOGMEIN("Lower.cpp] 8332\n");
     IR::Instr * instrPrev = m_lowererMD.LoadHelperArgument(instr, instr->UnlinkSrc2());
 
     m_lowererMD.LoadHelperArgument(instr, instr->UnlinkSrc1());
@@ -8342,7 +8342,7 @@ Lowerer::LowerGrowWasmMemory(IR::Instr* instr)
 
 IR::Instr *
 Lowerer::LowerUnaryHelper(IR::Instr *instr, IR::JnHelperMethod helperMethod, IR::Opnd* opndBailoutArg)
-{
+{LOGMEIN("Lower.cpp] 8344\n");
     IR::Instr *instrPrev;
 
     IR::Opnd *src1 = instr->UnlinkSrc1();
@@ -8356,7 +8356,7 @@ Lowerer::LowerUnaryHelper(IR::Instr *instr, IR::JnHelperMethod helperMethod, IR:
 // helper takes memory context as second argument
 IR::Instr *
 Lowerer::LowerUnaryHelperMem(IR::Instr *instr, IR::JnHelperMethod helperMethod, IR::Opnd* opndBailoutArg)
-{
+{LOGMEIN("Lower.cpp] 8358\n");
     IR::Instr *instrPrev;
 
     instrPrev = LoadScriptContext(instr);
@@ -8366,21 +8366,21 @@ Lowerer::LowerUnaryHelperMem(IR::Instr *instr, IR::JnHelperMethod helperMethod, 
 
 IR::Instr *
 Lowerer::LowerUnaryHelperMemWithFunctionInfo(IR::Instr *instr, IR::JnHelperMethod helperMethod)
-{
+{LOGMEIN("Lower.cpp] 8368\n");
     m_lowererMD.LoadHelperArgument(instr, this->LoadFunctionInfoOpnd(instr));
     return this->LowerUnaryHelperMem(instr, helperMethod);
 }
 
 IR::Instr *
 Lowerer::LowerUnaryHelperMemWithFuncBody(IR::Instr *instr, IR::JnHelperMethod helperMethod)
-{
+{LOGMEIN("Lower.cpp] 8375\n");
     m_lowererMD.LoadHelperArgument(instr, this->LoadFunctionBodyOpnd(instr));
     return this->LowerUnaryHelperMem(instr, helperMethod);
 }
 
 IR::Instr *
 Lowerer::LowerBinaryHelperMemWithFuncBody(IR::Instr *instr, IR::JnHelperMethod helperMethod)
-{
+{LOGMEIN("Lower.cpp] 8382\n");
     AssertMsg(Js::OpCodeUtil::GetOpCodeLayout(instr->m_opcode) == Js::OpLayoutType::Reg1Int2, "Expected a binary instruction...");
 
     m_lowererMD.LoadHelperArgument(instr, this->LoadFunctionBodyOpnd(instr));
@@ -8389,13 +8389,13 @@ Lowerer::LowerBinaryHelperMemWithFuncBody(IR::Instr *instr, IR::JnHelperMethod h
 
 IR::Instr *
 Lowerer::LowerUnaryHelperMemWithTemp(IR::Instr *instr, IR::JnHelperMethod helperMethod)
-{
+{LOGMEIN("Lower.cpp] 8391\n");
     AssertMsg(Js::OpCodeUtil::GetOpCodeLayout(instr->m_opcode) == Js::OpLayoutType::Reg2, "Expected a unary instruction...");
 
     IR::Instr * instrFirst;
     IR::Opnd * tempOpnd;
     if (instr->dstIsTempNumber)
-    {
+    {LOGMEIN("Lower.cpp] 8397\n");
         instrFirst = this->LoadHelperTemp(instr, instr);
     }
     else
@@ -8411,11 +8411,11 @@ Lowerer::LowerUnaryHelperMemWithTemp(IR::Instr *instr, IR::JnHelperMethod helper
 
 IR::Instr *
 Lowerer::LowerUnaryHelperMemWithTemp2(IR::Instr *instr, IR::JnHelperMethod helperMethod, IR::JnHelperMethod helperMethodWithTemp)
-{
+{LOGMEIN("Lower.cpp] 8413\n");
     AssertMsg(Js::OpCodeUtil::GetOpCodeLayout(instr->m_opcode) == Js::OpLayoutType::Reg2, "Expected a unary instruction...");
 
     if (instr->dstIsTempNumber)
-    {
+    {LOGMEIN("Lower.cpp] 8417\n");
         IR::Instr * instrFirst = this->LoadHelperTemp(instr, instr);
         this->LowerUnaryHelperMem(instr, helperMethodWithTemp);
         return instrFirst;
@@ -8426,9 +8426,9 @@ Lowerer::LowerUnaryHelperMemWithTemp2(IR::Instr *instr, IR::JnHelperMethod helpe
 
 IR::Instr *
 Lowerer::LowerUnaryHelperMemWithBoolReference(IR::Instr *instr, IR::JnHelperMethod helperMethod, bool useBoolForBailout)
-{
+{LOGMEIN("Lower.cpp] 8428\n");
     if (!this->m_func->tempSymBool)
-    {
+    {LOGMEIN("Lower.cpp] 8430\n");
         this->m_func->tempSymBool = StackSym::New(TyUint8, this->m_func);
         this->m_func->StackAllocate(this->m_func->tempSymBool, TySize[TyUint8]);
     }
@@ -8443,7 +8443,7 @@ Lowerer::LowerUnaryHelperMemWithBoolReference(IR::Instr *instr, IR::JnHelperMeth
 
 IR::Instr *
 Lowerer::LowerInitCachedScope(IR::Instr* instr)
-{
+{LOGMEIN("Lower.cpp] 8445\n");
     instr->m_opcode = Js::OpCode::CallHelper;
     IR::HelperCallOpnd *helperOpnd = IR::HelperCallOpnd::New(IR::HelperOP_InitCachedScope, this->m_func);
     IR::Opnd * src1 = instr->UnlinkSrc1();
@@ -8459,7 +8459,7 @@ Lowerer::LowerInitCachedScope(IR::Instr* instr)
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerBinaryHelper(IR::Instr *instr, IR::JnHelperMethod helperMethod)
-{
+{LOGMEIN("Lower.cpp] 8461\n");
     // The only case where this would still be null when we return is when
     // helperMethod == HelperOP_CmSrEq_EmptyString; in which case we ignore
     // instrPrev.
@@ -8487,7 +8487,7 @@ Lowerer::LowerBinaryHelper(IR::Instr *instr, IR::JnHelperMethod helperMethod)
 // helper takes memory context as third argument
 IR::Instr *
 Lowerer::LowerBinaryHelperMem(IR::Instr *instr, IR::JnHelperMethod helperMethod)
-{
+{LOGMEIN("Lower.cpp] 8489\n");
     IR::Instr *instrPrev;
 
     AssertMsg(Js::OpCodeUtil::GetOpCodeLayout(instr->m_opcode) == Js::OpLayoutType::Reg3 ||
@@ -8502,14 +8502,14 @@ Lowerer::LowerBinaryHelperMem(IR::Instr *instr, IR::JnHelperMethod helperMethod)
 
 IR::Instr *
 Lowerer::LowerBinaryHelperMemWithTemp(IR::Instr *instr, IR::JnHelperMethod helperMethod)
-{
+{LOGMEIN("Lower.cpp] 8504\n");
     AssertMsg(Js::OpCodeUtil::GetOpCodeLayout(instr->m_opcode) == Js::OpLayoutType::Reg3, "Expected a binary instruction...");
 
     IR::Instr * instrFirst;
     IR::Opnd * tempOpnd;
 
     if (instr->dstIsTempNumber)
-    {
+    {LOGMEIN("Lower.cpp] 8511\n");
         instrFirst = this->LoadHelperTemp(instr, instr);
     }
     else
@@ -8529,11 +8529,11 @@ Lowerer::LowerBinaryHelperMemWithTemp2(
     IR::JnHelperMethod helperMethod,
     IR::JnHelperMethod helperMethodWithTemp
     )
-{
+{LOGMEIN("Lower.cpp] 8531\n");
     AssertMsg(Js::OpCodeUtil::GetOpCodeLayout(instr->m_opcode) == Js::OpLayoutType::Reg3, "Expected a binary instruction...");
 
     if (instr->dstIsTempNumber && instr->GetDst() && instr->GetDst()->GetValueType().HasBeenNumber())
-    {
+    {LOGMEIN("Lower.cpp] 8535\n");
         IR::Instr * instrFirst = this->LoadHelperTemp(instr, instr);
         this->LowerBinaryHelperMem(instr, helperMethodWithTemp);
         return instrFirst;
@@ -8544,7 +8544,7 @@ Lowerer::LowerBinaryHelperMemWithTemp2(
 
 IR::Instr *
 Lowerer::LowerAddLeftDeadForString(IR::Instr *instr)
-{
+{LOGMEIN("Lower.cpp] 8546\n");
     IR::Opnd *       opndLeft;
     IR::Opnd *       opndRight;
 
@@ -8562,7 +8562,7 @@ Lowerer::LowerAddLeftDeadForString(IR::Instr *instr)
         || !opndRight->GetValueType().IsLikelyString()
         || !opndLeft->IsEqual(instr->GetDst()->AsRegOpnd())
         || opndLeft->IsEqual(opndRight))
-    {
+    {LOGMEIN("Lower.cpp] 8564\n");
         return this->LowerBinaryHelperMemWithTemp(instr, IR::HelperOp_AddLeftDead);
     }
 
@@ -8573,7 +8573,7 @@ Lowerer::LowerAddLeftDeadForString(IR::Instr *instr)
     instr->InsertBefore(labelHelper);
 
     if (!opndLeft->IsNotTaggedValue())
-    {
+    {LOGMEIN("Lower.cpp] 8575\n");
         this->m_lowererMD.GenerateObjectTest(opndLeft->AsRegOpnd(), insertBeforeInstr, labelHelper);
     }
 
@@ -8663,11 +8663,11 @@ Lowerer::LowerAddLeftDeadForString(IR::Instr *instr)
 
 IR::Instr *
 Lowerer::LowerBinaryHelperMemWithTemp3(IR::Instr *instr, IR::JnHelperMethod helperMethod, IR::JnHelperMethod helperMethodWithTemp, IR::JnHelperMethod helperMethodLeftDead)
-{
+{LOGMEIN("Lower.cpp] 8665\n");
     IR::Opnd *src1 = instr->GetSrc1();
 
     if (src1->IsRegOpnd() && src1->AsRegOpnd()->m_isTempLastUse && !src1->GetValueType().IsNotString())
-    {
+    {LOGMEIN("Lower.cpp] 8669\n");
         Assert(helperMethodLeftDead == IR::HelperOp_AddLeftDead);
         return LowerAddLeftDeadForString(instr);
     }
@@ -8679,11 +8679,11 @@ Lowerer::LowerBinaryHelperMemWithTemp3(IR::Instr *instr, IR::JnHelperMethod help
 
 StackSym *
 Lowerer::GetTempNumberSym(IR::Opnd * opnd, bool isTempTransferred)
-{
+{LOGMEIN("Lower.cpp] 8681\n");
     AssertMsg(opnd->IsRegOpnd(), "Expected regOpnd");
 
     if (isTempTransferred)
-    {
+    {LOGMEIN("Lower.cpp] 8685\n");
         StackSym * tempNumberSym = StackSym::New(TyMisc, m_func);
         this->m_func->StackAllocate(tempNumberSym, sizeof(Js::JavascriptNumber));
         return tempNumberSym;
@@ -8692,7 +8692,7 @@ Lowerer::GetTempNumberSym(IR::Opnd * opnd, bool isTempTransferred)
     StackSym * tempNumberSym = stackSym->m_tempNumberSym;
 
     if (tempNumberSym == nullptr)
-    {
+    {LOGMEIN("Lower.cpp] 8694\n");
         tempNumberSym = StackSym::New(TyMisc, m_func);
         this->m_func->StackAllocate(tempNumberSym, sizeof(Js::JavascriptNumber));
         stackSym->m_tempNumberSym = tempNumberSym;
@@ -8701,7 +8701,7 @@ Lowerer::GetTempNumberSym(IR::Opnd * opnd, bool isTempTransferred)
 }
 
 void Lowerer::LowerProfiledLdElemI(IR::JitProfilingInstr *const instr)
-{
+{LOGMEIN("Lower.cpp] 8703\n");
     Assert(instr);
 
     /*
@@ -8732,7 +8732,7 @@ void Lowerer::LowerProfiledLdElemI(IR::JitProfilingInstr *const instr)
 }
 
 void Lowerer::LowerProfiledStElemI(IR::JitProfilingInstr *const instr, const Js::PropertyOperationFlags flags)
-{
+{LOGMEIN("Lower.cpp] 8734\n");
     Assert(instr);
 
     /*
@@ -8749,7 +8749,7 @@ void Lowerer::LowerProfiledStElemI(IR::JitProfilingInstr *const instr, const Js:
 
     IR::JnHelperMethod helper;
     if(flags == Js::PropertyOperation_None)
-    {
+    {LOGMEIN("Lower.cpp] 8751\n");
         helper = IR::HelperProfiledStElem_DefaultFlags;
     }
     else
@@ -8782,11 +8782,11 @@ void Lowerer::LowerProfiledStElemI(IR::JitProfilingInstr *const instr, const Js:
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerStElemI(IR::Instr * instr, Js::PropertyOperationFlags flags, bool isHelper, IR::JnHelperMethod helperMethod)
-{
+{LOGMEIN("Lower.cpp] 8784\n");
     IR::Instr *instrPrev = instr->m_prev;
 
     if (instr->IsJitProfilingInstr())
-    {
+    {LOGMEIN("Lower.cpp] 8788\n");
         Assert(!isHelper);
         LowerProfiledStElemI(instr->AsJitProfilingInstr(), flags);
         return instrPrev;
@@ -8801,7 +8801,7 @@ Lowerer::LowerStElemI(IR::Instr * instr, Js::PropertyOperationFlags flags, bool 
 
 #if !FLOATVAR
     if (dst->AsIndirOpnd()->GetBaseOpnd()->GetValueType().IsLikelyOptimizedTypedArray() && src1->IsRegOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 8803\n");
         // We allow the source of typedArray StElem to be marked as temp, since we just need the value,
         // however if the array turns out to be a non-typed array, or the index isn't valid (the value is then stored as a property)
         // the temp needs to be boxed if it is a float.  The BoxStackNumber helper will box JavascriptNumbers
@@ -8822,10 +8822,10 @@ Lowerer::LowerStElemI(IR::Instr * instr, Js::PropertyOperationFlags flags, bool 
 #endif
 
     if(instr->HasBailOutInfo())
-    {
+    {LOGMEIN("Lower.cpp] 8824\n");
         IR::BailOutKind bailOutKind = instr->GetBailOutKind();
         if(bailOutKind & IR::BailOutOnInvalidatedArrayHeadSegment)
-        {
+        {LOGMEIN("Lower.cpp] 8827\n");
             Assert(!(bailOutKind & IR::BailOutOnMissingValue));
             LowerBailOnInvalidatedArrayHeadSegment(instr, isHelper);
             bailOutKind ^= IR::BailOutOnInvalidatedArrayHeadSegment;
@@ -8844,7 +8844,7 @@ Lowerer::LowerStElemI(IR::Instr * instr, Js::PropertyOperationFlags flags, bool 
             Assert(!bailOutKind || instr->GetBailOutKind() == bailOutKind);
         }
         if(bailOutKind & IR::BailOutConvertedNativeArray)
-        {
+        {LOGMEIN("Lower.cpp] 8846\n");
             IR::LabelInstr *labelSkipBailOut = IR::LabelInstr::New(Js::OpCode::Label, m_func, isHelper);
             instr->InsertAfter(labelSkipBailOut);
             LowerOneBailOutKind(instr, IR::BailOutConvertedNativeArray, isHelper);
@@ -8869,16 +8869,16 @@ Lowerer::LowerStElemI(IR::Instr * instr, Js::PropertyOperationFlags flags, bool 
         );
 
     if (indexOpnd && indexOpnd->GetType() != TyVar)
-    {
+    {LOGMEIN("Lower.cpp] 8871\n");
         if (indexOpnd->GetType() == TyInt32)
-        {
+        {LOGMEIN("Lower.cpp] 8873\n");
             helperMethod =
                 srcType == TyVar ? IR::HelperOp_SetElementI_Int32 :
                 srcType == TyInt32 ? IR::HelperOp_SetNativeIntElementI_Int32 :
                 IR::HelperOp_SetNativeFloatElementI_Int32;
         }
         else if (indexOpnd->GetType() == TyUint32)
-        {
+        {LOGMEIN("Lower.cpp] 8880\n");
             helperMethod =
                 srcType == TyVar ? IR::HelperOp_SetElementI_UInt32 :
                 srcType == TyInt32 ? IR::HelperOp_SetNativeIntElementI_UInt32 :
@@ -8892,28 +8892,28 @@ Lowerer::LowerStElemI(IR::Instr * instr, Js::PropertyOperationFlags flags, bool 
     else
     {
         if (indexOpnd == nullptr)
-        {
+        {LOGMEIN("Lower.cpp] 8894\n");
             // No index; the offset identifies the element.
             IntConstType offset = (IntConstType)dst->AsIndirOpnd()->GetOffset();
             indexOpnd = IR::AddrOpnd::NewFromNumber(offset, m_func);
         }
 
         if (srcType != TyVar)
-        {
+        {LOGMEIN("Lower.cpp] 8901\n");
             helperMethod =
                 srcType == TyInt32 ? IR::HelperOp_SetNativeIntElementI : IR::HelperOp_SetNativeFloatElementI;
         }
     }
 
     if (srcType == TyFloat64)
-    {
+    {LOGMEIN("Lower.cpp] 8908\n");
         m_lowererMD.LoadDoubleHelperArgument(instr, src1);
     }
     m_lowererMD.LoadHelperArgument(instr,
         IR::IntConstOpnd::New(static_cast<IntConstType>(flags), IRType::TyInt32, m_func, true));
     LoadScriptContext(instr);
     if (srcType != TyFloat64)
-    {
+    {LOGMEIN("Lower.cpp] 8915\n");
         m_lowererMD.LoadHelperArgument(instr, src1);
     }
     m_lowererMD.LoadHelperArgument(instr, indexOpnd);
@@ -8923,7 +8923,7 @@ Lowerer::LowerStElemI(IR::Instr * instr, Js::PropertyOperationFlags flags, bool 
 
     dst->Free(this->m_func);
     if (newDst)
-    {
+    {LOGMEIN("Lower.cpp] 8925\n");
         instr->SetDst(newDst);
     }
 
@@ -8939,11 +8939,11 @@ Lowerer::LowerStElemI(IR::Instr * instr, Js::PropertyOperationFlags flags, bool 
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerLdElemI(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool isHelper)
-{
+{LOGMEIN("Lower.cpp] 8941\n");
     IR::Instr *instrPrev = instr->m_prev;
 
     if(instr->IsJitProfilingInstr())
-    {
+    {LOGMEIN("Lower.cpp] 8945\n");
         Assert(helperMethod == IR::HelperOp_GetElementI);
         Assert(!isHelper);
         LowerProfiledLdElemI(instr->AsJitProfilingInstr());
@@ -8951,7 +8951,7 @@ Lowerer::LowerLdElemI(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool i
     }
 
     if (!isHelper && instr->DoStackArgsOpt(this->m_func))
-    {
+    {LOGMEIN("Lower.cpp] 8953\n");
         IR::LabelInstr * labelLdElem = IR::LabelInstr::New(Js::OpCode::Label, instr->m_func);
         // Pass in null for labelFallThru to only generate the LdHeapArgument call
         GenerateFastArgumentsLdElemI(instr, nullptr);
@@ -8971,14 +8971,14 @@ Lowerer::LowerLdElemI(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool i
 
     IR::Opnd *indexOpnd = indirOpnd->UnlinkIndexOpnd();
     if (indexOpnd && indexOpnd->GetType() != TyVar)
-    {
+    {LOGMEIN("Lower.cpp] 8973\n");
         Assert(indexOpnd->GetType() == TyUint32 || indexOpnd->GetType() == TyInt32);
         switch (helperMethod)
-        {
+        {LOGMEIN("Lower.cpp] 8976\n");
         case IR::HelperOp_GetElementI:
 
             if (indexOpnd->GetType() == TyUint32)
-            {
+            {LOGMEIN("Lower.cpp] 8980\n");
                 helperMethod =
                     dstType == TyVar ? IR::HelperOp_GetElementI_UInt32 :
                     dstType == TyInt32 ? IR::HelperOp_GetNativeIntElementI_UInt32 :
@@ -9014,14 +9014,14 @@ Lowerer::LowerLdElemI(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool i
     else
     {
         if (indexOpnd == nullptr)
-        {
+        {LOGMEIN("Lower.cpp] 9016\n");
             // No index; the offset identifies the element.
             IntConstType offset = (IntConstType)src1->AsIndirOpnd()->GetOffset();
             indexOpnd = IR::AddrOpnd::NewFromNumber(offset, m_func);
         }
 
         if (dstType != TyVar)
-        {
+        {LOGMEIN("Lower.cpp] 9023\n");
             loadScriptContext = false;
             helperMethod =
                 dstType == TyInt32 ? IR::HelperOp_GetNativeIntElementI : IR::HelperOp_GetNativeFloatElementI;
@@ -9031,14 +9031,14 @@ Lowerer::LowerLdElemI(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool i
     // Jitted loop bodies have volatile information about values created outside the loop, so don't update array creation site
     // profile data from jitted loop bodies
     if(!m_func->IsLoopBody())
-    {
+    {LOGMEIN("Lower.cpp] 9033\n");
         const ValueType baseValueType(indirOpnd->GetBaseOpnd()->GetValueType());
         if( baseValueType.IsLikelyObject() &&
             baseValueType.GetObjectType() == ObjectType::Array &&
             !baseValueType.HasIntElements())
-        {
+        {LOGMEIN("Lower.cpp] 9038\n");
             switch(helperMethod)
-            {
+            {LOGMEIN("Lower.cpp] 9040\n");
                 case IR::HelperOp_GetElementI:
                     helperMethod =
                         baseValueType.HasFloatElements()
@@ -9064,7 +9064,7 @@ Lowerer::LowerLdElemI(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool i
     }
 
     if (loadScriptContext)
-    {
+    {LOGMEIN("Lower.cpp] 9066\n");
         LoadScriptContext(instr);
     }
 
@@ -9081,7 +9081,7 @@ Lowerer::LowerLdElemI(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool i
 }
 
 void Lowerer::LowerLdLen(IR::Instr *const instr, const bool isHelper)
-{
+{LOGMEIN("Lower.cpp] 9083\n");
     Assert(instr);
     Assert(instr->m_opcode == Js::OpCode::LdLen_A);
 
@@ -9102,7 +9102,7 @@ void Lowerer::LowerLdLen(IR::Instr *const instr, const bool isHelper)
 
 IR::Instr *
 Lowerer::LowerLdArrViewElem(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 9104\n");
 #ifdef ASMJS_PLAT
     Assert(m_func->GetJITFunctionBody()->IsAsmJsMode());
     Assert(instr);
@@ -9119,7 +9119,7 @@ Lowerer::LowerLdArrViewElem(IR::Instr * instr)
     IR::Instr * done;
 
     if (indexOpnd || m_func->GetJITFunctionBody()->GetAsmJsInfo()->AccessNeedsBoundCheck((uint32)src1->AsIndirOpnd()->GetOffset()))
-    {
+    {LOGMEIN("Lower.cpp] 9121\n");
         // CMP indexOpnd, src2(arrSize)
         // JA $helper
         // JMP $load
@@ -9140,13 +9140,13 @@ Lowerer::LowerLdArrViewElem(IR::Instr * instr)
         instr->UnlinkDst();
         instr->UnlinkSrc1();
         if (src2)
-        {
+        {LOGMEIN("Lower.cpp] 9142\n");
             instr->FreeSrc2();
         }
         done = instr;
     }
     if (dst->IsInt64())
-    {
+    {LOGMEIN("Lower.cpp] 9148\n");
         IR::Instr* movInt64 = IR::Instr::New(Js::OpCode::Ld_I4, dst, src1, m_func);
         done->InsertBefore(movInt64);
         m_lowererMD.LowerInt64Assign(movInt64);
@@ -9166,7 +9166,7 @@ Lowerer::LowerLdArrViewElem(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::LowerLdArrViewElemWasm(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 9168\n");
 #ifdef ENABLE_WASM
     Assert(m_func->GetJITFunctionBody()->IsWasmFunction());
     Assert(instr);
@@ -9185,7 +9185,7 @@ Lowerer::LowerLdArrViewElemWasm(IR::Instr * instr)
 
     IR::Instr* newMove = nullptr;
     if (dst->IsInt64())
-    {
+    {LOGMEIN("Lower.cpp] 9187\n");
         IR::Instr* movInt64 = IR::Instr::New(Js::OpCode::Ld_I4, dst, src1, m_func);
         done->InsertBefore(movInt64);
         newMove = m_lowererMD.LowerInt64Assign(movInt64);
@@ -9211,7 +9211,7 @@ Lowerer::LowerLdArrViewElemWasm(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::LowerMemset(IR::Instr * instr, IR::RegOpnd * helperRet)
-{
+{LOGMEIN("Lower.cpp] 9213\n");
     IR::Opnd * dst = instr->UnlinkDst();
     IR::Opnd * src1 = instr->UnlinkSrc1();
 
@@ -9228,7 +9228,7 @@ Lowerer::LowerMemset(IR::Instr * instr, IR::RegOpnd * helperRet)
     IR::JnHelperMethod helperMethod = IR::HelperOp_Memset;
     IR::Instr *instrPrev = nullptr;
     if (src1->IsRegOpnd() && !src1->IsVar())
-    {
+    {LOGMEIN("Lower.cpp] 9230\n");
         IR::RegOpnd* varOpnd = IR::RegOpnd::New(TyVar, instr->m_func);
         instrPrev = IR::Instr::New(Js::OpCode::ToVar, varOpnd, src1, instr->m_func);
         instr->InsertBefore(instrPrev);
@@ -9248,7 +9248,7 @@ Lowerer::LowerMemset(IR::Instr * instr, IR::RegOpnd * helperRet)
 
 IR::Instr *
 Lowerer::LowerMemcopy(IR::Instr * instr, IR::RegOpnd * helperRet)
-{
+{LOGMEIN("Lower.cpp] 9250\n");
     IR::Opnd * dst = instr->UnlinkDst();
     IR::Opnd * src = instr->UnlinkSrc1();
 
@@ -9287,7 +9287,7 @@ Lowerer::LowerMemcopy(IR::Instr * instr, IR::RegOpnd * helperRet)
 
 IR::Instr *
 Lowerer::LowerMemOp(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 9289\n");
     Assert(instr->m_opcode == Js::OpCode::Memset || instr->m_opcode == Js::OpCode::Memcopy);
     IR::Instr *instrPrev = instr->m_prev;
 
@@ -9295,10 +9295,10 @@ Lowerer::LowerMemOp(IR::Instr * instr)
     const bool isHelper = false;
     AssertMsg(instr->HasBailOutInfo(), "Expected bailOut on MemOp instruction");
     if (instr->HasBailOutInfo())
-    {
+    {LOGMEIN("Lower.cpp] 9297\n");
         IR::BailOutKind bailOutKind = instr->GetBailOutKind();
         if (bailOutKind & IR::BailOutOnInvalidatedArrayHeadSegment)
-        {
+        {LOGMEIN("Lower.cpp] 9300\n");
             Assert(!(bailOutKind & IR::BailOutOnMissingValue));
             LowerBailOnInvalidatedArrayHeadSegment(instr, isHelper);
             bailOutKind ^= IR::BailOutOnInvalidatedArrayHeadSegment;
@@ -9319,7 +9319,7 @@ Lowerer::LowerMemOp(IR::Instr * instr)
 
         AssertMsg(bailOutKind & IR::BailOutOnMemOpError, "Expected BailOutOnMemOpError on MemOp instruction");
         if (bailOutKind & IR::BailOutOnMemOpError)
-        {
+        {LOGMEIN("Lower.cpp] 9321\n");
             // Insert or get continue label
             IR::LabelInstr *const skipBailOutLabel = instr->GetOrCreateContinueLabel(isHelper);
             Func *const func = instr->m_func;
@@ -9347,16 +9347,16 @@ Lowerer::LowerMemOp(IR::Instr * instr)
 
     IR::Instr* newInstrPrev = nullptr;
     if (instr->m_opcode == Js::OpCode::Memset)
-    {
+    {LOGMEIN("Lower.cpp] 9349\n");
         newInstrPrev = LowerMemset(instr, helperRet);
     }
     else if (instr->m_opcode == Js::OpCode::Memcopy)
-    {
+    {LOGMEIN("Lower.cpp] 9353\n");
         newInstrPrev = LowerMemcopy(instr, helperRet);
     }
 
     if (newInstrPrev != nullptr)
-    {
+    {LOGMEIN("Lower.cpp] 9358\n");
         instrPrev = newInstrPrev;
     }
     return instrPrev;
@@ -9364,7 +9364,7 @@ Lowerer::LowerMemOp(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::LowerStArrViewElem(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 9366\n");
 #ifdef ASMJS_PLAT
     Assert(m_func->GetJITFunctionBody()->IsAsmJsMode());
     Assert(instr);
@@ -9386,11 +9386,11 @@ Lowerer::LowerStArrViewElem(IR::Instr * instr)
     IR::Instr * done;
 
     if (m_func->GetJITFunctionBody()->IsWasmFunction())
-    {
+    {LOGMEIN("Lower.cpp] 9388\n");
         done = m_lowererMD.LowerWasmMemOp(instr, dst);
     }
     else if (indexOpnd || m_func->GetJITFunctionBody()->GetAsmJsInfo()->AccessNeedsBoundCheck((uint32)dst->AsIndirOpnd()->GetOffset()))
-    {
+    {LOGMEIN("Lower.cpp] 9392\n");
         // CMP indexOpnd, src2(arrSize)
         // JA $helper
         // JMP $store
@@ -9408,12 +9408,12 @@ Lowerer::LowerStArrViewElem(IR::Instr * instr)
         instr->UnlinkSrc1();
         done = instr;
         if (src2)
-        {
+        {LOGMEIN("Lower.cpp] 9410\n");
             instr->FreeSrc2();
         }
     }
     if (src1->IsInt64())
-    {
+    {LOGMEIN("Lower.cpp] 9415\n");
         IR::Instr* movInt64 = IR::Instr::New(Js::OpCode::Ld_I4, dst, src1, m_func);
         done->InsertBefore(movInt64);
         m_lowererMD.LowerInt64Assign(movInt64);
@@ -9432,7 +9432,7 @@ Lowerer::LowerStArrViewElem(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::LowerArrayDetachedCheck(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 9434\n");
     // TEST isDetached, isDetached
     // JE Done
     // Helper:
@@ -9462,7 +9462,7 @@ Lowerer::LowerArrayDetachedCheck(IR::Instr * instr)
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerDeleteElemI(IR::Instr * instr, bool strictMode)
-{
+{LOGMEIN("Lower.cpp] 9464\n");
     IR::Instr *instrPrev;
 
     IR::Opnd *src1 = instr->UnlinkSrc1();
@@ -9472,7 +9472,7 @@ Lowerer::LowerDeleteElemI(IR::Instr * instr, bool strictMode)
     Js::PropertyOperationFlags propertyOperationFlag = Js::PropertyOperation_None;
 
     if (strictMode)
-    {
+    {LOGMEIN("Lower.cpp] 9474\n");
         propertyOperationFlag = Js::PropertyOperation_StrictMode;
     }
 
@@ -9480,13 +9480,13 @@ Lowerer::LowerDeleteElemI(IR::Instr * instr, bool strictMode)
     IR::JnHelperMethod helperMethod = IR::HelperOp_DeleteElementI;
     IR::Opnd *indexOpnd = src1->AsIndirOpnd()->UnlinkIndexOpnd();
     if (indexOpnd)
-    {
+    {LOGMEIN("Lower.cpp] 9482\n");
         if (indexOpnd->GetType() == TyInt32)
-        {
+        {LOGMEIN("Lower.cpp] 9484\n");
             helperMethod = IR::HelperOp_DeleteElementI_Int32;
         }
         else if (indexOpnd->GetType() == TyUint32)
-        {
+        {LOGMEIN("Lower.cpp] 9488\n");
             helperMethod = IR::HelperOp_DeleteElementI_UInt32;
         }
         else
@@ -9517,9 +9517,9 @@ Lowerer::LowerDeleteElemI(IR::Instr * instr, bool strictMode)
 
 IR::Opnd *
 Lowerer::GetForInEnumeratorFieldOpnd(IR::Opnd * forInEnumeratorOpnd, uint fieldOffset, IRType type)
-{
+{LOGMEIN("Lower.cpp] 9519\n");
     if (forInEnumeratorOpnd->IsSymOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 9521\n");
         IR::SymOpnd * symOpnd = forInEnumeratorOpnd->AsSymOpnd();
         return IR::SymOpnd::New(symOpnd->GetStackSym(), symOpnd->m_offset + fieldOffset, type, this->m_func);
     }
@@ -9530,7 +9530,7 @@ Lowerer::GetForInEnumeratorFieldOpnd(IR::Opnd * forInEnumeratorOpnd, uint fieldO
 
 void
 Lowerer::GenerateFastBrBReturn(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 9532\n");
     Assert(instr->m_opcode == Js::OpCode::BrOnEmpty || instr->m_opcode == Js::OpCode::BrOnNotEmpty);
     AssertMsg(instr->GetSrc1() != nullptr && instr->GetSrc2() == nullptr, "Expected 1 src opnds on BrB");
 
@@ -9622,23 +9622,23 @@ Lowerer::GenerateFastBrBReturn(IR::Instr * instr)
 
 #ifndef _M_X64
 void Lowerer::EnsureInt64RegPairMap()
-{
+{LOGMEIN("Lower.cpp] 9624\n");
     if (!m_int64RegPairMap)
-    {
+    {LOGMEIN("Lower.cpp] 9626\n");
         m_int64RegPairMap = Anew(m_alloc, Int64RegPairMap, m_alloc);
     }
 }
 
 Int64RegPair Lowerer::FindOrCreateInt64Pair(IR::Opnd* reg)
-{
+{LOGMEIN("Lower.cpp] 9632\n");
     Int64RegPair pair;
     IRType type = reg->GetType();
     if (IRType_IsInt64(type))
-    {
+    {LOGMEIN("Lower.cpp] 9636\n");
         type = IRType_IsSignedInt(type) ? TyInt32 : TyUint32;
     }
     if (reg->IsIndirOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 9640\n");
         IR::IndirOpnd* indir = reg->AsIndirOpnd();
         indir->SetType(type);
         pair.low = indir;
@@ -9651,7 +9651,7 @@ Int64RegPair Lowerer::FindOrCreateInt64Pair(IR::Opnd* reg)
     Assert(IRType_IsInt64(reg->GetType()));
 
     if (reg->IsImmediateOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 9653\n");
         int64 value = reg->GetImmediateValue(m_func);
         pair.low = IR::IntConstOpnd::New((int32)value, type, m_func);
         pair.high = IR::IntConstOpnd::New((int32)(value >> 32), type, m_func);
@@ -9669,9 +9669,9 @@ Int64RegPair Lowerer::FindOrCreateInt64Pair(IR::Opnd* reg)
     SymID symId = stackSym->m_id;
     Int64SymPair symPair;
     if (!m_int64RegPairMap->TryGetValue(symId, &symPair))
-    {
+    {LOGMEIN("Lower.cpp] 9671\n");
         if (stackSym->IsArgSlotSym() || stackSym->IsParamSlotSym())
-        {
+        {LOGMEIN("Lower.cpp] 9673\n");
             const bool isArg = stackSym->IsArgSlotSym();
             typedef StackSym* (*SymConstr)(Js::ArgSlot, Func *, IRType);
             SymConstr Constr = isArg ? &StackSym::NewArgSlotSym : (SymConstr)&StackSym::NewParamSlotSym;
@@ -9692,7 +9692,7 @@ Int64RegPair Lowerer::FindOrCreateInt64Pair(IR::Opnd* reg)
     }
 
     if (reg->IsSymOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 9694\n");
         pair.low = IR::SymOpnd::New(symPair.low, reg->AsSymOpnd()->m_offset, type, this->m_func);
         pair.high = IR::SymOpnd::New(symPair.high, reg->AsSymOpnd()->m_offset, type, this->m_func);
     }
@@ -9712,7 +9712,7 @@ Int64RegPair Lowerer::FindOrCreateInt64Pair(IR::Opnd* reg)
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerBrBReturn(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool isHelper)
-{
+{LOGMEIN("Lower.cpp] 9714\n");
     IR::Instr * instrPrev;
     IR::Instr * instrCall;
     IR::HelperCallOpnd  * opndHelper;
@@ -9741,13 +9741,13 @@ Lowerer::LowerBrBReturn(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool
 
 #if DBG
     if (isHelper)
-    {
+    {LOGMEIN("Lower.cpp] 9743\n");
         if (!loweredInstr->IsBranchInstr())
-        {
+        {LOGMEIN("Lower.cpp] 9745\n");
             loweredInstr = loweredInstr->GetNextBranchOrLabel();
         }
         if (loweredInstr->IsBranchInstr())
-        {
+        {LOGMEIN("Lower.cpp] 9749\n");
             loweredInstr->AsBranchInstr()->m_isHelperToNonHelperBranch = true;
         }
     }
@@ -9762,7 +9762,7 @@ Lowerer::LowerBrBReturn(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool
 ///
 ///----------------------------------------------------------------------------
 IR::Instr* Lowerer::LowerMultiBr(IR::Instr * instr, IR::JnHelperMethod helperMethod)
-{
+{LOGMEIN("Lower.cpp] 9764\n");
     IR::Instr * instrPrev = instr->m_prev;
     IR::Instr * instrCall;
     IR::HelperCallOpnd  * opndHelper;
@@ -9787,7 +9787,7 @@ IR::Instr* Lowerer::LowerMultiBr(IR::Instr * instr, IR::JnHelperMethod helperMet
     auto dictionary = instr->AsBranchInstr()->AsMultiBrInstr()->GetBranchDictionary();
 
     if (this->m_func->IsOOPJIT())
-    {
+    {LOGMEIN("Lower.cpp] 9789\n");
         auto dictionaryOffset = NativeCodeData::GetDataTotalOffset(dictionary);
         auto addressRegOpnd = IR::RegOpnd::New(TyMachPtr, m_func);
 
@@ -9832,7 +9832,7 @@ IR::Instr* Lowerer::LowerMultiBr(IR::Instr * instr, IR::JnHelperMethod helperMet
 
 void
 Lowerer::LowerJumpTableMultiBranch(IR::MultiBranchInstr * multiBrInstr, IR::RegOpnd * indexOpnd)
-{
+{LOGMEIN("Lower.cpp] 9834\n");
     Func * func = this->m_func;
     IR::Opnd * opndDst = IR::RegOpnd::New(TyMachPtr, func);
     //Move the native address of the jump table to a register
@@ -9867,7 +9867,7 @@ Lowerer::LowerJumpTableMultiBranch(IR::MultiBranchInstr * multiBrInstr, IR::RegO
 ///
 ///----------------------------------------------------------------------------
 IR::Instr* Lowerer::LowerMultiBr(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 9869\n");
     IR::Instr * instrPrev = instr->m_prev;
 
     AssertMsg(instr->GetSrc1() != nullptr && instr->GetSrc2() == nullptr, "Expected 1 src opnd on BrB");
@@ -9881,7 +9881,7 @@ IR::Instr* Lowerer::LowerMultiBr(IR::Instr * instr)
 }
 
 IR::Instr* Lowerer::LowerBrBMem(IR::Instr * instr, IR::JnHelperMethod helperMethod)
-{
+{LOGMEIN("Lower.cpp] 9883\n");
     IR::Instr * instrPrev;
     IR::Instr * instrCall;
     IR::HelperCallOpnd  * opndHelper;
@@ -9913,7 +9913,7 @@ IR::Instr* Lowerer::LowerBrBMem(IR::Instr * instr, IR::JnHelperMethod helperMeth
 }
 
 IR::Instr* Lowerer::LowerBrOnObject(IR::Instr * instr, IR::JnHelperMethod helperMethod)
-{
+{LOGMEIN("Lower.cpp] 9915\n");
     IR::Instr * instrPrev;
     IR::Instr * instrCall;
     IR::HelperCallOpnd  * opndHelper;
@@ -9944,7 +9944,7 @@ IR::Instr* Lowerer::LowerBrOnObject(IR::Instr * instr, IR::JnHelperMethod helper
 }
 
 IR::Instr * Lowerer::LowerBrOnClassConstructor(IR::Instr * instr, IR::JnHelperMethod helperMethod)
-{
+{LOGMEIN("Lower.cpp] 9946\n");
     IR::Instr * instrPrev;
     IR::Instr * instrCall;
     IR::HelperCallOpnd * opndHelper;
@@ -9976,7 +9976,7 @@ IR::Instr * Lowerer::LowerBrOnClassConstructor(IR::Instr * instr, IR::JnHelperMe
 
 IR::Instr *
 Lowerer::LowerBrCMem(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool noMathFastPath, bool isHelper)
-{
+{LOGMEIN("Lower.cpp] 9978\n");
     IR::Instr * instrPrev = instr->m_prev;
     IR::Instr * instrCall;
     IR::HelperCallOpnd  * opndHelper;
@@ -9988,7 +9988,7 @@ Lowerer::LowerBrCMem(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool no
     AssertMsg(instr->GetSrc1() != nullptr && instr->GetSrc2() != nullptr, "Expected 2 src opnds on BrC");
 
     if (!noMathFastPath && !this->GenerateFastCondBranch(instr->AsBranchInstr(), &isHelper))
-    {
+    {LOGMEIN("Lower.cpp] 9990\n");
         return instrPrev;
     }
 
@@ -9997,14 +9997,14 @@ Lowerer::LowerBrCMem(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool no
     const bool loadArg2 = !(helperMethod == IR::HelperOp_StrictEqualEmptyString);
 
     if (helperMethod == IR::HelperOp_NotEqual)
-    {
+    {LOGMEIN("Lower.cpp] 9999\n");
         // Op_NotEqual() returns !Op_Equal().  It is faster to call Op_Equal() directly.
         helperMethod = IR::HelperOp_Equal;
         instr->AsBranchInstr()->Invert();
         inverted = true;
     }
     else if(helperMethod == IR::HelperOp_NotStrictEqual)
-    {
+    {LOGMEIN("Lower.cpp] 10006\n");
         // Op_NotStrictEqual() returns !Op_StrictEqual().  It is faster to call Op_StrictEqual() directly.
         helperMethod = IR::HelperOp_StrictEqual;
         instr->AsBranchInstr()->Invert();
@@ -10032,13 +10032,13 @@ Lowerer::LowerBrCMem(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool no
     instrCall = m_lowererMD.LowerCall(instrCall, 0);
 
     switch (instr->m_opcode)
-    {
+    {LOGMEIN("Lower.cpp] 10034\n");
     case Js::OpCode::BrNotEq_A:
     case Js::OpCode::BrNotNeq_A:
     case Js::OpCode::BrSrNotEq_A:
     case Js::OpCode::BrSrNotNeq_A:
         if (instr->HasBailOutInfo())
-        {
+        {LOGMEIN("Lower.cpp] 10040\n");
             instr->GetBailOutInfo()->isInvertedBranch = true;
         }
         break;
@@ -10061,7 +10061,7 @@ Lowerer::LowerBrCMem(IR::Instr * instr, IR::JnHelperMethod helperMethod, bool no
 }
 
 IR::Instr *
-Lowerer::LowerBrFncApply(IR::Instr * instr, IR::JnHelperMethod helperMethod) {
+Lowerer::LowerBrFncApply(IR::Instr * instr, IR::JnHelperMethod helperMethod) {LOGMEIN("Lower.cpp] 10063\n");
     IR::Instr * instrPrev = instr->m_prev;
     IR::Instr * instrCall;
     IR::HelperCallOpnd  * opndHelper;
@@ -10102,7 +10102,7 @@ Lowerer::LowerBrFncApply(IR::Instr * instr, IR::JnHelperMethod helperMethod) {
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerBrProperty(IR::Instr * instr, IR::JnHelperMethod helper)
-{
+{LOGMEIN("Lower.cpp] 10104\n");
     IR::Instr * instrPrev;
     IR::Instr * instrCall;
     IR::HelperCallOpnd * opndHelper;
@@ -10127,7 +10127,7 @@ Lowerer::LowerBrProperty(IR::Instr * instr, IR::JnHelperMethod helper)
 
     instr->SetSrc1(opndDst);
     switch (instr->m_opcode)
-    {
+    {LOGMEIN("Lower.cpp] 10129\n");
     case Js::OpCode::BrOnHasProperty:
         instr->m_opcode = Js::OpCode::BrTrue_A;
         break;
@@ -10150,7 +10150,7 @@ Lowerer::LowerBrProperty(IR::Instr * instr, IR::JnHelperMethod helper)
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerElementUndefined(IR::Instr * instr, IR::JnHelperMethod helper)
-{
+{LOGMEIN("Lower.cpp] 10152\n");
     IR::Opnd *dst = instr->UnlinkDst();
     AssertMsg(dst->IsSymOpnd() && dst->AsSymOpnd()->m_sym->IsPropertySym(), "Expected fieldSym as dst of Ld Undefined");
 
@@ -10163,7 +10163,7 @@ Lowerer::LowerElementUndefined(IR::Instr * instr, IR::JnHelperMethod helper)
 
 IR::Instr *
 Lowerer::LowerElementUndefinedMem(IR::Instr * instr, IR::JnHelperMethod helper)
-{
+{LOGMEIN("Lower.cpp] 10165\n");
     // Pass script context
     IR::Instr * instrPrev = LoadScriptContext(instr);
 
@@ -10174,9 +10174,9 @@ Lowerer::LowerElementUndefinedMem(IR::Instr * instr, IR::JnHelperMethod helper)
 
 IR::Instr *
 Lowerer::LowerLdElemUndef(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 10176\n");
     if (this->m_func->GetJITFunctionBody()->IsEval())
-    {
+    {LOGMEIN("Lower.cpp] 10178\n");
         return LowerElementUndefinedMem(instr, IR::HelperOp_LdElemUndefDynamic);
     }
     else
@@ -10192,7 +10192,7 @@ Lowerer::LowerLdElemUndef(IR::Instr * instr)
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerElementUndefinedScoped(IR::Instr * instr, IR::JnHelperMethod helper)
-{
+{LOGMEIN("Lower.cpp] 10194\n");
     IR::Instr * instrPrev = instr->m_prev;
 
     // Pass the default instance
@@ -10212,7 +10212,7 @@ Lowerer::LowerElementUndefinedScoped(IR::Instr * instr, IR::JnHelperMethod helpe
 
 IR::Instr *
 Lowerer::LowerElementUndefinedScopedMem(IR::Instr * instr, IR::JnHelperMethod helper)
-{
+{LOGMEIN("Lower.cpp] 10214\n");
     // Pass script context
     IR::Instr * instrPrev = LoadScriptContext(instr);
 
@@ -10223,7 +10223,7 @@ Lowerer::LowerElementUndefinedScopedMem(IR::Instr * instr, IR::JnHelperMethod he
 
 void
 Lowerer::LowerStLoopBodyCount(IR::Instr* instr)
-{
+{LOGMEIN("Lower.cpp] 10225\n");
     intptr_t header = m_func->m_workItem->GetLoopHeaderAddr();
 
     IR::MemRefOpnd *loopBodyCounterOpnd = IR::MemRefOpnd::New((BYTE*)(header) + Js::LoopHeader::GetOffsetOfProfiledLoopCounter(), TyUint32, this->m_func);
@@ -10237,7 +10237,7 @@ Lowerer::LowerStLoopBodyCount(IR::Instr* instr)
 #if !FLOATVAR
 IR::Instr *
 Lowerer::LowerStSlotBoxTemp(IR::Instr *stSlot)
-{
+{LOGMEIN("Lower.cpp] 10239\n");
     // regVar = BoxStackNumber(src, scriptContext)
     IR::RegOpnd * regSrc = stSlot->UnlinkSrc1()->AsRegOpnd();
     IR::Instr * instr = IR::Instr::New(Js::OpCode::Call, this->m_func);
@@ -10253,14 +10253,14 @@ Lowerer::LowerStSlotBoxTemp(IR::Instr *stSlot)
 
 IR::Opnd *
 Lowerer::CreateOpndForSlotAccess(IR::Opnd * opnd)
-{
+{LOGMEIN("Lower.cpp] 10255\n");
     IR::SymOpnd * symOpnd = opnd->AsSymOpnd();
     PropertySym * dstSym = symOpnd->m_sym->AsPropertySym();
 
     if (!m_func->IsLoopBody() &&
         m_func->DoStackFrameDisplay() &&
         (dstSym->m_stackSym == m_func->GetLocalClosureSym() || dstSym->m_stackSym == m_func->GetLocalFrameDisplaySym()))
-    {
+    {LOGMEIN("Lower.cpp] 10262\n");
         // Stack closure syms are made to look like slot accesses for the benefit of GlobOpt, so that it can do proper
         // copy prop and implicit call bailout. But what we really want is local stack load/store.
         // Don't do this for loop body, though, since we don't have the value saved on the stack.
@@ -10269,12 +10269,12 @@ Lowerer::CreateOpndForSlotAccess(IR::Opnd * opnd)
 
     int32 offset = dstSym->m_propertyId;
     if (!m_func->GetJITFunctionBody()->IsAsmJsMode())
-    {
+    {LOGMEIN("Lower.cpp] 10271\n");
         offset = offset * TySize[opnd->GetType()];
     }
 #ifdef ASMJS_PLAT
     if (m_func->IsTJLoopBody())
-    {
+    {LOGMEIN("Lower.cpp] 10276\n");
         offset = offset - m_func->GetJITFunctionBody()->GetAsmJsInfo()->GetTotalSizeInBytes();
     }
 #endif
@@ -10286,7 +10286,7 @@ Lowerer::CreateOpndForSlotAccess(IR::Opnd * opnd)
 
 IR::Instr *
 Lowerer::LowerStSlot(IR::Instr *instr)
-{
+{LOGMEIN("Lower.cpp] 10288\n");
     // StSlot stores the nth Var in the buffer pointed to by the property sym's stack sym.
 
     IR::Opnd * dstOpnd = instr->UnlinkDst();
@@ -10296,7 +10296,7 @@ Lowerer::LowerStSlot(IR::Instr *instr)
 
     instr->SetDst(dstNew);
     if (instr->GetDst() && instr->GetDst()->IsInt64())
-    {
+    {LOGMEIN("Lower.cpp] 10298\n");
         m_lowererMD.LowerInt64Assign(instr);
     }
     else
@@ -10309,7 +10309,7 @@ Lowerer::LowerStSlot(IR::Instr *instr)
 
 IR::Instr *
 Lowerer::LowerStSlotChkUndecl(IR::Instr *instrStSlot)
-{
+{LOGMEIN("Lower.cpp] 10311\n");
     Assert(instrStSlot->GetSrc2() != nullptr);
 
     // Src2 is required only to avoid dead store false positives during GlobOpt.
@@ -10324,7 +10324,7 @@ Lowerer::LowerStSlotChkUndecl(IR::Instr *instrStSlot)
 }
 
 void Lowerer::LowerProfileLdSlot(IR::Opnd *const valueOpnd, Func *const ldSlotFunc, const Js::ProfileId profileId, IR::Instr *const insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 10326\n");
     Assert(valueOpnd);
     Assert(profileId != Js::Constants::NoProfileId);
     Assert(insertBeforeInstr);
@@ -10343,7 +10343,7 @@ void Lowerer::LowerProfileLdSlot(IR::Opnd *const valueOpnd, Func *const ldSlotFu
 
 void
 Lowerer::LowerLdSlot(IR::Instr *instr)
-{
+{LOGMEIN("Lower.cpp] 10345\n");
     IR::Opnd * srcOpnd = instr->UnlinkSrc1();
     AssertMsg(srcOpnd, "Expected src opnd on LdSlot");
     IR::Opnd * srcNew = this->CreateOpndForSlotAccess(srcOpnd);
@@ -10351,7 +10351,7 @@ Lowerer::LowerLdSlot(IR::Instr *instr)
 
     instr->SetSrc1(srcNew);
     if (instr->GetDst() && instr->GetDst()->IsInt64())
-    {
+    {LOGMEIN("Lower.cpp] 10353\n");
         m_lowererMD.LowerInt64Assign(instr);
     }
     else
@@ -10362,7 +10362,7 @@ Lowerer::LowerLdSlot(IR::Instr *instr)
 
 IR::Instr *
 Lowerer::LowerChkUndecl(IR::Instr *instr)
-{
+{LOGMEIN("Lower.cpp] 10364\n");
     IR::Instr *instrPrev = instr->m_prev;
     this->GenUndeclChk(instr, instr->GetSrc1());
     instr->Remove();
@@ -10371,7 +10371,7 @@ Lowerer::LowerChkUndecl(IR::Instr *instr)
 
 void
 Lowerer::GenUndeclChk(IR::Instr *instrInsert, IR::Opnd *opnd)
-{
+{LOGMEIN("Lower.cpp] 10373\n");
     IR::LabelInstr *labelContinue = IR::LabelInstr::New(Js::OpCode::Label, m_func);
 
     InsertCompareBranch(
@@ -10400,7 +10400,7 @@ Lowerer::GenUndeclChk(IR::Instr *instrInsert, IR::Opnd *opnd)
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerStElemC(IR::Instr * stElem)
-{
+{LOGMEIN("Lower.cpp] 10402\n");
     IR::Instr *instrPrev = stElem->m_prev;
     IR::IndirOpnd * indirOpnd = stElem->GetDst()->AsIndirOpnd();
     IR::RegOpnd *indexOpnd = indirOpnd->UnlinkIndexOpnd();
@@ -10409,7 +10409,7 @@ Lowerer::LowerStElemC(IR::Instr * stElem)
 
     IntConstType value;
     if (indexOpnd)
-    {
+    {LOGMEIN("Lower.cpp] 10411\n");
         value = indexOpnd->AsRegOpnd()->m_sym->GetIntConstValue();
         indexOpnd->Free(this->m_func);
     }
@@ -10419,7 +10419,7 @@ Lowerer::LowerStElemC(IR::Instr * stElem)
     }
 
     if (stElem->IsJitProfilingInstr())
-    {
+    {LOGMEIN("Lower.cpp] 10421\n");
         Assert(stElem->AsJitProfilingInstr()->profileId == Js::Constants::NoProfileId);
         m_lowererMD.LoadHelperArgument(stElem, stElem->UnlinkSrc1());
 
@@ -10440,14 +10440,14 @@ Lowerer::LowerStElemC(IR::Instr * stElem)
     IR::RegOpnd *baseOpnd = indirOpnd->GetBaseOpnd();
     const ValueType baseValueType(baseOpnd->GetValueType());
     if(baseValueType.IsLikelyNativeArray())
-    {
+    {LOGMEIN("Lower.cpp] 10442\n");
         Assert(stElem->m_opcode == Js::OpCode::StElemC);
 
         IR::LabelInstr *labelBailOut = nullptr;
         IR::Instr *instrBailOut = nullptr;
 
         if (stElem->HasBailOutInfo())
-        {
+        {LOGMEIN("Lower.cpp] 10449\n");
             labelBailOut = IR::LabelInstr::New(Js::OpCode::Label, m_func, true);
             instrBailOut = stElem;
             stElem = IR::Instr::New(instrBailOut->m_opcode, m_func);
@@ -10465,14 +10465,14 @@ Lowerer::LowerStElemC(IR::Instr * stElem)
         }
 
         if (!baseValueType.IsObject())
-        {
+        {LOGMEIN("Lower.cpp] 10467\n");
             // Likely native array: do a vtable check and bail if it fails.
             Assert(labelBailOut);
             GenerateArrayTest(baseOpnd, labelBailOut, labelBailOut, stElem, true);
         }
 
         if (stElem->GetSrc1()->GetType() == TyVar)
-        {
+        {LOGMEIN("Lower.cpp] 10474\n");
             // Storing a non-specialized value. This may cause array conversion, which invalidates all the code
             // that depends on the array check we've already done.
             // Call a helper that returns the type ID of the resulting array, check it here against the one we
@@ -10493,7 +10493,7 @@ Lowerer::LowerStElemC(IR::Instr * stElem)
 
             IR::JnHelperMethod helperMethod;
             if (baseValueType.HasIntElements())
-            {
+            {LOGMEIN("Lower.cpp] 10495\n");
                 helperMethod = IR::HelperScrArr_SetNativeIntElementC;
             }
             else
@@ -10518,11 +10518,11 @@ Lowerer::LowerStElemC(IR::Instr * stElem)
             return instrPrev;
         }
         else if (baseValueType.HasIntElements() && labelBailOut)
-        {
+        {LOGMEIN("Lower.cpp] 10520\n");
             Assert(stElem->GetSrc1()->GetType() == GetArrayIndirType(baseValueType));
             IR::Opnd* missingElementOpnd = GetMissingItemOpnd(stElem->GetSrc1()->GetType(), m_func);
             if (!stElem->GetSrc1()->IsEqual(missingElementOpnd))
-            {
+            {LOGMEIN("Lower.cpp] 10524\n");
                 InsertCompareBranch(stElem->GetSrc1(), missingElementOpnd , Js::OpCode::BrEq_A, labelBailOut, stElem, true);
             }
             else
@@ -10545,7 +10545,7 @@ Lowerer::LowerStElemC(IR::Instr * stElem)
         Assert(value <= Js::SparseArraySegmentBase::INLINE_CHUNK_SIZE);
 
         if(baseValueType.HasIntElements())
-        {
+        {LOGMEIN("Lower.cpp] 10547\n");
             base = sizeof(Js::JavascriptNativeIntArray) + offsetof(Js::SparseArraySegment<int32>, elements);
         }
         else
@@ -10554,7 +10554,7 @@ Lowerer::LowerStElemC(IR::Instr * stElem)
         }
     }
     else if(baseValueType.IsLikelyObject() && baseValueType.GetObjectType() == ObjectType::Array)
-    {
+    {LOGMEIN("Lower.cpp] 10556\n");
         Assert(stElem->m_opcode == Js::OpCode::StElemC);
         Assert(value <= Js::SparseArraySegmentBase::INLINE_CHUNK_SIZE);
         base = sizeof(Js::JavascriptArray) + offsetof(Js::SparseArraySegment<Js::Var>, elements);
@@ -10579,13 +10579,13 @@ Lowerer::LowerStElemC(IR::Instr * stElem)
 }
 
 void Lowerer::LowerLdArrHead(IR::Instr *const instr)
-{
+{LOGMEIN("Lower.cpp] 10581\n");
     IR::RegOpnd *array = instr->UnlinkSrc1()->AsRegOpnd();
     const ValueType arrayValueType(array->GetValueType());
     Assert(arrayValueType.IsAnyOptimizedArray());
 
     if(arrayValueType.GetObjectType() == ObjectType::ObjectWithArray)
-    {
+    {LOGMEIN("Lower.cpp] 10587\n");
         array = LoadObjectArray(array, instr);
     }
 
@@ -10606,7 +10606,7 @@ void Lowerer::LowerLdArrHead(IR::Instr *const instr)
 //        Var *elements,
 //        ScriptContext* scriptContext)
 IR::Instr *Lowerer::LowerRestParameter(IR::Opnd *formalsOpnd, IR::Opnd *dstOpnd, IR::Opnd *excessOpnd, IR::Instr *instr, IR::RegOpnd *generatorArgsPtrOpnd)
-{
+{LOGMEIN("Lower.cpp] 10608\n");
     IR::Instr * helperCallInstr = IR::Instr::New(LowererMD::MDCallOpcode, dstOpnd, instr->m_func);
     instr->InsertAfter(helperCallInstr);
 
@@ -10644,7 +10644,7 @@ IR::Instr *Lowerer::LowerRestParameter(IR::Opnd *formalsOpnd, IR::Opnd *dstOpnd,
 ///----------------------------------------------------------------------------
 IR::Instr *
 Lowerer::LowerArgIn(IR::Instr *instrArgIn)
-{
+{LOGMEIN("Lower.cpp] 10646\n");
     IR::LabelInstr *   labelDone;
     IR::LabelInstr *   labelUndef;
     IR::LabelInstr *   labelNormal;
@@ -10695,16 +10695,16 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
     IR::Opnd *restDst = nullptr;
     bool hasRest = instrArgIn->m_opcode == Js::OpCode::ArgIn_Rest;
     if (hasRest)
-    {
+    {LOGMEIN("Lower.cpp] 10697\n");
         IR::Instr *restInstr = instrArgIn;
         restDst = restInstr->UnlinkDst();
         if (m_func->GetJITFunctionBody()->HasImplicitArgIns() && m_func->argInsCount > 0)
-        {
+        {LOGMEIN("Lower.cpp] 10701\n");
             while (instrArgIn->m_opcode != Js::OpCode::ArgIn_A)
-            {
+            {LOGMEIN("Lower.cpp] 10703\n");
                 instrArgIn = instrArgIn->m_prev;
                 if (instrResume == nullptr)
-                {
+                {LOGMEIN("Lower.cpp] 10706\n");
                     instrResume = instrArgIn;
                 }
             }
@@ -10728,7 +10728,7 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
             instrArgIn->InsertBefore(createRestArrayLabel);
 
             if (m_func->GetJITFunctionBody()->IsCoroutine())
-            {
+            {LOGMEIN("Lower.cpp] 10730\n");
                 generatorArgsPtrOpnd = LoadGeneratorArgsPtr(instrArgIn);
             }
 
@@ -10744,10 +10744,10 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
 
     argIndex = symParam->GetParamSlotNum();
     if (argIndex == 1)
-    {
+    {LOGMEIN("Lower.cpp] 10746\n");
         // The "this" argument is not source-dependent and doesn't need to be checked.
         if (m_func->GetJITFunctionBody()->IsCoroutine())
-        {
+        {LOGMEIN("Lower.cpp] 10749\n");
             generatorArgsPtrOpnd = LoadGeneratorArgsPtr(instrArgIn);
             ConvertArgOpndIfGeneratorFunction(instrArgIn, generatorArgsPtrOpnd);
         }
@@ -10769,10 +10769,10 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
     Assert(this->m_func->argInsCount > 0);
 
     while (currArgInCount < this->m_func->argInsCount - 1)
-    {
+    {LOGMEIN("Lower.cpp] 10771\n");
         instrPrev = instrPrev->m_prev;
         if (instrPrev->m_opcode == Js::OpCode::ArgIn_A)
-        {
+        {LOGMEIN("Lower.cpp] 10774\n");
             srcOpnd = instrPrev->GetSrc1();
             symParam = srcOpnd->AsSymOpnd()->m_sym->AsStackSym();
             AssertMsg(symParam->GetParamSlotNum() < argIndex, "ArgIn's not in numerical order");
@@ -10783,7 +10783,7 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
         {
             // Make sure that this instruction gets lowered.
             if (instrResume == nullptr)
-            {
+            {LOGMEIN("Lower.cpp] 10785\n");
                 instrResume = instrPrev;
             }
         }
@@ -10793,7 +10793,7 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
 
     AnalysisAssert(instrInsert);
     if (instrResume == nullptr)
-    {
+    {LOGMEIN("Lower.cpp] 10795\n");
         // We found no intervening non-ArgIn's, so lowering can resume at the previous instruction.
         instrResume = instrInsert->m_prev;
     }
@@ -10801,7 +10801,7 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
     // Now insert all the checks and undef-assigns.
 
     if (m_func->GetJITFunctionBody()->IsCoroutine())
-    {
+    {LOGMEIN("Lower.cpp] 10803\n");
         generatorArgsPtrOpnd = LoadGeneratorArgsPtr(instrInsert);
     }
 
@@ -10844,7 +10844,7 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
     BVSparse<JitArenaAllocator> *formalsBv = JitAnew(this->m_alloc, BVSparse<JitArenaAllocator>, this->m_alloc);
 
     while (currArgInCount > 0)
-    {
+    {LOGMEIN("Lower.cpp] 10846\n");
         dstOpnd = instrArgIn->GetDst();
 
         Assert(dstOpnd->IsRegOpnd());
@@ -10880,7 +10880,7 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
         // This should refer to the second 'x'.  Since we reverse the order here however, we need to skip
         // the initialization of the first 'x' to not override the one for the second.  WOOB:1105504
         if (isDuplicate)
-        {
+        {LOGMEIN("Lower.cpp] 10882\n");
             instrArgIn->Free();
         }
         else
@@ -10892,7 +10892,7 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
         instrArgIn = instrArgInNext;
 
         while (instrArgIn->m_opcode != Js::OpCode::ArgIn_A)
-        {
+        {LOGMEIN("Lower.cpp] 10894\n");
             instrArgIn = instrArgIn->m_prev;
             AssertMsg(instrArgIn, "???");
         }
@@ -10943,7 +10943,7 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
     labelInit->InsertAfter(labelDone);
 
     if (hasRest)
-    {
+    {LOGMEIN("Lower.cpp] 10945\n");
         // The formals count has been tainted, so restore it before lowering rest
         IR::IntConstOpnd * formalsOpnd = IR::IntConstOpnd::New(this->m_func->GetInParamsCount(), TyUint32, this->m_func);
         LowerRestParameter(formalsOpnd, restDst, excessOpnd, labelDone, generatorArgsPtrOpnd);
@@ -10951,7 +10951,7 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
 
     instrArgIn->Unlink();
     if (isDuplicate)
-    {
+    {LOGMEIN("Lower.cpp] 10953\n");
         instrArgIn->Free();
     }
     else
@@ -10968,9 +10968,9 @@ Lowerer::LowerArgIn(IR::Instr *instrArgIn)
 
 void
 Lowerer::ConvertArgOpndIfGeneratorFunction(IR::Instr *instrArgIn, IR::RegOpnd *generatorArgsPtrOpnd)
-{
+{LOGMEIN("Lower.cpp] 10970\n");
     if (this->m_func->GetJITFunctionBody()->IsCoroutine())
-    {
+    {LOGMEIN("Lower.cpp] 10972\n");
         // Replace stack param operand with offset into arguments array held by
         // the generator object.
         IR::Opnd * srcOpnd = instrArgIn->UnlinkSrc1();
@@ -10986,7 +10986,7 @@ Lowerer::ConvertArgOpndIfGeneratorFunction(IR::Instr *instrArgIn, IR::RegOpnd *g
 
 IR::RegOpnd *
 Lowerer::LoadGeneratorArgsPtr(IR::Instr *instrInsert)
-{
+{LOGMEIN("Lower.cpp] 10988\n");
     IR::Instr * instr = LoadGeneratorObject(instrInsert);
     IR::RegOpnd * generatorRegOpnd = instr->GetDst()->AsRegOpnd();
 
@@ -10998,7 +10998,7 @@ Lowerer::LoadGeneratorArgsPtr(IR::Instr *instrInsert)
 
 IR::Instr *
 Lowerer::LoadGeneratorObject(IR::Instr * instrInsert)
-{
+{LOGMEIN("Lower.cpp] 11000\n");
     StackSym * generatorSym = StackSym::NewImplicitParamSym(3, instrInsert->m_func);
     instrInsert->m_func->SetArgOffset(generatorSym, LowererMD::GetFormalParamOffset() * MachPtr);
     IR::SymOpnd * generatorSymOpnd = IR::SymOpnd::New(generatorSym, TyMachPtr, instrInsert->m_func);
@@ -11009,17 +11009,17 @@ Lowerer::LoadGeneratorObject(IR::Instr * instrInsert)
 
 IR::Instr *
 Lowerer::LowerArgInAsmJs(IR::Instr * instrArgIn)
-{
+{LOGMEIN("Lower.cpp] 11011\n");
     Assert(m_func->GetJITFunctionBody()->IsAsmJsMode());
 
     int argCount = (int)(int16)m_func->argInsCount;
     IR::Instr * instr = instrArgIn;
 
     for (int argNum = argCount - 1; argNum >= 0; --argNum)
-    {
+    {LOGMEIN("Lower.cpp] 11018\n");
 #ifdef _M_IX86
         if (instr->GetDst()->IsInt64())
-        {
+        {LOGMEIN("Lower.cpp] 11021\n");
             instr = m_lowererMD.LowerInt64Assign(instr);
         }
         else
@@ -11036,14 +11036,14 @@ Lowerer::LowerArgInAsmJs(IR::Instr * instrArgIn)
 
 bool
 Lowerer::InlineBuiltInLibraryCall(IR::Instr *callInstr)
-{
+{LOGMEIN("Lower.cpp] 11038\n");
     IR::Opnd *src1 = callInstr->GetSrc1();
     IR::Opnd *src2 = callInstr->GetSrc2();
 
     // Get the arg count by looking at the slot number of the last arg symbol.
 
     if (!src2->IsSymOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 11045\n");
         // No args? Not sure this is possible, but handle it.
         return false;
     }
@@ -11060,15 +11060,15 @@ Lowerer::InlineBuiltInLibraryCall(IR::Instr *callInstr)
     // Following is only for prejit scenarios where we don't get inlining always and generate fast path in lowerer.
     // Generating fastpath here misses fixed functions and globopt optimizations.
     switch(index)
-    {
+    {LOGMEIN("Lower.cpp] 11062\n");
         case Js::BuiltinFunction::JavascriptString_CharAt:
         case Js::BuiltinFunction::JavascriptString_CharCodeAt:
             if (argCount != 1)
-            {
+            {LOGMEIN("Lower.cpp] 11066\n");
                 return false;
             }
             if (!callInstr->GetDst())
-            {
+            {LOGMEIN("Lower.cpp] 11070\n");
                 // Optimization of Char[Code]At assumes result is used.
                 return false;
             }
@@ -11076,29 +11076,29 @@ Lowerer::InlineBuiltInLibraryCall(IR::Instr *callInstr)
         case Js::BuiltinFunction::Math_Abs:
 #ifdef _M_IX86
             if (!AutoSystemInfo::Data.SSE2Available())
-            {
+            {LOGMEIN("Lower.cpp] 11078\n");
                 return false;
             }
 #endif
             if (argCount != 1)
-            {
+            {LOGMEIN("Lower.cpp] 11083\n");
                 return false;
             }
             if (!callInstr->GetDst())
-            {
+            {LOGMEIN("Lower.cpp] 11087\n");
                 // Optimization of Abs assumes result is used.
                 return false;
             }
             break;
 
         case Js::BuiltinFunction::JavascriptArray_Push:
-        {
+        {LOGMEIN("Lower.cpp] 11094\n");
             if (argCount != 1)
-            {
+            {LOGMEIN("Lower.cpp] 11096\n");
                 return false;
             }
             if (callInstr->GetDst())
-            {
+            {LOGMEIN("Lower.cpp] 11100\n");
                 // Optimization of push assumes result is unused.
                 return false;
             }
@@ -11110,7 +11110,7 @@ Lowerer::InlineBuiltInLibraryCall(IR::Instr *callInstr)
 
             IR::Opnd *const arrayOpnd = linkSym->m_instrDef->GetSrc1();
             if(!arrayOpnd->IsRegOpnd())
-            {
+            {LOGMEIN("Lower.cpp] 11112\n");
                 // This should be rare, but needs to be handled.
                 // By now, we've already started some of the inlining.  Simply jmp to the helper.
                 // The branch will get peeped later.
@@ -11119,7 +11119,7 @@ Lowerer::InlineBuiltInLibraryCall(IR::Instr *callInstr)
 
             if(!ShouldGenerateArrayFastPath(arrayOpnd, false, false, false) ||
                arrayOpnd->GetValueType().IsLikelyNativeArray())
-            {
+            {LOGMEIN("Lower.cpp] 11121\n");
                 // Rejecting native array for now, since we have to do a FromVar at the call site and bail out.
                 return false;
             }
@@ -11128,14 +11128,14 @@ Lowerer::InlineBuiltInLibraryCall(IR::Instr *callInstr)
         }
 
         case Js::BuiltinFunction::JavascriptString_Replace:
-        {
+        {LOGMEIN("Lower.cpp] 11130\n");
             if(argCount != 2)
-            {
+            {LOGMEIN("Lower.cpp] 11132\n");
                 return false;
             }
 
             if(!ShouldGenerateStringReplaceFastPath(callInstr, argCount))
-            {
+            {LOGMEIN("Lower.cpp] 11137\n");
                 return false;
             }
             break;
@@ -11163,7 +11163,7 @@ Lowerer::InlineBuiltInLibraryCall(IR::Instr *callInstr)
     IR::Opnd *linkOpnd = callInstr->GetSrc2();
 
     while(linkOpnd->IsSymOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 11165\n");
         IR::SymOpnd * symOpnd = linkOpnd->AsSymOpnd();
         StackSym *sym = symOpnd->m_sym->AsStackSym();
         Assert(sym->m_isSingleDef);
@@ -11195,7 +11195,7 @@ Lowerer::InlineBuiltInLibraryCall(IR::Instr *callInstr)
 
     bool success = true;
     switch(index)
-    {
+    {LOGMEIN("Lower.cpp] 11197\n");
         case Js::BuiltinFunction::Math_Abs:
             this->m_lowererMD.GenerateFastAbs(callInstr->GetDst(), argsOpnd[1], callInstr, labelHelper, labelHelper, doneLabel);
             break;
@@ -11239,7 +11239,7 @@ Lowerer::InlineBuiltInLibraryCall(IR::Instr *callInstr)
 //   ...
 //   d1 = BIA s1, NULL
 void Lowerer::LowerInlineBuiltIn(IR::Instr* builtInEndInstr)
-{
+{LOGMEIN("Lower.cpp] 11241\n");
     Assert(builtInEndInstr->m_opcode == Js::OpCode::InlineBuiltInEnd || builtInEndInstr->m_opcode == Js::OpCode::InlineNonTrackingBuiltInEnd);
     IR::Instr* startCallInstr;
     builtInEndInstr->IterateArgInstrs([&](IR::Instr* argInstr) {
@@ -11253,7 +11253,7 @@ void Lowerer::LowerInlineBuiltIn(IR::Instr* builtInEndInstr)
 
 intptr_t
 Lowerer::GetObjRefForBuiltInTarget(IR::RegOpnd * regOpnd)
-{
+{LOGMEIN("Lower.cpp] 11255\n");
     intptr_t mathFns = m_func->GetScriptContextInfo()->GetBuiltinFunctionsBaseAddr();
     Js::BuiltinFunction index = regOpnd->m_sym->m_builtInIndex;
 
@@ -11264,14 +11264,14 @@ Lowerer::GetObjRefForBuiltInTarget(IR::RegOpnd * regOpnd)
 
 IR::Instr *
 Lowerer::LowerNewRegEx(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 11266\n");
     IR::Opnd *src1 = instr->UnlinkSrc1();
 
     Assert(src1->IsAddrOpnd());
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     if (REGEX_CONFIG_FLAG(RegexTracing))
-    {
+    {LOGMEIN("Lower.cpp] 11273\n");
         Assert(!instr->GetDst()->CanStoreTemp());
         IR::Instr * instrPrev = LoadScriptContext(instr);
         instrPrev = m_lowererMD.LoadHelperArgument(instr, src1);
@@ -11299,7 +11299,7 @@ Lowerer::LowerNewRegEx(IR::Instr * instr)
     GenerateMemInitNull(dstOpnd, Js::JavascriptRegExp::GetOffsetOfAuxSlots(), instr, isZeroed);
     GenerateMemInitNull(dstOpnd, Js::JavascriptRegExp::GetOffsetOfObjectArray(), instr, isZeroed);
     if (tempObjectSymOpnd && !PHASE_OFF(Js::HoistMarkTempInitPhase, this->m_func) && this->outerMostLoopLabel)
-    {
+    {LOGMEIN("Lower.cpp] 11301\n");
         InsertMove(IR::SymOpnd::New(tempObjectSymOpnd->m_sym,
             tempObjectSymOpnd->m_offset + Js::JavascriptRegExp::GetOffsetOfPattern(), TyMachPtr, this->m_func),
             src1, this->outerMostLoopLabel, false);
@@ -11318,7 +11318,7 @@ Lowerer::LowerNewRegEx(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::GenerateRuntimeError(IR::Instr * insertBeforeInstr, Js::MessageId errorCode, IR::JnHelperMethod helper /*= IR::JnHelperMethod::HelperOp_RuntimeTypeError*/)
-{
+{LOGMEIN("Lower.cpp] 11320\n");
     IR::Instr * runtimeErrorInstr = IR::Instr::New(Js::OpCode::RuntimeTypeError, this->m_func);
     runtimeErrorInstr->SetSrc1(IR::IntConstOpnd::New(errorCode, TyInt32, this->m_func, true));
     insertBeforeInstr->InsertBefore(runtimeErrorInstr);
@@ -11326,11 +11326,11 @@ Lowerer::GenerateRuntimeError(IR::Instr * insertBeforeInstr, Js::MessageId error
 }
 
 bool Lowerer::IsNullOrUndefRegOpnd(IR::RegOpnd *opnd) const
-{
+{LOGMEIN("Lower.cpp] 11328\n");
     StackSym *sym = opnd->m_sym;
 
     if (!sym->IsConst() || sym->IsIntConst() || sym->IsFloatConst())
-    {
+    {LOGMEIN("Lower.cpp] 11332\n");
         return false;
     }
     Js::Var var = sym->GetConstAddress();
@@ -11338,11 +11338,11 @@ bool Lowerer::IsNullOrUndefRegOpnd(IR::RegOpnd *opnd) const
 }
 
 bool Lowerer::IsConstRegOpnd(IR::RegOpnd *opnd) const
-{
+{LOGMEIN("Lower.cpp] 11340\n");
     StackSym *sym = opnd->m_sym;
 
     if (!sym->IsConst() || sym->IsIntConst() || sym->IsFloatConst())
-    {
+    {LOGMEIN("Lower.cpp] 11344\n");
         return false;
     }
 
@@ -11352,17 +11352,17 @@ bool Lowerer::IsConstRegOpnd(IR::RegOpnd *opnd) const
 
 bool
 Lowerer::HasSideEffects(IR::Instr *instr)
-{
+{LOGMEIN("Lower.cpp] 11354\n");
     if (LowererMD::IsCall(instr))
-    {
+    {LOGMEIN("Lower.cpp] 11356\n");
 #ifdef _M_IX86
         IR::Opnd *src1 = instr->GetSrc1();
         if (src1->IsHelperCallOpnd())
-        {
+        {LOGMEIN("Lower.cpp] 11360\n");
             IR::HelperCallOpnd * helper = src1->AsHelperCallOpnd();
 
             switch(helper->m_fnHelper)
-            {
+            {LOGMEIN("Lower.cpp] 11364\n");
             case IR::HelperOp_Int32ToAtomInPlace:
             case IR::HelperOp_Int32ToAtom:
             case IR::HelperOp_UInt32ToAtom:
@@ -11375,7 +11375,7 @@ Lowerer::HasSideEffects(IR::Instr *instr)
     return instr->HasAnySideEffects();
 }
 
-bool Lowerer::IsArgSaveRequired(Func *func) {
+bool Lowerer::IsArgSaveRequired(Func *func) {LOGMEIN("Lower.cpp] 11377\n");
     return (!func->IsTrueLeaf() || func->IsJitInDebugMode() ||
         // GetHasImplicitParamLoad covers generators, asmjs,
         // and other javascript functions that implicitly read from the arg stack slots
@@ -11384,14 +11384,14 @@ bool Lowerer::IsArgSaveRequired(Func *func) {
 
 IR::Instr*
 Lowerer::GenerateFastInlineBuiltInMathRandom(IR::Instr* instr)
-{
+{LOGMEIN("Lower.cpp] 11386\n");
     AssertMsg(instr->GetDst()->IsFloat(), "dst must be float.");
     IR::Instr* retInstr = instr->m_prev;
     IR::Opnd* dst = instr->GetDst();
 
 #if defined(_M_X64)
     if (m_func->GetScriptContextInfo()->IsPRNGSeeded())
-    {
+    {LOGMEIN("Lower.cpp] 11393\n");
         const uint64 mExp = 0x3FF0000000000000;
         const uint64 mMant = 0x000FFFFFFFFFFFFF;
 
@@ -11465,7 +11465,7 @@ Lowerer::GenerateFastInlineBuiltInMathRandom(IR::Instr* instr)
     {
         IR::Opnd* tmpdst = dst;
         if (!dst->IsRegOpnd())
-        {
+        {LOGMEIN("Lower.cpp] 11467\n");
             tmpdst = IR::RegOpnd::New(dst->GetType(), instr->m_func);
         }
 
@@ -11486,7 +11486,7 @@ Lowerer::GenerateFastInlineBuiltInMathRandom(IR::Instr* instr)
 
 IR::Instr *
 Lowerer::LowerCallDirect(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 11488\n");
     IR::Opnd* linkOpnd = instr->UnlinkSrc2();
     StackSym *linkSym = linkOpnd->AsSymOpnd()->m_sym->AsStackSym();
     IR::Instr* argInstr = linkSym->m_instrDef;
@@ -11496,7 +11496,7 @@ Lowerer::LowerCallDirect(IR::Instr * instr)
     argInstr->Remove();
 
     if(instr->HasBailOutInfo())
-    {
+    {LOGMEIN("Lower.cpp] 11498\n");
         IR::Instr * bailOutInstr = this->SplitBailOnImplicitCall(instr, instr->m_next, instr->m_next);
         this->LowerBailOnEqualOrNotEqual(bailOutInstr);
     }
@@ -11506,7 +11506,7 @@ Lowerer::LowerCallDirect(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::GenerateDirectCall(IR::Instr* inlineInstr, IR::Opnd* funcObj, ushort callflags)
-{
+{LOGMEIN("Lower.cpp] 11508\n");
     int32 argCount = m_lowererMD.LowerCallArgs(inlineInstr, callflags);
     m_lowererMD.LoadHelperArgument(inlineInstr, funcObj);
     m_lowererMD.LowerCall(inlineInstr, (Js::ArgSlot)argCount); //to account for function object and callinfo
@@ -11520,20 +11520,20 @@ Lowerer::GenerateDirectCall(IR::Instr* inlineInstr, IR::Opnd* funcObj, ushort ca
 */
 IR::Instr *
 Lowerer::GenerateHelperToArrayPushFastPath(IR::Instr * instr, IR::LabelInstr * bailOutLabelHelper)
-{
+{LOGMEIN("Lower.cpp] 11522\n");
     IR::Opnd * arrayHelperOpnd = instr->UnlinkSrc1();
     IR::Opnd * elementHelperOpnd = instr->UnlinkSrc2();
     IR::JnHelperMethod helperMethod;
 
     if(elementHelperOpnd->IsInt32())
-    {
+    {LOGMEIN("Lower.cpp] 11528\n");
         Assert(arrayHelperOpnd->GetValueType().IsLikelyNativeIntArray());
         helperMethod = IR::HelperArray_NativeIntPush;
 
         m_lowererMD.LoadHelperArgument(instr, elementHelperOpnd);
     }
     else if(elementHelperOpnd->IsFloat())
-    {
+    {LOGMEIN("Lower.cpp] 11535\n");
         Assert(arrayHelperOpnd->GetValueType().IsLikelyNativeFloatArray());
         helperMethod = IR::HelperArray_NativeFloatPush;
 
@@ -11556,7 +11556,7 @@ Lowerer::GenerateHelperToArrayPushFastPath(IR::Instr * instr, IR::LabelInstr * b
 */
 IR::Instr *
 Lowerer::GenerateHelperToArrayPopFastPath(IR::Instr * instr, IR::LabelInstr * doneLabel, IR::LabelInstr * bailOutLabelHelper)
-{
+{LOGMEIN("Lower.cpp] 11558\n");
     IR::Opnd * arrayHelperOpnd = instr->UnlinkSrc1();
     ValueType arrayValueType = arrayHelperOpnd->GetValueType();
 
@@ -11564,15 +11564,15 @@ Lowerer::GenerateHelperToArrayPopFastPath(IR::Instr * instr, IR::LabelInstr * do
 
     //Decide the helperMethod based on dst availability and nativity of the array.
     if(arrayValueType.IsLikelyNativeArray() && !instr->GetDst())
-    {
+    {LOGMEIN("Lower.cpp] 11566\n");
         helperMethod = IR::HelperArray_NativePopWithNoDst;
     }
     else if(arrayValueType.IsLikelyNativeIntArray())
-    {
+    {LOGMEIN("Lower.cpp] 11570\n");
         helperMethod = IR::HelperArray_NativeIntPop;
     }
     else if(arrayValueType.IsLikelyNativeFloatArray())
-    {
+    {LOGMEIN("Lower.cpp] 11574\n");
         helperMethod = IR::HelperArray_NativeFloatPop;
     }
     else
@@ -11584,7 +11584,7 @@ Lowerer::GenerateHelperToArrayPopFastPath(IR::Instr * instr, IR::LabelInstr * do
 
     //We do not need scriptContext for HelperArray_NativePopWithNoDst call.
     if(helperMethod != IR::HelperArray_NativePopWithNoDst)
-    {
+    {LOGMEIN("Lower.cpp] 11586\n");
         LoadScriptContext(instr);
     }
 
@@ -11592,9 +11592,9 @@ Lowerer::GenerateHelperToArrayPopFastPath(IR::Instr * instr, IR::LabelInstr * do
 
     //We don't need missing item check for var arrays, as there it is taken care by the helper.
     if(arrayValueType.IsLikelyNativeArray())
-    {
+    {LOGMEIN("Lower.cpp] 11594\n");
         if(retInstr->GetDst())
-        {
+        {LOGMEIN("Lower.cpp] 11596\n");
             //Do this check only for native arrays with Dst. For Var arrays, this is taken care in the Runtime helper itself.
             InsertCompareBranch(GetMissingItemOpnd(retInstr->GetDst()->GetType(), m_func), retInstr->GetDst(), Js::OpCode::BrNeq_A, doneLabel, bailOutLabelHelper);
         }
@@ -11610,13 +11610,13 @@ Lowerer::GenerateHelperToArrayPopFastPath(IR::Instr * instr, IR::LabelInstr * do
 
 IR::Instr *
 Lowerer::LowerCondBranchCheckBailOut(IR::BranchInstr * branchInstr, IR::Instr * helperCall, bool isHelper)
-{
+{LOGMEIN("Lower.cpp] 11612\n");
     Assert(branchInstr->m_opcode == Js::OpCode::BrTrue_A || branchInstr->m_opcode == Js::OpCode::BrFalse_A);
     if (branchInstr->HasBailOutInfo())
-    {
+    {LOGMEIN("Lower.cpp] 11615\n");
         IR::BailOutKind debuggerBailOutKind = IR::BailOutInvalid;
         if (branchInstr->HasAuxBailOut())
-        {
+        {LOGMEIN("Lower.cpp] 11618\n");
             // We have shared debugger bailout. For branches we lower it here, not in SplitBailForDebugger.
             // See SplitBailForDebugger for details.
             AssertMsg(!(branchInstr->GetBailOutKind() & IR::BailOutForDebuggerBits), "There should be no debugger bits in main bailout kind.");
@@ -11629,7 +11629,7 @@ Lowerer::LowerCondBranchCheckBailOut(IR::BranchInstr * branchInstr, IR::Instr * 
         IR::Instr* prevInstr = this->LowerBailOnEqualOrNotEqual(bailOutInstr, branchInstr, nullptr, nullptr, isHelper);
 
         if (debuggerBailOutKind != IR::BailOutInvalid)
-        {
+        {LOGMEIN("Lower.cpp] 11631\n");
             // Note that by this time implicit calls bailout is already lowered.
             // What we do here is use same bailout info and lower debugger bailout which would be shared bailout.
             BailOutInfo* bailOutInfo = bailOutInstr->GetBailOutInfo();
@@ -11661,12 +11661,12 @@ Lowerer::LowerCondBranchCheckBailOut(IR::BranchInstr * branchInstr, IR::Instr * 
 
 IR::SymOpnd *
 Lowerer::LoadCallInfo(IR::Instr * instrInsert)
-{
+{LOGMEIN("Lower.cpp] 11663\n");
     IR::SymOpnd * srcOpnd;
     Func * func = instrInsert->m_func;
 
     if (func->GetJITFunctionBody()->IsCoroutine())
-    {
+    {LOGMEIN("Lower.cpp] 11668\n");
         // Generator function arguments and ArgumentsInfo are not on the stack.  Instead they
         // are accessed off the generator object (which is prm1).
         IR::Instr *genLoadInstr = LoadGeneratorObject(instrInsert);
@@ -11703,9 +11703,9 @@ Lowerer::LoadCallInfo(IR::Instr * instrInsert)
 
 IR::Instr *
 Lowerer::LowerBailOnNotStackArgs(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 11705\n");
     if (!this->m_func->GetHasStackArgs())
-    {
+    {LOGMEIN("Lower.cpp] 11707\n");
         throw Js::RejitException(RejitReason::InlineApplyDisabled);
     }
 
@@ -11716,7 +11716,7 @@ Lowerer::LowerBailOnNotStackArgs(IR::Instr * instr)
     IR::LabelInstr * continueLabelInstr;
     IR::Instr *instrNext = instr->m_next;
     if (instrNext->IsLabelInstr())
-    {
+    {LOGMEIN("Lower.cpp] 11718\n");
         continueLabelInstr = instrNext->AsLabelInstr();
     }
     else
@@ -11726,7 +11726,7 @@ Lowerer::LowerBailOnNotStackArgs(IR::Instr * instr)
     }
 
     if (!instr->m_func->IsInlinee())
-    {
+    {LOGMEIN("Lower.cpp] 11728\n");
         //BailOut if the number of actuals (except "this" argument) is greater than or equal to 15.
         IR::RegOpnd* ldLenDstOpnd = IR::RegOpnd::New(TyUint32, instr->m_func);
         IR::Instr* ldLen = IR::Instr::New(Js::OpCode::LdLen_A, ldLenDstOpnd, instr->m_func);
@@ -11748,7 +11748,7 @@ Lowerer::LowerBailOnNotStackArgs(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::LowerBailOnNotSpreadable(IR::Instr *instr)
-{
+{LOGMEIN("Lower.cpp] 11750\n");
     // We only avoid bailing out / throwing a rejit exception when the array operand is a simple, non-optimized, non-object array.
     IR::Instr * prevInstr = instr->m_prev;
     Func *func = instr->m_func;
@@ -11756,7 +11756,7 @@ Lowerer::LowerBailOnNotSpreadable(IR::Instr *instr)
     IR::RegOpnd *arrayOpnd = nullptr;
     IR::Opnd *arraySrcOpnd = instr->UnlinkSrc1();
     if (!arraySrcOpnd->IsRegOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 11758\n");
         arrayOpnd = IR::RegOpnd::New(TyMachPtr, func);
         LowererMD::CreateAssign(arrayOpnd, arraySrcOpnd, instr);
     }
@@ -11776,7 +11776,7 @@ Lowerer::LowerBailOnNotSpreadable(IR::Instr *instr)
         || !(baseValueType.IsUninitialized() || baseValueType.HasBeenObject())
 
         || m_func->IsInlinee())
-    {
+    {LOGMEIN("Lower.cpp] 11778\n");
         throw Js::RejitException(RejitReason::InlineSpreadDisabled);
     }
 
@@ -11789,7 +11789,7 @@ Lowerer::LowerBailOnNotSpreadable(IR::Instr *instr)
         GenerateArrayTest(arrayOpnd, bailOutLabel, bailOutLabel, instr, false);
     }
     if (!(baseValueType.IsArray() && baseValueType.HasNoMissingValues()))
-    {
+    {LOGMEIN("Lower.cpp] 11791\n");
         InsertTestBranch(
             IR::IndirOpnd::New(arrayOpnd, Js::JavascriptArray::GetOffsetOfArrayFlags(), TyUint8, func),
             IR::IntConstOpnd::New(static_cast<uint8>(Js::DynamicObjectFlags::HasNoMissingValues), TyUint8, func, true),
@@ -11814,7 +11814,7 @@ Lowerer::LowerBailOnNotSpreadable(IR::Instr *instr)
 
 IR::Instr *
 Lowerer::LowerBailOnNotPolymorphicInlinee(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 11816\n");
     Assert(instr->HasBailOutInfo() && (instr->GetBailOutKind() == IR::BailOutOnFailedPolymorphicInlineTypeCheck || instr->GetBailOutKind() == IR::BailOutOnPolymorphicInlineFunction));
     IR::Instr* instrPrev = instr->m_prev;
 
@@ -11825,12 +11825,12 @@ Lowerer::LowerBailOnNotPolymorphicInlinee(IR::Instr * instr)
 
 void
 Lowerer::LowerBailoutCheckAndLabel(IR::Instr *instr, bool onEqual, bool isHelper)
-{
+{LOGMEIN("Lower.cpp] 11827\n");
     // Label to skip Bailout and continue
     IR::LabelInstr * continueLabelInstr;
     IR::Instr *instrNext = instr->m_next;
     if (instrNext->IsLabelInstr())
-    {
+    {LOGMEIN("Lower.cpp] 11832\n");
         continueLabelInstr = instrNext->AsLabelInstr();
     }
     else
@@ -11840,7 +11840,7 @@ Lowerer::LowerBailoutCheckAndLabel(IR::Instr *instr, bool onEqual, bool isHelper
     }
 
     if(instr->GetBailOutKind() == IR::BailOutInjected)
-    {
+    {LOGMEIN("Lower.cpp] 11842\n");
         // BailOnEqual 0, 0
         Assert(onEqual);
         Assert(instr->GetSrc1()->IsEqual(instr->GetSrc2()));
@@ -11862,7 +11862,7 @@ Lowerer::LowerBailoutCheckAndLabel(IR::Instr *instr, bool onEqual, bool isHelper
         onEqual ? Js::OpCode::BrNeq_A : Js::OpCode::BrEq_A, continueLabelInstr, instr);
 
     if (!isHelper)
-    {
+    {LOGMEIN("Lower.cpp] 11864\n");
         IR::LabelInstr * helperLabelInstr = IR::LabelInstr::New(Js::OpCode::Label, m_func, true);
         instr->InsertBefore(helperLabelInstr);
     }
@@ -11874,7 +11874,7 @@ Lowerer::LowerBailOnEqualOrNotEqual(IR::Instr * instr,
     IR::LabelInstr *labelBailOut, // = nullptr
     IR::PropertySymOpnd * propSymOpnd, // = nullptr
     bool isHelper)                // = false
-{
+{LOGMEIN("Lower.cpp] 11876\n");
     IR::Instr * prevInstr = instr->m_prev;
 
     // Bail out test
@@ -11886,7 +11886,7 @@ Lowerer::LowerBailOnEqualOrNotEqual(IR::Instr * instr,
     // we need to update this profile information on the bailout path for BailOutOnImplicitCalls if the implicit call was an accessor call.
     if(propSymOpnd && ((instr->GetBailOutKind() & ~IR::BailOutKindBits) == IR::BailOutOnImplicitCalls) && (propSymOpnd->m_inlineCacheIndex != -1) &&
         instr->m_func->HasProfileInfo())
-    {
+    {LOGMEIN("Lower.cpp] 11888\n");
         // result = AND implCallFlags, ~ImplicitCall_None
         //          TST result, ImplicitCall_Accessor
         //          JEQ $bail
@@ -11915,7 +11915,7 @@ Lowerer::LowerBailOnEqualOrNotEqual(IR::Instr * instr,
 }
 
 void Lowerer::LowerBailOnNegative(IR::Instr *const instr)
-{
+{LOGMEIN("Lower.cpp] 11917\n");
     Assert(instr);
     Assert(instr->m_opcode == Js::OpCode::BailOnNegative);
     Assert(instr->HasBailOutInfo());
@@ -11947,7 +11947,7 @@ IR::Instr *
 Lowerer::LowerBailOnNotObject(IR::Instr       *instr,
                               IR::BranchInstr *branchInstr  /* = nullptr */,
                               IR::LabelInstr  *labelBailOut /* = nullptr */)
-{
+{LOGMEIN("Lower.cpp] 11949\n");
     IR::Instr      *prevInstr          = instr->m_prev;
     IR::LabelInstr *continueLabelInstr = IR::LabelInstr::New(Js::OpCode::Label,
                                                              m_func);
@@ -11963,7 +11963,7 @@ Lowerer::LowerBailOnNotObject(IR::Instr       *instr,
 
 IR::Instr *
 Lowerer::LowerBailOnTrue(IR::Instr* instr, IR::LabelInstr* labelBailOut /*nullptr*/)
-{
+{LOGMEIN("Lower.cpp] 11965\n");
     IR::Instr* instrPrev = instr->m_prev;
 
     IR::LabelInstr* continueLabel = instr->GetOrCreateContinueLabel();
@@ -11980,7 +11980,7 @@ IR::Instr *
 Lowerer::LowerBailOnNotBuiltIn(IR::Instr       *instr,
                                IR::BranchInstr *branchInstr  /* = nullptr */,
                                IR::LabelInstr  *labelBailOut /* = nullptr */)
-{
+{LOGMEIN("Lower.cpp] 11982\n");
     Assert(instr->GetSrc2()->IsIntConstOpnd());
     IR::Instr *prevInstr = instr->m_prev;
 
@@ -12007,7 +12007,7 @@ Lowerer::LowerBailOnNotBuiltIn(IR::Instr       *instr,
 
 IR::Instr *
 Lowerer::LowerBailForDebugger(IR::Instr* instr, bool isInsideHelper /* = false */)
-{
+{LOGMEIN("Lower.cpp] 12009\n");
     IR::Instr * prevInstr = instr->m_prev;
 
     IR::BailOutKind bailOutKind = instr->GetBailOutKind();
@@ -12018,7 +12018,7 @@ Lowerer::LowerBailForDebugger(IR::Instr* instr, bool isInsideHelper /* = false *
     IR::LabelInstr* explicitBailOutLabel = nullptr;
 
     if (!(bailOutKind & IR::BailOutExplicit))
-    {
+    {LOGMEIN("Lower.cpp] 12020\n");
         intptr_t flags = m_func->GetScriptContextInfo()->GetDebuggingFlagsAddr();
 
         // Check 1 (do we need to bail out?)
@@ -12047,7 +12047,7 @@ Lowerer::LowerBailForDebugger(IR::Instr* instr, bool isInsideHelper /* = false *
 
         const IR::BailOutKind c_forceAndIgnoreEx = IR::BailOutForceByFlag | IR::BailOutIgnoreException;
         if ((bailOutKind & c_forceAndIgnoreEx) == c_forceAndIgnoreEx)
-        {
+        {LOGMEIN("Lower.cpp] 12049\n");
             // It's faster to check these together in 1 check rather than 2 separate checks at run time.
             // CMP [&(flags->m_forceInterpreter, flags->m_isIgnoreException)], 0
             // BNE bailout
@@ -12059,7 +12059,7 @@ Lowerer::LowerBailForDebugger(IR::Instr* instr, bool isInsideHelper /* = false *
         else
         {
             if (bailOutKind & IR::BailOutForceByFlag)
-            {
+            {LOGMEIN("Lower.cpp] 12061\n");
                 // CMP [&flags->m_forceInterpreter], 0
                 // BNE bailout
                 IR::Opnd* opnd1 = IR::MemRefOpnd::New((BYTE*)flags + DebuggingFlags::GetForceInterpreterOffset(), TyInt8, m_func);
@@ -12068,7 +12068,7 @@ Lowerer::LowerBailForDebugger(IR::Instr* instr, bool isInsideHelper /* = false *
                 bailOutKind ^= IR::BailOutForceByFlag;
             }
             if (bailOutKind & IR::BailOutIgnoreException)
-            {
+            {LOGMEIN("Lower.cpp] 12070\n");
                 // CMP [&flags->m_byteCodeOffsetAfterIgnoreException], DebuggingFlags::InvalidByteCodeOffset
                 // BNE bailout
                 IR::Opnd* opnd1 = IR::MemRefOpnd::New((BYTE*)flags + DebuggingFlags::GetByteCodeOffsetAfterIgnoreExceptionOffset(), TyInt32, m_func);
@@ -12079,7 +12079,7 @@ Lowerer::LowerBailForDebugger(IR::Instr* instr, bool isInsideHelper /* = false *
         }
 
         if (bailOutKind & IR::BailOutBreakPointInFunction)
-        {
+        {LOGMEIN("Lower.cpp] 12081\n");
             // CMP [&functionBody->m_sourceInfo.m_probeCount], 0
             // BNE bailout
             IR::Opnd* opnd1 = IR::MemRefOpnd::New(m_func->GetJITFunctionBody()->GetProbeCountAddr(), TyInt32, m_func);
@@ -12090,7 +12090,7 @@ Lowerer::LowerBailForDebugger(IR::Instr* instr, bool isInsideHelper /* = false *
 
         // on method entry
         if(bailOutKind & IR::BailOutStep)
-        {
+        {LOGMEIN("Lower.cpp] 12092\n");
             // TEST STEP_BAILOUT, [&stepController->StepType]
             // BNE BailoutLabel
             IR::Opnd* opnd1 = IR::MemRefOpnd::New(m_func->GetScriptContextInfo()->GetDebugStepTypeAddr(), TyInt8, m_func);
@@ -12110,7 +12110,7 @@ Lowerer::LowerBailForDebugger(IR::Instr* instr, bool isInsideHelper /* = false *
 
         // on method exit
         if (bailOutKind & IR::BailOutStackFrameBase)
-        {
+        {LOGMEIN("Lower.cpp] 12112\n");
             // CMP EffectiveFrameBase, [&stepController->frameAddrWhenSet]
             // BA bailoutLabel
             RegNum effectiveFrameBaseReg;
@@ -12135,10 +12135,10 @@ Lowerer::LowerBailForDebugger(IR::Instr* instr, bool isInsideHelper /* = false *
         }
 
         if (bailOutKind & IR::BailOutLocalValueChanged)
-        {
+        {LOGMEIN("Lower.cpp] 12137\n");
             int32 hasLocalVarChangedOffset = m_func->GetHasLocalVarChangedOffset();
             if (hasLocalVarChangedOffset != Js::Constants::InvalidOffset)
-            {
+            {LOGMEIN("Lower.cpp] 12140\n");
                 // CMP [EBP + hasLocalVarChangedStackOffset], 0
                 // BNE bailout
                 StackSym* sym = StackSym::New(TyInt8, m_func);
@@ -12152,7 +12152,7 @@ Lowerer::LowerBailForDebugger(IR::Instr* instr, bool isInsideHelper /* = false *
         }
 
         if (doGenerateBailOutDocumentBlock)
-        {
+        {LOGMEIN("Lower.cpp] 12154\n");
             // GENERATE the BailoutDocumentLabel
             // bailOutDocumentLabel:
             //   CMP CurrentScriptId, [&stepController->ScriptIdWhenSet]
@@ -12185,7 +12185,7 @@ Lowerer::LowerBailForDebugger(IR::Instr* instr, bool isInsideHelper /* = false *
 
 IR::Instr*
 Lowerer::LowerBailOnException(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 12187\n");
     Assert(instr->HasBailOutInfo());
     IR::Instr * instrPrev = instr->m_prev;
     Assert(instrPrev->m_opcode == Js::OpCode::Catch);
@@ -12199,14 +12199,14 @@ Lowerer::LowerBailOnException(IR::Instr * instr)
 // It it's not INT_MIN, we continue without bailout.
 IR::Instr *
 Lowerer::LowerBailOnIntMin(IR::Instr *instr, IR::BranchInstr *branchInstr  /* = nullptr */, IR::LabelInstr  *labelBailOut /* = nullptr */)
-{
+{LOGMEIN("Lower.cpp] 12201\n");
     Assert(instr);
     Assert(instr->GetSrc1());
     IR::LabelInstr *continueLabelInstr = IR::LabelInstr::New(Js::OpCode::Label, m_func);
     instr->InsertAfter(continueLabelInstr);
 
     if(!instr->HasBailOutInfo())
-    {
+    {LOGMEIN("Lower.cpp] 12208\n");
         instr->Remove();
     }
     else
@@ -12214,11 +12214,11 @@ Lowerer::LowerBailOnIntMin(IR::Instr *instr, IR::BranchInstr *branchInstr  /* = 
         Assert(instr->GetBailOutKind() == IR::BailOnIntMin);
         // Note: src1 must be int32 at this point.
         if (instr->GetSrc1()->IsIntConstOpnd())
-        {
+        {LOGMEIN("Lower.cpp] 12216\n");
             // For consts we can check the value at JIT time. Note: without this check we'll have to legalize the CMP instr.
             IR::IntConstOpnd* intConst = instr->UnlinkSrc1()->AsIntConstOpnd();
             if (intConst->GetValue() == INT_MIN)
-            {
+            {LOGMEIN("Lower.cpp] 12220\n");
                 this->GenerateBailOut(instr, branchInstr, labelBailOut);
                 intConst->Free(instr->m_func);
             }
@@ -12244,9 +12244,9 @@ Lowerer::LowerBailOnIntMin(IR::Instr *instr, IR::BranchInstr *branchInstr  /* = 
 ///
 ///----------------------------------------------------------------------------
 void Lowerer::LowerBailOnNotString(IR::Instr *instr)
-{
+{LOGMEIN("Lower.cpp] 12246\n");
     if (!instr->GetSrc1()->GetValueType().IsString())
-    {
+    {LOGMEIN("Lower.cpp] 12248\n");
         /*Creating a MOV instruction*/
         IR::Instr * movInstr = IR::Instr::New(instr->m_opcode, instr->UnlinkDst(), instr->UnlinkSrc1(), instr->m_func);
         instr->InsertBefore(movInstr);
@@ -12271,7 +12271,7 @@ void Lowerer::LowerOneBailOutKind(
     const IR::BailOutKind bailOutKindToLower,
     const bool isInHelperBlock,
     const bool preserveBailOutKindInInstr)
-{
+{LOGMEIN("Lower.cpp] 12273\n");
     Assert(instr);
     Assert(bailOutKindToLower);
     Assert(!(bailOutKindToLower & IR::BailOutKindBits) || !(bailOutKindToLower & bailOutKindToLower - 1u));
@@ -12286,13 +12286,13 @@ void Lowerer::LowerOneBailOutKind(
             ? bailOutKind & bailOutKindToLower
             : (bailOutKind & ~IR::BailOutKindBits) == bailOutKindToLower);
     if(!preserveBailOutKindInInstr)
-    {
+    {LOGMEIN("Lower.cpp] 12288\n");
         bailOutKind -= bailOutKindToLower;
     }
     if(bailOutKind)
-    {
+    {LOGMEIN("Lower.cpp] 12292\n");
         if(bailOutInfo->bailOutInstr == instr)
-        {
+        {LOGMEIN("Lower.cpp] 12294\n");
             // Create a shared bailout point for the split bailout checks
             IR::Instr *const sharedBail = instr->ShareBailOut();
             Assert(sharedBail->GetBailOutInfo() == bailOutInfo);
@@ -12304,7 +12304,7 @@ void Lowerer::LowerOneBailOutKind(
     {
         instr->UnlinkBailOutInfo();
         if(bailOutInfo->bailOutInstr == instr)
-        {
+        {LOGMEIN("Lower.cpp] 12306\n");
             bailOutInfo->bailOutInstr = nullptr;
         }
     }
@@ -12324,7 +12324,7 @@ void Lowerer::SplitBailOnNotArray(
     IR::Instr *const instr,
     IR::Instr * *const bailOnNotArrayRef,
     IR::Instr * *const bailOnMissingValueRef)
-{
+{LOGMEIN("Lower.cpp] 12326\n");
     Assert(instr);
     Assert(!instr->GetDst());
     Assert(instr->GetSrc1());
@@ -12342,14 +12342,14 @@ void Lowerer::SplitBailOnNotArray(
     IR::BailOutKind bailOutKind = instr->GetBailOutKind();
     if(bailOutKind == IR::BailOutOnNotArray ||
        bailOutKind == IR::BailOutOnNotNativeArray)
-    {
+    {LOGMEIN("Lower.cpp] 12344\n");
         return;
     }
 
     // Split array checks
     BailOutInfo *const bailOutInfo = instr->GetBailOutInfo();
     if(bailOutInfo->bailOutInstr == instr)
-    {
+    {LOGMEIN("Lower.cpp] 12351\n");
         // Create a shared bailout point for the split bailout checks
         IR::Instr *const sharedBail = instr->ShareBailOut();
         Assert(sharedBail->GetBailOutInfo() == bailOutInfo);
@@ -12370,7 +12370,7 @@ void Lowerer::SplitBailOnNotArray(
 }
 
 IR::RegOpnd *Lowerer::LowerBailOnNotArray(IR::Instr *const instr)
-{
+{LOGMEIN("Lower.cpp] 12372\n");
     Assert(instr);
     Assert(!instr->GetDst());
     Assert(instr->GetSrc1());
@@ -12402,7 +12402,7 @@ IR::RegOpnd *Lowerer::LowerBailOnNotArray(IR::Instr *const instr)
 }
 
 void Lowerer::LowerBailOnMissingValue(IR::Instr *const instr, IR::RegOpnd *const arrayOpnd)
-{
+{LOGMEIN("Lower.cpp] 12404\n");
     Assert(instr);
     Assert(!instr->GetDst());
     Assert(!instr->GetSrc1());
@@ -12437,7 +12437,7 @@ void Lowerer::LowerBailOnMissingValue(IR::Instr *const instr, IR::RegOpnd *const
 }
 
 void Lowerer::LowerBailOnInvalidatedArrayHeadSegment(IR::Instr *const instr, const bool isInHelperBlock)
-{
+{LOGMEIN("Lower.cpp] 12439\n");
     /*
         // Generate checks for whether the head segment or the head segment length changed during the helper call
 
@@ -12494,7 +12494,7 @@ void Lowerer::LowerBailOnInvalidatedArrayHeadSegment(IR::Instr *const instr, con
     IR::RegOpnd *headSegmentBeforeHelperCallOpnd;
     IR::AutoReuseOpnd autoReuseHeadSegmentBeforeHelperCallOpnd;
     if(isArrayOrObjectWithArray && arrayOpnd && arrayOpnd->HeadSegmentSym())
-    {
+    {LOGMEIN("Lower.cpp] 12496\n");
         headSegmentBeforeHelperCallOpnd = IR::RegOpnd::New(arrayOpnd->HeadSegmentSym(), TyMachPtr, func);
         autoReuseHeadSegmentBeforeHelperCallOpnd.Initialize(headSegmentBeforeHelperCallOpnd, func);
     }
@@ -12514,7 +12514,7 @@ void Lowerer::LowerBailOnInvalidatedArrayHeadSegment(IR::Instr *const instr, con
     IR::RegOpnd *headSegmentLengthBeforeHelperCallOpnd;
     IR::AutoReuseOpnd autoReuseHeadSegmentLengthBeforeHelperCallOpnd;
     if(isArrayOrObjectWithArray && arrayOpnd && arrayOpnd->HeadSegmentLengthSym())
-    {
+    {LOGMEIN("Lower.cpp] 12516\n");
         headSegmentLengthBeforeHelperCallOpnd = IR::RegOpnd::New(arrayOpnd->HeadSegmentLengthSym(), TyUint32, func);
         autoReuseHeadSegmentLengthBeforeHelperCallOpnd.Initialize(headSegmentLengthBeforeHelperCallOpnd, func);
     }
@@ -12582,7 +12582,7 @@ void Lowerer::LowerBailOnInvalidatedArrayHeadSegment(IR::Instr *const instr, con
 }
 
 void Lowerer::LowerBailOnInvalidatedArrayLength(IR::Instr *const instr, const bool isInHelperBlock)
-{
+{LOGMEIN("Lower.cpp] 12584\n");
     /*
         // Generate checks for whether the length changed during the helper call
 
@@ -12620,7 +12620,7 @@ void Lowerer::LowerBailOnInvalidatedArrayLength(IR::Instr *const instr, const bo
     IR::RegOpnd *lengthBeforeHelperCallOpnd;
     IR::AutoReuseOpnd autoReuseLengthBeforeHelperCallOpnd;
     if(arrayOpnd && arrayOpnd->LengthSym() && arrayOpnd->LengthSym() != arrayOpnd->HeadSegmentLengthSym())
-    {
+    {LOGMEIN("Lower.cpp] 12622\n");
         lengthBeforeHelperCallOpnd = IR::RegOpnd::New(arrayOpnd->LengthSym(), arrayOpnd->LengthSym()->GetType(), func);
         autoReuseLengthBeforeHelperCallOpnd.Initialize(lengthBeforeHelperCallOpnd, func);
     }
@@ -12666,7 +12666,7 @@ void Lowerer::LowerBailOnInvalidatedArrayLength(IR::Instr *const instr, const bo
 }
 
 void Lowerer::LowerBailOnCreatedMissingValue(IR::Instr *const instr, const bool isInHelperBlock)
-{
+{LOGMEIN("Lower.cpp] 12668\n");
     /*
         // Generate checks for whether the first missing value was created during the helper call
 
@@ -12707,7 +12707,7 @@ void Lowerer::LowerBailOnCreatedMissingValue(IR::Instr *const instr, const bool 
     IR::AutoReuseOpnd autoReuseArrayFlagsBeforeHelperCallOpnd;
     const IRType arrayFlagsType = sizeof(uintptr_t) == sizeof(uint32) ? TyUint32 : TyUint64;
     if(!(baseValueType.IsArrayOrObjectWithArray() && baseValueType.HasNoMissingValues()))
-    {
+    {LOGMEIN("Lower.cpp] 12709\n");
         // Record whether the array has missing values before the helper call
         //     arrayFlagsBeforeHelperCall = Js::JavascriptArray::Jit_GetArrayFlagsForArrayOrObjectWithArray(base)
         m_lowererMD.LoadHelperArgument(instr, baseOpnd);
@@ -12727,7 +12727,7 @@ void Lowerer::LowerBailOnCreatedMissingValue(IR::Instr *const instr, const bool 
     // call, then this store created the first missing value in the array and needs to bail out
 
     if(baseValueType.IsArrayOrObjectWithArray() && baseValueType.HasNoMissingValues())
-    {
+    {LOGMEIN("Lower.cpp] 12729\n");
         //     (arrayFlagsBeforeHelperCall = Js::DynamicObjectFlags::HasNoMissingValues)
         Assert(!arrayFlagsBeforeHelperCallOpnd);
         arrayFlagsBeforeHelperCallOpnd =
@@ -12774,13 +12774,13 @@ void Lowerer::LowerBailOnCreatedMissingValue(IR::Instr *const instr, const bool 
 }
 
 void Lowerer::LowerBoundCheck(IR::Instr *const instr)
-{
+{LOGMEIN("Lower.cpp] 12776\n");
     Assert(instr);
     Assert(instr->m_opcode == Js::OpCode::BoundCheck || instr->m_opcode == Js::OpCode::UnsignedBoundCheck);
 
 #if DBG
     if(instr->m_opcode == Js::OpCode::UnsignedBoundCheck)
-    {
+    {LOGMEIN("Lower.cpp] 12782\n");
         // UnsignedBoundCheck is currently only supported for the pattern:
         //     UnsignedBoundCheck s1 <= s2 + c, where c == 0 || c == -1
         Assert(instr->GetSrc1()->IsRegOpnd());
@@ -12788,7 +12788,7 @@ void Lowerer::LowerBoundCheck(IR::Instr *const instr)
         Assert(instr->GetSrc2());
         Assert(!instr->GetSrc2()->IsIntConstOpnd());
         if(instr->GetDst())
-        {
+        {LOGMEIN("Lower.cpp] 12790\n");
             const int32 c = instr->GetDst()->AsIntConstOpnd()->AsInt32();
             Assert(c == 0 || c == -1);
         }
@@ -12809,14 +12809,14 @@ void Lowerer::LowerBoundCheck(IR::Instr *const instr)
 
 #if DBG
     const auto VerifyLeftOrRightOpnd = [&](IR::Opnd *const opnd, const bool isRightOpnd)
-    {
+    {LOGMEIN("Lower.cpp] 12811\n");
         if(!opnd)
-        {
+        {LOGMEIN("Lower.cpp] 12813\n");
             Assert(isRightOpnd);
             return;
         }
         if(opnd->IsIntConstOpnd())
-        {
+        {LOGMEIN("Lower.cpp] 12818\n");
             Assert(!isRightOpnd || opnd->AsIntConstOpnd()->GetValue() != 0);
             return;
         }
@@ -12840,7 +12840,7 @@ void Lowerer::LowerBoundCheck(IR::Instr *const instr)
     IntConstType offset = offsetOpnd ? offsetOpnd->GetValue() : 0;
     Js::OpCode compareOpCode = Js::OpCode::BrLe_A;
     if(leftOpnd->IsIntConstOpnd() && rightOpnd->IsRegOpnd() && offset != IntConstMin)
-    {
+    {LOGMEIN("Lower.cpp] 12842\n");
         // Put the constants together: swap the operands, negate the offset, and invert the branch
         IR::Opnd *const tempOpnd = leftOpnd;
         leftOpnd = rightOpnd;
@@ -12850,11 +12850,11 @@ void Lowerer::LowerBoundCheck(IR::Instr *const instr)
     }
 
     if(rightOpnd->IsIntConstOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 12852\n");
         // Try to aggregate right + offset into a constant offset
         IntConstType newOffset;
         if(!IntConstMath::Add(offset, rightOpnd->AsIntConstOpnd()->GetValue(), &newOffset))
-        {
+        {LOGMEIN("Lower.cpp] 12856\n");
             offset = newOffset;
             rightOpnd = nullptr;
             offsetOpnd = nullptr;
@@ -12864,17 +12864,17 @@ void Lowerer::LowerBoundCheck(IR::Instr *const instr)
     // Determine if the Add for (right + offset) is necessary, and the op code that will be used for the comparison
     IR::AutoReuseOpnd autoReuseAddResultOpnd;
     if(offset == -1 && compareOpCode == Js::OpCode::BrLe_A)
-    {
+    {LOGMEIN("Lower.cpp] 12866\n");
         offset = 0;
         compareOpCode = Js::OpCode::BrLt_A;
     }
     else if(offset == 1 && compareOpCode == Js::OpCode::BrGe_A)
-    {
+    {LOGMEIN("Lower.cpp] 12871\n");
         offset = 0;
         compareOpCode = Js::OpCode::BrGt_A;
     }
     else if(offset != 0 && rightOpnd)
-    {
+    {LOGMEIN("Lower.cpp] 12876\n");
         // Need to Add (right + offset). If it overflows, bail out.
         IR::LabelInstr *const bailOutLabel = insertBeforeInstr->m_prev->GetOrCreateContinueLabel(true);
         insertBeforeInstr = bailOutLabel;
@@ -12901,7 +12901,7 @@ void Lowerer::LowerBoundCheck(IR::Instr *const instr)
     //     jl[e] $skipBailOut
     // $bailOut:
     if(!rightOpnd)
-    {
+    {LOGMEIN("Lower.cpp] 12903\n");
         rightOpnd = IR::IntConstOpnd::New(offset, TyInt32, func, true);
     }
     InsertCompareBranch(leftOpnd, rightOpnd, compareOpCode, doUnsignedCompare, skipBailOutLabel, insertBeforeInstr);
@@ -12909,7 +12909,7 @@ void Lowerer::LowerBoundCheck(IR::Instr *const instr)
 
 IR::Instr *
 Lowerer::LowerBailTarget(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 12911\n");
     // this is just a bailout target, just skip over it and generate a label before so other bailout can jump here.
     IR::Instr * prevInstr = instr->m_prev;
 
@@ -12926,7 +12926,7 @@ Lowerer::LowerBailTarget(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::SplitBailOnImplicitCall(IR::Instr *& instr)
-{
+{LOGMEIN("Lower.cpp] 12928\n");
     Assert(instr->IsPlainInstr() || instr->IsProfiledInstr());
 
     const auto bailOutKind = instr->GetBailOutKind();
@@ -12942,7 +12942,7 @@ Lowerer::SplitBailOnImplicitCall(IR::Instr *& instr)
 
     IR::Instr *disableImplicitCallsInstr = nullptr, *enableImplicitCallsInstr = nullptr;
     if(bailOutKind == IR::BailOutOnImplicitCallsPreOp)
-    {
+    {LOGMEIN("Lower.cpp] 12944\n");
         const auto disableImplicitCallAddress =
             m_lowererMD.GenerateMemRef(
                 instr->m_func->GetThreadContextInfo()->GetDisableImplicitFlagsAddr(),
@@ -12974,7 +12974,7 @@ Lowerer::SplitBailOnImplicitCall(IR::Instr *& instr)
     bailOutInstr->InsertBefore(instr);
 
     if(disableImplicitCallsInstr)
-    {
+    {LOGMEIN("Lower.cpp] 12976\n");
         // Re-enable implicit calls
         Assert(enableImplicitCallsInstr);
         bailOutInstr->InsertBefore(enableImplicitCallsInstr);
@@ -12994,7 +12994,7 @@ Lowerer::SplitBailOnImplicitCall(IR::Instr *& instr)
 
 IR::Instr *
 Lowerer::SplitBailOnImplicitCall(IR::Instr * instr, IR::Instr * helperCall, IR::Instr * insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 12996\n");
     IR::Opnd * implicitCallFlags = this->GetImplicitCallFlagsOpnd();
     const IR::AutoReuseOpnd autoReuseImplicitCallFlags(implicitCallFlags, instr->m_func);
     IR::IntConstOpnd * noImplicitCall = IR::IntConstOpnd::New(Js::ImplicitCall_None, TyInt8, this->m_func, true);
@@ -13005,7 +13005,7 @@ Lowerer::SplitBailOnImplicitCall(IR::Instr * instr, IR::Instr * helperCall, IR::
 
     BailOutInfo * bailOutInfo = instr->GetBailOutInfo();
     if (bailOutInfo->bailOutInstr == instr)
-    {
+    {LOGMEIN("Lower.cpp] 13007\n");
         bailOutInfo->bailOutInstr = nullptr;
     }
     IR::Instr * bailOutInstr = IR::BailOutInstr::New(Js::OpCode::BailOnNotEqual, IR::BailOutOnImplicitCalls, bailOutInfo, bailOutInfo->bailOutFunc);
@@ -13028,7 +13028,7 @@ Lowerer::SplitBailOnImplicitCall(IR::Instr * instr, IR::Instr * helperCall, IR::
 //   - real instr, then debuggerBailout -- in case we only had debugger bailout.
 //   - real instr with BailOutInfo w/o debugger bailout, then debuggerBailout, then sharedBailout -- in case bailout for debugger was shared w/some other b.o.
 IR::Instr* Lowerer::SplitBailForDebugger(IR::Instr* instr)
-{
+{LOGMEIN("Lower.cpp] 13030\n");
     Assert(m_func->IsJitInDebugMode() && instr->m_opcode != Js::OpCode::BailForDebugger);
 
     IR::BailOutKind debuggerBailOutKind;    // Used for splitted instr.
@@ -13036,7 +13036,7 @@ IR::Instr* Lowerer::SplitBailForDebugger(IR::Instr* instr)
     IR::Instr* sharedBailoutInstr = nullptr;
 
     if (instr->GetBailOutKind() & IR::BailOutForDebuggerBits)
-    {
+    {LOGMEIN("Lower.cpp] 13038\n");
         // debugger bailout is not shared.
         Assert(!instr->HasAuxBailOut());
         AssertMsg(!(instr->GetBailOutKind() & ~IR::BailOutForDebuggerBits), "There should only be debugger bailout bits in the instr.");
@@ -13046,7 +13046,7 @@ IR::Instr* Lowerer::SplitBailForDebugger(IR::Instr* instr)
         // There is no non-debugger bailout in the instr, still can't clear bailout info, as we use it for the splitted instr,
         // but we need to mark the bailout as hasn't been generated yet.
         if (bailOutInfo->bailOutInstr == instr)
-        {
+        {LOGMEIN("Lower.cpp] 13048\n");
             // null will be picked up by following BailOutInstr::New which will change it to new bailout instr.
             bailOutInfo->bailOutInstr = nullptr;
         }
@@ -13055,13 +13055,13 @@ IR::Instr* Lowerer::SplitBailForDebugger(IR::Instr* instr)
         instr->ClearBailOutInfo();
     }
     else if (instr->IsBranchInstr() && instr->HasBailOutInfo() && instr->HasAuxBailOut())
-    {
+    {LOGMEIN("Lower.cpp] 13057\n");
         // Branches with shared bailout are lowered in LowerCondBranchCheckBailOut,
         // can't do here because we need to use BranchBailOutRecord but don't know which BrTrue/BrFalse to use for it.
         debuggerBailOutKind = IR::BailOutInvalid;
     }
     else if (instr->HasAuxBailOut() && instr->GetAuxBailOutKind() & IR::BailOutForDebuggerBits)
-    {
+    {LOGMEIN("Lower.cpp] 13063\n");
         // debugger bailout is shared.
         AssertMsg(!(instr->GetBailOutKind() & IR::BailOutForDebuggerBits), "There should be no debugger bits in main bailout kind.");
 
@@ -13080,7 +13080,7 @@ IR::Instr* Lowerer::SplitBailForDebugger(IR::Instr* instr)
     }
 
     if (debuggerBailOutKind != IR::BailOutInvalid)
-    {
+    {LOGMEIN("Lower.cpp] 13082\n");
         IR::BailOutInstr* debuggerBailoutInstr = IR::BailOutInstr::New(
             Js::OpCode::BailForDebugger, debuggerBailOutKind, bailOutInfo, bailOutInfo->bailOutFunc);
         instr->InsertAfter(debuggerBailoutInstr);
@@ -13094,7 +13094,7 @@ IR::Instr* Lowerer::SplitBailForDebugger(IR::Instr* instr)
 
 IR::Instr *
 Lowerer::SplitBailOnResultCondition(IR::Instr *const instr) const
-{
+{LOGMEIN("Lower.cpp] 13096\n");
     Assert(instr);
     Assert(!instr->IsLowered());
     Assert(
@@ -13112,7 +13112,7 @@ Lowerer::LowerBailOnResultCondition(
     IR::Instr *const instr,
     IR::LabelInstr * *const bailOutLabel,
     IR::LabelInstr * *const skipBailOutLabel)
-{
+{LOGMEIN("Lower.cpp] 13114\n");
     Assert(instr);
     Assert(
         instr->GetBailOutKind() & IR::BailOutOnResultConditions ||
@@ -13137,7 +13137,7 @@ Lowerer::LowerBailOnResultCondition(
 
 void
 Lowerer::PreserveSourcesForBailOnResultCondition(IR::Instr *const instr, IR::LabelInstr *const skipBailOutLabel) const
-{
+{LOGMEIN("Lower.cpp] 13139\n");
     Assert(instr);
     Assert(!instr->IsLowered());
     Assert(!instr->HasBailOutInfo());
@@ -13149,13 +13149,13 @@ Lowerer::PreserveSourcesForBailOnResultCondition(IR::Instr *const instr, IR::Lab
     Assert(dst);
     const auto dstStackSym = dst->GetStackSym();
     if(!dstStackSym || !dstStackSym->HasByteCodeRegSlot())
-    {
+    {LOGMEIN("Lower.cpp] 13151\n");
         // We only need to ensure that a byte-code source is not being overwritten
         return;
     }
 
     switch(instr->m_opcode)
-    {
+    {LOGMEIN("Lower.cpp] 13157\n");
         // The sources of these instructions don't need restoring, or will be restored in the bailout path
         case Js::OpCode::Neg_I4:
             // In case of overflow or zero, the result is the same as the operand
@@ -13167,7 +13167,7 @@ Lowerer::PreserveSourcesForBailOnResultCondition(IR::Instr *const instr, IR::Lab
 
     Assert(instr->GetSrc1());
     if(!dst->IsEqual(instr->GetSrc1()) && !(instr->GetSrc2() && dst->IsEqual(instr->GetSrc2())))
-    {
+    {LOGMEIN("Lower.cpp] 13169\n");
         // The destination is different from the sources
         return;
     }
@@ -13183,7 +13183,7 @@ Lowerer::LowerInstrWithBailOnResultCondition(
     const IR::BailOutKind bailOutKind,
     IR::LabelInstr *const bailOutLabel,
     IR::LabelInstr *const skipBailOutLabel) const
-{
+{LOGMEIN("Lower.cpp] 13185\n");
     Assert(instr);
     Assert(!instr->IsLowered());
     Assert(!instr->HasBailOutInfo());
@@ -13197,7 +13197,7 @@ Lowerer::LowerInstrWithBailOnResultCondition(
 
     // Lower the instruction
     switch(instr->m_opcode)
-    {
+    {LOGMEIN("Lower.cpp] 13199\n");
         case Js::OpCode::Neg_I4:
             LowererMD::LowerInt4NegWithBailOut(instr, bailOutKind, bailOutLabel, skipBailOutLabel);
             break;
@@ -13225,11 +13225,11 @@ Lowerer::LowerInstrWithBailOnResultCondition(
 
 void
 Lowerer::GenerateObjectTestAndTypeLoad(IR::Instr *instrLdSt, IR::RegOpnd *opndBase, IR::RegOpnd *opndType, IR::LabelInstr *labelHelper)
-{
+{LOGMEIN("Lower.cpp] 13227\n");
     IR::IndirOpnd *opndIndir;
 
     if (!opndBase->IsNotTaggedValue())
-    {
+    {LOGMEIN("Lower.cpp] 13231\n");
         m_lowererMD.GenerateObjectTest(opndBase, instrLdSt, labelHelper);
     }
 
@@ -13239,11 +13239,11 @@ Lowerer::GenerateObjectTestAndTypeLoad(IR::Instr *instrLdSt, IR::RegOpnd *opndBa
 
 IR::LabelInstr *
 Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::LabelInstr *bailOutLabel, IR::LabelInstr * collectRuntimeStatsLabel)
-{
+{LOGMEIN("Lower.cpp] 13241\n");
     BailOutInfo * bailOutInfo = instr->GetBailOutInfo();
     IR::Instr * bailOutInstr = bailOutInfo->bailOutInstr;
     if (instr->IsCloned())
-    {
+    {LOGMEIN("Lower.cpp] 13245\n");
         Assert(bailOutInstr != instr);
 
         // jump to the cloned bail out label
@@ -13256,21 +13256,21 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
 
     // Add helper label to trigger layout.
     if (!collectRuntimeStatsLabel)
-    {
+    {LOGMEIN("Lower.cpp] 13258\n");
         collectRuntimeStatsLabel = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
     }
     Assert(!collectRuntimeStatsLabel->IsLinked());
     instr->InsertBefore(collectRuntimeStatsLabel);
 
     if (bailOutInstr != instr)
-    {
+    {LOGMEIN("Lower.cpp] 13265\n");
         // this bailOutInfo is shared, just jump to the bailout target
 
         IR::Opnd * indexOpndForBailOutKind = nullptr;
 
         int bailOutRecordOffset = 0;
         if (this->m_func->IsOOPJIT())
-        {
+        {LOGMEIN("Lower.cpp] 13272\n");
             bailOutRecordOffset = NativeCodeData::GetDataTotalOffset(bailOutInfo->bailOutRecord);
 
             indexOpndForBailOutKind = IR::IndirOpnd::New(IR::RegOpnd::New(m_func->GetTopFunc()->GetNativeCodeDataSym(), TyVar, m_func), (int)(bailOutRecordOffset + BailOutRecord::GetOffsetOfBailOutKind()), TyUint32,
@@ -13293,7 +13293,7 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
         // No point in doing this for BailOutFailedEquivalentTypeCheck or BailOutFailedEquivalentFixedFieldTypeCheck,
         // because the respective inline cache is already polymorphic, anyway.
         if (instr->GetBailOutKind() == IR::BailOutFailedTypeCheck || instr->GetBailOutKind() == IR::BailOutFailedFixedFieldTypeCheck)
-        {
+        {LOGMEIN("Lower.cpp] 13295\n");
             // We have a type check bailout that shares a bailout record with other instructions.
             // Generate code to write the cache index into the bailout record before we jump to the call site.
             Assert(bailOutInfo->polymorphicCacheIndex != (uint)-1);
@@ -13301,7 +13301,7 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
             IR::Opnd * indexOpnd = nullptr;
 
             if (this->m_func->IsOOPJIT())
-            {
+            {LOGMEIN("Lower.cpp] 13303\n");
                 indexOpnd = IR::IndirOpnd::New(IR::RegOpnd::New(m_func->GetTopFunc()->GetNativeCodeDataSym(), TyVar, m_func), (int)(bailOutRecordOffset + BailOutRecord::GetOffsetOfPolymorphicCacheIndex()), TyUint32, m_func);
             }
             else
@@ -13314,10 +13314,10 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
         }
 
         if (bailOutInfo->bailOutRecord->GetType() == BailOutRecord::BailoutRecordType::Shared)
-        {
+        {LOGMEIN("Lower.cpp] 13316\n");
             IR::Opnd *functionBodyOpnd;
             if (this->m_func->IsOOPJIT())
-            {
+            {LOGMEIN("Lower.cpp] 13319\n");
                 functionBodyOpnd = IR::IndirOpnd::New(IR::RegOpnd::New(m_func->GetTopFunc()->GetNativeCodeDataSym(), TyVar, m_func), (int)(bailOutRecordOffset + SharedBailOutRecord::GetOffsetOfFunctionBody()), TyMachPtr, m_func);
             }
             else
@@ -13333,7 +13333,7 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
         IR::LabelInstr * bailOutTargetLabel = bailOutInstr->AsLabelInstr();
 #if DBG
         if (bailOutTargetLabel->m_noHelperAssert)
-        {
+        {LOGMEIN("Lower.cpp] 13335\n");
             collectRuntimeStatsLabel->m_noHelperAssert = true;
         }
 #endif
@@ -13350,10 +13350,10 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
 
     // capture the condition for this bailout
     if (bailOutLabel == nullptr)
-    {
+    {LOGMEIN("Lower.cpp] 13352\n");
         // Create a label and place it in the bailout info so that shared bailout point can jump to this one
         if (instr->m_prev->IsLabelInstr())
-        {
+        {LOGMEIN("Lower.cpp] 13355\n");
             bailOutLabel = instr->m_prev->AsLabelInstr();
             Assert(bailOutLabel->isOpHelper);
         }
@@ -13370,7 +13370,7 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
 
 #if DBG
     if (bailOutInstr->m_opcode == Js::OpCode::BailOnNoSimdTypeSpec || bailOutInstr->m_opcode == Js::OpCode::BailOnNoProfile || bailOutInstr->m_opcode == Js::OpCode::BailOnException || bailOutInstr->m_opcode == Js::OpCode::Yield)
-    {
+    {LOGMEIN("Lower.cpp] 13372\n");
         bailOutLabel->m_noHelperAssert = true;
     }
 #endif
@@ -13383,7 +13383,7 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
     BailOutRecord * bailOutRecord;
     IR::JnHelperMethod helperMethod;
     if (branchInstr != nullptr)
-    {
+    {LOGMEIN("Lower.cpp] 13385\n");
         Assert(branchInstr->GetSrc2() == nullptr);
         Assert(branchInstr->GetDst() == nullptr);
 
@@ -13396,7 +13396,7 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
         bool invertTarget = (branchInstr->m_opcode == Js::OpCode::BrFalse_A);
 
         if (bailOutInfo->isInvertedBranch)
-        {
+        {LOGMEIN("Lower.cpp] 13398\n");
             // Flip the condition
             IR::Instr *subInstr = IR::Instr::New(Js::OpCode::Sub_I4, condOpnd, condOpnd, IR::IntConstOpnd::New(1, TyMachReg, instr->m_func), instr->m_func);
             instr->InsertBefore(subInstr);
@@ -13409,7 +13409,7 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
         }
 
         if (!invertTarget)
-        {
+        {LOGMEIN("Lower.cpp] 13411\n");
             trueOffset = targetLabel->GetByteCodeOffset();
             falseOffset = bailOutInfo->bailOutOffset;
         }
@@ -13425,7 +13425,7 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
         helperMethod = IR::HelperSaveAllRegistersAndBranchBailOut;
 #ifdef _M_IX86
         if(!AutoSystemInfo::Data.SSE2Available())
-        {
+        {LOGMEIN("Lower.cpp] 13427\n");
             helperMethod = IR::HelperSaveAllRegistersNoSse2AndBranchBailOut;
         }
 #endif
@@ -13436,7 +13436,7 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
     else
     {
         if (bailOutInstr->GetBailOutKind() == IR::BailOutShared)
-        {
+        {LOGMEIN("Lower.cpp] 13438\n");
             bailOutRecord = NativeCodeDataNewZ(this->m_func->GetNativeCodeDataAllocator(),
                 SharedBailOutRecord, bailOutInfo->bailOutOffset, bailOutInfo->polymorphicCacheIndex, instr->GetBailOutKind(), bailOutInfo->bailOutFunc);
         }
@@ -13449,7 +13449,7 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
         helperMethod = IR::HelperSaveAllRegistersAndBailOut;
 #ifdef _M_IX86
         if(!AutoSystemInfo::Data.SSE2Available())
-        {
+        {LOGMEIN("Lower.cpp] 13451\n");
             helperMethod = IR::HelperSaveAllRegistersNoSse2AndBailOut;
         }
 #endif
@@ -13463,14 +13463,14 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
 #endif
 
     if (instr->m_opcode == Js::OpCode::BailOnNotStackArgs && instr->GetSrc1())
-    {
+    {LOGMEIN("Lower.cpp] 13465\n");
         // src1 on BailOnNotStackArgs is helping CSE
         instr->FreeSrc1();
     }
     // Call the bail out wrapper
     instr->m_opcode = Js::OpCode::Call;
     if(instr->GetDst())
-    {
+    {LOGMEIN("Lower.cpp] 13472\n");
         // To facilitate register allocation, don't assign a destination. The result will anyway go into the return register,
         // but the register allocator does not need to kill that register for the call.
         instr->FreeDst();
@@ -13492,12 +13492,12 @@ Lowerer::GenerateBailOut(IR::Instr * instr, IR::BranchInstr * branchInstr, IR::L
 
 void
 Lowerer::GenerateJumpToEpilogForBailOut(BailOutInfo * bailOutInfo, IR::Instr *instr)
-{
+{LOGMEIN("Lower.cpp] 13494\n");
     IR::Instr * exitPrevInstr = this->m_func->m_exitInstr->m_prev;
     // JMP to the epilog
     IR::LabelInstr * exitTargetInstr;
     if (exitPrevInstr->IsLabelInstr())
-    {
+    {LOGMEIN("Lower.cpp] 13499\n");
         exitTargetInstr = exitPrevInstr->AsLabelInstr();
     }
     else
@@ -13520,7 +13520,7 @@ Lowerer::GenerateJumpToEpilogForBailOut(BailOutInfo * bailOutInfo, IR::Instr *in
 ///----------------------------------------------------------------------------
 bool
 Lowerer::GenerateFastCondBranch(IR::BranchInstr * instrBranch, bool *pIsHelper)
-{
+{LOGMEIN("Lower.cpp] 13522\n");
     // The idea is to do an inline compare if we can prove that both sources
     // are tagged ints
     //
@@ -13549,26 +13549,26 @@ Lowerer::GenerateFastCondBranch(IR::BranchInstr * instrBranch, bool *pIsHelper)
 
     // Not tagged ints?
     if (opndSrc1->IsRegOpnd() && opndSrc1->AsRegOpnd()->IsNotInt())
-    {
+    {LOGMEIN("Lower.cpp] 13551\n");
         return true;
     }
     if (opndSrc2->IsRegOpnd() && opndSrc2->AsRegOpnd()->IsNotInt())
-    {
+    {LOGMEIN("Lower.cpp] 13555\n");
         return true;
     }
 
     // Tagged ints?
     bool isTaggedInts = false;
     if (opndSrc1->IsTaggedInt())
-    {
+    {LOGMEIN("Lower.cpp] 13562\n");
         if (opndSrc2->IsTaggedInt())
-        {
+        {LOGMEIN("Lower.cpp] 13564\n");
             isTaggedInts = true;
         }
     }
 
     if (!isTaggedInts)
-    {
+    {LOGMEIN("Lower.cpp] 13570\n");
         labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
         this->m_lowererMD.GenerateSmIntPairTest(instrBranch, opndSrc1, opndSrc2, labelHelper);
     }
@@ -13583,7 +13583,7 @@ Lowerer::GenerateFastCondBranch(IR::BranchInstr * instrBranch, bool *pIsHelper)
     this->m_lowererMD.LowerCondBranch(instr);
 
     if (isTaggedInts)
-    {
+    {LOGMEIN("Lower.cpp] 13585\n");
         instrBranch->Remove();
 
         // Skip lowering call to helper
@@ -13594,7 +13594,7 @@ Lowerer::GenerateFastCondBranch(IR::BranchInstr * instrBranch, bool *pIsHelper)
 
     IR::Instr *instrNext = instrBranch->GetNextRealInstrOrLabel();
     if (instrNext->IsLabelInstr())
-    {
+    {LOGMEIN("Lower.cpp] 13596\n");
         labelFallThru = instrNext->AsLabelInstr();
     }
     else
@@ -13618,10 +13618,10 @@ Lowerer::GenerateFastCondBranch(IR::BranchInstr * instrBranch, bool *pIsHelper)
 
 void
 Lowerer::LowerInlineeStart(IR::Instr * inlineeStartInstr)
-{
+{LOGMEIN("Lower.cpp] 13620\n");
     IR::Opnd *linkOpnd   = inlineeStartInstr->GetSrc2();
     if (!linkOpnd)
-    {
+    {LOGMEIN("Lower.cpp] 13623\n");
         Assert(inlineeStartInstr->m_func->m_hasInlineArgsOpt);
         return;
     }
@@ -13636,7 +13636,7 @@ Lowerer::LowerInlineeStart(IR::Instr * inlineeStartInstr)
         argInstr->FreeSrc2();
 #pragma prefast(suppress:6235, "Non-Zero Constant in Condition")
         if (!PHASE_ON(Js::EliminateArgoutForInlineePhase, this->m_func) || inlineeStartInstr->m_func->GetJITFunctionBody()->HasOrParentHasArguments())
-        {
+        {LOGMEIN("Lower.cpp] 13638\n");
             m_lowererMD.ChangeToAssign(argInstr);
         }
         else
@@ -13652,13 +13652,13 @@ Lowerer::LowerInlineeStart(IR::Instr * inlineeStartInstr)
     inlineeStartInstr->IterateMetaArgs( [&] (IR::Instr* metaArg)
     {
         if(i == 0)
-        {
+        {LOGMEIN("Lower.cpp] 13654\n");
             LowererMD::CreateAssign(metaArg->m_func->GetNextInlineeFrameArgCountSlotOpnd(),
                 IR::AddrOpnd::NewNull(metaArg->m_func),
                 argInsertInstr);
         }
         if (i == Js::Constants::InlineeMetaArgIndex_FunctionObject)
-        {
+        {LOGMEIN("Lower.cpp] 13660\n");
             metaArg->SetSrc1(inlineeStartInstr->GetSrc1());
         }
         metaArg->Unlink();
@@ -13666,7 +13666,7 @@ Lowerer::LowerInlineeStart(IR::Instr * inlineeStartInstr)
         IR::Instr* prev = metaArg->m_prev;
         m_lowererMD.ChangeToAssign(metaArg);
         if (i == Js::Constants::InlineeMetaArgIndex_Argc)
-        {
+        {LOGMEIN("Lower.cpp] 13668\n");
 #if defined(_M_IX86) || defined(_M_X64)
             Assert(metaArg == prev->m_next);
 #else //defined(_M_ARM)
@@ -13682,7 +13682,7 @@ Lowerer::LowerInlineeStart(IR::Instr * inlineeStartInstr)
         return false;
     });
     if (inlineeStartInstr->m_func->m_hasInlineArgsOpt)
-    {
+    {LOGMEIN("Lower.cpp] 13684\n");
         inlineeStartInstr->FreeSrc1();
         inlineeStartInstr->FreeSrc2();
         inlineeStartInstr->FreeDst();
@@ -13695,13 +13695,13 @@ Lowerer::LowerInlineeStart(IR::Instr * inlineeStartInstr)
 
 void
 Lowerer::LowerInlineeEnd(IR::Instr *instr)
-{
+{LOGMEIN("Lower.cpp] 13697\n");
     Assert(instr->m_func->IsInlinee());
     Assert(m_func->IsTopFunc());
 
     // No need to emit code if the function wasn't marked as having implicit calls or bailout.  Dead-Store should have removed inline overhead.
     if (instr->m_func->GetHasImplicitCalls() || PHASE_OFF(Js::DeadStorePhase, this->m_func))
-    {
+    {LOGMEIN("Lower.cpp] 13703\n");
         LowererMD::CreateAssign(instr->m_func->GetInlineeArgCountSlotOpnd(),
                                 IR::IntConstOpnd::New(0, TyMachReg, instr->m_func),
                                 instr);
@@ -13709,7 +13709,7 @@ Lowerer::LowerInlineeEnd(IR::Instr *instr)
 
     // Keep InlineeEnd around as it is used by register allocator, if we have optimized the arguments stack
     if (instr->m_func->m_hasInlineArgsOpt)
-    {
+    {LOGMEIN("Lower.cpp] 13711\n");
         instr->FreeSrc1();
     }
     else
@@ -13720,14 +13720,14 @@ Lowerer::LowerInlineeEnd(IR::Instr *instr)
 
 IR::Instr *
 Lowerer::LoadFloatFromNonReg(IR::Opnd * opndSrc, IR::Opnd * opndDst, IR::Instr * instrInsert)
-{
+{LOGMEIN("Lower.cpp] 13722\n");
     double value;
 
     if (opndSrc->IsAddrOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 13726\n");
         Js::Var var = opndSrc->AsAddrOpnd()->m_address;
         if (Js::TaggedInt::Is(var))
-        {
+        {LOGMEIN("Lower.cpp] 13729\n");
             value = Js::TaggedInt::ToDouble(var);
         }
         else
@@ -13736,9 +13736,9 @@ Lowerer::LoadFloatFromNonReg(IR::Opnd * opndSrc, IR::Opnd * opndDst, IR::Instr *
         }
     }
     else if (opndSrc->IsIntConstOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 13738\n");
         if (opndSrc->IsUInt32())
-        {
+        {LOGMEIN("Lower.cpp] 13740\n");
             value = (double)(uint32)opndSrc->AsIntConstOpnd()->GetValue();
         }
         else
@@ -13747,7 +13747,7 @@ Lowerer::LoadFloatFromNonReg(IR::Opnd * opndSrc, IR::Opnd * opndDst, IR::Instr *
         }
     }
     else if (opndSrc->IsFloatConstOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 13749\n");
         value = (double)opndSrc->AsFloatConstOpnd()->m_value;
     }
     else
@@ -13761,7 +13761,7 @@ Lowerer::LoadFloatFromNonReg(IR::Opnd * opndSrc, IR::Opnd * opndDst, IR::Instr *
 
 void
 Lowerer::LoadInt32FromUntaggedVar(IR::Instr *const instrLoad)
-{
+{LOGMEIN("Lower.cpp] 13763\n");
     Assert(instrLoad);
     Assert(instrLoad->GetDst());
     Assert(instrLoad->GetDst()->IsRegOpnd());
@@ -13806,25 +13806,25 @@ Lowerer::LoadInt32FromUntaggedVar(IR::Instr *const instrLoad)
 
 bool
 Lowerer::GetValueFromIndirOpnd(IR::IndirOpnd *indirOpnd, IR::Opnd **pValueOpnd, IntConstType *pValue)
-{
+{LOGMEIN("Lower.cpp] 13808\n");
     IR::RegOpnd *indexOpnd = indirOpnd->GetIndexOpnd();
     IR::Opnd* valueOpnd = nullptr;
     IntConstType value = 0;
     if (!indexOpnd)
-    {
+    {LOGMEIN("Lower.cpp] 13813\n");
         value = (IntConstType)indirOpnd->GetOffset();
         if (value < 0)
-        {
+        {LOGMEIN("Lower.cpp] 13816\n");
             // Can't do fast path for negative index
             return false;
         }
         valueOpnd = IR::IntConstOpnd::New(value, TyInt32, this->m_func);
     }
     else if (indexOpnd->m_sym->IsIntConst())
-    {
+    {LOGMEIN("Lower.cpp] 13823\n");
         value = indexOpnd->AsRegOpnd()->m_sym->GetIntConstValue();
         if (value < 0)
-        {
+        {LOGMEIN("Lower.cpp] 13826\n");
             // Can't do fast path for negative index
             return false;
         }
@@ -13837,7 +13837,7 @@ Lowerer::GetValueFromIndirOpnd(IR::IndirOpnd *indirOpnd, IR::Opnd **pValueOpnd, 
 
 void
 Lowerer::GenerateFastBrOnObject(IR::Instr *instr)
-{
+{LOGMEIN("Lower.cpp] 13839\n");
     Assert(instr->m_opcode == Js::OpCode::BrOnObject_A);
 
     IR::RegOpnd      *object        = instr->GetSrc1()->IsRegOpnd() ? instr->GetSrc1()->AsRegOpnd() : nullptr;
@@ -13847,7 +13847,7 @@ Lowerer::GenerateFastBrOnObject(IR::Instr *instr)
     IR::IntConstOpnd *typeIdOpnd    = IR::IntConstOpnd::New(Js::TypeIds_LastJavascriptPrimitiveType, TyInt32, instr->m_func);
 
     if (!object)
-    {
+    {LOGMEIN("Lower.cpp] 13849\n");
         object = IR::RegOpnd::New(TyVar, m_func);
         LowererMD::CreateAssign(object, instr->GetSrc1(), instr);
     }
@@ -13873,7 +13873,7 @@ Lowerer::GenerateFastBrOnObject(IR::Instr *instr)
 }
 
 void Lowerer::GenerateObjectHeaderInliningTest(IR::RegOpnd *baseOpnd, IR::LabelInstr * target,IR::Instr *insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 13875\n");
     Assert(baseOpnd);
     Assert(target);
     AssertMsg(
@@ -13919,10 +13919,10 @@ void Lowerer::GenerateObjectHeaderInliningTest(IR::RegOpnd *baseOpnd, IR::LabelI
 }
 
 void Lowerer::GenerateObjectTypeTest(IR::RegOpnd *srcReg, IR::Instr *instrInsert, IR::LabelInstr *labelHelper)
-{
+{LOGMEIN("Lower.cpp] 13921\n");
     Assert(srcReg);
     if (!srcReg->IsNotTaggedValue())
-    {
+    {LOGMEIN("Lower.cpp] 13924\n");
         m_lowererMD.GenerateObjectTest(srcReg, instrInsert, labelHelper);
     }
 
@@ -14138,49 +14138,49 @@ const BYTE Lowerer::IndirScales[static_cast<ValueType::TSize>(ObjectType::Count)
 };
 
 VTableValue Lowerer::GetArrayVtableAddress(const ValueType valueType, bool getVirtual)
-{
+{LOGMEIN("Lower.cpp] 14140\n");
     Assert(valueType.IsLikelyAnyOptimizedArray());
     if(valueType.IsLikelyArrayOrObjectWithArray())
-    {
+    {LOGMEIN("Lower.cpp] 14143\n");
         if(valueType.HasIntElements())
-        {
+        {LOGMEIN("Lower.cpp] 14145\n");
             return VTableValue::VtableNativeIntArray;
         }
         else if(valueType.HasFloatElements())
-        {
+        {LOGMEIN("Lower.cpp] 14149\n");
             return VTableValue::VtableNativeFloatArray;
         }
     }
     if (getVirtual && valueType.IsLikelyMixedTypedArrayType())
-    {
+    {LOGMEIN("Lower.cpp] 14154\n");
         return VtableAddresses[static_cast<ValueType::TSize>(valueType.GetMixedToVirtualTypedArrayObjectType())];
     }
     return VtableAddresses[static_cast<ValueType::TSize>(valueType.GetObjectType())];
 }
 
 uint32 Lowerer::GetArrayOffsetOfHeadSegment(const ValueType valueType)
-{
+{LOGMEIN("Lower.cpp] 14161\n");
     Assert(valueType.IsLikelyAnyOptimizedArray());
     return OffsetsOfHeadSegment[static_cast<ValueType::TSize>(valueType.GetObjectType())];
 }
 
 uint32 Lowerer::GetArrayOffsetOfLength(const ValueType valueType)
-{
+{LOGMEIN("Lower.cpp] 14167\n");
     Assert(valueType.IsLikelyAnyOptimizedArray());
     return OffsetsOfLength[static_cast<ValueType::TSize>(valueType.GetObjectType())];
 }
 
 IRType Lowerer::GetArrayIndirType(const ValueType valueType)
-{
+{LOGMEIN("Lower.cpp] 14173\n");
     Assert(valueType.IsLikelyAnyOptimizedArray());
     if(valueType.IsLikelyArrayOrObjectWithArray())
-    {
+    {LOGMEIN("Lower.cpp] 14176\n");
         if(valueType.HasIntElements())
-        {
+        {LOGMEIN("Lower.cpp] 14178\n");
             return TyInt32;
         }
         else if(valueType.HasFloatElements())
-        {
+        {LOGMEIN("Lower.cpp] 14182\n");
             return TyFloat64;
         }
     }
@@ -14189,16 +14189,16 @@ IRType Lowerer::GetArrayIndirType(const ValueType valueType)
 }
 
 BYTE Lowerer::GetArrayIndirScale(const ValueType valueType)
-{
+{LOGMEIN("Lower.cpp] 14191\n");
     Assert(valueType.IsLikelyAnyOptimizedArray());
     if(valueType.IsLikelyArrayOrObjectWithArray())
-    {
+    {LOGMEIN("Lower.cpp] 14194\n");
         if(valueType.HasIntElements())
-        {
+        {LOGMEIN("Lower.cpp] 14196\n");
             return 2; // log2(sizeof(int32))
         }
         else if(valueType.HasFloatElements())
-        {
+        {LOGMEIN("Lower.cpp] 14200\n");
             return 3; // log2(sizeof(double))
         }
     }
@@ -14207,7 +14207,7 @@ BYTE Lowerer::GetArrayIndirScale(const ValueType valueType)
 }
 
 int Lowerer::SimdGetElementCountFromBytes(ValueType arrValueType, uint8 dataWidth)
-{
+{LOGMEIN("Lower.cpp] 14209\n");
     Assert(dataWidth == 4 || dataWidth == 8 || dataWidth == 12 || dataWidth == 16);
     Assert(arrValueType.IsTypedArray());
     BYTE bpe = 1 << Lowerer::GetArrayIndirScale(arrValueType);
@@ -14221,19 +14221,19 @@ bool Lowerer::ShouldGenerateArrayFastPath(
     const bool supportsObjectsWithArrays,
     const bool supportsTypedArrays,
     const bool requiresSse2ForFloatArrays) const
-{
+{LOGMEIN("Lower.cpp] 14223\n");
     Assert(arrayOpnd);
 
     const ValueType arrayValueType(arrayOpnd->GetValueType());
     if(arrayValueType.IsUninitialized())
-    {
+    {LOGMEIN("Lower.cpp] 14228\n");
         // Don't have info about the value type, better to generate the fast path anyway
         return true;
     }
     if (!arrayValueType.IsLikelyObject())
-    {
+    {LOGMEIN("Lower.cpp] 14233\n");
         if (!arrayValueType.HasBeenObject() || arrayValueType.IsLikelyString())
-        {
+        {LOGMEIN("Lower.cpp] 14235\n");
             return false;
         }
         //We have seen at least once there is an object in the code path. Generate fastpath hoping it to be array.
@@ -14243,12 +14243,12 @@ bool Lowerer::ShouldGenerateArrayFastPath(
 
     if( (!supportsObjectsWithArrays && arrayValueType.GetObjectType() == ObjectType::ObjectWithArray) ||
         (!supportsTypedArrays && arrayValueType.IsLikelyTypedArray()) )
-    {
+    {LOGMEIN("Lower.cpp] 14245\n");
         // The fast path likely would not hit
         return false;
     }
     if(arrayValueType.GetObjectType() == ObjectType::UninitializedObject)
-    {
+    {LOGMEIN("Lower.cpp] 14250\n");
         // Don't have info about the object type, better to generate the fast path anyway
         return true;
     }
@@ -14259,7 +14259,7 @@ bool Lowerer::ShouldGenerateArrayFastPath(
             arrayValueType.GetObjectType() == ObjectType::Float64Array
         ) &&
         !AutoSystemInfo::Data.SSE2Available())
-    {
+    {LOGMEIN("Lower.cpp] 14261\n");
         // Fast paths for float arrays rely on SSE2
         return false;
     }
@@ -14268,7 +14268,7 @@ bool Lowerer::ShouldGenerateArrayFastPath(
 }
 
 IR::RegOpnd *Lowerer::LoadObjectArray(IR::RegOpnd *const baseOpnd, IR::Instr *const insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 14270\n");
     Assert(baseOpnd);
     Assert(
         baseOpnd->GetValueType().IsLikelyObject() &&
@@ -14299,7 +14299,7 @@ void
 Lowerer::GenerateIsEnabledArraySetElementFastPathCheck(
     IR::LabelInstr * isDisabledLabel,
     IR::Instr * const insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 14301\n");
     InsertCompareBranch(
         this->LoadOptimizationOverridesValueOpnd(insertBeforeInstr, OptimizationOverridesValue::OptimizationOverridesArraySetElementFastPathVtable),
         LoadVTableValueOpnd(insertBeforeInstr, VTableValue::VtableInvalid),
@@ -14316,7 +14316,7 @@ IR::RegOpnd *Lowerer::GenerateArrayTest(
     const bool forceFloat,
     const bool isStore,
     const bool allowDefiniteArray)
-{
+{LOGMEIN("Lower.cpp] 14318\n");
     Assert(baseOpnd);
 
     const ValueType baseValueType(baseOpnd->GetValueType());
@@ -14362,12 +14362,12 @@ IR::RegOpnd *Lowerer::GenerateArrayTest(
     else
     {
         if(!baseOpnd->IsNotTaggedValue())
-        {
+        {LOGMEIN("Lower.cpp] 14364\n");
             m_lowererMD.GenerateObjectTest(baseOpnd, insertBeforeInstr, isNotObjectLabel);
         }
         arrayOpnd = baseOpnd->Copy(func)->AsRegOpnd();
         if(!baseValueType.IsLikelyAnyOptimizedArray())
-        {
+        {LOGMEIN("Lower.cpp] 14369\n");
             arrayOpnd->SetValueType(
                 ValueType::GetObject(ObjectType::Array)
                     .ToLikely()
@@ -14383,7 +14383,7 @@ IR::RegOpnd *Lowerer::GenerateArrayTest(
 
     VTableValue virtualVtableAddress = VTableValue::VtableInvalid;
     if (baseValueType.IsLikelyMixedTypedArrayType())
-    {
+    {LOGMEIN("Lower.cpp] 14385\n");
         virtualVtableAddress = GetArrayVtableAddress(baseValueType, true);
     }
     IR::Opnd * vtableOpnd;
@@ -14391,10 +14391,10 @@ IR::RegOpnd *Lowerer::GenerateArrayTest(
     if (isStore &&
         (vtableAddress == VTableValue::VtableJavascriptArray ||
          baseValueType.IsLikelyNativeArray()))
-    {
+    {LOGMEIN("Lower.cpp] 14393\n");
         vtableOpnd = IR::RegOpnd::New(TyMachPtr, func);
         if (baseValueType.IsLikelyNativeArray())
-        {
+        {LOGMEIN("Lower.cpp] 14396\n");
             if (baseValueType.HasIntElements())
             {
                 InsertMove(vtableOpnd, this->LoadOptimizationOverridesValueOpnd(insertBeforeInstr, OptimizationOverridesValue::OptimizationOverridesIntArraySetElementFastPathVtable), insertBeforeInstr);
@@ -14419,7 +14419,7 @@ IR::RegOpnd *Lowerer::GenerateArrayTest(
     // jne  $isNotArrayLabel
 
     if (forceFloat && baseValueType.IsLikelyNativeFloatArray())
-    {
+    {LOGMEIN("Lower.cpp] 14421\n");
         // We expect a native float array. If we get native int instead, convert it on the spot and bail out afterward.
         const auto goodArrayLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func);
 
@@ -14434,7 +14434,7 @@ IR::RegOpnd *Lowerer::GenerateArrayTest(
         insertBeforeInstr->InsertBefore(notFloatArrayLabel);
 
         if (isStore)
-        {
+        {LOGMEIN("Lower.cpp] 14436\n");
             vtableOpnd = IR::RegOpnd::New(TyMachPtr, func);
             InsertMove(vtableOpnd, IR::MemRefOpnd::New(
                            func->GetScriptContextInfo()->GetIntArraySetElementFastPathVtableAddr(),
@@ -14467,7 +14467,7 @@ IR::RegOpnd *Lowerer::GenerateArrayTest(
     {
         IR::LabelInstr* goodArrayLabel = nullptr;
         if (baseValueType.IsLikelyMixedTypedArrayType())
-        {
+        {LOGMEIN("Lower.cpp] 14469\n");
             goodArrayLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func);
             InsertCompareBranch(
                 IR::IndirOpnd::New(arrayOpnd, 0, TyMachPtr, func),
@@ -14500,7 +14500,7 @@ IR::RegOpnd *Lowerer::GenerateArrayTest(
 
     ValueType arrayValueType(arrayOpnd->GetValueType());
     if(arrayValueType.IsLikelyArrayOrObjectWithArray() && !arrayValueType.IsObject())
-    {
+    {LOGMEIN("Lower.cpp] 14502\n");
         arrayValueType = arrayValueType.SetHasNoMissingValues(false);
     }
     arrayValueType = arrayValueType.ToDefiniteObject();
@@ -14509,7 +14509,7 @@ IR::RegOpnd *Lowerer::GenerateArrayTest(
 }
 
 IR::LabelInstr *Lowerer::InsertLabel(const bool isHelper, IR::Instr *const insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 14511\n");
     Assert(insertBeforeInstr);
 
     Func *const func = insertBeforeInstr->m_func;
@@ -14521,12 +14521,12 @@ IR::LabelInstr *Lowerer::InsertLabel(const bool isHelper, IR::Instr *const inser
 }
 
 IR::Instr *Lowerer::InsertMoveWithBarrier(IR::Opnd *dst, IR::Opnd *src, IR::Instr *const insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 14523\n");
     return Lowerer::InsertMove(dst, src, insertBeforeInstr, true);
 }
 
 IR::Instr *Lowerer::InsertMove(IR::Opnd *dst, IR::Opnd *src, IR::Instr *const insertBeforeInstr, bool generateWriteBarrier)
-{
+{LOGMEIN("Lower.cpp] 14528\n");
     Assert(dst);
     Assert(src);
     Assert(insertBeforeInstr);
@@ -14534,19 +14534,19 @@ IR::Instr *Lowerer::InsertMove(IR::Opnd *dst, IR::Opnd *src, IR::Instr *const in
     Func *const func = insertBeforeInstr->m_func;
 
     if(dst->IsFloat() && src->IsConstOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 14536\n");
         return LoadFloatFromNonReg(src, dst, insertBeforeInstr);
     }
 
     if(TySize[dst->GetType()] < TySize[src->GetType()])
-    {
+    {LOGMEIN("Lower.cpp] 14541\n");
         src = src->UseWithNewType(dst->GetType(), func);
     }
     IR::Instr * instr = IR::Instr::New(Js::OpCode::Ld_A, dst, src, func);
 
     insertBeforeInstr->InsertBefore(instr);
     if (generateWriteBarrier)
-    {
+    {LOGMEIN("Lower.cpp] 14548\n");
         instr = LowererMD::ChangeToWriteBarrierAssign(instr, func);
     }
     else
@@ -14561,7 +14561,7 @@ IR::BranchInstr *Lowerer::InsertBranch(
     const Js::OpCode opCode,
     IR::LabelInstr *const target,
     IR::Instr *const insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 14563\n");
     return InsertBranch(opCode, false /* isUnsigned */, target, insertBeforeInstr);
 }
 
@@ -14570,7 +14570,7 @@ IR::BranchInstr *Lowerer::InsertBranch(
     const bool isUnsigned,
     IR::LabelInstr *const target,
     IR::Instr *const insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 14572\n");
     Assert(target);
     Assert(insertBeforeInstr);
 
@@ -14578,13 +14578,13 @@ IR::BranchInstr *Lowerer::InsertBranch(
 
     IR::BranchInstr *const instr = IR::BranchInstr::New(opCode, target, func);
     if(!instr->IsLowered())
-    {
+    {LOGMEIN("Lower.cpp] 14580\n");
         if(opCode == Js::OpCode::Br)
-        {
+        {LOGMEIN("Lower.cpp] 14582\n");
             instr->m_opcode = LowererMD::MDUncondBranchOpcode;
         }
         else if(isUnsigned)
-        {
+        {LOGMEIN("Lower.cpp] 14586\n");
             instr->m_opcode = LowererMD::MDUnsignedBranchOpcode(opCode);
         }
         else
@@ -14598,7 +14598,7 @@ IR::BranchInstr *Lowerer::InsertBranch(
 }
 
 IR::Instr *Lowerer::InsertCompare(IR::Opnd *const src1, IR::Opnd *const src2, IR::Instr *const insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 14600\n");
     Assert(src1);
     Assert(!src1->IsFloat64()); // not implemented
     Assert(src2);
@@ -14624,7 +14624,7 @@ IR::BranchInstr *Lowerer::InsertCompareBranch(
     IR::LabelInstr *const target,
     IR::Instr *const insertBeforeInstr,
     const bool ignoreNaN)
-{
+{LOGMEIN("Lower.cpp] 14626\n");
     return InsertCompareBranch(compareSrc1, compareSrc2, branchOpCode, false /* isUnsigned */, target, insertBeforeInstr, ignoreNaN);
 }
 
@@ -14636,14 +14636,14 @@ IR::BranchInstr *Lowerer::InsertCompareBranch(
     IR::LabelInstr *const target,
     IR::Instr *const insertBeforeInstr,
     const bool ignoreNaN)
-{
+{LOGMEIN("Lower.cpp] 14638\n");
     Assert(compareSrc1);
     Assert(compareSrc2);
 
     Func *const func = insertBeforeInstr->m_func;
 
     if(compareSrc1->IsFloat())
-    {
+    {LOGMEIN("Lower.cpp] 14645\n");
         Assert(compareSrc2->IsFloat());
         Assert(!isUnsigned);
         IR::BranchInstr *const instr = IR::BranchInstr::New(branchOpCode, target, compareSrc1, compareSrc2, func);
@@ -14653,7 +14653,7 @@ IR::BranchInstr *Lowerer::InsertCompareBranch(
 
     Js::OpCode swapSrcsBranchOpCode;
     switch(branchOpCode)
-    {
+    {LOGMEIN("Lower.cpp] 14655\n");
         case Js::OpCode::BrEq_A:
         case Js::OpCode::BrNeq_A:
             swapSrcsBranchOpCode = branchOpCode;
@@ -14686,7 +14686,7 @@ IR::BranchInstr *Lowerer::InsertCompareBranch(
                 ) &&
                 !compareSrc2->IsIntConstOpnd() &&
                 !compareSrc2->IsAddrOpnd())
-            {
+            {LOGMEIN("Lower.cpp] 14688\n");
                 // Swap the sources and branch
                 IR::Opnd *const tempSrc = compareSrc1;
                 compareSrc1 = compareSrc2;
@@ -14701,19 +14701,19 @@ IR::BranchInstr *Lowerer::InsertCompareBranch(
                     (compareSrc2->IsAddrOpnd() && !compareSrc2->AsAddrOpnd()->m_address)
                 ) ||
                 branchOpCode == Js::OpCode::BrGt_A || branchOpCode == Js::OpCode::BrLe_A)
-            {
+            {LOGMEIN("Lower.cpp] 14703\n");
                 goto Default;
             }
             if(branchOpCode == Js::OpCode::BrGe_A || branchOpCode == Js::OpCode::BrLt_A)
-            {
+            {LOGMEIN("Lower.cpp] 14707\n");
                 if(isUnsigned)
-                {
+                {LOGMEIN("Lower.cpp] 14709\n");
                     goto Default;
                 }
                 branchOpCode = LowererMD::MDCompareWithZeroBranchOpcode(branchOpCode);
             }
             if(!compareSrc2->IsInUse())
-            {
+            {LOGMEIN("Lower.cpp] 14715\n");
                 compareSrc2->Free(func);
             }
             InsertTest(compareSrc1, compareSrc1, insertBeforeInstr);
@@ -14729,7 +14729,7 @@ IR::BranchInstr *Lowerer::InsertCompareBranch(
 }
 
 IR::Instr *Lowerer::InsertTest(IR::Opnd *const src1, IR::Opnd *const src2, IR::Instr *const insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 14731\n");
     Assert(src1);
     Assert(!src1->IsFloat64()); // not implemented
     Assert(src2);
@@ -14753,7 +14753,7 @@ IR::BranchInstr *Lowerer::InsertTestBranch(
     const Js::OpCode branchOpCode,
     IR::LabelInstr *const target,
     IR::Instr *const insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 14755\n");
     return InsertTestBranch(testSrc1, testSrc2, branchOpCode, false /* isUnsigned */, target, insertBeforeInstr);
 }
 
@@ -14775,7 +14775,7 @@ IR::Instr *Lowerer::InsertAdd(
     IR::Opnd *src1,
     IR::Opnd *src2,
     IR::Instr *const insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 14777\n");
     Assert(dst);
     Assert(src1);
     Assert(src2);
@@ -14784,11 +14784,11 @@ IR::Instr *Lowerer::InsertAdd(
     Func *const func = insertBeforeInstr->m_func;
 
     if(src2->IsIntConstOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 14786\n");
         IR::IntConstOpnd *const intConstOpnd = src2->AsIntConstOpnd();
         const IntConstType value = intConstOpnd->GetValue();
         if(value < 0 && value != IntConstMin)
-        {
+        {LOGMEIN("Lower.cpp] 14790\n");
             // Change (s1 = s1 + -5) into (s1 = s1 - 5)
             IR::IntConstOpnd *const newSrc2 = intConstOpnd->CopyInternal(func);
             newSrc2->SetValue(-value);
@@ -14796,11 +14796,11 @@ IR::Instr *Lowerer::InsertAdd(
         }
     }
     else if(src1->IsIntConstOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 14798\n");
         IR::IntConstOpnd *const intConstOpnd = src1->AsIntConstOpnd();
         const IntConstType value = intConstOpnd->GetValue();
         if(value < 0 && value != IntConstMin)
-        {
+        {LOGMEIN("Lower.cpp] 14802\n");
             // Change (s1 = -5 + s1) into (s1 = s1 - 5)
             IR::Opnd *const newSrc1 = src2;
             IR::IntConstOpnd *const newSrc2 = intConstOpnd->CopyInternal(func);
@@ -14823,7 +14823,7 @@ IR::Instr *Lowerer::InsertSub(
     IR::Opnd *src1,
     IR::Opnd *src2,
     IR::Instr *const insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 14825\n");
     Assert(dst);
     Assert(src1);
     Assert(src2);
@@ -14832,11 +14832,11 @@ IR::Instr *Lowerer::InsertSub(
     Func *const func = insertBeforeInstr->m_func;
 
     if(src2->IsIntConstOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 14834\n");
         IR::IntConstOpnd *const intConstOpnd = src2->AsIntConstOpnd();
         const IntConstType value = intConstOpnd->GetValue();
         if(value < 0 && value != IntConstMin)
-        {
+        {LOGMEIN("Lower.cpp] 14838\n");
             // Change (s1 = s1 - -5) into (s1 = s1 + 5)
             IR::IntConstOpnd *const newSrc2 = intConstOpnd->CopyInternal(func);
             newSrc2->SetValue(-value);
@@ -14853,7 +14853,7 @@ IR::Instr *Lowerer::InsertSub(
 }
 
 IR::Instr *Lowerer::InsertLea(IR::RegOpnd *const dst, IR::Opnd *const src, IR::Instr *const insertBeforeInstr, bool postRegAlloc)
-{
+{LOGMEIN("Lower.cpp] 14855\n");
     Assert(dst);
     Assert(src);
     Assert(src->IsIndirOpnd() || src->IsSymOpnd());
@@ -14872,7 +14872,7 @@ IR::Instr *Lowerer::InsertMoveBitCast(
     IR::Opnd *const dst,
     IR::Opnd *const src1,
     IR::Instr *const insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 14874\n");
     Assert(dst);
     Assert(dst->GetType() == TyFloat64);
     Assert(src1);
@@ -14894,7 +14894,7 @@ IR::Instr *Lowerer::InsertXor(
     IR::Opnd *const src1,
     IR::Opnd *const src2,
     IR::Instr *const insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 14896\n");
     Assert(dst);
     Assert(src1);
     Assert(src2);
@@ -14914,7 +14914,7 @@ IR::Instr *Lowerer::InsertAnd(
     IR::Opnd *const src1,
     IR::Opnd *const src2,
     IR::Instr *const insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 14916\n");
     Assert(dst);
     Assert(src1);
     Assert(src2);
@@ -14934,7 +14934,7 @@ IR::Instr *Lowerer::InsertOr(
     IR::Opnd *const src1,
     IR::Opnd *const src2,
     IR::Instr *const insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 14936\n");
     Assert(dst);
     Assert(src1);
     Assert(src2);
@@ -14956,7 +14956,7 @@ IR::Instr *Lowerer::InsertShift(
     IR::Opnd *const src1,
     IR::Opnd *const src2,
     IR::Instr *const insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 14958\n");
     Assert(dst);
     Assert(!dst->IsFloat64()); // not implemented
     Assert(src1);
@@ -14983,7 +14983,7 @@ IR::Instr *Lowerer::InsertShiftBranch(
     const Js::OpCode branchOpCode,
     IR::LabelInstr *const target,
     IR::Instr *const insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 14985\n");
     return InsertShiftBranch(shiftOpCode, dst, src1, src2, branchOpCode, false /* isUnsigned */, target, insertBeforeInstr);
 }
 
@@ -15005,7 +15005,7 @@ IR::Instr *Lowerer::InsertConvertFloat32ToFloat64(
     IR::Opnd *const dst,
     IR::Opnd *const src,
     IR::Instr *const insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 15007\n");
     Assert(dst);
     Assert(dst->IsFloat64());
     Assert(src);
@@ -15025,7 +15025,7 @@ IR::Instr *Lowerer::InsertConvertFloat64ToFloat32(
     IR::Opnd *const dst,
     IR::Opnd *const src,
     IR::Instr *const insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 15027\n");
     Assert(dst);
     Assert(dst->IsFloat32());
     Assert(src);
@@ -15046,7 +15046,7 @@ void Lowerer::InsertDecUInt32PreventOverflow(
     IR::Opnd *const src,
     IR::Instr *const insertBeforeInstr,
     IR::Instr * *const onOverflowInsertBeforeInstrRef)
-{
+{LOGMEIN("Lower.cpp] 15048\n");
     Assert(dst);
     Assert(dst->GetType() == TyUint32);
     Assert(src);
@@ -15079,7 +15079,7 @@ void Lowerer::InsertDecUInt32PreventOverflow(
 
     const bool dstEqualsSrc = dst->IsEqual(src);
     if(!dstEqualsSrc || onOverflowInsertBeforeInstrRef)
-    {
+    {LOGMEIN("Lower.cpp] 15081\n");
         //     b $continue
         //   $overflow:
         //     mov dst, 0
@@ -15087,12 +15087,12 @@ void Lowerer::InsertDecUInt32PreventOverflow(
         IR::LabelInstr *const continueLabel = Lowerer::InsertLabel(false, insertBeforeInstr);
         Lowerer::InsertBranch(Js::OpCode::Br, continueLabel, overflowLabel);
         if(!dstEqualsSrc)
-        {
+        {LOGMEIN("Lower.cpp] 15089\n");
             Lowerer::InsertMove(dst, IR::IntConstOpnd::New(0, TyUint32, func, true), continueLabel);
         }
 
         if(onOverflowInsertBeforeInstrRef)
-        {
+        {LOGMEIN("Lower.cpp] 15094\n");
             *onOverflowInsertBeforeInstrRef = continueLabel;
         }
     }
@@ -15108,7 +15108,7 @@ void Lowerer::InsertFloatCheckForZeroOrNanBranch(
     IR::LabelInstr *const target,
     IR::LabelInstr *const fallthroughLabel,
     IR::Instr *const insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 15110\n");
     Assert(src);
     Assert(src->IsFloat64());
     Assert(target);
@@ -15161,11 +15161,11 @@ Lowerer::GenerateFastElemICommon(
     bool forceGenerateFastPath /* = false */,
     bool returnLength,
     IR::LabelInstr *bailOutLabelInstr /* = nullptr*/)
-{
+{LOGMEIN("Lower.cpp] 15163\n");
     *pIsTypedArrayElement = false;
     *pIsStringIndex = false;
     if(pLabelSegmentLengthIncreased)
-    {
+    {LOGMEIN("Lower.cpp] 15167\n");
         *pLabelSegmentLengthIncreased = nullptr;
     }
     IR::RegOpnd *baseOpnd = indirOpnd->GetBaseOpnd();
@@ -15176,17 +15176,17 @@ Lowerer::GenerateFastElemICommon(
     // global optimizer to type specialize instructions, for which the lowerer is forced to emit unconditional
     // bailouts.
     if (baseOpnd->IsTaggedInt())
-    {
+    {LOGMEIN("Lower.cpp] 15178\n");
         return NULL;
     }
 
     IR::RegOpnd *indexOpnd = indirOpnd->GetIndexOpnd();
     if (indexOpnd)
-    {
+    {LOGMEIN("Lower.cpp] 15184\n");
         if (indexOpnd->GetValueType().IsString())
-        {
+        {LOGMEIN("Lower.cpp] 15186\n");
             if (!baseOpnd->GetValueType().IsLikelyOptimizedTypedArray())
-            {
+            {LOGMEIN("Lower.cpp] 15188\n");
                 // If profile data says that it's a typed array - do not generate the property string fast path as the src. could be a temp and that would cause a bug.
                 *pIsTypedArrayElement = false;
                 *pIsStringIndex = true;
@@ -15231,7 +15231,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
     bool forceGenerateFastPath /* = false */,
     bool returnLength,
     IR::LabelInstr *bailOutLabelInstr /* = nullptr*/)
-{
+{LOGMEIN("Lower.cpp] 15233\n");
     IR::RegOpnd *indexOpnd = indirOpnd->GetIndexOpnd();
     IR::RegOpnd *baseOpnd = indirOpnd->GetBaseOpnd();
     Assert(!baseOpnd->IsTaggedInt() || (indexOpnd && indexOpnd->IsNotInt()));
@@ -15297,9 +15297,9 @@ Lowerer::GenerateFastElemIIntIndexCommon(
     bool invertBoundCheckComparison = false;
 
     if (indirOpnd->TryGetIntConstIndexValue(true, &value, &isIndexNotInt))
-    {
+    {LOGMEIN("Lower.cpp] 15299\n");
         if (value >= 0)
-        {
+        {LOGMEIN("Lower.cpp] 15301\n");
             indexValueOpnd = IR::IntConstOpnd::New(value, TyUint32, this->m_func);
             invertBoundCheckComparison = true; // facilitate folding the constant index into the compare instruction
         }
@@ -15311,7 +15311,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         }
     }
     else if (isIndexNotInt)
-    {
+    {LOGMEIN("Lower.cpp] 15313\n");
         // If we know the index is not an int we go directly to helper.
         Assert(!forceGenerateFastPath);
         return nullptr;
@@ -15320,12 +15320,12 @@ Lowerer::GenerateFastElemIIntIndexCommon(
     //At this point indexValueOpnd is either NULL or contains the valueOpnd
 
     if(!forceGenerateFastPath && !ShouldGenerateArrayFastPath(baseOpnd, true, true, true))
-    {
+    {LOGMEIN("Lower.cpp] 15322\n");
         return nullptr;
     }
 
     if(baseValueType.IsLikelyAnyOptimizedArray())
-    {
+    {LOGMEIN("Lower.cpp] 15327\n");
         indirScale = GetArrayIndirScale(baseValueType);
         indirType = GetArrayIndirType(baseValueType);
     }
@@ -15334,12 +15334,12 @@ Lowerer::GenerateFastElemIIntIndexCommon(
     IR::Opnd * element = nullptr;
 
     if(instr->m_opcode == Js::OpCode::InlineArrayPush)
-    {
+    {LOGMEIN("Lower.cpp] 15336\n");
         element = instr->GetSrc2();
         elementType = element->GetType();
     }
     else if(isStore && instr->GetSrc1())
-    {
+    {LOGMEIN("Lower.cpp] 15341\n");
         element = instr->GetSrc1();
         elementType = element->GetType();
     }
@@ -15347,7 +15347,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
     Assert(isStore || (element == nullptr && elementType == TyIllegal));
 
     if (isStore && baseValueType.IsLikelyNativeArray() && indirType != elementType)
-    {
+    {LOGMEIN("Lower.cpp] 15349\n");
         // We're trying to write a value of the wrong type, which should force a conversion of the array.
         // Go to the helper for that.
         return nullptr;
@@ -15360,45 +15360,45 @@ Lowerer::GenerateFastElemIIntIndexCommon(
     bool indexIsNonnegative = indexValueOpnd || indexOpnd->GetType() == TyUint32 || !checkArrayLengthOverflow;
     bool indexIsLessThanHeadSegmentLength = false;
     if(!baseValueType.IsAnyOptimizedArray())
-    {
+    {LOGMEIN("Lower.cpp] 15362\n");
         arrayOpnd = GenerateArrayTest(baseOpnd, labelCantUseArray, labelCantUseArray, instr, true, isStore);
     }
     else
     {
         if(arrayOpnd->IsArrayRegOpnd())
-        {
+        {LOGMEIN("Lower.cpp] 15368\n");
             IR::ArrayRegOpnd *const arrayRegOpnd = arrayOpnd->AsArrayRegOpnd();
             if(arrayRegOpnd->HeadSegmentSym())
-            {
+            {LOGMEIN("Lower.cpp] 15371\n");
                 headSegmentOpnd = IR::RegOpnd::New(arrayRegOpnd->HeadSegmentSym(), TyMachPtr, m_func);
                 DebugOnly(headSegmentOpnd->FreezeSymValue());
                 autoReuseHeadSegmentOpnd.Initialize(headSegmentOpnd, m_func);
             }
             if(arrayRegOpnd->HeadSegmentLengthSym())
-            {
+            {LOGMEIN("Lower.cpp] 15377\n");
                 headSegmentLengthOpnd = IR::RegOpnd::New(arrayRegOpnd->HeadSegmentLengthSym(), TyUint32, m_func);
                 DebugOnly(headSegmentLengthOpnd->AsRegOpnd()->FreezeSymValue());
                 autoReuseHeadSegmentLengthOpnd.Initialize(headSegmentLengthOpnd, m_func);
             }
             if (arrayRegOpnd->EliminatedLowerBoundCheck())
-            {
+            {LOGMEIN("Lower.cpp] 15383\n");
                 indexIsNonnegative = true;
             }
             if(arrayRegOpnd->EliminatedUpperBoundCheck())
-            {
+            {LOGMEIN("Lower.cpp] 15387\n");
                 indexIsLessThanHeadSegmentLength = true;
             }
         }
     }
     IR::AutoReuseOpnd autoReuseArrayOpnd;
     if(arrayOpnd->GetValueType().GetObjectType() != ObjectType::ObjectWithArray)
-    {
+    {LOGMEIN("Lower.cpp] 15394\n");
         autoReuseArrayOpnd.Initialize(arrayOpnd, m_func);
     }
     const auto EnsureObjectArrayLoaded = [&]()
     {
         if(arrayOpnd->GetValueType().GetObjectType() != ObjectType::ObjectWithArray)
-        {
+        {LOGMEIN("Lower.cpp] 15400\n");
             return;
         }
         arrayOpnd = LoadObjectArray(arrayOpnd, instr);
@@ -15407,7 +15407,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
 
     const bool doUpperBoundCheck = checkArrayLengthOverflow && !indexIsLessThanHeadSegmentLength;
     if(!indexValueOpnd)
-    {
+    {LOGMEIN("Lower.cpp] 15409\n");
         indexValueOpnd =
         m_lowererMD.LoadNonnegativeIndex(
             indexOpnd,
@@ -15426,13 +15426,13 @@ Lowerer::GenerateFastElemIIntIndexCommon(
     const IR::AutoReuseOpnd autoReuseIndexValueOpnd(indexValueOpnd, m_func);
 
     if (baseValueType.IsLikelyTypedArray())
-    {
+    {LOGMEIN("Lower.cpp] 15428\n");
         *pIsTypedArrayElement = true;
 
         if(doUpperBoundCheck)
-        {
+        {LOGMEIN("Lower.cpp] 15432\n");
             if(!headSegmentLengthOpnd)
-            {
+            {LOGMEIN("Lower.cpp] 15434\n");
                 // (headSegmentLength = [base + offset(length)])
                 int lengthOffset;
                 lengthOffset = Js::Float64Array::GetOffsetOfLength();
@@ -15458,7 +15458,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         if (isStore &&
             baseValueType.IsLikelyNativeIntArray() &&
             (!element->IsIntConstOpnd() || Js::SparseArraySegment<int32>::GetMissingItem() == element->AsIntConstOpnd()->AsInt32()))
-        {
+        {LOGMEIN("Lower.cpp] 15460\n");
             Assert(instr->m_opcode != Js::OpCode::InlineArrayPush || bailOutLabelInstr);
 
             // Check for a write of the MissingItem value.
@@ -15472,7 +15472,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         }
 
         if(!headSegmentOpnd)
-        {
+        {LOGMEIN("Lower.cpp] 15474\n");
             EnsureObjectArrayLoaded();
 
             //  MOV headSegment, [base + offset(head)]
@@ -15483,9 +15483,9 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         }
 
         if(doUpperBoundCheck)
-        {
+        {LOGMEIN("Lower.cpp] 15485\n");
             if(!headSegmentLengthOpnd)
-            {
+            {LOGMEIN("Lower.cpp] 15487\n");
                 // (headSegmentLength = [headSegment + offset(length)])
                 headSegmentLengthOpnd =
                     IR::IndirOpnd::New(headSegmentOpnd, Js::SparseArraySegmentBase::GetOffsetOfLength(), TyUint32, m_func);
@@ -15510,9 +15510,9 @@ Lowerer::GenerateFastElemIIntIndexCommon(
     const bool needBailOutOnSegmentLengthCompare = needBailOutToHelper || needBailOutOnInvalidLength;
 
     if(indexIsLessThanHeadSegmentLength || needBailOutOnSegmentLengthCompare)
-    {
+    {LOGMEIN("Lower.cpp] 15512\n");
         if (needBailOutOnSegmentLengthCompare)
-        {
+        {LOGMEIN("Lower.cpp] 15514\n");
             // The bailout must be pre-op because it will not have completed the operation
             Assert(instr->GetBailOutInfo()->bailOutOffset == instr->GetByteCodeOffset());
 
@@ -15532,7 +15532,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
                     ));
 
             if (bailOutKind & IR::BailOutOnArrayAccessHelperCall)
-            {
+            {LOGMEIN("Lower.cpp] 15534\n");
                 // Omit the helper call and generate a bailout instead
                 Assert(emitBailoutRef);
                 *emitBailoutRef = true;
@@ -15540,14 +15540,14 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         }
 
         if (indexIsLessThanHeadSegmentLength)
-        {
+        {LOGMEIN("Lower.cpp] 15542\n");
             Assert(!(bailOutKind & IR::BailOutOnInvalidatedArrayHeadSegment));
         }
         else
         {
             IR::LabelInstr *bailOutLabel;
             if (needBailOutOnInvalidLength)
-            {
+            {LOGMEIN("Lower.cpp] 15549\n");
                 Assert(isStore);
                 // Lower a separate (but shared) bailout for this case, and preserve the bailout kind in the instruction if the
                 // helper call is going to be generated, because the bailout kind needs to be lowered again and differently in the
@@ -15584,7 +15584,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         }
     }
     else if (isStore && !baseValueType.IsLikelyTypedArray()) //  #if (opcode == StElemI_A)
-    {
+    {LOGMEIN("Lower.cpp] 15586\n");
         IR::LabelInstr *labelDone = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
         IR::LabelInstr *labelSegmentLengthIncreased = nullptr;
 
@@ -15595,14 +15595,14 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         const bool isInHelperBlock = !isPush;
 
         if(checkArrayLengthOverflow)
-        {
+        {LOGMEIN("Lower.cpp] 15597\n");
             if(pLabelSegmentLengthIncreased &&
                 !(
                     (baseValueType.IsArrayOrObjectWithArray() && baseValueType.HasNoMissingValues()) ||
                     ((instr->m_opcode == Js::OpCode::StElemI_A || instr->m_opcode == Js::OpCode::StElemI_A_Strict) &&
                         instr->IsProfiledInstr() && !instr->AsProfiledInstr()->u.stElemInfo->LikelyFillsMissingValue())
                 ))
-            {
+            {LOGMEIN("Lower.cpp] 15604\n");
                 // For arrays that are not guaranteed to have no missing values, before storing to an element where
                 // (index < length), the element value needs to be checked to see if it's a missing value, and if so, fall back
                 // to the helper. This is done to keep the missing value tracking precise in arrays. So, create a separate label
@@ -15632,11 +15632,11 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         EnsureObjectArrayLoaded();
 
         do // while(false);
-        {
+        {LOGMEIN("Lower.cpp] 15634\n");
             if(checkArrayLengthOverflow)
-            {
+            {LOGMEIN("Lower.cpp] 15636\n");
                 if(instr->HasBailOutInfo() && instr->GetBailOutKind() & IR::BailOutOnMissingValue)
-                {
+                {LOGMEIN("Lower.cpp] 15638\n");
                     // Need to bail out if this store would create a missing value. The store would cause a missing value to be
                     // created if (index > length && index < size). If (index >= size) we would go to helper anyway, and the bailout
                     // handling for this is done after the helper call, so just go to helper if (index > length).
@@ -15714,11 +15714,11 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         } while(false);
 
         if(isPush)
-        {
+        {LOGMEIN("Lower.cpp] 15716\n");
             IR::LabelInstr *const updateLengthLabel = InsertLabel(isInHelperBlock, instr);
 
             if(!doUpperBoundCheck && !headSegmentLengthOpnd)
-            {
+            {LOGMEIN("Lower.cpp] 15720\n");
                 // (headSegmentLength = [headSegment + offset(length)])
                 headSegmentLengthOpnd =
                     IR::IndirOpnd::New(headSegmentOpnd, Js::SparseArraySegmentBase::GetOffsetOfLength(), TyUint32, m_func);
@@ -15763,7 +15763,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         IR::Opnd *newLengthOpnd;
         IR::AutoReuseOpnd autoReuseNewLengthOpnd;
         if (indexValueOpnd->IsRegOpnd())
-        {
+        {LOGMEIN("Lower.cpp] 15765\n");
             //      LEA newLength, [index + 1]
             newLengthOpnd = IR::RegOpnd::New(TyUint32, this->m_func);
             autoReuseNewLengthOpnd.Initialize(newLengthOpnd, m_func);
@@ -15777,7 +15777,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
 
         // This is a common enough case that we want to go through this path instead of the simpler one, since doing it this way is faster for preallocated but un-filled arrays.
         if (!!(bailOutKind & IR::BailOutOnInvalidatedArrayLength))
-        {
+        {LOGMEIN("Lower.cpp] 15779\n");
             // If we'd increase the array length, go to the helper
             indirOpnd = IR::IndirOpnd::New(arrayOpnd, Js::JavascriptArray::GetOffsetOfLength(), TyUint32, this->m_func);
             InsertCompareBranch(
@@ -15793,7 +15793,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         InsertMove(indirOpnd, newLengthOpnd, instr);
 
         if (checkArrayLengthOverflow)
-        {
+        {LOGMEIN("Lower.cpp] 15795\n");
             //      CMP newLength, [base + offset(length)]
             //      JBE $segmentLengthIncreased
             Assert(labelSegmentLengthIncreased);
@@ -15817,9 +15817,9 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         InsertMove(indirOpnd, newLengthOpnd, instr);
 
         if(returnLength)
-        {
+        {LOGMEIN("Lower.cpp] 15819\n");
             if(newLengthOpnd->GetSize() != MachPtr)
-            {
+            {LOGMEIN("Lower.cpp] 15821\n");
                 newLengthOpnd = newLengthOpnd->UseWithNewType(TyMachPtr, m_func)->AsRegOpnd();
             }
 
@@ -15832,7 +15832,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         }
 
         if(labelSegmentLengthIncreased && labelSegmentLengthIncreased != labelDone)
-        {
+        {LOGMEIN("Lower.cpp] 15834\n");
             // labelSegmentLengthIncreased:
             instr->InsertBefore(labelSegmentLengthIncreased);
         }
@@ -15843,9 +15843,9 @@ Lowerer::GenerateFastElemIIntIndexCommon(
     else //  #else
     {
         if (checkArrayLengthOverflow)
-        {
+        {LOGMEIN("Lower.cpp] 15845\n");
             if (*pIsTypedArrayElement && isStore)
-            {
+            {LOGMEIN("Lower.cpp] 15847\n");
                 IR::LabelInstr *labelInlineSet = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
 
                 //For positive index beyond length or negative index its essentially nop for typed array store
@@ -15857,7 +15857,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
 
                 // For typed array, call ToNumber before we fallThrough.
                 if (instr->GetSrc1()->GetType() == TyVar && !instr->GetSrc1()->GetValueType().IsPrimitive())
-                {
+                {LOGMEIN("Lower.cpp] 15859\n");
                     IR::Instr *toNumberInstr = IR::Instr::New(Js::OpCode::Call, this->m_func);
                     toNumberInstr->SetSrc1(instr->GetSrc1());
                     instr->InsertBefore(toNumberInstr);
@@ -15882,12 +15882,12 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         EnsureObjectArrayLoaded();
 
         if (instr->m_opcode == Js::OpCode::InlineArrayPop)
-        {
+        {LOGMEIN("Lower.cpp] 15884\n");
             Assert(!baseValueType.IsLikelyTypedArray());
             Assert(bailOutLabelInstr);
 
             if (indexValueOpnd->IsIntConstOpnd())
-            {
+            {LOGMEIN("Lower.cpp] 15889\n");
                 // indirOpnd = [headSegment + index + offset(elements)]
                 IntConstType offset = offsetof(Js::SparseArraySegment<Js::Var>, elements) + (value << indirScale);
                 // TODO: Assert(Math::FitsInDWord(offset));
@@ -15905,13 +15905,13 @@ Lowerer::GenerateFastElemIIntIndexCommon(
             //Pop might not have a dst, if not don't worry about returning the last element. But we still have to
             // worry about gaps, because these force us to access the prototype chain, which may have side-effects.
             if (dst || !baseValueType.HasNoMissingValues())
-            {
+            {LOGMEIN("Lower.cpp] 15907\n");
                 if (!dst)
-                {
+                {LOGMEIN("Lower.cpp] 15909\n");
                     dst = IR::RegOpnd::New(indirType, this->m_func);
                 }
                 else if (dst->AsRegOpnd()->m_sym == arrayOpnd->m_sym)
-                {
+                {LOGMEIN("Lower.cpp] 15913\n");
                     tmpDst = IR::RegOpnd::New(TyVar, this->m_func);
                     dst = tmpDst;
                 }
@@ -15937,7 +15937,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
             IR::Opnd *newLengthOpnd;
             IR::AutoReuseOpnd autoReuseNewLengthOpnd;
             if (indexValueOpnd->IsRegOpnd())
-            {
+            {LOGMEIN("Lower.cpp] 15939\n");
                 //      LEA newLength, [index]
                 newLengthOpnd = indexValueOpnd;
                 autoReuseNewLengthOpnd.Initialize(newLengthOpnd, m_func);
@@ -15958,7 +15958,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
             InsertMove(lengthIndirOpnd, newLengthOpnd, instr);
 
             if (tmpDst)
-            {
+            {LOGMEIN("Lower.cpp] 15960\n");
                 // The array opnd and the destination is the same, need to move the value in the tmp dst
                 // to the actual dst
                 InsertMove(instr->GetDst(), tmpDst, instr);
@@ -15969,9 +15969,9 @@ Lowerer::GenerateFastElemIIntIndexCommon(
     } // #endif
 
     if (baseValueType.IsLikelyTypedArray())
-    {
+    {LOGMEIN("Lower.cpp] 15971\n");
         if(!headSegmentOpnd)
-        {
+        {LOGMEIN("Lower.cpp] 15973\n");
             //  MOV headSegment, [base + offset(arrayBuffer)]
             int bufferOffset;
             bufferOffset = Js::Float64Array::GetOffsetOfBuffer();
@@ -15983,7 +15983,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
 
         //  indirOpnd = [headSegment + index]
         if (indexValueOpnd->IsIntConstOpnd())
-        {
+        {LOGMEIN("Lower.cpp] 15985\n");
             IntConstType offset = (value << indirScale);
             // TODO: Assert(Math::FitsInDWord(offset));
             indirOpnd = IR::IndirOpnd::New(headSegmentOpnd, (int32)offset, indirType, this->m_func);
@@ -15994,7 +15994,7 @@ Lowerer::GenerateFastElemIIntIndexCommon(
         }
     }
     else if (indexValueOpnd->IsIntConstOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 15996\n");
         // indirOpnd = [headSegment + index + offset(elements)]
         IntConstType offset = offsetof(Js::SparseArraySegment<Js::Var>, elements) + (value << indirScale);
         // TODO: Assert(Math::FitsInDWord(offset));
@@ -16012,9 +16012,9 @@ Lowerer::GenerateFastElemIIntIndexCommon(
 
 void
 Lowerer::GenerateTypeIdCheck(Js::TypeId typeId, IR::RegOpnd * opnd, IR::LabelInstr * labelFail, IR::Instr * insertBeforeInstr, bool generateObjectCheck)
-{
+{LOGMEIN("Lower.cpp] 16014\n");
     if (generateObjectCheck && !opnd->IsNotTaggedValue())
-    {
+    {LOGMEIN("Lower.cpp] 16016\n");
         m_lowererMD.GenerateObjectTest(opnd, insertBeforeInstr, labelFail);
     }
 
@@ -16037,9 +16037,9 @@ Lowerer::GenerateTypeIdCheck(Js::TypeId typeId, IR::RegOpnd * opnd, IR::LabelIns
 
 IR::RegOpnd *
 Lowerer::GenerateUntagVar(IR::RegOpnd * opnd, IR::LabelInstr * labelFail, IR::Instr * insertBeforeInstr, bool generateTagCheck)
-{
+{LOGMEIN("Lower.cpp] 16039\n");
     if (!opnd->IsVar())
-    {
+    {LOGMEIN("Lower.cpp] 16041\n");
         AssertMsg(opnd->GetSize() == 4, "This should be 32-bit wide");
         return opnd;
     }
@@ -16054,13 +16054,13 @@ Lowerer::GenerateNotZeroTest( IR::Opnd * opndSrc, IR::LabelInstr * isZeroLabel, 
 
 bool
 Lowerer::GenerateFastStringLdElem(IR::Instr * ldElem, IR::LabelInstr * labelHelper, IR::LabelInstr * labelFallThru)
-{
+{LOGMEIN("Lower.cpp] 16056\n");
     IR::IndirOpnd * indirOpnd = ldElem->GetSrc1()->AsIndirOpnd();
     IR::RegOpnd * baseOpnd = indirOpnd->GetBaseOpnd();
 
     // don't generate the fast path if the instance is not likely string
     if (!baseOpnd->GetValueType().IsLikelyString())
-    {
+    {LOGMEIN("Lower.cpp] 16062\n");
         return false;
     }
 
@@ -16069,7 +16069,7 @@ Lowerer::GenerateFastStringLdElem(IR::Instr * ldElem, IR::LabelInstr * labelHelp
     IR::RegOpnd * indexOpnd = indirOpnd->GetIndexOpnd();
     // Don't generate the fast path if the index operand is not likely int
     if (indexOpnd && !indexOpnd->GetValueType().IsLikelyInt())
-    {
+    {LOGMEIN("Lower.cpp] 16071\n");
         return false;
     }
 
@@ -16082,7 +16082,7 @@ Lowerer::GenerateFastStringLdElem(IR::Instr * ldElem, IR::LabelInstr * labelHelp
     const IR::AutoReuseOpnd autoReuseBufferOpnd(bufferOpnd, m_func);
     IR::IndirOpnd * charIndirOpnd;
     if (indexOpnd)
-    {
+    {LOGMEIN("Lower.cpp] 16084\n");
         // Untag the var and generate the indir into the string buffer
         IR::RegOpnd * index32Opnd = GenerateUntagVar(indexOpnd, labelHelper, ldElem);
         charIndirOpnd = IR::IndirOpnd::New(bufferOpnd, index32Opnd, 1, TyUint16, this->m_func);
@@ -16147,7 +16147,7 @@ Lowerer::GenerateFastStringLdElem(IR::Instr * ldElem, IR::LabelInstr * labelHelp
 
 bool
 Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
-{
+{LOGMEIN("Lower.cpp] 16149\n");
     Assert(instrIsInHelperBlockRef);
     bool &instrIsInHelperBlock = *instrIsInHelperBlockRef;
     instrIsInHelperBlock = false;
@@ -16184,7 +16184,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
     //  JNE $fallthrough
 
     if(ldElem->m_opcode == Js::OpCode::LdMethodElem && indirOpnd->GetBaseOpnd()->GetValueType().IsLikelyOptimizedTypedArray())
-    {
+    {LOGMEIN("Lower.cpp] 16186\n");
         // Typed arrays don't return objects, so it's not worth generating a fast path for LdMethodElem. Calling the helper also
         // generates a better error message. Skip the fast path and just generate a helper call.
         return true;
@@ -16199,21 +16199,21 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
     bool emitBailout = false;
 
     if (ldElem->DoStackArgsOpt(this->m_func))
-    {
+    {LOGMEIN("Lower.cpp] 16201\n");
         emittedFastPath = GenerateFastArgumentsLdElemI(ldElem, labelFallThru);
         emitBailout = true;
     }
     else if (GenerateFastStringLdElem(ldElem, labelHelper, labelFallThru))
-    {
+    {LOGMEIN("Lower.cpp] 16206\n");
         emittedFastPath = true;
     }
     else
     {
         IR::LabelInstr * labelCantUseArray = labelHelper;
         if (isNativeArrayLoad)
-        {
+        {LOGMEIN("Lower.cpp] 16213\n");
             if (ldElem->GetDst()->GetType() == TyVar)
-            {
+            {LOGMEIN("Lower.cpp] 16215\n");
                 // Skip the fast path and just generate a helper call
                 return true;
             }
@@ -16243,15 +16243,15 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
 
         // The index is negative or not int.
         if (indirOpnd == nullptr)
-        {
+        {LOGMEIN("Lower.cpp] 16245\n");
             Assert(!(ldElem->HasBailOutInfo() && ldElem->GetBailOutKind() & IR::BailOutOnArrayAccessHelperCall));
 
             // The global optimizer should never type specialize a LdElem for which the index is not int or an integer constant
             // with a negative value. This would force an unconditional bail out on the main code path.
             if (dst->IsVar())
-            {
+            {LOGMEIN("Lower.cpp] 16251\n");
                 if (PHASE_TRACE(Js::TypedArrayTypeSpecPhase, this->m_func) && PHASE_TRACE(Js::LowererPhase, this->m_func))
-                {
+                {LOGMEIN("Lower.cpp] 16253\n");
                     char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                     Output::Print(_u("Typed Array Lowering: function: %s (%s): instr %s, not specialized by glob opt due to negative or not likely int index.\n"),
                         this->m_func->GetJITFunctionBody()->GetDisplayName(),
@@ -16295,7 +16295,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
                 ldElem->GetBailOutInfo()->bailOutOffset <= ldElem->GetByteCodeOffset() &&
                 dst->IsEqual(src1->AsIndirOpnd()->GetBaseOpnd())) ||
             (src1->AsIndirOpnd()->GetIndexOpnd() && dst->IsEqual(src1->AsIndirOpnd()->GetIndexOpnd())))
-        {
+        {LOGMEIN("Lower.cpp] 16297\n");
             // This is a pre-op bailout where the dst is the same as one of the srcs. The dst may be trashed before bailing out,
             // but since the operation will be processed again in the interpreter, src values need to be kept intact. Use a
             // temporary dst until after the operation is complete.
@@ -16310,7 +16310,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
         }
 
         if (isTypedArrayElement)
-        {
+        {LOGMEIN("Lower.cpp] 16312\n");
             // For typedArrays, convert the loaded element to the appropriate type
             IR::RegOpnd *reg;
             IR::AutoReuseOpnd autoReuseReg;
@@ -16318,11 +16318,11 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
             Assert(dst->IsRegOpnd());
 
             if(indirOpnd->IsFloat())
-            {
+            {LOGMEIN("Lower.cpp] 16320\n");
                 AssertMsg((dstType == TyFloat64) || (dstType == TyVar), "For Float32Array LdElemI's dst should be specialized to TyFloat64 or not at all.");
 
                 if(indirOpnd->IsFloat32())
-                {
+                {LOGMEIN("Lower.cpp] 16324\n");
                     // MOVSS reg32.f32, indirOpnd.f32
                     IR::RegOpnd *reg32 = IR::RegOpnd::New(TyFloat32, this->m_func);
                     const IR::AutoReuseOpnd autoReuseReg32(reg32, m_func);
@@ -16344,7 +16344,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
                 }
 
                 if (dstType != TyFloat64)
-                {
+                {LOGMEIN("Lower.cpp] 16346\n");
                     // Convert reg.f64 to var
                     m_lowererMD.SaveDoubleToVar(dst->AsRegOpnd(), reg, ldElem, ldElem);
                 }
@@ -16360,14 +16360,14 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
                 }
 
                 // JP $helper
-                {
+                {LOGMEIN("Lower.cpp] 16362\n");
                     IR::Instr *const instr = IR::BranchInstr::New(Js::OpCode::JP, labelHelper, this->m_func);
                     ldElem->InsertBefore(instr);
                 }
 #endif
 
                 if(dstType == TyFloat64)
-                {
+                {LOGMEIN("Lower.cpp] 16369\n");
                     emitBailout = true;
                 }
             }
@@ -16384,7 +16384,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
                     && indirOpnd->GetType() != TyInt32
 #endif
                     )
-                {
+                {LOGMEIN("Lower.cpp] 16386\n");
                     reg->SetValueType(ValueType::GetTaggedInt());  // Fits as a tagged-int
                 }
 
@@ -16392,7 +16392,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
                 IR::Instr *const instrMov = InsertMove(reg, indirOpnd, ldElem);
 
                 if (dstType == TyInt32)
-                {
+                {LOGMEIN("Lower.cpp] 16394\n");
                     instrMov->dstIsTempNumber = ldElem->dstIsTempNumber;
                     instrMov->dstIsTempNumberTransferred = ldElem->dstIsTempNumberTransferred;
 
@@ -16429,7 +16429,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
             emittedFastPath = true;
 
             if (PHASE_TRACE(Js::TypedArrayTypeSpecPhase, this->m_func) && PHASE_TRACE(Js::LowererPhase, this->m_func))
-            {
+            {LOGMEIN("Lower.cpp] 16431\n");
                 char baseValueTypeStr[VALUE_TYPE_MAX_STRING_SIZE];
                 baseValueType.ToString(baseValueTypeStr);
                 char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
@@ -16470,11 +16470,11 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
                     true);
 
                 if (isNativeArrayLoad)
-                {
+                {LOGMEIN("Lower.cpp] 16472\n");
                     Assert(!needObjectTest);
                     Assert(labelHelper != labelBailOut);
                     if(ldElem->AsProfiledInstr()->u.ldElemInfo->GetElementType().HasBeenUndefined())
-                    {
+                    {LOGMEIN("Lower.cpp] 16476\n");
                         // We're going to bail out trying to load "missing value" into a type-spec'd opnd.
                         // Branch to a point where we'll convert the array so that we don't keep bailing here.
                         // (Gappy arrays are not well-suited to nativeness.)
@@ -16489,13 +16489,13 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
                 }
             }
             if(needObjectTest)
-            {
+            {LOGMEIN("Lower.cpp] 16491\n");
                 //  GenerateObjectTest(dst)
                 //  JIsObject $fallthrough
                 m_lowererMD.GenerateObjectTest(dst, ldElem, labelFallThru, true);
             }
             else if(!needMissingValueCheck)
-            {
+            {LOGMEIN("Lower.cpp] 16497\n");
                 //  JMP $fallthrough
                 InsertBranch(Js::OpCode::Br, labelFallThru, ldElem);
             }
@@ -16508,7 +16508,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
     // $fallthru:
 
     if (!emittedFastPath)
-    {
+    {LOGMEIN("Lower.cpp] 16510\n");
         labelHelper->isOpHelper = false;
     }
 
@@ -16516,7 +16516,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
     instrIsInHelperBlock = true;
 
     if (isNativeArrayLoad)
-    {
+    {LOGMEIN("Lower.cpp] 16518\n");
         Assert(ldElem->HasBailOutInfo());
         Assert(labelHelper != labelBailOut);
 
@@ -16545,11 +16545,11 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
 
         bool hasBeenUndefined = ldElem->AsProfiledInstr()->u.ldElemInfo->GetElementType().HasBeenUndefined();
         if (hasBeenUndefined)
-        {
+        {LOGMEIN("Lower.cpp] 16547\n");
             if(!emitBailout)
-            {
+            {LOGMEIN("Lower.cpp] 16549\n");
                 if (labelMissingNative == nullptr)
-                {
+                {LOGMEIN("Lower.cpp] 16551\n");
                     labelMissingNative = IR::LabelInstr::New(Js::OpCode::Label, m_func, true);
                 }
 
@@ -16557,7 +16557,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
             }
             InsertBranch(Js::OpCode::Br, labelFallThru, insertBeforeInstr);
             if(labelMissingNative)
-            {
+            {LOGMEIN("Lower.cpp] 16559\n");
                 // We're going to bail out on a load from a gap, but convert the array to Var first, so we don't just
                 // bail here over and over. Gappy arrays are not well suited to nativeness.
                 // NOTE: only emit this call if the profile tells us that this has happened before ("hasBeenUndefined").
@@ -16566,7 +16566,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
                 IR::JnHelperMethod helperMethod;
                 indirOpnd = ldElem->GetSrc1()->AsIndirOpnd();
                 if (indirOpnd->GetBaseOpnd()->GetValueType().HasIntElements())
-                {
+                {LOGMEIN("Lower.cpp] 16568\n");
                     helperMethod = IR::HelperIntArr_ToVarArray;
                 }
                 else
@@ -16584,7 +16584,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
         else
         {
             if(!emitBailout)
-            {
+            {LOGMEIN("Lower.cpp] 16586\n");
                 InsertCompareBranch(GetMissingItemOpnd(ldElem->GetDst()->GetType(), m_func), ldElem->GetDst(), Js::OpCode::BrEq_A, labelBailOut, insertBeforeInstr, true);
             }
 
@@ -16595,7 +16595,7 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
     }
 
     if (emitBailout)
-    {
+    {LOGMEIN("Lower.cpp] 16597\n");
         ldElem->UnlinkSrc1();
         ldElem->UnlinkDst();
         GenerateBailOut(ldElem, nullptr, nullptr);
@@ -16606,13 +16606,13 @@ Lowerer::GenerateFastLdElemI(IR::Instr *& ldElem, bool *instrIsInHelperBlockRef)
 
 IR::Opnd *
 Lowerer::GetMissingItemOpnd(IRType type, Func *func)
-{
+{LOGMEIN("Lower.cpp] 16608\n");
     if (type == TyVar)
-    {
+    {LOGMEIN("Lower.cpp] 16610\n");
         return IR::AddrOpnd::New(Js::JavascriptArray::MissingItem, IR::AddrOpndKindConstantAddress, func, true);
     }
     if (type == TyInt32)
-    {
+    {LOGMEIN("Lower.cpp] 16614\n");
         return IR::IntConstOpnd::New(Js::JavascriptNativeIntArray::MissingItem, TyInt32, func, true);
     }
     Assert(type == TyFloat64);
@@ -16621,7 +16621,7 @@ Lowerer::GetMissingItemOpnd(IRType type, Func *func)
 
 bool
 Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
-{
+{LOGMEIN("Lower.cpp] 16623\n");
     Assert(instrIsInHelperBlockRef);
     bool &instrIsInHelperBlock = *instrIsInHelperBlockRef;
     instrIsInHelperBlock = false;
@@ -16669,18 +16669,18 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
     bool isNativeArrayStore = indirOpnd->GetBaseOpnd()->GetValueType().IsLikelyNativeArray();
     IR::LabelInstr * labelCantUseArray = labelHelper;
     if (isNativeArrayStore)
-    {
+    {LOGMEIN("Lower.cpp] 16671\n");
         if (stElem->GetSrc1()->GetType() != GetArrayIndirType(indirOpnd->GetBaseOpnd()->GetValueType()))
-        {
+        {LOGMEIN("Lower.cpp] 16673\n");
             // Skip the fast path and just generate a helper call
             return true;
         }
 
         if(stElem->HasBailOutInfo())
-        {
+        {LOGMEIN("Lower.cpp] 16679\n");
             const IR::BailOutKind bailOutKind = stElem->GetBailOutKind();
             if (bailOutKind & IR::BailOutConventionalNativeArrayAccessOnly)
-            {
+            {LOGMEIN("Lower.cpp] 16682\n");
                 labelBailOut = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
                 labelCantUseArray = labelBailOut;
             }
@@ -16706,15 +16706,15 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
 
     // The index is negative or not int.
     if (indirOpnd == nullptr)
-    {
+    {LOGMEIN("Lower.cpp] 16708\n");
         Assert(!(stElem->HasBailOutInfo() && stElem->GetBailOutKind() & IR::BailOutOnArrayAccessHelperCall));
 
         // The global optimizer should never type specialize a StElem for which we know the index is not int or is a negative
         // int constant.  This would result in an unconditional bailout on the main code path.
         if (src->IsVar())
-        {
+        {LOGMEIN("Lower.cpp] 16714\n");
             if (PHASE_TRACE(Js::TypedArrayTypeSpecPhase, this->m_func) && PHASE_TRACE(Js::LowererPhase, this->m_func))
-            {
+            {LOGMEIN("Lower.cpp] 16716\n");
                 char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                 Output::Print(_u("Typed Array Lowering: function: %s (%s): instr %s, not specialized by glob opt due to negative or not likely int index.\n"),
                     this->m_func->GetJITFunctionBody()->GetDisplayName(),
@@ -16746,9 +16746,9 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
 
     const ValueType baseValueType(dst->AsIndirOpnd()->GetBaseOpnd()->GetValueType());
     if (isTypedArrayElement)
-    {
+    {LOGMEIN("Lower.cpp] 16748\n");
         if (PHASE_TRACE(Js::TypedArrayTypeSpecPhase, this->m_func) && PHASE_TRACE(Js::LowererPhase, this->m_func))
-        {
+        {LOGMEIN("Lower.cpp] 16750\n");
             char baseValueTypeStr[VALUE_TYPE_MAX_STRING_SIZE];
             baseValueType.ToString(baseValueTypeStr);
             char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
@@ -16765,13 +16765,13 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
         ObjectType objectType = baseValueType.GetObjectType();
 
         if(indirOpnd->IsFloat())
-        {
+        {LOGMEIN("Lower.cpp] 16767\n");
             if (src->GetType() == TyFloat64)
-            {
+            {LOGMEIN("Lower.cpp] 16769\n");
                 IR::RegOpnd *const regSrc = src->AsRegOpnd();
 
                 if (indirOpnd->IsFloat32())
-                {
+                {LOGMEIN("Lower.cpp] 16773\n");
                     // CVTSD2SS reg.f32, regSrc.f64    -- Convert regSrc from f64 to f32
                     IR::RegOpnd *const reg = IR::RegOpnd::New(TyFloat32, this->m_func);
                     const IR::AutoReuseOpnd autoReuseReg(reg, m_func);
@@ -16798,7 +16798,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
 
                 // Convert to float, and assign to indirOpnd
                 if (baseValueType.IsLikelyOptimizedVirtualTypedArray())
-                {
+                {LOGMEIN("Lower.cpp] 16800\n");
                     IR::RegOpnd* dstReg = IR::RegOpnd::New(indirOpnd->GetType(), this->m_func);
                     m_lowererMD.EmitLoadFloat(dstReg, reg, stElem);
                     InsertMove(indirOpnd, dstReg, stElem);
@@ -16811,13 +16811,13 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
             }
         }
         else if (objectType == ObjectType::Uint8ClampedArray || objectType == ObjectType::Uint8ClampedVirtualArray || objectType == ObjectType::Uint8ClampedMixedArray)
-        {
+        {LOGMEIN("Lower.cpp] 16813\n");
             Assert(indirOpnd->GetType() == TyUint8);
 
             IR::RegOpnd *regSrc;
             IR::AutoReuseOpnd autoReuseRegSrc;
             if(src->IsRegOpnd())
-            {
+            {LOGMEIN("Lower.cpp] 16819\n");
                 regSrc = src->AsRegOpnd();
             }
             else
@@ -16832,7 +16832,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
             IRType srcType = regSrc->GetType();
 
             if ((srcType == TyFloat64) || (srcType == TyInt32))
-            {
+            {LOGMEIN("Lower.cpp] 16834\n");
                 // if (srcType == TyInt32) {
                 //     TEST regSrc, ~255
                 //     JE $storeValue
@@ -16866,7 +16866,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
                 IR::RegOpnd *regOpnd;
                 IR::AutoReuseOpnd autoReuseRegOpnd;
                 if (srcType == TyInt32)
-                {
+                {LOGMEIN("Lower.cpp] 16868\n");
                     // When srcType == TyInt32 we will never call the helper and we will never
                     // modify the regOpnd.  Therefore, it's okay to use regSrc directly, and it
                     // reduces register pressure.
@@ -16915,7 +16915,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
                 IR::LabelInstr *labelHandleNegative = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, srcType == TyFloat64);
 
                 if (srcType == TyInt32)
-                {
+                {LOGMEIN("Lower.cpp] 16917\n");
                     // JSB $handleNegativeOrOverflow
                     InsertBranch(
                         LowererMD::MDCompareWithZeroBranchOpcode(Js::OpCode::BrLt_A),
@@ -17015,7 +17015,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
                 m_lowererMD.LoadHelperArgument(stElem, regSrc);
                 IR::Opnd *indexOpnd = indirOpnd->GetIndexOpnd();
                 if (indexOpnd == nullptr)
-                {
+                {LOGMEIN("Lower.cpp] 17017\n");
                     indexOpnd = IR::IntConstOpnd::New(indirOpnd->GetOffset(), TyInt32, this->m_func);
                 }
                 else
@@ -17071,7 +17071,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
                 emitBailout = true;
             }
             else if (src->IsFloat64())
-            {
+            {LOGMEIN("Lower.cpp] 17073\n");
                 AssertMsg(indirOpnd->GetType() == TyUint32, "Only StElemI to Uint32Array could be specialized to float64.");
 #ifdef _M_IX86
                 AssertMsg(AutoSystemInfo::Data.SSE2Available(), "GloOpt shouldn't have specialized Uint32Array StElemI to float64 if SSE2 is unavailable.");
@@ -17091,7 +17091,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
                 Assert(src->IsVar());
 
                 if(src->IsAddrOpnd())
-                {
+                {LOGMEIN("Lower.cpp] 17093\n");
                     IR::AddrOpnd *const addrSrc = src->AsAddrOpnd();
                     Assert(addrSrc->IsVar());
                     Assert(Js::TaggedInt::Is(addrSrc->m_address));
@@ -17125,7 +17125,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
     else
     {
         if(labelSegmentLengthIncreased)
-        {
+        {LOGMEIN("Lower.cpp] 17127\n");
             IR::Instr *const insertBeforeInstr = labelSegmentLengthIncreased->m_next;
 
             // labelSegmentLengthIncreased:
@@ -17136,7 +17136,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
         }
 
         if (!(isStringIndex || (baseValueType.IsArrayOrObjectWithArray() && baseValueType.HasNoMissingValues())))
-        {
+        {LOGMEIN("Lower.cpp] 17138\n");
             if(!stElem->IsProfiledInstr() || stElem->AsProfiledInstr()->u.stElemInfo->LikelyFillsMissingValue())
             {
                 // Check whether the store is filling a missing value. If so, fall back to the helper so that it can check whether
@@ -17174,7 +17174,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
     instrIsInHelperBlock = true;
 
     if (isNativeArrayStore && !isStringIndex)
-    {
+    {LOGMEIN("Lower.cpp] 17176\n");
         Assert(stElem->HasBailOutInfo());
         Assert(labelHelper != labelBailOut);
 
@@ -17200,7 +17200,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
     }
 
     if (emitBailout)
-    {
+    {LOGMEIN("Lower.cpp] 17202\n");
         stElem->UnlinkSrc1();
         stElem->UnlinkDst();
         GenerateBailOut(stElem, nullptr, nullptr);
@@ -17211,7 +17211,7 @@ Lowerer::GenerateFastStElemI(IR::Instr *& stElem, bool *instrIsInHelperBlockRef)
 
 bool
 Lowerer::GenerateFastLdLen(IR::Instr *ldLen, bool *instrIsInHelperBlockRef)
-{
+{LOGMEIN("Lower.cpp] 17213\n");
     Assert(instrIsInHelperBlockRef);
     bool &instrIsInHelperBlock = *instrIsInHelperBlockRef;
     instrIsInHelperBlock = false;
@@ -17261,7 +17261,7 @@ Lowerer::GenerateFastLdLen(IR::Instr *ldLen, bool *instrIsInHelperBlockRef)
         const bool stringFastPath = srcValueType.IsUninitialized() || srcValueType.HasBeenString();
 
         if(!(arrayFastPath || stringFastPath))
-        {
+        {LOGMEIN("Lower.cpp] 17263\n");
             return true;
         }
 
@@ -17274,11 +17274,11 @@ Lowerer::GenerateFastLdLen(IR::Instr *ldLen, bool *instrIsInHelperBlockRef)
         IR::RegOpnd *arrayLengthOpnd = nullptr;
         IR::AutoReuseOpnd autoReuseArrayLengthOpnd;
         if(arrayFastPath)
-        {
+        {LOGMEIN("Lower.cpp] 17276\n");
             if(!srcValueType.IsAnyOptimizedArray())
-            {
+            {LOGMEIN("Lower.cpp] 17278\n");
                 if(stringFastPath)
-                {
+                {LOGMEIN("Lower.cpp] 17280\n");
                     // If we don't have info about the src value type or its object type, the array and string fast paths are
                     // generated
                     labelString = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
@@ -17287,10 +17287,10 @@ Lowerer::GenerateFastLdLen(IR::Instr *ldLen, bool *instrIsInHelperBlockRef)
                 arrayOpnd = GenerateArrayTest(src, labelHelper, stringFastPath ? labelString : labelHelper, ldLen, false);
             }
             else if(src->IsArrayRegOpnd())
-            {
+            {LOGMEIN("Lower.cpp] 17289\n");
                 IR::ArrayRegOpnd *const arrayRegOpnd = src->AsArrayRegOpnd();
                 if(arrayRegOpnd->LengthSym())
-                {
+                {LOGMEIN("Lower.cpp] 17292\n");
                     arrayLengthOpnd = IR::RegOpnd::New(arrayRegOpnd->LengthSym(), TyUint32, m_func);
                     DebugOnly(arrayLengthOpnd->FreezeSymValue());
                     autoReuseArrayLengthOpnd.Initialize(arrayLengthOpnd, m_func);
@@ -17304,7 +17304,7 @@ Lowerer::GenerateFastLdLen(IR::Instr *ldLen, bool *instrIsInHelperBlockRef)
         const auto EnsureLengthOpnd = [&]()
         {
             if(lengthOpnd)
-            {
+            {LOGMEIN("Lower.cpp] 17306\n");
                 return;
             }
 
@@ -17313,9 +17313,9 @@ Lowerer::GenerateFastLdLen(IR::Instr *ldLen, bool *instrIsInHelperBlockRef)
         };
 
         if(arrayFastPath)
-        {
+        {LOGMEIN("Lower.cpp] 17315\n");
             if(arrayLengthOpnd)
-            {
+            {LOGMEIN("Lower.cpp] 17317\n");
                 lengthOpnd = arrayLengthOpnd;
                 autoReuseLengthOpnd.Initialize(lengthOpnd, m_func);
                 Assert(!stringFastPath);
@@ -17330,10 +17330,10 @@ Lowerer::GenerateFastLdLen(IR::Instr *ldLen, bool *instrIsInHelperBlockRef)
         }
 
         if(stringFastPath)
-        {
+        {LOGMEIN("Lower.cpp] 17332\n");
             IR::LabelInstr *labelToVar = nullptr;
             if(arrayFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 17335\n");
                 //     JMP $tovar
                 labelToVar = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
                 InsertBranch(Js::OpCode::Br, labelToVar, ldLen);
@@ -17352,7 +17352,7 @@ Lowerer::GenerateFastLdLen(IR::Instr *ldLen, bool *instrIsInHelperBlockRef)
             InsertMove(lengthOpnd, indirOpnd, ldLen);
 
             if(arrayFastPath)
-            {
+            {LOGMEIN("Lower.cpp] 17354\n");
                 // $toVar:
                 ldLen->InsertBefore(labelToVar);
             }
@@ -17361,7 +17361,7 @@ Lowerer::GenerateFastLdLen(IR::Instr *ldLen, bool *instrIsInHelperBlockRef)
         Assert(lengthOpnd);
 
         if(ldLen->HasBailOutInfo() && (ldLen->GetBailOutKind() & ~IR::BailOutKindBits) == IR::BailOutOnIrregularLength)
-        {
+        {LOGMEIN("Lower.cpp] 17363\n");
             Assert(ldLen->GetBailOutKind() == IR::BailOutOnIrregularLength);
             Assert(dst->IsInt32());
 
@@ -17459,7 +17459,7 @@ Lowerer::GenerateFastLdLen(IR::Instr *ldLen, bool *instrIsInHelperBlockRef)
 
 void
 Lowerer::GenerateFastInlineStringCodePointAt(IR::Instr* lastInstr, Func* func, IR::Opnd *strLength, IR::Opnd *srcIndex, IR::RegOpnd *lowerChar, IR::RegOpnd *strPtr)
-{
+{LOGMEIN("Lower.cpp] 17461\n");
     //// Required State:
     // strLength - UInt32
     // srcIndex  - TyVar if not Address
@@ -17496,7 +17496,7 @@ Lowerer::GenerateFastInlineStringCodePointAt(IR::Instr* lastInstr, Func* func, I
     IR::IndirOpnd *tempIndirOpnd;
 
     if (srcIndex->IsAddrOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 17498\n");
         uint32 length = Js::TaggedInt::ToUInt32(srcIndex->AsAddrOpnd()->m_address) + 1U;
         InsertCompareBranch(strLength, IR::IntConstOpnd::New(length, TyUint32, func), Js::OpCode::BrLe_A, true, labelCharCodeAt, lastInstr);
         tempIndirOpnd = IR::IndirOpnd::New(strPtr, (length) * sizeof(char16), TyUint16, func);
@@ -17517,7 +17517,7 @@ Lowerer::GenerateFastInlineStringCodePointAt(IR::Instr* lastInstr, Func* func, I
         InsertCompareBranch(strLength, tempReg, Js::OpCode::BrLe_A, true, labelCharCodeAt, lastInstr);
 
         if(tempReg->GetSize() != MachPtr)
-        {
+        {LOGMEIN("Lower.cpp] 17519\n");
             tempReg = tempReg->UseWithNewType(TyMachPtr, func)->AsRegOpnd();
         }
 
@@ -17553,7 +17553,7 @@ Lowerer::GenerateFastInlineStringCodePointAt(IR::Instr* lastInstr, Func* func, I
 
 bool
 Lowerer::GenerateFastInlineStringFromCodePoint(IR::Instr* instr)
-{
+{LOGMEIN("Lower.cpp] 17555\n");
     Assert(instr->m_opcode == Js::OpCode::CallDirect);
 
 //  ArgOut sequence
@@ -17577,7 +17577,7 @@ Lowerer::GenerateFastInlineStringFromCodePoint(IR::Instr* instr)
     IR::Opnd *src1 = argInstr->GetSrc1();
 
     if (src1->GetValueType().IsLikelyNumber())
-    {
+    {LOGMEIN("Lower.cpp] 17579\n");
         //Trying to generate this code
         //      MOV resultOpnd, dst
         //      MOV fromCharCodeIntArgOpnd, src1
@@ -17597,7 +17597,7 @@ Lowerer::GenerateFastInlineStringFromCodePoint(IR::Instr* instr)
         //$helper:
         IR::RegOpnd * resultOpnd = nullptr;
         if (!instr->GetDst()->IsRegOpnd() || instr->GetDst()->IsEqual(src1))
-        {
+        {LOGMEIN("Lower.cpp] 17599\n");
             resultOpnd = IR::RegOpnd::New(TyVar, this->m_func);
         }
         else
@@ -17628,7 +17628,7 @@ Lowerer::GenerateFastInlineStringFromCodePoint(IR::Instr* instr)
 
 bool
 Lowerer::GenerateFastInlineStringFromCharCode(IR::Instr* instr)
-{
+{LOGMEIN("Lower.cpp] 17630\n");
     Assert(instr->m_opcode == Js::OpCode::CallDirect);
 
 //  ArgOut sequence
@@ -17652,7 +17652,7 @@ Lowerer::GenerateFastInlineStringFromCharCode(IR::Instr* instr)
     IR::Opnd *src1 = argInstr->GetSrc1();
 
     if (src1->GetValueType().IsLikelyNumber())
-    {
+    {LOGMEIN("Lower.cpp] 17654\n");
         //Trying to generate this code
         //      MOV resultOpnd, dst
         //      MOV fromCharCodeIntArgOpnd, src1
@@ -17672,7 +17672,7 @@ Lowerer::GenerateFastInlineStringFromCharCode(IR::Instr* instr)
         //$helper:
         IR::RegOpnd * resultOpnd = nullptr;
         if (!instr->GetDst()->IsRegOpnd() || instr->GetDst()->IsEqual(src1))
-        {
+        {LOGMEIN("Lower.cpp] 17674\n");
             resultOpnd = IR::RegOpnd::New(TyVar, this->m_func);
         }
         else
@@ -17703,7 +17703,7 @@ Lowerer::GenerateFastInlineStringFromCharCode(IR::Instr* instr)
 
 void
 Lowerer::GenerateGetSingleCharString(IR::RegOpnd * charCodeOpnd, IR::Opnd * resultOpnd, IR::LabelInstr * labelHelper, IR::LabelInstr * doneLabel, IR::Instr * instr, bool isCodePoint)
-{
+{LOGMEIN("Lower.cpp] 17705\n");
     //      MOV cacheReg, CharStringCache
     //      CMP charCodeOpnd, Js::ScriptContext::CharStringCacheSize
     //      JAE $labelWCharStringCheck                                   <
@@ -17740,7 +17740,7 @@ Lowerer::GenerateGetSingleCharString(IR::RegOpnd * charCodeOpnd, IR::Opnd * resu
 
     IR::JnHelperMethod helperMethod;
     if (isCodePoint)
-    {
+    {LOGMEIN("Lower.cpp] 17742\n");
         helperMethod = IR::HelperGetStringForCharCodePoint;
     }
     else
@@ -17763,7 +17763,7 @@ Lowerer::GenerateGetSingleCharString(IR::RegOpnd * charCodeOpnd, IR::Opnd * resu
 
 bool
 Lowerer::GenerateFastInlineGlobalObjectParseInt(IR::Instr *instr)
-{
+{LOGMEIN("Lower.cpp] 17765\n");
     Assert(instr->m_opcode == Js::OpCode::CallDirect);
 
 //  ArgOut sequence
@@ -17787,17 +17787,17 @@ Lowerer::GenerateFastInlineGlobalObjectParseInt(IR::Instr *instr)
     IR::Opnd *parseIntArgOpnd = argInstr->GetSrc1();
 
     if (parseIntArgOpnd->GetValueType().IsLikelyNumber())
-    {
+    {LOGMEIN("Lower.cpp] 17789\n");
         //If likely int check for tagged int and set the dst
         IR::LabelInstr *doneLabel = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
         IR::LabelInstr *labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
 
         if (!parseIntArgOpnd->IsTaggedInt())
-        {
+        {LOGMEIN("Lower.cpp] 17795\n");
             this->m_lowererMD.GenerateSmIntTest(parseIntArgOpnd, instr, labelHelper);
         }
         if (instr->GetDst())
-        {
+        {LOGMEIN("Lower.cpp] 17799\n");
             this->m_lowererMD.CreateAssign(instr->GetDst(), parseIntArgOpnd, instr);
         }
         InsertBranch(Js::OpCode::Br, doneLabel, instr);
@@ -17811,7 +17811,7 @@ Lowerer::GenerateFastInlineGlobalObjectParseInt(IR::Instr *instr)
 
 void
 Lowerer::GenerateFastInlineArrayPop(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 17813\n");
     Assert(instr->m_opcode == Js::OpCode::InlineArrayPop);
 
     IR::Opnd *arrayOpnd = instr->GetSrc1();
@@ -17822,7 +17822,7 @@ Lowerer::GenerateFastInlineArrayPop(IR::Instr * instr)
     bool isLikelyNativeArray = arrayOpnd->GetValueType().IsLikelyNativeArray();
 
     if (ShouldGenerateArrayFastPath(arrayOpnd, false, false, false))
-    {
+    {LOGMEIN("Lower.cpp] 17824\n");
         IR::LabelInstr *labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
 
         if(isLikelyNativeArray)
@@ -17861,7 +17861,7 @@ Lowerer::GenerateFastInlineArrayPop(IR::Instr * instr)
 
 bool
 Lowerer::ShouldGenerateStringReplaceFastPath(IR::Instr * callInstr, IntConstType argCount)
-{
+{LOGMEIN("Lower.cpp] 17863\n");
     // a.replace(b,c)
     // We want to emit the fast path if 'a' and 'c' are strings and 'b' is a regex
     //
@@ -17875,7 +17875,7 @@ Lowerer::ShouldGenerateStringReplaceFastPath(IR::Instr * callInstr, IntConstType
     Assert(argCount == 2);
 
     while(linkOpnd->IsSymOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 17877\n");
         IR::SymOpnd *src2 = linkOpnd->AsSymOpnd();
         StackSym *sym = src2->m_sym->AsStackSym();
         Assert(sym->m_isSingleDef);
@@ -17884,12 +17884,12 @@ Lowerer::ShouldGenerateStringReplaceFastPath(IR::Instr * callInstr, IntConstType
         Assert(argCount >= 0);
         // check to see if 'a' and 'c' are likely strings
         if((argCount == 2 || argCount == 0) && (!argInstr->GetSrc1()->GetValueType().IsLikelyString()))
-        {
+        {LOGMEIN("Lower.cpp] 17886\n");
             return false;
         }
         // we want 'b' to be regex. Don't generate fastpath if it is a tagged int
         if((argCount == 1) && (argInstr->GetSrc1()->IsTaggedInt()))
-        {
+        {LOGMEIN("Lower.cpp] 17891\n");
             return false;
         }
         argCount--;
@@ -17900,7 +17900,7 @@ Lowerer::ShouldGenerateStringReplaceFastPath(IR::Instr * callInstr, IntConstType
 
 bool
 Lowerer::GenerateFastReplace(IR::Opnd* strOpnd, IR::Opnd* src1, IR::Opnd* src2, IR::Instr *callInstr, IR::Instr *insertInstr, IR::LabelInstr *labelHelper, IR::LabelInstr *doneLabel)
-{
+{LOGMEIN("Lower.cpp] 17902\n");
     // a.replace(b,c)
     // We want to emit the fast path if 'a' and 'c' are strings and 'b' is a regex
     //
@@ -17913,9 +17913,9 @@ Lowerer::GenerateFastReplace(IR::Opnd* strOpnd, IR::Opnd* src1, IR::Opnd* src2, 
     Assert(strOpnd->GetValueType().IsLikelyString() && src2->GetValueType().IsLikelyString());
 
     if(!strOpnd->GetValueType().IsString())
-    {
+    {LOGMEIN("Lower.cpp] 17915\n");
         if(!strOpnd->IsRegOpnd())
-        {
+        {LOGMEIN("Lower.cpp] 17917\n");
             IR::RegOpnd *strOpndReg = IR::RegOpnd::New(TyVar, m_func);
             LowererMD::CreateAssign(strOpndReg, strOpnd, insertInstr);
             strOpnd = strOpndReg;
@@ -17925,7 +17925,7 @@ Lowerer::GenerateFastReplace(IR::Opnd* strOpnd, IR::Opnd* src1, IR::Opnd* src2, 
     }
 
     if(!src1->IsNotTaggedValue())
-    {
+    {LOGMEIN("Lower.cpp] 17927\n");
         m_lowererMD.GenerateObjectTest(src1, insertInstr, labelHelper);
     }
 
@@ -17934,7 +17934,7 @@ Lowerer::GenerateFastReplace(IR::Opnd* strOpnd, IR::Opnd* src1, IR::Opnd* src2, 
     // cmp  [regex], vtableAddress
     // jne  $labelHelper
     if(!src1->IsRegOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 17936\n");
         IR::RegOpnd *src1Reg = IR::RegOpnd::New(TyVar, m_func);
         LowererMD::CreateAssign(src1Reg, src1, insertInstr);
         src1 = src1Reg;
@@ -17947,9 +17947,9 @@ Lowerer::GenerateFastReplace(IR::Opnd* strOpnd, IR::Opnd* src1, IR::Opnd* src2, 
         insertInstr);
 
     if(!src2->GetValueType().IsString())
-    {
+    {LOGMEIN("Lower.cpp] 17949\n");
         if(!src2->IsRegOpnd())
-        {
+        {LOGMEIN("Lower.cpp] 17951\n");
             IR::RegOpnd *src2Reg = IR::RegOpnd::New(TyVar, m_func);
             LowererMD::CreateAssign(src2Reg, src2, insertInstr);
             src2 = src2Reg;
@@ -17969,12 +17969,12 @@ Lowerer::GenerateFastReplace(IR::Opnd* strOpnd, IR::Opnd* src1, IR::Opnd* src2, 
 
     IR::Instr * helperCallInstr = IR::Instr::New(LowererMD::MDCallOpcode, insertInstr->m_func);
     if(callDst)
-    {
+    {LOGMEIN("Lower.cpp] 17971\n");
         helperCallInstr->SetDst(callDst);
     }
     insertInstr->InsertBefore(helperCallInstr);
     if(callDst)
-    {
+    {LOGMEIN("Lower.cpp] 17976\n");
         m_lowererMD.ChangeToHelperCall(helperCallInstr, IR::JnHelperMethod::HelperRegExp_ReplaceStringResultUsed);
     }
     else
@@ -17989,7 +17989,7 @@ Lowerer::GenerateFastReplace(IR::Opnd* strOpnd, IR::Opnd* src1, IR::Opnd* src2, 
 
 void
 Lowerer::GenerateFastInlineStringSplitMatch(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 17991\n");
     // a.split(b,c (optional) )
     // We want to emit the fast path when
     //     1. c is not present, and
@@ -18009,20 +18009,20 @@ Lowerer::GenerateFastInlineStringSplitMatch(IR::Instr * instr)
 
     IR::Opnd * argsOpnd[2];
     if(!instr->FetchOperands(argsOpnd, 2))
-    {
+    {LOGMEIN("Lower.cpp] 18011\n");
         return;
     }
 
     if(!argsOpnd[0]->GetValueType().IsLikelyString() || argsOpnd[1]->IsTaggedInt())
-    {
+    {LOGMEIN("Lower.cpp] 18016\n");
         return;
     }
 
     IR::LabelInstr *labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
     if(!argsOpnd[0]->GetValueType().IsString())
-    {
+    {LOGMEIN("Lower.cpp] 18022\n");
         if(!argsOpnd[0]->IsRegOpnd())
-        {
+        {LOGMEIN("Lower.cpp] 18024\n");
             IR::RegOpnd *opndReg = IR::RegOpnd::New(TyVar, m_func);
             LowererMD::CreateAssign(opndReg, argsOpnd[0], instr);
             argsOpnd[0] = opndReg;
@@ -18031,7 +18031,7 @@ Lowerer::GenerateFastInlineStringSplitMatch(IR::Instr * instr)
     }
 
     if(!argsOpnd[1]->IsNotTaggedValue())
-    {
+    {LOGMEIN("Lower.cpp] 18033\n");
         m_lowererMD.GenerateObjectTest(argsOpnd[1], instr, labelHelper);
     }
 
@@ -18040,7 +18040,7 @@ Lowerer::GenerateFastInlineStringSplitMatch(IR::Instr * instr)
     // cmp  [regex], vtableAddress
     // jne  $labelHelper
     if(!argsOpnd[1]->IsRegOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 18042\n");
         IR::RegOpnd *opndReg = IR::RegOpnd::New(TyVar, m_func);
         LowererMD::CreateAssign(opndReg, argsOpnd[1], instr);
         argsOpnd[1] = opndReg;
@@ -18055,7 +18055,7 @@ Lowerer::GenerateFastInlineStringSplitMatch(IR::Instr * instr)
     // [stackAllocationPointer, ]scriptcontext, regexp, input[, limit] (to be pushed in reverse order)
 
     if(src1->AsHelperCallOpnd()->m_fnHelper == IR::JnHelperMethod::HelperString_Split)
-    {
+    {LOGMEIN("Lower.cpp] 18057\n");
         //limit
         //As we are optimizing only for two operands, make limit UINT_MAX
         IR::Opnd* limit = IR::IntConstOpnd::New(UINT_MAX, TyUint32, instr->m_func);
@@ -18072,9 +18072,9 @@ Lowerer::GenerateFastInlineStringSplitMatch(IR::Instr * instr)
     IR::JnHelperMethod helperMethod;
     IR::AutoReuseOpnd autoReuseStackAllocationOpnd;
     if(callDst && instr->dstIsTempObject)
-    {
+    {LOGMEIN("Lower.cpp] 18074\n");
         switch(src1->AsHelperCallOpnd()->m_fnHelper)
-        {
+        {LOGMEIN("Lower.cpp] 18076\n");
             case IR::JnHelperMethod::HelperString_Split:
                 helperMethod = IR::JnHelperMethod::HelperRegExp_SplitResultUsedAndMayBeTemp;
                 break;
@@ -18098,7 +18098,7 @@ Lowerer::GenerateFastInlineStringSplitMatch(IR::Instr * instr)
     else
     {
         switch(src1->AsHelperCallOpnd()->m_fnHelper)
-        {
+        {LOGMEIN("Lower.cpp] 18100\n");
             case IR::JnHelperMethod::HelperString_Split:
                 helperMethod =
                     callDst
@@ -18121,7 +18121,7 @@ Lowerer::GenerateFastInlineStringSplitMatch(IR::Instr * instr)
 
     IR::Instr * helperCallInstr = IR::Instr::New(LowererMD::MDCallOpcode, instr->m_func);
     if(callDst)
-    {
+    {LOGMEIN("Lower.cpp] 18123\n");
         helperCallInstr->SetDst(callDst);
     }
     instr->InsertBefore(helperCallInstr);
@@ -18138,7 +18138,7 @@ Lowerer::GenerateFastInlineStringSplitMatch(IR::Instr * instr)
 
 void
 Lowerer::GenerateFastInlineRegExpExec(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 18140\n");
     // a.exec(b)
     // We want to emit the fast path when 'a' is a regex and 'b' is a string
 
@@ -18150,21 +18150,21 @@ Lowerer::GenerateFastInlineRegExpExec(IR::Instr * instr)
 
     IR::Opnd * argsOpnd[2];
     if (!instr->FetchOperands(argsOpnd, 2))
-    {
+    {LOGMEIN("Lower.cpp] 18152\n");
         return;
     }
 
     IR::Opnd *opndString = argsOpnd[1];
     if(!opndString->GetValueType().IsLikelyString() || argsOpnd[0]->IsTaggedInt())
-    {
+    {LOGMEIN("Lower.cpp] 18158\n");
         return;
     }
 
     IR::LabelInstr *labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
     if(!opndString->GetValueType().IsString())
-    {
+    {LOGMEIN("Lower.cpp] 18164\n");
         if(!opndString->IsRegOpnd())
-        {
+        {LOGMEIN("Lower.cpp] 18166\n");
             IR::RegOpnd *opndReg = IR::RegOpnd::New(TyVar, m_func);
             LowererMD::CreateAssign(opndReg, opndString, instr);
             opndString = opndReg;
@@ -18174,7 +18174,7 @@ Lowerer::GenerateFastInlineRegExpExec(IR::Instr * instr)
 
     IR::Opnd *opndRegex = argsOpnd[0];
     if(!opndRegex->IsNotTaggedValue())
-    {
+    {LOGMEIN("Lower.cpp] 18176\n");
         m_lowererMD.GenerateObjectTest(opndRegex, instr, labelHelper);
     }
 
@@ -18183,7 +18183,7 @@ Lowerer::GenerateFastInlineRegExpExec(IR::Instr * instr)
     // cmp  [regex], vtableAddress
     // jne  $labelHelper
     if(!opndRegex->IsRegOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 18185\n");
         IR::RegOpnd *opndReg = IR::RegOpnd::New(TyVar, m_func);
         LowererMD::CreateAssign(opndReg, opndRegex, instr);
         opndRegex = opndReg;
@@ -18198,7 +18198,7 @@ Lowerer::GenerateFastInlineRegExpExec(IR::Instr * instr)
     IR::LabelInstr *doneLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func);
 
     if (!PHASE_OFF(Js::ExecBOIFastPathPhase, m_func))
-    {
+    {LOGMEIN("Lower.cpp] 18200\n");
         // Load pattern from regex operand
         IR::RegOpnd *opndPattern = IR::RegOpnd::New(TyMachPtr, m_func);
         LowererMD::CreateAssign(
@@ -18287,7 +18287,7 @@ Lowerer::GenerateFastInlineRegExpExec(IR::Instr * instr)
 
         // ...and set the dst to null...
         if (callDst)
-        {
+        {LOGMEIN("Lower.cpp] 18289\n");
             LowererMD::CreateAssign(
                 callDst,
                 LoadLibraryValueOpnd(instr, LibraryValue::ValueNull),
@@ -18312,9 +18312,9 @@ Lowerer::GenerateFastInlineRegExpExec(IR::Instr * instr)
     IR::JnHelperMethod helperMethod;
     IR::AutoReuseOpnd autoReuseStackAllocationOpnd;
     if(callDst)
-    {
+    {LOGMEIN("Lower.cpp] 18314\n");
         if(instr->dstIsTempObject)
-        {
+        {LOGMEIN("Lower.cpp] 18316\n");
             helperMethod = IR::JnHelperMethod::HelperRegExp_ExecResultUsedAndMayBeTemp;
 
             // Allocate some space on the stack for the result array
@@ -18336,7 +18336,7 @@ Lowerer::GenerateFastInlineRegExpExec(IR::Instr * instr)
 
     IR::Instr * helperCallInstr = IR::Instr::New(LowererMD::MDCallOpcode, instr->m_func);
     if(callDst)
-    {
+    {LOGMEIN("Lower.cpp] 18338\n");
         helperCallInstr->SetDst(callDst);
     }
     instr->InsertBefore(helperCallInstr);
@@ -18350,11 +18350,11 @@ Lowerer::GenerateFastInlineRegExpExec(IR::Instr * instr)
 }
 
 void Lowerer::GenerateTruncWithCheck(IR::Instr* instr)
-{
+{LOGMEIN("Lower.cpp] 18352\n");
 
     Assert(instr->GetSrc1()->IsFloat());
     if (instr->GetDst()->IsInt32() || instr->GetDst()->IsUInt32())
-    {
+    {LOGMEIN("Lower.cpp] 18356\n");
         m_lowererMD.GenerateTruncWithCheck(instr);
     }
     else
@@ -18363,7 +18363,7 @@ void Lowerer::GenerateTruncWithCheck(IR::Instr* instr)
         LoadScriptContext(instr);
 
         if (instr->GetSrc1()->IsFloat32())
-        {
+        {LOGMEIN("Lower.cpp] 18365\n");
             m_lowererMD.LoadFloatHelperArgument(instr, instr->GetSrc1());
         }
         else 
@@ -18379,14 +18379,14 @@ void Lowerer::GenerateTruncWithCheck(IR::Instr* instr)
 
 void
 Lowerer::RelocateCallDirectToHelperPath(IR::Instr* argoutInlineSpecialized, IR::LabelInstr* labelHelper)
-{
+{LOGMEIN("Lower.cpp] 18381\n");
     IR::Opnd *linkOpnd = argoutInlineSpecialized->GetSrc2(); //ArgOut_A_InlineSpecialized src2; link to actual argouts.
 
     argoutInlineSpecialized->Unlink();
     labelHelper->InsertAfter(argoutInlineSpecialized);
 
     while(linkOpnd->IsSymOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 18388\n");
         IR::SymOpnd *src2 = linkOpnd->AsSymOpnd();
         StackSym *sym = src2->m_sym->AsStackSym();
         Assert(sym->m_isSingleDef);
@@ -18411,7 +18411,7 @@ Lowerer::RelocateCallDirectToHelperPath(IR::Instr* argoutInlineSpecialized, IR::
 
 bool
 Lowerer::GenerateFastInlineStringCharCodeAt(IR::Instr * instr, Js::BuiltinFunction index)
-{
+{LOGMEIN("Lower.cpp] 18413\n");
     Assert(instr->m_opcode == Js::OpCode::CallDirect);
 
     //CallDirect src2
@@ -18433,7 +18433,7 @@ Lowerer::GenerateFastInlineStringCharCodeAt(IR::Instr * instr, Js::BuiltinFuncti
 
     instr->InsertBefore(labelHelper);
     if (!success)
-    {
+    {LOGMEIN("Lower.cpp] 18435\n");
         return false;
     }
 
@@ -18446,14 +18446,14 @@ Lowerer::GenerateFastInlineStringCharCodeAt(IR::Instr * instr, Js::BuiltinFuncti
 
 void
 Lowerer::GenerateCtz(IR::Instr* instr)
-{
+{LOGMEIN("Lower.cpp] 18448\n");
     Assert(instr->GetDst()->IsInt32() || instr->GetDst()->IsInt64());
     Assert(instr->GetSrc1()->IsInt32() || instr->GetSrc1()->IsInt64());
     m_lowererMD.GenerateCtz(instr);
 }
 
 void Lowerer::GenerateThrowUnreachable(IR::Instr* instr)
-{
+{LOGMEIN("Lower.cpp] 18455\n");
     GenerateThrow(instr->GetSrc1(), instr);
     instr->UnlinkSrc1();
     instr->Remove();
@@ -18461,7 +18461,7 @@ void Lowerer::GenerateThrowUnreachable(IR::Instr* instr)
 
 void
 Lowerer::GeneratePopCnt(IR::Instr* instr)
-{
+{LOGMEIN("Lower.cpp] 18463\n");
     Assert(instr->GetSrc1()->IsInt32() || instr->GetSrc1()->IsUInt32() || instr->GetSrc1()->IsInt64());
     Assert(instr->GetDst()->IsInt32() || instr->GetDst()->IsUInt32() || instr->GetDst()->IsInt64());
     m_lowererMD.GeneratePopCnt(instr);
@@ -18469,7 +18469,7 @@ Lowerer::GeneratePopCnt(IR::Instr* instr)
 
 void
 Lowerer::GenerateFastInlineMathClz(IR::Instr* instr)
-{
+{LOGMEIN("Lower.cpp] 18471\n");
     Assert(instr->GetDst()->IsInt32() || instr->GetDst()->IsInt64());
     Assert(instr->GetSrc1()->IsInt32() || instr->GetSrc1()->IsInt64());
     m_lowererMD.GenerateClz(instr);
@@ -18477,7 +18477,7 @@ Lowerer::GenerateFastInlineMathClz(IR::Instr* instr)
 
 void
 Lowerer::GenerateFastInlineMathImul(IR::Instr* instr)
-{
+{LOGMEIN("Lower.cpp] 18479\n");
     IR::Opnd* src1 = instr->GetSrc1();
     IR::Opnd* src2 = instr->GetSrc2();
     IR::Opnd* dst = instr->GetDst();
@@ -18496,7 +18496,7 @@ Lowerer::GenerateFastInlineMathImul(IR::Instr* instr)
 
 IR::Instr *
 Lowerer::LowerReinterpretPrimitive(IR::Instr* instr)
-{
+{LOGMEIN("Lower.cpp] 18498\n");
     Assert(m_func->GetJITFunctionBody()->IsWasmFunction());
     IR::Opnd* src1 = instr->GetSrc1();
     IR::Opnd* dst = instr->GetDst();
@@ -18512,7 +18512,7 @@ Lowerer::LowerReinterpretPrimitive(IR::Instr* instr)
 
 void
 Lowerer::GenerateFastInlineMathFround(IR::Instr* instr)
-{
+{LOGMEIN("Lower.cpp] 18514\n");
     IR::Opnd* src1 = instr->GetSrc1();
     IR::Opnd* dst = instr->GetDst();
 
@@ -18525,7 +18525,7 @@ Lowerer::GenerateFastInlineMathFround(IR::Instr* instr)
     LowererMD::Legalize(fcvt64to32);
 
     if (dst->IsFloat64())
-    {
+    {LOGMEIN("Lower.cpp] 18527\n");
         IR::Instr* fcvt32to64 = IR::Instr::New(LowererMD::MDConvertFloat32ToFloat64Opcode, dst, dst, instr->m_func);
         instr->InsertBefore(fcvt32to64);
         LowererMD::Legalize(fcvt32to64);
@@ -18537,7 +18537,7 @@ Lowerer::GenerateFastInlineMathFround(IR::Instr* instr)
 
 bool
 Lowerer::GenerateFastInlineStringReplace(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 18539\n");
     Assert(instr->m_opcode == Js::OpCode::CallDirect);
 
     //CallDirect src2
@@ -18553,7 +18553,7 @@ Lowerer::GenerateFastInlineStringReplace(IR::Instr * instr)
     if (!argsOpnd[0]->GetValueType().IsLikelyString()
         || argsOpnd[1]->GetValueType().IsNotObject()
         || !argsOpnd[2]->GetValueType().IsLikelyString())
-    {
+    {LOGMEIN("Lower.cpp] 18555\n");
         return false;
     }
 
@@ -18567,7 +18567,7 @@ Lowerer::GenerateFastInlineStringReplace(IR::Instr * instr)
 
     instr->InsertBefore(labelHelper);
     if (!success)
-    {
+    {LOGMEIN("Lower.cpp] 18569\n");
         return false;
     }
 
@@ -18591,7 +18591,7 @@ Lowerer::GenerateFastInlineStringReplace(IR::Instr * instr)
 */
 void
 Lowerer::LowerFastInlineDOMFastPathGetter(IR::Instr* instr)
-{
+{LOGMEIN("Lower.cpp] 18593\n");
     IR::Opnd* helperOpnd = instr->UnlinkSrc1();
     Assert(helperOpnd->IsHelperCallOpnd());
 
@@ -18635,7 +18635,7 @@ Lowerer::LowerFastInlineDOMFastPathGetter(IR::Instr* instr)
 
 void
 Lowerer::GenerateFastInlineArrayPush(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 18637\n");
     Assert(instr->m_opcode == Js::OpCode::InlineArrayPush);
 
     IR::Opnd * baseOpnd = instr->GetSrc1();
@@ -18643,7 +18643,7 @@ Lowerer::GenerateFastInlineArrayPush(IR::Instr * instr)
 
     bool returnLength = false;
     if(instr->GetDst())
-    {
+    {LOGMEIN("Lower.cpp] 18645\n");
         returnLength = true;
     }
 
@@ -18693,15 +18693,15 @@ bool Lowerer::GenerateFastPop(IR::Opnd *baseOpndParam, IR::Instr *callInstr, IR:
     IR::RegOpnd *arrayLengthOpnd = nullptr;
     IR::AutoReuseOpnd autoReuseArrayLengthOpnd;
     if(!arrValueType.IsAnyOptimizedArray())
-    {
+    {LOGMEIN("Lower.cpp] 18695\n");
         arrayOpnd = GenerateArrayTest(baseOpnd, bailOutLabelHelper, bailOutLabelHelper, callInstr, false, true);
         arrValueType = arrayOpnd->GetValueType().ToDefiniteObject().SetHasNoMissingValues(false);
     }
     else if(arrayOpnd->IsArrayRegOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 18700\n");
         IR::ArrayRegOpnd *const arrayRegOpnd = arrayOpnd->AsArrayRegOpnd();
         if(arrayRegOpnd->LengthSym())
-        {
+        {LOGMEIN("Lower.cpp] 18703\n");
             arrayLengthOpnd = IR::RegOpnd::New(arrayRegOpnd->LengthSym(), arrayRegOpnd->LengthSym()->GetType(), m_func);
             DebugOnly(arrayLengthOpnd->FreezeSymValue());
             autoReuseArrayLengthOpnd.Initialize(arrayLengthOpnd, m_func);
@@ -18782,15 +18782,15 @@ bool Lowerer::GenerateFastPush(IR::Opnd *baseOpndParam, IR::Opnd *src, IR::Instr
     IR::RegOpnd *arrayLengthOpnd = nullptr;
     IR::AutoReuseOpnd autoReuseArrayLengthOpnd;
     if(!arrValueType.IsAnyOptimizedArray())
-    {
+    {LOGMEIN("Lower.cpp] 18784\n");
         arrayOpnd = GenerateArrayTest(baseOpnd, labelHelper, labelHelper, insertInstr, false, true);
         arrValueType = arrayOpnd->GetValueType().ToDefiniteObject().SetHasNoMissingValues(false);
     }
     else if(arrayOpnd->IsArrayRegOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 18789\n");
         IR::ArrayRegOpnd *const arrayRegOpnd = arrayOpnd->AsArrayRegOpnd();
         if(arrayRegOpnd->LengthSym())
-        {
+        {LOGMEIN("Lower.cpp] 18792\n");
             arrayLengthOpnd = IR::RegOpnd::New(arrayRegOpnd->LengthSym(), arrayRegOpnd->LengthSym()->GetType(), m_func);
             DebugOnly(arrayLengthOpnd->FreezeSymValue());
             autoReuseArrayLengthOpnd.Initialize(arrayLengthOpnd, m_func);
@@ -18799,7 +18799,7 @@ bool Lowerer::GenerateFastPush(IR::Opnd *baseOpndParam, IR::Opnd *src, IR::Instr
     const IR::AutoReuseOpnd autoReuseArrayOpnd(arrayOpnd, m_func);
 
     if(!arrayLengthOpnd)
-    {
+    {LOGMEIN("Lower.cpp] 18801\n");
         //     MOV arrayLength, [array + offset(length)]     -- Load array length
         // We know this index is safe since, so mark it as UInt32 to avoid unnecessary conversion/checks
         arrayLengthOpnd = IR::RegOpnd::New(TyUint32, m_func);
@@ -18814,7 +18814,7 @@ bool Lowerer::GenerateFastPush(IR::Opnd *baseOpndParam, IR::Opnd *src, IR::Instr
     arrayRef->GetBaseOpnd()->SetValueType(arrValueType);
 
     if (returnLength && src->IsEqual(insertInstr->GetDst()))
-    {
+    {LOGMEIN("Lower.cpp] 18816\n");
         //If the dst is same as the src, then dst is going to be overridden by GenerateFastElemICommon in process of updating the length.
         //Save it in a temp register.
         IR::RegOpnd *opnd = IR::RegOpnd::New(src->GetType(), this->m_func);
@@ -18852,7 +18852,7 @@ bool Lowerer::GenerateFastPush(IR::Opnd *baseOpndParam, IR::Opnd *src, IR::Instr
 
 IR::Opnd*
 Lowerer::GenerateArgOutForInlineeStackArgs(IR::Instr* callInstr, IR::Instr* stackArgsInstr)
-{
+{LOGMEIN("Lower.cpp] 18854\n");
     Assert(callInstr->m_func->IsInlinee());
     Func *func = callInstr->m_func;
     uint32 actualCount = func->actualCount - 1; // don't count this pointer
@@ -18872,7 +18872,7 @@ Lowerer::GenerateArgOutForInlineeStackArgs(IR::Instr* callInstr, IR::Instr* stac
 #if defined(_M_IX86)
     // Maintain alignment
     if ((actualCount & 1) == 0)
-    {
+    {LOGMEIN("Lower.cpp] 18874\n");
         IR::Instr *alignPush = IR::Instr::New(Js::OpCode::PUSH, this->m_func);
         alignPush->SetSrc1(IR::IntConstOpnd::New(1, TyInt32, this->m_func));
         callInstr->InsertBefore(alignPush);
@@ -18880,7 +18880,7 @@ Lowerer::GenerateArgOutForInlineeStackArgs(IR::Instr* callInstr, IR::Instr* stac
 #endif
 
     for(uint i = actualCount; i > 0; i--)
-    {
+    {LOGMEIN("Lower.cpp] 18882\n");
         argIndirOpnd = IR::IndirOpnd::New(argInOpnd, (i - 1) * MachPtr, TyMachReg, func);
         argout = IR::Instr::New(Js::OpCode::ArgOut_A_Dynamic, func);
         argout->SetSrc1(argIndirOpnd);
@@ -18894,7 +18894,7 @@ Lowerer::GenerateArgOutForInlineeStackArgs(IR::Instr* callInstr, IR::Instr* stac
 // For AMD64 and ARM only.
 void
 Lowerer::LowerInlineSpreadArgOutLoopUsingRegisters(IR::Instr *callInstr, IR::RegOpnd *indexOpnd, IR::RegOpnd *arrayElementsStartOpnd)
-{
+{LOGMEIN("Lower.cpp] 18896\n");
     Func *const func = callInstr->m_func;
 
     IR::LabelInstr *oneArgLabel = IR::LabelInstr::New(Js::OpCode::Label, func);
@@ -18932,7 +18932,7 @@ Lowerer::LowerInlineSpreadArgOutLoopUsingRegisters(IR::Instr *callInstr, IR::Reg
 
 IR::Instr *
 Lowerer::LowerCallIDynamicSpread(IR::Instr *callInstr, ushort callFlags)
-{
+{LOGMEIN("Lower.cpp] 18934\n");
     Assert(callInstr->m_opcode == Js::OpCode::CallIDynamicSpread);
 
     IR::Instr * insertBeforeInstrForCFG = nullptr;
@@ -18940,7 +18940,7 @@ Lowerer::LowerCallIDynamicSpread(IR::Instr *callInstr, ushort callFlags)
     Func *const func = callInstr->m_func;
 
     if (func->IsInlinee())
-    {
+    {LOGMEIN("Lower.cpp] 18942\n");
         throw Js::RejitException(RejitReason::InlineSpreadDisabled);
     }
 
@@ -18956,7 +18956,7 @@ Lowerer::LowerCallIDynamicSpread(IR::Instr *callInstr, ushort callFlags)
     IR::RegOpnd *arrayOpnd = nullptr;
     IR::Opnd *arraySrcOpnd = spreadArrayInstr->UnlinkSrc1();
     if (!arraySrcOpnd->IsRegOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 18958\n");
         arrayOpnd = IR::RegOpnd::New(TyMachPtr, func);
         LowererMD::CreateAssign(arrayOpnd, arraySrcOpnd, spreadArrayInstr);
     }
@@ -19017,9 +19017,9 @@ Lowerer::LowerCallIDynamicSpread(IR::Instr *callInstr, ushort callFlags)
 
 IR::Instr *
 Lowerer::LowerCallIDynamic(IR::Instr * callInstr, ushort callFlags)
-{
+{LOGMEIN("Lower.cpp] 19019\n");
     if (!this->m_func->GetHasStackArgs())
-    {
+    {LOGMEIN("Lower.cpp] 19021\n");
         throw Js::RejitException(RejitReason::InlineApplyDisabled);
     }
 
@@ -19063,7 +19063,7 @@ Lowerer::LowerCallIDynamic(IR::Instr * callInstr, ushort callFlags)
 //This is only for x64 & ARM.
 IR::Opnd*
 Lowerer::GenerateArgOutForStackArgs(IR::Instr* callInstr, IR::Instr* stackArgsInstr)
-{
+{LOGMEIN("Lower.cpp] 19065\n");
 //    s25.var       =  LdLen_A          s4.var
 //    s26.var       =  Ld_A             s25.var
 //                    BrNeq_I4          $L3, s25.var,0
@@ -19087,7 +19087,7 @@ Lowerer::GenerateArgOutForStackArgs(IR::Instr* callInstr, IR::Instr* stackArgsIn
     this->m_lowererMD.GenerateFunctionObjectTest(callInstr, callInstr->GetSrc1()->AsRegOpnd(), false);
 
     if (callInstr->m_func->IsInlinee())
-    {
+    {LOGMEIN("Lower.cpp] 19089\n");
         return this->GenerateArgOutForInlineeStackArgs(callInstr, stackArgsInstr);
     }
     Func *func = callInstr->m_func;
@@ -19162,7 +19162,7 @@ Lowerer::GenerateArgOutForStackArgs(IR::Instr* callInstr, IR::Instr* stackArgsIn
 
 void
 Lowerer::GenerateLoadStackArgumentByIndex(IR::Opnd *dst, IR::RegOpnd *indexOpnd, IR::Instr *instr, int32 offset, Func *func)
-{
+{LOGMEIN("Lower.cpp] 19164\n");
     // Load argument set dst = [ebp + index].
 
     IR::RegOpnd *ebpOpnd = IR::Opnd::CreateFramePointerOpnd(func);
@@ -19195,7 +19195,7 @@ Lowerer::GenerateLoadStackArgumentByIndex(IR::Opnd *dst, IR::RegOpnd *indexOpnd,
 //This function assumes there is stackargs bailout and index is always on the range.
 bool
 Lowerer::GenerateFastStackArgumentsLdElemI(IR::Instr* ldElem)
-{
+{LOGMEIN("Lower.cpp] 19197\n");
     //  MOV dst, ebp [(valueOpnd + 5) *4]  // 5 for the stack layout
     //
 
@@ -19205,7 +19205,7 @@ Lowerer::GenerateFastStackArgumentsLdElemI(IR::Instr* ldElem)
     Assert (indexOpnd && indexOpnd->IsTaggedInt());
 
     if(ldElem->m_func->IsInlinee())
-    {
+    {LOGMEIN("Lower.cpp] 19207\n");
         IR::IndirOpnd *argIndirOpnd = GetArgsIndirOpndForInlinee(ldElem, indexOpnd);
 
         LowererMD::CreateAssign(ldElem->GetDst(), argIndirOpnd, ldElem);
@@ -19221,7 +19221,7 @@ Lowerer::GenerateFastStackArgumentsLdElemI(IR::Instr* ldElem)
 
 IR::IndirOpnd*
 Lowerer::GetArgsIndirOpndForInlinee(IR::Instr* ldElem, IR::Opnd* valueOpnd)
-{
+{LOGMEIN("Lower.cpp] 19223\n");
     Assert(ldElem->m_func->IsInlinee());
     IR::IndirOpnd* argIndirOpnd = nullptr;
 
@@ -19236,7 +19236,7 @@ Lowerer::GetArgsIndirOpndForInlinee(IR::Instr* ldElem, IR::Opnd* valueOpnd)
     InsertLea(baseOpnd, firstArg, ldElem);
 
     if (valueOpnd->IsIntConstOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 19238\n");
         IntConstType offset = valueOpnd->AsIntConstOpnd()->GetValue() * MachPtr;
         // TODO: Assert(Math::FitsInDWord(offset));
         argIndirOpnd = IR::IndirOpnd::New(baseOpnd, (int32)offset, TyMachReg, ldElem->m_func);
@@ -19252,7 +19252,7 @@ Lowerer::GetArgsIndirOpndForInlinee(IR::Instr* ldElem, IR::Opnd* valueOpnd)
 
 IR::IndirOpnd*
 Lowerer::GetArgsIndirOpndForTopFunction(IR::Instr* ldElem, IR::Opnd* valueOpnd)
-{
+{LOGMEIN("Lower.cpp] 19254\n");
     // Load argument set dst = [ebp + index] (or grab from the generator object if m_func is a generator function).
     IR::RegOpnd *baseOpnd = m_func->GetJITFunctionBody()->IsCoroutine() ? LoadGeneratorArgsPtr(ldElem) : IR::Opnd::CreateFramePointerOpnd(m_func);
     IR::IndirOpnd* argIndirOpnd = nullptr;
@@ -19271,7 +19271,7 @@ Lowerer::GetArgsIndirOpndForTopFunction(IR::Instr* ldElem, IR::Opnd* valueOpnd)
     uint16 actualOffset = m_func->GetJITFunctionBody()->IsCoroutine() ? 1 : GetFormalParamOffset() + 1; //5
     Assert(actualOffset == 5 || m_func->GetJITFunctionBody()->IsGenerator());
     if (valueOpnd->IsIntConstOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 19273\n");
         IntConstType offset = (valueOpnd->AsIntConstOpnd()->GetValue() + actualOffset) * MachPtr;
         // TODO: Assert(Math::FitsInDWord(offset));
         argIndirOpnd = IR::IndirOpnd::New(baseOpnd, (int32)offset, TyMachReg, this->m_func);
@@ -19302,7 +19302,7 @@ Lowerer::GenerateCheckForArgumentsLength(IR::Instr* ldElem, IR::LabelInstr* labe
 
 bool
 Lowerer::GenerateFastArgumentsLdElemI(IR::Instr* ldElem, IR::LabelInstr *labelFallThru)
-{
+{LOGMEIN("Lower.cpp] 19304\n");
     //  ---GenerateSmIntTest
     //  ---GenerateLdValueFromCheckedIndexOpnd
     //  ---LoadInputParamCount
@@ -19333,13 +19333,13 @@ Lowerer::GenerateFastArgumentsLdElemI(IR::Instr* ldElem, IR::LabelInstr *labelFa
     bool hasIntConstIndex = indirOpnd->TryGetIntConstIndexValue(true, &value, &isNotInt);
 
     if (isInlinee && hasIntConstIndex && value >= (ldElem->m_func->actualCount - 1))
-    {
+    {LOGMEIN("Lower.cpp] 19335\n");
         //Outside the range of actuals, skip
     }
     else if (labelFallThru != nullptr && !(hasIntConstIndex && value < 0)) //if index is not a negative int constant
-    {
+    {LOGMEIN("Lower.cpp] 19339\n");
         if (isInlinee)
-        {
+        {LOGMEIN("Lower.cpp] 19341\n");
             actualParamOpnd = IR::IntConstOpnd::New(ldElem->m_func->actualCount - 1, TyInt32, func);
         }
         else
@@ -19350,7 +19350,7 @@ Lowerer::GenerateFastArgumentsLdElemI(IR::Instr* ldElem, IR::LabelInstr *labelFa
         }
 
         if (hasIntConstIndex)
-        {
+        {LOGMEIN("Lower.cpp] 19352\n");
             //Constant index
             valueOpnd = IR::IntConstOpnd::New(value, TyInt32, func);
         }
@@ -19374,7 +19374,7 @@ Lowerer::GenerateFastArgumentsLdElemI(IR::Instr* ldElem, IR::LabelInstr *labelFa
         }
 
         if (isInlinee)
-        {
+        {LOGMEIN("Lower.cpp] 19376\n");
             if (!hasIntConstIndex)
             {
                 //Runtime check if to make sure length is within the arguments.length range.
@@ -19388,7 +19388,7 @@ Lowerer::GenerateFastArgumentsLdElemI(IR::Instr* ldElem, IR::LabelInstr *labelFa
 
         IR::Opnd *argIndirOpnd = nullptr;
         if (isInlinee)
-        {
+        {LOGMEIN("Lower.cpp] 19390\n");
             argIndirOpnd = GetArgsIndirOpndForInlinee(ldElem, valueOpnd);
         }
         else
@@ -19406,7 +19406,7 @@ Lowerer::GenerateFastArgumentsLdElemI(IR::Instr* ldElem, IR::LabelInstr *labelFa
     }
 
     if (!emittedFastPath)
-    {
+    {LOGMEIN("Lower.cpp] 19408\n");
         throw Js::RejitException(RejitReason::DisableStackArgOpt);
     }
 
@@ -19415,9 +19415,9 @@ Lowerer::GenerateFastArgumentsLdElemI(IR::Instr* ldElem, IR::LabelInstr *labelFa
 
 bool
 Lowerer::GenerateFastRealStackArgumentsLdLen(IR::Instr *ldLen)
-{
+{LOGMEIN("Lower.cpp] 19417\n");
     if(ldLen->m_func->IsInlinee())
-    {
+    {LOGMEIN("Lower.cpp] 19419\n");
         //Get the length of the arguments
         LowererMD::CreateAssign(ldLen->GetDst(),
                                IR::IntConstOpnd::New(ldLen->m_func->actualCount - 1, TyUint32, ldLen->m_func),
@@ -19435,7 +19435,7 @@ Lowerer::GenerateFastRealStackArgumentsLdLen(IR::Instr *ldLen)
 
 bool
 Lowerer::GenerateFastArgumentsLdLen(IR::Instr *ldLen, IR::LabelInstr* labelFallThru)
-{
+{LOGMEIN("Lower.cpp] 19437\n");
     // TEST argslot, argslot  //Test if the arguments slot is zero
     // JNE $helper
     // actualCountOpnd <-LoadInputParamCount fastpath
@@ -19448,7 +19448,7 @@ Lowerer::GenerateFastArgumentsLdLen(IR::Instr *ldLen, IR::LabelInstr* labelFallT
     Assert(ldLen->DoStackArgsOpt(this->m_func));
 
     if(ldLen->m_func->IsInlinee())
-    {
+    {LOGMEIN("Lower.cpp] 19450\n");
         //Get the length of the arguments
         LowererMD::CreateAssign(ldLen->GetDst(),
                                 IR::AddrOpnd::New(Js::TaggedInt::ToVarUnchecked(ldLen->m_func->actualCount - 1), IR::AddrOpndKindConstantVar, ldLen->m_func), // -1 to exclude this pointer
@@ -19467,12 +19467,12 @@ Lowerer::GenerateFastArgumentsLdLen(IR::Instr *ldLen, IR::LabelInstr* labelFallT
 
 IR::RegOpnd*
 Lowerer::GenerateFunctionTypeFromFixedFunctionObject(IR::Instr *insertInstrPt, IR::Opnd* functionObjOpnd)
-{
+{LOGMEIN("Lower.cpp] 19469\n");
     IR::RegOpnd * functionTypeRegOpnd = IR::RegOpnd::New(TyMachReg, this->m_func);
     IR::Opnd *functionTypeOpnd = nullptr;
 
     if(functionObjOpnd->IsAddrOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 19474\n");
         IR::AddrOpnd* functionObjAddrOpnd = functionObjOpnd->AsAddrOpnd();
         // functionTypeRegOpnd = MOV [fixed function address + type offset]
         functionObjAddrOpnd->m_address;
@@ -19489,27 +19489,27 @@ Lowerer::GenerateFunctionTypeFromFixedFunctionObject(IR::Instr *insertInstrPt, I
 
 void
 Lowerer::FinalLower()
-{
+{LOGMEIN("Lower.cpp] 19491\n");
     this->m_lowererMD.FinalLower();
 
     // ensure that the StartLabel and EndLabel are inserted
     // before the prolog and after the epilog respectively
     IR::LabelInstr * startLabel = m_func->GetFuncStartLabel();
     if (startLabel != nullptr)
-    {
+    {LOGMEIN("Lower.cpp] 19498\n");
         m_func->m_headInstr->InsertAfter(startLabel);
     }
 
     IR::LabelInstr * endLabel = m_func->GetFuncEndLabel();
     if (endLabel != nullptr)
-    {
+    {LOGMEIN("Lower.cpp] 19504\n");
         m_func->m_tailInstr->GetPrevRealInstr()->InsertBefore(endLabel);
     }
 }
 
 void
 Lowerer::EHBailoutPatchUp()
-{
+{LOGMEIN("Lower.cpp] 19511\n");
     Assert(this->m_func->isPostLayout);
     // 1. Insert return thunks for all the regions.
     // 2. Set the hasBailedOut bit to true on all bailout paths in EH regions.
@@ -19521,7 +19521,7 @@ Lowerer::EHBailoutPatchUp()
     IR::LabelInstr * epilogLabel;
     IR::Instr * exitPrevInstr = this->m_func->m_exitInstr->GetPrevRealInstrOrLabel();
     if (exitPrevInstr->IsLabelInstr())
-    {
+    {LOGMEIN("Lower.cpp] 19523\n");
         epilogLabel = exitPrevInstr->AsLabelInstr();
     }
     else
@@ -19533,26 +19533,26 @@ Lowerer::EHBailoutPatchUp()
     IR::Instr * tmpInstr = nullptr;
     bool restoreReturnFromBailoutEmitted = false;
     FOREACH_INSTR_IN_FUNC_EDITING(instr, instrNext, this->m_func)
-    {
+    {LOGMEIN("Lower.cpp] 19535\n");
         if (instr->IsLabelInstr())
-        {
+        {LOGMEIN("Lower.cpp] 19537\n");
             this->currentRegion = instr->AsLabelInstr()->GetRegion();
         }
 
         // Consider (radua): Assert(this->currentRegion) here?
         if (this->currentRegion)
-        {
+        {LOGMEIN("Lower.cpp] 19543\n");
             RegionType currentRegionType = this->currentRegion->GetType();
             if (currentRegionType == RegionTypeTry || currentRegionType == RegionTypeCatch)
-            {
+            {LOGMEIN("Lower.cpp] 19546\n");
                 this->InsertReturnThunkForRegion(this->currentRegion, restoreReturnValueFromBailoutLabel);
                 if (instr->HasBailOutInfo())
-                {
+                {LOGMEIN("Lower.cpp] 19549\n");
                     this->SetHasBailedOut(instr);
                     tmpInstr = this->EmitEHBailoutStackRestore(instr);
                     this->EmitSaveEHBailoutReturnValueAndJumpToRetThunk(tmpInstr);
                     if (!restoreReturnFromBailoutEmitted)
-                    {
+                    {LOGMEIN("Lower.cpp] 19554\n");
                         this->EmitRestoreReturnValueFromEHBailout(restoreReturnValueFromBailoutLabel, epilogLabel);
                         restoreReturnFromBailoutEmitted = true;
                     }
@@ -19566,7 +19566,7 @@ Lowerer::EHBailoutPatchUp()
 bool
 Lowerer::GenerateFastLdFld(IR::Instr * const instrLdFld, IR::JnHelperMethod helperMethod, IR::JnHelperMethod polymorphicHelperMethod,
     IR::LabelInstr ** labelBailOut, IR::RegOpnd* typeOpnd, bool* pIsHelper, IR::LabelInstr** pLabelHelper)
-{
+{LOGMEIN("Lower.cpp] 19568\n");
         // Generates:
     //
     // r1 = object->type
@@ -19655,26 +19655,26 @@ Lowerer::GenerateFastLdFld(IR::Instr * const instrLdFld, IR::JnHelperMethod help
     bool doInlineSlots = true;
     bool doAuxSlots = true;
     if (!PHASE_OFF(Js::ProfileBasedFldFastPathPhase, this->m_func) && instrLdFld->IsProfiledInstr())
-    {
+    {LOGMEIN("Lower.cpp] 19657\n");
         IR::ProfiledInstr * profiledInstrLdFld = instrLdFld->AsProfiledInstr();
         if (profiledInstrLdFld->u.FldInfo().flags != Js::FldInfo_NoInfo)
-        {
+        {LOGMEIN("Lower.cpp] 19660\n");
             doProto = !!(profiledInstrLdFld->u.FldInfo().flags & Js::FldInfo_FromProto);
             doLocal = !!(profiledInstrLdFld->u.FldInfo().flags & Js::FldInfo_FromLocal);
 
             if ((profiledInstrLdFld->u.FldInfo().flags & (Js::FldInfo_FromInlineSlots | Js::FldInfo_FromAuxSlots)) == Js::FldInfo_FromInlineSlots)
-            {
+            {LOGMEIN("Lower.cpp] 19665\n");
                 // If the inline slots flag is set and the aux slots flag is not, only generate the inline slots check
                 doAuxSlots = false;
             }
             else if ((profiledInstrLdFld->u.FldInfo().flags & (Js::FldInfo_FromInlineSlots | Js::FldInfo_FromAuxSlots)) == Js::FldInfo_FromAuxSlots)
-            {
+            {LOGMEIN("Lower.cpp] 19670\n");
                 // If the aux slots flag is set and the inline slots flag is not, only generate the aux slots check
                 doInlineSlots = false;
             }
         }
         else if (!profiledInstrLdFld->u.FldInfo().valueType.IsUninitialized())
-        {
+        {LOGMEIN("Lower.cpp] 19676\n");
             // We have value type info about the field but no flags. This means we shouldn't generate any
             // fast paths for this field load.
             doLocal = false;
@@ -19683,14 +19683,14 @@ Lowerer::GenerateFastLdFld(IR::Instr * const instrLdFld, IR::JnHelperMethod help
     }
 
     if (!doLocal && !doProto)
-    {
+    {LOGMEIN("Lower.cpp] 19685\n");
         return false;
     }
 
     IR::LabelInstr * labelFallThru = instrLdFld->GetOrCreateContinueLabel();
 
     if (labelHelper == nullptr)
-    {
+    {LOGMEIN("Lower.cpp] 19692\n");
         labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, isHelper);
     }
 
@@ -19699,7 +19699,7 @@ Lowerer::GenerateFastLdFld(IR::Instr * const instrLdFld, IR::JnHelperMethod help
 
     IR::RegOpnd * opndInlineCache = IR::RegOpnd::New(TyMachPtr, this->m_func);
     if (usePolymorphicInlineCache)
-    {
+    {LOGMEIN("Lower.cpp] 19701\n");
         LowererMD::CreateAssign(opndInlineCache, IR::AddrOpnd::New(propertySymOpnd->m_runtimePolymorphicInlineCache->GetInlineCachesAddr(), IR::AddrOpndKindDynamicInlineCache, this->m_func, true), instrLdFld);
     }
     else
@@ -19708,13 +19708,13 @@ Lowerer::GenerateFastLdFld(IR::Instr * const instrLdFld, IR::JnHelperMethod help
     }
 
     if (typeOpnd == nullptr)
-    {
+    {LOGMEIN("Lower.cpp] 19710\n");
         typeOpnd = IR::RegOpnd::New(TyMachPtr, this->m_func);
         GenerateObjectTestAndTypeLoad(instrLdFld, opndBase, typeOpnd, labelHelper);
     }
 
     if (usePolymorphicInlineCache)
-    {
+    {LOGMEIN("Lower.cpp] 19716\n");
         LowererMD::GenerateLoadPolymorphicInlineCacheSlot(instrLdFld, opndInlineCache, typeOpnd, propertySymOpnd->m_runtimePolymorphicInlineCache->GetSize());
     }
 
@@ -19724,18 +19724,18 @@ Lowerer::GenerateFastLdFld(IR::Instr * const instrLdFld, IR::JnHelperMethod help
     IR::BranchInstr * labelNextBranchToPatch = nullptr;
 
     if (doProto && doProtoFirst)
-    {
+    {LOGMEIN("Lower.cpp] 19726\n");
         if (doInlineSlots)
-        {
+        {LOGMEIN("Lower.cpp] 19728\n");
             labelNext = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, isHelper);
             labelNextBranchToPatch = LowererMD::GenerateProtoInlineCacheCheck(instrLdFld, typeOpnd, opndInlineCache, labelNext);
             LowererMD::GenerateLdFldFromProtoInlineCache(instrLdFld, opndBase, opndDst, opndInlineCache, labelFallThru, true);
             instrLdFld->InsertBefore(labelNext);
         }
         if (doAuxSlots)
-        {
+        {LOGMEIN("Lower.cpp] 19735\n");
             if (opndTaggedType == nullptr)
-            {
+            {LOGMEIN("Lower.cpp] 19737\n");
                 opndTaggedType = IR::RegOpnd::New(TyMachPtr, this->m_func);
                 LowererMD::GenerateLoadTaggedType(instrLdFld, typeOpnd, opndTaggedType);
             }
@@ -19746,18 +19746,18 @@ Lowerer::GenerateFastLdFld(IR::Instr * const instrLdFld, IR::JnHelperMethod help
         }
     }
     if (doLocal)
-    {
+    {LOGMEIN("Lower.cpp] 19748\n");
         if (doInlineSlots)
-        {
+        {LOGMEIN("Lower.cpp] 19750\n");
             labelNext = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, isHelper);
             labelNextBranchToPatch = LowererMD::GenerateLocalInlineCacheCheck(instrLdFld, typeOpnd, opndInlineCache, labelNext);
             LowererMD::GenerateLdFldFromLocalInlineCache(instrLdFld, opndBase, opndDst, opndInlineCache, labelFallThru, true);
             instrLdFld->InsertBefore(labelNext);
         }
         if (doAuxSlots)
-        {
+        {LOGMEIN("Lower.cpp] 19757\n");
             if (opndTaggedType == nullptr)
-            {
+            {LOGMEIN("Lower.cpp] 19759\n");
                 opndTaggedType = IR::RegOpnd::New(TyMachPtr, this->m_func);
                 LowererMD::GenerateLoadTaggedType(instrLdFld, typeOpnd, opndTaggedType);
             }
@@ -19768,18 +19768,18 @@ Lowerer::GenerateFastLdFld(IR::Instr * const instrLdFld, IR::JnHelperMethod help
         }
     }
     if (doProto && !doProtoFirst)
-    {
+    {LOGMEIN("Lower.cpp] 19770\n");
         if (doInlineSlots)
-        {
+        {LOGMEIN("Lower.cpp] 19772\n");
             labelNext = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, isHelper);
             labelNextBranchToPatch = LowererMD::GenerateProtoInlineCacheCheck(instrLdFld, typeOpnd, opndInlineCache, labelNext);
             LowererMD::GenerateLdFldFromProtoInlineCache(instrLdFld, opndBase, opndDst, opndInlineCache, labelFallThru, true);
             instrLdFld->InsertBefore(labelNext);
         }
         if (doAuxSlots)
-        {
+        {LOGMEIN("Lower.cpp] 19779\n");
             if (opndTaggedType == nullptr)
-            {
+            {LOGMEIN("Lower.cpp] 19781\n");
                 opndTaggedType = IR::RegOpnd::New(TyMachPtr, this->m_func);
                 LowererMD::GenerateLoadTaggedType(instrLdFld, typeOpnd, opndTaggedType);
             }
@@ -19808,7 +19808,7 @@ Lowerer::GenerateAuxSlotAdjustmentRequiredCheck(
     IR::Instr * instrToInsertBefore,
     IR::RegOpnd * opndInlineCache,
     IR::LabelInstr * labelHelper)
-{
+{LOGMEIN("Lower.cpp] 19810\n");
     // regSlotCap = MOV [&(inlineCache->u.local.rawUInt16)] // sized to 16 bits
     IR::RegOpnd * regSlotCap = IR::RegOpnd::New(TyMachReg, instrToInsertBefore->m_func);
     IR::IndirOpnd * memSlotCap = IR::IndirOpnd::New(opndInlineCache, (int32)offsetof(Js::InlineCache, u.local.rawUInt16), TyUint16, instrToInsertBefore->m_func);
@@ -19825,7 +19825,7 @@ Lowerer::GenerateSetObjectTypeFromInlineCache(
     IR::RegOpnd * opndBase,
     IR::RegOpnd * opndInlineCache,
     bool isTypeTagged)
-{
+{LOGMEIN("Lower.cpp] 19827\n");
     // regNewType = MOV [&(inlineCache->u.local.type)]
     IR::RegOpnd * regNewType = IR::RegOpnd::New(TyMachReg, instrToInsertBefore->m_func);
     IR::IndirOpnd * memNewType = IR::IndirOpnd::New(opndInlineCache, (int32)offsetof(Js::InlineCache, u.local.type), TyMachReg, instrToInsertBefore->m_func);
@@ -19833,7 +19833,7 @@ Lowerer::GenerateSetObjectTypeFromInlineCache(
 
     // AND regNewType, ~InlineCacheAuxSlotTypeTag
     if (isTypeTagged)
-    {
+    {LOGMEIN("Lower.cpp] 19835\n");
         // On 64-bit platforms IntConstOpnd isn't big enough to hold TyMachReg values.
         IR::IntConstOpnd * constTypeTagComplement = IR::IntConstOpnd::New(~InlineCacheAuxSlotTypeTag, TyMachReg, instrToInsertBefore->m_func, /* dontEncode = */ true);
         InsertAnd(regNewType, regNewType, constTypeTagComplement, instrToInsertBefore);
@@ -19847,7 +19847,7 @@ Lowerer::GenerateSetObjectTypeFromInlineCache(
 bool
 Lowerer::GenerateFastStFld(IR::Instr * const instrStFld, IR::JnHelperMethod helperMethod, IR::JnHelperMethod polymorphicHelperMethod, IR::LabelInstr ** labelBailOut, IR::RegOpnd* typeOpnd,
     bool* pIsHelper, IR::LabelInstr** pLabelHelper, bool withPutFlags, Js::PropertyOperationFlags flags)
-{
+{LOGMEIN("Lower.cpp] 19849\n");
     // Generates:
     //
     // r1 = object->type
@@ -19907,26 +19907,26 @@ Lowerer::GenerateFastStFld(IR::Instr * const instrStFld, IR::JnHelperMethod help
     bool doInlineSlots = true;
     bool doAuxSlots = true;
     if (!PHASE_OFF(Js::ProfileBasedFldFastPathPhase, this->m_func) && instrStFld->IsProfiledInstr())
-    {
+    {LOGMEIN("Lower.cpp] 19909\n");
         IR::ProfiledInstr * profiledInstrStFld = instrStFld->AsProfiledInstr();
         if (profiledInstrStFld->u.FldInfo().flags != Js::FldInfo_NoInfo)
-        {
+        {LOGMEIN("Lower.cpp] 19912\n");
             if (!(profiledInstrStFld->u.FldInfo().flags & (Js::FldInfo_FromLocal | Js::FldInfo_FromLocalWithoutProperty)))
-            {
+            {LOGMEIN("Lower.cpp] 19914\n");
                 return false;
             }
 
             if (!PHASE_OFF(Js::AddFldFastPathPhase, this->m_func))
-            {
+            {LOGMEIN("Lower.cpp] 19919\n");
                 // We always try to do the store field fast path, unless the profile specifically says we never set, but always add a property here.
                 if ((profiledInstrStFld->u.FldInfo().flags & (Js::FldInfo_FromLocal | Js::FldInfo_FromLocalWithoutProperty)) == Js::FldInfo_FromLocalWithoutProperty)
-                {
+                {LOGMEIN("Lower.cpp] 19922\n");
                     doStore = false;
                 }
 
                 // On the other hand, we only emit the add field fast path, if the profile explicitly says we do add properties here.
                 if (!!(profiledInstrStFld->u.FldInfo().flags & Js::FldInfo_FromLocalWithoutProperty))
-                {
+                {LOGMEIN("Lower.cpp] 19928\n");
                     doAdd = true;
                 }
             }
@@ -19942,18 +19942,18 @@ Lowerer::GenerateFastStFld(IR::Instr * const instrStFld, IR::JnHelperMethod help
             }
 
             if ((profiledInstrStFld->u.FldInfo().flags & (Js::FldInfo_FromInlineSlots | Js::FldInfo_FromAuxSlots)) == Js::FldInfo_FromInlineSlots)
-            {
+            {LOGMEIN("Lower.cpp] 19944\n");
                 // If the inline slots flag is set and the aux slots flag is not, only generate the inline slots check
                 doAuxSlots = false;
             }
             else if ((profiledInstrStFld->u.FldInfo().flags & (Js::FldInfo_FromInlineSlots | Js::FldInfo_FromAuxSlots)) == Js::FldInfo_FromAuxSlots)
-            {
+            {LOGMEIN("Lower.cpp] 19949\n");
                 // If the aux slots flag is set and the inline slots flag is not, only generate the aux slots check
                 doInlineSlots = false;
             }
         }
         else if (!profiledInstrStFld->u.FldInfo().valueType.IsUninitialized())
-        {
+        {LOGMEIN("Lower.cpp] 19955\n");
             // We have value type info about the field but no flags. This means we shouldn't generate any
             // fast paths for this field store.
             return false;
@@ -19963,7 +19963,7 @@ Lowerer::GenerateFastStFld(IR::Instr * const instrStFld, IR::JnHelperMethod help
     Assert(doStore || doAdd);
 
     if (labelHelper == nullptr)
-    {
+    {LOGMEIN("Lower.cpp] 19965\n");
         labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
     }
 
@@ -19972,7 +19972,7 @@ Lowerer::GenerateFastStFld(IR::Instr * const instrStFld, IR::JnHelperMethod help
     bool usePolymorphicInlineCache = !!propertySymOpnd->m_runtimePolymorphicInlineCache;
 
     if (doAdd)
-    {
+    {LOGMEIN("Lower.cpp] 19974\n");
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 #endif
@@ -19985,7 +19985,7 @@ Lowerer::GenerateFastStFld(IR::Instr * const instrStFld, IR::JnHelperMethod help
 
     IR::RegOpnd * opndInlineCache = IR::RegOpnd::New(TyMachPtr, this->m_func);
     if (usePolymorphicInlineCache)
-    {
+    {LOGMEIN("Lower.cpp] 19987\n");
         LowererMD::CreateAssign(opndInlineCache, IR::AddrOpnd::New(propertySymOpnd->m_runtimePolymorphicInlineCache->GetInlineCachesAddr(), IR::AddrOpndKindDynamicInlineCache, this->m_func, true), instrStFld);
     }
     else
@@ -19994,13 +19994,13 @@ Lowerer::GenerateFastStFld(IR::Instr * const instrStFld, IR::JnHelperMethod help
     }
 
     if (typeOpnd == nullptr)
-    {
+    {LOGMEIN("Lower.cpp] 19996\n");
         typeOpnd = IR::RegOpnd::New(TyMachPtr, this->m_func);
         GenerateObjectTestAndTypeLoad(instrStFld, opndBase, typeOpnd, labelHelper);
     }
 
     if (usePolymorphicInlineCache)
-    {
+    {LOGMEIN("Lower.cpp] 20002\n");
         LowererMD::GenerateLoadPolymorphicInlineCacheSlot(instrStFld, opndInlineCache, typeOpnd, propertySymOpnd->m_runtimePolymorphicInlineCache->GetSize());
     }
 
@@ -20009,18 +20009,18 @@ Lowerer::GenerateFastStFld(IR::Instr * const instrStFld, IR::JnHelperMethod help
     IR::BranchInstr * lastBranchToNext = nullptr;
 
     if (doStore)
-    {
+    {LOGMEIN("Lower.cpp] 20011\n");
         if (doInlineSlots)
-        {
+        {LOGMEIN("Lower.cpp] 20013\n");
             labelNext = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, isHelper);
             lastBranchToNext = LowererMD::GenerateLocalInlineCacheCheck(instrStFld, typeOpnd, opndInlineCache, labelNext);
             this->GetLowererMD()->GenerateStFldFromLocalInlineCache(instrStFld, opndBase, opndSrc, opndInlineCache, labelFallThru, true);
             instrStFld->InsertBefore(labelNext);
         }
         if (doAuxSlots)
-        {
+        {LOGMEIN("Lower.cpp] 20020\n");
             if (opndTaggedType == nullptr)
-            {
+            {LOGMEIN("Lower.cpp] 20022\n");
                 opndTaggedType = IR::RegOpnd::New(TyMachPtr, this->m_func);
                 LowererMD::GenerateLoadTaggedType(instrStFld, typeOpnd, opndTaggedType);
             }
@@ -20032,9 +20032,9 @@ Lowerer::GenerateFastStFld(IR::Instr * const instrStFld, IR::JnHelperMethod help
     }
 
     if (doAdd)
-    {
+    {LOGMEIN("Lower.cpp] 20034\n");
         if (doInlineSlots)
-        {
+        {LOGMEIN("Lower.cpp] 20036\n");
             labelNext = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, isHelper);
             lastBranchToNext = LowererMD::GenerateLocalInlineCacheCheck(instrStFld, typeOpnd, opndInlineCache, labelNext, true);
             GenerateSetObjectTypeFromInlineCache(instrStFld, opndBase, opndInlineCache, false);
@@ -20042,9 +20042,9 @@ Lowerer::GenerateFastStFld(IR::Instr * const instrStFld, IR::JnHelperMethod help
             instrStFld->InsertBefore(labelNext);
         }
         if (doAuxSlots)
-        {
+        {LOGMEIN("Lower.cpp] 20044\n");
             if (opndTaggedType == nullptr)
-            {
+            {LOGMEIN("Lower.cpp] 20046\n");
                 opndTaggedType = IR::RegOpnd::New(TyMachPtr, this->m_func);
                 LowererMD::GenerateLoadTaggedType(instrStFld, typeOpnd, opndTaggedType);
             }
@@ -20071,13 +20071,13 @@ Lowerer::GenerateFastStFld(IR::Instr * const instrStFld, IR::JnHelperMethod help
 }
 
 bool Lowerer::GenerateFastStFldForCustomProperty(IR::Instr *const instr, IR::LabelInstr * *const labelHelperRef)
-{
+{LOGMEIN("Lower.cpp] 20073\n");
     Assert(instr);
     Assert(labelHelperRef);
     Assert(!*labelHelperRef);
 
     switch(instr->m_opcode)
-    {
+    {LOGMEIN("Lower.cpp] 20079\n");
         case Js::OpCode::StFld:
         case Js::OpCode::StFldStrict:
             break;
@@ -20089,21 +20089,21 @@ bool Lowerer::GenerateFastStFldForCustomProperty(IR::Instr *const instr, IR::Lab
     IR::SymOpnd *const symOpnd = instr->GetDst()->AsSymOpnd();
     PropertySym *const propertySym = symOpnd->m_sym->AsPropertySym();
     if(propertySym->m_propertyId != Js::PropertyIds::lastIndex || !symOpnd->IsPropertySymOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 20091\n");
         return false;
     }
 
     const ValueType objectValueType(symOpnd->GetPropertyOwnerValueType());
     if(!objectValueType.IsLikelyRegExp())
-    {
+    {LOGMEIN("Lower.cpp] 20097\n");
         return false;
     }
 
     if(instr->HasBailOutInfo())
-    {
+    {LOGMEIN("Lower.cpp] 20102\n");
         const IR::BailOutKind bailOutKind = instr->GetBailOutKind();
         if(!BailOutInfo::IsBailOutOnImplicitCalls(bailOutKind) || bailOutKind & IR::BailOutKindBits)
-        {
+        {LOGMEIN("Lower.cpp] 20105\n");
             // Other bailout kinds will likely need bailout checks that would not be generated here. In particular, if a type
             // check is necessary here to guard against downstream property accesses on the same object, the type check will
             // fail and cause a bailout if the object is a RegExp object since the "lastIndex" property accesses are not cached.
@@ -20118,22 +20118,22 @@ bool Lowerer::GenerateFastStFldForCustomProperty(IR::Instr *const instr, IR::Lab
 
     IR::LabelInstr *labelHelper = nullptr;
     if(!objectOpnd->IsNotTaggedValue())
-    {
+    {LOGMEIN("Lower.cpp] 20120\n");
         //     test object, 1
         //     jnz $helper
         if(!labelHelper)
-        {
+        {LOGMEIN("Lower.cpp] 20124\n");
             *labelHelperRef = labelHelper = IR::LabelInstr::New(Js::OpCode::Label, func, true);
         }
         m_lowererMD.GenerateObjectTest(objectOpnd, instr, labelHelper);
     }
 
     if(!objectValueType.IsObject())
-    {
+    {LOGMEIN("Lower.cpp] 20131\n");
         //     cmp [object], Js::JavascriptRegExp::vtable
         //     jne $helper
         if(!labelHelper)
-        {
+        {LOGMEIN("Lower.cpp] 20135\n");
             *labelHelperRef = labelHelper = IR::LabelInstr::New(Js::OpCode::Label, func, true);
         }
         InsertCompareBranch(
@@ -20163,7 +20163,7 @@ bool Lowerer::GenerateFastStFldForCustomProperty(IR::Instr *const instr, IR::Lab
 
 IR::RegOpnd *
 Lowerer::GenerateIsBuiltinRecyclableObject(IR::RegOpnd *regOpnd, IR::Instr *insertInstr, IR::LabelInstr *labelHelper, bool checkObjectAndDynamicObject, IR::LabelInstr *labelContinue)
-{
+{LOGMEIN("Lower.cpp] 20165\n");
     // CMP [srcReg], Js::DynamicObject::`vtable'
     // JEQ $fallThough
     // MOV r1, [src1 + offset(type)]                      -- get the type id
@@ -20176,9 +20176,9 @@ Lowerer::GenerateIsBuiltinRecyclableObject(IR::RegOpnd *regOpnd, IR::Instr *inse
     IR::LabelInstr *labelFallthrough = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
 
     if (checkObjectAndDynamicObject)
-    {
+    {LOGMEIN("Lower.cpp] 20178\n");
         if (!regOpnd->IsNotTaggedValue())
-        {
+        {LOGMEIN("Lower.cpp] 20180\n");
             m_lowererMD.GenerateObjectTest(regOpnd, insertInstr, labelHelper);
         }
 
@@ -20208,7 +20208,7 @@ Lowerer::GenerateIsBuiltinRecyclableObject(IR::RegOpnd *regOpnd, IR::Instr *inse
         insertInstr);
 
     if (labelContinue)
-    {
+    {LOGMEIN("Lower.cpp] 20210\n");
         // On success, go to continuation label.
         InsertBranch(Js::OpCode::BrLe_A, true, labelContinue, insertInstr);
     }
@@ -20225,7 +20225,7 @@ Lowerer::GenerateIsBuiltinRecyclableObject(IR::RegOpnd *regOpnd, IR::Instr *inse
 }
 
 void Lowerer::GenerateBooleanNegate(IR::Instr * instr, IR::Opnd * srcBool, IR::Opnd * dst)
-{
+{LOGMEIN("Lower.cpp] 20227\n");
     // dst = src
     // dst = dst ^ (true ^ false) (= !src)
     LowererMD::CreateAssign(dst, srcBool, instr);
@@ -20235,7 +20235,7 @@ void Lowerer::GenerateBooleanNegate(IR::Instr * instr, IR::Opnd * srcBool, IR::O
 }
 
 bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
-{
+{LOGMEIN("Lower.cpp] 20237\n");
     Assert(instr);
 
     // There's a total of 8 modes for this function, based on these inferred flags
@@ -20244,7 +20244,7 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
     bool isNegOp = false;
 
     switch (instr->m_opcode)
-    {
+    {LOGMEIN("Lower.cpp] 20246\n");
     case Js::OpCode::BrSrEq_A:
     case Js::OpCode::BrSrNotNeq_A:
     case Js::OpCode::BrSrNeq_A:
@@ -20257,7 +20257,7 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
         break;
     }
     switch (instr->m_opcode)
-    {
+    {LOGMEIN("Lower.cpp] 20259\n");
     case Js::OpCode::BrSrEq_A:
     case Js::OpCode::BrSrNotNeq_A:
     case Js::OpCode::CmSrEq_A:
@@ -20286,7 +20286,7 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
     // The instrucions given to this _should_ all be 2-arg.
     Assert(src1 && src2);
     if (!(src1 && src2))
-    {
+    {LOGMEIN("Lower.cpp] 20288\n");
         return false;
     }
 
@@ -20296,7 +20296,7 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
     IR::LabelInstr *labelFallthrough = nullptr;
 
     if (isBranchNotCompare)
-    {
+    {LOGMEIN("Lower.cpp] 20298\n");
         IR::BranchInstr * instrBranch = instr->AsBranchInstr();
         targetInstr = instrBranch->GetTarget();
         labelFallthrough = instrBranch->GetOrCreateContinueLabel();
@@ -20314,12 +20314,12 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
     IR::Opnd *srcBool = nullptr;
     IR::Opnd *srcInt = nullptr;
     if (src1->GetValueType().IsLikelyBoolean() && src2->GetValueType().IsLikelyTaggedInt())
-    {
+    {LOGMEIN("Lower.cpp] 20316\n");
         srcBool = src1;
         srcInt = src2;
     }
     else if (src1->GetValueType().IsLikelyTaggedInt() && src2->GetValueType().IsLikelyBoolean())
-    {
+    {LOGMEIN("Lower.cpp] 20321\n");
         srcInt = src1;
         srcBool = src2;
     }
@@ -20336,58 +20336,58 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
     bool srcBoolConst = false;
     bool srcBoolConstVal = false;
     if (srcInt->IsIntConstOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 20338\n");
         IR::IntConstOpnd * constSrcInt = srcInt->AsIntConstOpnd();
         IntConstType constIntVal = constSrcInt->GetValue();
         srcIntConst = true;
         if (constIntVal == 0)
-        {
+        {LOGMEIN("Lower.cpp] 20343\n");
             srcIntConstVal = false;
             srcIntIsBoolable = true;
         }
         else if (constIntVal == 1)
-        {
+        {LOGMEIN("Lower.cpp] 20348\n");
             srcIntConstVal = true;
             srcIntIsBoolable = true;
         }
     }
     else if (srcInt->IsAddrOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 20354\n");
         IR::AddrOpnd * addrSrcInt = srcInt->AsAddrOpnd();
         if (!(addrSrcInt && addrSrcInt->IsVar() && Js::TaggedInt::Is(addrSrcInt->m_address)))
-        {
+        {LOGMEIN("Lower.cpp] 20357\n");
             return false;
         }
         int32 constIntVal = Js::TaggedInt::ToInt32(addrSrcInt->m_address);
         srcIntConst = true;
         if (constIntVal == 0)
-        {
+        {LOGMEIN("Lower.cpp] 20363\n");
             srcIntConstVal = false;
             srcIntIsBoolable = true;
         }
         else if (constIntVal == 1)
-        {
+        {LOGMEIN("Lower.cpp] 20368\n");
             srcIntConstVal = true;
             srcIntIsBoolable = true;
         }
     }
     else if (srcInt->IsConstOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 20374\n");
         // Not handled yet
         return false;
     }
     if (srcBool->IsIntConstOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 20379\n");
         IR::IntConstOpnd * constSrcBool = srcBool->AsIntConstOpnd();
         IntConstType constIntVal = constSrcBool->GetValue();
         srcBoolConst = true;
         srcBoolConstVal = constIntVal != 0;
     }
     else if (srcBool->IsAddrOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 20386\n");
         IR::AddrOpnd * addrSrcBool = srcInt->AsAddrOpnd();
         if (!(addrSrcBool && addrSrcBool->IsVar() && Js::TaggedInt::Is(addrSrcBool->m_address)))
-        {
+        {LOGMEIN("Lower.cpp] 20389\n");
             return false;
         }
         int32 value = Js::TaggedInt::ToInt32(addrSrcBool->m_address);
@@ -20395,13 +20395,13 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
         srcBoolConstVal = value != 0;
     }
     else if (srcBool->IsConstOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 20397\n");
         // Not handled yet
         return false;
     }
 
     // Do these checks here, since that way we avoid emitting instructions before exiting earlier
-    if (srcInt->GetValueType().IsTaggedInt() && srcBool->GetValueType().IsBoolean()) {
+    if (srcInt->GetValueType().IsTaggedInt() && srcBool->GetValueType().IsBoolean()) {LOGMEIN("Lower.cpp] 20403\n");
         // ok, we know the types, so no helper needed
         *pNeedHelper = false;
     }
@@ -20410,13 +20410,13 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
         labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
         // check the types and jump to the helper if incorrect
         if (!srcInt->IsConstOpnd() && !srcInt->GetValueType().IsTaggedInt())
-        {
+        {LOGMEIN("Lower.cpp] 20412\n");
             this->m_lowererMD.GenerateSmIntTest(srcInt->AsRegOpnd(), instr, labelHelper);
         }
         if (!srcBool->IsConstOpnd() && !srcBool->GetValueType().IsBoolean())
-        {
+        {LOGMEIN("Lower.cpp] 20416\n");
             if (!srcBool->GetValueType().IsObject())
-            {
+            {LOGMEIN("Lower.cpp] 20418\n");
                 this->m_lowererMD.GenerateObjectTest(srcBool->AsRegOpnd(), instr, labelHelper, false);
             }
             this->m_lowererMD.GenerateJSBooleanTest(srcBool->AsRegOpnd(), instr, labelHelper, false);
@@ -20435,9 +20435,9 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
     // For the Sr instructions, we now know that the types are different, so we can immediately
     // decide what the result will be.
     if (isStrict)
-    {
+    {LOGMEIN("Lower.cpp] 20437\n");
         if (isBranchNotCompare)
-        {
+        {LOGMEIN("Lower.cpp] 20439\n");
             instr->InsertBefore(IR::BranchInstr::New(LowererMD::MDUncondBranchOpcode, inequalResultTarget, this->m_func));
 #if DBG
             // Since we're not making a non-helper path to one of the branches, we need to tell
@@ -20456,11 +20456,11 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
     // Now that we've checked the types, we can lower some instructions to quickly do the check
     // in the case that it's not a type-strict strict equality/inequality check.
     else if (srcIntConst && srcBoolConst)
-    {
+    {LOGMEIN("Lower.cpp] 20458\n");
         // If both arguments are constant, we can statically determine the result.
         bool sameVal = srcIntConstVal == srcBoolConstVal;
         if (isBranchNotCompare)
-        {
+        {LOGMEIN("Lower.cpp] 20462\n");
             // For constant branches, branch to the target
             Assert(instr);
             IR::LabelInstr * target = sameVal && srcIntIsBoolable ? equalResultTarget : inequalResultTarget;
@@ -20481,7 +20481,7 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
         }
     }
     else if (!srcIntConst && !srcBoolConst)
-    {
+    {LOGMEIN("Lower.cpp] 20483\n");
         // If neither is constant, we can still do a bit better than loading the helper
         IR::LabelInstr * firstFalse = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
         IR::LabelInstr * forceInequal = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
@@ -20551,11 +20551,11 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
         }
     }
     else if (srcIntConst)
-    {
+    {LOGMEIN("Lower.cpp] 20553\n");
         if (isBranchNotCompare)
-        {
+        {LOGMEIN("Lower.cpp] 20555\n");
             if (srcIntIsBoolable)
-            {
+            {LOGMEIN("Lower.cpp] 20557\n");
                 LibraryValue intval = srcIntConstVal ? LibraryValue::ValueTrue : LibraryValue::ValueFalse;
                 InsertCompareBranch(
                     srcBool,
@@ -20581,10 +20581,10 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
         else
         {
             if (srcIntIsBoolable)
-            {
+            {LOGMEIN("Lower.cpp] 20583\n");
                 bool directPassthrough = isNegOp != srcIntConstVal;
                 if (directPassthrough)
-                {
+                {LOGMEIN("Lower.cpp] 20586\n");
                     // If this case is hit, the result value is the same as the value in srcBool
                     this->InsertMove(instr->GetDst(), srcBool, instr);
                 }
@@ -20603,12 +20603,12 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
         }
     }
     else if (srcBoolConst)
-    {
+    {LOGMEIN("Lower.cpp] 20605\n");
         if (isBranchNotCompare)
-        {
+        {LOGMEIN("Lower.cpp] 20607\n");
             this->m_lowererMD.GenerateTaggedZeroTest(srcInt->AsRegOpnd(), instr, srcBoolConstVal ? inequalResultTarget : equalResultTarget);
             if (srcBoolConstVal)
-            {
+            {LOGMEIN("Lower.cpp] 20610\n");
                 // If it's not zero, then it's either 1, in which case it's true, or it's something else, in which
                 // case we have an issue.
                 InsertCompareBranch(IR::IntConstOpnd::New((((IntConstType)1) << Js::VarTag_Shift) + Js::AtomTag, IRType::TyVar, this->m_func), srcInt->AsRegOpnd(), Js::OpCode::BrNeq_A, inequalResultTarget, instr, true);
@@ -20621,7 +20621,7 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
             IR::LabelInstr* isZero = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
             this->m_lowererMD.GenerateTaggedZeroTest(srcInt->AsRegOpnd(), instr, isZero);
             if (srcBoolConstVal)
-            {
+            {LOGMEIN("Lower.cpp] 20623\n");
                 // If it's not zero, then it's either 1, in which case it's true, or it's something else, in which
                 // case we have an issue.
                 InsertCompareBranch(IR::IntConstOpnd::New((((IntConstType)1) << Js::VarTag_Shift) + Js::AtomTag, IRType::TyVar, this->m_func), srcInt->AsRegOpnd(), Js::OpCode::BrNeq_A, isZero, instr, true);
@@ -20635,14 +20635,14 @@ bool Lowerer::GenerateFastEqBoolInt(IR::Instr * instr, bool *pNeedHelper)
         }
     }
     if (*pNeedHelper)
-    {
+    {LOGMEIN("Lower.cpp] 20637\n");
         instr->InsertBefore(labelHelper);
     }
     return true;
 }
 
 bool Lowerer::GenerateFastBrEqLikely(IR::BranchInstr * instrBranch, bool *pNeedHelper)
-{
+{LOGMEIN("Lower.cpp] 20644\n");
     IR::Opnd *src1 = instrBranch->GetSrc1();
     IR::Opnd *src2 = instrBranch->GetSrc2();
     IR::LabelInstr *targetInstr = instrBranch->GetTarget();
@@ -20654,7 +20654,7 @@ bool Lowerer::GenerateFastBrEqLikely(IR::BranchInstr * instrBranch, bool *pNeedH
     *pNeedHelper = true;
 
     if (!this->GenerateFastBooleanAndObjectEqLikely(instrBranch, src1, src2, labelHelper, labelEqualLikely, pNeedHelper))
-    {
+    {LOGMEIN("Lower.cpp] 20656\n");
         return false;
     }
 
@@ -20674,11 +20674,11 @@ bool Lowerer::GenerateFastBrEqLikely(IR::BranchInstr * instrBranch, bool *pNeedH
 }
 
 bool Lowerer::GenerateFastBooleanAndObjectEqLikely(IR::Instr * instr, IR::Opnd *src1, IR::Opnd *src2, IR::LabelInstr * labelHelper, IR::LabelInstr * labelEqualLikely, bool *pNeedHelper)
-{
+{LOGMEIN("Lower.cpp] 20676\n");
     *pNeedHelper = true;
 
     if (!src1 || !src2)
-    {
+    {LOGMEIN("Lower.cpp] 20680\n");
         return false;
     }
 
@@ -20686,7 +20686,7 @@ bool Lowerer::GenerateFastBooleanAndObjectEqLikely(IR::Instr * instr, IR::Opnd *
     bool isStrictMode = this->m_func->GetJITFunctionBody()->IsStrictMode();
 
     switch (instr->m_opcode)
-    {
+    {LOGMEIN("Lower.cpp] 20688\n");
     case Js::OpCode::BrSrEq_A:
     case Js::OpCode::BrSrNotNeq_A:
     case Js::OpCode::BrSrNeq_A:
@@ -20698,17 +20698,17 @@ bool Lowerer::GenerateFastBooleanAndObjectEqLikely(IR::Instr * instr, IR::Opnd *
     }
 
     if (src1->GetValueType().IsLikelyBoolean() && src2->GetValueType().IsLikelyBoolean())
-    {
+    {LOGMEIN("Lower.cpp] 20700\n");
         //
         // Booleans
         //
         if (isStrictCompare)
-        {
+        {LOGMEIN("Lower.cpp] 20705\n");
             if (!src1->GetValueType().IsBoolean() && !src2->GetValueType().IsBoolean())
-            {
+            {LOGMEIN("Lower.cpp] 20707\n");
                 this->m_lowererMD.GenerateObjectTest(src2->AsRegOpnd(), instr, labelHelper, false);
                 if (this->m_lowererMD.GenerateJSBooleanTest(src2->AsRegOpnd(), instr, labelEqualLikely, true))
-                {
+                {LOGMEIN("Lower.cpp] 20710\n");
                     instr->InsertBefore(IR::BranchInstr::New(LowererMD::MDUncondBranchOpcode, labelHelper, this->m_func));
                 }
             }
@@ -20723,20 +20723,20 @@ bool Lowerer::GenerateFastBooleanAndObjectEqLikely(IR::Instr * instr, IR::Opnd *
             this->m_lowererMD.GenerateJSBooleanTest(src1->AsRegOpnd(), instr, labelHelper, false);
             this->m_lowererMD.GenerateObjectTest(src2->AsRegOpnd(), instr, labelHelper, false);
             if (this->m_lowererMD.GenerateJSBooleanTest(src2->AsRegOpnd(), instr, labelEqualLikely, true))
-            {
+            {LOGMEIN("Lower.cpp] 20725\n");
                 instr->InsertBefore(IR::BranchInstr::New(LowererMD::MDUncondBranchOpcode, labelHelper, this->m_func));
             }
         }
     }
     else if (src1->GetValueType().IsLikelyObject() && src2->GetValueType().IsLikelyObject())
-    {
+    {LOGMEIN("Lower.cpp] 20731\n");
         //
         // Objects
         //
         IR::LabelInstr *labelTypeIdCheck = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
 
         if (!isStrictCompare)
-        {
+        {LOGMEIN("Lower.cpp] 20738\n");
             // If not strictBr, verify both sides are dynamic objects
             this->m_lowererMD.GenerateObjectTest(src1->AsRegOpnd(), instr, labelHelper, false);
             this->m_lowererMD.GenerateObjectTest(src2->AsRegOpnd(), instr, labelHelper, false);
@@ -20751,7 +20751,7 @@ bool Lowerer::GenerateFastBooleanAndObjectEqLikely(IR::Instr * instr, IR::Opnd *
         instr->InsertBefore(labelTypeIdCheck);
 
         if (isStrictMode)
-        {
+        {LOGMEIN("Lower.cpp] 20753\n");
             labelTypeIdCheck->isOpHelper = true;
             IR::BranchInstr *branchToHelper = IR::BranchInstr::New(LowererMD::MDUncondBranchOpcode, labelHelper, this->m_func);
             instr->InsertBefore(branchToHelper);
@@ -20759,9 +20759,9 @@ bool Lowerer::GenerateFastBooleanAndObjectEqLikely(IR::Instr * instr, IR::Opnd *
         else
         {
             if (!ExternalLowerer::TryGenerateFastExternalEqTest(src1, src2, instr, labelHelper, labelEqualLikely, this, isStrictCompare))
-            {
+            {LOGMEIN("Lower.cpp] 20761\n");
                 if (!isStrictCompare)
-                {
+                {LOGMEIN("Lower.cpp] 20763\n");
                     GenerateIsBuiltinRecyclableObject(src1->AsRegOpnd(), instr, labelHelper, false /*checkObjectAndDynamicObject*/);
                 }
                 GenerateIsBuiltinRecyclableObject(src2->AsRegOpnd(), instr, labelHelper, false /*checkObjectAndDynamicObject*/);
@@ -20777,7 +20777,7 @@ bool Lowerer::GenerateFastBooleanAndObjectEqLikely(IR::Instr * instr, IR::Opnd *
 }
 
 bool Lowerer::GenerateFastCmEqLikely(IR::Instr * instr, bool *pNeedHelper)
-{
+{LOGMEIN("Lower.cpp] 20779\n");
     *pNeedHelper = false;
 
     Assert(instr->m_opcode == Js::OpCode::CmSrEq_A ||
@@ -20788,7 +20788,7 @@ bool Lowerer::GenerateFastCmEqLikely(IR::Instr * instr, bool *pNeedHelper)
     bool isNegOp = false;
     bool isStrict = false;
     switch (instr->m_opcode)
-    {
+    {LOGMEIN("Lower.cpp] 20790\n");
     case Js::OpCode::CmSrEq_A:
         isStrict = true;
         break;
@@ -20808,7 +20808,7 @@ bool Lowerer::GenerateFastCmEqLikely(IR::Instr * instr, bool *pNeedHelper)
     IR::LabelInstr *labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
 
     if (!this->GenerateFastBooleanAndObjectEqLikely(instr, src1, src2, labelHelper, labelEqualLikely, pNeedHelper))
-    {
+    {LOGMEIN("Lower.cpp] 20810\n");
         return false;
     }
 
@@ -20834,7 +20834,7 @@ bool Lowerer::GenerateFastCmEqLikely(IR::Instr * instr, bool *pNeedHelper)
     LibraryValue failureValueType = !isNegOp ? LibraryValue::ValueFalse : LibraryValue::ValueTrue;
 
     if (src1->IsEqual(src2))
-    {
+    {LOGMEIN("Lower.cpp] 20836\n");
         LowererMD::CreateAssign(instr->GetDst(), this->LoadLibraryValueOpnd(instr, successValueType), instr);
         instr->InsertBefore(IR::BranchInstr::New(this->m_lowererMD.MDUncondBranchOpcode, labelDone, this->m_func));
     }
@@ -20859,14 +20859,14 @@ bool Lowerer::GenerateFastCmEqLikely(IR::Instr * instr, bool *pNeedHelper)
 }
 
 bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
-{
+{LOGMEIN("Lower.cpp] 20861\n");
     Assert(instr);
     Assert(instr->m_opcode == Js::OpCode::BrFalse_A || instr->m_opcode == Js::OpCode::BrTrue_A);
 
     Func *const func = instr->m_func;
 
     if(!instr->GetSrc1()->IsRegOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 20868\n");
         LowererMD::ChangeToAssign(instr->HoistSrc1(Js::OpCode::Ld_A));
     }
     IR::RegOpnd *const src = instr->GetSrc1()->Copy(func)->AsRegOpnd();
@@ -20877,7 +20877,7 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
     IR::LabelInstr *const labelTarget = instr->GetTarget();
     IR::LabelInstr *const labelFallthrough = instr->GetOrCreateContinueLabel();
     if(labelTarget == labelFallthrough)
-    {
+    {LOGMEIN("Lower.cpp] 20879\n");
         // Nothing to do
         instr->Remove();
         return false;
@@ -20891,7 +20891,7 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
 
     /// Typespec'd float
     if (instr->GetSrc1()->GetType() == TyFloat64)
-    {
+    {LOGMEIN("Lower.cpp] 20893\n");
         InsertFloatCheckForZeroOrNanBranch(instr->GetSrc1(), branchOnFalse, labelTarget, labelFallthrough, instr);
         Lowerer::InsertBranch(Js::OpCode::Br, labelFallthrough, instr);
         instr->Remove();
@@ -20902,9 +20902,9 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
     // Null fast path
 
     if (srcValueType.HasBeenNull() || srcOriginalValueType.IsUninitialized())
-    {
+    {LOGMEIN("Lower.cpp] 20904\n");
         if(srcValueType.IsNull())
-        {
+        {LOGMEIN("Lower.cpp] 20906\n");
             //     jmp $false
             InsertBranch(Js::OpCode::Br, labelFalse, instr);
 
@@ -20930,9 +20930,9 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
     // Undefined fast path
 
     if(srcValueType.HasBeenUndefined() || srcOriginalValueType.IsUninitialized())
-    {
+    {LOGMEIN("Lower.cpp] 20932\n");
         if(srcValueType.IsUndefined())
-        {
+        {LOGMEIN("Lower.cpp] 20934\n");
             //     jmp $false
             InsertBranch(Js::OpCode::Br, labelFalse, instr);
 
@@ -20964,11 +20964,11 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
             srcValueType.HasBeenUnknownNumber() ||
             srcOriginalValueType.IsUninitialized()
         ) && !isNotInt)
-    {
+    {LOGMEIN("Lower.cpp] 20966\n");
         checkedForTaggedInt = true;
         IR::LabelInstr *notTaggedIntLabel = nullptr;
         if(!src->IsTaggedInt())
-        {
+        {LOGMEIN("Lower.cpp] 20970\n");
             //     test src, 1
             //     jz $notTaggedInt
             notTaggedIntLabel = IR::LabelInstr::New(Js::OpCode::Label, func);
@@ -20981,7 +20981,7 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
         Lowerer::InsertBranch(compareWithFalseBranchToTargetOpCode, labelTarget, instr);
 
         if(src->IsTaggedInt())
-        {
+        {LOGMEIN("Lower.cpp] 20983\n");
             // Skip lowering call to helper
             Assert(instr->m_prev->IsBranchInstr());
             instr->Remove();
@@ -20993,7 +20993,7 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
 
         // $notTaggedInt:
         if(notTaggedIntLabel)
-        {
+        {LOGMEIN("Lower.cpp] 20995\n");
             instr->InsertBefore(notTaggedIntLabel);
             lastLabelBeforeHelper = notTaggedIntLabel;
         }
@@ -21005,7 +21005,7 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
     bool generateFloatTest = srcValueType.IsLikelyFloat();
 #ifdef _M_IX86
     if (!AutoSystemInfo::Data.SSE2Available())
-    {
+    {LOGMEIN("Lower.cpp] 21007\n");
         generateFloatTest = false;
     }
 #endif
@@ -21016,7 +21016,7 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
         true; // there are no tagged floats, indicate that it has been checked
 #endif
     if (generateFloatTest)
-    {
+    {LOGMEIN("Lower.cpp] 21018\n");
         // if(srcValueType.IsFloat()) // skip tagged int check?
         //
         // ValueType::IsFloat() does not guarantee that the storage is not in a tagged int.
@@ -21025,7 +21025,7 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
 
         IR::LabelInstr *const notFloatLabel = IR::LabelInstr::New(Js::OpCode::Label, func);
         if(!checkedForTaggedInt)
-        {
+        {LOGMEIN("Lower.cpp] 21027\n");
             checkedForTaggedInt = true;
             m_lowererMD.GenerateSmIntTest(src, instr, notFloatLabel, nullptr, true);
         }
@@ -21059,11 +21059,11 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
     const auto EnsureObjectTest = [&]()
     {
         if(_didObjectTest)
-        {
+        {LOGMEIN("Lower.cpp] 21061\n");
             return;
         }
         if(!labelHelper)
-        {
+        {LOGMEIN("Lower.cpp] 21065\n");
             labelHelper = IR::LabelInstr::New(Js::OpCode::Label, func, true);
         }
         m_lowererMD.GenerateObjectTest(src, instr, labelHelper);
@@ -21074,10 +21074,10 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
     // Boolean fast path
 
     if (srcValueType.HasBeenBoolean() || srcOriginalValueType.IsUninitialized())
-    {
+    {LOGMEIN("Lower.cpp] 21076\n");
         IR::LabelInstr *notBooleanLabel = nullptr;
         if (!srcValueType.IsBoolean())
-        {
+        {LOGMEIN("Lower.cpp] 21079\n");
             EnsureObjectTest();
 
             //     cmp [src], JavascriptBoolean::vtable
@@ -21101,7 +21101,7 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
             instr);
 
         if (srcValueType.IsBoolean())
-        {
+        {LOGMEIN("Lower.cpp] 21103\n");
             // Skip lowering call to helper
             Assert(!labelHelper);
             Assert(instr->m_prev->IsBranchInstr());
@@ -21112,7 +21112,7 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
         Lowerer::InsertBranch(Js::OpCode::Br, labelFallthrough, instr);
 
         if (notBooleanLabel)
-        {
+        {LOGMEIN("Lower.cpp] 21114\n");
             instr->InsertBefore(notBooleanLabel);
             lastLabelBeforeHelper = notBooleanLabel;
 
@@ -21125,10 +21125,10 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
     // String fast path
 
     if(srcValueType.HasBeenString())
-    {
+    {LOGMEIN("Lower.cpp] 21127\n");
         IR::LabelInstr *notStringLabel = nullptr;
         if(!srcValueType.IsString())
-        {
+        {LOGMEIN("Lower.cpp] 21130\n");
             EnsureObjectTest();
 
             notStringLabel = IR::LabelInstr::New(Js::OpCode::Label, func);
@@ -21145,7 +21145,7 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
             instr);
 
         if(srcValueType.IsString())
-        {
+        {LOGMEIN("Lower.cpp] 21147\n");
             // Skip lowering call to helper
             Assert(!labelHelper);
             Assert(instr->m_prev->IsBranchInstr());
@@ -21157,7 +21157,7 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
         Lowerer::InsertBranch(Js::OpCode::Br, labelFallthrough, instr);
 
         if(notStringLabel)
-        {
+        {LOGMEIN("Lower.cpp] 21159\n");
             instr->InsertBefore(notStringLabel);
             lastLabelBeforeHelper = notStringLabel;
         }
@@ -21169,11 +21169,11 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
     // Object fast path
 
     if (srcValueType.IsLikelyObject())
-    {
+    {LOGMEIN("Lower.cpp] 21171\n");
         if(srcValueType.IsObject())
-        {
+        {LOGMEIN("Lower.cpp] 21173\n");
             if(srcValueType.GetObjectType() > ObjectType::Object)
-            {
+            {LOGMEIN("Lower.cpp] 21175\n");
                 // Specific object types that are tracked are equivalent to 'true'
                 //     jmp $true
                 InsertBranch(Js::OpCode::Br, labelTrue, instr);
@@ -21215,7 +21215,7 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
             instr);
 
         if(!labelHelper)
-        {
+        {LOGMEIN("Lower.cpp] 21217\n");
             labelHelper = IR::LabelInstr::New(Js::OpCode::Label, func, true);
         }
         lastLabelBeforeHelper = nullptr;
@@ -21226,12 +21226,12 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
 
     // $helper:
     if(lastLabelBeforeHelper)
-    {
+    {LOGMEIN("Lower.cpp] 21228\n");
         Assert(instr->m_prev == lastLabelBeforeHelper);
         lastLabelBeforeHelper->isOpHelper = true;
     }
     if (labelHelper)
-    {
+    {LOGMEIN("Lower.cpp] 21233\n");
         Assert(labelHelper->isOpHelper);
         instr->InsertBefore(labelHelper);
     }
@@ -21261,14 +21261,14 @@ bool Lowerer::GenerateFastBrBool(IR::BranchInstr *const instr)
 // static
 IR::HelperCallOpnd*
 Lowerer::CreateHelperCallOpnd(IR::JnHelperMethod helperMethod, int helperArgCount, Func* func)
-{
+{LOGMEIN("Lower.cpp] 21263\n");
     Assert(func);
 
     IR::HelperCallOpnd* helperCallOpnd;
     if (CONFIG_FLAG(EnableContinueAfterExceptionWrappersForHelpers) &&
         func->IsJitInDebugMode() &&
         HelperMethodAttributes::CanThrow(helperMethod))
-    {
+    {LOGMEIN("Lower.cpp] 21270\n");
         // Create DiagHelperCallOpnd to indicate that it's needed to wrap original helper with try-catch wrapper,
         // so that we can ignore exception and bailout to next stmt in debugger.
         // For details, see: Lib\Runtime\Debug\DiagHelperMethodWrapper.{h,cpp}.
@@ -21284,7 +21284,7 @@ Lowerer::CreateHelperCallOpnd(IR::JnHelperMethod helperMethod, int helperArgCoun
 
 bool
 Lowerer::TryGenerateFastBrOrCmTypeOf(IR::Instr *instr, IR::Instr **prev, bool isNeqOp, bool *pfNoLower)
-{
+{LOGMEIN("Lower.cpp] 21286\n");
     Assert(prev);
     Assert(instr->m_opcode == Js::OpCode::BrSrEq_A     ||
            instr->m_opcode == Js::OpCode::BrSrNeq_A    ||
@@ -21307,13 +21307,13 @@ Lowerer::TryGenerateFastBrOrCmTypeOf(IR::Instr *instr, IR::Instr **prev, bool is
     bool skippedLoads = false;
     //Skip intermediate Ld_A which might be inserted by flow graph peeps
     while (instrLd && instrLd->m_opcode == Js::OpCode::Ld_A )
-    {
+    {LOGMEIN("Lower.cpp] 21309\n");
         if (!(instrLd->GetDst()->IsRegOpnd() && instrLd->GetDst()->AsRegOpnd()->m_fgPeepTmp))
-        {
+        {LOGMEIN("Lower.cpp] 21311\n");
             return false;
         }
         if (instrLd->HasBailOutInfo())
-        {
+        {LOGMEIN("Lower.cpp] 21315\n");
             return false;
         }
         instrLd = instrLd->GetPrevRealInstrOrLabel();
@@ -21325,20 +21325,20 @@ Lowerer::TryGenerateFastBrOrCmTypeOf(IR::Instr *instr, IR::Instr **prev, bool is
     IR::RegOpnd *instrSrc1 = instr->GetSrc1()->IsRegOpnd() ? instr->GetSrc1()->AsRegOpnd() : nullptr;
     IR::RegOpnd *instrSrc2 = instr->GetSrc2()->IsRegOpnd() ? instr->GetSrc2()->AsRegOpnd() : nullptr;
     if (typeOf && (typeOf->m_opcode == Js::OpCode::Typeof))
-    {
+    {LOGMEIN("Lower.cpp] 21327\n");
         IR::RegOpnd *typeOfDst = typeOf->GetDst()->IsRegOpnd() ? typeOf->GetDst()->AsRegOpnd() : nullptr;
 
         if (typeOfDst && instrSrc1 && instrSrc2)
-        {
+        {LOGMEIN("Lower.cpp] 21331\n");
             IR::RegOpnd *typeOpnd = nullptr;
             IR::RegOpnd *idOpnd = nullptr;
             if (instrSrc1->m_sym == typeOfDst->m_sym)
-            {
+            {LOGMEIN("Lower.cpp] 21335\n");
                 typeOpnd = instrSrc1;
                 idOpnd = instrSrc2;
             }
             else if (instrSrc2->m_sym == typeOfDst->m_sym)
-            {
+            {LOGMEIN("Lower.cpp] 21340\n");
                 typeOpnd = instrSrc2;
                 idOpnd = instrSrc1;
             }
@@ -21349,12 +21349,12 @@ Lowerer::TryGenerateFastBrOrCmTypeOf(IR::Instr *instr, IR::Instr **prev, bool is
             }
 
             if (!typeOpnd->m_isTempLastUse)
-            {
+            {LOGMEIN("Lower.cpp] 21351\n");
                 return false;
             }
 
             if (!(idOpnd->m_sym->m_isSingleDef && idOpnd->m_sym->m_isStrConst))
-            {
+            {LOGMEIN("Lower.cpp] 21356\n");
                 return false;
             }
 
@@ -21370,27 +21370,27 @@ Lowerer::TryGenerateFastBrOrCmTypeOf(IR::Instr *instr, IR::Instr **prev, bool is
 
             Js::InternalString typeNameString(typeName, typeNameJsString->GetLength());
             if (Js::InternalStringComparer::Equals(typeNameString, Js::Type::UndefinedTypeNameString))
-            {
+            {LOGMEIN("Lower.cpp] 21372\n");
                 typeIdOpnd = IR::IntConstOpnd::New(Js::TypeIds_Undefined, TyInt32, instr->m_func);
             }
             else if (Js::InternalStringComparer::Equals(typeNameString, Js::Type::ObjectTypeNameString))
-            {
+            {LOGMEIN("Lower.cpp] 21376\n");
                 typeIdOpnd = IR::IntConstOpnd::New(Js::TypeIds_Object, TyInt32, instr->m_func);
             }
             else if (Js::InternalStringComparer::Equals(typeNameString, Js::Type::BooleanTypeNameString))
-            {
+            {LOGMEIN("Lower.cpp] 21380\n");
                 typeIdOpnd = IR::IntConstOpnd::New(Js::TypeIds_Boolean, TyInt32, instr->m_func);
             }
             else if (Js::InternalStringComparer::Equals(typeNameString, Js::Type::NumberTypeNameString))
-            {
+            {LOGMEIN("Lower.cpp] 21384\n");
                 typeIdOpnd = IR::IntConstOpnd::New(Js::TypeIds_Number, TyInt32, instr->m_func);
             }
             else if (Js::InternalStringComparer::Equals(typeNameString, Js::Type::StringTypeNameString))
-            {
+            {LOGMEIN("Lower.cpp] 21388\n");
                 typeIdOpnd = IR::IntConstOpnd::New(Js::TypeIds_String, TyInt32, instr->m_func);
             }
             else if (Js::InternalStringComparer::Equals(typeNameString, Js::Type::FunctionTypeNameString))
-            {
+            {LOGMEIN("Lower.cpp] 21392\n");
                 typeIdOpnd = IR::IntConstOpnd::New(Js::TypeIds_Function, TyInt32, instr->m_func);
             }
             else
@@ -21399,14 +21399,14 @@ Lowerer::TryGenerateFastBrOrCmTypeOf(IR::Instr *instr, IR::Instr **prev, bool is
             }
 
             if (skippedLoads)
-            {
+            {LOGMEIN("Lower.cpp] 21401\n");
                 //validate none of dst of Ld_A overlaps with typeof src or dst
                 IR::Opnd* typeOfSrc = typeOf->GetSrc1();
                 instrLd = typeOf->GetNextRealInstr();
                 while (instrLd != instr)
-                {
+                {LOGMEIN("Lower.cpp] 21406\n");
                     if (instrLd->GetDst()->IsEqual(typeOfDst) || instrLd->GetDst()->IsEqual(typeOfSrc))
-                    {
+                    {LOGMEIN("Lower.cpp] 21408\n");
                         return false;
                     }
                     instrLd = instrLd->GetNextRealInstr();
@@ -21437,14 +21437,14 @@ Lowerer::TryGenerateFastBrOrCmTypeOf(IR::Instr *instr, IR::Instr **prev, bool is
     if (instrSrc1 && instrSrc1->GetStackSym()->IsSingleDef() && instrSrc2 && instrSrc2->GetStackSym()->IsSingleDef() &&
         instrSrc1->GetStackSym()->GetInstrDef()->m_opcode == Js::OpCode::Typeof &&
         instrSrc2->GetStackSym()->GetInstrDef()->m_opcode == Js::OpCode::Typeof)
-    {
+    {LOGMEIN("Lower.cpp] 21439\n");
         *pfNoLower = true;
         if (instr->IsBranchInstr())
-        {
+        {LOGMEIN("Lower.cpp] 21442\n");
             if (instrSrc1->IsEqual(instrSrc2))
-            {
+            {LOGMEIN("Lower.cpp] 21444\n");
                 if (!isNeqOp)
-                {
+                {LOGMEIN("Lower.cpp] 21446\n");
                     InsertBranch(Js::OpCode::Br, instr->AsBranchInstr()->GetTarget(), instr);
                 }
             }
@@ -21457,7 +21457,7 @@ Lowerer::TryGenerateFastBrOrCmTypeOf(IR::Instr *instr, IR::Instr **prev, bool is
         else
         {
             if (instrSrc1->IsEqual(instrSrc2))
-            {
+            {LOGMEIN("Lower.cpp] 21459\n");
                 InsertMove(instr->GetDst(), LoadLibraryValueOpnd(instr, isNeqOp ? LibraryValue::ValueFalse : LibraryValue::ValueTrue), instr);
             }
             else
@@ -21478,12 +21478,12 @@ Lowerer::TryGenerateFastBrOrCmTypeOf(IR::Instr *instr, IR::Instr **prev, bool is
                 // $done
 
                 if (instr->GetDst()->IsEqual(instrSrc1))
-                {
+                {LOGMEIN("Lower.cpp] 21480\n");
                     IR::Instr* hoistInstr = m_lowererMD.ChangeToAssign(instr->HoistSrc1(Js::OpCode::Ld_A));
                     instrSrc1 = hoistInstr->GetDst()->AsRegOpnd();
                 }
                 if (instr->GetDst()->IsEqual(instrSrc2))
-                {
+                {LOGMEIN("Lower.cpp] 21485\n");
                     IR::Instr* hoistInstr = m_lowererMD.ChangeToAssign(instr->HoistSrc2(Js::OpCode::Ld_A));
                     instrSrc2 = hoistInstr->GetDst()->AsRegOpnd();
                 }
@@ -21510,16 +21510,16 @@ Lowerer::TryGenerateFastBrOrCmTypeOf(IR::Instr *instr, IR::Instr **prev, bool is
 
 void
 Lowerer::GenerateFalsyObjectTest(IR::Instr * insertInstr, IR::RegOpnd * typeOpnd, IR::LabelInstr * falsyLabel)
-{
+{LOGMEIN("Lower.cpp] 21512\n");
     IR::Opnd *flagsOpnd = IR::IndirOpnd::New(typeOpnd, Js::Type::GetOffsetOfFlags(), TyInt32, this->m_func);
     InsertTestBranch(flagsOpnd, IR::IntConstOpnd::New(TypeFlagMask_IsFalsy, TyInt32, this->m_func), Js::OpCode::BrNeq_A, falsyLabel, insertInstr);
 }
 
 void
 Lowerer::GenerateFalsyObjectTest(IR::Instr *insertInstr, IR::RegOpnd *typeOpnd, Js::TypeId typeIdToCheck, IR::LabelInstr* target, IR::LabelInstr* done, bool isNeqOp)
-{
+{LOGMEIN("Lower.cpp] 21519\n");
     if (!this->m_func->GetThreadContextInfo()->CanBeFalsy(typeIdToCheck) && typeIdToCheck != Js::TypeIds_Undefined)
-    {
+    {LOGMEIN("Lower.cpp] 21521\n");
         // Don't need the check for falsy, the typeId we are looking for doesn't care
         return;
     }
@@ -21528,7 +21528,7 @@ Lowerer::GenerateFalsyObjectTest(IR::Instr *insertInstr, IR::RegOpnd *typeOpnd, 
     InsertTest(flagsOpnd, IR::IntConstOpnd::New(TypeFlagMask_IsFalsy, TyInt32, this->m_func), insertInstr);
 
     if (typeIdToCheck == Js::TypeIds_Undefined)
-    {
+    {LOGMEIN("Lower.cpp] 21530\n");
         //Falsy object returns true for undefined ((typeof falsyObj) == "undefined")
         InsertBranch( Js::OpCode::BrNeq_A, true, isNeqOp ? done : target, insertInstr);
     }
@@ -21546,7 +21546,7 @@ Lowerer::GenerateFalsyObjectTest(IR::Instr *insertInstr, IR::RegOpnd *typeOpnd, 
 ///----------------------------------------------------------------------------
 void
 Lowerer::GenerateFastBrTypeOf(IR::Instr *branch, IR::RegOpnd *object, IR::IntConstOpnd *typeIdOpnd, IR::Instr *typeOf, bool *pfNoLower, bool isNeqOp)
-{
+{LOGMEIN("Lower.cpp] 21548\n");
     Js::TypeId      typeId   = static_cast<Js::TypeId>(typeIdOpnd->GetValue());
     IR::LabelInstr *target   = branch->AsBranchInstr()->GetTarget();
     IR::LabelInstr *done     = IR::LabelInstr::New(Js::OpCode::Label, m_func, false);
@@ -21554,7 +21554,7 @@ Lowerer::GenerateFastBrTypeOf(IR::Instr *branch, IR::RegOpnd *object, IR::IntCon
     IR::RegOpnd    *typeRegOpnd = IR::RegOpnd::New(TyMachReg, m_func);
 
     switch(branch->m_opcode)
-    {
+    {LOGMEIN("Lower.cpp] 21556\n");
     case Js::OpCode::BrSrNeq_A:
     case Js::OpCode::BrNeq_A:
     case Js::OpCode::BrSrNotEq_A:
@@ -21647,7 +21647,7 @@ Lowerer::GenerateFastBrTypeOf(IR::Instr *branch, IR::RegOpnd *object, IR::IntCon
                             branch);
 
         // Now emit Typeof and lower it like we would've for the helper call.
-        {
+        {LOGMEIN("Lower.cpp] 21649\n");
             branch->InsertBefore(helper);
             typeOf->Unlink();
             branch->InsertBefore(typeOf);
@@ -21671,7 +21671,7 @@ Lowerer::GenerateFastBrTypeOf(IR::Instr *branch, IR::RegOpnd *object, IR::IntCon
 ///----------------------------------------------------------------------------
 void
 Lowerer::GenerateFastCmTypeOf(IR::Instr *compare, IR::RegOpnd *object, IR::IntConstOpnd *typeIdOpnd, IR::Instr *typeOf, bool *pfNoLower, bool isNeqOp)
-{
+{LOGMEIN("Lower.cpp] 21673\n");
     Assert(compare->m_opcode == Js::OpCode::CmSrEq_A  ||
            compare->m_opcode == Js::OpCode::CmEq_A    ||
            compare->m_opcode == Js::OpCode::CmSrNeq_A ||
@@ -21687,7 +21687,7 @@ Lowerer::GenerateFastCmTypeOf(IR::Instr *compare, IR::RegOpnd *object, IR::IntCo
     Assert(dst);
 
     if (dst->IsEqual(object))
-    {
+    {LOGMEIN("Lower.cpp] 21689\n");
         //dst same as the src of typeof. As we need to move true to dst first we need to save the src to a new opnd
         IR::RegOpnd *newObject = IR::RegOpnd::New(object->GetType(), m_func);
         InsertMove(newObject, object, compare); //Save src
@@ -21703,7 +21703,7 @@ Lowerer::GenerateFastCmTypeOf(IR::Instr *compare, IR::RegOpnd *object, IR::IntCo
     // JNE (typeId == Js::TypeIds_Number) ? $done : $movFalse
     IR::LabelInstr *target = (typeId == Js::TypeIds_Number) ? done : movFalse;
     if (isNeqOp)
-    {
+    {LOGMEIN("Lower.cpp] 21705\n");
         target = (target == done) ? movFalse : done;
     }
 
@@ -21787,7 +21787,7 @@ Lowerer::GenerateFastCmTypeOf(IR::Instr *compare, IR::RegOpnd *object, IR::IntCo
                             compare);
 
         // Now emit Typeof like we would've for the helper call.
-        {
+        {LOGMEIN("Lower.cpp] 21789\n");
             compare->InsertBefore(helper);
             typeOf->Unlink();
             compare->InsertBefore(typeOf);
@@ -21815,7 +21815,7 @@ Lowerer::GenerateFastCmTypeOf(IR::Instr *compare, IR::RegOpnd *object, IR::IntCo
 
 void
 Lowerer::GenerateCheckForCallFlagNew(IR::Instr* instrInsert)
-{
+{LOGMEIN("Lower.cpp] 21817\n");
     Func *func = instrInsert->m_func;
     IR::LabelInstr * labelDone = IR::LabelInstr::New(Js::OpCode::Label, func, false);
 
@@ -21850,7 +21850,7 @@ Lowerer::GenerateCheckForCallFlagNew(IR::Instr* instrInsert)
 
 void
 Lowerer::GenerateJavascriptOperatorsIsConstructorGotoElse(IR::Instr *instrInsert, IR::RegOpnd *instanceRegOpnd, IR::LabelInstr *labelReturnTrue, IR::LabelInstr *labelReturnFalse)
-{
+{LOGMEIN("Lower.cpp] 21852\n");
     //  $ProxyLoop:
     //  // if (!RecyclableObject::Is(instance)) { goto $ReturnFalse }; // omitted: RecyclableObject::Is(instance) always true
     //  MOV s0, instance->type
@@ -21914,7 +21914,7 @@ Lowerer::GenerateJavascriptOperatorsIsConstructorGotoElse(IR::Instr *instrInsert
 
 void
 Lowerer::GenerateRecyclableObjectGetPrototypeNullptrGoto(IR::Instr *instrInsert, IR::RegOpnd *instanceRegOpnd, IR::LabelInstr *labelReturnNullptr)
-{
+{LOGMEIN("Lower.cpp] 21916\n");
     //  MOV instance, instance->type
     //  MOV flags, instance->flags
     //  TEST flags, TypeFlagMask_HasSpecialPrototype
@@ -21939,7 +21939,7 @@ Lowerer::GenerateRecyclableObjectGetPrototypeNullptrGoto(IR::Instr *instrInsert,
 
 void
 Lowerer::GenerateRecyclableObjectIsElse(IR::Instr *instrInsert, IR::RegOpnd *instanceRegOpnd, IR::LabelInstr *labelFalse)
-{
+{LOGMEIN("Lower.cpp] 21941\n");
     Func *func = instrInsert->m_func;
 
 #if INT32VAR
@@ -21951,7 +21951,7 @@ Lowerer::GenerateRecyclableObjectIsElse(IR::Instr *instrInsert, IR::RegOpnd *ins
 
 void
 Lowerer::GenerateLdHomeObj(IR::Instr* instr)
-{
+{LOGMEIN("Lower.cpp] 21953\n");
     //  MOV dst, undefined
     //  MOV instance, functionObject  // functionObject through stack params or src1
     //  CMP [instance], VtableStackScriptFunction
@@ -21994,7 +21994,7 @@ Lowerer::GenerateLdHomeObj(IR::Instr* instr)
 
 void
 Lowerer::GenerateLdHomeObjProto(IR::Instr* instr)
-{
+{LOGMEIN("Lower.cpp] 21996\n");
     //  MOV dst, undefined
     //  MOV instance, src1   // homeObj
     //  TEST instance, instance
@@ -22065,7 +22065,7 @@ Lowerer::GenerateLdHomeObjProto(IR::Instr* instr)
 
 void
 Lowerer::GenerateLdFuncObj(IR::Instr* instr)
-{
+{LOGMEIN("Lower.cpp] 22067\n");
     //  MOV dst, functionObject  // functionObject through stack params or src1
 
     IR::Opnd *dstOpnd = instr->GetDst();
@@ -22078,7 +22078,7 @@ Lowerer::GenerateLdFuncObj(IR::Instr* instr)
 
 void
 Lowerer::GenerateLdFuncObjProto(IR::Instr* instr)
-{
+{LOGMEIN("Lower.cpp] 22080\n");
     //  MOV instance, src1
     //
     //  instance = ((RecyclableObject*)instance)->GetPrototype();
@@ -22122,7 +22122,7 @@ Lowerer::GenerateLdFuncObjProto(IR::Instr* instr)
 
 void
 Lowerer::GenerateSetHomeObj(IR::Instr* instrInsert)
-{
+{LOGMEIN("Lower.cpp] 22124\n");
     //  MOV funcObj, src1
     //  CMP [funcObj], VtableJavascriptGeneratorFunction
     //  JNE $ScriptFunction
@@ -22169,7 +22169,7 @@ Lowerer::GenerateSetHomeObj(IR::Instr* instrInsert)
 
 void
 Lowerer::GenerateLoadNewTarget(IR::Instr* instrInsert)
-{
+{LOGMEIN("Lower.cpp] 22171\n");
     Func *func = instrInsert->m_func;
 
     IR::LabelInstr * labelDone = IR::LabelInstr::New(Js::OpCode::Label, func, false);
@@ -22179,7 +22179,7 @@ Lowerer::GenerateLoadNewTarget(IR::Instr* instrInsert)
     Assert(!func->IsInlinee());
 
     if (func->GetJITFunctionBody()->IsCoroutine())
-    {
+    {LOGMEIN("Lower.cpp] 22181\n");
         instrInsert->SetSrc1(opndUndefAddress);
         LowererMD::ChangeToAssign(instrInsert);
         return;
@@ -22232,7 +22232,7 @@ Lowerer::GenerateLoadNewTarget(IR::Instr* instrInsert)
 
 void
 Lowerer::GenerateGetCurrentFunctionObject(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 22234\n");
     Func * func = this->m_func;
     IR::Instr * insertBeforeInstr = instr->m_next;
     IR::RegOpnd * functionObjectOpnd = instr->GetDst()->AsRegOpnd();
@@ -22250,7 +22250,7 @@ Lowerer::GenerateGetCurrentFunctionObject(IR::Instr * instr)
 
 IR::Opnd *
 Lowerer::GetInlineCacheFromFuncObjectForRuntimeUse(IR::Instr * instr, IR::PropertySymOpnd * propSymOpnd, bool isHelper)
-{
+{LOGMEIN("Lower.cpp] 22252\n");
     // MOV s1, [ebp + 8]                        //s1 = function object
     // MOV s2, [s1 + offset(hasInlineCaches)]
     // TEST s2, s2
@@ -22282,7 +22282,7 @@ Lowerer::GetInlineCacheFromFuncObjectForRuntimeUse(IR::Instr * instr, IR::Proper
     IR::RegOpnd * indexOpnd = IR::RegOpnd::New(TyMachReg, instr->m_func);
     int inlineCacheOffset;
     if (!Int32Math::Mul(sizeof(Js::InlineCache *), propSymOpnd->m_inlineCacheIndex, &inlineCacheOffset))
-    {
+    {LOGMEIN("Lower.cpp] 22284\n");
         Lowerer::InsertMove(inlineCacheOpnd, IR::IndirOpnd::New(inlineCachesOpnd, inlineCacheOffset, TyMachPtr, instr->m_func), instr);
     }
     else
@@ -22304,13 +22304,13 @@ Lowerer::GetInlineCacheFromFuncObjectForRuntimeUse(IR::Instr * instr, IR::Proper
 
 IR::Instr *
 Lowerer::LowerInitClass(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 22306\n");
     // scriptContext
     IR::Instr   * prevInstr = LoadScriptContext(instr);
 
     // extends
     if (instr->GetSrc2() != nullptr)
-    {
+    {LOGMEIN("Lower.cpp] 22312\n");
         IR::Opnd * extendsOpnd = instr->UnlinkSrc2();
         m_lowererMD.LoadHelperArgument(instr, extendsOpnd);
     }
@@ -22332,7 +22332,7 @@ Lowerer::LowerInitClass(IR::Instr * instr)
 
 void
 Lowerer::LowerNewConcatStrMulti(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 22334\n");
     IR::IntConstOpnd * countOpnd = instr->UnlinkSrc1()->AsIntConstOpnd();
     IR::RegOpnd * dstOpnd = instr->UnlinkDst()->AsRegOpnd();
     uint8 count = (uint8)countOpnd->GetValue();
@@ -22353,7 +22353,7 @@ Lowerer::LowerNewConcatStrMulti(IR::Instr * instr)
 
 void
 Lowerer::LowerNewConcatStrMultiBE(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 22355\n");
     // Lower
     // t1 = SetConcatStrMultiBE s1
     // t2 = SetConcatStrMultiBE s2, t1
@@ -22374,7 +22374,7 @@ Lowerer::LowerNewConcatStrMultiBE(IR::Instr * instr)
     IR::Instr * concatItemInstr = nullptr;
     IR::Opnd * linkOpnd = instr->GetSrc2();
     while (linkOpnd)
-    {
+    {LOGMEIN("Lower.cpp] 22376\n");
         Assert(linkOpnd->IsRegOpnd());
         concatItemInstr = linkOpnd->GetStackSym()->GetInstrDef();
         Assert(concatItemInstr->m_opcode == Js::OpCode::SetConcatStrMultiItemBE);
@@ -22385,9 +22385,9 @@ Lowerer::LowerNewConcatStrMultiBE(IR::Instr * instr)
         // If one of the concat items is equal to the dst of the concat expressions (s = s + a + b),
         // hoist the load of that item to before the setting of the new string to the dst.
         if (concatItemOpnd->IsEqual(newString))
-        {
+        {LOGMEIN("Lower.cpp] 22387\n");
             if (!newConcatItemOpnd)
-            {
+            {LOGMEIN("Lower.cpp] 22389\n");
                 IR::Instr * hoistSrcInstr = concatItemInstr->HoistSrc1(Js::OpCode::Ld_A);
                 newConcatItemOpnd = hoistSrcInstr->GetDst();
             }
@@ -22421,7 +22421,7 @@ Lowerer::LowerNewConcatStrMultiBE(IR::Instr * instr)
 
 void
 Lowerer::LowerSetConcatStrMultiItem(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 22423\n");
     Func * func = this->m_func;
     IR::IndirOpnd * dstOpnd = instr->GetDst()->AsIndirOpnd();
     IR::RegOpnd * concatStrOpnd = dstOpnd->GetBaseOpnd();
@@ -22436,7 +22436,7 @@ Lowerer::LowerSetConcatStrMultiItem(IR::Instr * instr)
     IR::Opnd * srcLength;
 
     if (srcOpnd->m_sym->m_isStrConst)
-    {
+    {LOGMEIN("Lower.cpp] 22438\n");
         srcLength = IR::IntConstOpnd::New(JITJavascriptString::FromVar(srcOpnd->m_sym->GetConstAddress(true))->GetLength(), TyUint32, func);
     }
     else
@@ -22453,9 +22453,9 @@ Lowerer::LowerSetConcatStrMultiItem(IR::Instr * instr)
 
 IR::RegOpnd *
 Lowerer::GenerateGetImmutableOrScriptUnreferencedString(IR::RegOpnd * strOpnd, IR::Instr * insertBeforeInstr, IR::JnHelperMethod helperMethod, bool reloadDst)
-{
+{LOGMEIN("Lower.cpp] 22455\n");
     if (strOpnd->m_sym->m_isStrConst)
-    {
+    {LOGMEIN("Lower.cpp] 22457\n");
         return strOpnd;
     }
 
@@ -22465,7 +22465,7 @@ Lowerer::GenerateGetImmutableOrScriptUnreferencedString(IR::RegOpnd * strOpnd, I
     IR::LabelInstr * doneLabel = IR::LabelInstr::New(Js::OpCode::Label, func);
 
     if (!strOpnd->IsNotTaggedValue())
-    {
+    {LOGMEIN("Lower.cpp] 22467\n");
         this->m_lowererMD.GenerateObjectTest(strOpnd, insertBeforeInstr, doneLabel);
     }
     // CMP [strOpnd], Js::CompoundString::`vtable'
@@ -22498,10 +22498,10 @@ Lowerer::GenerateGetImmutableOrScriptUnreferencedString(IR::RegOpnd * strOpnd, I
 
 void
 Lowerer::LowerConvStrCommon(IR::JnHelperMethod helper,  IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 22500\n");
     IR::RegOpnd * src1Opnd = instr->UnlinkSrc1()->AsRegOpnd();
     if (!src1Opnd->GetValueType().IsNotString())
-    {
+    {LOGMEIN("Lower.cpp] 22503\n");
         IR::LabelInstr * helperLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func, true);
         IR::LabelInstr * doneLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func);
         this->GenerateStringTest(src1Opnd, instr, helperLabel);
@@ -22511,7 +22511,7 @@ Lowerer::LowerConvStrCommon(IR::JnHelperMethod helper,  IR::Instr * instr)
         instr->InsertAfter(doneLabel);
     }
     if (instr->GetSrc2())
-    {
+    {LOGMEIN("Lower.cpp] 22513\n");
         this->m_lowererMD.LoadHelperArgument(instr, instr->UnlinkSrc2());
     }
 
@@ -22522,13 +22522,13 @@ Lowerer::LowerConvStrCommon(IR::JnHelperMethod helper,  IR::Instr * instr)
 
 void
 Lowerer::LowerConvStr(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 22524\n");
     LowerConvStrCommon(IR::HelperOp_ConvString, instr);
 }
 
 void
 Lowerer::LowerCoerseStr(IR::Instr* instr)
-{
+{LOGMEIN("Lower.cpp] 22530\n");
     LowerConvStrCommon(IR::HelperOp_CoerseString, instr);
 }
 
@@ -22548,7 +22548,7 @@ Lowerer::LowerCoerseStr(IR::Instr* instr)
 ///----------------------------------------------------------------------------
 void
 Lowerer::LowerCoerseStrOrRegex(IR::Instr* instr)
-{
+{LOGMEIN("Lower.cpp] 22550\n");
     IR::RegOpnd * src1Opnd = instr->GetSrc1()->AsRegOpnd();
 
     IR::LabelInstr * helperLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func, true);
@@ -22556,7 +22556,7 @@ Lowerer::LowerCoerseStrOrRegex(IR::Instr* instr)
 
     // if (value == regex) goto :done
     if (!src1Opnd->IsNotTaggedValue())
-    {
+    {LOGMEIN("Lower.cpp] 22558\n");
         this->m_lowererMD.GenerateObjectTest(src1Opnd, instr, helperLabel);
     }
 
@@ -22583,12 +22583,12 @@ Lowerer::LowerCoerseStrOrRegex(IR::Instr* instr)
 ///----------------------------------------------------------------------------
 void
 Lowerer::LowerCoerseRegex(IR::Instr* instr)
-{
+{LOGMEIN("Lower.cpp] 22585\n");
     IR::LabelInstr * helperLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func, true);
     IR::LabelInstr * doneLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func);
     IR::RegOpnd * src1Opnd = instr->UnlinkSrc1()->AsRegOpnd();
     if (!src1Opnd->IsNotTaggedValue())
-    {
+    {LOGMEIN("Lower.cpp] 22590\n");
         this->m_lowererMD.GenerateObjectTest(src1Opnd, instr, helperLabel);
     }
 
@@ -22610,31 +22610,31 @@ Lowerer::LowerCoerseRegex(IR::Instr* instr)
 
 void
 Lowerer::LowerConvPrimStr(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 22612\n");
     LowerConvStrCommon(IR::HelperOp_ConvPrimitiveString, instr);
 }
 
 void
 Lowerer::GenerateRecyclerAlloc(IR::JnHelperMethod allocHelper, size_t allocSize, IR::RegOpnd* newObjDst, IR::Instr* insertionPointInstr, bool inOpHelper)
-{
+{LOGMEIN("Lower.cpp] 22618\n");
     size_t alignedSize = HeapInfo::GetAlignedSizeNoCheck(allocSize);
     this->GenerateRecyclerAllocAligned(allocHelper, alignedSize, newObjDst, insertionPointInstr, inOpHelper);
 }
 
 void
 Lowerer::GenerateMemInit(IR::RegOpnd * opnd, int32 offset, int value, IR::Instr * insertBeforeInstr, bool isZeroed)
-{
+{LOGMEIN("Lower.cpp] 22625\n");
     IRType type = TyInt32;
     if (isZeroed)
-    {
+    {LOGMEIN("Lower.cpp] 22628\n");
         if (value == 0)
-        {
+        {LOGMEIN("Lower.cpp] 22630\n");
             // Recycler memory are zero initialized
             return;
         }
 
         if (value > 0 && value <= USHORT_MAX)
-        {
+        {LOGMEIN("Lower.cpp] 22636\n");
             // Recycler memory are zero initialized, so we can just initialize the 8 or 16 bits of value
             type = (value <= UCHAR_MAX)? TyUint8 : TyUint16;
         }
@@ -22645,18 +22645,18 @@ Lowerer::GenerateMemInit(IR::RegOpnd * opnd, int32 offset, int value, IR::Instr 
 
 void
 Lowerer::GenerateMemInit(IR::RegOpnd * opnd, int32 offset, uint32 value, IR::Instr * insertBeforeInstr, bool isZeroed)
-{
+{LOGMEIN("Lower.cpp] 22647\n");
     IRType type = TyUint32;
     if (isZeroed)
-    {
+    {LOGMEIN("Lower.cpp] 22650\n");
         if (value == 0)
-        {
+        {LOGMEIN("Lower.cpp] 22652\n");
             // Recycler memory are zero initialized
             return;
         }
 
         if (value <= USHORT_MAX)
-        {
+        {LOGMEIN("Lower.cpp] 22658\n");
             // Recycler memory are zero initialized, so we can just initialize the 8 or 16 bits of value
             type = (value <= UCHAR_MAX)? TyUint8 : TyUint16;
         }
@@ -22668,9 +22668,9 @@ Lowerer::GenerateMemInit(IR::RegOpnd * opnd, int32 offset, uint32 value, IR::Ins
 
 void
 Lowerer::GenerateMemInitNull(IR::RegOpnd * opnd, int32 offset, IR::Instr * insertBeforeInstr, bool isZeroed)
-{
+{LOGMEIN("Lower.cpp] 22670\n");
     if (isZeroed)
-    {
+    {LOGMEIN("Lower.cpp] 22672\n");
         return;
     }
     GenerateMemInit(opnd, offset, IR::AddrOpnd::NewNull(m_func), insertBeforeInstr);
@@ -22678,7 +22678,7 @@ Lowerer::GenerateMemInitNull(IR::RegOpnd * opnd, int32 offset, IR::Instr * inser
 
 void
 Lowerer::GenerateMemInit(IR::RegOpnd * opnd, int32 offset, IR::Opnd * value, IR::Instr * insertBeforeInstr, bool isZeroed)
-{
+{LOGMEIN("Lower.cpp] 22680\n");
     IRType type = value->GetType();
 
     Func * func = this->m_func;
@@ -22687,7 +22687,7 @@ Lowerer::GenerateMemInit(IR::RegOpnd * opnd, int32 offset, IR::Opnd * value, IR:
 
 void
 Lowerer::GenerateMemInit(IR::RegOpnd * opnd, IR::RegOpnd * offset, IR::Opnd * value, IR::Instr * insertBeforeInstr, bool isZeroed)
-{
+{LOGMEIN("Lower.cpp] 22689\n");
     IRType type = value->GetType();
 
     Func * func = this->m_func;
@@ -22720,7 +22720,7 @@ Lowerer::GenerateRecyclerMemInit(IR::RegOpnd * opnd, int32 offset, IR::Opnd * va
 
 void
 Lowerer::GenerateMemCopy(IR::Opnd * dst, IR::Opnd * src, uint32 size, IR::Instr * insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 22722\n");
     Func * func = this->m_func;
     this->m_lowererMD.LoadHelperArgument(insertBeforeInstr, IR::IntConstOpnd::New(size, TyUint32, func));
     this->m_lowererMD.LoadHelperArgument(insertBeforeInstr, src);
@@ -22735,7 +22735,7 @@ bool
 Lowerer::GenerateSimplifiedInt4Rem(
     IR::Instr *const remInstr,
     IR::LabelInstr *const skipBailOutLabel) const
-{
+{LOGMEIN("Lower.cpp] 22737\n");
     Assert(remInstr);
     Assert(remInstr->m_opcode == Js::OpCode::Rem_I4);
 
@@ -22750,7 +22750,7 @@ Lowerer::GenerateSimplifiedInt4Rem(
         return false;
 
     if (!(src2->IsIntConstOpnd() && Math::IsPow2(src2->AsIntConstOpnd()->AsInt32())) && !isModByPowerOf2)
-    {
+    {LOGMEIN("Lower.cpp] 22752\n");
         return false;
     }
     // We have:
@@ -22770,7 +22770,7 @@ Lowerer::GenerateSimplifiedInt4Rem(
     IR::LabelInstr *doneLabel = skipBailOutLabel, *slowPathLabel;
 
     if (!doneLabel)
-    {
+    {LOGMEIN("Lower.cpp] 22772\n");
         doneLabel = IR::LabelInstr::New(Js::OpCode::Label, remInstr->m_func);
         remInstr->InsertAfter(doneLabel);
     }
@@ -22787,7 +22787,7 @@ Lowerer::GenerateSimplifiedInt4Rem(
     IR::Opnd* maskOpnd;
 
     if(isModByPowerOf2)
-    {
+    {LOGMEIN("Lower.cpp] 22789\n");
         Assert(isModByPowerOf2);
         maskOpnd = IR::RegOpnd::New(TyInt32, remInstr->m_func);
 
@@ -22821,14 +22821,14 @@ Lowerer::GenerateSimplifiedInt4Rem(
 #if DBG
 bool
 Lowerer::ValidOpcodeAfterLower(IR::Instr* instr, Func * func)
-{
+{LOGMEIN("Lower.cpp] 22823\n");
     Js::OpCode opcode = instr->m_opcode;
     if (opcode > Js::OpCode::MDStart)
-    {
+    {LOGMEIN("Lower.cpp] 22826\n");
         return true;
     }
     switch (opcode)
-    {
+    {LOGMEIN("Lower.cpp] 22830\n");
     case Js::OpCode::Label:
     case Js::OpCode::StatementBoundary:
     case Js::OpCode::DeletedNonHelperBranch:
@@ -22882,7 +22882,7 @@ Lowerer::ValidOpcodeAfterLower(IR::Instr* instr, Func * func)
 #endif
 
 void Lowerer::LowerProfiledBeginSwitch(IR::JitProfilingInstr* instr)
-{
+{LOGMEIN("Lower.cpp] 22884\n");
     Assert(instr->isBeginSwitch);
 
     m_lowererMD.LoadHelperArgument(instr, instr->UnlinkSrc1());
@@ -22893,7 +22893,7 @@ void Lowerer::LowerProfiledBeginSwitch(IR::JitProfilingInstr* instr)
 }
 
 void Lowerer::LowerProfiledBinaryOp(IR::JitProfilingInstr* instr, IR::JnHelperMethod meth)
-{
+{LOGMEIN("Lower.cpp] 22895\n");
     m_lowererMD.LoadHelperArgument(instr, instr->UnlinkSrc2());
     m_lowererMD.LoadHelperArgument(instr, instr->UnlinkSrc1());
     m_lowererMD.LoadHelperArgument(instr, IR::Opnd::CreateProfileIdOpnd(instr->profileId, m_func));
@@ -22903,7 +22903,7 @@ void Lowerer::LowerProfiledBinaryOp(IR::JitProfilingInstr* instr, IR::JnHelperMe
 }
 
 void Lowerer::GenerateNullOutGeneratorFrame(IR::Instr* insertInstr)
-{
+{LOGMEIN("Lower.cpp] 22905\n");
     // null out frame pointer on generator object to signal completion to JavascriptGenerator::CallGenerator
     // s = MOV prm1
     // s[offset of JavascriptGenerator::frame] = MOV nullptr
@@ -22919,14 +22919,14 @@ void Lowerer::GenerateNullOutGeneratorFrame(IR::Instr* insertInstr)
 }
 
 void Lowerer::LowerFunctionExit(IR::Instr* funcExit)
-{
+{LOGMEIN("Lower.cpp] 22921\n");
     if (m_func->GetJITFunctionBody()->IsCoroutine())
-    {
+    {LOGMEIN("Lower.cpp] 22923\n");
         GenerateNullOutGeneratorFrame(funcExit->m_prev);
     }
 
     if (!m_func->DoSimpleJitDynamicProfile())
-    {
+    {LOGMEIN("Lower.cpp] 22928\n");
         return;
     }
 
@@ -22939,12 +22939,12 @@ void Lowerer::LowerFunctionExit(IR::Instr* funcExit)
 }
 
 void Lowerer::LowerFunctionEntry(IR::Instr* funcEntry)
-{
+{LOGMEIN("Lower.cpp] 22941\n");
     Assert(funcEntry->m_opcode == Js::OpCode::FunctionEntry);
 
     //Don't do a body call increment for loops or asm.js
     if (m_func->IsLoopBody() || m_func->GetJITFunctionBody()->IsAsmJsMode())
-    {
+    {LOGMEIN("Lower.cpp] 22946\n");
         return;
     }
 
@@ -22953,12 +22953,12 @@ void Lowerer::LowerFunctionEntry(IR::Instr* funcEntry)
     LowerFunctionBodyCallCountChange(insertBeforeInstr);
 
     if (m_func->DoSimpleJitDynamicProfile())
-    {
+    {LOGMEIN("Lower.cpp] 22955\n");
         // Only generate the argument profiling if the function expects to have some arguments to profile and only if
         //    it has implicit ArgIns (the latter is a restriction imposed by the Interpreter, so it is mirrored in SimpleJit)
 
         if (m_func->GetJITFunctionBody()->GetInParamsCount() > 1 && m_func->GetJITFunctionBody()->HasImplicitArgIns())
-        {
+        {LOGMEIN("Lower.cpp] 22960\n");
             // Call out to the argument profiling helper
             IR::Instr* callInstr = IR::Instr::New(Js::OpCode::Call, m_func);
             callInstr->SetSrc1(IR::HelperCallOpnd::New(IR::HelperSimpleProfileParameters, m_func));
@@ -22974,14 +22974,14 @@ void Lowerer::LowerFunctionEntry(IR::Instr* funcEntry)
 }
 
 void Lowerer::LowerFunctionBodyCallCountChange(IR::Instr *const insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 22976\n");
     Assert(insertBeforeInstr);
 
     Func *const func = insertBeforeInstr->m_func;
     const bool isSimpleJit = func->IsSimpleJit();
 
     if ((isSimpleJit && PHASE_OFF(Js::FullJitPhase, m_func)))
-    {
+    {LOGMEIN("Lower.cpp] 22983\n");
         return;
     }
 
@@ -23019,25 +23019,25 @@ void Lowerer::LowerFunctionBodyCallCountChange(IR::Instr *const insertBeforeInst
 
 IR::Opnd*
 Lowerer::GetImplicitCallFlagsOpnd()
-{
+{LOGMEIN("Lower.cpp] 23021\n");
     return GetImplicitCallFlagsOpnd(m_func);
 }
 
 IR::Opnd*
 Lowerer::GetImplicitCallFlagsOpnd(Func * func)
-{
+{LOGMEIN("Lower.cpp] 23027\n");
     return IR::MemRefOpnd::New(func->GetThreadContextInfo()->GetImplicitCallFlagsAddr(), GetImplicitCallFlagsType(), func);
 }
 
 IR::Opnd*
 Lowerer::CreateClearImplicitCallFlagsOpnd()
-{
+{LOGMEIN("Lower.cpp] 23033\n");
     return IR::IntConstOpnd::New(Js::ImplicitCall_None, GetImplicitCallFlagsType(), m_func);
 }
 
 void
 Lowerer::LowerSpreadArrayLiteral(IR::Instr *instr)
-{
+{LOGMEIN("Lower.cpp] 23039\n");
     LoadScriptContext(instr);
 
     IR::Opnd *src2Opnd = instr->UnlinkSrc2();
@@ -23051,13 +23051,13 @@ Lowerer::LowerSpreadArrayLiteral(IR::Instr *instr)
 
 IR::Instr *
 Lowerer::LowerSpreadCall(IR::Instr *instr, Js::CallFlags callFlags, bool setupProfiledVersion)
-{
+{LOGMEIN("Lower.cpp] 23053\n");
     // Get the target function object, and emit function object test.
     IR::RegOpnd * functionObjOpnd = instr->UnlinkSrc1()->AsRegOpnd();
     functionObjOpnd->m_isCallArg = true;
 
     if (!(callFlags & Js::CallFlags_New) && !setupProfiledVersion)
-    {
+    {LOGMEIN("Lower.cpp] 23059\n");
         IR::LabelInstr* continueAfterExLabel = InsertContinueAfterExceptionLabelForDebugger(m_func, instr, false);
         this->m_lowererMD.GenerateFunctionObjectTest(instr, functionObjOpnd, false, continueAfterExLabel);
     }
@@ -23074,7 +23074,7 @@ Lowerer::LowerSpreadCall(IR::Instr *instr, Js::CallFlags callFlags, bool setupPr
 
     // Emit the normal args
     if (!(callFlags & Js::CallFlags_New))
-    {
+    {LOGMEIN("Lower.cpp] 23076\n");
         callFlags = (Js::CallFlags)(callFlags | (instr->GetDst() ? Js::CallFlags_Value : Js::CallFlags_NotUsed));
     }
 
@@ -23085,7 +23085,7 @@ Lowerer::LowerSpreadCall(IR::Instr *instr, Js::CallFlags callFlags, bool setupPr
 
     // Emit our extra (first) args for the Spread helper in reverse order
     if (setupProfiledVersion)
-    {
+    {LOGMEIN("Lower.cpp] 23087\n");
         IR::JitProfilingInstr* jitInstr = (IR::JitProfilingInstr*)instr;
         m_lowererMD.LoadHelperArgument(instr, IR::Opnd::CreateProfileIdOpnd(jitInstr->arrayProfileId, m_func));
         m_lowererMD.LoadHelperArgument(instr, IR::Opnd::CreateProfileIdOpnd(jitInstr->profileId, m_func));
@@ -23104,7 +23104,7 @@ Lowerer::LowerSpreadCall(IR::Instr *instr, Js::CallFlags callFlags, bool setupPr
 
 void
 Lowerer::LowerDivI4Common(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 23106\n");
     Assert(instr);
     Assert(instr->m_opcode == Js::OpCode::Rem_I4 || instr->m_opcode == Js::OpCode::Div_I4);
     Assert(m_func->GetJITFunctionBody()->IsAsmJsMode());
@@ -23144,7 +23144,7 @@ Lowerer::LowerDivI4Common(IR::Instr * instr)
         InsertTestBranch(src2, src2, Js::OpCode::BrEq_A, div0Label, div0Label);
 
         if (divideByZeroInstr)
-        {
+        {LOGMEIN("Lower.cpp] 23146\n");
             GenerateThrow(IR::IntConstOpnd::NewFromType(SCODE_CODE(WASMERR_DivideByZero), TyInt32, m_func), divLabel);
         }
         else
@@ -23156,14 +23156,14 @@ Lowerer::LowerDivI4Common(IR::Instr * instr)
 
 
     if (instr->GetSrc1()->IsSigned())
-    {
+    {LOGMEIN("Lower.cpp] 23158\n");
         IR::LabelInstr * minIntLabel = nullptr;
         // we need to check for INT_MIN/-1 if divisor is either -1 or variable, and dividend is either INT_MIN or variable
         int64 intMin = IRType_IsInt64(src1->GetType()) ? LONGLONG_MIN : INT_MIN;
         IR::Instr* overflowReg3 = IR::Instr::FindSingleDefInstr(Js::OpCode::TrapIfMinIntOverNegOne, instr->GetSrc1());
         bool needsMinOverNeg1Check = true;
         if (isWasmFunc && instr->m_opcode != Js::OpCode::Rem_I4)
-        {
+        {LOGMEIN("Lower.cpp] 23165\n");
             needsMinOverNeg1Check = overflowReg3 != nullptr;
         }
         else
@@ -23171,9 +23171,9 @@ Lowerer::LowerDivI4Common(IR::Instr * instr)
             needsMinOverNeg1Check = !(src2->IsImmediateOpnd() && src2->GetImmediateValue(m_func) != -1);
         }
         if (src1->IsImmediateOpnd())
-        {
+        {LOGMEIN("Lower.cpp] 23173\n");
             if (needsMinOverNeg1Check && src1->GetImmediateValue(m_func) == intMin)
-            {
+            {LOGMEIN("Lower.cpp] 23175\n");
                 minIntLabel = InsertLabel(true, divLabel);
                 InsertBranch(Js::OpCode::Br, minIntLabel, div0Label);
             }
@@ -23183,12 +23183,12 @@ Lowerer::LowerDivI4Common(IR::Instr * instr)
             }
         }
         else if(needsMinOverNeg1Check)
-        {
+        {LOGMEIN("Lower.cpp] 23185\n");
             minIntLabel = InsertLabel(true, divLabel);
             InsertCompareBranch(src1, IR::IntConstOpnd::NewFromType(intMin, src1->GetType(), m_func), Js::OpCode::BrEq_A, minIntLabel, div0Label);
         }
         if (needsMinOverNeg1Check)
-        {
+        {LOGMEIN("Lower.cpp] 23190\n");
             Assert(minIntLabel);
             Assert(!src2->IsIntConstOpnd() || src2->AsIntConstOpnd()->GetValue() == -1);
             if (!src2->IsIntConstOpnd())
@@ -23197,7 +23197,7 @@ Lowerer::LowerDivI4Common(IR::Instr * instr)
             }
             
             if (overflowReg3)
-            {
+            {LOGMEIN("Lower.cpp] 23199\n");
                 GenerateThrow( IR::IntConstOpnd::NewFromType(SCODE_CODE(VBSERR_Overflow), TyInt32, m_func), divLabel);
             }
             else
@@ -23214,11 +23214,11 @@ Lowerer::LowerDivI4Common(IR::Instr * instr)
 
 void
 Lowerer::LowerRemI4(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 23216\n");
     Assert(instr);
     Assert(instr->m_opcode == Js::OpCode::Rem_I4);
     if (m_func->GetJITFunctionBody()->IsAsmJsMode())
-    {
+    {LOGMEIN("Lower.cpp] 23220\n");
         LowerDivI4Common(instr);
     }
     else
@@ -23229,7 +23229,7 @@ Lowerer::LowerRemI4(IR::Instr * instr)
 
 void
 Lowerer::GenerateThrow(IR::Opnd* errorCode, IR::Instr * instr) const
-{
+{LOGMEIN("Lower.cpp] 23231\n");
     IR::Instr *throwInstr = IR::Instr::New(Js::OpCode::RuntimeTypeError, IR::RegOpnd::New(TyMachReg, m_func), errorCode, m_func);
     instr->InsertBefore(throwInstr);
     Lowerer* lw = const_cast<Lowerer*> (this); //LowerUnaryHelperMem unlinks src1 of throwInstr,
@@ -23240,7 +23240,7 @@ Lowerer::GenerateThrow(IR::Opnd* errorCode, IR::Instr * instr) const
 
 void
 Lowerer::LowerDivI4(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 23242\n");
     Assert(instr);
     Assert(instr->m_opcode == Js::OpCode::Div_I4);
 
@@ -23250,20 +23250,20 @@ Lowerer::LowerDivI4(IR::Instr * instr)
         instr->GetSrc1() && instr->GetSrc1()->IsInt64() ||
         instr->GetSrc2() && instr->GetSrc2()->IsInt64()
         )
-    {
+    {LOGMEIN("Lower.cpp] 23252\n");
         m_lowererMD.EmitInt64Instr(instr);
         return;
     }
 #endif
 
     if (m_func->GetJITFunctionBody()->IsAsmJsMode())
-    {
+    {LOGMEIN("Lower.cpp] 23259\n");
         LowerDivI4Common(instr);
         return;
     }
 
     if(!instr->HasBailOutInfo())
-    {
+    {LOGMEIN("Lower.cpp] 23265\n");
         m_lowererMD.EmitInt4Instr(instr);
         return;
     }
@@ -23295,7 +23295,7 @@ Lowerer::LowerDivI4(IR::Instr * instr)
     }
 
     if (denominatorOpnd->IsIntConstOpnd() && Math::IsPow2(denominatorOpnd->AsIntConstOpnd()->AsInt32()))
-    {
+    {LOGMEIN("Lower.cpp] 23297\n");
         Assert((bailOutKind & (IR::BailOutOnNegativeZero | IR::BailOutOnDivByZero)) == 0);
         int pow2 = denominatorOpnd->AsIntConstOpnd()->AsInt32();
         InsertTestBranch(nominatorOpnd, IR::IntConstOpnd::New(pow2 - 1, TyInt32, this->m_func, true),
@@ -23318,7 +23318,7 @@ Lowerer::LowerDivI4(IR::Instr * instr)
 
         IR::Opnd * resultOpnd = nonBailOutInstr->GetDst();
         if (bailOutKind & IR::BailOutOnNegativeZero)
-        {
+        {LOGMEIN("Lower.cpp] 23320\n");
             //      TEST result, result
             //      JNE skipNegDenominatorCheckLabel         // Result not 0
             //      TEST denominator, denominator
@@ -23344,7 +23344,7 @@ Lowerer::LowerDivI4(IR::Instr * instr)
 
 void
 Lowerer::LowerRemR8(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 23346\n");
     Assert(instr);
     Assert(instr->m_opcode == Js::OpCode::Rem_A);
     Assert(m_func->GetJITFunctionBody()->IsAsmJsMode());
@@ -23357,10 +23357,10 @@ Lowerer::LowerRemR8(IR::Instr * instr)
 
 void
 Lowerer::LowerNewScopeSlots(IR::Instr * instr, bool doStackSlots)
-{
+{LOGMEIN("Lower.cpp] 23359\n");
     Func * func = m_func;
     if (PHASE_OFF(Js::NewScopeSlotFastPathPhase, func))
-    {
+    {LOGMEIN("Lower.cpp] 23362\n");
         this->LowerUnaryHelperMemWithFunctionInfo(instr, IR::HelperOP_NewScopeSlots);
         return;
     }
@@ -23380,7 +23380,7 @@ Lowerer::LowerNewScopeSlots(IR::Instr * instr, bool doStackSlots)
     // Note: stack allocation of both scope slots and frame display are done together
     // in lowering of NewStackFrameDisplay
     if (!doStackSlots)
-    {
+    {LOGMEIN("Lower.cpp] 23382\n");
         GenerateRecyclerAlloc(IR::HelperAllocMemForVarArray, allocSize, dst, instr);
     }
     GenerateMemInit(dst, Js::ScopeSlots::EncodedSlotCountSlotIndex * sizeof(Js::Var),
@@ -23395,7 +23395,7 @@ Lowerer::LowerNewScopeSlots(IR::Instr * instr, bool doStackSlots)
     // avoid using a register for the undefined pointer if we are going to assign 1 or 2
 
     if (actualSlotCount > 2 && !undefinedOpnd->IsRegOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 23397\n");
 
         // mov undefinedOpnd, undefined
         IR::RegOpnd * regOpnd = IR::RegOpnd::New(TyVar, func);
@@ -23406,7 +23406,7 @@ Lowerer::LowerNewScopeSlots(IR::Instr * instr, bool doStackSlots)
     int const loopUnrollCount = 8;
 
     if (actualSlotCount <= loopUnrollCount * 2)
-    {
+    {LOGMEIN("Lower.cpp] 23408\n");
         // Just generate all the assignment in straight line code
         //  mov[dst + Js::FirstSlotIndex], undefinedOpnd
         // ...
@@ -23471,19 +23471,19 @@ Lowerer::LowerNewScopeSlots(IR::Instr * instr, bool doStackSlots)
     }
 
     if (!doStackSlots)
-    {
+    {LOGMEIN("Lower.cpp] 23473\n");
         InsertMove(IR::RegOpnd::New(instr->m_func->GetLocalClosureSym(), TyMachPtr, func), dst, instr);
     }
     instr->Remove();
 }
 
 void Lowerer::LowerLdInnerFrameDisplay(IR::Instr *instr)
-{
+{LOGMEIN("Lower.cpp] 23480\n");
     bool isStrict = instr->m_func->GetJITFunctionBody()->IsStrictMode();
     if (isStrict)
-    {
+    {LOGMEIN("Lower.cpp] 23483\n");
         if (instr->GetSrc2())
-        {
+        {LOGMEIN("Lower.cpp] 23485\n");
             this->LowerBinaryHelperMem(instr, IR::HelperScrObj_LdStrictInnerFrameDisplay);
         }
         else
@@ -23497,7 +23497,7 @@ void Lowerer::LowerLdInnerFrameDisplay(IR::Instr *instr)
     else
     {
         if (instr->GetSrc2())
-        {
+        {LOGMEIN("Lower.cpp] 23499\n");
             this->LowerBinaryHelperMem(instr, IR::HelperScrObj_LdInnerFrameDisplay);
         }
         else
@@ -23511,7 +23511,7 @@ void Lowerer::LowerLdInnerFrameDisplay(IR::Instr *instr)
 }
 
 void Lowerer::LowerLdFrameDisplay(IR::Instr *instr, bool doStackFrameDisplay)
-{
+{LOGMEIN("Lower.cpp] 23513\n");
     bool isStrict = instr->m_func->GetJITFunctionBody()->IsStrictMode();
     uint16 envDepth = instr->m_func->GetJITFunctionBody()->GetEnvDepth();
     Func *func = this->m_func;
@@ -23524,11 +23524,11 @@ void Lowerer::LowerLdFrameDisplay(IR::Instr *instr, bool doStackFrameDisplay)
     if (envDepth == (uint16)-1 ||
         (!doStackFrameDisplay && instr->GetDst()->AsRegOpnd()->m_sym->IsTempReg(instr->m_func)) ||
         PHASE_OFF(Js::FrameDisplayFastPathPhase, func))
-    {
+    {LOGMEIN("Lower.cpp] 23526\n");
         if (isStrict)
-        {
+        {LOGMEIN("Lower.cpp] 23528\n");
             if (instr->GetSrc2())
-            {
+            {LOGMEIN("Lower.cpp] 23530\n");
                 this->LowerBinaryHelperMem(instr, IR::HelperScrObj_LdStrictFrameDisplay);
             }
             else
@@ -23542,7 +23542,7 @@ void Lowerer::LowerLdFrameDisplay(IR::Instr *instr, bool doStackFrameDisplay)
         else
         {
             if (instr->GetSrc2())
-            {
+            {LOGMEIN("Lower.cpp] 23544\n");
                 this->LowerBinaryHelperMem(instr, IR::HelperScrObj_LdFrameDisplay);
             }
             else
@@ -23564,7 +23564,7 @@ void Lowerer::LowerLdFrameDisplay(IR::Instr *instr, bool doStackFrameDisplay)
 
     uint allocSize = sizeof(Js::FrameDisplay) + (frameDispLength * sizeof(Js::Var));
     if (doStackFrameDisplay)
-    {
+    {LOGMEIN("Lower.cpp] 23566\n");
         IR::Instr *insertInstr = func->GetFunctionEntryInsertionPoint();
 
         // Initialize stack pointers for scope slots and frame display together at the top of the function
@@ -23608,10 +23608,10 @@ void Lowerer::LowerLdFrameDisplay(IR::Instr *instr, bool doStackFrameDisplay)
     // Copy contents of environment
     // Work back to front to leave the head element(s) in cache
     if (envDepth > 0)
-    {
+    {LOGMEIN("Lower.cpp] 23610\n");
         IR::RegOpnd *envOpnd = instr->UnlinkSrc2()->AsRegOpnd();
         for (uint16 i = envDepth; i >= 1; i--)
-        {
+        {LOGMEIN("Lower.cpp] 23613\n");
             IR::Opnd *scopeOpnd = IR::RegOpnd::New(TyMachReg, func);
             IR::Opnd *envLoadOpnd =
                 IR::IndirOpnd::New(envOpnd, Js::FrameDisplay::GetOffsetOfScopes() + ((i - 1) * sizeof(Js::Var)), TyMachReg, func);
@@ -23642,12 +23642,12 @@ void Lowerer::LowerLdFrameDisplay(IR::Instr *instr, bool doStackFrameDisplay)
 }
 
 IR::AddrOpnd *Lowerer::CreateFunctionBodyOpnd(Func *const func) const
-{
+{LOGMEIN("Lower.cpp] 23644\n");
     return IR::AddrOpnd::New(func->GetJITFunctionBody()->GetAddr(), IR::AddrOpndKindDynamicFunctionBody, m_func, true);
 }
 
 IR::AddrOpnd *Lowerer::CreateFunctionBodyOpnd(Js::FunctionBody *const functionBody) const
-{
+{LOGMEIN("Lower.cpp] 23649\n");
     // TODO: OOP JIT, CreateFunctionBodyOpnd
     Assert(!m_func->IsOOPJIT());
     return IR::AddrOpnd::New(functionBody, IR::AddrOpndKindDynamicFunctionBody, m_func, true);
@@ -23655,9 +23655,9 @@ IR::AddrOpnd *Lowerer::CreateFunctionBodyOpnd(Js::FunctionBody *const functionBo
 
 bool
 Lowerer::GenerateRecyclerOrMarkTempAlloc(IR::Instr * instr, IR::RegOpnd * dstOpnd, IR::JnHelperMethod allocHelper, size_t allocSize, IR::SymOpnd ** tempObjectSymOpnd)
-{
+{LOGMEIN("Lower.cpp] 23657\n");
     if (instr->dstIsTempObject)
-    {
+    {LOGMEIN("Lower.cpp] 23659\n");
         *tempObjectSymOpnd = GenerateMarkTempAlloc(dstOpnd, allocSize, instr);
         return false;
     }
@@ -23669,7 +23669,7 @@ Lowerer::GenerateRecyclerOrMarkTempAlloc(IR::Instr * instr, IR::RegOpnd * dstOpn
 
 IR::SymOpnd *
 Lowerer::GenerateMarkTempAlloc(IR::RegOpnd *const dstOpnd, const size_t allocSize, IR::Instr *const insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 23671\n");
     Assert(dstOpnd);
     Assert(allocSize != 0);
     Assert(insertBeforeInstr);
@@ -23688,14 +23688,14 @@ Lowerer::GenerateMarkTempAlloc(IR::RegOpnd *const dstOpnd, const size_t allocSiz
         GenerateMemInit(dstOpnd, -(int)sizeof(void *), IR::AddrOpnd::NewNull(func), insertBeforeInstr, false);
     }
     else if (!PHASE_OFF(Js::HoistMarkTempInitPhase, this->m_func))
-    {
+    {LOGMEIN("Lower.cpp] 23690\n");
         InsertMove(IR::SymOpnd::New(tempObjectSym, TyMachPtr, func), IR::AddrOpnd::NewNull(func), this->outerMostLoopLabel, false);
     }
     return tempObjectOpnd;
 }
 
 void Lowerer::LowerBrFncCachedScopeEq(IR::Instr *instr)
-{
+{LOGMEIN("Lower.cpp] 23697\n");
     Assert(instr->m_opcode == Js::OpCode::BrFncCachedScopeEq || instr->m_opcode == Js::OpCode::BrFncCachedScopeNeq);
     Js::OpCode opcode = (instr->m_opcode == Js::OpCode::BrFncCachedScopeEq ? Js::OpCode::BrEq_A : Js::OpCode::BrNeq_A);
 
@@ -23708,7 +23708,7 @@ void Lowerer::LowerBrFncCachedScopeEq(IR::Instr *instr)
 }
 
 IR::Instr* Lowerer::InsertLoweredRegionStartMarker(IR::Instr* instrToInsertBefore)
-{
+{LOGMEIN("Lower.cpp] 23710\n");
     AssertMsg(instrToInsertBefore->m_prev != nullptr, "Can't insert lowered region start marker as the first instr in the func.");
     IR::LabelInstr* startMarkerLabel = IR::LabelInstr::New(Js::OpCode::Label, instrToInsertBefore->m_func);
     instrToInsertBefore->InsertBefore(startMarkerLabel);
@@ -23716,7 +23716,7 @@ IR::Instr* Lowerer::InsertLoweredRegionStartMarker(IR::Instr* instrToInsertBefor
 }
 
 IR::Instr* Lowerer::RemoveLoweredRegionStartMarker(IR::Instr* startMarkerInstr)
-{
+{LOGMEIN("Lower.cpp] 23718\n");
     AssertMsg(startMarkerInstr->m_prev != nullptr, "Lowered region start marker became the first instruction in the func after lowering?");
     IR::Instr* prevInstr = startMarkerInstr->m_prev;
     startMarkerInstr->Remove();
@@ -23724,10 +23724,10 @@ IR::Instr* Lowerer::RemoveLoweredRegionStartMarker(IR::Instr* startMarkerInstr)
 }
 
 IR::Instr* Lowerer::GetLdSpreadIndicesInstr(IR::Instr *instr)
-{
+{LOGMEIN("Lower.cpp] 23726\n");
     IR::Opnd *src2 = instr->GetSrc2();
     if (!src2->IsSymOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 23729\n");
         return nullptr;
     }
 
@@ -23740,7 +23740,7 @@ IR::Instr* Lowerer::GetLdSpreadIndicesInstr(IR::Instr *instr)
 }
 
 bool Lowerer::IsSpreadCall(IR::Instr *instr)
-{
+{LOGMEIN("Lower.cpp] 23742\n");
     IR::Instr *lastInstr = GetLdSpreadIndicesInstr(instr);
     return lastInstr && lastInstr->m_opcode == Js::OpCode::LdSpreadIndices;
 }
@@ -23750,13 +23750,13 @@ bool Lowerer::IsSpreadCall(IR::Instr *instr)
 // Returns nullptr/NoOP for non-debugger code path.
 //static
 IR::LabelInstr* Lowerer::InsertContinueAfterExceptionLabelForDebugger(Func* func, IR::Instr* insertAfterInstr, bool isHelper)
-{
+{LOGMEIN("Lower.cpp] 23752\n");
     Assert(func);
     Assert(insertAfterInstr);
 
     IR::LabelInstr* continueAfterExLabel = nullptr;
     if (func->IsJitInDebugMode())
-    {
+    {LOGMEIN("Lower.cpp] 23758\n");
         continueAfterExLabel = IR::LabelInstr::New(Js::OpCode::Label, func, isHelper);
         insertAfterInstr->InsertAfter(continueAfterExLabel);
     }
@@ -23764,7 +23764,7 @@ IR::LabelInstr* Lowerer::InsertContinueAfterExceptionLabelForDebugger(Func* func
 }
 
 void Lowerer::GenerateSingleCharStrJumpTableLookup(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 23766\n");
     IR::MultiBranchInstr * multiBrInstr = instr->AsBranchInstr()->AsMultiBrInstr();
     Func * func = instr->m_func;
     IR::LabelInstr * helperLabel = IR::LabelInstr::New(Js::OpCode::Label, func, true);
@@ -23819,7 +23819,7 @@ void Lowerer::GenerateSingleCharStrJumpTableLookup(IR::Instr * instr)
 }
 
 void Lowerer::GenerateSwitchStringLookup(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 23821\n");
     /* Collect information about string length in all the case*/
     charcount_t minLength = UINT_MAX;
     charcount_t maxLength = 0;
@@ -23830,7 +23830,7 @@ void Lowerer::GenerateSwitchStringLookup(IR::Instr * instr)
         minLength = min(minLength, str->GetLength());
         maxLength = max(maxLength, str->GetLength());
         if (len < 32)
-        {
+        {LOGMEIN("Lower.cpp] 23832\n");
             bvLength.Set(len);
         }
     });
@@ -23845,7 +23845,7 @@ void Lowerer::GenerateSwitchStringLookup(IR::Instr * instr)
         InsertCompareBranch(strLengthOpnd, IR::IntConstOpnd::New(minLength, TyUint32, func), Js::OpCode::BrNeq_A, defaultLabelInstr, instr);
     }
     else if (maxLength < 32)
-    {
+    {LOGMEIN("Lower.cpp] 23847\n");
         // Generate bit filter
 
         // Jump to default label if the bit is not on for the length % 32
@@ -23863,9 +23863,9 @@ void Lowerer::GenerateSwitchStringLookup(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::LowerTry(IR::Instr* instr, bool tryCatch)
-{
+{LOGMEIN("Lower.cpp] 23865\n");
     if (this->m_func->hasBailout)
-    {
+    {LOGMEIN("Lower.cpp] 23867\n");
         this->EnsureBailoutReturnValueSym();
     }
     this->EnsureHasBailedOutSym();
@@ -23879,9 +23879,9 @@ Lowerer::LowerTry(IR::Instr* instr, bool tryCatch)
 
 void
 Lowerer::EnsureBailoutReturnValueSym()
-{
+{LOGMEIN("Lower.cpp] 23881\n");
     if (this->m_func->m_bailoutReturnValueSym == nullptr)
-    {
+    {LOGMEIN("Lower.cpp] 23883\n");
         this->m_func->m_bailoutReturnValueSym = StackSym::New(TyVar, this->m_func);
         this->m_func->StackAllocate(this->m_func->m_bailoutReturnValueSym, sizeof(Js::Var));
     }
@@ -23889,9 +23889,9 @@ Lowerer::EnsureBailoutReturnValueSym()
 
 void
 Lowerer::EnsureHasBailedOutSym()
-{
+{LOGMEIN("Lower.cpp] 23891\n");
     if (this->m_func->m_hasBailedOutSym == nullptr)
-    {
+    {LOGMEIN("Lower.cpp] 23893\n");
         this->m_func->m_hasBailedOutSym = StackSym::New(TyUint32, this->m_func);
         this->m_func->StackAllocate(this->m_func->m_hasBailedOutSym, MachRegInt);
     }
@@ -23899,18 +23899,18 @@ Lowerer::EnsureHasBailedOutSym()
 
 void
 Lowerer::InsertReturnThunkForRegion(Region* region, IR::LabelInstr* restoreLabel)
-{
+{LOGMEIN("Lower.cpp] 23901\n");
     Assert(this->m_func->isPostLayout);
     Assert(region->GetType() == RegionTypeTry || region->GetType() == RegionTypeCatch);
 
     if (!region->returnThunkEmitted)
-    {
+    {LOGMEIN("Lower.cpp] 23906\n");
         this->m_func->m_exitInstr->InsertAfter(region->GetBailoutReturnThunkLabel());
 
         bool newLastInstrInserted = false;
         IR::Instr * insertBeforeInstr = region->GetBailoutReturnThunkLabel()->m_next;
         if (insertBeforeInstr == nullptr)
-        {
+        {LOGMEIN("Lower.cpp] 23912\n");
             Assert(this->m_func->m_exitInstr == this->m_func->m_tailInstr);
             insertBeforeInstr = IR::Instr::New(Js::OpCode::Nop, this->m_func);
             newLastInstrInserted = true;
@@ -23920,7 +23920,7 @@ Lowerer::InsertReturnThunkForRegion(Region* region, IR::LabelInstr* restoreLabel
 
         IR::LabelOpnd * continuationAddr;
         if (region->GetParent()->GetType() != RegionTypeRoot)
-        {
+        {LOGMEIN("Lower.cpp] 23922\n");
             continuationAddr = IR::LabelOpnd::New(region->GetParent()->GetBailoutReturnThunkLabel(), this->m_func);
         }
         else
@@ -23930,7 +23930,7 @@ Lowerer::InsertReturnThunkForRegion(Region* region, IR::LabelInstr* restoreLabel
 
         IR::Instr * lastInstr = m_lowererMD.LowerEHRegionReturn(insertBeforeInstr, continuationAddr);
         if (newLastInstrInserted)
-        {
+        {LOGMEIN("Lower.cpp] 23932\n");
             Assert(this->m_func->m_tailInstr == insertBeforeInstr);
             insertBeforeInstr->Remove();
             this->m_func->m_tailInstr = lastInstr;
@@ -23942,7 +23942,7 @@ Lowerer::InsertReturnThunkForRegion(Region* region, IR::LabelInstr* restoreLabel
 
 void
 Lowerer::SetHasBailedOut(IR::Instr * bailoutInstr)
-{
+{LOGMEIN("Lower.cpp] 23944\n");
     Assert(this->m_func->isPostLayout);
     IR::SymOpnd * hasBailedOutOpnd = IR::SymOpnd::New(this->m_func->m_hasBailedOutSym, TyUint32, this->m_func);
     IR::Instr * setInstr = IR::Instr::New(LowererMD::GetStoreOp(TyUint32), hasBailedOutOpnd, IR::IntConstOpnd::New(1, TyUint32, this->m_func), this->m_func);
@@ -23952,20 +23952,20 @@ Lowerer::SetHasBailedOut(IR::Instr * bailoutInstr)
 
 IR::Instr*
 Lowerer::EmitEHBailoutStackRestore(IR::Instr * bailoutInstr)
-{
+{LOGMEIN("Lower.cpp] 23954\n");
     Assert(this->m_func->isPostLayout);
 
 #ifdef _M_IX86
     BailOutInfo * bailoutInfo = bailoutInstr->GetBailOutInfo();
     if (bailoutInfo->startCallCount != 0)
-    {
+    {LOGMEIN("Lower.cpp] 23960\n");
         uint totalStackToBeRestored = 0;
         uint stackAlignmentAdjustment = 0;
         for (uint i = 0; i < bailoutInfo->startCallCount; i++)
-        {
+        {LOGMEIN("Lower.cpp] 23964\n");
             uint startCallOutParamCount = bailoutInfo->GetStartCallOutParamCount(i);
             if ((Math::Align<int32>(startCallOutParamCount * MachPtr, MachStackAlignment) - (startCallOutParamCount * MachPtr)) != 0)
-            {
+            {LOGMEIN("Lower.cpp] 23967\n");
                 stackAlignmentAdjustment++;
             }
         }
@@ -23985,7 +23985,7 @@ Lowerer::EmitEHBailoutStackRestore(IR::Instr * bailoutInstr)
 
 void
 Lowerer::EmitSaveEHBailoutReturnValueAndJumpToRetThunk(IR::Instr * insertAfterInstr)
-{
+{LOGMEIN("Lower.cpp] 23987\n");
     Assert(this->m_func->isPostLayout);
     // After the CALL SaveAllRegistersAndBailout instruction, emit
     //
@@ -24004,7 +24004,7 @@ Lowerer::EmitSaveEHBailoutReturnValueAndJumpToRetThunk(IR::Instr * insertAfterIn
 
 void
 Lowerer::EmitRestoreReturnValueFromEHBailout(IR::LabelInstr * restoreLabel, IR::LabelInstr * epilogLabel)
-{
+{LOGMEIN("Lower.cpp] 24006\n");
     Assert(this->m_func->isPostLayout);
     //          JMP $epilog
     // $restore:
@@ -24024,7 +24024,7 @@ Lowerer::EmitRestoreReturnValueFromEHBailout(IR::LabelInstr * restoreLabel, IR::
 
 void
 Lowerer::InsertBitTestBranch(IR::Opnd * bitMaskOpnd, IR::Opnd * bitIndex, bool jumpIfBitOn, IR::LabelInstr * targetLabel, IR::Instr * insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 24026\n");
 #if defined(_M_IX86) || defined(_M_AMD64)
     // Generate bit test and branch
     // BT bitMaskOpnd, bitIndex
@@ -24036,7 +24036,7 @@ Lowerer::InsertBitTestBranch(IR::Opnd * bitMaskOpnd, IR::Opnd * bitIndex, bool j
     insertBeforeInstr->InsertBefore(instr);
 
     if (!(bitMaskOpnd->IsRegOpnd() || bitMaskOpnd->IsIndirOpnd() || bitMaskOpnd->IsMemRefOpnd()))
-    {
+    {LOGMEIN("Lower.cpp] 24038\n");
         instr->HoistSrc1(Js::OpCode::MOV);
     }
 
@@ -24062,12 +24062,12 @@ Lowerer::InsertBitTestBranch(IR::Opnd * bitMaskOpnd, IR::Opnd * bitIndex, bool j
 //
 void
 Lowerer::GenerateStringTest(IR::RegOpnd *srcReg, IR::Instr *insertInstr, IR::LabelInstr *labelHelper, IR::LabelInstr * continueLabel, bool generateObjectCheck)
-{
+{LOGMEIN("Lower.cpp] 24064\n");
     Assert(srcReg);
     if (!srcReg->GetValueType().IsString())
-    {
+    {LOGMEIN("Lower.cpp] 24067\n");
         if (generateObjectCheck && !srcReg->IsNotTaggedValue())
-        {
+        {LOGMEIN("Lower.cpp] 24069\n");
             this->m_lowererMD.GenerateObjectTest(srcReg, insertInstr, labelHelper);
         }
 
@@ -24088,9 +24088,9 @@ Lowerer::GenerateStringTest(IR::RegOpnd *srcReg, IR::Instr *insertInstr, IR::Lab
 
 void
 Lowerer::LowerConvNum(IR::Instr *instrLoad, bool noMathFastPath)
-{
+{LOGMEIN("Lower.cpp] 24090\n");
     if (PHASE_OFF(Js::OtherFastPathPhase, this->m_func) || noMathFastPath || !instrLoad->GetSrc1()->IsRegOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 24092\n");
         this->LowerUnaryHelperMemWithTemp2(instrLoad, IR_HELPER_OP_FULL_OR_INPLACE(ConvNumber));
         return;
     }
@@ -24108,26 +24108,26 @@ Lowerer::LowerConvNum(IR::Instr *instrLoad, bool noMathFastPath)
     IR::Instr *instr;
 
     if (src1->IsTaggedInt())
-    {
+    {LOGMEIN("Lower.cpp] 24110\n");
         isInt = true;
     }
     else if (src1->IsNotInt())
-    {
+    {LOGMEIN("Lower.cpp] 24114\n");
         isNotInt = true;
     }
     if (!isNotInt)
-    {
+    {LOGMEIN("Lower.cpp] 24118\n");
         //      MOV dst, src1
 
         instr = LowererMD::CreateAssign(instrLoad->GetDst(), src1, instrLoad);
 
         if (!isInt)
-        {
+        {LOGMEIN("Lower.cpp] 24124\n");
             labelDone = IR::LabelInstr::New(Js::OpCode::Label, this->m_func);
             bool didTest = m_lowererMD.GenerateObjectTest(src1, instrLoad, labelDone);
 
             if (didTest)
-            {
+            {LOGMEIN("Lower.cpp] 24129\n");
                 // This label is needed only to mark the helper block
                 IR::LabelInstr * labelHelper = IR::LabelInstr::New(Js::OpCode::Label, this->m_func, true);
                 instrLoad->InsertBefore(labelHelper);
@@ -24136,9 +24136,9 @@ Lowerer::LowerConvNum(IR::Instr *instrLoad, bool noMathFastPath)
     }
 
     if (!isInt)
-    {
+    {LOGMEIN("Lower.cpp] 24138\n");
         if (labelDone)
-        {
+        {LOGMEIN("Lower.cpp] 24140\n");
             instrLoad->InsertAfter(labelDone);
         }
         this->LowerUnaryHelperMemWithTemp2(instrLoad, IR_HELPER_OP_FULL_OR_INPLACE(ConvNumber));
@@ -24151,10 +24151,10 @@ Lowerer::LowerConvNum(IR::Instr *instrLoad, bool noMathFastPath)
 
 IR::Opnd *
 Lowerer::LoadSlotArrayWithCachedLocalType(IR::Instr * instrInsert, IR::PropertySymOpnd *propertySymOpnd)
-{
+{LOGMEIN("Lower.cpp] 24153\n");
     IR::RegOpnd *opndBase = propertySymOpnd->CreatePropertyOwnerOpnd(m_func);
     if (propertySymOpnd->UsesAuxSlot())
-    {
+    {LOGMEIN("Lower.cpp] 24156\n");
         // If we use the auxiliary slot array, load it and return it
         IR::RegOpnd *opndSlotArray = IR::RegOpnd::New(TyMachReg, this->m_func);
         IR::Opnd *opndIndir = IR::IndirOpnd::New(opndBase, Js::DynamicObject::GetOffsetOfAuxSlots(), TyMachReg, this->m_func);
@@ -24171,13 +24171,13 @@ Lowerer::LoadSlotArrayWithCachedLocalType(IR::Instr * instrInsert, IR::PropertyS
 
 IR::Opnd *
 Lowerer::LoadSlotArrayWithCachedProtoType(IR::Instr * instrInsert, IR::PropertySymOpnd *propertySymOpnd)
-{
+{LOGMEIN("Lower.cpp] 24173\n");
     // Get the prototype object from the cache
     intptr_t prototypeObject = propertySymOpnd->GetProtoObject();
     Assert(prototypeObject != 0);
 
     if (propertySymOpnd->UsesAuxSlot())
-    {
+    {LOGMEIN("Lower.cpp] 24179\n");
         // If we use the auxiliary slot array, load it from the prototype object and return it
         IR::RegOpnd *opndSlotArray = IR::RegOpnd::New(TyMachReg, this->m_func);
         IR::Opnd *opnd = IR::MemRefOpnd::New((char*)prototypeObject + Js::DynamicObject::GetOffsetOfAuxSlots(), TyMachReg, this->m_func, IR::AddrOpndKindDynamicAuxSlotArrayRef);
@@ -24193,7 +24193,7 @@ Lowerer::LoadSlotArrayWithCachedProtoType(IR::Instr * instrInsert, IR::PropertyS
 
 IR::Instr *
 Lowerer::LowerLdAsmJsEnv(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 24195\n");
     Assert(m_func->GetJITFunctionBody()->IsAsmJsMode());
     IR::Opnd * functionObjOpnd;
     IR::Instr * instrPrev = this->m_lowererMD.LoadFunctionObjectOpnd(instr, functionObjOpnd);
@@ -24207,7 +24207,7 @@ Lowerer::LowerLdAsmJsEnv(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::LowerLdNativeCodeData(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 24209\n");
     Assert(!instr->GetSrc1());
     Assert(m_func->IsTopFunc());
     IR::Instr * instrPrev = instr->m_prev;
@@ -24220,13 +24220,13 @@ Lowerer::LowerLdNativeCodeData(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::LowerLdEnv(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 24222\n");
     IR::Opnd * src1 = instr->GetSrc1();
     IR::Opnd * functionObjOpnd;
     IR::Instr * instrPrev = this->m_lowererMD.LoadFunctionObjectOpnd(instr, functionObjOpnd);
     Assert(!instr->GetSrc1());
     if (src1 == nullptr || functionObjOpnd->IsRegOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 24228\n");
         IR::IndirOpnd *indirOpnd = IR::IndirOpnd::New(functionObjOpnd->AsRegOpnd(),
             Js::ScriptFunction::GetOffsetOfEnvironment(), TyMachPtr, m_func);
         instr->SetSrc1(indirOpnd);
@@ -24246,7 +24246,7 @@ Lowerer::LowerLdEnv(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::LowerFrameDisplayCheck(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 24248\n");
     IR::Instr *instrPrev = instr->m_prev;
     IR::Instr *insertInstr = instr->m_next;
     IR::AddrOpnd *addrOpnd = instr->UnlinkSrc2()->AsAddrOpnd();
@@ -24258,7 +24258,7 @@ Lowerer::LowerFrameDisplayCheck(IR::Instr * instr)
     uint32 frameDisplayOffset = Js::FrameDisplay::GetOffsetOfScopes()/sizeof(Js::Var);
 
     if (record->slotId != (uint32)-1 && record->slotId > frameDisplayOffset)
-    {
+    {LOGMEIN("Lower.cpp] 24260\n");
         // Check that the frame display has enough scopes in it to satisfy the code.
         errorLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func, true);
         continueLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func);
@@ -24275,12 +24275,12 @@ Lowerer::LowerFrameDisplayCheck(IR::Instr * instr)
     {
         // Check the size of each of the slot arrays in the scope chain.
         FOREACH_HASHTABLE_ENTRY(uint32, bucket, record->table)
-        {
+        {LOGMEIN("Lower.cpp] 24277\n");
             uint32 slotId = bucket.element;
             if (slotId != (uint32)-1 && slotId > Js::ScopeSlots::FirstSlotIndex)
-            {
+            {LOGMEIN("Lower.cpp] 24280\n");
                 if (errorLabel == nullptr)
-                {
+                {LOGMEIN("Lower.cpp] 24282\n");
                     errorLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func, true);
                     continueLabel = IR::LabelInstr::New(Js::OpCode::Label, m_func);
                 }
@@ -24303,7 +24303,7 @@ Lowerer::LowerFrameDisplayCheck(IR::Instr * instr)
     }
 
     if (errorLabel)
-    {
+    {LOGMEIN("Lower.cpp] 24305\n");
         InsertBranch(Js::OpCode::Br, continueLabel, insertInstr);
 
         insertInstr->InsertBefore(errorLabel);
@@ -24320,7 +24320,7 @@ Lowerer::LowerFrameDisplayCheck(IR::Instr * instr)
 
 IR::Instr *
 Lowerer::LowerSlotArrayCheck(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 24322\n");
     IR::Instr *instrPrev = instr->m_prev;
     IR::Instr *insertInstr = instr->m_next;
 
@@ -24332,9 +24332,9 @@ Lowerer::LowerSlotArrayCheck(IR::Instr * instr)
     Assert(slotId != (uint32)-1 && slotId >= Js::ScopeSlots::FirstSlotIndex);
 
     if (slotId > Js::ScopeSlots::FirstSlotIndex)
-    {
+    {LOGMEIN("Lower.cpp] 24334\n");
         if (m_func->DoStackFrameDisplay() && stackSym->m_id == m_func->GetLocalClosureSym()->m_id)
-        {
+        {LOGMEIN("Lower.cpp] 24336\n");
             // The pointer we loaded points to the reserved/known address where the slot array can be boxed.
             // Deref to get the real value.
             IR::IndirOpnd * srcOpnd = IR::IndirOpnd::New(IR::RegOpnd::New(stackSym, TyVar, m_func), 0, TyVar, m_func);
@@ -24372,7 +24372,7 @@ Lowerer::LoadIndexFromLikelyFloat(
     IR::LabelInstr *const notIntLabel,
     IR::LabelInstr *const negativeLabel,
     IR::Instr *const insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 24374\n");
 #ifdef _M_IX86
     // We should only generate this if sse2 is available
     Assert(AutoSystemInfo::Data.SSE2Available());
@@ -24436,22 +24436,22 @@ Lowerer::LoadIndexFromLikelyFloat(
 
 void
 Lowerer::AllocStackForInObjectEnumeratorArray()
-{
+{LOGMEIN("Lower.cpp] 24438\n");
     Func * func = this->m_func;
     Assert(func->IsTopFunc());
     if (func->m_forInLoopMaxDepth)
-    {
+    {LOGMEIN("Lower.cpp] 24442\n");
         func->m_forInEnumeratorArrayOffset = func->StackAllocate(sizeof(Js::ForInObjectEnumerator) * this->m_func->m_forInLoopMaxDepth);
     }
 }
 
 IR::RegOpnd *
 Lowerer::GenerateForInEnumeratorLoad(IR::Opnd * forInEnumeratorOpnd, IR::Instr * insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 24449\n");
     Func * func = insertBeforeInstr->m_func;
 
     if (forInEnumeratorOpnd->IsSymOpnd())
-    {
+    {LOGMEIN("Lower.cpp] 24453\n");
         StackSym * stackSym = forInEnumeratorOpnd->AsSymOpnd()->GetStackSym();
         Assert(!stackSym->m_allocated);
         uint forInLoopLevel = stackSym->m_offset;
@@ -24463,7 +24463,7 @@ Lowerer::GenerateForInEnumeratorLoad(IR::Opnd * forInEnumeratorOpnd, IR::Instr *
     {
         Assert(forInEnumeratorOpnd->IsIndirOpnd());
         if (forInEnumeratorOpnd->AsIndirOpnd()->GetOffset() == 0)
-        {
+        {LOGMEIN("Lower.cpp] 24465\n");
             return forInEnumeratorOpnd->AsIndirOpnd()->GetBaseOpnd();
         }
     }
@@ -24474,7 +24474,7 @@ Lowerer::GenerateForInEnumeratorLoad(IR::Opnd * forInEnumeratorOpnd, IR::Instr *
 
 void
 Lowerer::GenerateHasObjectArrayCheck(IR::RegOpnd * objectOpnd, IR::RegOpnd * typeOpnd, IR::LabelInstr * hasObjectArrayLabel, IR::Instr * insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 24476\n");
     //   CMP [objectOpnd + offset(objectArray)], nullptr
     //   JEQ $noObjectArrayLabel
     //   TEST[objectOpnd + offset(objectArray)], ObjectArrayFlagsTag        (used as flags)
@@ -24502,7 +24502,7 @@ Lowerer::GenerateHasObjectArrayCheck(IR::RegOpnd * objectOpnd, IR::RegOpnd * typ
 
 void
 Lowerer::GenerateInitForInEnumeratorFastPath(IR::Instr * instr, Js::ForInCache * forInCache)
-{
+{LOGMEIN("Lower.cpp] 24504\n");
     Func * func = this->m_func;
 
     IR::LabelInstr * helperLabel = IR::LabelInstr::New(Js::OpCode::Label, func, true);
@@ -24633,11 +24633,11 @@ Lowerer::GenerateInitForInEnumeratorFastPath(IR::Instr * instr, Js::ForInCache *
 
 void
 Lowerer::LowerInitForInEnumerator(IR::Instr * instr)
-{
+{LOGMEIN("Lower.cpp] 24635\n");
     Js::ForInCache * forInCache = nullptr;
     Func * func = instr->m_func;
     if (instr->IsProfiledInstr())
-    {
+    {LOGMEIN("Lower.cpp] 24639\n");
         uint profileId = instr->AsProfiledInstr()->u.profileId;
         forInCache = instr->m_func->GetJITFunctionBody()->GetForInCache(profileId);
         Assert(forInCache != nullptr);
@@ -24661,7 +24661,7 @@ Lowerer::LowerInitForInEnumerator(IR::Instr * instr)
 
 IR::LabelInstr *
 Lowerer::InsertLoopTopLabel(IR::Instr * insertBeforeInstr)
-{
+{LOGMEIN("Lower.cpp] 24663\n");
     Func * func = this->m_func;
     IR::LabelInstr * loopTopLabel = IR::LabelInstr::New(Js::OpCode::Label, func);
     loopTopLabel->m_isLoopTop = true;
@@ -24680,7 +24680,7 @@ void
 Lowerer::LegalizeVerifyRange(IR::Instr * instrStart, IR::Instr * instrLast)
 {
     FOREACH_INSTR_IN_RANGE(verifyLegalizeInstr, instrStart, instrLast)
-    {
+    {LOGMEIN("Lower.cpp] 24682\n");
         LowererMD::Legalize<true>(verifyLegalizeInstr);
     }
     NEXT_INSTR_IN_RANGE;

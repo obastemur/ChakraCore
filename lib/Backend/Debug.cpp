@@ -21,7 +21,7 @@ Func *CurrentFunc;
 ///----------------------------------------------------------------------------
 
 void dump(IR::Instr *instr)
-{
+{LOGMEIN("Debug.cpp] 23\n");
     instr->Dump();
 }
 
@@ -32,7 +32,7 @@ void dump(IR::Instr *instr)
 ///----------------------------------------------------------------------------
 
 void dump(IR::Instr *instr, int window)
-{
+{LOGMEIN("Debug.cpp] 34\n");
     instr->Dump(window);
 }
 
@@ -43,7 +43,7 @@ void dump(IR::Instr *instr, int window)
 ///----------------------------------------------------------------------------
 
 void dump()
-{
+{LOGMEIN("Debug.cpp] 45\n");
     CurrentFunc->Dump();
 }
 

@@ -15,9 +15,9 @@ namespace Js
         EHBailoutData * child;
 
     public:
-        EHBailoutData() : nestingDepth(-1), catchOffset(0), parent(nullptr), child(nullptr) {}
+        EHBailoutData() : nestingDepth(-1), catchOffset(0), parent(nullptr), child(nullptr) {LOGMEIN("EHBailoutData.h] 17\n");}
         EHBailoutData(int32 nestingDepth, int32 catchOffset, EHBailoutData * parent)
-        {
+        {LOGMEIN("EHBailoutData.h] 19\n");
             this->nestingDepth = nestingDepth;
             this->catchOffset = catchOffset;
             this->parent = parent;

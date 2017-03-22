@@ -34,9 +34,9 @@ CodeGenWorkItem::CodeGenWorkItem(
 }
 
 CodeGenWorkItem::~CodeGenWorkItem()
-{
+{LOGMEIN("CodeGenWorkItem.cpp] 36\n");
     if(queuedFullJitWorkItem)
-    {
+    {LOGMEIN("CodeGenWorkItem.cpp] 38\n");
         HeapDelete(queuedFullJitWorkItem);
     }
 }
@@ -48,15 +48,15 @@ CodeGenWorkItem::~CodeGenWorkItem()
 // regression on a test).
 //
 bool CodeGenWorkItem::ShouldSpeculativelyJit(uint byteCodeSizeGenerated) const
-{
+{LOGMEIN("CodeGenWorkItem.cpp] 50\n");
     if(PHASE_OFF(Js::FullJitPhase, this->functionBody))
-    {
+    {LOGMEIN("CodeGenWorkItem.cpp] 52\n");
         return false;
     }
 
     byteCodeSizeGenerated += this->GetByteCodeCount();
     if(CONFIG_FLAG(ProfileBasedSpeculativeJit))
-    {
+    {LOGMEIN("CodeGenWorkItem.cpp] 58\n");
         Assert(!CONFIG_ISENABLED(Js::NoDynamicProfileInMemoryCacheFlag));
 
         // JIT this now if we are under the speculation cap.
@@ -74,7 +74,7 @@ bool CodeGenWorkItem::ShouldSpeculativelyJit(uint byteCodeSizeGenerated) const
 }
 
 bool CodeGenWorkItem::ShouldSpeculativelyJitBasedOnProfile() const
-{
+{LOGMEIN("CodeGenWorkItem.cpp] 76\n");
     Js::FunctionBody* functionBody = this->GetFunctionBody();
 
     uint loopPercentage = (functionBody->GetByteCodeInLoopCount()*100) / (functionBody->GetByteCodeCount() + 1);
@@ -82,20 +82,20 @@ bool CodeGenWorkItem::ShouldSpeculativelyJitBasedOnProfile() const
 
     // This ensures only small and loopy functions are prejitted.
     if(loopPercentage >= 50 || straightLineSize < 300)
-    {
+    {LOGMEIN("CodeGenWorkItem.cpp] 84\n");
         Js::SourceDynamicProfileManager* profileManager = functionBody->GetSourceContextInfo()->sourceDynamicProfileManager;
         if(profileManager != nullptr)
-        {
+        {LOGMEIN("CodeGenWorkItem.cpp] 87\n");
             functionBody->SetIsSpeculativeJitCandidate();
 
             if(!functionBody->HasDynamicProfileInfo())
-            {
+            {LOGMEIN("CodeGenWorkItem.cpp] 91\n");
                 return false;
             }
 
             Js::ExecutionFlags executionFlags = profileManager->IsFunctionExecuted(functionBody->GetLocalFunctionId());
             if(executionFlags == Js::ExecutionFlags_Executed)
-            {
+            {LOGMEIN("CodeGenWorkItem.cpp] 97\n");
                 return true;
             }
         }
@@ -120,19 +120,19 @@ bool CodeGenWorkItem::ShouldSpeculativelyJitBasedOnProfile() const
 */
 
 void CodeGenWorkItem::OnAddToJitQueue()
-{
+{LOGMEIN("CodeGenWorkItem.cpp] 122\n");
     Assert(!this->isInJitQueue);
     this->isInJitQueue = true;
     VerifyJitMode();
 
     this->entryPointInfo->SetCodeGenQueued();
     if(IS_JS_ETW(EventEnabledJSCRIPT_FUNCTION_JIT_QUEUED()))
-    {
+    {LOGMEIN("CodeGenWorkItem.cpp] 129\n");
         WCHAR displayNameBuffer[256];
         WCHAR* displayName = displayNameBuffer;
         size_t sizeInChars = this->GetDisplayName(displayName, 256);
         if(sizeInChars > 256)
-        {
+        {LOGMEIN("CodeGenWorkItem.cpp] 134\n");
             displayName = HeapNewArray(WCHAR, sizeInChars);
             this->GetDisplayName(displayName, 256);
         }
@@ -150,7 +150,7 @@ void CodeGenWorkItem::OnAddToJitQueue()
 }
 
 void CodeGenWorkItem::OnRemoveFromJitQueue(NativeCodeGenerator* generator)
-{
+{LOGMEIN("CodeGenWorkItem.cpp] 152\n");
     // This is called from within the lock
 
     this->isInJitQueue = false;
@@ -159,12 +159,12 @@ void CodeGenWorkItem::OnRemoveFromJitQueue(NativeCodeGenerator* generator)
     this->recyclableData = nullptr;
 
     if(IS_JS_ETW(EventEnabledJSCRIPT_FUNCTION_JIT_DEQUEUED()))
-    {
+    {LOGMEIN("CodeGenWorkItem.cpp] 161\n");
         WCHAR displayNameBuffer[256];
         WCHAR* displayName = displayNameBuffer;
         size_t sizeInChars = this->GetDisplayName(displayName, 256);
         if(sizeInChars > 256)
-        {
+        {LOGMEIN("CodeGenWorkItem.cpp] 166\n");
             displayName = HeapNewArray(WCHAR, sizeInChars);
             this->GetDisplayName(displayName, 256);
         }
@@ -181,7 +181,7 @@ void CodeGenWorkItem::OnRemoveFromJitQueue(NativeCodeGenerator* generator)
     }
 
     if(this->Type() == JsLoopBodyWorkItemType)
-    {
+    {LOGMEIN("CodeGenWorkItem.cpp] 183\n");
         // Go ahead and delete it and let it re-queue if more interpreting of the loop happens
         auto loopBodyWorkItem = static_cast<JsLoopBodyCodeGen*>(this);
         loopBodyWorkItem->loopHeader->ResetInterpreterCount();
@@ -200,9 +200,9 @@ void CodeGenWorkItem::OnRemoveFromJitQueue(NativeCodeGenerator* generator)
 }
 
 void CodeGenWorkItem::OnWorkItemProcessFail(NativeCodeGenerator* codeGen)
-{
+{LOGMEIN("CodeGenWorkItem.cpp] 202\n");
     if (!isAllocationCommitted && this->allocation != nullptr && this->allocation->allocation != nullptr)
-    {
+    {LOGMEIN("CodeGenWorkItem.cpp] 204\n");
 #if DBG
         this->allocation->allocation->isNotExecutableBecauseOOM = true;
 #endif
@@ -211,14 +211,14 @@ void CodeGenWorkItem::OnWorkItemProcessFail(NativeCodeGenerator* codeGen)
 }
 
 QueuedFullJitWorkItem *CodeGenWorkItem::GetQueuedFullJitWorkItem() const
-{
+{LOGMEIN("CodeGenWorkItem.cpp] 213\n");
     return queuedFullJitWorkItem;
 }
 
 QueuedFullJitWorkItem *CodeGenWorkItem::EnsureQueuedFullJitWorkItem()
-{
+{LOGMEIN("CodeGenWorkItem.cpp] 218\n");
     if(queuedFullJitWorkItem)
-    {
+    {LOGMEIN("CodeGenWorkItem.cpp] 220\n");
         return queuedFullJitWorkItem;
     }
 

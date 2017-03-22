@@ -29,7 +29,7 @@ namespace Js {
         static double UtcTimeFromStr(ScriptContext *scriptContext, JavascriptString *pParseString);
         static double DoubleToTvUtc(double tv);
     private:
-        DateImplementation(VirtualTableInfoCtorEnum) { m_modified = false; }
+        DateImplementation(VirtualTableInfoCtorEnum) {LOGMEIN("DateImplementation.h] 31\n"); m_modified = false; }
         DateImplementation(double value, ScriptContext* scriptContext);
 
         BEGIN_ENUM_BYTE(DateStringFormat)
@@ -99,8 +99,8 @@ namespace Js {
         static double JsUtcTimeFromVarDate(double dbl, ScriptContext *scriptContext);
 
         void SetTvUtc(double tv);
-        bool IsModified() { return m_modified; }
-        void ClearModified() { m_modified = false; }
+        bool IsModified() {LOGMEIN("DateImplementation.h] 101\n"); return m_modified; }
+        void ClearModified() {LOGMEIN("DateImplementation.h] 102\n"); m_modified = false; }
 
     private:
         JavascriptString* GetString(DateStringFormat dsf, DateTimeFlag noDateTime = DateTimeFlag::None);
@@ -148,14 +148,14 @@ namespace Js {
         static bool FDateDelimiter(char16 ch);
 
         bool IsNaN()
-        {
+        {LOGMEIN("DateImplementation.h] 150\n");
             if (m_grfval & DateValueType::NotNaN)
-            {
+            {LOGMEIN("DateImplementation.h] 152\n");
                 return false;
             }
 
             if (JavascriptNumber::IsNan(m_tvUtc))
-            {
+            {LOGMEIN("DateImplementation.h] 157\n");
                 return true;
             }
             m_grfval |= DateValueType::NotNaN;
@@ -167,16 +167,16 @@ namespace Js {
         ///------------------------------------------------------------------------------
         template <class ScriptContext>
         inline void EnsureTvLcl(ScriptContext* scriptContext)
-        {
+        {LOGMEIN("DateImplementation.h] 169\n");
             if (!(m_grfval & DateValueType::Local))
-            {
+            {LOGMEIN("DateImplementation.h] 171\n");
                 m_tvLcl = GetTvLcl(m_tvUtc, scriptContext, &m_tzd);
                 m_grfval |= DateValueType::Local;
             }
         }
 
         inline void EnsureTvLcl(void)
-        {
+        {LOGMEIN("DateImplementation.h] 178\n");
             EnsureTvLcl(m_scriptContext);
         }
 
@@ -185,9 +185,9 @@ namespace Js {
         ///------------------------------------------------------------------------------
         template <class ScriptContext>
         inline void EnsureYmdLcl(ScriptContext* scriptContext)
-        {
+        {LOGMEIN("DateImplementation.h] 187\n");
             if (m_grfval & DateValueType::YearMonthDayLocal)
-            {
+            {LOGMEIN("DateImplementation.h] 189\n");
                 return;
             }
             EnsureTvLcl(scriptContext);
@@ -196,7 +196,7 @@ namespace Js {
         }
 
         inline void EnsureYmdLcl(void)
-        {
+        {LOGMEIN("DateImplementation.h] 198\n");
             EnsureYmdLcl(m_scriptContext);
         }
 
@@ -204,9 +204,9 @@ namespace Js {
         /// Make sure m_ymdUtc is valid.
         ///------------------------------------------------------------------------------
         inline void EnsureYmdUtc(void)
-        {
+        {LOGMEIN("DateImplementation.h] 206\n");
             if (m_grfval & DateValueType::YearMonthDayUTC)
-            {
+            {LOGMEIN("DateImplementation.h] 208\n");
                 return;
             }
             GetYmdFromTv(m_tvUtc, &m_ymdUtc);
@@ -215,13 +215,13 @@ namespace Js {
 
 
         inline Var GetFullYear()
-        {
+        {LOGMEIN("DateImplementation.h] 217\n");
             EnsureYmdLcl();
             return JavascriptNumber::ToVar(m_ymdLcl.year, m_scriptContext);
         }
 
         inline Var GetYear()
-        {
+        {LOGMEIN("DateImplementation.h] 223\n");
             EnsureYmdLcl();
             // WOOB bug 1099381: ES5 spec B.2.4: getYear() must return YearFromTime() - 1900.
             // Note that negative value is OK for the spec.
@@ -230,43 +230,43 @@ namespace Js {
         }
 
         inline Var GetMonth()
-        {
+        {LOGMEIN("DateImplementation.h] 232\n");
             EnsureYmdLcl();
             return JavascriptNumber::ToVar(m_ymdLcl.mon, m_scriptContext);
         }
 
         inline Var GetDate()
-        {
+        {LOGMEIN("DateImplementation.h] 238\n");
             EnsureYmdLcl();
             return JavascriptNumber::ToVar(m_ymdLcl.mday + 1, m_scriptContext);
         }
 
         inline Var GetDay()
-        {
+        {LOGMEIN("DateImplementation.h] 244\n");
             EnsureYmdLcl();
             return JavascriptNumber::ToVar(m_ymdLcl.wday, m_scriptContext);
         }
 
         inline Var GetHours()
-        {
+        {LOGMEIN("DateImplementation.h] 250\n");
             EnsureYmdLcl();
             return JavascriptNumber::ToVar((m_ymdLcl.time / 3600000)%24, m_scriptContext);
         }
 
         inline Var GetMinutes()
-        {
+        {LOGMEIN("DateImplementation.h] 256\n");
             EnsureYmdLcl();
             return JavascriptNumber::ToVar((m_ymdLcl.time / 60000) % 60, m_scriptContext);
         }
 
         inline Var GetSeconds()
-        {
+        {LOGMEIN("DateImplementation.h] 262\n");
             EnsureYmdLcl();
             return JavascriptNumber::ToVar((m_ymdLcl.time / 1000) % 60, m_scriptContext);
         }
 
         inline Var GetDateMilliSeconds()
-        {
+        {LOGMEIN("DateImplementation.h] 268\n");
             EnsureYmdLcl();
             return JavascriptNumber::ToVar(m_ymdLcl.time % 1000, m_scriptContext);
         }
@@ -298,20 +298,20 @@ namespace Js {
     ///
     template <class ScriptContext>
     double DateImplementation::GetTvLcl(double tv, ScriptContext *scriptContext, TZD *ptzd)
-    {
+    {LOGMEIN("DateImplementation.h] 300\n");
         Assert(scriptContext);
 
         double tvLcl;
 
         if (nullptr != ptzd)
-        {
+        {LOGMEIN("DateImplementation.h] 306\n");
             ptzd->minutes = 0;
             ptzd->fDst = FALSE;
         }
 
         // See if we're out of range before conversion (UTC time value must be within this range)
         if (JavascriptNumber::IsNan(tv) || tv < ktvMin || tv > ktvMax)
-        {
+        {LOGMEIN("DateImplementation.h] 313\n");
             return JavascriptNumber::NaN;
         }
 
@@ -320,7 +320,7 @@ namespace Js {
         bool isDaylightSavings;
         tvLcl = scriptContext->GetDaylightTimeHelper()->UtcToLocal(tv, bias, offset, isDaylightSavings);
         if (nullptr != ptzd)
-        {
+        {LOGMEIN("DateImplementation.h] 322\n");
             ptzd->minutes = -bias;
             ptzd->offset = offset;
             ptzd->fDst = isDaylightSavings;
@@ -333,20 +333,20 @@ namespace Js {
     ///
     template <class ScriptContext>
     double DateImplementation::GetTvUtc(double tv, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("DateImplementation.h] 335\n");
         Assert(scriptContext);
 
         double tvUtc;
 
         if (JavascriptNumber::IsNan(tv) || !NumberUtilities::IsFinite(tv))
-        {
+        {LOGMEIN("DateImplementation.h] 341\n");
             return JavascriptNumber::NaN;
         }
 
         tvUtc = scriptContext->GetDaylightTimeHelper()->LocalToUtc(tv);
         // See if we're out of range after conversion (UTC time value must be within this range)
         if (JavascriptNumber::IsNan(tvUtc) || !NumberUtilities::IsFinite(tv) || tvUtc < ktvMin || tvUtc > ktvMax)
-        {
+        {LOGMEIN("DateImplementation.h] 348\n");
             return JavascriptNumber::NaN;
         }
         return tvUtc;
@@ -360,9 +360,9 @@ namespace Js {
     //
     template <class StringBuilder, class ScriptContext, class NewStringBuilderFunc>
     StringBuilder* DateImplementation::GetDiagValueString(ScriptContext* scriptContext, NewStringBuilderFunc newStringBuilder)
-    {
+    {LOGMEIN("DateImplementation.h] 362\n");
         if (JavascriptNumber::IsNan(m_tvUtc))
-        {
+        {LOGMEIN("DateImplementation.h] 364\n");
             StringBuilder* bs = newStringBuilder(0);
             bs->Append(JS_DISPLAY_STRING_INVALID_DATE);
             return bs;
@@ -374,14 +374,14 @@ namespace Js {
 
     template <class StringBuilder, class ScriptContext, class NewStringBuilderFunc>
     StringBuilder* DateImplementation::ConvertVariantDateToString(double dbl, ScriptContext* scriptContext, NewStringBuilderFunc newStringBuilder)
-    {
+    {LOGMEIN("DateImplementation.h] 376\n");
         TZD tzd;
         DateTime::YMD ymd;
         double tv = GetTvUtc(JsLocalTimeFromVarDate(dbl), scriptContext);
 
         tv = GetTvLcl(tv, scriptContext, &tzd);
         if (JavascriptNumber::IsNan(tv))
-        {
+        {LOGMEIN("DateImplementation.h] 383\n");
             StringBuilder* bs = newStringBuilder(0);
             bs->Append(JS_DISPLAY_STRING_NAN);
             return bs;
@@ -399,25 +399,25 @@ namespace Js {
     //
     template <class StringBuilder, class ScriptContext, class NewStringBuilderFunc>
     StringBuilder* DateImplementation::GetDateDefaultString(DateTime::YMD *pymd, TZD *ptzd, DateTimeFlag noDateTime, ScriptContext* scriptContext, NewStringBuilderFunc newStringBuilder)
-    {
+    {LOGMEIN("DateImplementation.h] 401\n");
         int hour, min;
 
         StringBuilder* const bs = newStringBuilder(72);
 
         const auto ConvertUInt16ToString_ZeroPad_2 = [](const uint16 value, char16 *const buffer, const CharCount charCapacity)
-        {
+        {LOGMEIN("DateImplementation.h] 407\n");
             const charcount_t cchWritten = NumberUtilities::UInt16ToString(value, buffer, charCapacity, 2);
             Assert(cchWritten != 0);
         };
         const auto ConvertLongToString = [](const int32 value, char16 *const buffer, const CharCount charCapacity)
-        {
+        {LOGMEIN("DateImplementation.h] 412\n");
             const errno_t err = _ltow_s(value, buffer, charCapacity, 10);
             Assert(err == 0);
         };
 
         // PART 1 - DATE part
         if( !(noDateTime & DateTimeFlag::NoDate))
-        {
+        {LOGMEIN("DateImplementation.h] 419\n");
             bs->AppendChars(g_rgpszDay[pymd->wday]);
             bs->AppendChars(_u(' '));
             bs->AppendChars(g_rgpszMonth[pymd->mon]);
@@ -430,7 +430,7 @@ namespace Js {
             bs->AppendChars(pymd->year, 10, ConvertLongToString);
 
             if(!(noDateTime & DateTimeFlag::NoTime))
-            {
+            {LOGMEIN("DateImplementation.h] 432\n");
                 // append a space to delimit PART 2 - if to be outputted
                 bs->AppendChars(_u(' '));
             }
@@ -438,7 +438,7 @@ namespace Js {
 
         // PART 2 - TIME part
         if(!(noDateTime & DateTimeFlag::NoTime))
-        {
+        {LOGMEIN("DateImplementation.h] 440\n");
             // sz - as %02d - HOUR
             bs->AppendChars(static_cast<WORD>(pymd->time / 3600000), 2, ConvertUInt16ToString_ZeroPad_2);
             bs->AppendChars(_u(':'));
@@ -453,7 +453,7 @@ namespace Js {
             // IE11+
             min = ptzd->offset;
             if (min < 0)
-            {
+            {LOGMEIN("DateImplementation.h] 455\n");
                 bs->AppendChars(_u('-'));
                 min = -min;
             }
@@ -474,7 +474,7 @@ namespace Js {
 
             // check the IsDaylightSavings?
             if (ptzd->fDst == false)
-            {
+            {LOGMEIN("DateImplementation.h] 476\n");
                 size_t nameLength;
                 const WCHAR *const standardName = scriptContext->GetStandardName(&nameLength, pymd);
                 bs->AppendChars(standardName, static_cast<CharCount>(nameLength));

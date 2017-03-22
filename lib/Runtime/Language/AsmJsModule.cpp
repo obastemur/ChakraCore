@@ -23,18 +23,18 @@ namespace Js
 {
 
     bool AsmJsModuleCompiler::CompileAllFunctions()
-    {
+    {LOGMEIN("AsmJsModule.cpp] 25\n");
         const int size = mFunctionArray.Count();
 
         for (int i = 0; i < size; i++)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 29\n");
             AsmJsFunc* func = mFunctionArray.Item(i);
 
             if (!CompileFunction(func, i))
-            {
+            {LOGMEIN("AsmJsModule.cpp] 33\n");
                 // an error occurred in the function, revert state on all asm.js functions
                 for (int j = 0; j <= i; j++)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 36\n");
                     RevertFunction(j);
                 }
                 return false;
@@ -46,7 +46,7 @@ namespace Js
 
 
     void AsmJsModuleCompiler::RevertFunction(int funcIndex)
-    {
+    {LOGMEIN("AsmJsModule.cpp] 48\n");
         AsmJsFunc* func = mFunctionArray.Item(funcIndex);
         FunctionBody * funcBody = func->GetFuncBody();
         funcBody->ResetByteCodeGenState();
@@ -60,31 +60,31 @@ namespace Js
     }
 
     void AsmJsModuleCompiler::RevertAllFunctions()
-    {
+    {LOGMEIN("AsmJsModule.cpp] 62\n");
         for (int i = 0; i < mFunctionArray.Count(); i++)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 64\n");
             RevertFunction(i);
         }
     }
 
 
     bool AsmJsModuleCompiler::CommitFunctions()
-    {
+    {LOGMEIN("AsmJsModule.cpp] 71\n");
         const int size = mFunctionArray.Count();
         // if changeHeap is defined, it must be first function, so we should skip it
         for (int i = 0; i < size; i++)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 75\n");
             AsmJsFunc* func = mFunctionArray.Item(i);
             FunctionBody* functionBody = func->GetFuncBody();
             AsmJsFunctionInfo* asmInfo = functionBody->AllocateAsmJsFunctionInfo();
 
             if (i == 0 && mUsesChangeHeap)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 81\n");
                 continue;
             }
 
             if (!asmInfo->Init(func))
-            {
+            {LOGMEIN("AsmJsModule.cpp] 86\n");
                 return false;
             }
             asmInfo->SetIsHeapBufferConst(!mUsesChangeHeap);
@@ -98,17 +98,17 @@ namespace Js
 
 #if DBG_DUMP && defined(ASMJS_PLAT)
             if(PHASE_DUMP(ByteCodePhase, functionBody))
-            {
+            {LOGMEIN("AsmJsModule.cpp] 100\n");
                 AsmJsByteCodeDumper::Dump(functionBody, nullptr, func);
             }
 #endif
 #if _M_IX86
             if (PHASE_ON1(AsmJsJITTemplatePhase) && !Configuration::Global.flags.NoNative)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 106\n");
                 AsmJsCodeGenerator* generator = GetScriptContext()->GetAsmJsCodeGenerator();
                 AccumulateCompileTime();
                 if (!generator)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 110\n");
                     generator = GetScriptContext()->InitAsmJsCodeGenerator();
                 }
                 Assert( generator );
@@ -122,16 +122,16 @@ namespace Js
     }
 
     bool AsmJsModuleCompiler::CommitModule()
-    {
+    {LOGMEIN("AsmJsModule.cpp] 124\n");
         FuncInfo* funcInfo = GetModuleFunctionNode()->sxFnc.funcInfo;
         FunctionBody* functionBody = funcInfo->GetParsedFunctionBody();
         AsmJsModuleInfo* asmInfo = functionBody->AllocateAsmJsModuleInfo();
 
         if (funcInfo->byteCodeFunction->GetIsNamedFunctionExpression())
-        {
+        {LOGMEIN("AsmJsModule.cpp] 130\n");
             Assert(GetModuleFunctionNode()->sxFnc.pnodeName);
             if (GetModuleFunctionNode()->sxFnc.pnodeName->sxVar.sym->IsInSlot(funcInfo))
-            {
+            {LOGMEIN("AsmJsModule.cpp] 133\n");
                 ParseNodePtr nameNode = GetModuleFunctionNode()->sxFnc.pnodeName;
                 GetByteCodeGenerator()->AssignPropertyId(nameNode->name());
                 // if module is a named function expression, we may need to restore this for debugger
@@ -142,15 +142,15 @@ namespace Js
 
         int argCount = 0;
         if (mBufferArgName)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 144\n");
             argCount = 3;
         }
         else if (mForeignArgName)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 148\n");
             argCount = 2;
         }
         else if (mStdLibArgName)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 152\n");
             argCount = 1;
         }
 
@@ -170,7 +170,7 @@ namespace Js
         asmInfo->SetMaxHeapAccess(mMaxHeapAccess);
 
         if (IsSimdjsEnabled())
-        {
+        {LOGMEIN("AsmJsModule.cpp] 172\n");
             asmInfo->SetAsmSimdBuiltinUsed(mAsmSimdBuiltinUsedBV);
             asmInfo->SetSimdRegCount(mSimdVarSpace.GetTotalVarCount());
         }
@@ -191,7 +191,7 @@ namespace Js
         asmInfo->SetExportFunctionIndex(mExportFuncIndex);
         asmInfo->SetExportsCount(mExports.Count());
         for (int i = 0; i < mExports.Count(); i++)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 193\n");
             AsmJsModuleExport& exMod = mExports.Item(i);
             auto ex = asmInfo->GetExport(i);
             *ex.id = exMod.id;
@@ -203,34 +203,34 @@ namespace Js
         asmInfo->InitializeSlotMap(moduleEnvCount);
         auto slotMap = asmInfo->GetAsmJsSlotMap();
         for (int i = 0; i < moduleEnvCount; i++)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 205\n");
             AsmJsSymbol* sym = mModuleEnvironment.GetValueAt(i);
             if (sym)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 208\n");
                 AsmJsSlot * slot = RecyclerNewLeaf(GetScriptContext()->GetRecycler(), AsmJsSlot);
                 slot->symType = sym->GetSymbolType();
                 slotMap->AddNew(sym->GetName()->GetPropertyId(), slot);
                 switch (sym->GetSymbolType())
-                {
-                case AsmJsSymbol::Variable:{
+                {LOGMEIN("AsmJsModule.cpp] 213\n");
+                case AsmJsSymbol::Variable:{LOGMEIN("AsmJsModule.cpp] 214\n");
                     AsmJsVar* var = sym->Cast<AsmJsVar>();
                     auto& modVar = asmInfo->GetVar(iVar++);
                     modVar.location = var->GetLocation();
                     modVar.type = var->GetVarType().which();
                     if (var->GetVarType().isInt())
-                    {
+                    {LOGMEIN("AsmJsModule.cpp] 220\n");
                         modVar.initialiser.intInit = var->GetIntInitialiser();
                     }
                     else if (var->GetVarType().isFloat())
-                    {
+                    {LOGMEIN("AsmJsModule.cpp] 224\n");
                         modVar.initialiser.floatInit = var->GetFloatInitialiser();
                     }
                     else if (var->GetVarType().isDouble())
-                    {
+                    {LOGMEIN("AsmJsModule.cpp] 228\n");
                         modVar.initialiser.doubleInit = var->GetDoubleInitialiser();
                     }
                     else if (IsSimdjsEnabled() && var->GetVarType().isSIMD())
-                    {
+                    {LOGMEIN("AsmJsModule.cpp] 232\n");
                         modVar.initialiser.simdInit = var->GetSimdConstInitialiser();
                     }
                     else
@@ -245,7 +245,7 @@ namespace Js
                     slot->isConstVar = !modVar.isMutable;
                     break;
                 }
-                case AsmJsSymbol::ConstantImport:{
+                case AsmJsSymbol::ConstantImport:{LOGMEIN("AsmJsModule.cpp] 247\n");
                     AsmJsConstantImport* var = sym->Cast<AsmJsConstantImport>();
                     auto& modVar = asmInfo->GetVarImport(iVarImp++);
                     modVar.location = var->GetLocation();
@@ -256,7 +256,7 @@ namespace Js
                     slot->varType = modVar.type;
                     break;
                 }
-                case AsmJsSymbol::ImportFunction:{
+                case AsmJsSymbol::ImportFunction:{LOGMEIN("AsmJsModule.cpp] 258\n");
                     AsmJsImportFunction* func = sym->Cast<AsmJsImportFunction>();
                     auto& modVar = asmInfo->GetFunctionImport(iFuncImp++);
                     modVar.location = func->GetFunctionIndex();
@@ -265,14 +265,14 @@ namespace Js
                     slot->location = modVar.location;
                     break;
                 }
-                case AsmJsSymbol::FuncPtrTable:{
+                case AsmJsSymbol::FuncPtrTable:{LOGMEIN("AsmJsModule.cpp] 267\n");
                     AsmJsFunctionTable* funcTable = sym->Cast<AsmJsFunctionTable>();
                     const uint size = funcTable->GetSize();
                     const RegSlot index = funcTable->GetFunctionIndex();
                     asmInfo->SetFunctionTableSize(index, size);
                     auto& modTable = asmInfo->GetFunctionTable(index);
                     for (uint j = 0; j < size; j++)
-                    {
+                    {LOGMEIN("AsmJsModule.cpp] 274\n");
                         modTable.moduleFunctionIndex[j] = funcTable->GetModuleFunctionIndex(j);
                     }
                     slot->funcTableSize = size;
@@ -280,7 +280,7 @@ namespace Js
 
                     break;
                 }
-                case AsmJsSymbol::ModuleFunction:{
+                case AsmJsSymbol::ModuleFunction:{LOGMEIN("AsmJsModule.cpp] 282\n");
                     AsmJsFunc* func = sym->Cast<AsmJsFunc>();
                     auto& modVar = asmInfo->GetFunction(iFunc++);
                     modVar.location = func->GetFunctionIndex();
@@ -288,38 +288,38 @@ namespace Js
                     break;
                 }
                 case AsmJsSymbol::ArrayView:
-                {
+                {LOGMEIN("AsmJsModule.cpp] 290\n");
                     AsmJsArrayView * var = sym->Cast<AsmJsArrayView>();
                     slot->viewType = var->GetViewType();
                     break;
                 }
                 case AsmJsSymbol::ModuleArgument:
-                {
+                {LOGMEIN("AsmJsModule.cpp] 296\n");
                     AsmJsModuleArg * arg = sym->Cast<AsmJsModuleArg>();
                     slot->argType = arg->GetArgType();
                     break;
                 }
                 // used only for module validation
                 case AsmJsSymbol::MathConstant:
-                {
+                {LOGMEIN("AsmJsModule.cpp] 303\n");
                     AsmJsMathConst * constVar = sym->Cast<AsmJsMathConst>();
                     slot->mathConstVal = *constVar->GetVal();
                     break;
                 }
                 case AsmJsSymbol::MathBuiltinFunction:
-                {
+                {LOGMEIN("AsmJsModule.cpp] 309\n");
                     AsmJsMathFunction * mathFunc = sym->Cast<AsmJsMathFunction>();
                     slot->builtinMathFunc = mathFunc->GetMathBuiltInFunction();
                     break;
                 }
                 case AsmJsSymbol::TypedArrayBuiltinFunction:
-                {
+                {LOGMEIN("AsmJsModule.cpp] 315\n");
                     AsmJsTypedArrayFunction * mathFunc = sym->Cast<AsmJsTypedArrayFunction>();
                     slot->builtinArrayFunc = mathFunc->GetArrayBuiltInFunction();
                     break;
                 }
                 case AsmJsSymbol::SIMDBuiltinFunction:
-                {
+                {LOGMEIN("AsmJsModule.cpp] 321\n");
                     AsmJsSIMDFunction * mathFunc = sym->Cast<AsmJsSIMDFunction>();
                     slot->builtinSIMDFunc = mathFunc->GetSimdBuiltInFunction();
                     break;
@@ -336,15 +336,15 @@ namespace Js
     }
 
     void AsmJsModuleCompiler::ASTPrepass(ParseNodePtr pnode, AsmJsFunc * func)
-    {
+    {LOGMEIN("AsmJsModule.cpp] 338\n");
         ThreadContext::ProbeCurrentStackNoDispose(Js::Constants::MinStackByteCodeVisitor, GetByteCodeGenerator()->GetScriptContext());
 
         if (pnode == NULL)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 342\n");
             return;
         }
 
-        switch (pnode->nop) {
+        switch (pnode->nop) {LOGMEIN("AsmJsModule.cpp] 346\n");
         // these first cases do the interesting work
         case knopBreak:
         case knopContinue:
@@ -355,14 +355,14 @@ namespace Js
             func->AddConst<int>(pnode->sxInt.lw);
             break;
         case knopFlt:
-        {
+        {LOGMEIN("AsmJsModule.cpp] 357\n");
             const double d = pnode->sxFlt.dbl;
             if (ParserWrapper::IsMinInt(pnode))
-            {
+            {LOGMEIN("AsmJsModule.cpp] 360\n");
                 func->AddConst<int>((int)d);
             }
             else if (ParserWrapper::IsUnsigned(pnode))
-            {
+            {LOGMEIN("AsmJsModule.cpp] 364\n");
                 func->AddConst<int>((int)(uint32)d);
             }
             else
@@ -372,22 +372,22 @@ namespace Js
             break;
         }
         case knopName:
-        {
+        {LOGMEIN("AsmJsModule.cpp] 374\n");
             GetByteCodeGenerator()->AssignPropertyId(pnode->name());
             AsmJsSymbol * declSym = LookupIdentifier(pnode->name());
             if (declSym)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 378\n");
                 if (declSym->GetSymbolType() == AsmJsSymbol::MathConstant)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 380\n");
                     AsmJsMathConst * definition = declSym->Cast<AsmJsMathConst>();
                     Assert(definition->GetType().isDouble());
                     func->AddConst<double>(*definition->GetVal());
                 }
                 else if (declSym->GetSymbolType() == AsmJsSymbol::Variable && !declSym->isMutable())
-                {
+                {LOGMEIN("AsmJsModule.cpp] 386\n");
                     AsmJsVar * definition = declSym->Cast<AsmJsVar>();
                     switch (definition->GetVarType().which())
-                    {
+                    {LOGMEIN("AsmJsModule.cpp] 389\n");
                     case AsmJsVarType::Double:
                         func->AddConst<double>(definition->GetDoubleInitialiser());
                         break;
@@ -405,19 +405,19 @@ namespace Js
             break;
         }
         case knopCall:
-        {
+        {LOGMEIN("AsmJsModule.cpp] 407\n");
             ASTPrepass(pnode->sxCall.pnodeTarget, func);
             bool evalArgs = true;
             if (pnode->sxCall.pnodeTarget->nop == knopName)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 411\n");
                 AsmJsFunctionDeclaration* funcDecl = this->LookupFunction(pnode->sxCall.pnodeTarget->name());
                 if (funcDecl && funcDecl->GetSymbolType() == AsmJsSymbol::MathBuiltinFunction)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 414\n");
                     AsmJsMathFunction* mathFunc = funcDecl->Cast<AsmJsMathFunction>();
                     if (mathFunc->GetMathBuiltInFunction() == AsmJSMathBuiltin_fround)
-                    {
+                    {LOGMEIN("AsmJsModule.cpp] 417\n");
                         switch (pnode->sxCall.pnodeArgs->nop)
-                        {
+                        {LOGMEIN("AsmJsModule.cpp] 419\n");
                         case knopFlt:
                             func->AddConst<float>((float)pnode->sxCall.pnodeArgs->sxFlt.dbl);
                             evalArgs = false;
@@ -428,7 +428,7 @@ namespace Js
                             break;
                         case knopNeg:
                             if (pnode->sxCall.pnodeArgs->sxUni.pnode1->nop == knopInt && pnode->sxCall.pnodeArgs->sxUni.pnode1->sxInt.lw == 0)
-                            {
+                            {LOGMEIN("AsmJsModule.cpp] 430\n");
                                 func->AddConst<float>(-0.0f);
                                 evalArgs = false;
                                 break;
@@ -437,32 +437,32 @@ namespace Js
                     }
                 }
                 else if (IsSimdjsEnabled())
-                {
+                {LOGMEIN("AsmJsModule.cpp] 439\n");
                     /*
                     Float32x4 operations work on Float reg space.
                     If any of the args is a literal (DoubleLit), we need to have a copy of it in the Float reg space.
                     Note that we may end up with redundant copies in the Double reg space, since we ASTPrepass the args (Fix later ?)
                     */
                     if (funcDecl && funcDecl->GetSymbolType() == AsmJsSymbol::SIMDBuiltinFunction)
-                    {
+                    {LOGMEIN("AsmJsModule.cpp] 446\n");
                         AsmJsSIMDFunction* simdFunc = funcDecl->Cast<AsmJsSIMDFunction>();
                         if (simdFunc->IsFloat32x4Func())
-                        {
+                        {LOGMEIN("AsmJsModule.cpp] 449\n");
                             ParseNode *argNode, *arg;
                             argNode = arg = pnode->sxCall.pnodeArgs;
                             do
-                            {
+                            {LOGMEIN("AsmJsModule.cpp] 453\n");
                                 if (argNode->nop == knopList)
-                                {
+                                {LOGMEIN("AsmJsModule.cpp] 455\n");
                                     arg = ParserWrapper::GetBinaryLeft(argNode);
                                     argNode = ParserWrapper::GetBinaryRight(argNode);
                                 }
                                 if (arg->nop == knopFlt)
-                                {
+                                {LOGMEIN("AsmJsModule.cpp] 460\n");
                                     func->AddConst<float>((float)arg->sxFlt.dbl);
                                 }
                                 if (argNode != arg && argNode->nop == knopFlt)
-                                { // last arg
+                                {LOGMEIN("AsmJsModule.cpp] 464\n"); // last arg
                                     func->AddConst<float>((float)argNode->sxFlt.dbl);
                                 }
                             } while (argNode->nop == knopList);
@@ -472,7 +472,7 @@ namespace Js
 
             }
             if (evalArgs)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 474\n");
                 ASTPrepass(pnode->sxCall.pnodeArgs, func);
             }
             break;
@@ -489,7 +489,7 @@ namespace Js
             break;
         case knopList:
             do
-            {
+            {LOGMEIN("AsmJsModule.cpp] 491\n");
                 ParseNode * pnode1 = pnode->sxBin.pnode1;
                 ASTPrepass(pnode1, func);
                 pnode = pnode->sxBin.pnode2;
@@ -531,20 +531,20 @@ namespace Js
             ASTPrepass(pnode->sxCase.pnodeBody, func);
             break;
         case knopComma:
-        {
+        {LOGMEIN("AsmJsModule.cpp] 533\n");
             ParseNode *pnode1 = pnode->sxBin.pnode1;
             if (pnode1->nop == knopComma)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 536\n");
                 // avoid recursion on very large comma expressions.
                 ArenaAllocator *alloc = GetByteCodeGenerator()->GetAllocator();
                 SList<ParseNode*> *rhsStack = Anew(alloc, SList<ParseNode*>, alloc);
-                do {
+                do {LOGMEIN("AsmJsModule.cpp] 540\n");
                     rhsStack->Push(pnode1->sxBin.pnode2);
                     pnode1 = pnode1->sxBin.pnode1;
                 } while (pnode1->nop == knopComma);
                 ASTPrepass(pnode1, func);
                 while (!rhsStack->Empty())
-                {
+                {LOGMEIN("AsmJsModule.cpp] 546\n");
                     ParseNode *pnodeRhs = rhsStack->Pop();
                     ASTPrepass(pnodeRhs, func);
                 }
@@ -561,11 +561,11 @@ namespace Js
         {
             uint flags = ParseNode::Grfnop(pnode->nop);
             if (flags&fnopUni)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 563\n");
                 ASTPrepass(pnode->sxUni.pnode1, func);
             }
             else if (flags&fnopBin)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 567\n");
                 ASTPrepass(pnode->sxBin.pnode1, func);
                 ASTPrepass(pnode->sxBin.pnode2, func);
             }
@@ -575,15 +575,15 @@ namespace Js
     }
 
     void AsmJsModuleCompiler::BindArguments(ParseNode* argList)
-    {
+    {LOGMEIN("AsmJsModule.cpp] 577\n");
         for (ParseNode* pnode = argList; pnode; pnode = pnode->sxVar.pnodeNext)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 579\n");
             GetByteCodeGenerator()->AssignPropertyId(pnode->name());
         }
     }
 
     bool AsmJsModuleCompiler::CompileFunction(AsmJsFunc * func, int funcIndex)
-    {
+    {LOGMEIN("AsmJsModule.cpp] 585\n");
         ParseNodePtr fncNode = func->GetFncNode();
         ParseNodePtr pnodeBody = nullptr;
 
@@ -604,9 +604,9 @@ namespace Js
         deferParseFunction->SetReportedInParamsCount(fncNode->sxFnc.funcInfo->inArgsCount);
 
         if (fncNode->sxFnc.pnodeBody == NULL)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 606\n");
             if (!PHASE_OFF1(Js::SkipNestedDeferredPhase))
-            {
+            {LOGMEIN("AsmJsModule.cpp] 608\n");
                 deferParseFunction->BuildDeferredStubs(fncNode);
             }
         }
@@ -622,13 +622,13 @@ namespace Js
 
         TRACE_BYTECODE(_u("\nDeferred parse %s\n"), funcBody->GetDisplayName());
         if (parseTree && parseTree->nop == knopProg)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 624\n");
             auto body = parseTree->sxProg.pnodeBody;
             if (body && body->nop == knopList)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 627\n");
                 auto fncDecl = body->sxBin.pnode1;
                 if (fncDecl && fncDecl->nop == knopFncDecl)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 630\n");
                     pnodeBody = fncDecl->sxFnc.pnodeBody;
                     func->SetFuncBody(funcBody);
                 }
@@ -642,7 +642,7 @@ namespace Js
         fncNode->sxFnc.pnodeBody = pnodeBody;
 
         if (!pnodeBody)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 644\n");
             // body should never be null if parsing succeeded
             Assert(UNREACHED);
             return Fail(fncNode, _u("Function should always have parse nodes"));
@@ -652,20 +652,20 @@ namespace Js
         UpdateMaxAstSize(fncNode->sxFnc.astSize);
 
         if (funcIndex == 0 && CheckChangeHeap(func))
-        {
+        {LOGMEIN("AsmJsModule.cpp] 654\n");
             fncNode->sxFnc.pnodeBody = NULL;
             return true;
         }
 
         if (!SetupFunctionArguments(func, pnodeBody))
-        {
+        {LOGMEIN("AsmJsModule.cpp] 660\n");
             // failure message will be printed by SetupFunctionArguments
             fncNode->sxFnc.pnodeBody = NULL;
             return false;
         }
 
         if (!SetupLocalVariables(func))
-        {
+        {LOGMEIN("AsmJsModule.cpp] 667\n");
             // failure message will be printed by SetupLocalVariables
             fncNode->sxFnc.pnodeBody = NULL;
             return false;
@@ -680,47 +680,47 @@ namespace Js
 
 
     bool AsmJsModuleCompiler::SetupFunctionArguments(AsmJsFunc * func, ParseNodePtr pnode)
-    {
+    {LOGMEIN("AsmJsModule.cpp] 682\n");
         // Check arguments
         ArgSlot numArguments = 0;
         ParseNode * fncNode = func->GetFncNode();
         ParseNode* argNode = ParserWrapper::FunctionArgsList(fncNode, numArguments);
 
         if (!func->EnsureArgCount(numArguments))
-        {
+        {LOGMEIN("AsmJsModule.cpp] 689\n");
             return Fail(argNode, _u("Cannot have variable number of arguments"));
         }
 
         ArgSlot index = 0;
         while (argNode)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 695\n");
             if (pnode->nop != knopList)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 697\n");
                 return Fail(pnode, _u("Missing assignment statement for argument"));
             }
 
 
             if (!ParserWrapper::IsDefinition(argNode))
-            {
+            {LOGMEIN("AsmJsModule.cpp] 703\n");
                 return Fail(argNode, _u("duplicate argument name not allowed"));
             }
 
             PropertyName argName = argNode->name();
             if (!AsmJSCompiler::CheckIdentifier(*this, argNode, argName))
-            {
+            {LOGMEIN("AsmJsModule.cpp] 709\n");
                 return false;
             }
 
             // creates the variable
             AsmJsVarBase* var = func->DefineVar(argName, true);
             if (!var)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 716\n");
                 return Fail(argNode, _u("Failed to define var"));
             }
 
             ParseNode* argDefinition = ParserWrapper::GetBinaryLeft(pnode);
             if (argDefinition->nop != knopAsg)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 722\n");
                 return Fail(argDefinition, _u("Expecting an assignment"));
             }
 
@@ -730,12 +730,12 @@ namespace Js
 #define NodeDefineThisArgument(n,var) (n->nop == knopName && ParserWrapper::VariableName(n)->GetPropertyId() == var->GetName()->GetPropertyId())
 
             if (!NodeDefineThisArgument(lhs, var))
-            {
+            {LOGMEIN("AsmJsModule.cpp] 732\n");
                 return Fail(lhs, _u("Defining wrong argument"));
             }
 
             if (rhs->nop == knopPos)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 737\n");
                 // unary + => double
                 var->SetVarType(AsmJsVarType::Double);
                 var->SetLocation(func->AcquireRegister<double>());
@@ -743,12 +743,12 @@ namespace Js
                 ParseNode* argSym = ParserWrapper::GetUnaryNode(rhs);
 
                 if (!NodeDefineThisArgument(argSym, var))
-                {
+                {LOGMEIN("AsmJsModule.cpp] 745\n");
                     return Fail(lhs, _u("Defining wrong argument"));
                 }
             }
             else if (rhs->nop == knopOr)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 750\n");
                 var->SetVarType(AsmJsVarType::Int);
                 var->SetLocation(func->AcquireRegister<int>());
 
@@ -756,18 +756,18 @@ namespace Js
                 ParseNode* intSym = ParserWrapper::GetBinaryRight(rhs);
                 // validate stmt
                 if (!NodeDefineThisArgument(argSym, var))
-                {
+                {LOGMEIN("AsmJsModule.cpp] 758\n");
                     return Fail(lhs, _u("Defining wrong argument"));
                 }
                 if (intSym->nop != knopInt || intSym->sxInt.lw != 0)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 762\n");
                     return Fail(lhs, _u("Or value must be 0 when defining arguments"));
                 }
             }
             else if (rhs->nop == knopCall)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 767\n");
                 if (rhs->sxCall.pnodeTarget->nop != knopName)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 769\n");
                     return Fail(rhs, _u("call should be for fround"));
                 }
                 AsmJsFunctionDeclaration* funcDecl = this->LookupFunction(rhs->sxCall.pnodeTarget->name());
@@ -776,25 +776,25 @@ namespace Js
                     return Fail(rhs, _u("Cannot resolve function for argument definition, or wrong function"));
 
                 if (funcDecl->GetSymbolType() == AsmJsSymbol::MathBuiltinFunction)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 778\n");
                     AsmJsMathFunction* mathFunc = funcDecl->Cast<AsmJsMathFunction>();
                     if (!(mathFunc && mathFunc->GetMathBuiltInFunction() == AsmJSMathBuiltin_fround))
-                    {
+                    {LOGMEIN("AsmJsModule.cpp] 781\n");
                         return Fail(rhs, _u("call should be for fround"));
                     }
                     var->SetVarType(AsmJsVarType::Float);
                     var->SetLocation(func->AcquireRegister<float>());
                 }
                 else if (IsSimdjsEnabled() && funcDecl->GetSymbolType() == AsmJsSymbol::SIMDBuiltinFunction)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 788\n");
                     AsmJsSIMDFunction* simdFunc = funcDecl->Cast<AsmJsSIMDFunction>();
                     // x = f4check(x)
                     if (!simdFunc->IsTypeCheck())
-                    {
+                    {LOGMEIN("AsmJsModule.cpp] 792\n");
                        return Fail(rhs, _u("Invalid SIMD argument type check. E.g. expected x = f4check(x)"));
                     }
                     if (simdFunc->IsUnsignedTypeCheck())
-                    {
+                    {LOGMEIN("AsmJsModule.cpp] 796\n");
                         return Fail(rhs, _u("Invalid SIMD argument type. Expecting Signed arguments."));
                     }
                     var->SetVarType(simdFunc->GetTypeCheckVarType());
@@ -808,7 +808,7 @@ namespace Js
                 }
 
                 if (!NodeDefineThisArgument(rhs->sxCall.pnodeArgs, var))
-                {
+                {LOGMEIN("AsmJsModule.cpp] 810\n");
                     return Fail(lhs, _u("Defining wrong argument"));
                 }
             }
@@ -818,12 +818,12 @@ namespace Js
             }
 
             if (PHASE_TRACE1(ByteCodePhase))
-            {
+            {LOGMEIN("AsmJsModule.cpp] 820\n");
                 Output::Print(_u("    Argument [%s] Valid"), argName->Psz());
             }
 
             if (!func->EnsureArgType(var, index++))
-            {
+            {LOGMEIN("AsmJsModule.cpp] 825\n");
                 return Fail(rhs, _u("Unexpected argument type"));
             }
 
@@ -836,7 +836,7 @@ namespace Js
     }
 
     bool AsmJsModuleCompiler::SetupLocalVariables(AsmJsFunc * func)
-    {
+    {LOGMEIN("AsmJsModule.cpp] 838\n");
         ParseNodePtr pnode = func->GetBodyNode();
         MathBuiltin mathBuiltin;
         AsmJsMathFunction* mathFunc = nullptr;
@@ -845,13 +845,13 @@ namespace Js
         simdValue.Zero();
         // define all variables
         while (pnode->nop == knopList)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 847\n");
             ParseNode * varNode = ParserWrapper::GetBinaryLeft(pnode);
             while (varNode && varNode->nop != knopEndCode)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 850\n");
                 ParseNode * decl;
                 if (varNode->nop == knopList)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 853\n");
                     decl = ParserWrapper::GetBinaryLeft(varNode);
                     varNode = ParserWrapper::GetBinaryRight(varNode);
                 }
@@ -862,7 +862,7 @@ namespace Js
                 }
                 // if we have hit a non-declaration, we are done processing the function header
                 if (decl->nop != knopVarDecl)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 864\n");
                     goto varDeclEnd;
                 }
                 ParseNode* pnodeInit = decl->sxVar.pnodeInit;
@@ -872,22 +872,22 @@ namespace Js
                 simdFunc = nullptr;
 
                 if (!pnodeInit)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 874\n");
                     return Fail(decl, _u("The righthand side of a var declaration missing an initialization (empty)"));
                 }
 
                 if (pnodeInit->nop == knopName)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 879\n");
                     declSym = LookupIdentifier(pnodeInit->name(), func);
                     if (!declSym || declSym->isMutable() || (declSym->GetSymbolType() != AsmJsSymbol::Variable && declSym->GetSymbolType() != AsmJsSymbol::MathConstant))
-                    {
+                    {LOGMEIN("AsmJsModule.cpp] 882\n");
                         return Fail(decl, _u("Var declaration with non-constant"));
                     }
                 }
                 else if (pnodeInit->nop == knopCall)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 887\n");
                     if (pnodeInit->sxCall.pnodeTarget->nop != knopName)
-                    {
+                    {LOGMEIN("AsmJsModule.cpp] 889\n");
                         return Fail(decl, _u("Var declaration with something else than a literal value|fround call"));
                     }
                     AsmJsFunctionDeclaration* funcDecl = this->LookupFunction(pnodeInit->sxCall.pnodeTarget->name());
@@ -896,68 +896,68 @@ namespace Js
                         return Fail(pnodeInit, _u("Cannot resolve function name"));
 
                     if (funcDecl->GetSymbolType() == AsmJsSymbol::MathBuiltinFunction)
-                    {
+                    {LOGMEIN("AsmJsModule.cpp] 898\n");
                         mathFunc = funcDecl->Cast<AsmJsMathFunction>();
                         if (!(mathFunc && mathFunc->GetMathBuiltInFunction() == AsmJSMathBuiltin_fround))
-                        {
+                        {LOGMEIN("AsmJsModule.cpp] 901\n");
                             return Fail(decl, _u("Var declaration with something else than a literal value|fround call"));
                         }
                         if (!ParserWrapper::IsFroundNumericLiteral(pnodeInit->sxCall.pnodeArgs))
-                        {
+                        {LOGMEIN("AsmJsModule.cpp] 905\n");
                             return Fail(decl, _u("Var declaration with something else than a literal value|fround call"));
                         }
                     }
                     else if (IsSimdjsEnabled() && funcDecl->GetSymbolType() == AsmJsSymbol::SIMDBuiltinFunction)
-                    {
+                    {LOGMEIN("AsmJsModule.cpp] 910\n");
                         // var x = f4(1.0, 2.0, 3.0, 4.0);
                         simdFunc = funcDecl->Cast<AsmJsSIMDFunction>();
                         if (!ValidateSimdConstructor(pnodeInit, simdFunc, simdValue))
-                        {
+                        {LOGMEIN("AsmJsModule.cpp] 914\n");
                             return Fail(varNode, _u("Invalid SIMD local declaration"));
                         }
                     }
                 }
                 else if (pnodeInit->nop != knopInt && pnodeInit->nop != knopFlt)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 920\n");
                     return Fail(decl, _u("Var declaration with something else than a literal value|fround call"));
                 }
                 if (!AsmJSCompiler::CheckIdentifier(*this, decl, decl->name()))
-                {
+                {LOGMEIN("AsmJsModule.cpp] 924\n");
                     // CheckIdentifier will print failure message
                     return false;
                 }
 
                 AsmJsVar* var = (AsmJsVar*)func->DefineVar(decl->name(), false);
                 if (!var)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 931\n");
                     return Fail(decl, _u("Failed to define var"));
                 }
                 RegSlot loc = Constants::NoRegister;
                 if (pnodeInit->nop == knopInt)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 936\n");
                     var->SetVarType(AsmJsVarType::Int);
                     var->SetLocation(func->AcquireRegister<int>());
                     var->SetConstInitialiser(pnodeInit->sxInt.lw);
                     loc = func->GetConstRegister<int>(pnodeInit->sxInt.lw);
                 }
                 else if (ParserWrapper::IsMinInt(pnodeInit))
-                {
+                {LOGMEIN("AsmJsModule.cpp] 943\n");
                     var->SetVarType(AsmJsVarType::Int);
                     var->SetLocation(func->AcquireRegister<int>());
                     var->SetConstInitialiser(INT_MIN);
                     loc = func->GetConstRegister<int>(INT_MIN);
                 }
                 else if (ParserWrapper::IsUnsigned(pnodeInit))
-                {
+                {LOGMEIN("AsmJsModule.cpp] 950\n");
                     var->SetVarType(AsmJsVarType::Int);
                     var->SetLocation(func->AcquireRegister<int>());
                     var->SetConstInitialiser((int)((uint32)pnodeInit->sxFlt.dbl));
                     loc = func->GetConstRegister<int>((uint32)pnodeInit->sxFlt.dbl);
                 }
                 else if (pnodeInit->nop == knopFlt)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 957\n");
                     if (pnodeInit->sxFlt.maybeInt)
-                    {
+                    {LOGMEIN("AsmJsModule.cpp] 959\n");
                         return Fail(decl, _u("Var declaration with integer literal outside range [-2^31, 2^32)"));
                     }
                     var->SetVarType(AsmJsVarType::Double);
@@ -966,12 +966,12 @@ namespace Js
                     var->SetConstInitialiser(pnodeInit->sxFlt.dbl);
                 }
                 else if (pnodeInit->nop == knopName)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 968\n");
                     if (declSym->GetSymbolType() == AsmJsSymbol::Variable)
-                    {
+                    {LOGMEIN("AsmJsModule.cpp] 970\n");
                         AsmJsVar * definition = declSym->Cast<AsmJsVar>();
                         switch (definition->GetVarType().which())
-                        {
+                        {LOGMEIN("AsmJsModule.cpp] 973\n");
                         case AsmJsVarType::Double:
                             var->SetVarType(AsmJsVarType::Double);
                             var->SetLocation(func->AcquireRegister<double>());
@@ -1007,19 +1007,19 @@ namespace Js
                     }
                 }
                 else if (pnodeInit->nop == knopCall)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 1009\n");
                     if (mathFunc)
-                    {
+                    {LOGMEIN("AsmJsModule.cpp] 1011\n");
                         var->SetVarType(AsmJsVarType::Float);
                         var->SetLocation(func->AcquireRegister<float>());
                         if (pnodeInit->sxCall.pnodeArgs->nop == knopInt)
-                        {
+                        {LOGMEIN("AsmJsModule.cpp] 1015\n");
                             int iVal = pnodeInit->sxCall.pnodeArgs->sxInt.lw;
                             var->SetConstInitialiser((float)iVal);
                             loc = func->GetConstRegister<float>((float)iVal);
                         }
                         else if (ParserWrapper::IsNegativeZero(pnodeInit->sxCall.pnodeArgs))
-                        {
+                        {LOGMEIN("AsmJsModule.cpp] 1021\n");
                             var->SetConstInitialiser(-0.0f);
                             loc = func->GetConstRegister<float>(-0.0f);
                         }
@@ -1033,7 +1033,7 @@ namespace Js
                         }
                     }
                     else if (IsSimdjsEnabled() && simdFunc)
-                    {
+                    {LOGMEIN("AsmJsModule.cpp] 1035\n");
                         // simd constructor call
                         // en-register the simdvalue constant first
                         func->AddConst<AsmJsSIMDValue>(simdValue);
@@ -1050,13 +1050,13 @@ namespace Js
                 }
 
                 if (loc == Constants::NoRegister && pnodeInit->nop != knopName)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 1052\n");
                     return Fail(decl, _u("Cannot find Register constant for var"));
                 }
             }
 
             if (ParserWrapper::GetBinaryRight(pnode)->nop == knopEndCode)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 1058\n");
                 break;
             }
             pnode = ParserWrapper::GetBinaryRight(pnode);
@@ -1065,10 +1065,10 @@ namespace Js
         varDeclEnd:
         // this code has to be on all exit-path from the function
         if (IsSimdjsEnabled())
-        {
+        {LOGMEIN("AsmJsModule.cpp] 1067\n");
             // Now, assign registers to all SIMD vars after all constants are en-registered.
             for (int i = 0; i < func->GetSimdVarsList().Count(); i++)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 1070\n");
                 AsmJsVarBase *var = func->GetSimdVarsList().Item(i);
                 var->SetLocation(func->AcquireRegister<AsmJsSIMDValue>());
             }
@@ -1078,10 +1078,10 @@ namespace Js
     }
 
     AsmJsFunc* AsmJsModuleCompiler::CreateNewFunctionEntry( ParseNode* pnodeFnc )
-    {
+    {LOGMEIN("AsmJsModule.cpp] 1080\n");
         PropertyName name = ParserWrapper::FunctionName( pnodeFnc );
         if ( !name )
-        {
+        {LOGMEIN("AsmJsModule.cpp] 1083\n");
             return nullptr;
         }
 
@@ -1090,7 +1090,7 @@ namespace Js
         if( func )
         {
             if( DefineIdentifier( name, func ) )
-            {
+            {LOGMEIN("AsmJsModule.cpp] 1092\n");
                 func->SetFunctionIndex( pnodeFnc->sxFnc.nestedIndex );
                 // Add extra check to make sure all the slots between 0 - Count are filled with func;
                 mFunctionArray.SetItem( func->GetFunctionIndex(), func );
@@ -1104,7 +1104,7 @@ namespace Js
     }
 
     bool AsmJsModuleCompiler::CheckChangeHeap(AsmJsFunc * func)
-    {
+    {LOGMEIN("AsmJsModule.cpp] 1106\n");
         ParseNode * fncNode = func->GetFncNode();
         ParseNode * pnodeBody = fncNode->sxFnc.pnodeBody;
         ParseNode * pnodeArgs = fncNode->sxFnc.pnodeParams;
@@ -1125,26 +1125,26 @@ namespace Js
 
         // ensure function
         if (pnodeBody->nop != knopList || !pnodeArgs || pnodeArgs->nop != knopVarDecl)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 1127\n");
             return false;
         }
 
         // ensure if expression
         ParseNode * ifNode = pnodeBody->sxBin.pnode1;
         if (ifNode->nop != knopIf || ifNode->sxIf.pnodeFalse)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 1134\n");
             return false;
         }
 
         // validate "byteLength(newBuffer) >  0x80000000"
         ParseNode * orNode = ifNode->sxIf.pnodeCond;
         if (orNode->nop != knopLogOr || orNode->sxBin.pnode1->nop != knopLogOr)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 1141\n");
             return false;
         }
         ParseNode * cond = orNode->sxBin.pnode2;
         if (cond->nop != knopGt || !CheckByteLengthCall(cond->sxBin.pnode1, pnodeArgs) || cond->sxBin.pnode2->nop != knopFlt || cond->sxBin.pnode2->sxFlt.dbl != 2147483648.0 || !cond->sxBin.pnode2->sxFlt.maybeInt)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 1146\n");
             return false;
         }
 
@@ -1152,65 +1152,65 @@ namespace Js
         orNode = orNode->sxBin.pnode1;
         cond = orNode->sxBin.pnode2;
         if (cond->nop != knopLe || !CheckByteLengthCall(cond->sxBin.pnode1, pnodeArgs) || cond->sxBin.pnode2->nop != knopInt || cond->sxBin.pnode2->sxInt.lw != 0x00ffffff)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 1154\n");
             return false;
         }
 
         // validate "byteLength(newBuffer) & 0xffffff"
         cond = orNode->sxBin.pnode1;
         if (cond->nop != knopAnd || !CheckByteLengthCall(cond->sxBin.pnode1, pnodeArgs) || cond->sxBin.pnode2->nop != knopInt || cond->sxBin.pnode2->sxInt.lw != 0x00ffffff)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 1161\n");
             return false;
         }
         // validate "return false;"
         cond = ifNode->sxIf.pnodeTrue;
         if (!cond || cond->nop != knopReturn || cond->sxReturn.pnodeExpr->nop != knopFalse)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 1167\n");
             return false;
         }
 
         // validate heap32 = new Int32Array(newBuffer); etc.
         while (!mArrayViews.Empty())
-        {
+        {LOGMEIN("AsmJsModule.cpp] 1173\n");
             // all views that were instantiated must be replaced in the order which they were instantiated
             AsmJsArrayView * requiredArrayView = mArrayViews.Dequeue();
             pnodeBody = pnodeBody->sxBin.pnode2;
             if (pnodeBody->nop != knopList)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 1178\n");
                 return false;
             }
             ParseNode * assignNode = pnodeBody->sxBin.pnode1;
             if (assignNode->nop != knopAsg || assignNode->sxBin.pnode1->nop != knopName)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 1183\n");
                 return false;
             }
             // validate left hand side
             AsmJsSymbol * actualArraySym = LookupIdentifier(assignNode->sxBin.pnode1->name());
             if (requiredArrayView != actualArraySym)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 1189\n");
                 return false;
             }
 
             ParseNode * callNode = assignNode->sxBin.pnode2;
             // validate correct argument is passed
             if (callNode->nop != knopNew || !callNode->sxCall.pnodeArgs || callNode->sxCall.pnodeArgs->nop != knopName || callNode->sxCall.pnodeArgs->name()->GetPropertyId() != pnodeArgs->name()->GetPropertyId() || callNode->sxCall.pnodeTarget->nop != knopName)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 1196\n");
                 return false;
             }
             // validate correct function is being called
             AsmJsSymbol * callTargetSym = LookupIdentifier(callNode->sxCall.pnodeTarget->name());
             if (!callTargetSym || callTargetSym->GetSymbolType() != AsmJsSymbol::TypedArrayBuiltinFunction)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 1202\n");
                 return false;
             }
             if (requiredArrayView->GetViewType() != callTargetSym->Cast<AsmJsTypedArrayFunction>()->GetViewType())
-            {
+            {LOGMEIN("AsmJsModule.cpp] 1206\n");
                 return false;
             }
         }
         pnodeBody = pnodeBody->sxBin.pnode2;
         if (pnodeBody->nop != knopList)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 1212\n");
             return false;
         }
 
@@ -1218,14 +1218,14 @@ namespace Js
         ParseNode * assign = pnodeBody->sxBin.pnode1;
         if (assign->nop != knopAsg || assign->sxBin.pnode1->nop != knopName || !mBufferArgName || mBufferArgName->GetPropertyId() != assign->sxBin.pnode1->name()->GetPropertyId() ||
             assign->sxBin.pnode2->nop != knopName || pnodeArgs->name()->GetPropertyId() != assign->sxBin.pnode2->name()->GetPropertyId())
-        {
+        {LOGMEIN("AsmJsModule.cpp] 1220\n");
             return false;
         }
         // validate return true;
         pnodeBody = pnodeBody->sxBin.pnode2;
         if (pnodeBody->nop != knopList || pnodeBody->sxBin.pnode2->nop != knopEndCode ||
             pnodeBody->sxBin.pnode1->nop != knopReturn || !pnodeBody->sxBin.pnode1->sxReturn.pnodeExpr || pnodeBody->sxBin.pnode1->sxReturn.pnodeExpr->nop != knopTrue)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 1227\n");
             return false;
         }
         // now we should flag this module as containing changeHeap method
@@ -1235,14 +1235,14 @@ namespace Js
     }
 
     bool AsmJsModuleCompiler::CheckByteLengthCall(ParseNode * callNode, ParseNode * bufferDecl)
-    {
+    {LOGMEIN("AsmJsModule.cpp] 1237\n");
         if (callNode->nop != knopCall || callNode->sxCall.pnodeTarget->nop != knopName)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 1239\n");
             return false;
         }
         AsmJsSymbol* funcDecl = LookupIdentifier(callNode->sxCall.pnodeTarget->name());
         if (!funcDecl || funcDecl->GetSymbolType() != AsmJsSymbol::TypedArrayBuiltinFunction)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 1244\n");
             return false;
         }
 
@@ -1257,29 +1257,29 @@ namespace Js
     }
 
     bool AsmJsModuleCompiler::Fail( ParseNode* usepn, const wchar *error )
-    {
+    {LOGMEIN("AsmJsModule.cpp] 1259\n");
         AsmJSCompiler::OutputError(GetScriptContext(), error);
         return false;
     }
 
     bool AsmJsModuleCompiler::FailName( ParseNode *usepn, const wchar *fmt, PropertyName name )
-    {
+    {LOGMEIN("AsmJsModule.cpp] 1265\n");
         AsmJSCompiler::OutputError(GetScriptContext(), fmt, name->Psz());
         return false;
     }
 
     bool AsmJsModuleCompiler::LookupStandardLibraryMathName( PropertyName name, MathBuiltin *mathBuiltin ) const
-    {
+    {LOGMEIN("AsmJsModule.cpp] 1271\n");
         return mStandardLibraryMathNames.TryGetValue( name->GetPropertyId(), mathBuiltin );
     }
 
     bool AsmJsModuleCompiler::LookupStandardLibraryArrayName(PropertyName name, TypedArrayBuiltin *builtin) const
-    {
+    {LOGMEIN("AsmJsModule.cpp] 1276\n");
         return mStandardLibraryArrayNames.TryGetValue(name->GetPropertyId(), builtin);
     }
 
     void AsmJsModuleCompiler::InitBufferArgName( PropertyName n )
-    {
+    {LOGMEIN("AsmJsModule.cpp] 1281\n");
 #if DBG
         Assert( !mBufferArgNameInit );
         mBufferArgNameInit = true;
@@ -1288,7 +1288,7 @@ namespace Js
     }
 
     void AsmJsModuleCompiler::InitForeignArgName( PropertyName n )
-    {
+    {LOGMEIN("AsmJsModule.cpp] 1290\n");
 #if DBG
         Assert( !mForeignArgNameInit );
         mForeignArgNameInit = true;
@@ -1297,7 +1297,7 @@ namespace Js
     }
 
     void AsmJsModuleCompiler::InitStdLibArgName( PropertyName n )
-    {
+    {LOGMEIN("AsmJsModule.cpp] 1299\n");
 #if DBG
         Assert( !mStdLibArgNameInit );
         mStdLibArgNameInit = true;
@@ -1306,7 +1306,7 @@ namespace Js
     }
 
     Js::PropertyName AsmJsModuleCompiler::GetStdLibArgName() const
-    {
+    {LOGMEIN("AsmJsModule.cpp] 1308\n");
 #if DBG
         Assert( mBufferArgNameInit );
 #endif
@@ -1314,7 +1314,7 @@ namespace Js
     }
 
     Js::PropertyName AsmJsModuleCompiler::GetForeignArgName() const
-    {
+    {LOGMEIN("AsmJsModule.cpp] 1316\n");
 #if DBG
         Assert( mForeignArgNameInit );
 #endif
@@ -1322,7 +1322,7 @@ namespace Js
     }
 
     Js::PropertyName AsmJsModuleCompiler::GetBufferArgName() const
-    {
+    {LOGMEIN("AsmJsModule.cpp] 1324\n");
 #if DBG
         Assert( mStdLibArgNameInit );
 #endif
@@ -1330,9 +1330,9 @@ namespace Js
     }
 
     bool AsmJsModuleCompiler::Init()
-    {
+    {LOGMEIN("AsmJsModule.cpp] 1332\n");
         if( mInitialised )
-        {
+        {LOGMEIN("AsmJsModule.cpp] 1334\n");
             return false;
         }
         mInitialised = true;
@@ -1341,7 +1341,7 @@ namespace Js
         {
             MathFunc( PropertyId id_ = 0, AsmJsMathFunction* val_ = nullptr ) :
                 id( id_ ), val( val_ )
-            {
+            {LOGMEIN("AsmJsModule.cpp] 1343\n");
             }
             PropertyId id;
             AsmJsMathFunction* val;
@@ -1381,9 +1381,9 @@ namespace Js
         mathFunctions[AsmJSMathBuiltin_sqrt].val->SetOverload(  Anew(&mAllocator, AsmJsMathFunction, nullptr, &mAllocator, 1, AsmJSMathBuiltin_sqrt,   OpCodeAsmJs::Sqrt_Flt,   AsmJsRetType::Floatish, AsmJsType::MaybeFloat));
 
         for (int i = 0; i < AsmJSMathBuiltinFunction_COUNT ; i++)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 1383\n");
             if( !AddStandardLibraryMathName( (PropertyId)mathFunctions[i].id, mathFunctions[i].val, mathFunctions[i].val->GetMathBuiltInFunction() ) )
-            {
+            {LOGMEIN("AsmJsModule.cpp] 1385\n");
                 return false;
             }
         }
@@ -1391,7 +1391,7 @@ namespace Js
         struct ConstMath
         {
             ConstMath( PropertyId id_, const double* val_, AsmJSMathBuiltinFunction mathLibConstName_):
-                id(id_), val(val_), mathLibConstName(mathLibConstName_) { }
+                id(id_), val(val_), mathLibConstName(mathLibConstName_) {LOGMEIN("AsmJsModule.cpp] 1393\n"); }
             PropertyId id;
             AsmJSMathBuiltinFunction mathLibConstName;
             const double* val;
@@ -1410,9 +1410,9 @@ namespace Js
         };
         const int size = sizeof( constMath ) / sizeof( ConstMath );
         for (int i = 0; i < size ; i++)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 1412\n");
             if( !AddStandardLibraryMathName( constMath[i].id, constMath[i].val, constMath[i].mathLibConstName ) )
-            {
+            {LOGMEIN("AsmJsModule.cpp] 1414\n");
                 return false;
             }
         }
@@ -1422,7 +1422,7 @@ namespace Js
         {
             ArrayFunc(PropertyId id_ = 0, AsmJsTypedArrayFunction* val_ = nullptr) :
                 id(id_), val(val_)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 1424\n");
             }
             PropertyId id;
             AsmJsTypedArrayFunction* val;
@@ -1440,17 +1440,17 @@ namespace Js
         arrayFunctions[AsmJSTypedArrayBuiltin_byteLength  ] = ArrayFunc(PropertyIds::byteLength,   Anew(&mAllocator, AsmJsTypedArrayFunction, nullptr, &mAllocator, AsmJSTypedArrayBuiltin_byteLength,   ArrayBufferView::TYPE_COUNT));
 
         for (int i = 0; i < AsmJSTypedArrayBuiltin_COUNT; i++)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 1442\n");
             if (!AddStandardLibraryArrayName((PropertyId)arrayFunctions[i].id, arrayFunctions[i].val, arrayFunctions[i].val->GetArrayBuiltInFunction()))
-            {
+            {LOGMEIN("AsmJsModule.cpp] 1444\n");
                 return false;
             }
         }
         // similar to math functions maps initialization.
         if (IsSimdjsEnabled())
-        {
+        {LOGMEIN("AsmJsModule.cpp] 1450\n");
             if (!InitSIMDBuiltins())
-            {
+            {LOGMEIN("AsmJsModule.cpp] 1452\n");
                 return false;
             }
         }
@@ -1458,12 +1458,12 @@ namespace Js
     }
 
     bool AsmJsModuleCompiler::InitSIMDBuiltins()
-    {
+    {LOGMEIN("AsmJsModule.cpp] 1460\n");
         struct SIMDFunc
         {
             SIMDFunc(PropertyId id_ = 0, AsmJsSIMDFunction* val_ = nullptr) :
             id(id_), val(val_)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 1465\n");
             }
             PropertyId id;
             AsmJsSIMDFunction* val;
@@ -1878,12 +1878,12 @@ namespace Js
         simdFunctions[AsmJsSIMDBuiltin_bool8x16_allTrue]            = SIMDFunc(PropertyIds::allTrue, Anew(&mAllocator, AsmJsSIMDFunction, nullptr, &mAllocator, 1, AsmJsSIMDBuiltin_bool8x16_allTrue, OpCodeAsmJs::Simd128_AllTrue_B16, AsmJsRetType::Signed, AsmJsType::Bool8x16));
 
 
-        {
+        {LOGMEIN("AsmJsModule.cpp] 1880\n");
             SIMDNameMap *map = &mStdLibSIMDInt32x4Map;
             for (int i = 0; i < AsmJsSIMDBuiltin_COUNT; i++)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 1883\n");
                 switch (i)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 1885\n");
                 case AsmJsSIMDBuiltin_Float32x4:
                     map = &mStdLibSIMDFloat32x4Map;
                     break;
@@ -1917,9 +1917,9 @@ namespace Js
                 }
 
                 if (simdFunctions[i].id && simdFunctions[i].val)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 1919\n");
                     if (!AddStandardLibrarySIMDNameInMap(simdFunctions[i].id, simdFunctions[i].val, map))
-                    {
+                    {LOGMEIN("AsmJsModule.cpp] 1921\n");
                         AsmJSCompiler::OutputError(GetScriptContext(), _u("Cannot initialize SIMD library"));
                         return false;
                     }
@@ -1971,22 +1971,22 @@ namespace Js
         , mStdLibSIMDFloat32x4Map(&mAllocator)
         , mStdLibSIMDFloat64x2Map(&mAllocator)
 
-    {
+    {LOGMEIN("AsmJsModule.cpp] 1973\n");
         InitModuleNode( parser );
     }
 
     bool AsmJsModuleCompiler::AddStandardLibraryMathName( PropertyId id, const double* cstAddr, AsmJSMathBuiltinFunction mathLibFunctionName )
-    {
+    {LOGMEIN("AsmJsModule.cpp] 1978\n");
         // make sure this name is unique
         if( mStandardLibraryMathNames.ContainsKey( id ) )
-        {
+        {LOGMEIN("AsmJsModule.cpp] 1981\n");
             return false;
         }
 
         MathBuiltin mathBuiltin(mathLibFunctionName, cstAddr);
         int addResult = mStandardLibraryMathNames.AddNew( id, mathBuiltin );
         if( addResult == -1 )
-        {
+        {LOGMEIN("AsmJsModule.cpp] 1988\n");
             // Error adding the function
             return false;
         }
@@ -1995,17 +1995,17 @@ namespace Js
 
 
     bool AsmJsModuleCompiler::AddStandardLibraryMathName(PropertyId id, AsmJsMathFunction* func, AsmJSMathBuiltinFunction mathLibFunctionName)
-    {
+    {LOGMEIN("AsmJsModule.cpp] 1997\n");
         // make sure this name is unique
         if( mStandardLibraryMathNames.ContainsKey( id ) )
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2000\n");
             return false;
         }
 
         MathBuiltin mathBuiltin(mathLibFunctionName, func);
         int addResult = mStandardLibraryMathNames.AddNew( id, mathBuiltin );
         if( addResult == -1 )
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2007\n");
             // Error adding the function
             return false;
         }
@@ -2013,17 +2013,17 @@ namespace Js
     }
 
     bool AsmJsModuleCompiler::AddStandardLibraryArrayName(PropertyId id, AsmJsTypedArrayFunction* func, AsmJSTypedArrayBuiltinFunction arrayLibFunctionName)
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2015\n");
         // make sure this name is unique
         if (mStandardLibraryArrayNames.ContainsKey(id))
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2018\n");
             return false;
         }
 
         TypedArrayBuiltin arrayBuiltin(arrayLibFunctionName, func);
         int addResult = mStandardLibraryArrayNames.AddNew(id, arrayBuiltin);
         if (addResult == -1)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2025\n");
             // Error adding the function
             return false;
         }
@@ -2031,37 +2031,37 @@ namespace Js
     }
 
     Parser * AsmJsModuleCompiler::GetParser() const
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2033\n");
         return mCx->byteCodeGenerator->GetParser();
     }
 
     ByteCodeGenerator* AsmJsModuleCompiler::GetByteCodeGenerator() const
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2038\n");
         return mCx->byteCodeGenerator;
     }
 
     ScriptContext * AsmJsModuleCompiler::GetScriptContext() const
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2043\n");
         return mCx->scriptContext;
     }
 
     AsmJsSymbol* AsmJsModuleCompiler::LookupIdentifier( PropertyName name, AsmJsFunc* func /*= nullptr */, AsmJsLookupSource::Source* lookupSource /*= nullptr*/ )
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2048\n");
         AsmJsSymbol* lookupResult = nullptr;
         if (name)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2051\n");
             if (func)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2053\n");
                 lookupResult = func->LookupIdentifier(name, lookupSource);
                 if (lookupResult)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 2056\n");
                     return lookupResult;
                 }
             }
 
             lookupResult = mModuleEnvironment.LookupWithKey(name->GetPropertyId(), nullptr);
             if (lookupSource)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2063\n");
                 *lookupSource = AsmJsLookupSource::AsmJsModule;
             }
         }
@@ -2069,13 +2069,13 @@ namespace Js
     }
 
     bool AsmJsModuleCompiler::DefineIdentifier( PropertyName name, AsmJsSymbol* symbol )
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2071\n");
         Assert( symbol );
         if( symbol )
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2074\n");
             // make sure this identifier is unique
             if(!LookupIdentifier( name ))
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2077\n");
                 int addResult = mModuleEnvironment.AddNew(name->GetPropertyId(), symbol);
                 return addResult != -1;
             }
@@ -2084,30 +2084,30 @@ namespace Js
     }
 
     bool AsmJsModuleCompiler::AddNumericVar( PropertyName name, ParseNode* pnode, bool isFloat, bool isMutable /*= true*/ )
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2086\n");
         Assert(ParserWrapper::IsNumericLiteral(pnode) || (isFloat && ParserWrapper::IsFroundNumericLiteral(pnode)));
         AsmJsVar* var = Anew( &mAllocator, AsmJsVar, name, isMutable );
         if( !var )
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2090\n");
             return false;
         }
         if( !DefineIdentifier( name, var ) )
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2094\n");
             return false;
         }
 
         ++mVarCount;
 
         if (isFloat)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2101\n");
             var->SetVarType(AsmJsVarType::Float);
             var->SetLocation(mFloatVarSpace.AcquireRegister());
             if (pnode->nop == knopInt)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2105\n");
                 var->SetConstInitialiser((float)pnode->sxInt.lw);
             }
             else if (ParserWrapper::IsNegativeZero(pnode))
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2109\n");
                 var->SetConstInitialiser(-0.0f);
             }
             else
@@ -2116,7 +2116,7 @@ namespace Js
             }
         }
         else if (pnode->nop == knopInt)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2118\n");
             var->SetVarType(AsmJsVarType::Int);
             var->SetLocation(mIntVarSpace.AcquireRegister());
             var->SetConstInitialiser(pnode->sxInt.lw);
@@ -2124,19 +2124,19 @@ namespace Js
         else
         {
             if (ParserWrapper::IsMinInt(pnode))
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2126\n");
                 var->SetVarType(AsmJsVarType::Int);
                 var->SetLocation(mIntVarSpace.AcquireRegister());
                 var->SetConstInitialiser(INT_MIN);
             }
             else if (ParserWrapper::IsUnsigned(pnode))
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2132\n");
                 var->SetVarType(AsmJsVarType::Int);
                 var->SetLocation(mIntVarSpace.AcquireRegister());
                 var->SetConstInitialiser((int)((uint32)pnode->sxFlt.dbl));
             }
             else if (pnode->sxFlt.maybeInt)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2138\n");
                 // this means there was an int literal not in range [-2^31,3^32)
                 return false;
             }
@@ -2151,20 +2151,20 @@ namespace Js
     }
 
     bool AsmJsModuleCompiler::AddGlobalVarImport( PropertyName name, PropertyName field, AsmJSCoercion coercion )
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2153\n");
         AsmJsConstantImport* var = Anew( &mAllocator, AsmJsConstantImport, name, field );
         if( !var )
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2156\n");
             return false;
         }
         if( !DefineIdentifier( name, var ) )
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2160\n");
             return false;
         }
         ++mVarImportCount;
 
         switch( coercion )
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2166\n");
         case Js::AsmJS_ToInt32:
             var->SetVarType( AsmJsVarType::Int );
             var->SetLocation( mIntVarSpace.AcquireRegister() );
@@ -2179,7 +2179,7 @@ namespace Js
             break;
         case Js::AsmJS_Int32x4:
             if (IsSimdjsEnabled())
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2181\n");
                 var->SetVarType(AsmJsVarType::Int32x4);
                 var->SetLocation(mSimdVarSpace.AcquireRegister());
                 break;
@@ -2187,7 +2187,7 @@ namespace Js
             Assert(UNREACHED);
         case Js::AsmJS_Bool32x4:
             if (IsSimdjsEnabled())
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2189\n");
                 var->SetVarType(AsmJsVarType::Bool32x4);
                 var->SetLocation(mSimdVarSpace.AcquireRegister());
                 break;
@@ -2195,7 +2195,7 @@ namespace Js
             Assert(UNREACHED);
         case Js::AsmJS_Bool16x8:
             if (IsSimdjsEnabled())
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2197\n");
                 var->SetVarType(AsmJsVarType::Bool16x8);
                 var->SetLocation(mSimdVarSpace.AcquireRegister());
                 break;
@@ -2203,7 +2203,7 @@ namespace Js
             Assert(UNREACHED);
         case Js::AsmJS_Bool8x16:
             if (IsSimdjsEnabled())
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2205\n");
                 var->SetVarType(AsmJsVarType::Bool8x16);
                 var->SetLocation(mSimdVarSpace.AcquireRegister());
                 break;
@@ -2211,7 +2211,7 @@ namespace Js
             Assert(UNREACHED);
         case AsmJS_Float32x4:
             if (IsSimdjsEnabled())
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2213\n");
                 var->SetVarType(AsmJsVarType::Float32x4);
                 var->SetLocation(mSimdVarSpace.AcquireRegister());
                 break;
@@ -2219,7 +2219,7 @@ namespace Js
             Assert(UNREACHED);
         case AsmJS_Float64x2:
             if (IsSimdjsEnabled())
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2221\n");
                 var->SetVarType(AsmJsVarType::Float64x2);
                 var->SetLocation(mSimdVarSpace.AcquireRegister());
                 break;
@@ -2227,7 +2227,7 @@ namespace Js
             Assert(UNREACHED);
         case Js::AsmJS_Int16x8:
             if (IsSimdjsEnabled())
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2229\n");
                 var->SetVarType(AsmJsVarType::Int16x8);
                 var->SetLocation(mSimdVarSpace.AcquireRegister());
                 break;
@@ -2235,7 +2235,7 @@ namespace Js
             Assert(UNREACHED);
         case Js::AsmJS_Int8x16:
             if (IsSimdjsEnabled())
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2237\n");
                 var->SetVarType(AsmJsVarType::Int8x16);
                 var->SetLocation(mSimdVarSpace.AcquireRegister());
                 break;
@@ -2243,7 +2243,7 @@ namespace Js
             Assert(UNREACHED);
         case Js::AsmJS_Uint32x4:
             if (IsSimdjsEnabled())
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2245\n");
                 var->SetVarType(AsmJsVarType::Uint32x4);
                 var->SetLocation(mSimdVarSpace.AcquireRegister());
                 break;
@@ -2251,7 +2251,7 @@ namespace Js
             Assert(UNREACHED);
         case Js::AsmJS_Uint16x8:
             if (IsSimdjsEnabled())
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2253\n");
                 var->SetVarType(AsmJsVarType::Uint16x8);
                 var->SetLocation(mSimdVarSpace.AcquireRegister());
                 break;
@@ -2259,7 +2259,7 @@ namespace Js
             Assert(UNREACHED);
         case Js::AsmJS_Uint8x16:
             if (IsSimdjsEnabled())
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2261\n");
                 var->SetVarType(AsmJsVarType::Uint8x16);
                 var->SetLocation(mSimdVarSpace.AcquireRegister());
                 break;
@@ -2273,14 +2273,14 @@ namespace Js
     }
 
     bool AsmJsModuleCompiler::AddModuleFunctionImport( PropertyName name, PropertyName field )
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2275\n");
         AsmJsImportFunction* var = Anew( &mAllocator, AsmJsImportFunction, name, field, &mAllocator );
         if( !var )
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2278\n");
             return false;
         }
         if( !DefineIdentifier( name, var ) )
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2282\n");
             return false;
         }
         var->SetFunctionIndex( mImportFunctions.AcquireRegister() );
@@ -2289,14 +2289,14 @@ namespace Js
     }
 
     bool AsmJsModuleCompiler::AddNumericConst( PropertyName name, const double* cst )
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2291\n");
         AsmJsMathConst* var = Anew( &mAllocator, AsmJsMathConst, name, cst );
         if( !var )
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2294\n");
             return false;
         }
         if( !DefineIdentifier( name, var ) )
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2298\n");
             return false;
         }
 
@@ -2304,14 +2304,14 @@ namespace Js
     }
 
     bool AsmJsModuleCompiler::AddArrayView( PropertyName name, ArrayBufferView::ViewType type )
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2306\n");
         AsmJsArrayView* view = Anew( &mAllocator, AsmJsArrayView, name, type );
         if( !view )
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2309\n");
             return false;
         }
         if( !DefineIdentifier( name, view ) )
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2313\n");
             return false;
         }
         mArrayViews.Enqueue(view);
@@ -2320,15 +2320,15 @@ namespace Js
     }
 
     bool AsmJsModuleCompiler::AddFunctionTable( PropertyName name, const int size )
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2322\n");
         GetByteCodeGenerator()->AssignPropertyId(name);
         AsmJsFunctionTable* funcTable = Anew( &mAllocator, AsmJsFunctionTable, name, &mAllocator );
         if( !funcTable )
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2326\n");
             return false;
         }
         if( !DefineIdentifier( name, funcTable ) )
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2330\n");
             return false;
         }
         funcTable->SetSize( size );
@@ -2339,7 +2339,7 @@ namespace Js
     }
 
     bool AsmJsModuleCompiler::AddExport( PropertyName name, RegSlot location )
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2341\n");
         AsmJsModuleExport ex;
         ex.id = name->GetPropertyId();
         ex.location = location;
@@ -2349,21 +2349,21 @@ namespace Js
     }
 
     bool AsmJsModuleCompiler::SetExportFunc( AsmJsFunc* func )
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2351\n");
         Assert( mExports.Count() == 0 && func);
         mExportFuncIndex = func->GetFunctionIndex();
         return mExports.Count() == 0 && (uint32)mExportFuncIndex < (uint32)mFunctionArray.Count();
     }
 
     AsmJsFunctionDeclaration* AsmJsModuleCompiler::LookupFunction( PropertyName name )
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2358\n");
         if (name)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2360\n");
             AsmJsSymbol* sym = LookupIdentifier(name);
             if (sym)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2363\n");
                 switch (sym->GetSymbolType())
-                {
+                {LOGMEIN("AsmJsModule.cpp] 2365\n");
                 case AsmJsSymbol::SIMDBuiltinFunction:
                 case AsmJsSymbol::MathBuiltinFunction:
                 case AsmJsSymbol::ModuleFunction:
@@ -2379,13 +2379,13 @@ namespace Js
     }
 
     bool AsmJsModuleCompiler::AreAllFuncTableDefined()
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2381\n");
         const int size = mFunctionTableArray.Count();
         for (int i = 0; i < size ; i++)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2384\n");
             AsmJsFunctionTable* funcTable = mFunctionTableArray.Item( i );
             if( !funcTable->IsDefined() )
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2387\n");
                 AsmJSCompiler::OutputError(GetScriptContext(), _u("Function table %s was used in a function but does not appear in the module"), funcTable->GetName()->Psz());
                 return false;
             }
@@ -2394,15 +2394,15 @@ namespace Js
     }
 
     void AsmJsModuleCompiler::UpdateMaxHeapAccess(uint index)
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2396\n");
         if (mMaxHeapAccess < index)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2398\n");
             mMaxHeapAccess = index;
         }
     }
 
     void AsmJsModuleCompiler::InitMemoryOffsets()
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2404\n");
         mModuleMemory.mArrayBufferOffset = AsmJsModuleMemory::MemoryTableBeginOffset;
         mModuleMemory.mStdLibOffset = mModuleMemory.mArrayBufferOffset + 1;
         mModuleMemory.mDoubleOffset = mModuleMemory.mStdLibOffset + 1;
@@ -2414,12 +2414,12 @@ namespace Js
         mModuleMemory.mMemorySize    = mModuleMemory.mIntOffset + (int32)(mIntVarSpace.GetTotalVarCount() * WAsmJs::INT_SLOTS_SPACE + 0.5);
 
         if (IsSimdjsEnabled())
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2416\n");
             // mSimdOffset is in SIMDValues, hence aligned
             // mMemorySize is in Vars
             mModuleMemory.mSimdOffset = (int) ::ceil(mModuleMemory.mMemorySize / WAsmJs::SIMD_SLOTS_SPACE);
             if (mSimdVarSpace.GetTotalVarCount())
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2421\n");
                 mModuleMemory.mMemorySize = (int)((mModuleMemory.mSimdOffset + mSimdVarSpace.GetTotalVarCount()) * WAsmJs::SIMD_SLOTS_SPACE);
             }
 
@@ -2427,7 +2427,7 @@ namespace Js
     }
 
     void AsmJsModuleCompiler::AccumulateCompileTime()
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2429\n");
         Js::TickDelta td;
         AsmJsCompileTime curTime = GetTick();
         td = curTime - mCompileTimeLastTick;
@@ -2436,7 +2436,7 @@ namespace Js
     }
 
     void AsmJsModuleCompiler::AccumulateCompileTime(AsmJsCompilation::Phases phase)
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2438\n");
         Js::TickDelta td;
         AsmJsCompileTime curTime = GetTick();
         td = curTime - mCompileTimeLastTick;
@@ -2446,12 +2446,12 @@ namespace Js
     }
 
     Js::AsmJsCompileTime AsmJsModuleCompiler::GetTick()
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2448\n");
         return Js::Tick::Now();
     }
 
     uint64 AsmJsModuleCompiler::GetCompileTime() const
-{
+{LOGMEIN("AsmJsModule.cpp] 2453\n");
         return mCompileTime.ToMicroseconds();
     }
 
@@ -2462,10 +2462,10 @@ namespace Js
     };
 
     void AsmJsModuleCompiler::PrintCompileTrace() const
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2464\n");
         // for testtrace, don't print time so that it can be used for baselines
         if (PHASE_TESTTRACE1(AsmjsPhase))
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2467\n");
             AsmJSCompiler::OutputMessage(GetScriptContext(), DEIT_ASMJS_SUCCEEDED, _u("Successfully compiled asm.js code"));
         }
         else
@@ -2477,9 +2477,9 @@ namespace Js
         }
 
         if (PHASE_TRACE1(AsmjsPhase))
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2479\n");
             for (int i = 0; i < AsmJsCompilation::Phases_COUNT; i++)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2481\n");
                 uint64 us = mPhaseCompileTime[i].ToMicroseconds();
                 uint64 ms = us / 1000;
                 us = us % 1000;
@@ -2490,54 +2490,54 @@ namespace Js
     }
 
     BVStatic<ASMMATH_BUILTIN_SIZE> AsmJsModuleCompiler::GetAsmMathBuiltinUsedBV()
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2492\n");
         return mAsmMathBuiltinUsedBV;
     }
 
     BVStatic<ASMARRAY_BUILTIN_SIZE> AsmJsModuleCompiler::GetAsmArrayBuiltinUsedBV()
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2497\n");
         return mAsmArrayBuiltinUsedBV;
     }
 
     void AsmJsModuleInfo::SetFunctionCount( int val )
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2502\n");
         Assert( mFunctions == nullptr );
         mFunctionCount = val;
         mFunctions = RecyclerNewArray( mRecycler, ModuleFunction, val );
     }
 
     void AsmJsModuleInfo::SetFunctionTableCount( int val )
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2509\n");
         Assert( mFunctionTables == nullptr );
         mFunctionTableCount = val;
         mFunctionTables = RecyclerNewArray( mRecycler, ModuleFunctionTable, val );
     }
 
     void AsmJsModuleInfo::SetFunctionImportCount( int val )
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2516\n");
         Assert( mFunctionImports == nullptr );
         mFunctionImportCount = val;
         mFunctionImports = RecyclerNewArray( mRecycler, ModuleFunctionImport, val );
     }
 
     void AsmJsModuleInfo::SetVarCount( int val )
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2523\n");
         Assert( mVars == nullptr );
         mVarCount = val;
         mVars = RecyclerNewArray( mRecycler, ModuleVar, val );
     }
 
     void AsmJsModuleInfo::SetVarImportCount( int val )
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2530\n");
         Assert( mVarImports == nullptr );
         mVarImportCount = val;
         mVarImports = RecyclerNewArray( mRecycler, ModuleVarImport, val );
     }
 
     void AsmJsModuleInfo::SetExportsCount( int count )
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2537\n");
         if( count )
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2539\n");
             mExports = RecyclerNewPlus( mRecycler, count * sizeof( PropertyId ), PropertyIdArray, count, 0);
             mExportsFunctionLocation = RecyclerNewArray( mRecycler, RegSlot, count );
         }
@@ -2545,14 +2545,14 @@ namespace Js
     }
 
     void AsmJsModuleInfo::InitializeSlotMap(int val)
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2547\n");
         Assert(mSlotMap == nullptr);
         mSlotsCount = val;
         mSlotMap = RecyclerNew(mRecycler, AsmJsSlotMap, mRecycler);
     }
 
     void AsmJsModuleInfo::SetFunctionTableSize( int index, uint size )
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2554\n");
         Assert( mFunctionTables != nullptr );
         Assert( index < mFunctionTableCount );
         ModuleFunctionTable& table = mFunctionTables[index];
@@ -2561,15 +2561,15 @@ namespace Js
     }
 
     void AsmJsModuleInfo::EnsureHeapAttached(ScriptFunction * func)
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2563\n");
         FrameDisplay* frame = func->GetEnvironment();
         ArrayBuffer* moduleArrayBuffer = nullptr;
 #ifdef ENABLE_WASM
         if (func->GetFunctionBody()->IsWasmFunction())
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2568\n");
             WebAssemblyMemory * wasmMem = *(WebAssemblyMemory**)((Var*)frame->GetItem(0) + AsmJsModuleMemory::MemoryTableBeginOffset);
             if (wasmMem != nullptr)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2571\n");
                 moduleArrayBuffer = wasmMem->GetBuffer();
             }
         }
@@ -2580,13 +2580,13 @@ namespace Js
         }
 
         if (moduleArrayBuffer && moduleArrayBuffer->IsDetached())
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2582\n");
             Throw::OutOfMemory();
         }
     }
 
     void * AsmJsModuleInfo::ConvertFrameForJavascript(void * asmMemory, ScriptFunction* func)
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2588\n");
         FunctionBody * body = func->GetFunctionBody();
         AsmJsFunctionInfo * asmFuncInfo = body->GetAsmJsFunctionInfo();
         FunctionBody * moduleBody = asmFuncInfo->GetModuleFunctionBody();
@@ -2627,26 +2627,26 @@ namespace Js
 
         Js::ActivationObject* activeScopeObject = nullptr;
         if (moduleBody->GetObjectRegister() != 0)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2629\n");
             activeScopeObject = static_cast<ActivationObject*>(scriptContext->GetLibrary()->CreateActivationObject());
         }
 
         PropertyId* propertyIdArray = moduleBody->GetPropertyIdsForScopeSlotArray();
         uint slotsCount = moduleBody->scopeSlotArraySize;
         for (uint i = 0; i < slotsCount; ++i)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2636\n");
             AsmJsSlot * asmSlot;
             bool found = asmSlotMap->TryGetValue(propertyIdArray[i], &asmSlot);
             // we should have everything we need in the map
             Assert(found);
             Var value = nullptr;
             switch (asmSlot->symType)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2643\n");
             case AsmJsSymbol::ConstantImport:
             case AsmJsSymbol::Variable:
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2646\n");
                 switch (asmSlot->varType)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 2648\n");
                 case AsmJsVarType::Double:
                     value = JavascriptNumber::NewWithCheck(asmDoubleVars[asmSlot->location], scriptContext);
                     break;
@@ -2695,9 +2695,9 @@ namespace Js
                 break;
             }
             case AsmJsSymbol::ModuleArgument:
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2697\n");
                 switch (asmSlot->argType)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 2699\n");
                 case AsmJsModuleArg::ArgType::StdLib:
                     value = stdLibObj;
                     break;
@@ -2730,7 +2730,7 @@ namespace Js
                 value = scriptContext->GetLibrary()->GetUndefined();
                 break;
             case AsmJsSymbol::ArrayView:
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2732\n");
                 AnalysisAssert(asmBuffer);
 #ifdef _M_X64
                 const bool isOptimizedBuffer = true;
@@ -2742,7 +2742,7 @@ namespace Js
 #endif
                 Assert(isOptimizedBuffer == asmBuffer->IsValidVirtualBufferLength(asmBuffer->GetByteLength()));
                 switch (asmSlot->viewType)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 2744\n");
                 case ArrayBufferView::TYPE_FLOAT32:
                     value = TypedArray<float, false, isOptimizedBuffer>::Create(asmBuffer, 0, asmBuffer->GetByteLength() >> 2, scriptContext->GetLibrary());
                     break;
@@ -2773,9 +2773,9 @@ namespace Js
                 break;
             }
             case AsmJsSymbol::MathBuiltinFunction:
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2775\n");
                 switch (asmSlot->builtinMathFunc)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 2777\n");
 #define ASMJS_MATH_FUNC_NAMES(name, propertyName) \
                         case AsmJSMathBuiltin_##name: \
                             value = JavascriptOperators::OP_GetProperty(asmMathObject, PropertyIds::##propertyName, scriptContext); \
@@ -2788,7 +2788,7 @@ namespace Js
             }
             case AsmJsSymbol::TypedArrayBuiltinFunction:
                 switch (asmSlot->builtinArrayFunc)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 2790\n");
 #define ASMJS_ARRAY_NAMES(name, propertyName) \
                         case AsmJSTypedArrayBuiltin_##name: \
                             value = JavascriptOperators::OP_GetProperty(stdLibObj, PropertyIds::##propertyName, scriptContext); \
@@ -2801,7 +2801,7 @@ namespace Js
 
             case AsmJsSymbol::SIMDBuiltinFunction:
                 switch (asmSlot->builtinSIMDFunc)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 2803\n");
 #define ASMJS_SIMD_NAMES(name, propertyName, libName, entryPoint) \
                         case AsmJsSIMDBuiltin_##name: \
                             value = JavascriptOperators::OP_GetProperty(stdLibObj, PropertyIds::##propertyName, scriptContext); \
@@ -2816,7 +2816,7 @@ namespace Js
                 Assume(UNREACHED);
             }
             if (activeScopeObject != nullptr)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 2818\n");
                 activeScopeObject->SetPropertyWithAttributes(
                     propertyIdArray[i],
                     value,
@@ -2832,7 +2832,7 @@ namespace Js
         }
 
         if (activeScopeObject != nullptr)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2834\n");
             return (void*)activeScopeObject;
         }
         else
@@ -2842,15 +2842,15 @@ namespace Js
     }
 
     bool AsmJsModuleCompiler::LookupStdLibSIMDNameInMap(PropertyName name, AsmJsSIMDFunction **simdFunc, SIMDNameMap* map) const
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2844\n");
         return map->TryGetValue(name->GetPropertyId(), simdFunc);
     }
 
     bool AsmJsModuleCompiler::AddStandardLibrarySIMDNameInMap(PropertyId id, AsmJsSIMDFunction *simdFunc, SIMDNameMap* map)
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2849\n");
         //SimdBuiltin simdBuiltin(simdFunc->GetSimdBuiltInFunction(), simdFunc);
         if (map->ContainsKey(id))
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2852\n");
             return nullptr;
         }
 
@@ -2858,9 +2858,9 @@ namespace Js
     }
 
     bool AsmJsModuleCompiler::LookupStdLibSIMDName(PropertyId baseId, PropertyName fieldName, AsmJsSIMDFunction **simdFunc)
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2860\n");
         switch (baseId)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2862\n");
         case PropertyIds::Int32x4:
             return LookupStdLibSIMDNameInMap(fieldName, simdFunc, &mStdLibSIMDInt32x4Map);
         case PropertyIds::Bool32x4:
@@ -2891,9 +2891,9 @@ namespace Js
     }
 
     bool AsmJsModuleCompiler::LookupStdLibSIMDName(AsmJsSIMDBuiltinFunction baseId, PropertyName fieldName, AsmJsSIMDFunction **simdFunc)
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2893\n");
         switch (baseId)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2895\n");
         case AsmJsSIMDBuiltin_Int32x4:
             return LookupStdLibSIMDNameInMap(fieldName, simdFunc, &mStdLibSIMDInt32x4Map);
         case AsmJsSIMDBuiltin_Bool32x4:
@@ -2923,40 +2923,40 @@ namespace Js
     }
 
     AsmJsSIMDFunction* AsmJsModuleCompiler::LookupSimdConstructor(PropertyName name)
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2925\n");
         AsmJsFunctionDeclaration *func = LookupFunction(name);
         if (func == nullptr || func->GetSymbolType() != AsmJsSymbol::SIMDBuiltinFunction)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2928\n");
             return nullptr;
         }
         AsmJsSIMDFunction *simdFunc = func->Cast<AsmJsSIMDFunction>();
         if (simdFunc->IsConstructor())
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2933\n");
             return simdFunc;
         }
         return nullptr;
     }
 
     AsmJsSIMDFunction* AsmJsModuleCompiler::LookupSimdTypeCheck(PropertyName name)
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2940\n");
         AsmJsFunctionDeclaration *func = LookupFunction(name);
         if (func == nullptr || func->GetSymbolType() != AsmJsSymbol::SIMDBuiltinFunction)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2943\n");
             return nullptr;
         }
         AsmJsSIMDFunction *simdFunc = func->Cast<AsmJsSIMDFunction>();
         if (simdFunc->IsTypeCheck())
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2948\n");
             return simdFunc;
         }
         return nullptr;
     }
 
     AsmJsSIMDFunction* AsmJsModuleCompiler::LookupSimdOperation(PropertyName name)
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2955\n");
         AsmJsFunctionDeclaration *func = LookupFunction(name);
         if (func == nullptr || func->GetSymbolType() != AsmJsSymbol::SIMDBuiltinFunction)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2958\n");
             return nullptr;
         }
         AsmJsSIMDFunction *simdFunc = func->Cast<AsmJsSIMDFunction>();
@@ -2972,7 +2972,7 @@ namespace Js
             simdFunc->GetSimdBuiltInFunction() != AsmJsSIMDBuiltin_Bool16x8 &&
             simdFunc->GetSimdBuiltInFunction() != AsmJsSIMDBuiltin_Bool8x16
             )
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2974\n");
             return simdFunc;
         }
         return nullptr;
@@ -2980,7 +2980,7 @@ namespace Js
 
 
     bool AsmJsModuleCompiler::AddSimdValueVar(PropertyName name, ParseNode* pnode, AsmJsSIMDFunction* simdFunc)
-    {
+    {LOGMEIN("AsmJsModule.cpp] 2982\n");
         AssertMsg(simdFunc->GetSymbolType() == AsmJsSymbol::SIMDBuiltinFunction, "Expecting SIMD builtin");
         AssertMsg(simdFunc->IsConstructor(), "Expecting constructor function");
 
@@ -2989,13 +2989,13 @@ namespace Js
 
         // e.g. var g1 = f4(1.0, 2.0, 3.0, 4.0);
         if (!ValidateSimdConstructor(pnode, simdFunc, value))
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2991\n");
             return false;
         }
 
         AsmJsVar* var = Anew(&mAllocator, AsmJsVar, name);
         if (!var || !DefineIdentifier(name, var))
-        {
+        {LOGMEIN("AsmJsModule.cpp] 2997\n");
             return false;
         }
 
@@ -3008,7 +3008,7 @@ namespace Js
     }
 
     bool AsmJsModuleCompiler::ValidateSimdConstructor(ParseNode* pnode, AsmJsSIMDFunction* simdFunc, AsmJsSIMDValue& value)
-    {
+    {LOGMEIN("AsmJsModule.cpp] 3010\n");
         Assert(pnode->nop == knopCall);
 
         uint argCount = pnode->sxCall.argCount;
@@ -3018,12 +3018,12 @@ namespace Js
         AsmJsSIMDBuiltinFunction simdBuiltin = simdFunc->GetSimdBuiltInFunction();
 
         if (!simdFunc->IsConstructor(argCount))
-        {
+        {LOGMEIN("AsmJsModule.cpp] 3020\n");
             return Fail(pnode, _u("Invalid SIMD constructor or wrong number of arguments."));
         }
 
         switch (simdBuiltin)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 3025\n");
         case AsmJsSIMDBuiltin_Float64x2:
         case AsmJsSIMDBuiltin_Float32x4:
             nop = (uint)knopFlt;
@@ -3044,26 +3044,26 @@ namespace Js
         }
 
         if (simdFunc->GetArgCount() != argCount)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 3046\n");
             return Fail(pnode, _u("Invalid number of arguments to SIMD constructor."));
         }
 
         for (uint i = 0; i < argCount; i++)
-        {
+        {LOGMEIN("AsmJsModule.cpp] 3051\n");
             arg = argNode;
             if (argNode->nop == knopList)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 3054\n");
                 arg = ParserWrapper::GetBinaryLeft(argNode);
                 argNode = ParserWrapper::GetBinaryRight(argNode);
             }
             Assert(arg);
             // store to SIMD Value
             if (arg->nop == nop)
-            {
+            {LOGMEIN("AsmJsModule.cpp] 3061\n");
                 if (nop == (uint)knopInt)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 3063\n");
                     switch (simdBuiltin)
-                    {
+                    {LOGMEIN("AsmJsModule.cpp] 3065\n");
                     case AsmJsSIMDBuiltin_Int32x4:
                         value.i32[i] = arg->sxInt.lw;
                         break;
@@ -3097,9 +3097,9 @@ namespace Js
 
                 }
                 else if (nop == (uint)knopFlt)
-                {
+                {LOGMEIN("AsmJsModule.cpp] 3099\n");
                     if (simdBuiltin == AsmJsSIMDBuiltin_Float32x4)
-                    {
+                    {LOGMEIN("AsmJsModule.cpp] 3101\n");
                         value.f32[i] = (float)arg->sxFlt.dbl;
                     }
                     else // float64x2

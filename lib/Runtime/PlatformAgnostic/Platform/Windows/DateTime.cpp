@@ -25,9 +25,9 @@ namespace DateTime
     };
 
     static int DayNumber(int yearType, const SYSTEMTIME &date)
-    {
+    {LOGMEIN("DateTime.cpp] 27\n");
         if (date.wYear == 0)
-        {
+        {LOGMEIN("DateTime.cpp] 29\n");
             BOOL isLeap = yearType / 7; // yearType is a day of week of January 1st (number within range [0,6]) (+ 7 if year is a leap)
             int dayOfWeekOf1stOfMonth = (yearType + daysUpToMonthLeap[date.wMonth-1] - (int)(!isLeap && date.wMonth >= 3)) % 7;
             int numberOfDaysInThisMonth = daysInMonthLeap[date.wMonth-1] - (int)(!isLeap && date.wMonth == 2);
@@ -42,10 +42,10 @@ namespace DateTime
 
     // class Utilility ******
     void UtilityPlatformData::UpdateTimeZoneInfo()
-    {
+    {LOGMEIN("DateTime.cpp] 44\n");
         uint32 tickCount = GetTickCount();
         if (tickCount - lastTimeZoneUpdateTickCount > updatePeriod)
-        {
+        {LOGMEIN("DateTime.cpp] 47\n");
             GetTimeZoneInformation(&timeZoneInfo);
 
             // todo: check possible winrt issue
@@ -59,14 +59,14 @@ namespace DateTime
     }
 
     const WCHAR *Utility::GetStandardName(size_t *nameLength, const DateTime::YMD *_ /*caution! can be NULL. not used for Windows*/)
-    {
+    {LOGMEIN("DateTime.cpp] 61\n");
         data.UpdateTimeZoneInfo();
         *nameLength = wcslen(data.timeZoneInfo.StandardName);
         return data.timeZoneInfo.StandardName;
     }
 
     const WCHAR *Utility::GetDaylightName(size_t *nameLength, const DateTime::YMD *_/*caution! can be NULL. not used for Windows*/)
-    {
+    {LOGMEIN("DateTime.cpp] 68\n");
         data.UpdateTimeZoneInfo();
         *nameLength = wcslen(data.timeZoneInfo.DaylightName);
         return data.timeZoneInfo.DaylightName;
@@ -77,35 +77,35 @@ namespace DateTime
     // Cache should be invalid at the moment of creation
     // if january1 > nextJanuary1 cache is always invalid, so we don't care about other fields, because cache will be updated.
     TimeZoneInfo::TimeZoneInfo()
-    {
+    {LOGMEIN("DateTime.cpp] 79\n");
         january1 = 1;
         nextJanuary1 = 0;
     }
 
     // Cache is valid for given time if this time is within a year for which cache was created, and cache was updated within 1 second of current moment
     bool TimeZoneInfo::IsValid(const double time)
-    {
+    {LOGMEIN("DateTime.cpp] 86\n");
         return GetTickCount() - lastUpdateTickCount < updatePeriod && time >= january1 && time < nextJanuary1;
     }
 
     void TimeZoneInfo::Update(const double inputTime)
-    {
+    {LOGMEIN("DateTime.cpp] 91\n");
         int year, yearType;
         Js::DateUtilities::GetYearFromTv(inputTime, year, yearType);
         int yearForInfo = year;
 
         // GetTimeZoneInformationForYear() works only with years > 1600, but JS works with wider range of years. So we take year closest to given.
         if (year < 1601)
-        {
+        {LOGMEIN("DateTime.cpp] 98\n");
             yearForInfo = 1601;
         }
         else if (year > 2100)
-        {
+        {LOGMEIN("DateTime.cpp] 102\n");
             yearForInfo = 2100;
         }
         TIME_ZONE_INFORMATION timeZoneInfo;
         if (GetTimeZoneInformationForYear((USHORT)yearForInfo, NULL, &timeZoneInfo))
-        {
+        {LOGMEIN("DateTime.cpp] 107\n");
             isDaylightTimeApplicable = timeZoneInfo.StandardDate.wMonth != 0 && timeZoneInfo.DaylightDate.wMonth != 0;
 
             bias = timeZoneInfo.Bias;
@@ -121,7 +121,7 @@ namespace DateTime
             standardDate = Js::DateUtilities::TvFromDate(year, timeZoneInfo.StandardDate.wMonth-1, day-1, time);
 
             if (GetTimeZoneInformationForYear((USHORT)yearForInfo-1, NULL, &timeZoneInfo))
-            {
+            {LOGMEIN("DateTime.cpp] 123\n");
                 isJanuary1Critical = timeZoneInfo.Bias + timeZoneInfo.DaylightBias + timeZoneInfo.StandardBias != bias + daylightBias + standardBias;
 
                 january1 = Js::DateUtilities::TvFromDate(year, 0, 0, 0);

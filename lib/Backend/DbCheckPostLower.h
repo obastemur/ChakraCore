@@ -14,7 +14,7 @@ private:
     void        Check(IR::RegOpnd *regOpnd);
 
 public:
-    DbCheckPostLower(Func *func) : func(func) { }
+    DbCheckPostLower(Func *func) : func(func) {LOGMEIN("DbCheckPostLower.h] 16\n"); }
     void        Check();
 };
 

@@ -59,7 +59,7 @@ namespace Js
         static JavascriptCallStackLayout *FromFramePointer(void *const framePointer);
         static void* const ToFramePointer(JavascriptCallStackLayout* callstackLayout);
     private:
-        JavascriptCallStackLayout() : callInfo(0) {};
+        JavascriptCallStackLayout() : callInfo(0) {LOGMEIN("JavascriptStackWalker.h] 61\n");};
     };
 
 #if ENABLE_NATIVE_CODEGEN
@@ -85,11 +85,11 @@ namespace Js
             , frames(nullptr)
             , currentIndex(-1)
             , frameCount(0)
-        {
+        {LOGMEIN("JavascriptStackWalker.h] 87\n");
         }
 
         ~InlinedFrameWalker()
-        {
+        {LOGMEIN("JavascriptStackWalker.h] 91\n");
             Assert(!parentFunction);
             Assert(!this->frames);
             Assert(!frameCount);
@@ -109,7 +109,7 @@ namespace Js
         Js::Var                 GetThisObject() const;
         bool                    IsCallerPhysicalFrame() const;
         bool                    IsTopMostFrame() const;
-        int32                   GetFrameIndex() const { Assert(currentIndex != -1); return currentIndex; }
+        int32                   GetFrameIndex() const {LOGMEIN("JavascriptStackWalker.h] 111\n"); Assert(currentIndex != -1); return currentIndex; }
         uint32                  GetCurrentInlineeOffset() const;
         uint32                  GetBottomMostInlineeOffset() const;
         Js::JavascriptFunction *GetBottomMostFunctionObject() const;
@@ -126,7 +126,7 @@ namespace Js
             Js::Var argv[0];    // It's defined here as in C++ can't have 0-size array in the base class.
 
             struct InlinedFrame *Next()
-            {
+            {LOGMEIN("JavascriptStackWalker.h] 128\n");
                 InlinedFrameLayout *next = __super::Next();
                 return (InlinedFrame*)next;
             }
@@ -166,7 +166,7 @@ namespace Js
             function(nullptr),
             hasInlinedFramesOnStack(false),
             previousInterpreterFrameIsFromBailout(false)
-        {
+        {LOGMEIN("JavascriptStackWalker.h] 168\n");
         }
 
         void Clear();
@@ -181,7 +181,7 @@ namespace Js
     public:
         JavascriptStackWalker(ScriptContext * scriptContext, bool useEERContext = TRUE /* use leafinterpreterframe of entryexit record */, PVOID returnAddress = NULL, bool _forceFullWalk = false);
 #if ENABLE_NATIVE_CODEGEN
-        ~JavascriptStackWalker() { inlinedFrameWalker.Close(); }
+        ~JavascriptStackWalker() {LOGMEIN("JavascriptStackWalker.h] 183\n"); inlinedFrameWalker.Close(); }
 #endif
         BOOL Walk(bool includeInlineFrames = true);
         BOOL GetCaller(JavascriptFunction ** ppFunc, bool includeInlineFrames = true);
@@ -193,15 +193,15 @@ namespace Js
         uint32 GetByteCodeOffset() const;
         BOOL IsCallerGlobalFunction() const;
         BOOL IsEvalCaller() const;
-        bool IsJavascriptFrame() const { return inlinedFramesBeingWalked || isJavascriptFrame; }
-        bool IsInlineFrame() const { return inlinedFramesBeingWalked; }
+        bool IsJavascriptFrame() const {LOGMEIN("JavascriptStackWalker.h] 195\n"); return inlinedFramesBeingWalked || isJavascriptFrame; }
+        bool IsInlineFrame() const {LOGMEIN("JavascriptStackWalker.h] 196\n"); return inlinedFramesBeingWalked; }
         bool IsBailedOutFromInlinee() const
-        {
+        {LOGMEIN("JavascriptStackWalker.h] 198\n");
             Assert(this->IsJavascriptFrame() && this->interpreterFrame);
             return IsInlineFrame();
         }
         bool IsBailedOutFromFunction() const
-        {
+        {LOGMEIN("JavascriptStackWalker.h] 203\n");
             Assert(this->IsJavascriptFrame() && this->interpreterFrame);
             return !!JavascriptFunction::IsNativeAddress(this->scriptContext, this->currentFrame.GetInstructionPointer());
         }
@@ -220,7 +220,7 @@ namespace Js
 
         ScriptContext* GetCurrentScriptContext() const;
         InterpreterStackFrame* GetCurrentInterpreterFrame() const
-        {
+        {LOGMEIN("JavascriptStackWalker.h] 222\n");
             Assert(this->IsJavascriptFrame());
             return interpreterFrame;
         }
@@ -232,7 +232,7 @@ namespace Js
 #if ENABLE_NATIVE_CODEGEN
         void ClearCachedInternalFrameInfo();
         void SetCachedInternalFrameInfo(InternalFrameType frameType, JavascriptFunction* function, bool hasInlinedFramesOnStack, bool prevIntFrameIsFromBailout);
-        InternalFrameInfo GetCachedInternalFrameInfo() const { return this->lastInternalFrameInfo; }
+        InternalFrameInfo GetCachedInternalFrameInfo() const {LOGMEIN("JavascriptStackWalker.h] 234\n"); return this->lastInternalFrameInfo; }
 #endif
         bool IsCurrentPhysicalFrameForLoopBody() const;
 
@@ -251,23 +251,23 @@ namespace Js
         // Walk frames (until walkFrame returns true)
         template <class WalkFrame>
         ushort WalkUntil(ushort stackTraceLimit, WalkFrame walkFrame, bool onlyOnDebugMode = false, bool filterDiagnosticsOM = false)
-        {
+        {LOGMEIN("JavascriptStackWalker.h] 253\n");
             ushort frameIndex = 0;
 
             JavascriptFunction* jsFunction;
 
             BOOL foundCaller = GetNonLibraryCodeCaller(&jsFunction);
             while (foundCaller)
-            {
+            {LOGMEIN("JavascriptStackWalker.h] 260\n");
                 if (IsDisplayCaller(jsFunction))
-                {
+                {LOGMEIN("JavascriptStackWalker.h] 262\n");
                     bool needToPass = (!onlyOnDebugMode || jsFunction->GetScriptContext()->IsScriptContextInDebugMode())
                         && (!filterDiagnosticsOM || !jsFunction->GetScriptContext()->IsDiagnosticsScriptContext());
 
                     if (needToPass)
                     {
                         if (walkFrame(jsFunction, frameIndex))
-                        {
+                        {LOGMEIN("JavascriptStackWalker.h] 269\n");
                             break;
                         }
                         frameIndex++;
@@ -282,26 +282,26 @@ namespace Js
 
         template <class WalkFrame>
         ushort WalkUntil(WalkFrame walkFrame, bool onlyOnDebugMode = false, bool filterDiagnosticsOM = false)
-        {
+        {LOGMEIN("JavascriptStackWalker.h] 284\n");
             return WalkUntil(USHORT_MAX, walkFrame, onlyOnDebugMode, filterDiagnosticsOM);
         }
         BYTE** GetCurrentAddresOfReturnAddress() const
-        {
+        {LOGMEIN("JavascriptStackWalker.h] 288\n");
             return (BYTE**)this->currentFrame.GetAddressOfReturnAddress();
         }
 
         BYTE** GetCurrentAddressOfInstructionPointer() const
-        {
+        {LOGMEIN("JavascriptStackWalker.h] 293\n");
             return (BYTE**)this->currentFrame.GetAddressOfInstructionPointer();
         }
 
         void* GetInstructionPointer() const
-        {
+        {LOGMEIN("JavascriptStackWalker.h] 298\n");
             return this->currentFrame.GetInstructionPointer();
         }
 
         bool GetCurrentFrameFromBailout() const
-        {
+        {LOGMEIN("JavascriptStackWalker.h] 303\n");
             return previousInterpreterFrameIsFromBailout;
         }
 #if DBG
@@ -358,11 +358,11 @@ namespace Js
         ScriptContext *m_scriptContext;
     public:
         AutoPushReturnAddressForStackWalker(ScriptContext *scriptContext, void* returnAddress) : m_scriptContext(scriptContext)
-        {
+        {LOGMEIN("JavascriptStackWalker.h] 360\n");
             scriptContext->SetFirstInterpreterFrameReturnAddress(returnAddress);
         }
         ~AutoPushReturnAddressForStackWalker()
-        {
+        {LOGMEIN("JavascriptStackWalker.h] 364\n");
             m_scriptContext->SetFirstInterpreterFrameReturnAddress(NULL);
         }
     };

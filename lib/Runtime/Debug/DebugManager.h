@@ -48,29 +48,29 @@ namespace Js
         DebuggingFlags* GetDebuggingFlags();
         intptr_t GetDebuggingFlagsAddr() const;
 
-        bool IsAtDispatchHalt() const { return this->isAtDispatchHalt; }
-        void SetDispatchHalt(bool set) { this->isAtDispatchHalt = set; }
+        bool IsAtDispatchHalt() const {LOGMEIN("DebugManager.h] 50\n"); return this->isAtDispatchHalt; }
+        void SetDispatchHalt(bool set) {LOGMEIN("DebugManager.h] 51\n"); this->isAtDispatchHalt = set; }
 
         ReferencedArenaAdapter* GetDiagnosticArena();
         DWORD_PTR AllocateSecondaryHostSourceContext();
         void SetCurrentInterpreterLocation(InterpreterHaltState* pHaltState);
         void UnsetCurrentInterpreterLocation();
         bool IsMatchTopFrameStackAddress(DiagStackFrame* frame) const;
-        uint32 GetDebugSessionNumber() const { return debugSessionNumber; }
+        uint32 GetDebugSessionNumber() const {LOGMEIN("DebugManager.h] 58\n"); return debugSessionNumber; }
 #ifdef ENABLE_MUTATION_BREAKPOINT
         MutationBreakpoint* GetActiveMutationBreakpoint() const;
 #endif
         DynamicObject* GetConsoleScope(ScriptContext* scriptContext);
         FrameDisplay *GetFrameDisplay(ScriptContext* scriptContext, DynamicObject* scopeAtZero, DynamicObject* scopeAtOne);
         void UpdateConsoleScope(DynamicObject* copyFromScope, ScriptContext* scriptContext);
-        PageAllocator * GetDiagnosticPageAllocator() { return &this->diagnosticPageAllocator; }
-        void SetDispatchHaltFrameAddress(void * returnAddress) { this->dispatchHaltFrameAddress = returnAddress; }
-        DWORD_PTR GetDispatchHaltFrameAddress() const { return (DWORD_PTR)this->dispatchHaltFrameAddress; }
+        PageAllocator * GetDiagnosticPageAllocator() {LOGMEIN("DebugManager.h] 65\n"); return &this->diagnosticPageAllocator; }
+        void SetDispatchHaltFrameAddress(void * returnAddress) {LOGMEIN("DebugManager.h] 66\n"); this->dispatchHaltFrameAddress = returnAddress; }
+        DWORD_PTR GetDispatchHaltFrameAddress() const {LOGMEIN("DebugManager.h] 67\n"); return (DWORD_PTR)this->dispatchHaltFrameAddress; }
 #if DBG
         void ValidateDebugAPICall();
 #endif
-        void SetDebuggerAttaching(bool attaching) { this->isDebuggerAttaching = attaching; }
-        bool IsDebuggerAttaching() const { return this->isDebuggerAttaching; }
+        void SetDebuggerAttaching(bool attaching) {LOGMEIN("DebugManager.h] 71\n"); this->isDebuggerAttaching = attaching; }
+        bool IsDebuggerAttaching() const {LOGMEIN("DebugManager.h] 72\n"); return this->isDebuggerAttaching; }
 
         enum DynamicFunctionType
         {
@@ -80,9 +80,9 @@ namespace Js
         };
 
         int GetNextId(DynamicFunctionType eFunc)
-        {
+        {LOGMEIN("DebugManager.h] 82\n");
             switch (eFunc)
-            {
+            {LOGMEIN("DebugManager.h] 84\n");
             case DFT_EvalCode: return ++evalCodeRegistrationCount;
             case DFT_AnonymousCode: return ++anonymousCodeRegistrationCount;
             case DFT_JScriptBlock: return ++jscriptBlockRegistrationCount;
@@ -92,7 +92,7 @@ namespace Js
         }
 
         UINT GetNextBreakpointId()
-        {
+        {LOGMEIN("DebugManager.h] 94\n");
             return ++nextBreakPointId;
         }
 
@@ -103,12 +103,12 @@ namespace Js
         };
 
         void SetLocalsDisplayFlags(LocalsDisplayFlags localsDisplayFlags)
-        {
+        {LOGMEIN("DebugManager.h] 105\n");
             this->localsDisplayFlags |= localsDisplayFlags;
         }
 
         bool IsLocalsDisplayFlagsSet(LocalsDisplayFlags localsDisplayFlags)
-        {
+        {LOGMEIN("DebugManager.h] 110\n");
             return (this->localsDisplayFlags & localsDisplayFlags) == (DWORD)localsDisplayFlags;
         }
     };

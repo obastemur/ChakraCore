@@ -37,18 +37,18 @@ private:
 class AutoReturnPageAllocator
 {
 public:
-    AutoReturnPageAllocator() :pageAllocator(nullptr) {}
+    AutoReturnPageAllocator() :pageAllocator(nullptr) {LOGMEIN("PageAllocatorPool.h] 39\n");}
     ~AutoReturnPageAllocator()
-    {
+    {LOGMEIN("PageAllocatorPool.h] 41\n");
         if (pageAllocator)
-        {
+        {LOGMEIN("PageAllocatorPool.h] 43\n");
             PageAllocatorPool::Instance->ReturnPageAllocator(pageAllocator);
         }
     }
     PageAllocator* GetPageAllocator()
-    {
+    {LOGMEIN("PageAllocatorPool.h] 48\n");
         if (pageAllocator == nullptr)
-        {
+        {LOGMEIN("PageAllocatorPool.h] 50\n");
             pageAllocator = PageAllocatorPool::Instance->GetPageAllocator();
         }
 

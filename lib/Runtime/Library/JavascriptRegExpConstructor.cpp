@@ -19,7 +19,7 @@ namespace Js
         reset(false),
         lastPattern(nullptr),
         lastMatch() // undefined
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 21\n");
         DebugOnly(VerifyEntryPoint());
         ScriptContext* scriptContext = this->GetScriptContext();
         JavascriptString* emptyString = scriptContext->GetLibrary()->GetEmptyString();
@@ -30,20 +30,20 @@ namespace Js
         this->leftContext = emptyString;
         this->rightContext = emptyString;
         for (int i = 0; i < NumCtorCaptures; i++)
-        {
+        {LOGMEIN("JavascriptRegExpConstructor.cpp] 32\n");
             this->captures[i] = emptyString;
         }
     }
 
     BOOL JavascriptRegExpConstructor::GetEnumerator(JavascriptStaticEnumerator * enumerator, EnumeratorFlags flags, ScriptContext* requestContext, ForInCache * forInCache)
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 38\n");
         return GetEnumeratorWithPrefix(
             RecyclerNew(GetScriptContext()->GetRecycler(), JavascriptRegExpEnumerator, this, flags, requestContext),
             enumerator, flags, requestContext, forInCache);
     }
 
     void JavascriptRegExpConstructor::SetLastMatch(UnifiedRegex::RegexPattern* lastPattern, JavascriptString* lastInput, UnifiedRegex::GroupInfo lastMatch)
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 45\n");
         AssertMsg(!lastMatch.IsUndefined(), "SetLastMatch should only be called if there's a successful match");
         AssertMsg(lastPattern != nullptr, "lastPattern should not be null");
         AssertMsg(lastInput != nullptr, "lastInput should not be null");
@@ -56,9 +56,9 @@ namespace Js
     }
 
     void JavascriptRegExpConstructor::EnsureValues()
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 58\n");
         if (reset)
-        {
+        {LOGMEIN("JavascriptRegExpConstructor.cpp] 60\n");
             Assert(!lastMatch.IsUndefined());
             ScriptContext* scriptContext = this->GetScriptContext();
             UnifiedRegex::RegexPattern* pattern = lastPattern;
@@ -75,13 +75,13 @@ namespace Js
             captures[0] = RegexHelper::GetString(scriptContext, lastInput, nonMatchValue, lastMatch);
             int numGroups = pattern->NumGroups();
             if (numGroups > 1)
-            {
+            {LOGMEIN("JavascriptRegExpConstructor.cpp] 77\n");
                 // The RegExp constructor's lastMatch holds the last *successful* match on any regular expression.
                 // That regular expression may since have been used for *unsuccessful* matches, in which case
                 // its groups will have been reset. Updating the RegExp constructor with the group binding after
                 // every match is prohibitively slow. Instead, run the match again using the known last input string.
                 if (!pattern->WasLastMatchSuccessful())
-                {
+                {LOGMEIN("JavascriptRegExpConstructor.cpp] 83\n");
                     RegexHelper::SimpleMatch(scriptContext, pattern, lastInput->GetString(), lastInputLen, lastMatch.offset);
                 }
                 Assert(pattern->WasLastMatchSuccessful());
@@ -142,9 +142,9 @@ namespace Js
     };
 
     BOOL JavascriptRegExpConstructor::HasProperty(PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 144\n");
         switch (propertyId)
-        {
+        {LOGMEIN("JavascriptRegExpConstructor.cpp] 146\n");
         case PropertyIds::lastMatch:
         case PropertyIds::$Ampersand:
         case PropertyIds::lastParen:
@@ -172,15 +172,15 @@ namespace Js
     }
 
     BOOL JavascriptRegExpConstructor::GetPropertyReference(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 174\n");
         return JavascriptRegExpConstructor::GetProperty(originalInstance, propertyId, value, info, requestContext);
     }
 
     BOOL JavascriptRegExpConstructor::GetProperty(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 179\n");
         BOOL result;
         if (GetPropertyBuiltIns(propertyId, value, &result))
-        {
+        {LOGMEIN("JavascriptRegExpConstructor.cpp] 182\n");
             return result;
         }
 
@@ -188,13 +188,13 @@ namespace Js
     }
 
     BOOL JavascriptRegExpConstructor::GetProperty(Var originalInstance, JavascriptString* propertyNameString, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 190\n");
         BOOL result;
         PropertyRecord const* propertyRecord;
         this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
 
         if (propertyRecord != nullptr && GetPropertyBuiltIns(propertyRecord->GetPropertyId(), value, &result))
-        {
+        {LOGMEIN("JavascriptRegExpConstructor.cpp] 196\n");
             return result;
         }
 
@@ -202,9 +202,9 @@ namespace Js
     }
 
     bool JavascriptRegExpConstructor::GetPropertyBuiltIns(PropertyId propertyId, Var* value, BOOL* result)
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 204\n");
         switch (propertyId)
-        {
+        {LOGMEIN("JavascriptRegExpConstructor.cpp] 206\n");
         case PropertyIds::input:
         case PropertyIds::$_:
             this->EnsureValues();
@@ -291,10 +291,10 @@ namespace Js
     }
 
     BOOL JavascriptRegExpConstructor::SetProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 293\n");
         BOOL result;
         if (SetPropertyBuiltIns(propertyId, value, &result))
-        {
+        {LOGMEIN("JavascriptRegExpConstructor.cpp] 296\n");
             return result;
         }
 
@@ -302,13 +302,13 @@ namespace Js
     }
 
     BOOL JavascriptRegExpConstructor::SetProperty(JavascriptString* propertyNameString, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 304\n");
         BOOL result;
         PropertyRecord const * propertyRecord;
         this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
 
         if (propertyRecord != nullptr && SetPropertyBuiltIns(propertyRecord->GetPropertyId(), value, &result))
-        {
+        {LOGMEIN("JavascriptRegExpConstructor.cpp] 310\n");
             return result;
         }
 
@@ -316,9 +316,9 @@ namespace Js
     }
 
     bool JavascriptRegExpConstructor::SetPropertyBuiltIns(PropertyId propertyId, Var value, BOOL* result)
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 318\n");
         switch (propertyId)
-        {
+        {LOGMEIN("JavascriptRegExpConstructor.cpp] 320\n");
         case PropertyIds::input:
         case PropertyIds::$_:
             //TODO: review: although the 'input' property is marked as readonly, it has a set on V5.8. There is no spec on this.
@@ -352,14 +352,14 @@ namespace Js
     }
 
     BOOL JavascriptRegExpConstructor::InitProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 354\n");
         return SetProperty(propertyId, value, flags, info);
     }
 
     BOOL JavascriptRegExpConstructor::DeleteProperty(PropertyId propertyId, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 359\n");
         switch (propertyId)
-        {
+        {LOGMEIN("JavascriptRegExpConstructor.cpp] 361\n");
             // all globals are 'fNoDelete' in V5.8
         case PropertyIds::input:
         case PropertyIds::$_:
@@ -390,7 +390,7 @@ namespace Js
     }
 
     BOOL JavascriptRegExpConstructor::DeleteProperty(JavascriptString *propertyNameString, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 392\n");
         JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
         if (BuiltInPropertyRecords::input.Equals(propertyName)
             || BuiltInPropertyRecords::$_.Equals(propertyName)
@@ -413,7 +413,7 @@ namespace Js
             || BuiltInPropertyRecords::$8.Equals(propertyName)
             || BuiltInPropertyRecords::$9.Equals(propertyName)
             || BuiltInPropertyRecords::index.Equals(propertyName))
-        {
+        {LOGMEIN("JavascriptRegExpConstructor.cpp] 415\n");
             JavascriptError::ThrowCantDeleteIfStrictMode(flags, GetScriptContext(), propertyNameString->GetString());
             return false;
         }
@@ -422,21 +422,21 @@ namespace Js
     }
 
     BOOL JavascriptRegExpConstructor::GetDiagValueString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 424\n");
         stringBuilder->AppendCppLiteral(JS_DIAG_VALUE_JavascriptRegExpConstructor);
         return TRUE;
     }
 
     BOOL JavascriptRegExpConstructor::GetDiagTypeString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 430\n");
         stringBuilder->AppendCppLiteral(JS_DIAG_TYPE_JavascriptRegExpConstructor);
         return TRUE;
     }
 
     BOOL JavascriptRegExpConstructor::IsEnumerable(PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 436\n");
         switch (propertyId)
-        {
+        {LOGMEIN("JavascriptRegExpConstructor.cpp] 438\n");
         case PropertyIds::input:
         case PropertyIds::$1:
         case PropertyIds::$2:
@@ -465,9 +465,9 @@ namespace Js
     }
 
     BOOL JavascriptRegExpConstructor::IsConfigurable(PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 467\n");
         switch (propertyId)
-        {
+        {LOGMEIN("JavascriptRegExpConstructor.cpp] 469\n");
         case PropertyIds::input:
         case PropertyIds::$_:
 
@@ -500,10 +500,10 @@ namespace Js
     }
 
     BOOL JavascriptRegExpConstructor::GetSpecialNonEnumerablePropertyName(uint32 index, Var *propertyName, ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 502\n");
         uint length = GetSpecialNonEnumerablePropertyCount();
         if (index < length)
-        {
+        {LOGMEIN("JavascriptRegExpConstructor.cpp] 505\n");
             *propertyName = requestContext->GetPropertyString(specialnonEnumPropertyIds[index]);
             return true;
         }
@@ -512,22 +512,22 @@ namespace Js
 
     // Returns the number of special non-enumerable properties this type has.
     uint JavascriptRegExpConstructor::GetSpecialNonEnumerablePropertyCount() const
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 514\n");
         return _countof(specialnonEnumPropertyIds);
     }
 
     // Returns the list of special properties for the type.
     PropertyId const * JavascriptRegExpConstructor::GetSpecialNonEnumerablePropertyIds() const
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 520\n");
         return specialnonEnumPropertyIds;
     }
 
 
     BOOL JavascriptRegExpConstructor::GetSpecialEnumerablePropertyName(uint32 index, Var *propertyName, ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 526\n");
         uint length = GetSpecialEnumerablePropertyCount();
         if (index < length)
-        {
+        {LOGMEIN("JavascriptRegExpConstructor.cpp] 529\n");
             *propertyName = requestContext->GetPropertyString(specialEnumPropertyIds[index]);
             return true;
         }
@@ -535,32 +535,32 @@ namespace Js
     }
 
     PropertyId const * JavascriptRegExpConstructor::GetSpecialEnumerablePropertyIds() const
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 537\n");
         return specialEnumPropertyIds;
     }
 
     // Returns the number of special non-enumerable properties this type has.
     uint JavascriptRegExpConstructor::GetSpecialEnumerablePropertyCount() const
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 543\n");
         return _countof(specialEnumPropertyIds);
     }
 
     // Returns the list of special properties for the type.
     PropertyId const * JavascriptRegExpConstructor::GetSpecialPropertyIds() const
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 549\n");
         return specialPropertyIds;
     }
 
     uint JavascriptRegExpConstructor::GetSpecialPropertyCount() const
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 554\n");
         return _countof(specialPropertyIds);
     }
 
     BOOL JavascriptRegExpConstructor::GetSpecialPropertyName(uint32 index, Var *propertyName, ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptRegExpConstructor.cpp] 559\n");
         uint length = GetSpecialPropertyCount();
         if (index < length)
-        {
+        {LOGMEIN("JavascriptRegExpConstructor.cpp] 562\n");
             *propertyName = requestContext->GetPropertyString(specialPropertyIds[index]);
             return true;
         }

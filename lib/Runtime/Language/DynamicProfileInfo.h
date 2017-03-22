@@ -78,7 +78,7 @@ namespace Js
         Field(ThisType) thisType;
 
         ThisInfo() : thisType(ThisType_Unknown)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 80\n");
         }
     };
 
@@ -99,7 +99,7 @@ namespace Js
             } functionData;
             // As of now polymorphic info is allocated only if the source Id is current
             Field(PolymorphicCallSiteInfo*) polymorphicCallSiteInfo;
-            _u_type() {}
+            _u_type() {LOGMEIN("DynamicProfileInfo.h] 101\n");}
         } u;
     };
 
@@ -120,13 +120,13 @@ namespace Js
         LoopFlags() :
             isInterpreted(false),
             memopMinCountReached(false)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 122\n");
             CompileAssert((sizeof(LoopFlags) * 8) >= LoopFlags::COUNT);
         }
         // Right now supports up to 8 bits.
         typedef byte LoopFlags_t;
         LoopFlags(uint64 flags)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 128\n");
             Assert(flags >> LoopFlags::COUNT == 0);
             LoopFlags_t* thisFlags = (LoopFlags_t *)this;
             CompileAssert(sizeof(LoopFlags_t) == sizeof(LoopFlags));
@@ -156,10 +156,10 @@ namespace Js
         byte polymorphicInlineCacheUtilization;
 
         bool ShouldUsePolymorphicInlineCache()
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 158\n");
 #if DBG
             if (PHASE_FORCE1(PolymorphicInlineCachePhase))
-            {
+            {LOGMEIN("DynamicProfileInfo.h] 161\n");
                 return true;
             }
 #endif
@@ -167,11 +167,11 @@ namespace Js
         }
 
         bool WasLdFldProfiled() const
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 169\n");
             return !valueType.IsUninitialized();
         }
 
-        static uint32 GetOffsetOfFlags() { return offsetof(FldInfo, flags); }
+        static uint32 GetOffsetOfFlags() {LOGMEIN("DynamicProfileInfo.h] 173\n"); return offsetof(FldInfo, flags); }
     };
     CompileAssert(sizeof(FldInfo::TSize) == sizeof(FldInfo));
 
@@ -191,34 +191,34 @@ namespace Js
         };
 
         LdElemInfo() : bits(0)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 193\n");
             wasProfiled = true;
         }
 
         void Merge(const LdElemInfo &other)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 198\n");
             arrayType = arrayType.Merge(other.arrayType);
             elemType = elemType.Merge(other.elemType);
             bits |= other.bits;
         }
 
         ValueType GetArrayType() const
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 205\n");
             return arrayType;
         }
 
         ValueType GetElementType() const
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 210\n");
             return elemType;
         }
 
         bool WasProfiled() const
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 215\n");
             return wasProfiled;
         }
 
         bool LikelyNeedsHelperCall() const
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 220\n");
             return neededHelperCall;
         }
     };
@@ -242,48 +242,48 @@ namespace Js
         };
 
         StElemInfo() : bits(0)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 244\n");
             wasProfiled = true;
         }
 
         void Merge(const StElemInfo &other)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 249\n");
             arrayType = arrayType.Merge(other.arrayType);
             bits |= other.bits;
         }
 
         ValueType GetArrayType() const
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 255\n");
             return arrayType;
         }
 
         bool WasProfiled() const
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 260\n");
             return wasProfiled;
         }
 
         bool LikelyCreatesMissingValue() const
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 265\n");
             return createdMissingValue;
         }
 
         bool LikelyFillsMissingValue() const
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 270\n");
             return filledMissingValue;
         }
 
         bool LikelyNeedsHelperCall() const
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 275\n");
             return createdMissingValue || filledMissingValue || neededHelperCall || storedOutsideHeadSegmentBounds;
         }
 
         bool LikelyStoresOutsideHeadSegmentBounds() const
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 280\n");
             return createdMissingValue || storedOutsideHeadSegmentBounds;
         }
 
         bool LikelyStoresOutsideArrayBounds() const
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 285\n");
             return storedOutsideArrayBounds;
         }
     };
@@ -306,14 +306,14 @@ namespace Js
         ProfileId callSiteNumber;
 #endif
 
-        bool IsNativeIntArray() const { return !(bits & NotNativeIntBit) && !PHASE_OFF1(NativeArrayPhase); }
-        bool IsNativeFloatArray() const { return !(bits & NotNativeFloatBit) && !PHASE_OFF1(NativeArrayPhase); }
-        bool IsNativeArray() const { return IsNativeFloatArray(); }
+        bool IsNativeIntArray() const {LOGMEIN("DynamicProfileInfo.h] 308\n"); return !(bits & NotNativeIntBit) && !PHASE_OFF1(NativeArrayPhase); }
+        bool IsNativeFloatArray() const {LOGMEIN("DynamicProfileInfo.h] 309\n"); return !(bits & NotNativeFloatBit) && !PHASE_OFF1(NativeArrayPhase); }
+        bool IsNativeArray() const {LOGMEIN("DynamicProfileInfo.h] 310\n"); return IsNativeFloatArray(); }
         void SetIsNotNativeIntArray();
         void SetIsNotNativeFloatArray();
         void SetIsNotNativeArray();
 
-        static uint32 GetOffsetOfBits() { return offsetof(ArrayCallSiteInfo, bits); }
+        static uint32 GetOffsetOfBits() {LOGMEIN("DynamicProfileInfo.h] 315\n"); return offsetof(ArrayCallSiteInfo, bits); }
         static byte const NotNativeIntBit = 1;
         static byte const NotNativeFloatBit = 2;
     };
@@ -345,37 +345,37 @@ namespace Js
         static Var EnsureDynamicProfileInfoThunk(RecyclableObject * function, CallInfo callInfo, ...);
 
 #ifdef DYNAMIC_PROFILE_STORAGE
-        bool HasFunctionBody() const { return hasFunctionBody; }
-        FunctionBody * GetFunctionBody() const { Assert(hasFunctionBody); return functionBody; }
+        bool HasFunctionBody() const {LOGMEIN("DynamicProfileInfo.h] 347\n"); return hasFunctionBody; }
+        FunctionBody * GetFunctionBody() const {LOGMEIN("DynamicProfileInfo.h] 348\n"); Assert(hasFunctionBody); return functionBody; }
 #endif
 
         void RecordElementLoad(FunctionBody* functionBody, ProfileId ldElemId, const LdElemInfo& info);
         void RecordElementLoadAsProfiled(FunctionBody *const functionBody, const ProfileId ldElemId);
-        const LdElemInfo *GetLdElemInfo() const { return ldElemInfo; }
+        const LdElemInfo *GetLdElemInfo() const {LOGMEIN("DynamicProfileInfo.h] 353\n"); return ldElemInfo; }
 
         void RecordElementStore(FunctionBody* functionBody, ProfileId stElemId, const StElemInfo& info);
         void RecordElementStoreAsProfiled(FunctionBody *const functionBody, const ProfileId stElemId);
-        const StElemInfo *GetStElemInfo() const { return stElemInfo; }
+        const StElemInfo *GetStElemInfo() const {LOGMEIN("DynamicProfileInfo.h] 357\n"); return stElemInfo; }
 
         ArrayCallSiteInfo *GetArrayCallSiteInfo(FunctionBody *functionBody, ProfileId index) const;
-        ArrayCallSiteInfo *GetArrayCallSiteInfo() const { return arrayCallSiteInfo; }
+        ArrayCallSiteInfo *GetArrayCallSiteInfo() const {LOGMEIN("DynamicProfileInfo.h] 360\n"); return arrayCallSiteInfo; }
 
         void RecordFieldAccess(FunctionBody* functionBody, uint fieldAccessId, Var object, FldInfoFlags flags);
         void RecordPolymorphicFieldAccess(FunctionBody *functionBody, uint fieldAccessid);
-        bool HasPolymorphicFldAccess() const { return bits.hasPolymorphicFldAccess; }
+        bool HasPolymorphicFldAccess() const {LOGMEIN("DynamicProfileInfo.h] 364\n"); return bits.hasPolymorphicFldAccess; }
         FldInfo * GetFldInfo(FunctionBody* functionBody, uint fieldAccessId) const;
-        FldInfo * GetFldInfo() const { return fldInfo; }
+        FldInfo * GetFldInfo() const {LOGMEIN("DynamicProfileInfo.h] 366\n"); return fldInfo; }
 
         void RecordSlotLoad(FunctionBody* functionBody, ProfileId slotLoadId, Var object);
         ValueType GetSlotLoad(FunctionBody* functionBody, ProfileId slotLoadId) const;
-        ValueType * GetSlotInfo() const { return slotInfo; }
+        ValueType * GetSlotInfo() const {LOGMEIN("DynamicProfileInfo.h] 370\n"); return slotInfo; }
 
         void RecordThisInfo(Var object, ThisType thisType);
         ThisInfo GetThisInfo() const;
 
         void RecordDivideResultType(FunctionBody* body, ProfileId divideId, Var object);
         ValueType GetDivideResultType(FunctionBody* body, ProfileId divideId) const;
-        ValueType * GetDivideTypeInfo() const { return divideTypeInfo; }
+        ValueType * GetDivideTypeInfo() const {LOGMEIN("DynamicProfileInfo.h] 377\n"); return divideTypeInfo; }
 
         void RecordModulusOpType(FunctionBody* body, ProfileId profileId, bool isModByPowerOf2);
 
@@ -383,14 +383,14 @@ namespace Js
 
         void RecordSwitchType(FunctionBody* body, ProfileId switchId, Var object);
         ValueType GetSwitchType(FunctionBody* body, ProfileId switchId) const;
-        ValueType * GetSwitchTypeInfo() const { return switchTypeInfo; }
+        ValueType * GetSwitchTypeInfo() const {LOGMEIN("DynamicProfileInfo.h] 385\n"); return switchTypeInfo; }
 
         void RecordCallSiteInfo(FunctionBody* functionBody, ProfileId callSiteId, FunctionInfo * calleeFunctionInfo, JavascriptFunction* calleeFunction, ArgSlot actualArgCount, bool isConstructorCall, InlineCacheIndex ldFldInlineCacheId = Js::Constants::NoInlineCacheIndex);
         void RecordConstParameterAtCallSite(ProfileId callSiteId, int argNum);
         static bool HasCallSiteInfo(FunctionBody* functionBody);
         bool HasCallSiteInfo(FunctionBody* functionBody, ProfileId callSiteId); // Does a particular callsite have ProfileInfo?
         FunctionInfo * GetCallSiteInfo(FunctionBody* functionBody, ProfileId callSiteId, bool *isConstructorCall, bool *isPolymorphicCall);
-        CallSiteInfo * GetCallSiteInfo() const { return callSiteInfo; }
+        CallSiteInfo * GetCallSiteInfo() const {LOGMEIN("DynamicProfileInfo.h] 392\n"); return callSiteInfo; }
         uint16 GetConstantArgInfo(ProfileId callSiteId);
         uint GetLdFldCacheIndexFromCallSiteInfo(FunctionBody* functionBody, ProfileId callSiteId);
         bool GetPolymorphicCallSiteInfo(FunctionBody* functionBody, ProfileId callSiteId, bool *isConstructorCall, __inout_ecount(functionBodyArrayLength) FunctionBody** functionBodyArray, uint functionBodyArrayLength);
@@ -402,15 +402,15 @@ namespace Js
         void RecordReturnTypeOnCallSiteInfo(FunctionBody* functionBody, ProfileId callSiteId, Var object);
         void RecordReturnType(FunctionBody* functionBody, ProfileId callSiteId, Var object);
         ValueType GetReturnType(FunctionBody* functionBody, Js::OpCode opcode, ProfileId callSiteId) const;
-        ValueType * GetReturnTypeInfo() const { return returnTypeInfo; }
+        ValueType * GetReturnTypeInfo() const {LOGMEIN("DynamicProfileInfo.h] 404\n"); return returnTypeInfo; }
 
         void RecordParameterInfo(FunctionBody* functionBody, ArgSlot index, Var object);
         ValueType GetParameterInfo(FunctionBody* functionBody, ArgSlot index) const;
-        ValueType * GetParameterInfo() const { return parameterInfo; }
+        ValueType * GetParameterInfo() const {LOGMEIN("DynamicProfileInfo.h] 408\n"); return parameterInfo; }
 
         void RecordLoopImplicitCallFlags(FunctionBody* functionBody, uint loopNum, ImplicitCallFlags flags);
         ImplicitCallFlags GetLoopImplicitCallFlags(FunctionBody* functionBody, uint loopNum) const;
-        ImplicitCallFlags * GetLoopImplicitCallFlags() const { return loopImplicitCallFlags; }
+        ImplicitCallFlags * GetLoopImplicitCallFlags() const {LOGMEIN("DynamicProfileInfo.h] 412\n"); return loopImplicitCallFlags; }
 
         void RecordImplicitCallFlags(ImplicitCallFlags flags);
         ImplicitCallFlags GetImplicitCallFlags() const;
@@ -421,7 +421,7 @@ namespace Js
         void    ResetAllPolymorphicCallSiteInfo();
 
         bool CallSiteHasProfileData(ProfileId callSiteId)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 423\n");
             return this->callSiteInfo[callSiteId].isPolymorphic
                 || this->callSiteInfo[callSiteId].u.functionData.sourceId != NoSourceId
                 || this->callSiteInfo[callSiteId].dontInline;
@@ -599,7 +599,7 @@ namespace Js
 
     public:
         bool IsAggressiveIntTypeSpecDisabled(const bool isJitLoopBody) const
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 601\n");
             return
                 isJitLoopBody
                     ? this->bits.disableAggressiveIntTypeSpec_jitLoopBody
@@ -607,16 +607,16 @@ namespace Js
         }
 
         void DisableAggressiveIntTypeSpec(const bool isJitLoopBody)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 609\n");
             this->bits.disableAggressiveIntTypeSpec_jitLoopBody = true;
             if (!isJitLoopBody)
-            {
+            {LOGMEIN("DynamicProfileInfo.h] 612\n");
                 this->bits.disableAggressiveIntTypeSpec = true;
             }
         }
 
         bool IsAggressiveMulIntTypeSpecDisabled(const bool isJitLoopBody) const
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 618\n");
             return
                 isJitLoopBody
                     ? this->bits.disableAggressiveMulIntTypeSpec_jitLoopBody
@@ -624,16 +624,16 @@ namespace Js
         }
 
         void DisableAggressiveMulIntTypeSpec(const bool isJitLoopBody)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 626\n");
             this->bits.disableAggressiveMulIntTypeSpec_jitLoopBody = true;
             if (!isJitLoopBody)
-            {
+            {LOGMEIN("DynamicProfileInfo.h] 629\n");
                 this->bits.disableAggressiveMulIntTypeSpec = true;
             }
         }
 
         bool IsDivIntTypeSpecDisabled(const bool isJitLoopBody) const
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 635\n");
             return
                 isJitLoopBody
                     ? this->bits.disableDivIntTypeSpec_jitLoopBody
@@ -641,38 +641,38 @@ namespace Js
         }
 
         void DisableDivIntTypeSpec(const bool isJitLoopBody)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 643\n");
             this->bits.disableDivIntTypeSpec_jitLoopBody = true;
             if (!isJitLoopBody)
-            {
+            {LOGMEIN("DynamicProfileInfo.h] 646\n");
                 this->bits.disableDivIntTypeSpec = true;
             }
         }
 
-        bool IsLossyIntTypeSpecDisabled() const { return bits.disableLossyIntTypeSpec; }
-        void DisableLossyIntTypeSpec() { this->bits.disableLossyIntTypeSpec = true; }
+        bool IsLossyIntTypeSpecDisabled() const {LOGMEIN("DynamicProfileInfo.h] 651\n"); return bits.disableLossyIntTypeSpec; }
+        void DisableLossyIntTypeSpec() {LOGMEIN("DynamicProfileInfo.h] 652\n"); this->bits.disableLossyIntTypeSpec = true; }
         LoopFlags GetLoopFlags(int loopNumber) const
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 654\n");
             Assert(loopFlags);
             return loopFlags->GetRange<LoopFlags>(loopNumber * LoopFlags::COUNT, LoopFlags::COUNT);
         }
-        BVFixed * GetLoopFlags() const { return loopFlags; }
+        BVFixed * GetLoopFlags() const {LOGMEIN("DynamicProfileInfo.h] 658\n"); return loopFlags; }
 
-        void SetLoopInterpreted(int loopNumber) { loopFlags->Set(loopNumber * LoopFlags::COUNT + LoopFlags::INTERPRETED); }
-        void SetMemOpMinReached(int loopNumber) { loopFlags->Set(loopNumber * LoopFlags::COUNT + LoopFlags::MEMOP_MIN_COUNT_FOUND); }
-        bool IsMemOpDisabled() const { return this->bits.disableMemOp; }
-        void DisableMemOp() { this->bits.disableMemOp = true; }
-        bool IsTrackCompoundedIntOverflowDisabled() const { return this->bits.disableTrackCompoundedIntOverflow; }
-        void DisableTrackCompoundedIntOverflow() { this->bits.disableTrackCompoundedIntOverflow = true; }
-        bool IsFloatTypeSpecDisabled() const { return this->bits.disableFloatTypeSpec; }
-        void DisableFloatTypeSpec() { this->bits.disableFloatTypeSpec = true; }
-        bool IsCheckThisDisabled() const { return this->bits.disableCheckThis; }
-        void DisableCheckThis() { this->bits.disableCheckThis = true; }
-        bool IsLoopImplicitCallInfoDisabled() const { return this->bits.disableLoopImplicitCallInfo; }
-        void DisableLoopImplicitCallInfo() { this->bits.disableLoopImplicitCallInfo = true; }
+        void SetLoopInterpreted(int loopNumber) {LOGMEIN("DynamicProfileInfo.h] 660\n"); loopFlags->Set(loopNumber * LoopFlags::COUNT + LoopFlags::INTERPRETED); }
+        void SetMemOpMinReached(int loopNumber) {LOGMEIN("DynamicProfileInfo.h] 661\n"); loopFlags->Set(loopNumber * LoopFlags::COUNT + LoopFlags::MEMOP_MIN_COUNT_FOUND); }
+        bool IsMemOpDisabled() const {LOGMEIN("DynamicProfileInfo.h] 662\n"); return this->bits.disableMemOp; }
+        void DisableMemOp() {LOGMEIN("DynamicProfileInfo.h] 663\n"); this->bits.disableMemOp = true; }
+        bool IsTrackCompoundedIntOverflowDisabled() const {LOGMEIN("DynamicProfileInfo.h] 664\n"); return this->bits.disableTrackCompoundedIntOverflow; }
+        void DisableTrackCompoundedIntOverflow() {LOGMEIN("DynamicProfileInfo.h] 665\n"); this->bits.disableTrackCompoundedIntOverflow = true; }
+        bool IsFloatTypeSpecDisabled() const {LOGMEIN("DynamicProfileInfo.h] 666\n"); return this->bits.disableFloatTypeSpec; }
+        void DisableFloatTypeSpec() {LOGMEIN("DynamicProfileInfo.h] 667\n"); this->bits.disableFloatTypeSpec = true; }
+        bool IsCheckThisDisabled() const {LOGMEIN("DynamicProfileInfo.h] 668\n"); return this->bits.disableCheckThis; }
+        void DisableCheckThis() {LOGMEIN("DynamicProfileInfo.h] 669\n"); this->bits.disableCheckThis = true; }
+        bool IsLoopImplicitCallInfoDisabled() const {LOGMEIN("DynamicProfileInfo.h] 670\n"); return this->bits.disableLoopImplicitCallInfo; }
+        void DisableLoopImplicitCallInfo() {LOGMEIN("DynamicProfileInfo.h] 671\n"); this->bits.disableLoopImplicitCallInfo = true; }
 
         bool IsArrayCheckHoistDisabled(const bool isJitLoopBody) const
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 674\n");
             return
                 isJitLoopBody
                     ? this->bits.disableArrayCheckHoist_jitLoopBody
@@ -680,16 +680,16 @@ namespace Js
         }
 
         void DisableArrayCheckHoist(const bool isJitLoopBody)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 682\n");
             this->bits.disableArrayCheckHoist_jitLoopBody = true;
             if (!isJitLoopBody)
-            {
+            {LOGMEIN("DynamicProfileInfo.h] 685\n");
                 this->bits.disableArrayCheckHoist = true;
             }
         }
 
         bool IsArrayMissingValueCheckHoistDisabled(const bool isJitLoopBody) const
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 691\n");
             return
                 isJitLoopBody
                     ? this->bits.disableArrayMissingValueCheckHoist_jitLoopBody
@@ -697,16 +697,16 @@ namespace Js
         }
 
         void DisableArrayMissingValueCheckHoist(const bool isJitLoopBody)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 699\n");
             this->bits.disableArrayMissingValueCheckHoist_jitLoopBody = true;
             if (!isJitLoopBody)
-            {
+            {LOGMEIN("DynamicProfileInfo.h] 702\n");
                 this->bits.disableArrayMissingValueCheckHoist = true;
             }
         }
 
         bool IsJsArraySegmentHoistDisabled(const bool isJitLoopBody) const
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 708\n");
             return
                 isJitLoopBody
                     ? this->bits.disableJsArraySegmentHoist_jitLoopBody
@@ -714,16 +714,16 @@ namespace Js
         }
 
         void DisableJsArraySegmentHoist(const bool isJitLoopBody)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 716\n");
             this->bits.disableJsArraySegmentHoist_jitLoopBody = true;
             if (!isJitLoopBody)
-            {
+            {LOGMEIN("DynamicProfileInfo.h] 719\n");
                 this->bits.disableJsArraySegmentHoist = true;
             }
         }
 
         bool IsArrayLengthHoistDisabled(const bool isJitLoopBody) const
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 725\n");
             return
                 isJitLoopBody
                     ? this->bits.disableArrayLengthHoist_jitLoopBody
@@ -731,16 +731,16 @@ namespace Js
         }
 
         void DisableArrayLengthHoist(const bool isJitLoopBody)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 733\n");
             this->bits.disableArrayLengthHoist_jitLoopBody = true;
             if (!isJitLoopBody)
-            {
+            {LOGMEIN("DynamicProfileInfo.h] 736\n");
                 this->bits.disableArrayLengthHoist = true;
             }
         }
 
         bool IsTypedArrayTypeSpecDisabled(const bool isJitLoopBody) const
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 742\n");
             return
                 isJitLoopBody
                     ? this->bits.disableTypedArrayTypeSpec_jitLoopBody
@@ -748,19 +748,19 @@ namespace Js
         }
 
         void DisableTypedArrayTypeSpec(const bool isJitLoopBody)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 750\n");
             this->bits.disableTypedArrayTypeSpec_jitLoopBody = true;
             if (!isJitLoopBody)
-            {
+            {LOGMEIN("DynamicProfileInfo.h] 753\n");
                 this->bits.disableTypedArrayTypeSpec = true;
             }
         }
 
-        bool IsLdLenIntSpecDisabled() const { return this->bits.disableLdLenIntSpec; }
-        void DisableLdLenIntSpec() { this->bits.disableLdLenIntSpec = true; }
+        bool IsLdLenIntSpecDisabled() const {LOGMEIN("DynamicProfileInfo.h] 758\n"); return this->bits.disableLdLenIntSpec; }
+        void DisableLdLenIntSpec() {LOGMEIN("DynamicProfileInfo.h] 759\n"); this->bits.disableLdLenIntSpec = true; }
 
         bool IsBoundCheckHoistDisabled(const bool isJitLoopBody) const
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 762\n");
             return
                 isJitLoopBody
                     ? this->bits.disableBoundCheckHoist_jitLoopBody
@@ -768,16 +768,16 @@ namespace Js
         }
 
         void DisableBoundCheckHoist(const bool isJitLoopBody)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 770\n");
             this->bits.disableBoundCheckHoist_jitLoopBody = true;
             if (!isJitLoopBody)
-            {
+            {LOGMEIN("DynamicProfileInfo.h] 773\n");
                 this->bits.disableBoundCheckHoist = true;
             }
         }
 
         bool IsLoopCountBasedBoundCheckHoistDisabled(const bool isJitLoopBody) const
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 779\n");
             return
                 isJitLoopBody
                     ? this->bits.disableLoopCountBasedBoundCheckHoist_jitLoopBody
@@ -785,40 +785,40 @@ namespace Js
         }
 
         void DisableLoopCountBasedBoundCheckHoist(const bool isJitLoopBody)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 787\n");
             this->bits.disableLoopCountBasedBoundCheckHoist_jitLoopBody = true;
             if (!isJitLoopBody)
-            {
+            {LOGMEIN("DynamicProfileInfo.h] 790\n");
                 this->bits.disableLoopCountBasedBoundCheckHoist = true;
             }
         }
 
-        BYTE GetInlinerVersion() { return this->currentInlinerVersion; }
-        uint32 GetPolymorphicCacheState() const { return this->polymorphicCacheState; }
-        uint32 GetRecursiveInlineInfo() const { return this->m_recursiveInlineInfo; }
+        BYTE GetInlinerVersion() {LOGMEIN("DynamicProfileInfo.h] 795\n"); return this->currentInlinerVersion; }
+        uint32 GetPolymorphicCacheState() const {LOGMEIN("DynamicProfileInfo.h] 796\n"); return this->polymorphicCacheState; }
+        uint32 GetRecursiveInlineInfo() const {LOGMEIN("DynamicProfileInfo.h] 797\n"); return this->m_recursiveInlineInfo; }
         void SetHasNewPolyFieldAccess(FunctionBody *functionBody);
-        bool IsFloorInliningDisabled() const { return this->bits.disableFloorInlining; }
-        void DisableFloorInlining() { this->bits.disableFloorInlining = true; }
-        bool IsNoProfileBailoutsDisabled() const { return this->bits.disableNoProfileBailouts; }
-        void DisableNoProfileBailouts() { this->bits.disableNoProfileBailouts = true; }
-        bool IsSwitchOptDisabled() const { return this->bits.disableSwitchOpt; }
-        void DisableSwitchOpt() { this->bits.disableSwitchOpt = true; }
-        bool IsStackArgOptDisabled() const { return this->bits.disableStackArgOpt; }
-        void DisableStackArgOpt() { this->bits.disableStackArgOpt = true; }
-        bool IsEquivalentObjTypeSpecDisabled() const { return this->bits.disableEquivalentObjTypeSpec; }
-        void DisableEquivalentObjTypeSpec() { this->bits.disableEquivalentObjTypeSpec = true; }
-        bool IsObjTypeSpecDisabledInJitLoopBody() const { return this->bits.disableObjTypeSpec_jitLoopBody; }
-        void DisableObjTypeSpecInJitLoopBody() { this->bits.disableObjTypeSpec_jitLoopBody = true; }
-        bool IsPowIntIntTypeSpecDisabled() const { return bits.disablePowIntIntTypeSpec; }
-        void DisablePowIntIntTypeSpec() { this->bits.disablePowIntIntTypeSpec = true; }
-        bool IsTagCheckDisabled() const { return bits.disableTagCheck; }
-        void DisableTagCheck() { this->bits.disableTagCheck = true; }
+        bool IsFloorInliningDisabled() const {LOGMEIN("DynamicProfileInfo.h] 799\n"); return this->bits.disableFloorInlining; }
+        void DisableFloorInlining() {LOGMEIN("DynamicProfileInfo.h] 800\n"); this->bits.disableFloorInlining = true; }
+        bool IsNoProfileBailoutsDisabled() const {LOGMEIN("DynamicProfileInfo.h] 801\n"); return this->bits.disableNoProfileBailouts; }
+        void DisableNoProfileBailouts() {LOGMEIN("DynamicProfileInfo.h] 802\n"); this->bits.disableNoProfileBailouts = true; }
+        bool IsSwitchOptDisabled() const {LOGMEIN("DynamicProfileInfo.h] 803\n"); return this->bits.disableSwitchOpt; }
+        void DisableSwitchOpt() {LOGMEIN("DynamicProfileInfo.h] 804\n"); this->bits.disableSwitchOpt = true; }
+        bool IsStackArgOptDisabled() const {LOGMEIN("DynamicProfileInfo.h] 805\n"); return this->bits.disableStackArgOpt; }
+        void DisableStackArgOpt() {LOGMEIN("DynamicProfileInfo.h] 806\n"); this->bits.disableStackArgOpt = true; }
+        bool IsEquivalentObjTypeSpecDisabled() const {LOGMEIN("DynamicProfileInfo.h] 807\n"); return this->bits.disableEquivalentObjTypeSpec; }
+        void DisableEquivalentObjTypeSpec() {LOGMEIN("DynamicProfileInfo.h] 808\n"); this->bits.disableEquivalentObjTypeSpec = true; }
+        bool IsObjTypeSpecDisabledInJitLoopBody() const {LOGMEIN("DynamicProfileInfo.h] 809\n"); return this->bits.disableObjTypeSpec_jitLoopBody; }
+        void DisableObjTypeSpecInJitLoopBody() {LOGMEIN("DynamicProfileInfo.h] 810\n"); this->bits.disableObjTypeSpec_jitLoopBody = true; }
+        bool IsPowIntIntTypeSpecDisabled() const {LOGMEIN("DynamicProfileInfo.h] 811\n"); return bits.disablePowIntIntTypeSpec; }
+        void DisablePowIntIntTypeSpec() {LOGMEIN("DynamicProfileInfo.h] 812\n"); this->bits.disablePowIntIntTypeSpec = true; }
+        bool IsTagCheckDisabled() const {LOGMEIN("DynamicProfileInfo.h] 813\n"); return bits.disableTagCheck; }
+        void DisableTagCheck() {LOGMEIN("DynamicProfileInfo.h] 814\n"); this->bits.disableTagCheck = true; }
 
-        static bool IsCallSiteNoInfo(Js::LocalFunctionId functionId) { return functionId == CallSiteNoInfo; }
-        int IncRejitCount() { return this->rejitCount++; }
-        int GetRejitCount() { return this->rejitCount; }
-        void SetBailOutOffsetForLastRejit(uint32 offset) { this->bailOutOffsetForLastRejit = offset; }
-        uint32 GetBailOutOffsetForLastRejit() { return this->bailOutOffsetForLastRejit; }
+        static bool IsCallSiteNoInfo(Js::LocalFunctionId functionId) {LOGMEIN("DynamicProfileInfo.h] 816\n"); return functionId == CallSiteNoInfo; }
+        int IncRejitCount() {LOGMEIN("DynamicProfileInfo.h] 817\n"); return this->rejitCount++; }
+        int GetRejitCount() {LOGMEIN("DynamicProfileInfo.h] 818\n"); return this->rejitCount; }
+        void SetBailOutOffsetForLastRejit(uint32 offset) {LOGMEIN("DynamicProfileInfo.h] 819\n"); this->bailOutOffsetForLastRejit = offset; }
+        uint32 GetBailOutOffsetForLastRejit() {LOGMEIN("DynamicProfileInfo.h] 820\n"); return this->bailOutOffsetForLastRejit; }
 
 #if DBG_DUMP
         void Dump(FunctionBody* functionBody, ArenaAllocator * dynamicProfileInfoAllocator = nullptr);
@@ -833,12 +833,12 @@ namespace Js
         Field(Js::SourceId) sourceIds[DynamicProfileInfo::maxPolymorphicInliningSize];
         Field(PolymorphicCallSiteInfo *) next;
         bool GetFunction(uint index, Js::LocalFunctionId *functionId, Js::SourceId *sourceId)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 835\n");
             Assert(index < DynamicProfileInfo::maxPolymorphicInliningSize);
             Assert(functionId);
             Assert(sourceId);
             if (DynamicProfileInfo::IsCallSiteNoInfo(functionIds[index]))
-            {
+            {LOGMEIN("DynamicProfileInfo.h] 840\n");
                 return false;
             }
             *functionId = functionIds[index];
@@ -851,13 +851,13 @@ namespace Js
     class BufferReader
     {
     public:
-        BufferReader(__in_ecount(length) char const * buffer, size_t length) : current(buffer), lengthLeft(length) {}
+        BufferReader(__in_ecount(length) char const * buffer, size_t length) : current(buffer), lengthLeft(length) {LOGMEIN("DynamicProfileInfo.h] 853\n");}
 
         template <typename T>
         bool Read(T * data)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 857\n");
             if (lengthLeft < sizeof(T))
-            {
+            {LOGMEIN("DynamicProfileInfo.h] 859\n");
                 return false;
             }
             *data = *(T *)current;
@@ -868,9 +868,9 @@ namespace Js
 
         template <typename T>
         bool Peek(T * data)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 870\n");
             if (lengthLeft < sizeof(T))
-            {
+            {LOGMEIN("DynamicProfileInfo.h] 872\n");
                 return false;
             }
             *data = *(T *)current;
@@ -879,10 +879,10 @@ namespace Js
 
         template <typename T>
         bool ReadArray(__inout_ecount(len) T * data, size_t len)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 881\n");
             size_t size = sizeof(T) * len;
             if (lengthLeft < size)
-            {
+            {LOGMEIN("DynamicProfileInfo.h] 884\n");
                 return false;
             }
             memcpy_s(data, size, current, size);
@@ -898,28 +898,28 @@ namespace Js
     class BufferSizeCounter
     {
     public:
-        BufferSizeCounter() : count(0) {}
-        size_t GetByteCount() const { return count; }
+        BufferSizeCounter() : count(0) {LOGMEIN("DynamicProfileInfo.h] 900\n");}
+        size_t GetByteCount() const {LOGMEIN("DynamicProfileInfo.h] 901\n"); return count; }
         template <typename T>
         bool Write(T const& data)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 904\n");
             return WriteArray(&data, 1);
         }
 
 #if DBG_DUMP
-        void Log(DynamicProfileInfo* info) {}
+        void Log(DynamicProfileInfo* info) {LOGMEIN("DynamicProfileInfo.h] 909\n");}
 #endif
 
         template <typename T>
         bool WriteArray(__in_ecount(len) T * data, size_t len)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 914\n");
             count += sizeof(T) * len;
             return true;
         }
 
         template <typename T>
         bool WriteArray(WriteBarrierPtr<T> data, size_t len)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 921\n");
             return WriteArray(static_cast<T*>(data), len);
         }
 
@@ -930,11 +930,11 @@ namespace Js
     class BufferWriter
     {
     public:
-        BufferWriter(__in_ecount(length) char * buffer, size_t length) : current(buffer), lengthLeft(length) {}
+        BufferWriter(__in_ecount(length) char * buffer, size_t length) : current(buffer), lengthLeft(length) {LOGMEIN("DynamicProfileInfo.h] 932\n");}
 
         template <typename T>
         bool Write(T const& data)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 936\n");
             return WriteArray(&data, 1);
         }
 
@@ -943,10 +943,10 @@ namespace Js
 #endif
         template <typename T>
         bool WriteArray(__in_ecount(len) T * data, size_t len)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 945\n");
             size_t size = sizeof(T) * len;
             if (lengthLeft < size)
-            {
+            {LOGMEIN("DynamicProfileInfo.h] 948\n");
                 return false;
             }
             memcpy_s(current, size, data, size);
@@ -957,7 +957,7 @@ namespace Js
 
         template <typename T>
         bool WriteArray(WriteBarrierPtr<T> data, size_t len)
-        {
+        {LOGMEIN("DynamicProfileInfo.h] 959\n");
             return WriteArray(static_cast<T*>(data), len);
         }
 

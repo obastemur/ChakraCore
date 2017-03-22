@@ -150,12 +150,12 @@ namespace Js
         Which which_;
 
     public:
-        AsmJsType() : which_( Which( -1 ) ){}
-        AsmJsType( Which w ) : which_( w ){}
+        AsmJsType() : which_( Which( -1 ) ){LOGMEIN("AsmJsTypes.h] 152\n");}
+        AsmJsType( Which w ) : which_( w ){LOGMEIN("AsmJsTypes.h] 153\n");}
 
         bool operator==( AsmJsType rhs ) const;
         bool operator!=( AsmJsType rhs ) const;
-        inline Js::AsmJsType::Which GetWhich() const{return which_;}
+        inline Js::AsmJsType::Which GetWhich() const{LOGMEIN("AsmJsTypes.h] 157\n");return which_;}
         bool isSigned() const;
         bool isUnsigned() const;
         bool isInt() const;
@@ -285,22 +285,22 @@ namespace Js
         AsmJsType toType() const;
         AsmJSCoercion toCoercion() const;
         static AsmJsVarType FromCheckedType( AsmJsType type );
-        inline bool isInt()const {return which_ == Int; }
-        inline bool isInt64()const {return which_ == Int64; }
-        inline bool isDouble()const {return which_ == Double; }
-        inline bool isFloat()const {return which_ == Float; }
-        inline bool isInt32x4()const    { return which_ == Int32x4; }
-        inline bool isBool32x4()const   { return which_ == Bool32x4; }
-        inline bool isBool16x8()const   { return which_ == Bool16x8; }
-        inline bool isBool8x16()const   { return which_ == Bool8x16; }
-        inline bool isFloat32x4()const  { return which_ == Float32x4; }
-        inline bool isFloat64x2()const  { return which_ == Float64x2; }
-        inline bool isInt16x8() const   { return which_ == Int16x8; }
-        inline bool isInt8x16() const   { return which_ == Int8x16; }
-        inline bool isUint32x4() const  { return which_ == Uint32x4; }
-        inline bool isUint16x8() const  { return which_ == Uint16x8; }
-        inline bool isUint8x16() const  { return which_ == Uint8x16; }
-        inline bool isSIMD()    const   { return isInt32x4()  || isInt16x8()  || isInt8x16()  ||
+        inline bool isInt()const {LOGMEIN("AsmJsTypes.h] 287\n");return which_ == Int; }
+        inline bool isInt64()const {LOGMEIN("AsmJsTypes.h] 288\n");return which_ == Int64; }
+        inline bool isDouble()const {LOGMEIN("AsmJsTypes.h] 289\n");return which_ == Double; }
+        inline bool isFloat()const {LOGMEIN("AsmJsTypes.h] 290\n");return which_ == Float; }
+        inline bool isInt32x4()const    {LOGMEIN("AsmJsTypes.h] 291\n"); return which_ == Int32x4; }
+        inline bool isBool32x4()const   {LOGMEIN("AsmJsTypes.h] 292\n"); return which_ == Bool32x4; }
+        inline bool isBool16x8()const   {LOGMEIN("AsmJsTypes.h] 293\n"); return which_ == Bool16x8; }
+        inline bool isBool8x16()const   {LOGMEIN("AsmJsTypes.h] 294\n"); return which_ == Bool8x16; }
+        inline bool isFloat32x4()const  {LOGMEIN("AsmJsTypes.h] 295\n"); return which_ == Float32x4; }
+        inline bool isFloat64x2()const  {LOGMEIN("AsmJsTypes.h] 296\n"); return which_ == Float64x2; }
+        inline bool isInt16x8() const   {LOGMEIN("AsmJsTypes.h] 297\n"); return which_ == Int16x8; }
+        inline bool isInt8x16() const   {LOGMEIN("AsmJsTypes.h] 298\n"); return which_ == Int8x16; }
+        inline bool isUint32x4() const  {LOGMEIN("AsmJsTypes.h] 299\n"); return which_ == Uint32x4; }
+        inline bool isUint16x8() const  {LOGMEIN("AsmJsTypes.h] 300\n"); return which_ == Uint16x8; }
+        inline bool isUint8x16() const  {LOGMEIN("AsmJsTypes.h] 301\n"); return which_ == Uint8x16; }
+        inline bool isSIMD()    const   {LOGMEIN("AsmJsTypes.h] 302\n"); return isInt32x4()  || isInt16x8()  || isInt8x16()  ||
                                                  isUint32x4() || isUint16x8() || isUint8x16() ||
                                                  isBool32x4() || isBool16x8() || isBool8x16() ||
                                                  isFloat32x4() || isFloat64x2() ; }
@@ -311,9 +311,9 @@ namespace Js
     // Implements <: (subtype) operator when the RHS is a VarType
     static inline bool
         operator<=( AsmJsType lhs, AsmJsVarType rhs )
-    {
+    {LOGMEIN("AsmJsTypes.h] 313\n");
         switch( rhs.which() )
-        {
+        {LOGMEIN("AsmJsTypes.h] 315\n");
         case AsmJsVarType::Int:    return lhs.isInt();
         case AsmJsVarType::Double: return lhs.isDouble();
         case AsmJsVarType::Float:  return lhs.isFloat();
@@ -350,14 +350,14 @@ namespace Js
         SymbolType   mType;
     public:
         // Constructor
-        AsmJsSymbol(PropertyName name, SymbolType type) : mName(name), mType(type) { }
+        AsmJsSymbol(PropertyName name, SymbolType type) : mName(name), mType(type) {LOGMEIN("AsmJsTypes.h] 352\n"); }
 
         // Accessor for the name
-        inline PropertyName GetName() const{return mName;}
+        inline PropertyName GetName() const{LOGMEIN("AsmJsTypes.h] 355\n");return mName;}
         // Sets the name of the symbol
-        inline void SetName(PropertyName name) {mName = name;}
+        inline void SetName(PropertyName name) {LOGMEIN("AsmJsTypes.h] 357\n");mName = name;}
         // Returns the type of the symbol
-        inline SymbolType GetSymbolType()const { return mType; }
+        inline SymbolType GetSymbolType()const {LOGMEIN("AsmJsTypes.h] 359\n"); return mType; }
         // Casts the symbol to a derived class, additional test done to make sure is it the right type
         template<typename T>
         T* Cast();
@@ -384,9 +384,9 @@ namespace Js
         ArgType mArgType;
     public:
         // Constructor
-        AsmJsModuleArg(PropertyName name, ArgType type) : AsmJsSymbol(name, AsmJsSymbol::ModuleArgument), mArgType(type) { }
+        AsmJsModuleArg(PropertyName name, ArgType type) : AsmJsSymbol(name, AsmJsSymbol::ModuleArgument), mArgType(type) {LOGMEIN("AsmJsTypes.h] 386\n"); }
         // Accessor
-        inline const ArgType GetArgType()const { return mArgType; }
+        inline const ArgType GetArgType()const {LOGMEIN("AsmJsTypes.h] 388\n"); return mArgType; }
 
         // AsmJsSymbol interface
     public:
@@ -401,9 +401,9 @@ namespace Js
         const double* mVal;
     public:
         // Constructor
-        AsmJsMathConst(PropertyName name, const double* val) : AsmJsSymbol(name, AsmJsSymbol::MathConstant), mVal(val) { }
+        AsmJsMathConst(PropertyName name, const double* val) : AsmJsSymbol(name, AsmJsSymbol::MathConstant), mVal(val) {LOGMEIN("AsmJsTypes.h] 403\n"); }
         // Accessor
-        inline const double* GetVal()const { return mVal; }
+        inline const double* GetVal()const {LOGMEIN("AsmJsTypes.h] 405\n"); return mVal; }
 
         // AsmJsSymbol interface
     public:
@@ -426,14 +426,14 @@ namespace Js
             , mType(AsmJsVarType::Double)
             , mLocation(Js::Constants::NoRegister)
             , mIsMutable(isMutable)
-        {
+        {LOGMEIN("AsmJsTypes.h] 428\n");
         }
 
         // Accessors
-        inline Js::RegSlot GetLocation() const            { return mLocation; }
-        inline void SetLocation( Js::RegSlot val )        { mLocation = val; }
-        inline AsmJsVarType GetVarType() const            { return mType; }
-        inline void SetVarType( const AsmJsVarType& type ){ mType = type; }
+        inline Js::RegSlot GetLocation() const            {LOGMEIN("AsmJsTypes.h] 432\n"); return mLocation; }
+        inline void SetLocation( Js::RegSlot val )        {LOGMEIN("AsmJsTypes.h] 433\n"); mLocation = val; }
+        inline AsmJsVarType GetVarType() const            {LOGMEIN("AsmJsTypes.h] 434\n"); return mType; }
+        inline void SetVarType( const AsmJsVarType& type ){LOGMEIN("AsmJsTypes.h] 435\n"); mType = type; }
 
         // AsmJsSymbol interface
     public:
@@ -463,20 +463,20 @@ namespace Js
         // Constructors
         AsmJsVar( PropertyName name, bool isMutable = true) :
             AsmJsVarBase(name, AsmJsSymbol::Variable, isMutable)
-        {
+        {LOGMEIN("AsmJsTypes.h] 465\n");
             mConstInitialiser.doubleVal = 0;
         }
 
         // Accessors
-        inline void   SetConstInitialiser ( double val ){ mConstInitialiser.doubleVal = val; }
-        inline double GetDoubleInitialiser() const      { return mConstInitialiser.doubleVal; }
-        inline void   SetConstInitialiser(float val)   { mConstInitialiser.floatVal = val; }
-        inline float    GetFloatInitialiser() const      { return mConstInitialiser.floatVal; }
-        inline void   SetConstInitialiser ( int val )   { mConstInitialiser.intVal = val; }
-        inline int    GetIntInitialiser   () const      { return mConstInitialiser.intVal; }
+        inline void   SetConstInitialiser ( double val ){LOGMEIN("AsmJsTypes.h] 470\n"); mConstInitialiser.doubleVal = val; }
+        inline double GetDoubleInitialiser() const      {LOGMEIN("AsmJsTypes.h] 471\n"); return mConstInitialiser.doubleVal; }
+        inline void   SetConstInitialiser(float val)   {LOGMEIN("AsmJsTypes.h] 472\n"); mConstInitialiser.floatVal = val; }
+        inline float    GetFloatInitialiser() const      {LOGMEIN("AsmJsTypes.h] 473\n"); return mConstInitialiser.floatVal; }
+        inline void   SetConstInitialiser ( int val )   {LOGMEIN("AsmJsTypes.h] 474\n"); mConstInitialiser.intVal = val; }
+        inline int    GetIntInitialiser   () const      {LOGMEIN("AsmJsTypes.h] 475\n"); return mConstInitialiser.intVal; }
 
-        inline void SetConstInitialiser(AsmJsSIMDValue val) { mConstInitialiser.simdVal = val; }
-        inline AsmJsSIMDValue GetSimdConstInitialiser()      { return mConstInitialiser.simdVal; }
+        inline void SetConstInitialiser(AsmJsSIMDValue val) {LOGMEIN("AsmJsTypes.h] 477\n"); mConstInitialiser.simdVal = val; }
+        inline AsmJsSIMDValue GetSimdConstInitialiser()      {LOGMEIN("AsmJsTypes.h] 478\n"); return mConstInitialiser.simdVal; }
     };
 
     // AsmJsArgument defines the arguments of a function
@@ -486,7 +486,7 @@ namespace Js
         // Constructor
         AsmJsArgument( PropertyName name ) :
             AsmJsVarBase( name, AsmJsSymbol::Argument )
-        {
+        {LOGMEIN("AsmJsTypes.h] 488\n");
         }
     };
 
@@ -501,11 +501,11 @@ namespace Js
         AsmJsConstantImport( PropertyName name, PropertyName field ) :
             AsmJsVarBase( name, AsmJsSymbol::ConstantImport ),
             mField( field )
-        {
+        {LOGMEIN("AsmJsTypes.h] 503\n");
         }
 
         // Accessor
-        inline Js::PropertyName GetField() const { return mField; }
+        inline Js::PropertyName GetField() const {LOGMEIN("AsmJsTypes.h] 507\n"); return mField; }
     };
 
     template <typename T>
@@ -515,14 +515,14 @@ namespace Js
     struct AsmJsComparer<float>
     {
         inline static bool Equals(float x, float y)
-        {
+        {LOGMEIN("AsmJsTypes.h] 517\n");
             int32 i32x = *(int32*)&x;
             int32 i32y = *(int32*)&y;
             return i32x == i32y;
         }
 
         inline static hash_t GetHashCode(float i)
-        {
+        {LOGMEIN("AsmJsTypes.h] 524\n");
             return (hash_t)i;
         }
     };
@@ -531,14 +531,14 @@ namespace Js
     struct AsmJsComparer<double>
     {
         inline static bool Equals(double x, double y)
-        {
+        {LOGMEIN("AsmJsTypes.h] 533\n");
             int64 i64x = *(int64*)&x;
             int64 i64y = *(int64*)&y;
             return i64x == i64y;
         }
 
         inline static hash_t GetHashCode(double d)
-        {
+        {LOGMEIN("AsmJsTypes.h] 540\n");
             __int64 i64 = *(__int64*)&d;
             return (uint)((i64 >> 32) ^ (uint)i64);
         }
@@ -557,23 +557,23 @@ namespace Js
             // reserves 1 location for return
             WAsmJs::RegisterSpace(Js::FunctionBody::FirstRegSlot),
             mConstMap( allocator )
-        {
+        {LOGMEIN("AsmJsTypes.h] 559\n");
         }
 
         inline void AddConst( T val )
-        {
+        {LOGMEIN("AsmJsTypes.h] 563\n");
             if( !mConstMap.ContainsKey( val ) )
-            {
+            {LOGMEIN("AsmJsTypes.h] 565\n");
                 mConstMap.Add( val, this->AcquireConstRegister() );
             }
         }
 
         inline RegSlot GetConstRegister( T val ) const
-        {
+        {LOGMEIN("AsmJsTypes.h] 571\n");
             return mConstMap.LookupWithKey( val, Constants::NoRegister );
         }
         inline const ConstMap GetConstMap()
-        {
+        {LOGMEIN("AsmJsTypes.h] 575\n");
             return mConstMap;
         }
     };
@@ -596,36 +596,36 @@ namespace Js
             , mLocation( 0 )
             , mReturnTypeKnown( false )
             , mArgumentsType(nullptr)
-        { }
+        {LOGMEIN("AsmJsTypes.h] 598\n"); }
         // returns false if the current return type is known and different
         virtual bool CheckAndSetReturnType( Js::AsmJsRetType val );
-        inline Js::AsmJsRetType GetReturnType() const{return mReturnType;}
+        inline Js::AsmJsRetType GetReturnType() const{LOGMEIN("AsmJsTypes.h] 601\n");return mReturnType;}
         bool EnsureArgCount(ArgSlot count);
         void SetArgCount(ArgSlot count );
 
         ArgSlot GetArgCount() const
-        {
+        {LOGMEIN("AsmJsTypes.h] 606\n");
             return mArgCount;
         }
         AsmJsType* GetArgTypeArray();
 
         const AsmJsType& GetArgType( ArgSlot index ) const
-        {
+        {LOGMEIN("AsmJsTypes.h] 612\n");
             Assert( mArgumentsType && index < GetArgCount() );
             return mArgumentsType[index];
         }
         void SetArgType(const AsmJsType& arg, ArgSlot index)
-        {
+        {LOGMEIN("AsmJsTypes.h] 617\n");
             Assert( index < GetArgCount() ); mArgumentsType[index] = arg;
         }
         void SetArgType(AsmJsVarBase* arg, ArgSlot index)
-        {
+        {LOGMEIN("AsmJsTypes.h] 621\n");
             Assert( mArgumentsType != nullptr && index < GetArgCount() );
             SetArgType( arg->GetType(), index );
         }
         bool EnsureArgType(AsmJsVarBase* arg, ArgSlot index);
-        inline Js::RegSlot GetFunctionIndex() const{return mLocation;}
-        inline void SetFunctionIndex( Js::RegSlot val ){mLocation = val;}
+        inline Js::RegSlot GetFunctionIndex() const{LOGMEIN("AsmJsTypes.h] 626\n");return mLocation;}
+        inline void SetFunctionIndex( Js::RegSlot val ){LOGMEIN("AsmJsTypes.h] 627\n");mLocation = val;}
 
         // argCount : number of arguments to check
         // args : dynamic array with the argument type
@@ -651,7 +651,7 @@ namespace Js
         AsmJsMathFunction(PropertyName name, ArenaAllocator* allocator, ArgSlot argCount, AsmJSMathBuiltinFunction builtIn, OpCodeAsmJs op, AsmJsRetType retType, ...);
 
         void SetOverload( AsmJsMathFunction* val );
-        AsmJSMathBuiltinFunction GetMathBuiltInFunction(){ return mBuiltIn; };
+        AsmJSMathBuiltinFunction GetMathBuiltInFunction(){LOGMEIN("AsmJsTypes.h] 653\n"); return mBuiltIn; };
         virtual bool CheckAndSetReturnType( Js::AsmJsRetType val ) override;
         bool SupportsMathCall(ArgSlot argCount, AsmJsType* args, OpCodeAsmJs& op, AsmJsRetType& retType);
     private:
@@ -665,10 +665,10 @@ namespace Js
         ArrayBufferView::ViewType mType;
     public:
         AsmJsTypedArrayFunction(PropertyName name, ArenaAllocator* allocator, AsmJSTypedArrayBuiltinFunction builtIn, ArrayBufferView::ViewType type) :
-            AsmJsFunctionDeclaration(name, AsmJsSymbol::TypedArrayBuiltinFunction, allocator), mBuiltIn(builtIn), mType(type) { }
+            AsmJsFunctionDeclaration(name, AsmJsSymbol::TypedArrayBuiltinFunction, allocator), mBuiltIn(builtIn), mType(type) {LOGMEIN("AsmJsTypes.h] 667\n"); }
 
-        AsmJSTypedArrayBuiltinFunction GetArrayBuiltInFunction(){ return mBuiltIn; };
-        ArrayBufferView::ViewType GetViewType(){ return mType; };
+        AsmJSTypedArrayBuiltinFunction GetArrayBuiltInFunction(){LOGMEIN("AsmJsTypes.h] 669\n"); return mBuiltIn; };
+        ArrayBufferView::ViewType GetViewType(){LOGMEIN("AsmJsTypes.h] 670\n"); return mType; };
 
     };
 
@@ -679,7 +679,7 @@ namespace Js
         AsmJsImportFunction( PropertyName name, PropertyName field, ArenaAllocator* allocator );
 
         inline Js::PropertyName GetField() const
-        {
+        {LOGMEIN("AsmJsTypes.h] 681\n");
             return mField;
         }
 
@@ -702,25 +702,25 @@ namespace Js
             , mSize( 0 )
             , mIsDefined( false )
             , mAreArgumentsKnown( false )
-        {
+        {LOGMEIN("AsmJsTypes.h] 704\n");
 
         }
 
-        inline bool IsDefined() const{return mIsDefined;}
-        inline void Define(){mIsDefined = true;}
-        inline uint GetSize() const{return mSize;}
+        inline bool IsDefined() const{LOGMEIN("AsmJsTypes.h] 708\n");return mIsDefined;}
+        inline void Define(){LOGMEIN("AsmJsTypes.h] 709\n");mIsDefined = true;}
+        inline uint GetSize() const{LOGMEIN("AsmJsTypes.h] 710\n");return mSize;}
         inline void SetSize( unsigned int val )
-        {
+        {LOGMEIN("AsmJsTypes.h] 712\n");
             mSize = val;
             mTable.EnsureArray( mSize );
         }
         inline void SetModuleFunctionIndex( RegSlot funcIndex, unsigned int index )
-        {
+        {LOGMEIN("AsmJsTypes.h] 717\n");
             Assert( index < mSize );
             mTable.SetItem( index, funcIndex );
         }
         inline RegSlot GetModuleFunctionIndex( unsigned int index )
-        {
+        {LOGMEIN("AsmJsTypes.h] 722\n");
             Assert( index < mSize );
             return mTable.Item( index );
         }
@@ -750,41 +750,41 @@ namespace Js
     public:
         AsmJsFunc( PropertyName name, ParseNode* pnodeFnc, ArenaAllocator* allocator, ScriptContext* scriptContext );
 
-        unsigned GetCompileTime() const { return mCompileTime; }
-        void AccumulateCompileTime(unsigned ms) { mCompileTime += ms; }
+        unsigned GetCompileTime() const {LOGMEIN("AsmJsTypes.h] 752\n"); return mCompileTime; }
+        void AccumulateCompileTime(unsigned ms) {LOGMEIN("AsmJsTypes.h] 753\n"); mCompileTime += ms; }
 
-        inline ParseNode* GetFncNode() const{ return mFncNode; }
-        inline void       SetFncNode(ParseNode* fncNode) { mFncNode = fncNode; }
-        inline FuncInfo*  GetFuncInfo() const{ return mFuncInfo; }
-        inline void       SetFuncInfo(FuncInfo* fncInfo) { mFuncInfo = fncInfo; }
-        inline FunctionBody*GetFuncBody() const{ return mFuncBody; }
-        inline void       SetFuncBody(FunctionBody* fncBody) { mFuncBody = fncBody; }
-        inline ULONG      GetOrigParseFlags() const{ return mOrigParseFlags; }
-        inline void       SetOrigParseFlags(ULONG parseFlags) { mOrigParseFlags = parseFlags; }
+        inline ParseNode* GetFncNode() const{LOGMEIN("AsmJsTypes.h] 755\n"); return mFncNode; }
+        inline void       SetFncNode(ParseNode* fncNode) {LOGMEIN("AsmJsTypes.h] 756\n"); mFncNode = fncNode; }
+        inline FuncInfo*  GetFuncInfo() const{LOGMEIN("AsmJsTypes.h] 757\n"); return mFuncInfo; }
+        inline void       SetFuncInfo(FuncInfo* fncInfo) {LOGMEIN("AsmJsTypes.h] 758\n"); mFuncInfo = fncInfo; }
+        inline FunctionBody*GetFuncBody() const{LOGMEIN("AsmJsTypes.h] 759\n"); return mFuncBody; }
+        inline void       SetFuncBody(FunctionBody* fncBody) {LOGMEIN("AsmJsTypes.h] 760\n"); mFuncBody = fncBody; }
+        inline ULONG      GetOrigParseFlags() const{LOGMEIN("AsmJsTypes.h] 761\n"); return mOrigParseFlags; }
+        inline void       SetOrigParseFlags(ULONG parseFlags) {LOGMEIN("AsmJsTypes.h] 762\n"); mOrigParseFlags = parseFlags; }
 
-        inline ParseNode* GetBodyNode() const{return mBodyNode;}
-        inline void SetBodyNode( ParseNode* val ){mBodyNode = val;}
-        inline void Finish() { mDefined = true; }
-        inline bool IsDefined()const { return mDefined; }
-        inline void SetDeferred() { mDeferred = true; }
-        inline bool IsDeferred()const { return mDeferred; }
-        template<typename T> inline AsmJsRegisterSpace<T>& GetRegisterSpace() {
+        inline ParseNode* GetBodyNode() const{LOGMEIN("AsmJsTypes.h] 764\n");return mBodyNode;}
+        inline void SetBodyNode( ParseNode* val ){LOGMEIN("AsmJsTypes.h] 765\n");mBodyNode = val;}
+        inline void Finish() {LOGMEIN("AsmJsTypes.h] 766\n"); mDefined = true; }
+        inline bool IsDefined()const {LOGMEIN("AsmJsTypes.h] 767\n"); return mDefined; }
+        inline void SetDeferred() {LOGMEIN("AsmJsTypes.h] 768\n"); mDeferred = true; }
+        inline bool IsDeferred()const {LOGMEIN("AsmJsTypes.h] 769\n"); return mDeferred; }
+        template<typename T> inline AsmJsRegisterSpace<T>& GetRegisterSpace() {LOGMEIN("AsmJsTypes.h] 770\n");
             return *(AsmJsRegisterSpace<T>*)mTypedRegisterAllocator.GetRegisterSpace(WAsmJs::RegisterSpace::GetRegisterSpaceType<T>());
         }
-        const WAsmJs::TypedRegisterAllocator& GetTypedRegisterAllocator() const { return mTypedRegisterAllocator; }
-        inline SIMDVarsList& GetSimdVarsList()    { return mSimdVarsList;  }
+        const WAsmJs::TypedRegisterAllocator& GetTypedRegisterAllocator() const {LOGMEIN("AsmJsTypes.h] 773\n"); return mTypedRegisterAllocator; }
+        inline SIMDVarsList& GetSimdVarsList()    {LOGMEIN("AsmJsTypes.h] 774\n"); return mSimdVarsList;  }
 
         /// Wrapper for RegisterSpace methods
-        template<typename T> inline RegSlot AcquireRegister   (){return GetRegisterSpace<T>().AcquireRegister();}
-        template<typename T> inline void AddConst             ( T val ){GetRegisterSpace<T>().AddConst( val );}
-        template<typename T> inline RegSlot GetConstRegister  ( T val ){return GetRegisterSpace<T>().GetConstRegister( val );}
-        template<typename T> inline RegSlot AcquireTmpRegister(){return GetRegisterSpace<T>().AcquireTmpRegister();}
-        template<typename T> inline void ReleaseTmpRegister   ( Js::RegSlot tmpReg ){GetRegisterSpace<T>().ReleaseTmpRegister( tmpReg );}
-        template<typename T> inline void ReleaseLocation      ( const EmitExpressionInfo* pnode ){GetRegisterSpace<T>().ReleaseLocation( pnode );}
-        template<typename T> inline bool IsTmpLocation        ( const EmitExpressionInfo* pnode ){return GetRegisterSpace<T>().IsTmpLocation( pnode );}
-        template<typename T> inline bool IsConstLocation      ( const EmitExpressionInfo* pnode ){return GetRegisterSpace<T>().IsConstLocation( pnode );}
-        template<typename T> inline bool IsVarLocation        ( const EmitExpressionInfo* pnode ){return GetRegisterSpace<T>().IsVarLocation( pnode );}
-        template<typename T> inline bool IsValidLocation      ( const EmitExpressionInfo* pnode ){return GetRegisterSpace<T>().IsValidLocation( pnode );}
+        template<typename T> inline RegSlot AcquireRegister   (){LOGMEIN("AsmJsTypes.h] 777\n");return GetRegisterSpace<T>().AcquireRegister();}
+        template<typename T> inline void AddConst             ( T val ){LOGMEIN("AsmJsTypes.h] 778\n");GetRegisterSpace<T>().AddConst( val );}
+        template<typename T> inline RegSlot GetConstRegister  ( T val ){LOGMEIN("AsmJsTypes.h] 779\n");return GetRegisterSpace<T>().GetConstRegister( val );}
+        template<typename T> inline RegSlot AcquireTmpRegister(){LOGMEIN("AsmJsTypes.h] 780\n");return GetRegisterSpace<T>().AcquireTmpRegister();}
+        template<typename T> inline void ReleaseTmpRegister   ( Js::RegSlot tmpReg ){LOGMEIN("AsmJsTypes.h] 781\n");GetRegisterSpace<T>().ReleaseTmpRegister( tmpReg );}
+        template<typename T> inline void ReleaseLocation      ( const EmitExpressionInfo* pnode ){LOGMEIN("AsmJsTypes.h] 782\n");GetRegisterSpace<T>().ReleaseLocation( pnode );}
+        template<typename T> inline bool IsTmpLocation        ( const EmitExpressionInfo* pnode ){LOGMEIN("AsmJsTypes.h] 783\n");return GetRegisterSpace<T>().IsTmpLocation( pnode );}
+        template<typename T> inline bool IsConstLocation      ( const EmitExpressionInfo* pnode ){LOGMEIN("AsmJsTypes.h] 784\n");return GetRegisterSpace<T>().IsConstLocation( pnode );}
+        template<typename T> inline bool IsVarLocation        ( const EmitExpressionInfo* pnode ){LOGMEIN("AsmJsTypes.h] 785\n");return GetRegisterSpace<T>().IsVarLocation( pnode );}
+        template<typename T> inline bool IsValidLocation      ( const EmitExpressionInfo* pnode ){LOGMEIN("AsmJsTypes.h] 786\n");return GetRegisterSpace<T>().IsValidLocation( pnode );}
         void ReleaseLocationGeneric( const EmitExpressionInfo* pnode );
 
         // Search for a var in the varMap of the function, return nullptr if not found
@@ -794,10 +794,10 @@ namespace Js
         AsmJsSymbol* LookupIdentifier( const PropertyName name, AsmJsLookupSource::Source* lookupSource = nullptr ) const;
         void SetArgOutDepth(int outParamsCount);
         void UpdateMaxArgOutDepth(int outParamsCount);
-        inline int GetArgOutDepth() const{ return mArgOutDepth; }
-        inline int GetMaxArgOutDepth() const{ return mMaxArgOutDepth; }
-        void CommitToFunctionInfo(Js::AsmJsFunctionInfo* funcInfo, FunctionBody* body) {mTypedRegisterAllocator.CommitToFunctionInfo(funcInfo, body);}
-        void CommitToFunctionBody(FunctionBody* body) { mTypedRegisterAllocator.CommitToFunctionBody(body); }
+        inline int GetArgOutDepth() const{LOGMEIN("AsmJsTypes.h] 796\n"); return mArgOutDepth; }
+        inline int GetMaxArgOutDepth() const{LOGMEIN("AsmJsTypes.h] 797\n"); return mMaxArgOutDepth; }
+        void CommitToFunctionInfo(Js::AsmJsFunctionInfo* funcInfo, FunctionBody* body) {LOGMEIN("AsmJsTypes.h] 798\n");mTypedRegisterAllocator.CommitToFunctionInfo(funcInfo, body);}
+        void CommitToFunctionBody(FunctionBody* body) {LOGMEIN("AsmJsTypes.h] 799\n"); mTypedRegisterAllocator.CommitToFunctionBody(body); }
     };
 
     struct MathBuiltin
@@ -815,14 +815,14 @@ namespace Js
         } u;
 
         MathBuiltin() : kind( Kind( -1 ) )
-        {
+        {LOGMEIN("AsmJsTypes.h] 817\n");
         }
         MathBuiltin(AsmJSMathBuiltinFunction mathLibFunctionName, const double* cst) : kind(Constant), mathLibFunctionName(mathLibFunctionName)
-        {
+        {LOGMEIN("AsmJsTypes.h] 820\n");
             u.cst = cst;
         }
         MathBuiltin(AsmJSMathBuiltinFunction mathLibFunctionName, AsmJsMathFunction* func) : kind(Function), mathLibFunctionName(mathLibFunctionName)
-        {
+        {LOGMEIN("AsmJsTypes.h] 824\n");
             u.func = func;
         }
     };
@@ -832,11 +832,11 @@ namespace Js
         AsmJSTypedArrayBuiltinFunction mArrayLibFunctionName;
         AsmJsTypedArrayFunction* mFunc;
 
-        TypedArrayBuiltin() { }
+        TypedArrayBuiltin() {LOGMEIN("AsmJsTypes.h] 834\n"); }
         TypedArrayBuiltin(AsmJSTypedArrayBuiltinFunction arrayLibFunctionName, AsmJsTypedArrayFunction* func) :
             mArrayLibFunctionName(arrayLibFunctionName),
             mFunc(func)
-        { }
+        {LOGMEIN("AsmJsTypes.h] 838\n"); }
     };
 
     class AsmJsArrayView : public AsmJsSymbol
@@ -847,14 +847,14 @@ namespace Js
         AsmJsArrayView( PropertyName name, ArrayBufferView::ViewType viewType ) :
             AsmJsSymbol( name, AsmJsSymbol::ArrayView )
             , mViewType( viewType )
-        {
+        {LOGMEIN("AsmJsTypes.h] 849\n");
 
         }
 
         virtual AsmJsType GetType() const;
         virtual bool isMutable() const;
         inline ArrayBufferView::ViewType GetViewType() const
-        {
+        {LOGMEIN("AsmJsTypes.h] 856\n");
             return mViewType;
         }
     };
@@ -894,7 +894,7 @@ namespace Js
                               mUsesHeapBuffer(false),
                               mIsHeapBufferConst(false),
                               mArgType(nullptr),
-                              mArgSizes(nullptr) {}
+                              mArgSizes(nullptr) {LOGMEIN("AsmJsTypes.h] 896\n");}
         // the key is the bytecode address
         typedef JsUtil::BaseDictionary<int, ptrdiff_t, Recycler> ByteCodeToTJMap;
         Field(ByteCodeToTJMap*) mbyteCodeTJMap;
@@ -902,10 +902,10 @@ namespace Js
         WAsmJs::TypedSlotInfo* GetTypedSlotInfo(WAsmJs::Types type);
 
 #define TYPED_SLOT_INFO_GETTER(name, type) \
-        int Get##name##ByteOffset() const   { return mTypedSlotInfos[WAsmJs::##type].byteOffset; }\
-        int Get##name##ConstCount() const   { return mTypedSlotInfos[WAsmJs::##type].constCount; }\
-        int Get##name##TmpCount() const     { return mTypedSlotInfos[WAsmJs::##type].tmpCount; }\
-        int Get##name##VarCount() const     { return mTypedSlotInfos[WAsmJs::##type].varCount; }
+        int Get##name##ByteOffset() const   {LOGMEIN("AsmJsTypes.h] 904\n"); return mTypedSlotInfos[WAsmJs::##type].byteOffset; }\
+        int Get##name##ConstCount() const   {LOGMEIN("AsmJsTypes.h] 905\n"); return mTypedSlotInfos[WAsmJs::##type].constCount; }\
+        int Get##name##TmpCount() const     {LOGMEIN("AsmJsTypes.h] 906\n"); return mTypedSlotInfos[WAsmJs::##type].tmpCount; }\
+        int Get##name##VarCount() const     {LOGMEIN("AsmJsTypes.h] 907\n"); return mTypedSlotInfos[WAsmJs::##type].varCount; }
 
         TYPED_SLOT_INFO_GETTER(Double, FLOAT64);
         TYPED_SLOT_INFO_GETTER(Float, FLOAT32);
@@ -914,76 +914,76 @@ namespace Js
         TYPED_SLOT_INFO_GETTER(Simd, SIMD);
 #undef TYPED_SLOT_INFO_GETTER
 
-        inline ArgSlot GetArgCount() const{ return mArgCount; }
-        inline void SetArgCount(ArgSlot val) { mArgCount = val; }
-        inline AsmJsRetType GetReturnType() const{return mReturnType;}
-        inline void SetReturnType(AsmJsRetType val) { mReturnType = val; }
-        inline ArgSlot GetArgByteSize() const{return mArgByteSize;}
-        inline void SetArgByteSize(ArgSlot val) { mArgByteSize = val; }
+        inline ArgSlot GetArgCount() const{LOGMEIN("AsmJsTypes.h] 916\n"); return mArgCount; }
+        inline void SetArgCount(ArgSlot val) {LOGMEIN("AsmJsTypes.h] 917\n"); mArgCount = val; }
+        inline AsmJsRetType GetReturnType() const{LOGMEIN("AsmJsTypes.h] 918\n");return mReturnType;}
+        inline void SetReturnType(AsmJsRetType val) {LOGMEIN("AsmJsTypes.h] 919\n"); mReturnType = val; }
+        inline ArgSlot GetArgByteSize() const{LOGMEIN("AsmJsTypes.h] 920\n");return mArgByteSize;}
+        inline void SetArgByteSize(ArgSlot val) {LOGMEIN("AsmJsTypes.h] 921\n"); mArgByteSize = val; }
 
-        inline void SetIsHeapBufferConst(bool val) { mIsHeapBufferConst = val; }
-        inline bool IsHeapBufferConst() const{ return mIsHeapBufferConst; }
+        inline void SetIsHeapBufferConst(bool val) {LOGMEIN("AsmJsTypes.h] 923\n"); mIsHeapBufferConst = val; }
+        inline bool IsHeapBufferConst() const{LOGMEIN("AsmJsTypes.h] 924\n"); return mIsHeapBufferConst; }
 
-        inline void SetUsesHeapBuffer(bool val) { mUsesHeapBuffer = val; }
-        inline bool UsesHeapBuffer() const{ return mUsesHeapBuffer; }
+        inline void SetUsesHeapBuffer(bool val) {LOGMEIN("AsmJsTypes.h] 926\n"); mUsesHeapBuffer = val; }
+        inline bool UsesHeapBuffer() const{LOGMEIN("AsmJsTypes.h] 927\n"); return mUsesHeapBuffer; }
 
-        inline int GetSimdAllCount() const { return GetSimdConstCount() + GetSimdVarCount() + GetSimdTmpCount(); }
+        inline int GetSimdAllCount() const {LOGMEIN("AsmJsTypes.h] 929\n"); return GetSimdConstCount() + GetSimdVarCount() + GetSimdTmpCount(); }
 
-        Js::JavascriptError * GetLazyError() const { return mLazyError; }
-        void SetLazyError(Js::JavascriptError * val) { mLazyError = val; }
+        Js::JavascriptError * GetLazyError() const {LOGMEIN("AsmJsTypes.h] 931\n"); return mLazyError; }
+        void SetLazyError(Js::JavascriptError * val) {LOGMEIN("AsmJsTypes.h] 932\n"); mLazyError = val; }
 
         int GetTotalSizeinBytes()const;
         void SetArgType(AsmJsVarType type, ArgSlot index);
         inline AsmJsVarType GetArgType(ArgSlot index ) const
-        {
+        {LOGMEIN("AsmJsTypes.h] 937\n");
             Assert(mArgCount != Constants::InvalidArgSlot);
             AnalysisAssert( index < mArgCount);
             return mArgType[index];
         }
         bool Init( AsmJsFunc* func );
-        void SetModuleFunctionBody(FunctionBody* body){ asmJsModuleFunctionBody = body; };
-        FunctionBody* GetModuleFunctionBody()const{ return asmJsModuleFunctionBody; };
+        void SetModuleFunctionBody(FunctionBody* body){LOGMEIN("AsmJsTypes.h] 943\n"); asmJsModuleFunctionBody = body; };
+        FunctionBody* GetModuleFunctionBody()const{LOGMEIN("AsmJsTypes.h] 944\n"); return asmJsModuleFunctionBody; };
 
         ArgSlot GetArgSizeArrayLength()
-        {
+        {LOGMEIN("AsmJsTypes.h] 947\n");
             return mArgSizesLength;
         }
         void SetArgSizeArrayLength(ArgSlot val)
-        {
+        {LOGMEIN("AsmJsTypes.h] 951\n");
             mArgSizesLength = val;
         }
 
         uint* GetArgsSizesArray()
-        {
+        {LOGMEIN("AsmJsTypes.h] 956\n");
             return mArgSizes;
         }
         void SetArgsSizesArray(uint* val)
-        {
+        {LOGMEIN("AsmJsTypes.h] 960\n");
             mArgSizes = val;
         }
         AsmJsVarType::Which * GetArgTypeArray()
-        {
+        {LOGMEIN("AsmJsTypes.h] 964\n");
             return mArgType;
         }
         void SetArgTypeArray(AsmJsVarType::Which* val)
-        {
+        {LOGMEIN("AsmJsTypes.h] 968\n");
             mArgType = val;
         }
 #ifdef ENABLE_WASM
         Wasm::WasmSignature * GetWasmSignature()
-        {
+        {LOGMEIN("AsmJsTypes.h] 973\n");
             return mSignature;
         }
         void SetWasmSignature(Wasm::WasmSignature * sig)
-        {
+        {LOGMEIN("AsmJsTypes.h] 977\n");
             mSignature = sig;
         }
 
-        Wasm::WasmReaderInfo* GetWasmReaderInfo() const {return mWasmReaderInfo;}
-        void SetWasmReaderInfo(Wasm::WasmReaderInfo* reader) {mWasmReaderInfo = reader;}
-        WebAssemblyModule* GetWebAssemblyModule() const { return mWasmModule; }
-        void SetWebAssemblyModule(WebAssemblyModule * module) { mWasmModule= module; }
-        bool IsWasmDeferredParse() const { return mWasmReaderInfo != nullptr; }
+        Wasm::WasmReaderInfo* GetWasmReaderInfo() const {LOGMEIN("AsmJsTypes.h] 981\n");return mWasmReaderInfo;}
+        void SetWasmReaderInfo(Wasm::WasmReaderInfo* reader) {LOGMEIN("AsmJsTypes.h] 982\n");mWasmReaderInfo = reader;}
+        WebAssemblyModule* GetWebAssemblyModule() const {LOGMEIN("AsmJsTypes.h] 983\n"); return mWasmModule; }
+        void SetWebAssemblyModule(WebAssemblyModule * module) {LOGMEIN("AsmJsTypes.h] 984\n"); mWasmModule= module; }
+        bool IsWasmDeferredParse() const {LOGMEIN("AsmJsTypes.h] 985\n"); return mWasmReaderInfo != nullptr; }
 #endif
     };
 
@@ -1009,7 +1009,7 @@ namespace Js
 
         PropertyId GetBuiltinPropertyId();
         void SetOverload(AsmJsSIMDFunction* val);
-        AsmJsSIMDBuiltinFunction GetSimdBuiltInFunction(){ return mBuiltIn; };
+        AsmJsSIMDBuiltinFunction GetSimdBuiltInFunction(){LOGMEIN("AsmJsTypes.h] 1011\n"); return mBuiltIn; };
         virtual bool CheckAndSetReturnType(Js::AsmJsRetType val) override;
 
         bool SupportsSIMDCall(ArgSlot argCount, AsmJsType* args, OpCodeAsmJs& op, AsmJsRetType& retType);
@@ -1018,21 +1018,21 @@ namespace Js
         bool IsConstructor(uint argCount);
         bool IsTypeCheck();  // e.g. float32x4(x)
         bool IsUnsignedTypeCheck();
-        bool IsInt32x4Func()  { return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Int32x4_Start   && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Int32x4_End;   }
-        bool IsBool32x4Func() { return mBuiltIn >= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Bool32x4_Start  && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Bool32x4_End;  }
-        bool IsBool16x8Func() { return mBuiltIn >= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Bool16x8_Start  && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Bool16x8_End;  }
-        bool IsBool8x16Func() { return mBuiltIn >= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Bool8x16_Start  && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Bool8x16_End; }
-        bool IsFloat32x4Func(){ return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Float32x4_Start && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Float32x4_End; }
-        bool IsFloat64x2Func(){ return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Float64x2_Start && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Float64x2_End; }
+        bool IsInt32x4Func()  {LOGMEIN("AsmJsTypes.h] 1020\n"); return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Int32x4_Start   && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Int32x4_End;   }
+        bool IsBool32x4Func() {LOGMEIN("AsmJsTypes.h] 1021\n"); return mBuiltIn >= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Bool32x4_Start  && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Bool32x4_End;  }
+        bool IsBool16x8Func() {LOGMEIN("AsmJsTypes.h] 1022\n"); return mBuiltIn >= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Bool16x8_Start  && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Bool16x8_End;  }
+        bool IsBool8x16Func() {LOGMEIN("AsmJsTypes.h] 1023\n"); return mBuiltIn >= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Bool8x16_Start  && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Bool8x16_End; }
+        bool IsFloat32x4Func(){LOGMEIN("AsmJsTypes.h] 1024\n"); return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Float32x4_Start && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Float32x4_End; }
+        bool IsFloat64x2Func(){LOGMEIN("AsmJsTypes.h] 1025\n"); return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Float64x2_Start && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Float64x2_End; }
 
-        bool IsInt16x8Func()  { return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Int16x8_Start   && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Int16x8_End;   }
-        bool IsInt8x16Func() { return mBuiltIn > AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Int8x16_Start && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Int8x16_End; }
-        bool IsUint32x4Func() { return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Uint32x4_Start  && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Uint32x4_End;  }
-        bool IsUint16x8Func() { return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Uint16x8_Start  && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Uint16x8_End;  }
-        bool IsUint8x16Func() { return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Uint8x16_Start  && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Uint8x16_End;  }
+        bool IsInt16x8Func()  {LOGMEIN("AsmJsTypes.h] 1027\n"); return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Int16x8_Start   && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Int16x8_End;   }
+        bool IsInt8x16Func() {LOGMEIN("AsmJsTypes.h] 1028\n"); return mBuiltIn > AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Int8x16_Start && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Int8x16_End; }
+        bool IsUint32x4Func() {LOGMEIN("AsmJsTypes.h] 1029\n"); return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Uint32x4_Start  && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Uint32x4_End;  }
+        bool IsUint16x8Func() {LOGMEIN("AsmJsTypes.h] 1030\n"); return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Uint16x8_Start  && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Uint16x8_End;  }
+        bool IsUint8x16Func() {LOGMEIN("AsmJsTypes.h] 1031\n"); return mBuiltIn >  AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Uint8x16_Start  && mBuiltIn < AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_Uint8x16_End;  }
 
         bool IsSimdLoadFunc()
-        {
+        {LOGMEIN("AsmJsTypes.h] 1034\n");
             return (mBuiltIn >= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int32x4_load && mBuiltIn <= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int32x4_load3) ||
                 (mBuiltIn == AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int16x8_load) ||
                 (mBuiltIn == AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int8x16_load) ||
@@ -1043,7 +1043,7 @@ namespace Js
                 (mBuiltIn >= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_float64x2_load && mBuiltIn <= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_float64x2_load1);
         }
         bool IsSimdStoreFunc()
-        {
+        {LOGMEIN("AsmJsTypes.h] 1045\n");
             return (mBuiltIn >= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int32x4_store && mBuiltIn <= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int32x4_store3) ||
                 (mBuiltIn == AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int16x8_store) ||
                 (mBuiltIn == AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int8x16_store) ||
@@ -1054,7 +1054,7 @@ namespace Js
                 (mBuiltIn >= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_float64x2_store && mBuiltIn <= AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_float64x2_store1);
         }
         bool IsExtractLaneFunc()
-        {
+        {LOGMEIN("AsmJsTypes.h] 1056\n");
             return (
                 mBuiltIn == AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int32x4_extractLane ||
                 mBuiltIn == AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int16x8_extractLane ||
@@ -1069,7 +1069,7 @@ namespace Js
                 );
         }
         bool IsReplaceLaneFunc()
-        {
+        {LOGMEIN("AsmJsTypes.h] 1071\n");
             return (
                 mBuiltIn == AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int32x4_replaceLane ||
                 mBuiltIn == AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int16x8_replaceLane ||
@@ -1084,28 +1084,28 @@ namespace Js
                 );
         }
         bool IsLaneAccessFunc()
-        {
+        {LOGMEIN("AsmJsTypes.h] 1086\n");
             return (
                 IsExtractLaneFunc() || IsReplaceLaneFunc()
                 );
         }
 
         uint32 LanesCount()
-        {
+        {LOGMEIN("AsmJsTypes.h] 1093\n");
             if (IsInt32x4Func() || IsFloat32x4Func() || IsUint32x4Func() || IsBool32x4Func())
-            {
+            {LOGMEIN("AsmJsTypes.h] 1095\n");
                 return 4;
             }
             if (IsInt16x8Func() || IsUint16x8Func() || IsBool16x8Func())
-            {
+            {LOGMEIN("AsmJsTypes.h] 1099\n");
                 return 8;
             }
             if (IsUint8x16Func() || IsInt8x16Func() || IsBool8x16Func())
-            {
+            {LOGMEIN("AsmJsTypes.h] 1103\n");
                 return 16;
             }
             if (IsFloat64x2Func())
-            {
+            {LOGMEIN("AsmJsTypes.h] 1107\n");
                 return 2;
             }
             Assert(UNREACHED);
@@ -1113,7 +1113,7 @@ namespace Js
         }
 
        bool IsShuffleFunc()
-       {
+       {LOGMEIN("AsmJsTypes.h] 1115\n");
 
            return (
                mBuiltIn == AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int32x4_shuffle ||
@@ -1128,7 +1128,7 @@ namespace Js
         }
 
         bool IsSwizzleFunc()
-        {
+        {LOGMEIN("AsmJsTypes.h] 1130\n");
             return  (
                 mBuiltIn == AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int32x4_swizzle ||
                 mBuiltIn == AsmJsSIMDBuiltinFunction::AsmJsSIMDBuiltin_int16x8_swizzle ||
@@ -1142,7 +1142,7 @@ namespace Js
         }
 
         bool ReturnsBool()
-        {
+        {LOGMEIN("AsmJsTypes.h] 1144\n");
             return (
                 mBuiltIn == AsmJsSIMDBuiltin_bool32x4_allTrue || mBuiltIn == AsmJsSIMDBuiltin_bool32x4_anyTrue ||
                 mBuiltIn == AsmJsSIMDBuiltin_bool16x8_allTrue || mBuiltIn == AsmJsSIMDBuiltin_bool16x8_anyTrue ||
@@ -1154,7 +1154,7 @@ namespace Js
 
         AsmJsVarType GetTypeCheckVarType();
         AsmJsVarType GetConstructorVarType();
-        OpCodeAsmJs GetOpcode() { return mOpCode;  }
+        OpCodeAsmJs GetOpcode() {LOGMEIN("AsmJsTypes.h] 1156\n"); return mOpCode;  }
 
     private:
         virtual bool SupportsArgCall(ArgSlot argCount, AsmJsType* args, AsmJsRetType& retType) override;

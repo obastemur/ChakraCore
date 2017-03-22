@@ -23,7 +23,7 @@ namespace Js
         DEFINE_VTABLE_CTOR(JavascriptVariantDate, RecyclableObject);
 
     public:
-        JavascriptVariantDate(const double val, StaticType * type) : value(val), RecyclableObject(type) { }
+        JavascriptVariantDate(const double val, StaticType * type) : value(val), RecyclableObject(type) {LOGMEIN("JavascriptVariantDate.h] 25\n"); }
 
         static bool Is(Var aValue);
         static JavascriptVariantDate* FromVar(Var aValue);
@@ -31,7 +31,7 @@ namespace Js
         // Used for making function calls to external objects requiring string params.
         JavascriptString* GetValueString(ScriptContext* scriptContext);
 
-        double GetValue() { return value; }
+        double GetValue() {LOGMEIN("JavascriptVariantDate.h] 33\n"); return value; }
 
         virtual BOOL Equals(Var other, BOOL* value, ScriptContext * requestContext) override;
         virtual BOOL HasProperty(Js::PropertyId propertyId) override { return false; };

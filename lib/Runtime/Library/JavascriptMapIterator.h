@@ -39,6 +39,6 @@ namespace Js
         static Var EntryNext(RecyclableObject* function, CallInfo callInfo, ...);
 
     public:
-        JavascriptMap* GetMapForHeapEnum() { return m_map; }
+        JavascriptMap* GetMapForHeapEnum() {LOGMEIN("JavascriptMapIterator.h] 41\n"); return m_map; }
     };
 } // namespace Js

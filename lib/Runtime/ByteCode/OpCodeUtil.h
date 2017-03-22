@@ -33,11 +33,11 @@ public:
     static bool IsValidOpcode(OpCode op);
     static bool IsPrefixOpcode(OpCode op);
     static const bool IsSmallEncodedOpcode(OpCode op)
-    {
+    {LOGMEIN("OpCodeUtil.h] 35\n");
         return op <= Js::OpCode::MaxByteSizedOpcodes;
     }
     static const uint EncodedSize(OpCode op, LayoutSize layoutSize)
-    {
+    {LOGMEIN("OpCodeUtil.h] 39\n");
         // Simple case, only 1 byte
         // Small OpCode with Medium or Large layout: 1 extra byte for the prefix
         // Extended OpCode: Prefix + 2 bytes for the opcode

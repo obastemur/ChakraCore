@@ -14,19 +14,19 @@ extern "C" PVOID __guard_check_icall_fptr;
 namespace Js
 {
     void JavascriptExceptionOperators::AutoCatchHandlerExists::FetchNonUserCodeStatus(ScriptContext * scriptContext)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 16\n");
         Assert(scriptContext);
 
         bool fFound = false;
         // If the outer try catch was already in the user code, no need to go any further.
         if (!m_previousCatchHandlerToUserCodeStatus)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 22\n");
             Js::JavascriptFunction* caller;
             if (JavascriptStackWalker::GetCaller(&caller, scriptContext))
-            {
+            {LOGMEIN("JavascriptExceptionOperators.cpp] 25\n");
                 Js::FunctionBody *funcBody = NULL;
                 if (caller != NULL && (funcBody = caller->GetFunctionBody()) != NULL)
-                {
+                {LOGMEIN("JavascriptExceptionOperators.cpp] 28\n");
                     m_threadContext->SetIsUserCode(funcBody->IsNonUserCode() == false);
                     fFound = true;
                 }
@@ -34,14 +34,14 @@ namespace Js
         }
 
         if (!fFound)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 36\n");
             // If not successfully able to find the caller, set this catch handler belongs to the user code.
             m_threadContext->SetIsUserCode(true);
         }
     }
 
     JavascriptExceptionOperators::AutoCatchHandlerExists::AutoCatchHandlerExists(ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 43\n");
         Assert(scriptContext);
         m_threadContext = scriptContext->GetThreadContext();
         Assert(m_threadContext);
@@ -49,24 +49,24 @@ namespace Js
         m_threadContext->SetHasCatchHandler(TRUE);
         m_previousCatchHandlerToUserCodeStatus = m_threadContext->IsUserCode();
         if (scriptContext->IsScriptContextInDebugMode())
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 51\n");
             FetchNonUserCodeStatus(scriptContext);
         }
     }
 
     JavascriptExceptionOperators::AutoCatchHandlerExists::~AutoCatchHandlerExists()
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 57\n");
         m_threadContext->SetHasCatchHandler(m_previousCatchHandlerExists);
         m_threadContext->SetIsUserCode(m_previousCatchHandlerToUserCodeStatus);
     }
 
     bool JavascriptExceptionOperators::CrawlStackForWER(Js::ScriptContext& scriptContext)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 63\n");
         return Js::Configuration::Global.flags.WERExceptionSupport && !scriptContext.GetThreadContext()->HasCatchHandler();
     }
 
     uint64 JavascriptExceptionOperators::StackCrawlLimitOnThrow(Var thrownObject, ScriptContext& scriptContext)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 68\n");
         return CrawlStackForWER(scriptContext) ? MaxStackTraceLimit : GetStackTraceLimit(thrownObject, &scriptContext);
     }
 
@@ -78,28 +78,28 @@ namespace Js
                                                     size_t         argsSize,
                                                     int            hasBailedOutOffset,
                                                     ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 80\n");
         void *continuation = nullptr;
         JavascriptExceptionObject *exception = nullptr;
 
         PROBE_STACK(scriptContext, Constants::MinStackDefault + spillSize + argsSize);
 
         try
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 87\n");
             Js::JavascriptExceptionOperators::AutoCatchHandlerExists autoCatchHandlerExists(scriptContext);
             continuation = amd64_CallWithFakeFrame(tryAddr, frame, spillSize, argsSize);
         }
         catch (const Js::JavascriptException& err)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 92\n");
             exception = err.GetAndClear();
         }
 
         if (exception)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 97\n");
             exception = exception->CloneIfStaticExceptionObject(scriptContext);
             bool hasBailedOut = *(bool*)((char*)frame + hasBailedOutOffset); // stack offsets are negative
             if (hasBailedOut)
-            {
+            {LOGMEIN("JavascriptExceptionOperators.cpp] 101\n");
                 // If we have bailed out, this exception is coming from the interpreter. It should not have been caught;
                 // it so happens that this catch was on the stack and caught the exception.
                 // Re-throw!
@@ -119,7 +119,7 @@ namespace Js
                                                       size_t         spillSize,
                                                       size_t         argsSize,
                                                       ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 121\n");
         void                      *tryContinuation     = nullptr;
         void                      *finallyContinuation = nullptr;
         JavascriptExceptionObject *exception           = nullptr;
@@ -127,28 +127,28 @@ namespace Js
         PROBE_STACK(scriptContext, Constants::MinStackDefault + spillSize + argsSize);
 
         try
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 129\n");
             tryContinuation = amd64_CallWithFakeFrame(tryAddr, frame, spillSize, argsSize);
         }
         catch (const Js::JavascriptException& err)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 133\n");
             exception = err.GetAndClear();
         }
 
         if (exception)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 138\n");
             // Clone static exception object early in case finally block overwrites it
             exception = exception->CloneIfStaticExceptionObject(scriptContext);
         }
 
         finallyContinuation = amd64_CallWithFakeFrame(finallyAddr, frame, spillSize, argsSize);
         if (finallyContinuation)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 145\n");
             return finallyContinuation;
         }
 
         if (exception)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 150\n");
             JavascriptExceptionOperators::DoThrow(exception, scriptContext);
         }
 
@@ -164,14 +164,14 @@ namespace Js
         size_t argsSize,
         int hasBailedOutOffset,
         ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 166\n");
         void *continuation = nullptr;
         JavascriptExceptionObject *exception = nullptr;
 
         PROBE_STACK(scriptContext, Constants::MinStackDefault + argsSize);
 
         try
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 173\n");
             Js::JavascriptExceptionOperators::AutoCatchHandlerExists autoCatchHandlerExists(scriptContext);
 #if defined(_M_ARM)
             continuation = arm_CallEhFrame(tryAddr, framePtr, localsPtr, argsSize);
@@ -180,16 +180,16 @@ namespace Js
 #endif
         }
         catch (const Js::JavascriptException& err)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 182\n");
             exception = err.GetAndClear();
         }
 
         if (exception)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 187\n");
             exception = exception->CloneIfStaticExceptionObject(scriptContext);
             bool hasBailedOut = *(bool*)((char*)localsPtr + hasBailedOutOffset); // stack offsets are sp relative
             if (hasBailedOut)
-            {
+            {LOGMEIN("JavascriptExceptionOperators.cpp] 191\n");
                 // If we have bailed out, this exception is coming from the interpreter. It should not have been caught;
                 // it so happens that this catch was on the stack and caught the exception.
                 // Re-throw!
@@ -214,7 +214,7 @@ namespace Js
         void *localsPtr,
         size_t argsSize,
         ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 216\n");
         void                      *tryContinuation     = nullptr;
         void                      *finallyContinuation = nullptr;
         JavascriptExceptionObject *exception           = nullptr;
@@ -222,7 +222,7 @@ namespace Js
         PROBE_STACK(scriptContext, Constants::MinStackDefault + argsSize);
 
         try
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 224\n");
 #if defined(_M_ARM)
             tryContinuation = arm_CallEhFrame(tryAddr, framePtr, localsPtr, argsSize);
 #elif defined(_M_ARM64)
@@ -230,12 +230,12 @@ namespace Js
 #endif
         }
         catch (const Js::JavascriptException& err)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 232\n");
             exception = err.GetAndClear();
         }
 
         if (exception)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 237\n");
             // Clone static exception object early in case finally block overwrites it
             exception = exception->CloneIfStaticExceptionObject(scriptContext);
         }
@@ -247,12 +247,12 @@ namespace Js
 #endif
 
         if (finallyContinuation)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 249\n");
             return finallyContinuation;
         }
 
         if (exception)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 254\n");
             JavascriptExceptionOperators::DoThrow(exception, scriptContext);
         }
 
@@ -263,14 +263,14 @@ namespace Js
 #pragma warning(push)
 #pragma warning(disable:4731) // frame pointer register 'ebp' modified by inline assembly code
     void* JavascriptExceptionOperators::OP_TryCatch(void* tryAddr, void* handlerAddr, void* framePtr, int hasBailedOutOffset, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 265\n");
         void* continuationAddr = NULL;
         Js::JavascriptExceptionObject* pExceptionObject = NULL;
 
         PROBE_STACK(scriptContext, Constants::MinStackDefault);
 
         try
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 272\n");
             Js::JavascriptExceptionOperators::AutoCatchHandlerExists autoCatchHandlerExists(scriptContext);
 
             // Adjust the frame pointer and call into the try.
@@ -279,7 +279,7 @@ namespace Js
             // Bug in compiler optimizer: try-catch can be optimized away if the try block contains __asm calls into function
             // that may throw. The current workaround is to add the following dummy throw to prevent this optimization.
             if (!tryAddr)
-            {
+            {LOGMEIN("JavascriptExceptionOperators.cpp] 281\n");
                 Js::Throw::InternalError();
             }
 #ifdef _M_IX86
@@ -330,17 +330,17 @@ namespace Js
 #endif
         }
         catch(const Js::JavascriptException& err)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 332\n");
             pExceptionObject = err.GetAndClear();
         }
 
         // Let's run user catch handler code only after the stack has been unwound.
         if(pExceptionObject)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 338\n");
             pExceptionObject = pExceptionObject->CloneIfStaticExceptionObject(scriptContext);
             bool hasBailedOut = *(bool*)((char*)framePtr + hasBailedOutOffset); // stack offsets are negative
             if (hasBailedOut)
-            {
+            {LOGMEIN("JavascriptExceptionOperators.cpp] 342\n");
                 // If we have bailed out, this exception is coming from the interpreter. It should not have been caught;
                 // it so happens that this catch was on the stack and caught the exception.
                 // Re-throw!
@@ -403,20 +403,20 @@ namespace Js
     }
 
     void* JavascriptExceptionOperators::OP_TryFinally(void* tryAddr, void* handlerAddr, void* framePtr, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 405\n");
         Js::JavascriptExceptionObject* pExceptionObject = NULL;
         void* continuationAddr = NULL;
 
         PROBE_STACK(scriptContext, Constants::MinStackDefault);
 
         try
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 412\n");
             // Bug in compiler optimizer: try-catch can be optimized away if the try block contains __asm calls into function
             // that may throw. The current workaround is to add the following dummy throw to prevent this optimization.
             // It seems like compiler got smart and still optimizes if the exception is not JavascriptExceptionObject (see catch handler below).
             // In order to circumvent that we are throwing OutOfMemory.
             if (!tryAddr)
-            {
+            {LOGMEIN("JavascriptExceptionOperators.cpp] 418\n");
                 Assert(false);
                 ThrowOutOfMemory(scriptContext);
             }
@@ -471,12 +471,12 @@ namespace Js
 #endif
         }
         catch(const Js::JavascriptException& err)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 473\n");
             pExceptionObject = err.GetAndClear();
         }
 
         if (pExceptionObject)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 478\n");
             // Clone static exception object early in case finally block overwrites it
             pExceptionObject = pExceptionObject->CloneIfStaticExceptionObject(scriptContext);
         }
@@ -533,7 +533,7 @@ namespace Js
         AssertMsg(FALSE, "Unsupported native try-finally handler");
 #endif
         if (newContinuationAddr != NULL)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 535\n");
             // Non-null return value from the finally indicates that the finally seized the flow
             // with a jump/return out of the region. Continue at that address instead of handling
             // the exception.
@@ -541,7 +541,7 @@ namespace Js
         }
 
         if (pExceptionObject)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 543\n");
             JavascriptExceptionOperators::DoThrow(pExceptionObject, scriptContext);
         }
 
@@ -558,7 +558,7 @@ namespace Js
     extern "C" void * _except_handler4;
 
     void JavascriptExceptionOperators::DbgCheckEHChain()
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 560\n");
 #if 0
         // This debug check is disabled until we figure out how to trace a fs:0 chain if we throw from inside
         // a finally.
@@ -567,7 +567,7 @@ namespace Js
         ThreadContext * threadContext = ThreadContext::GetContextForCurrentThread();
 
         if (!threadContext->IsScriptActive())
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 569\n");
             return;
         }
 
@@ -579,7 +579,7 @@ namespace Js
         currentFS0 = (void*)__readfsdword(0);
 
         while (currentFS0 != threadContext->callRootFS0)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 581\n");
             // EH struct:
             //      void *  next;
             //      void *  handler;
@@ -593,7 +593,7 @@ namespace Js
 #endif
 
     void JavascriptExceptionOperators::Throw(Var object, ScriptContext * scriptContext)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 595\n");
 #if defined(DBG) && defined(_M_IX86)
         DbgCheckEHChain();
 #endif
@@ -609,13 +609,13 @@ namespace Js
 
         JavascriptError *javascriptError = nullptr;
         if (JavascriptError::Is(object))
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 611\n");
             // We keep track of the JavascriptExceptionObject that was created when this error
             // was first thrown so that we can always get the correct metadata.
             javascriptError = JavascriptError::FromVar(object);
             JavascriptExceptionObject *exceptionObject = javascriptError->GetJavascriptExceptionObject();
             if (exceptionObject)
-            {
+            {LOGMEIN("JavascriptExceptionOperators.cpp] 617\n");
                 JavascriptExceptionOperators::ThrowExceptionObject(exceptionObject, scriptContext, true);
             }
         }
@@ -625,9 +625,9 @@ namespace Js
 
         bool resetStack = false;
         if (javascriptError)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 627\n");
             if (!javascriptError->IsStackPropertyRedefined())
-            {
+            {LOGMEIN("JavascriptExceptionOperators.cpp] 629\n");
                 /*
                     Throwing an error object. Original stack property will be pointing to the stack created at time of Error constructor.
                     Reset the stack property to match IE11 behavior
@@ -642,12 +642,12 @@ namespace Js
 
     void
         JavascriptExceptionOperators::WalkStackForExceptionContext(ScriptContext& scriptContext, JavascriptExceptionContext& exceptionContext, Var thrownObject, uint64 stackCrawlLimit, PVOID returnAddress, bool isThrownException, bool resetSatck)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 644\n");
         uint32 callerBytecodeOffset;
         JavascriptFunction * jsFunc = WalkStackForExceptionContextInternal(scriptContext, exceptionContext, thrownObject, callerBytecodeOffset, stackCrawlLimit, returnAddress, isThrownException, resetSatck);
 
         if (jsFunc)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 649\n");
             // If found, the caller is a function, and we can retrieve the debugger info from there
             // otherwise it's probably just accessing property. While it is still possible to throw
             // from that context, we just won't be able to get the line number etc., which make sense.
@@ -658,19 +658,19 @@ namespace Js
     JavascriptFunction *
     JavascriptExceptionOperators::WalkStackForExceptionContextInternal(ScriptContext& scriptContext, JavascriptExceptionContext& exceptionContext, Var thrownObject,
         uint32& callerByteCodeOffset, uint64 stackCrawlLimit, PVOID returnAddress, bool isThrownException, bool resetStack)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 660\n");
         JavascriptStackWalker walker(&scriptContext, true, returnAddress);
         JavascriptFunction* jsFunc = nullptr;
 
         if (!GetCaller(walker, jsFunc))
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 665\n");
             return nullptr;
         }
 
         // Skip to first non-Library code
         // Similar behavior to GetCaller returning false
         if(jsFunc->IsLibraryCode() && !walker.GetNonLibraryCodeCaller(&jsFunc))
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 672\n");
             return nullptr;
         }
 
@@ -688,33 +688,33 @@ namespace Js
         {
             stackTrace = RecyclerNew(scriptContext.GetRecycler(), JavascriptExceptionContext::StackTrace, scriptContext.GetRecycler());
             if (stackCrawlLimit > 0)
-            {
+            {LOGMEIN("JavascriptExceptionOperators.cpp] 690\n");
                 const bool crawlStackForWER = CrawlStackForWER(scriptContext);
 
                 // In WER scenario, we should combine the original stack with latest throw stack as the final throw might be coming form
                 // a different stack.
                 uint64 i = 1;
                 if (crawlStackForWER && thrownObject && Js::JavascriptError::Is(thrownObject))
-                {
+                {LOGMEIN("JavascriptExceptionOperators.cpp] 697\n");
                     Js::JavascriptError* errorObject = Js::JavascriptError::FromVar(thrownObject);
                     Js::JavascriptExceptionContext::StackTrace *originalStackTrace = NULL;
                     const Js::JavascriptExceptionObject* originalExceptionObject = errorObject->GetJavascriptExceptionObject();
                     if (!resetStack && errorObject->GetInternalProperty(errorObject, InternalPropertyIds::StackTrace, (Js::Var*) &originalStackTrace, NULL, &scriptContext) &&
                         (originalStackTrace != nullptr))
-                    {
+                    {LOGMEIN("JavascriptExceptionOperators.cpp] 703\n");
                         exceptionContext.SetOriginalStackTrace(originalStackTrace);
                     }
                     else
                     {
                         if (originalExceptionObject != nullptr)
-                        {
+                        {LOGMEIN("JavascriptExceptionOperators.cpp] 709\n");
                             exceptionContext.SetOriginalStackTrace(originalExceptionObject->GetExceptionContext()->GetStackTrace());
                         }
                     }
                 }
 
                 do
-                {
+                {LOGMEIN("JavascriptExceptionOperators.cpp] 716\n");
                     JavascriptExceptionContext::StackFrame stackFrame(jsFunc, walker, crawlStackForWER);
                     stackTrace->Add(stackFrame);
                 } while (walker.GetDisplayCaller(&jsFunc) && i++ < stackCrawlLimit);
@@ -723,7 +723,7 @@ namespace Js
         END_TRANSLATE_EXCEPTION_AND_ERROROBJECT_TO_HRESULT_INSCRIPT(hr);
 
         if (stackTrace != nullptr)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 725\n");
             exceptionContext.SetStackTrace(stackTrace);
             DumpStackTrace(exceptionContext, isThrownException);
         }
@@ -735,15 +735,15 @@ namespace Js
     // we've executed code in the current script stack frame. In that case the current byte
     // code offset is 0. In such cases walk to the caller's caller.
     BOOL JavascriptExceptionOperators::GetCaller(JavascriptStackWalker& walker, JavascriptFunction*& jsFunc)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 737\n");
         if (! walker.GetCaller(&jsFunc))
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 739\n");
             return FALSE;
         }
 
         if (! walker.GetCurrentInterpreterFrame() ||
              walker.GetCurrentInterpreterFrame()->GetReader()->GetCurrentOffset() > 0)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 745\n");
             return TRUE;
         }
 
@@ -751,24 +751,24 @@ namespace Js
     }
 
     void JavascriptExceptionOperators::DumpStackTrace(JavascriptExceptionContext& exceptionContext, bool isThrownException)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 753\n");
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
         if (! exceptionContext.GetStackTrace()
             || ! Configuration::Global.flags.Dump.IsEnabled(ExceptionStackTracePhase)
             || ! isThrownException)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 758\n");
             return;
         }
         Output::Print(_u("\nStack trace for thrown exception\n"));
 
         JavascriptExceptionContext::StackTrace *stackTrace = exceptionContext.GetStackTrace();
         for (int i=0; i < stackTrace->Count(); i++)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 765\n");
             Js::JavascriptExceptionContext::StackFrame& currFrame = stackTrace->Item(i);
             ULONG lineNumber = 0;
             LONG characterPosition = 0;
             if (currFrame.IsScriptFunction() && !currFrame.GetFunctionBody()->GetUtf8SourceInfo()->GetIsLibraryCode())
-            {
+            {LOGMEIN("JavascriptExceptionOperators.cpp] 770\n");
                 currFrame.GetFunctionBody()->GetLineCharOffset(currFrame.GetByteCodeOffset(), &lineNumber, &characterPosition);
             }
             Output::Print(_u("    %3d: %s (%d, %d)\n"), i, currFrame.GetFunctionName(), lineNumber, characterPosition);
@@ -781,7 +781,7 @@ namespace Js
     /// When allocators throw out of memory exception - scriptContext is NULL
     /// ---------------------------------------------------------------------------------------------------
     JavascriptExceptionObject * JavascriptExceptionOperators::GetOutOfMemoryExceptionObject(ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 783\n");
         ThreadContext *threadContext = scriptContext ?
             scriptContext->GetThreadContext() :
             ThreadContext::GetContextForCurrentThread();
@@ -793,7 +793,7 @@ namespace Js
     }
 
     void JavascriptExceptionOperators::ThrowOutOfMemory(ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 795\n");
         ThreadContext *threadContext = scriptContext ?
             scriptContext->GetThreadContext() :
             ThreadContext::GetContextForCurrentThread();
@@ -805,7 +805,7 @@ namespace Js
     }
 
     void JavascriptExceptionOperators::ThrowStackOverflow(ScriptContext *scriptContext, PVOID returnAddress)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 807\n");
         Assert(scriptContext);
 
         ThreadContext *threadContext = scriptContext->GetThreadContext();
@@ -826,11 +826,11 @@ namespace Js
     }
 
     void JavascriptExceptionOperators::ThrowExceptionObjectInternal(Js::JavascriptExceptionObject * exceptionObject, ScriptContext* scriptContext, bool fillExceptionContext, bool considerPassingToDebugger, PVOID returnAddress, bool resetStack)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 828\n");
         if (scriptContext)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 830\n");
             if (fillExceptionContext)
-            {
+            {LOGMEIN("JavascriptExceptionOperators.cpp] 832\n");
                 Assert(exceptionObject);
 
                 JavascriptExceptionContext exceptionContext;
@@ -857,7 +857,7 @@ namespace Js
         }
 
         if (exceptionObject->IsPendingExceptionObject())
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 859\n");
             ThreadContext * threadContext = scriptContext? scriptContext->GetThreadContext() : ThreadContext::GetContextForCurrentThread();
             threadContext->SetHasThrownPendingException();
         }
@@ -866,7 +866,7 @@ namespace Js
     }
 
     void JavascriptExceptionOperators::DoThrow(JavascriptExceptionObject* exceptionObject, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 868\n");
         ThreadContext* threadContext = scriptContext? scriptContext->GetThreadContext() : ThreadContext::GetContextForCurrentThread();
 
         // Temporarily keep throwing exception object alive (thrown but not yet caught)
@@ -877,18 +877,18 @@ namespace Js
     }
 
     void JavascriptExceptionOperators::DoThrowCheckClone(JavascriptExceptionObject* exceptionObject, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 879\n");
         DoThrow(exceptionObject->CloneIfStaticExceptionObject(scriptContext), scriptContext);
     }
 
     void JavascriptExceptionOperators::DispatchExceptionToDebugger(Js::JavascriptExceptionObject * exceptionObject, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 884\n");
         Assert(exceptionObject != NULL);
         Assert(scriptContext != NULL);
 
         if (scriptContext->IsScriptContextInDebugMode()
             && scriptContext->GetDebugContext()->GetProbeContainer()->HasAllowedForException(exceptionObject))
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 890\n");
             InterpreterHaltState haltState(STOP_EXCEPTIONTHROW, /*executingFunction*/nullptr);
 
             haltState.exceptionObject = exceptionObject;
@@ -922,7 +922,7 @@ namespace Js
 
     // Trim the stack trace down to the amount specified for Error.stackTraceLimit. This happens when we do a full crawl for WER, but we only want to store the specified amount in the error object for consistency.
     JavascriptExceptionContext::StackTrace* JavascriptExceptionOperators::TrimStackTraceForThrownObject(JavascriptExceptionContext::StackTrace* stackTraceIn, Var thrownObject, ScriptContext& scriptContext)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 924\n");
         Assert(CrawlStackForWER(scriptContext)); // Don't trim if crawl for Error.stack
         Assert(stackTraceIn);
 
@@ -930,19 +930,19 @@ namespace Js
         Assert(stackTraceLimit == 0 || IsErrorInstance(thrownObject));
 
         if (stackTraceIn->Count() <= stackTraceLimit)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 932\n");
             return stackTraceIn;
         }
 
         JavascriptExceptionContext::StackTrace* stackTraceTrimmed = NULL;
         if (stackTraceLimit > 0)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 938\n");
             HRESULT hr;
             BEGIN_TRANSLATE_EXCEPTION_AND_ERROROBJECT_TO_HRESULT_NESTED
-            {
+            {LOGMEIN("JavascriptExceptionOperators.cpp] 941\n");
                 stackTraceTrimmed = RecyclerNew(scriptContext.GetRecycler(), JavascriptExceptionContext::StackTrace, scriptContext.GetRecycler());
                 for (int i = 0; i < stackTraceLimit; i++)
-                {
+                {LOGMEIN("JavascriptExceptionOperators.cpp] 944\n");
                     stackTraceTrimmed->Add(stackTraceIn->Item(i));
                 }
             }
@@ -957,26 +957,26 @@ namespace Js
     // Check if thrownObject is instanceof Error (but not an Error prototype).
     //
     bool JavascriptExceptionOperators::IsErrorInstance(Var thrownObject)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 959\n");
         if (thrownObject && JavascriptError::Is(thrownObject))
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 961\n");
             return !JavascriptError::FromVar(thrownObject)->IsPrototype();
         }
 
         if (thrownObject && RecyclableObject::Is(thrownObject))
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 966\n");
             RecyclableObject* obj = RecyclableObject::FromVar(thrownObject);
 
             while (true)
-            {
+            {LOGMEIN("JavascriptExceptionOperators.cpp] 970\n");
                 obj = JavascriptOperators::GetPrototype(obj);
                 if (JavascriptOperators::GetTypeId(obj) == TypeIds_Null)
-                {
+                {LOGMEIN("JavascriptExceptionOperators.cpp] 973\n");
                     break;
                 }
 
                 if (JavascriptError::Is(obj))
-                {
+                {LOGMEIN("JavascriptExceptionOperators.cpp] 978\n");
                     return true;
                 }
             }
@@ -986,22 +986,22 @@ namespace Js
     }
 
     void JavascriptExceptionOperators::AddStackTraceToObject(Var targetObject, JavascriptExceptionContext::StackTrace* stackTrace, ScriptContext& scriptContext, bool isThrownException, bool resetStack)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 988\n");
         if (!stackTrace || !scriptContext.GetConfig()->IsErrorStackTraceEnabled())
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 990\n");
             return;
         }
 
         if (stackTrace->Count() == 0 && !IsErrorInstance(targetObject))
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 995\n");
             return;
         }
 
         if (isThrownException && CrawlStackForWER(scriptContext)) // Trim stack trace for WER
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 1000\n");
             stackTrace = TrimStackTraceForThrownObject(stackTrace, targetObject, scriptContext);
             if (!stackTrace)
-            {
+            {LOGMEIN("JavascriptExceptionOperators.cpp] 1003\n");
                 return;
             }
         }
@@ -1011,7 +1011,7 @@ namespace Js
 
         RecyclableObject* obj = RecyclableObject::FromVar(targetObject);
         if (!resetStack && obj->HasProperty(PropertyIds::stack))
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 1013\n");
             return; // we don't want to overwrite an existing "stack" property
         }
 
@@ -1025,7 +1025,7 @@ namespace Js
         BEGIN_TRANSLATE_EXCEPTION_AND_ERROROBJECT_TO_HRESULT_NESTED
         {
             if (JavascriptOperators::DefineOwnPropertyDescriptor(obj, PropertyIds::stack, stackPropertyDescriptor, false, &scriptContext))
-            {
+            {LOGMEIN("JavascriptExceptionOperators.cpp] 1027\n");
                 obj->SetInternalProperty(InternalPropertyIds::StackTrace, stackTrace, PropertyOperationFlags::PropertyOperation_None, NULL);
                 obj->SetInternalProperty(InternalPropertyIds::StackTraceCache, NULL, PropertyOperationFlags::PropertyOperation_None, NULL);
             }
@@ -1034,22 +1034,22 @@ namespace Js
     }
 
     Var JavascriptExceptionOperators::OP_RuntimeTypeError(MessageId messageId, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 1036\n");
         JavascriptError::ThrowTypeError(scriptContext, MAKE_HR(messageId));
     }
 
     Var JavascriptExceptionOperators::OP_RuntimeRangeError(MessageId messageId, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 1041\n");
         JavascriptError::ThrowRangeError(scriptContext, MAKE_HR(messageId));
     }
 
     Var JavascriptExceptionOperators::OP_WebAssemblyRuntimeError(MessageId messageId, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 1046\n");
         JavascriptError::ThrowWebAssemblyRuntimeError(scriptContext, MAKE_HR(messageId));
     }
 
     Var JavascriptExceptionOperators::OP_RuntimeReferenceError(MessageId messageId, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 1051\n");
         JavascriptError::ThrowReferenceError(scriptContext, MAKE_HR(messageId));
     }
 
@@ -1071,7 +1071,7 @@ namespace Js
         // If the first argument to the accessor is not a recyclable object, return undefined
         // for compat with other browsers
         if (!RecyclableObject::Is(args[0]))
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 1073\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -1080,10 +1080,10 @@ namespace Js
         // If an argument was passed to the accessor, it is being called as a setter.
         // Set the internal StackTraceCache property accordingly.
         if (args.Info.Count > 1)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 1082\n");
             obj->SetInternalProperty(InternalPropertyIds::StackTraceCache, args[1], PropertyOperationFlags::PropertyOperation_None, NULL);
             if (JavascriptError::Is(obj))
-            {
+            {LOGMEIN("JavascriptExceptionOperators.cpp] 1085\n");
                 ((JavascriptError *)obj)->SetStackPropertyRedefined(true);
             }
             return scriptContext->GetLibrary()->GetEmptyString();
@@ -1093,7 +1093,7 @@ namespace Js
         // Return existing cached value, or obtain the string representation of the StackTrace to return.
         Var cache = NULL;
         if (obj->GetInternalProperty(obj,InternalPropertyIds::StackTraceCache, (Var*)&cache, NULL, scriptContext) && cache)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 1095\n");
             return cache;
         }
 
@@ -1104,13 +1104,13 @@ namespace Js
             Js::JavascriptExceptionContext::StackTrace *stackTrace = NULL;
             if (!obj->GetInternalProperty(obj,InternalPropertyIds::StackTrace, (Js::Var*) &stackTrace, NULL, scriptContext) ||
                 stackTrace == nullptr)
-            {
+            {LOGMEIN("JavascriptExceptionOperators.cpp] 1106\n");
                 obj->SetInternalProperty(InternalPropertyIds::StackTraceCache, stringMessage, PropertyOperationFlags::PropertyOperation_None, NULL);
                 return stringMessage;
             }
 
             if (IsErrorInstance(obj))
-            {
+            {LOGMEIN("JavascriptExceptionOperators.cpp] 1112\n");
                 stringMessage = JavascriptConversion::ToString(obj, scriptContext);
             }
 
@@ -1118,16 +1118,16 @@ namespace Js
             stringBuilder->AppendChars(stringMessage);
 
             for (int i = 0; i < stackTrace->Count(); i++)
-            {
+            {LOGMEIN("JavascriptExceptionOperators.cpp] 1120\n");
                 Js::JavascriptExceptionContext::StackFrame& currentFrame = stackTrace->Item(i);
 
                 // Defend in depth. Discard cross domain frames if somehow they creped in.
                 if (currentFrame.IsScriptFunction())
-                {
+                {LOGMEIN("JavascriptExceptionOperators.cpp] 1125\n");
                     ScriptContext* funcScriptContext = currentFrame.GetFunctionBody()->GetScriptContext();
                     AnalysisAssert(funcScriptContext);
                     if (scriptContext != funcScriptContext && FAILED(scriptContext->GetHostScriptContext()->CheckCrossDomainScriptContext(funcScriptContext)))
-                    {
+                    {LOGMEIN("JavascriptExceptionOperators.cpp] 1129\n");
                         continue; // Ignore this frame
                     }
                 }
@@ -1148,11 +1148,11 @@ namespace Js
                     pUrl = functionBody->GetSourceName();
                     LPCWSTR functionName = nullptr;
                     if (CONFIG_FLAG(ExtendedErrorStackForTestHost))
-                    {
+                    {LOGMEIN("JavascriptExceptionOperators.cpp] 1150\n");
                         BEGIN_LEAVE_SCRIPT_INTERNAL(scriptContext)
-                        {
+                        {LOGMEIN("JavascriptExceptionOperators.cpp] 1152\n");
                             if (currentFrame.GetFunctionNameWithArguments(&functionName) != S_OK)
-                            {
+                            {LOGMEIN("JavascriptExceptionOperators.cpp] 1154\n");
                                 functionName = functionBody->GetExternalDisplayName();
                             }
                         }
@@ -1178,12 +1178,12 @@ namespace Js
     }
 
     uint64 JavascriptExceptionOperators::GetStackTraceLimit(Var thrownObject, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 1180\n");
         uint64 limit = 0;
 
         if (scriptContext->GetConfig()->IsErrorStackTraceEnabled()
             && IsErrorInstance(thrownObject))
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 1185\n");
             HRESULT hr = JavascriptError::GetRuntimeError(RecyclableObject::FromVar(thrownObject), NULL);
             JavascriptFunction* error = scriptContext->GetLibrary()->GetErrorConstructor();
 
@@ -1192,16 +1192,16 @@ namespace Js
             // Error.stackTraceLimit property if we are not throwing StackOverflow, or there is no implicitCall (in getter case).
             DisableImplicitFlags disableImplicitFlags = scriptContext->GetThreadContext()->GetDisableImplicitFlags();
             if (hr == VBSERR_OutOfStack)
-            {
+            {LOGMEIN("JavascriptExceptionOperators.cpp] 1194\n");
                 scriptContext->GetThreadContext()->SetDisableImplicitFlags(DisableImplicitCallAndExceptionFlag);
             }
 
             Var var;
             if (JavascriptOperators::GetProperty(error, PropertyIds::stackTraceLimit, &var, scriptContext))
-            {
+            {LOGMEIN("JavascriptExceptionOperators.cpp] 1200\n");
                 // Only accept the value if it is a "Number". Avoid potential valueOf() call.
                 switch (JavascriptOperators::GetTypeId(var))
-                {
+                {LOGMEIN("JavascriptExceptionOperators.cpp] 1203\n");
                 case TypeIds_Integer:
                 case TypeIds_Number:
                 case TypeIds_Int64Number:
@@ -1213,7 +1213,7 @@ namespace Js
                 }
             }
             if (hr == VBSERR_OutOfStack)
-            {
+            {LOGMEIN("JavascriptExceptionOperators.cpp] 1215\n");
                 scriptContext->GetThreadContext()->SetDisableImplicitFlags(disableImplicitFlags);
             }
     }
@@ -1222,17 +1222,17 @@ namespace Js
     }
 
     void JavascriptExceptionOperators::AppendExternalFrameToStackTrace(CompoundString* bs, LPCWSTR functionName, LPCWSTR fileName, ULONG lineNumber, LONG characterPosition)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 1224\n");
         // format is equivalent to printf("\n   at %s (%s:%d:%d)", functionName, filename, lineNumber, characterPosition);
 
         const CharCount maxULongStringLength = 10; // excluding null terminator
         const auto ConvertULongToString = [](const ULONG value, char16 *const buffer, const CharCount charCapacity)
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 1229\n");
             const errno_t err = _ultow_s(value, buffer, charCapacity, 10);
             Assert(err == 0);
         };
         if (CONFIG_FLAG(ExtendedErrorStackForTestHost))
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 1234\n");
             bs->AppendChars(_u("\n\tat "));
         }
         else
@@ -1243,12 +1243,12 @@ namespace Js
         bs->AppendChars(_u(" ("));
 
         if (CONFIG_FLAG(ExtendedErrorStackForTestHost) && *fileName != _u('\0'))
-        {
+        {LOGMEIN("JavascriptExceptionOperators.cpp] 1245\n");
             char16 shortfilename[_MAX_FNAME];
             char16 ext[_MAX_EXT];
             errno_t err = _wsplitpath_s(fileName, NULL, 0, NULL, 0, shortfilename, _MAX_FNAME, ext, _MAX_EXT);
             if (err != 0)
-            {
+            {LOGMEIN("JavascriptExceptionOperators.cpp] 1250\n");
                 bs->AppendCharsSz(fileName);
             }
             else
@@ -1269,7 +1269,7 @@ namespace Js
     }
 
     void JavascriptExceptionOperators::AppendLibraryFrameToStackTrace(CompoundString* bs, LPCWSTR functionName)
-    {
+    {LOGMEIN("JavascriptExceptionOperators.cpp] 1271\n");
         // format is equivalent to printf("\n   at %s (native code)", functionName);
         bs->AppendChars(_u("\n   at "));
         bs->AppendCharsSz(functionName);

@@ -47,7 +47,7 @@ namespace Js {
         typedef uint32 UnsignedType;
         static const LayoutSize LayoutEnum = LargeLayout;
         template <typename T>
-        static bool Assign(T& dst, T src) { dst = src; return true; }
+        static bool Assign(T& dst, T src) {LOGMEIN("OpLayoutsCommon.h] 49\n"); dst = src; return true; }
     };
 
     typedef LayoutSizePolicy<LargeLayout> LargeLayoutSizePolicy;
@@ -65,11 +65,11 @@ namespace Js {
 
         template <typename T1, typename T2>
         static bool Assign(T1& dst, T2 src)
-        {
+        {LOGMEIN("OpLayoutsCommon.h] 67\n");
 #ifdef BYTECODE_TESTING
             if (Configuration::Global.flags.LargeByteCodeLayout
                 || Configuration::Global.flags.MediumByteCodeLayout)
-            {
+            {LOGMEIN("OpLayoutsCommon.h] 71\n");
                 return false;
             }
 #endif
@@ -93,10 +93,10 @@ namespace Js {
 
         template <typename T1, typename T2>
         static bool Assign(T1& dst, T2 src)
-        {
+        {LOGMEIN("OpLayoutsCommon.h] 95\n");
 #ifdef BYTECODE_TESTING
             if (Configuration::Global.flags.LargeByteCodeLayout)
-            {
+            {LOGMEIN("OpLayoutsCommon.h] 98\n");
                 return false;
             }
 #endif

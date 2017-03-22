@@ -6,15 +6,15 @@
 
 void
 GlobOpt::CaptureCopyPropValue(BasicBlock * block, Sym * sym, Value * val, SListBase<CopyPropSyms>::EditingIterator & bailOutCopySymsIter)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 8\n");
     if (!sym->IsStackSym())
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 10\n");
         return;
     }
 
     StackSym * copyPropSym = this->GetCopyPropSym(block, sym, val);
     if (copyPropSym != nullptr)
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 16\n");
         bailOutCopySymsIter.InsertNodeBefore(this->func->m_alloc, sym->AsStackSym(), copyPropSym);
     }
 }
@@ -23,7 +23,7 @@ void
 GlobOpt::CaptureValuesFromScratch(BasicBlock * block,
     SListBase<ConstantStackSymValue>::EditingIterator & bailOutConstValuesIter,
     SListBase<CopyPropSyms>::EditingIterator & bailOutCopySymsIter)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 25\n");
     Sym * sym = nullptr;
     Value * value = nullptr;
     ValueInfo * valueInfo = nullptr;
@@ -31,18 +31,18 @@ GlobOpt::CaptureValuesFromScratch(BasicBlock * block,
     block->globOptData.changedSyms->ClearAll();
 
     FOREACH_GLOBHASHTABLE_ENTRY(bucket, block->globOptData.symToValueMap)
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 33\n");
         value = bucket.element;
         valueInfo = value->GetValueInfo();
 
         if (valueInfo->GetSymStore() == nullptr && !valueInfo->HasIntConstantValue())
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 38\n");
             continue;
         }
 
         sym = bucket.value;
         if (sym == nullptr || !sym->IsStackSym() || !(sym->AsStackSym()->HasByteCodeRegSlot()))
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 44\n");
             continue;
         }
         block->globOptData.changedSyms->Set(sym->m_id);
@@ -58,13 +58,13 @@ GlobOpt::CaptureValuesFromScratch(BasicBlock * block,
 
         int intConstantValue;
         if (valueInfo->TryGetIntConstantValue(&intConstantValue))
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 60\n");
             BailoutConstantValue constValue;
             constValue.InitIntConstValue(intConstantValue);
             bailOutConstValuesIter.InsertNodeBefore(this->func->m_alloc, stackSym, constValue);
         }
         else if (valueInfo->IsVarConstant())
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 66\n");
             BailoutConstantValue constValue;
             constValue.InitVarConstValue(valueInfo->AsVarConstant()->VarValue());
             bailOutConstValuesIter.InsertNodeBefore(this->func->m_alloc, stackSym, constValue);
@@ -81,7 +81,7 @@ void
 GlobOpt::CaptureValuesIncremental(BasicBlock * block,
     SListBase<ConstantStackSymValue>::EditingIterator & bailOutConstValuesIter,
     SListBase<CopyPropSyms>::EditingIterator & bailOutCopySymsIter)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 83\n");
     CapturedValues * currCapturedValues = block->globOptData.capturedValues;
     SListBase<ConstantStackSymValue>::Iterator iterConst(currCapturedValues ? &currCapturedValues->constantValues : nullptr);
     SListBase<CopyPropSyms>::Iterator iterCopyPropSym(currCapturedValues ? &currCapturedValues->copyPropSyms : nullptr);
@@ -91,17 +91,17 @@ GlobOpt::CaptureValuesIncremental(BasicBlock * block,
     block->globOptData.changedSyms->Set(Js::Constants::InvalidSymID);
 
     FOREACH_BITSET_IN_SPARSEBV(symId, block->globOptData.changedSyms)
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 93\n");
         Sym * sym = hasConstValue ? iterConst.Data().Key() : nullptr;
         Value * val = nullptr;
         HashBucket<Sym *, Value *> * symIdBucket = nullptr;
 
         // copy unchanged sym to new capturedValues
         while (sym && sym->m_id < symId)
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 100\n");
             Assert(sym->IsStackSym());
             if (!sym->AsStackSym()->HasArgSlotNum())
-            {
+            {LOGMEIN("GlobOptBailOut.cpp] 103\n");
                 bailOutConstValuesIter.InsertNodeBefore(this->func->m_alloc, sym->AsStackSym(), iterConst.Data().Value());
             }
 
@@ -109,16 +109,16 @@ GlobOpt::CaptureValuesIncremental(BasicBlock * block,
             sym = hasConstValue ? iterConst.Data().Key() : nullptr;
         }
         if (sym && sym->m_id == symId)
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 111\n");
             hasConstValue = iterConst.Next();
         }
         if (symId != Js::Constants::InvalidSymID)
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 115\n");
             // recapture changed constant sym
 
             symIdBucket = block->globOptData.symToValueMap->GetBucket(symId);
             if (symIdBucket == nullptr)
-            {
+            {LOGMEIN("GlobOptBailOut.cpp] 120\n");
                 continue;
             }
 
@@ -129,19 +129,19 @@ GlobOpt::CaptureValuesIncremental(BasicBlock * block,
             ValueInfo* valueInfo = val->GetValueInfo();
 
             if (valueInfo->GetSymStore() != nullptr)
-            {
+            {LOGMEIN("GlobOptBailOut.cpp] 131\n");
                 int32 intConstValue;
                 BailoutConstantValue constValue;
 
                 if (valueInfo->TryGetIntConstantValue(&intConstValue))
-                {
+                {LOGMEIN("GlobOptBailOut.cpp] 136\n");
                     constValue.InitIntConstValue(intConstValue);
                     bailOutConstValuesIter.InsertNodeBefore(this->func->m_alloc, symIdSym->AsStackSym(), constValue);
 
                     continue;
                 }
                 else if(valueInfo->IsVarConstant())
-                {
+                {LOGMEIN("GlobOptBailOut.cpp] 143\n");
                     constValue.InitVarConstValue(valueInfo->AsVarConstant()->VarValue());
                     bailOutConstValuesIter.InsertNodeBefore(this->func->m_alloc, symIdSym->AsStackSym(), constValue);
 
@@ -149,7 +149,7 @@ GlobOpt::CaptureValuesIncremental(BasicBlock * block,
                 }
             }
             else if (!valueInfo->HasIntConstantValue())
-            {
+            {LOGMEIN("GlobOptBailOut.cpp] 151\n");
                 continue;
             }
         }
@@ -158,22 +158,22 @@ GlobOpt::CaptureValuesIncremental(BasicBlock * block,
 
         // process unchanged sym, but copy sym might have changed
         while (sym && sym->m_id < symId)
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 160\n");
             StackSym * copyPropSym = iterCopyPropSym.Data().Value();
 
             Assert(sym->IsStackSym());
 
             if (!block->globOptData.changedSyms->Test(copyPropSym->m_id))
-            {
+            {LOGMEIN("GlobOptBailOut.cpp] 166\n");
                 if (!sym->AsStackSym()->HasArgSlotNum())
-                {
+                {LOGMEIN("GlobOptBailOut.cpp] 168\n");
                     bailOutCopySymsIter.InsertNodeBefore(this->func->m_alloc, sym->AsStackSym(), copyPropSym);
                 }
             }
             else
             {
                 if (!sym->AsStackSym()->HasArgSlotNum())
-                {
+                {LOGMEIN("GlobOptBailOut.cpp] 175\n");
                     val = FindValue(sym);
                     if (val != nullptr)
                     {
@@ -186,15 +186,15 @@ GlobOpt::CaptureValuesIncremental(BasicBlock * block,
             sym = hasCopyPropSym ? iterCopyPropSym.Data().Key() : nullptr;
         }
         if (sym && sym->m_id == symId)
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 188\n");
             hasCopyPropSym = iterCopyPropSym.Next();
         }
         if (symId != Js::Constants::InvalidSymID)
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 192\n");
             // recapture changed copy prop sym
             symIdBucket = block->globOptData.symToValueMap->GetBucket(symId);
             if (symIdBucket != nullptr)
-            {
+            {LOGMEIN("GlobOptBailOut.cpp] 196\n");
                 Sym * symIdSym = symIdBucket->value;
                 val = FindValue(symIdSym);
                 if (val != nullptr)
@@ -210,9 +210,9 @@ GlobOpt::CaptureValuesIncremental(BasicBlock * block,
 
 void
 GlobOpt::CaptureValues(BasicBlock *block, BailOutInfo * bailOutInfo)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 212\n");
     if (!this->func->DoGlobOptsForGeneratorFunc())
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 214\n");
         // TODO[generators][ianhall]: Enable constprop and copyprop for generator functions; see GlobOpt::CopyProp()
         // Even though CopyProp is disabled for generator functions we must also not put the copy-prop sym into the
         // bailOutInfo so that the bailOutInfo keeps track of the key sym in its byteCodeUpwardExposed list.
@@ -246,7 +246,7 @@ GlobOpt::CaptureValues(BasicBlock *block, BailOutInfo * bailOutInfo)
     bailOutInfo->capturedValues.copyPropSyms = capturedValues.copyPropSyms;
     
     if (!PHASE_OFF(Js::IncrementalBailoutPhase, func))
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 248\n");
         // cache the pointer of current bailout as potential baseline for later bailout in this block
         block->globOptData.capturedValuesCandidate = &bailOutInfo->capturedValues;
 
@@ -259,16 +259,16 @@ void
 GlobOpt::CaptureArguments(BasicBlock *block, BailOutInfo * bailOutInfo, JitArenaAllocator *allocator)
 {
     FOREACH_BITSET_IN_SPARSEBV(id, this->blockData.argObjSyms)
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 261\n");
         StackSym * stackSym = this->func->m_symTable->FindStackSym(id);
         Assert(stackSym != nullptr);
         if (!stackSym->HasByteCodeRegSlot())
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 265\n");
             continue;
         }
 
         if (!bailOutInfo->capturedValues.argObjSyms)
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 270\n");
             bailOutInfo->capturedValues.argObjSyms = JitAnew(allocator, BVSparse<JitArenaAllocator>, allocator);
         }
 
@@ -280,7 +280,7 @@ GlobOpt::CaptureArguments(BasicBlock *block, BailOutInfo * bailOutInfo, JitArena
 
 void
 GlobOpt::TrackByteCodeSymUsed(IR::Instr * instr, BVSparse<JitArenaAllocator> * instrByteCodeStackSymUsed, PropertySym **pPropertySym)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 282\n");
     IR::Opnd * src = instr->GetSrc1();
     if (src)
     {
@@ -299,7 +299,7 @@ GlobOpt::TrackByteCodeSymUsed(IR::Instr * instr, BVSparse<JitArenaAllocator> * i
 
     IR::Opnd * dst = instr->GetDst();
     if (dst)
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 301\n");
         StackSym *stackSym = dst->GetStackSym();
 
         // We want stackSym uses: IndirOpnd and SymOpnds of propertySyms.
@@ -318,33 +318,33 @@ GlobOpt::TrackByteCodeSymUsed(IR::Instr * instr, BVSparse<JitArenaAllocator> * i
 
 void
 GlobOpt::TrackByteCodeSymUsed(IR::RegOpnd * regOpnd, BVSparse<JitArenaAllocator> * instrByteCodeStackSymUsed)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 320\n");
     // Check JITOptimizedReg to catch case where baseOpnd of indir was optimized.
     if (!regOpnd->GetIsJITOptimizedReg())
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 323\n");
         TrackByteCodeSymUsed(regOpnd->m_sym, instrByteCodeStackSymUsed);
     }
 }
 
 void
 GlobOpt::TrackByteCodeSymUsed(IR::Opnd * opnd, BVSparse<JitArenaAllocator> * instrByteCodeStackSymUsed, PropertySym **pPropertySym)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 330\n");
     if (opnd->GetIsJITOptimizedReg())
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 332\n");
         AssertMsg(!opnd->IsIndirOpnd(), "TrackByteCodeSymUsed doesn't expect IndirOpnd with IsJITOptimizedReg turned on");
         return;
     }
 
     switch(opnd->GetKind())
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 338\n");
     case IR::OpndKindReg:
         TrackByteCodeSymUsed(opnd->AsRegOpnd(), instrByteCodeStackSymUsed);
         break;
     case IR::OpndKindSym:
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 343\n");
             Sym * sym = opnd->AsSymOpnd()->m_sym;
             if (sym->IsStackSym())
-            {
+            {LOGMEIN("GlobOptBailOut.cpp] 346\n");
                 TrackByteCodeSymUsed(sym->AsStackSym(), instrByteCodeStackSymUsed);
             }
             else
@@ -356,7 +356,7 @@ GlobOpt::TrackByteCodeSymUsed(IR::Opnd * opnd, BVSparse<JitArenaAllocator> * ins
         break;
     case IR::OpndKindIndir:
         TrackByteCodeSymUsed(opnd->AsIndirOpnd()->GetBaseOpnd(), instrByteCodeStackSymUsed);
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 358\n");
             IR::RegOpnd * indexOpnd = opnd->AsIndirOpnd()->GetIndexOpnd();
             if (indexOpnd)
             {
@@ -369,12 +369,12 @@ GlobOpt::TrackByteCodeSymUsed(IR::Opnd * opnd, BVSparse<JitArenaAllocator> * ins
 
 void
 GlobOpt::TrackByteCodeSymUsed(StackSym * sym, BVSparse<JitArenaAllocator> * instrByteCodeStackSymUsed)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 371\n");
     // We only care about stack sym that has a corresponding byte code register
     if (sym->HasByteCodeRegSlot())
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 374\n");
         if (sym->IsTypeSpec())
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 376\n");
             // It has to have a var version for byte code regs
             sym = sym->GetVarEquivSym(nullptr);
         }
@@ -384,20 +384,20 @@ GlobOpt::TrackByteCodeSymUsed(StackSym * sym, BVSparse<JitArenaAllocator> * inst
 
 void
 GlobOpt::MarkNonByteCodeUsed(IR::Instr * instr)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 386\n");
     IR::Opnd * dst = instr->GetDst();
     if (dst)
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 389\n");
         MarkNonByteCodeUsed(dst);
     }
 
     IR::Opnd * src1 = instr->GetSrc1();
     if (src1)
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 395\n");
         MarkNonByteCodeUsed(src1);
         IR::Opnd * src2 = instr->GetSrc2();
         if (src2)
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 399\n");
             MarkNonByteCodeUsed(src2);
         }
     }
@@ -405,18 +405,18 @@ GlobOpt::MarkNonByteCodeUsed(IR::Instr * instr)
 
 void
 GlobOpt::MarkNonByteCodeUsed(IR::Opnd * opnd)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 407\n");
     switch(opnd->GetKind())
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 409\n");
     case IR::OpndKindReg:
         opnd->AsRegOpnd()->SetIsJITOptimizedReg(true);
         break;
     case IR::OpndKindIndir:
         opnd->AsIndirOpnd()->GetBaseOpnd()->SetIsJITOptimizedReg(true);
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 415\n");
             IR::RegOpnd * indexOpnd = opnd->AsIndirOpnd()->GetIndexOpnd();
             if (indexOpnd)
-            {
+            {LOGMEIN("GlobOptBailOut.cpp] 418\n");
                 indexOpnd->SetIsJITOptimizedReg(true);
             }
         }
@@ -426,9 +426,9 @@ GlobOpt::MarkNonByteCodeUsed(IR::Opnd * opnd)
 
 void
 GlobOpt::CaptureByteCodeSymUses(IR::Instr * instr)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 428\n");
     if (this->byteCodeUses)
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 430\n");
         // We already captured it before.
         return;
     }
@@ -442,17 +442,17 @@ GlobOpt::CaptureByteCodeSymUses(IR::Instr * instr)
 
 void
 GlobOpt::TrackCalls(IR::Instr * instr)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 444\n");
     // Keep track of out params for bailout
     switch (instr->m_opcode)
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 447\n");
     case Js::OpCode::StartCall:
         Assert(!this->isCallHelper);
         Assert(instr->GetDst()->IsRegOpnd());
         Assert(instr->GetDst()->AsRegOpnd()->m_sym->m_isSingleDef);
 
         if (this->blockData.callSequence == nullptr)
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 454\n");
             this->blockData.callSequence = JitAnew(this->alloc, SListBase<IR::Opnd *>);
             this->currentBlock->globOptData.callSequence = this->blockData.callSequence;
         }
@@ -463,7 +463,7 @@ GlobOpt::TrackCalls(IR::Instr * instr)
 
         break;
     case Js::OpCode::BytecodeArgOutCapture:
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 465\n");
             this->blockData.callSequence->Prepend(this->alloc, instr->GetDst());
             this->currentBlock->globOptData.argOutCount++;
             break;
@@ -475,10 +475,10 @@ GlobOpt::TrackCalls(IR::Instr * instr)
     case Js::OpCode::ArgOut_A_Dynamic:
     case Js::OpCode::ArgOut_A_FromStackArgs:
     case Js::OpCode::ArgOut_A_SpreadArg:
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 477\n");
         IR::Opnd * opnd = instr->GetDst();
         if (opnd->IsSymOpnd())
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 480\n");
             Assert(!this->isCallHelper);
             Assert(!this->blockData.callSequence->Empty());
             StackSym* stackSym = opnd->AsSymOpnd()->m_sym->AsStackSym();
@@ -486,17 +486,17 @@ GlobOpt::TrackCalls(IR::Instr * instr)
             // These scenarios are already tracked using BytecodeArgOutCapture,
             // and we don't want to be tracking ArgOut_A_FixupForStackArgs as these are only visible to the JIT and we should not be restoring them upon bailout.
             if (!stackSym->m_isArgCaptured && instr->m_opcode != Js::OpCode::ArgOut_A_FixupForStackArgs)
-            {
+            {LOGMEIN("GlobOptBailOut.cpp] 488\n");
                 this->blockData.callSequence->Prepend(this->alloc, instr->GetDst());
                 this->currentBlock->globOptData.argOutCount++;
             }
             Assert(stackSym->IsArgSlotSym());
             if (stackSym->m_isInlinedArgSlot)
-            {
+            {LOGMEIN("GlobOptBailOut.cpp] 494\n");
                 this->currentBlock->globOptData.inlinedArgOutCount++;
                 // We want to update the offsets only once: don't do in prepass.
                 if (!this->IsLoopPrePass() && stackSym->m_offset >= 0)
-                {
+                {LOGMEIN("GlobOptBailOut.cpp] 498\n");
                     Func * currentFunc = instr->m_func;
                     stackSym->FixupStackOffset(currentFunc);
                 }
@@ -511,7 +511,7 @@ GlobOpt::TrackCalls(IR::Instr * instr)
         }
 
         if (instr->m_opcode == Js::OpCode::ArgOut_A_FixupForStackArgs && !this->IsLoopPrePass())
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 513\n");
             instr->m_opcode = Js::OpCode::ArgOut_A_Inline;
         }
         break;
@@ -527,7 +527,7 @@ GlobOpt::TrackCalls(IR::Instr * instr)
         this->EndTrackCall(instr);
 
         if (DoInlineArgsOpt(instr->m_func))
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 529\n");
             instr->m_func->m_hasInlineArgsOpt = true;
             InlineeFrameInfo* frameInfo = InlineeFrameInfo::New(func->m_alloc);
             instr->m_func->frameInfo = frameInfo;
@@ -553,7 +553,7 @@ GlobOpt::TrackCalls(IR::Instr * instr)
 
     case Js::OpCode::InlineeEnd:
         if (instr->m_func->m_hasInlineArgsOpt)
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 555\n");
             RecordInlineeFrameInfo(instr);
         }
         EndTrackingOfArgObjSymsForInlinee();
@@ -563,7 +563,7 @@ GlobOpt::TrackCalls(IR::Instr * instr)
         break;
 
     case Js::OpCode::InlineeMetaArg:
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 565\n");
         Assert(instr->GetDst()->IsSymOpnd());
         StackSym * stackSym = instr->GetDst()->AsSymOpnd()->m_sym->AsStackSym();
         Assert(stackSym->IsArgSlotSym());
@@ -572,7 +572,7 @@ GlobOpt::TrackCalls(IR::Instr * instr)
         // TODO: Review this and fix the m_func of InlineeMetaArg to be "inliner" (as for the rest of the ArgOut's)
         // We want to update the offsets only once: don't do in prepass.
         if (!this->IsLoopPrePass())
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 574\n");
             Func * currentFunc = instr->m_func->GetParentFunc();
             stackSym->FixupStackOffset(currentFunc);
         }
@@ -586,14 +586,14 @@ GlobOpt::TrackCalls(IR::Instr * instr)
 
     case Js::OpCode::InlineNonTrackingBuiltInEnd:
     case Js::OpCode::InlineBuiltInEnd:
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 588\n");
         // If extra bailouts were added for the InlineMathXXX call itself,
         // move InlineeBuiltInStart just above the InlineMathXXX.
         // This is needed so that the function argument has lifetime after all bailouts for InlineMathXXX,
         // otherwise when we bailout we would get wrong function.
         IR::Instr* inlineBuiltInStartInstr = instr->m_prev;
         while (inlineBuiltInStartInstr->m_opcode != Js::OpCode::InlineBuiltInStart)
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 595\n");
             inlineBuiltInStartInstr = inlineBuiltInStartInstr->m_prev;
         }
 
@@ -601,16 +601,16 @@ GlobOpt::TrackCalls(IR::Instr * instr)
         IR::Instr * insertBeforeInstr = instr->m_prev;
         IR::Instr * tmpInstr = insertBeforeInstr;
         while(tmpInstr->m_opcode != Js::OpCode::InlineBuiltInStart )
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 603\n");
             if(tmpInstr->m_opcode == Js::OpCode::ByteCodeUses)
-            {
+            {LOGMEIN("GlobOptBailOut.cpp] 605\n");
                 insertBeforeInstr = tmpInstr;
             }
             tmpInstr = tmpInstr->m_prev;
         }
         inlineBuiltInStartInstr->Unlink();
         if(insertBeforeInstr == instr->m_prev)
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 612\n");
             insertBeforeInstr->InsertBefore(inlineBuiltInStartInstr);
         }
 
@@ -625,12 +625,12 @@ GlobOpt::TrackCalls(IR::Instr * instr)
         // byte code register holding the function object needs to be restored on bailout.
         IR::Instr *const insertByteCodeUsesAfterInstr = inlineBuiltInStartInstr->m_prev;
         if(byteCodeUsesInstr != insertByteCodeUsesAfterInstr)
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 627\n");
             // The InlineBuiltInStart instruction was moved, look for its ByteCodeUses instructions that also need to be moved
             while(
                 byteCodeUsesInstr->IsByteCodeUsesInstr() &&
                 byteCodeUsesInstr->AsByteCodeUsesInstr()->GetByteCodeOffset() == inlineBuiltInStartInstr->GetByteCodeOffset())
-            {
+            {LOGMEIN("GlobOptBailOut.cpp] 632\n");
                 IR::Instr *const instrToMove = byteCodeUsesInstr;
                 byteCodeUsesInstr = byteCodeUsesInstr->m_prev;
                 instrToMove->Unlink();
@@ -645,7 +645,7 @@ GlobOpt::TrackCalls(IR::Instr * instr)
 
         // Do not track calls for InlineNonTrackingBuiltInEnd, as it is already tracked for InlineArrayPop
         if(instr->m_opcode == Js::OpCode::InlineBuiltInEnd)
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 647\n");
             this->EndTrackCall(instr);
         }
 
@@ -657,7 +657,7 @@ GlobOpt::TrackCalls(IR::Instr * instr)
     }
 
     case Js::OpCode::InlineArrayPop:
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 659\n");
         // EndTrackCall should be called here as the Post-op BailOutOnImplicitCalls will bail out to the instruction after the Pop function call instr.
         // This bailout shouldn't be tracking the call sequence as it will then erroneously reserve stack space for arguments when the call would have already happened
         // Can't wait till InlineBuiltinEnd like we do for other InlineMathXXX because by then we would have filled bailout info for the BailOutOnImplicitCalls for InlineArrayPop.
@@ -667,10 +667,10 @@ GlobOpt::TrackCalls(IR::Instr * instr)
 
     default:
         if (OpCodeAttr::CallInstr(instr->m_opcode))
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 669\n");
             this->EndTrackCall(instr);
             if (this->inInlinedBuiltIn && instr->m_opcode == Js::OpCode::CallDirect)
-            {
+            {LOGMEIN("GlobOptBailOut.cpp] 672\n");
                 // We can end up in this situation when a built-in apply target is inlined to a CallDirect. We have the following IR:
                 //
                 // StartCall
@@ -696,14 +696,14 @@ GlobOpt::TrackCalls(IR::Instr * instr)
 }
 
 void GlobOpt::RecordInlineeFrameInfo(IR::Instr* inlineeEnd)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 698\n");
     if (this->IsLoopPrePass())
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 700\n");
         return;
     }
     InlineeFrameInfo* frameInfo = inlineeEnd->m_func->frameInfo;
     if (frameInfo->isRecorded)
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 705\n");
         Assert(frameInfo->function.type != InlineeFrameInfoValueType_None);
         // Due to Cmp peeps in flow graph - InlineeEnd can be cloned.
         return;
@@ -711,11 +711,11 @@ void GlobOpt::RecordInlineeFrameInfo(IR::Instr* inlineeEnd)
     inlineeEnd->IterateArgInstrs([=] (IR::Instr* argInstr)
     {
         if (argInstr->m_opcode == Js::OpCode::InlineeStart)
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 713\n");
             Assert(frameInfo->function.type == InlineeFrameInfoValueType_None);
             IR::RegOpnd* functionObject = argInstr->GetSrc1()->AsRegOpnd();
             if (functionObject->m_sym->IsConst())
-            {
+            {LOGMEIN("GlobOptBailOut.cpp] 717\n");
                 frameInfo->function = InlineFrameInfoValue(functionObject->m_sym->GetConstValueForBailout());
             }
             else
@@ -730,22 +730,22 @@ void GlobOpt::RecordInlineeFrameInfo(IR::Instr* inlineeEnd)
             InlineFrameInfoValue frameInfoValue;
             StackSym* argSym = argOpnd->GetStackSym();
             if (!argSym)
-            {
+            {LOGMEIN("GlobOptBailOut.cpp] 732\n");
                 frameInfoValue = InlineFrameInfoValue(argOpnd->GetConstValue());
             }
             else if (argSym->IsConst())
-            {
+            {LOGMEIN("GlobOptBailOut.cpp] 736\n");
                 frameInfoValue = InlineFrameInfoValue(argSym->GetConstValueForBailout());
             }
             else
             {
                 if (PHASE_ON(Js::CopyPropPhase, func))
-                {
+                {LOGMEIN("GlobOptBailOut.cpp] 742\n");
                     Value* value = FindValue(argSym);
 
                     StackSym * copyPropSym = this->GetCopyPropSym(this->currentBlock, argSym, value);
                     if (copyPropSym)
-                    {
+                    {LOGMEIN("GlobOptBailOut.cpp] 747\n");
                         argSym = copyPropSym;
                     }
                 }
@@ -753,24 +753,24 @@ void GlobOpt::RecordInlineeFrameInfo(IR::Instr* inlineeEnd)
                 GlobOptBlockData& globOptData = this->currentBlock->globOptData;
 
                 if (frameInfo->intSyms->TestEmpty() && frameInfo->intSyms->Test(argSym->m_id))
-                {
+                {LOGMEIN("GlobOptBailOut.cpp] 755\n");
                     // Var version of the sym is not live, use the int32 version
                     argSym = argSym->GetInt32EquivSym(nullptr);
                     Assert(argSym);
                 }
                 else if (frameInfo->floatSyms->TestEmpty() && frameInfo->floatSyms->Test(argSym->m_id))
-                {
+                {LOGMEIN("GlobOptBailOut.cpp] 761\n");
                     // Var/int32 version of the sym is not live, use the float64 version
                     argSym = argSym->GetFloat64EquivSym(nullptr);
                     Assert(argSym);
                 }
                 // SIMD_JS
                 else if (frameInfo->simd128F4Syms->TestEmpty() && frameInfo->simd128F4Syms->Test(argSym->m_id))
-                {
+                {LOGMEIN("GlobOptBailOut.cpp] 768\n");
                     argSym = argSym->GetSimd128F4EquivSym(nullptr);
                 }
                 else if (frameInfo->simd128I4Syms->TestEmpty() && frameInfo->simd128I4Syms->Test(argSym->m_id))
-                {
+                {LOGMEIN("GlobOptBailOut.cpp] 772\n");
                     argSym = argSym->GetSimd128I4EquivSym(nullptr);
                 }
                 else
@@ -779,7 +779,7 @@ void GlobOpt::RecordInlineeFrameInfo(IR::Instr* inlineeEnd)
                 }
 
                 if (argSym->IsConst())
-                {
+                {LOGMEIN("GlobOptBailOut.cpp] 781\n");
                     frameInfoValue = InlineFrameInfoValue(argSym->GetConstValueForBailout());
                 }
                 else
@@ -808,14 +808,14 @@ void GlobOpt::RecordInlineeFrameInfo(IR::Instr* inlineeEnd)
 }
 
 void GlobOpt::EndTrackingOfArgObjSymsForInlinee()
-{
+{LOGMEIN("GlobOptBailOut.cpp] 810\n");
     Assert(this->blockData.curFunc->GetParentFunc());
     if (this->blockData.curFunc->argObjSyms && TrackArgumentsObject())
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 813\n");
         BVSparse<JitArenaAllocator> * tempBv = JitAnew(this->tempAlloc, BVSparse<JitArenaAllocator>, this->tempAlloc);
         tempBv->Minus(this->blockData.curFunc->argObjSyms, this->blockData.argObjSyms);
         if(!tempBv->IsEmpty())
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 817\n");
             // This means there are arguments object symbols in the current function which are not in the current block.
             // This could happen when one of the blocks has a throw and arguments object aliased in it and other blocks don't see it.
             // Rare case, abort stack arguments optimization in this case.
@@ -833,7 +833,7 @@ void GlobOpt::EndTrackingOfArgObjSymsForInlinee()
 }
 
 void GlobOpt::EndTrackCall(IR::Instr* instr)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 835\n");
     Assert(instr);
     Assert(OpCodeAttr::CallInstr(instr->m_opcode) || instr->m_opcode == Js::OpCode::InlineeStart || instr->m_opcode == Js::OpCode::InlineBuiltInEnd
         || instr->m_opcode == Js::OpCode::InlineArrayPop || instr->m_opcode == Js::OpCode::EndCallForPolymorphicInlinee);
@@ -846,7 +846,7 @@ void GlobOpt::EndTrackCall(IR::Instr* instr)
     uint origArgOutCount = this->currentBlock->globOptData.argOutCount;
 #endif
     while (this->blockData.callSequence->Head()->GetStackSym()->HasArgSlotNum())
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 848\n");
         this->currentBlock->globOptData.argOutCount--;
         this->blockData.callSequence->RemoveHead(this->alloc);
     }
@@ -872,7 +872,7 @@ void GlobOpt::EndTrackCall(IR::Instr* instr)
 
 void
 GlobOpt::FillBailOutInfo(BasicBlock *block, BailOutInfo * bailOutInfo)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 874\n");
     AssertMsg(!this->isCallHelper, "Bail out can't be inserted the middle of CallHelper sequence");
 
     bailOutInfo->liveVarSyms = block->globOptData.liveVarSyms->CopyNew(this->func->m_alloc);
@@ -892,10 +892,10 @@ GlobOpt::FillBailOutInfo(BasicBlock *block, BailOutInfo * bailOutInfo)
     // Save the stack literal init field count so we can null out the uninitialized fields
     StackLiteralInitFldDataMap * stackLiteralInitFldDataMap = block->globOptData.stackLiteralInitFldDataMap;
     if (stackLiteralInitFldDataMap != nullptr)
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 894\n");
         uint stackLiteralInitFldDataCount = stackLiteralInitFldDataMap->Count();
         if (stackLiteralInitFldDataCount != 0)
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 897\n");
             auto stackLiteralBailOutInfo = AnewArray(this->func->m_alloc,
                 BailOutInfo::StackLiteralBailOutInfo, stackLiteralInitFldDataCount);
             uint i = 0;
@@ -915,12 +915,12 @@ GlobOpt::FillBailOutInfo(BasicBlock *block, BailOutInfo * bailOutInfo)
     }
 
     if (TrackArgumentsObject())
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 917\n");
         this->CaptureArguments(block, bailOutInfo, this->func->m_alloc);
     }
 
     if (block->globOptData.callSequence && !block->globOptData.callSequence->Empty())
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 922\n");
         uint currentArgOutCount = 0;
         uint startCallNumber = block->globOptData.startCallCount;
 
@@ -939,12 +939,12 @@ GlobOpt::FillBailOutInfo(BasicBlock *block, BailOutInfo * bailOutInfo)
 
         uint argRestoreAdjustCount = 0;
         FOREACH_SLISTBASE_ENTRY(IR::Opnd *, opnd, block->globOptData.callSequence)
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 941\n");
             if(opnd->GetStackSym()->HasArgSlotNum())
-            {
+            {LOGMEIN("GlobOptBailOut.cpp] 943\n");
                 StackSym * sym;
                 if(opnd->IsSymOpnd())
-                {
+                {LOGMEIN("GlobOptBailOut.cpp] 946\n");
                     sym = opnd->AsSymOpnd()->m_sym->AsStackSym();
                     Assert(sym->IsArgSlotSym());
                     Assert(sym->m_isSingleDef);
@@ -985,26 +985,26 @@ GlobOpt::FillBailOutInfo(BasicBlock *block, BailOutInfo * bailOutInfo)
                 bailOutInfo->startCallFunc[startCallNumber] = sym->m_instrDef->m_func;
 #ifdef _M_IX86
                 if (this->currentRegion && this->currentRegion->GetType() == RegionTypeTry)
-                {
+                {LOGMEIN("GlobOptBailOut.cpp] 987\n");
                     // For a bailout in argument evaluation from an EH region, the esp is offset by the TryCatch helper�s frame. So, the argouts are not actually pushed at the
                     // offsets stored in the bailout record, which are relative to ebp. Need to restore the argouts from the actual value of esp before calling the Bailout helper.
                     // For nested calls, argouts for the outer call need to be restored from an offset of stack-adjustment-done-by-the-inner-call from esp.
                     if (startCallNumber + 1 == bailOutInfo->startCallCount)
-                    {
+                    {LOGMEIN("GlobOptBailOut.cpp] 992\n");
                         argRestoreAdjustCount = 0;
                     }
                     else
                     {
                         argRestoreAdjustCount = bailOutInfo->startCallInfo[startCallNumber + 1].argRestoreAdjustCount + bailOutInfo->startCallInfo[startCallNumber + 1].argCount;
                         if ((Math::Align<int32>(bailOutInfo->startCallInfo[startCallNumber + 1].argCount * MachPtr, MachStackAlignment) - (bailOutInfo->startCallInfo[startCallNumber + 1].argCount * MachPtr)) != 0)
-                        {
+                        {LOGMEIN("GlobOptBailOut.cpp] 999\n");
                             argRestoreAdjustCount++;
                         }
                     }
                 }
 
                 if (sym->m_isInlinedArgSlot)
-                {
+                {LOGMEIN("GlobOptBailOut.cpp] 1006\n");
                     bailOutInfo->inlinedStartCall->Set(startCallNumber);
                 }
 #endif
@@ -1032,35 +1032,35 @@ GlobOpt::FillBailOutInfo(BasicBlock *block, BailOutInfo * bailOutInfo)
 
 IR::ByteCodeUsesInstr *
 GlobOpt::InsertByteCodeUses(IR::Instr * instr, bool includeDef)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 1034\n");
     IR::ByteCodeUsesInstr * byteCodeUsesInstr = nullptr;
     Assert(this->byteCodeUses);
     IR::RegOpnd * dstOpnd = nullptr;
     if (includeDef)
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 1039\n");
         IR::Opnd * opnd = instr->GetDst();
         if (opnd && opnd->IsRegOpnd())
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 1042\n");
             dstOpnd = opnd->AsRegOpnd();
             if (dstOpnd->GetIsJITOptimizedReg() || !dstOpnd->m_sym->HasByteCodeRegSlot())
-            {
+            {LOGMEIN("GlobOptBailOut.cpp] 1045\n");
                 dstOpnd = nullptr;
             }
         }
     }
     if (!this->byteCodeUses->IsEmpty() || this->propertySymUse || dstOpnd != nullptr)
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 1051\n");
         byteCodeUsesInstr = IR::ByteCodeUsesInstr::New(instr);
         if (!this->byteCodeUses->IsEmpty())
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 1054\n");
             byteCodeUsesInstr->SetBV(byteCodeUses->CopyNew(instr->m_func->m_alloc));
         }
         if (dstOpnd != nullptr)
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 1058\n");
             byteCodeUsesInstr->SetFakeDst(dstOpnd);
         }
         if (this->propertySymUse)
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 1062\n");
             byteCodeUsesInstr->propertySymUse = this->propertySymUse;
         }
         instr->InsertBefore(byteCodeUsesInstr);
@@ -1074,7 +1074,7 @@ GlobOpt::InsertByteCodeUses(IR::Instr * instr, bool includeDef)
 
 IR::ByteCodeUsesInstr *
 GlobOpt::ConvertToByteCodeUses(IR::Instr * instr)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 1076\n");
 #if DBG
     PropertySym *propertySymUseBefore = NULL;
     Assert(this->byteCodeUses == nullptr);
@@ -1085,7 +1085,7 @@ GlobOpt::ConvertToByteCodeUses(IR::Instr * instr)
     IR::ByteCodeUsesInstr * byteCodeUsesInstr = this->InsertByteCodeUses(instr, true);
     instr->Remove();
     if (byteCodeUsesInstr)
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 1087\n");
         byteCodeUsesInstr->Aggregate();
     }
     return byteCodeUsesInstr;
@@ -1093,7 +1093,7 @@ GlobOpt::ConvertToByteCodeUses(IR::Instr * instr)
 
 bool
 GlobOpt::MayNeedBailOut(Loop * loop) const
-{
+{LOGMEIN("GlobOptBailOut.cpp] 1095\n");
     Assert(this->IsLoopPrePass());
     return loop->CanHoistInvariants() ||
         this->DoFieldCopyProp(loop) || (this->DoFieldHoisting(loop) && !loop->fieldHoistCandidates->IsEmpty());
@@ -1101,9 +1101,9 @@ GlobOpt::MayNeedBailOut(Loop * loop) const
 
 bool
 GlobOpt::MaySrcNeedBailOnImplicitCall(IR::Opnd * opnd, Value *val)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 1103\n");
     switch (opnd->GetKind())
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 1105\n");
     case IR::OpndKindAddr:
     case IR::OpndKindFloatConst:
     case IR::OpndKindIntConst:
@@ -1120,10 +1120,10 @@ GlobOpt::MaySrcNeedBailOnImplicitCall(IR::Opnd * opnd, Value *val)
             !opnd->AsRegOpnd()->m_sym->IsIntConst();
     case IR::OpndKindSym:
         if (opnd->AsSymOpnd()->IsPropertySymOpnd())
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 1122\n");
             IR::PropertySymOpnd* propertySymOpnd = opnd->AsSymOpnd()->AsPropertySymOpnd();
             if (!propertySymOpnd->MayHaveImplicitCall())
-            {
+            {LOGMEIN("GlobOptBailOut.cpp] 1125\n");
                 return false;
             }
         }
@@ -1135,7 +1135,7 @@ GlobOpt::MaySrcNeedBailOnImplicitCall(IR::Opnd * opnd, Value *val)
 
 bool
 GlobOpt::IsImplicitCallBailOutCurrentlyNeeded(IR::Instr * instr, Value *src1Val, Value *src2Val)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 1137\n");
     Assert(!this->IsLoopPrePass());
 
     return this->IsImplicitCallBailOutCurrentlyNeeded(instr, src1Val, src2Val, this->currentBlock,
@@ -1144,7 +1144,7 @@ GlobOpt::IsImplicitCallBailOutCurrentlyNeeded(IR::Instr * instr, Value *src1Val,
 
 bool
 GlobOpt::IsImplicitCallBailOutCurrentlyNeeded(IR::Instr * instr, Value *src1Val, Value *src2Val, BasicBlock * block, bool hasLiveFields, bool mayNeedImplicitCallBailOut, bool isForwardPass)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 1146\n");
     if (mayNeedImplicitCallBailOut &&
         !instr->CallsAccessor() &&
         (
@@ -1154,14 +1154,14 @@ GlobOpt::IsImplicitCallBailOutCurrentlyNeeded(IR::Instr * instr, Value *src1Val,
             NeedBailOnImplicitCallForArrayCheckHoist(block, isForwardPass)
         ) &&
         (!instr->HasTypeCheckBailOut() && MayNeedBailOnImplicitCall(instr, src1Val, src2Val)))
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 1156\n");
         return true;
     }
 
 #if DBG
     if (Js::Configuration::Global.flags.IsEnabled(Js::BailOutAtEveryImplicitCallFlag) &&
         !instr->HasBailOutInfo() && MayNeedBailOnImplicitCall(instr, nullptr, nullptr))
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 1163\n");
         // always add implicit call bailout even if we don't need it, but only on opcode that supports it
         return true;
     }
@@ -1172,7 +1172,7 @@ GlobOpt::IsImplicitCallBailOutCurrentlyNeeded(IR::Instr * instr, Value *src1Val,
 
 bool
 GlobOpt::IsTypeCheckProtected(const IR::Instr * instr)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 1174\n");
 #if DBG
     IR::Opnd* dst = instr->GetDst();
     IR::Opnd* src1 = instr->GetSrc1();
@@ -1184,12 +1184,12 @@ GlobOpt::IsTypeCheckProtected(const IR::Instr * instr)
 
     IR::Opnd * opnd = instr->GetDst();
     if (opnd && opnd->IsSymOpnd() && opnd->AsSymOpnd()->IsPropertySymOpnd())
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 1186\n");
         return opnd->AsPropertySymOpnd()->IsTypeCheckProtected();
     }
     opnd = instr->GetSrc1();
     if (opnd && opnd->IsSymOpnd() && opnd->AsSymOpnd()->IsPropertySymOpnd())
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 1191\n");
         return opnd->AsPropertySymOpnd()->IsTypeCheckProtected();
     }
     return false;
@@ -1197,16 +1197,16 @@ GlobOpt::IsTypeCheckProtected(const IR::Instr * instr)
 
 bool
 GlobOpt::NeedsTypeCheckBailOut(const IR::Instr *instr, IR::PropertySymOpnd *propertySymOpnd, bool isStore, bool* pIsTypeCheckProtected, IR::BailOutKind *pBailOutKind)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 1199\n");
     if (instr->m_opcode == Js::OpCode::CheckPropertyGuardAndLoadType || instr->m_opcode == Js::OpCode::LdMethodFldPolyInlineMiss)
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 1201\n");
         return false;
     }
     // CheckFixedFld always requires a type check and bailout either at the instruction or upstream.
     Assert(instr->m_opcode != Js::OpCode::CheckFixedFld || (propertySymOpnd->UsesFixedValue() && propertySymOpnd->MayNeedTypeCheckProtection()));
 
     if (propertySymOpnd->MayNeedTypeCheckProtection())
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 1208\n");
         bool isCheckFixedFld = instr->m_opcode == Js::OpCode::CheckFixedFld;
         AssertMsg(!isCheckFixedFld || !PHASE_OFF(Js::FixedMethodsPhase, instr->m_func) ||
             !PHASE_OFF(Js::UseFixedDataPropsPhase, instr->m_func), "CheckFixedFld with fixed method/data phase disabled?");
@@ -1215,7 +1215,7 @@ GlobOpt::NeedsTypeCheckBailOut(const IR::Instr *instr, IR::PropertySymOpnd *prop
         Assert(!isStore || !propertySymOpnd->IsLoadedFromProto());
 
         if (propertySymOpnd->NeedsTypeCheckAndBailOut())
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 1217\n");
             *pBailOutKind = propertySymOpnd->HasEquivalentTypeSet() && !propertySymOpnd->MustDoMonoCheck() ?
                 (isCheckFixedFld ? IR::BailOutFailedEquivalentFixedFieldTypeCheck : IR::BailOutFailedEquivalentTypeCheck) :
                 (isCheckFixedFld ? IR::BailOutFailedFixedFieldTypeCheck : IR::BailOutFailedTypeCheck);
@@ -1238,17 +1238,17 @@ GlobOpt::NeedsTypeCheckBailOut(const IR::Instr *instr, IR::PropertySymOpnd *prop
 
 bool
 GlobOpt::MayNeedBailOnImplicitCall(const IR::Instr * instr, Value *src1Val, Value *src2Val)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 1240\n");
     if (!instr->HasAnyImplicitCalls())
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 1242\n");
         return false;
     }
 
     bool isLdElem = false;
     switch (instr->m_opcode)
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 1248\n");
     case Js::OpCode::LdLen_A:
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 1250\n");
         const ValueType baseValueType(instr->GetSrc1()->GetValueType());
         return
             !(
@@ -1267,9 +1267,9 @@ GlobOpt::MayNeedBailOnImplicitCall(const IR::Instr * instr, Value *src1Val, Valu
     case Js::OpCode::StElemI_A:
     case Js::OpCode::StElemI_A_Strict:
     case Js::OpCode::InlineArrayPush:
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 1269\n");
         if(!instr->HasBailOutInfo())
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 1271\n");
             return true;
         }
 
@@ -1289,7 +1289,7 @@ GlobOpt::MayNeedBailOnImplicitCall(const IR::Instr * instr, Value *src1Val, Valu
     }
 
     if (OpCodeAttr::HasImplicitCall(instr->m_opcode))
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 1291\n");
         // Operation has an implicit call regardless of operand attributes.
         return true;
     }
@@ -1297,9 +1297,9 @@ GlobOpt::MayNeedBailOnImplicitCall(const IR::Instr * instr, Value *src1Val, Valu
     IR::Opnd * opnd = instr->GetDst();
 
     if (opnd)
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 1299\n");
         switch (opnd->GetKind())
-        {
+        {LOGMEIN("GlobOptBailOut.cpp] 1301\n");
         case IR::OpndKindReg:
             break;
 
@@ -1309,15 +1309,15 @@ GlobOpt::MayNeedBailOnImplicitCall(const IR::Instr * instr, Value *src1Val, Valu
             // become read-only and thus the store field will not take place (or throw in strict mode). Hence, we
             // can't optimize (e.g. copy prop) across such field stores.
             if (opnd->AsSymOpnd()->m_sym->IsStackSym())
-            {
+            {LOGMEIN("GlobOptBailOut.cpp] 1311\n");
                 return false;
             }
 
             if (opnd->AsSymOpnd()->IsPropertySymOpnd())
-            {
+            {LOGMEIN("GlobOptBailOut.cpp] 1316\n");
                 IR::PropertySymOpnd* propertySymOpnd = opnd->AsSymOpnd()->AsPropertySymOpnd();
                 if (!propertySymOpnd->MayHaveImplicitCall())
-                {
+                {LOGMEIN("GlobOptBailOut.cpp] 1319\n");
                     return false;
                 }
             }
@@ -1334,12 +1334,12 @@ GlobOpt::MayNeedBailOnImplicitCall(const IR::Instr * instr, Value *src1Val, Valu
 
     opnd = instr->GetSrc1();
     if (opnd != nullptr && MaySrcNeedBailOnImplicitCall(opnd, src1Val))
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 1336\n");
         return true;
     }
     opnd = instr->GetSrc2();
     if (opnd != nullptr && MaySrcNeedBailOnImplicitCall(opnd, src2Val))
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 1341\n");
         return true;
     }
 
@@ -1348,7 +1348,7 @@ GlobOpt::MayNeedBailOnImplicitCall(const IR::Instr * instr, Value *src1Val, Valu
 
 void
 GlobOpt::GenerateBailAfterOperation(IR::Instr * *const pInstr, IR::BailOutKind kind)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 1350\n");
     Assert(pInstr);
 
     IR::Instr* instr = *pInstr;
@@ -1358,12 +1358,12 @@ GlobOpt::GenerateBailAfterOperation(IR::Instr * *const pInstr, IR::BailOutKind k
     uint32 currentOffset = instr->GetByteCodeOffset();
     while (nextInstr->GetByteCodeOffset() == Js::Constants::NoByteCodeOffset ||
         nextInstr->GetByteCodeOffset() == currentOffset)
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 1360\n");
         nextInstr = nextInstr->GetNextRealInstrOrLabel();
     }
     IR::Instr * bailOutInstr = instr->ConvertToBailOutInstr(nextInstr, kind);
     if (this->currentBlock->GetLastInstr() == instr)
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 1365\n");
         this->currentBlock->SetLastInstr(bailOutInstr);
     }
     FillBailOutInfo(this->currentBlock, bailOutInstr->GetBailOutInfo());
@@ -1372,7 +1372,7 @@ GlobOpt::GenerateBailAfterOperation(IR::Instr * *const pInstr, IR::BailOutKind k
 
 void
 GlobOpt::GenerateBailAtOperation(IR::Instr * *const pInstr, const IR::BailOutKind bailOutKind)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 1374\n");
     Assert(pInstr);
 
     IR::Instr * instr = *pInstr;
@@ -1382,7 +1382,7 @@ GlobOpt::GenerateBailAtOperation(IR::Instr * *const pInstr, const IR::BailOutKin
 
     IR::Instr * bailOutInstr = instr->ConvertToBailOutInstr(instr, bailOutKind);
     if (this->currentBlock->GetLastInstr() == instr)
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 1384\n");
         this->currentBlock->SetLastInstr(bailOutInstr);
     }
     FillBailOutInfo(currentBlock, bailOutInstr->GetBailOutInfo());
@@ -1391,11 +1391,11 @@ GlobOpt::GenerateBailAtOperation(IR::Instr * *const pInstr, const IR::BailOutKin
 
 IR::Instr *
 GlobOpt::EnsureBailTarget(Loop * loop)
-{
+{LOGMEIN("GlobOptBailOut.cpp] 1393\n");
     BailOutInfo * bailOutInfo = loop->bailOutInfo;
     IR::Instr * bailOutInstr = bailOutInfo->bailOutInstr;
     if (bailOutInstr == nullptr)
-    {
+    {LOGMEIN("GlobOptBailOut.cpp] 1397\n");
         bailOutInstr = IR::BailOutInstr::New(Js::OpCode::BailTarget, IR::BailOutShared, bailOutInfo, bailOutInfo->bailOutFunc);
         loop->landingPad->InsertAfter(bailOutInstr);
     }

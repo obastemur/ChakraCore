@@ -20,7 +20,7 @@ namespace Js
 
         static bool Is(Var aValue);
 
-        double GetTime() { return m_date.GetMilliSeconds(); }
+        double GetTime() {LOGMEIN("JavascriptDate.h] 22\n"); return m_date.GetMilliSeconds(); }
         static JavascriptDate* FromVar(Var aValue);
 
         class EntryInfo

@@ -31,13 +31,13 @@ namespace Js
 
     public:
         FunctionCodeGenRuntimeData(FunctionBody *const functionBody);
-        void SetupRuntimeDataChain(FunctionCodeGenRuntimeData *nextRuntimeData) { this->next = nextRuntimeData; }
+        void SetupRuntimeDataChain(FunctionCodeGenRuntimeData *nextRuntimeData) {LOGMEIN("FunctionCodeGenRuntimeData.h] 33\n"); this->next = nextRuntimeData; }
 
     public:
         FunctionBody *GetFunctionBody() const;
-        FunctionCodeGenRuntimeData *GetNext() const { return next; };
-        Field(FunctionCodeGenRuntimeData*)* GetInlinees() const { return inlinees; }
-        Field(FunctionCodeGenRuntimeData*)* GetLdFldInlinees() const { return ldFldInlinees; }
+        FunctionCodeGenRuntimeData *GetNext() const {LOGMEIN("FunctionCodeGenRuntimeData.h] 37\n"); return next; };
+        Field(FunctionCodeGenRuntimeData*)* GetInlinees() const {LOGMEIN("FunctionCodeGenRuntimeData.h] 38\n"); return inlinees; }
+        Field(FunctionCodeGenRuntimeData*)* GetLdFldInlinees() const {LOGMEIN("FunctionCodeGenRuntimeData.h] 39\n"); return ldFldInlinees; }
         const FunctionCodeGenRuntimeData *GetForTarget(FunctionBody *targetFuncBody) const;
         const InlineCachePointerArray<InlineCache> *ClonedInlineCaches() const;
         InlineCachePointerArray<InlineCache> *ClonedInlineCaches();
@@ -67,16 +67,16 @@ namespace Js
 
         template<class Fn>
         void MapInlineCaches(Fn fn) const
-        {
+        {LOGMEIN("FunctionCodeGenRuntimeData.h] 69\n");
             this->clonedInlineCaches.Map(fn, this->functionBody->GetInlineCacheCount());
 
             for (ProfileId iInlinee = 0; iInlinee < this->functionBody->GetProfiledCallSiteCount(); iInlinee++)
-            {
+            {LOGMEIN("FunctionCodeGenRuntimeData.h] 73\n");
                 const FunctionCodeGenRuntimeData* runtimeData = this->GetInlinee(iInlinee);
                 while (runtimeData)
-                {
+                {LOGMEIN("FunctionCodeGenRuntimeData.h] 76\n");
                     if (functionBody == runtimeData->GetFunctionBody())
-                    {
+                    {LOGMEIN("FunctionCodeGenRuntimeData.h] 78\n");
                         break;
                     }
                     // Map for chained ones as well.

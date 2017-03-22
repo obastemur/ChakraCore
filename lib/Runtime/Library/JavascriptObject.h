@@ -13,7 +13,7 @@ namespace Js
         DEFINE_MARSHAL_OBJECT_TO_SCRIPT_CONTEXT(JavascriptObject);
     public:
         JavascriptObject(DynamicType* type)  : DynamicObject(type)
-        {
+        {LOGMEIN("JavascriptObject.h] 15\n");
         }
 
         class EntryInfo
@@ -101,7 +101,7 @@ namespace Js
 
         // Presently used in the projection as a mechanism of calling the general object prototype toString.
         static JavascriptString* ToStringInternal(Var thisArg, ScriptContext* scriptContext)
-        {
+        {LOGMEIN("JavascriptObject.h] 103\n");
             return static_cast<JavascriptString*>(ToStringHelper(thisArg, scriptContext));
         }
 

@@ -39,7 +39,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDFloat32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 41\n");
                 return args[1];
         }
         JavascriptError::ThrowTypeError(scriptContext, JSERR_SimdFloat32x4TypeMismatch, _u("float32x4"));
@@ -72,7 +72,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDFloat64x2::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 74\n");
             JavascriptSIMDFloat64x2 *instance = JavascriptSIMDFloat64x2::FromVar(args[1]);
             SIMDValue result = SIMDFloat32x4Operation::OpFromFloat64x2(instance->GetValue());
             return JavascriptSIMDFloat32x4::New(&result, scriptContext);
@@ -90,7 +90,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDFloat64x2::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 92\n");
             JavascriptSIMDFloat64x2 *instance = JavascriptSIMDFloat64x2::FromVar(args[1]);
             return SIMDUtils::SIMDConvertTypeFromBits<JavascriptSIMDFloat64x2, JavascriptSIMDFloat32x4>(*instance, *scriptContext);
         }
@@ -108,7 +108,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDInt32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 110\n");
             JavascriptSIMDInt32x4 *instance = JavascriptSIMDInt32x4::FromVar(args[1]);
             SIMDValue result = SIMDFloat32x4Operation::OpFromInt32x4(instance->GetValue());
             return JavascriptSIMDFloat32x4::New(&result, scriptContext);
@@ -127,7 +127,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDUint32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 129\n");
             JavascriptSIMDUint32x4 *instance = JavascriptSIMDUint32x4::FromVar(args[1]);
             SIMDValue result = SIMDFloat32x4Operation::OpFromUint32x4(instance->GetValue());
             return JavascriptSIMDFloat32x4::New(&result, scriptContext);
@@ -146,7 +146,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDInt32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 148\n");
             JavascriptSIMDInt32x4 *instance = JavascriptSIMDInt32x4::FromVar(args[1]);
             return SIMDUtils::SIMDConvertTypeFromBits<JavascriptSIMDInt32x4, JavascriptSIMDFloat32x4>(*instance, *scriptContext);
         }
@@ -164,7 +164,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDInt16x8::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 166\n");
             JavascriptSIMDInt16x8 *instance = JavascriptSIMDInt16x8::FromVar(args[1]);
             return SIMDUtils::SIMDConvertTypeFromBits<JavascriptSIMDInt16x8, JavascriptSIMDFloat32x4>(*instance, *scriptContext);
         }
@@ -182,7 +182,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDInt8x16::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 184\n");
             JavascriptSIMDInt8x16 *instance = JavascriptSIMDInt8x16::FromVar(args[1]);
             return SIMDUtils::SIMDConvertTypeFromBits<JavascriptSIMDInt8x16, JavascriptSIMDFloat32x4>(*instance, *scriptContext);
         }
@@ -200,7 +200,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDUint32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 202\n");
             JavascriptSIMDUint32x4 *instance = JavascriptSIMDUint32x4::FromVar(args[1]);
             return SIMDUtils::SIMDConvertTypeFromBits<JavascriptSIMDUint32x4, JavascriptSIMDFloat32x4>(*instance, *scriptContext);
         }
@@ -218,7 +218,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDUint16x8::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 220\n");
             JavascriptSIMDUint16x8 *instance = JavascriptSIMDUint16x8::FromVar(args[1]);
             return SIMDUtils::SIMDConvertTypeFromBits<JavascriptSIMDUint16x8, JavascriptSIMDFloat32x4>(*instance, *scriptContext);
         }
@@ -236,7 +236,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDUint8x16::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 238\n");
             JavascriptSIMDUint8x16 *instance = JavascriptSIMDUint8x16::FromVar(args[1]);
             return SIMDUtils::SIMDConvertTypeFromBits<JavascriptSIMDUint8x16, JavascriptSIMDFloat32x4>(*instance, *scriptContext);
         }
@@ -257,7 +257,7 @@ namespace Js
 
         // first arg has to be of type float32x4, so cannot be missing.
         if (args.Info.Count >= 3 && JavascriptSIMDFloat32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 259\n");
             // if value arg is missing, then it is undefined.
             Var laneVar = args.Info.Count >= 3 ? args[2] : scriptContext->GetLibrary()->GetUndefined();
             float result = SIMDUtils::SIMD128ExtractLane<JavascriptSIMDFloat32x4, 4, float>(args[1], laneVar, scriptContext);
@@ -280,7 +280,7 @@ namespace Js
 
         // first arg has to be of type float32x4, so cannot be missing.
         if (args.Info.Count >= 4 && JavascriptSIMDFloat32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 282\n");
             // if value arg is missing, then it is undefined.
             Var laneVar = args.Info.Count >= 4 ? args[2] : scriptContext->GetLibrary()->GetUndefined();
             Var argVal = args.Info.Count >= 4 ? args[3] : scriptContext->GetLibrary()->GetUndefined();
@@ -306,7 +306,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDFloat32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 308\n");
             JavascriptSIMDFloat32x4 *a = JavascriptSIMDFloat32x4::FromVar(args[1]);
 
             SIMDValue result = SIMDFloat32x4Operation::OpAbs(a->GetValue());
@@ -327,7 +327,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDFloat32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 329\n");
             JavascriptSIMDFloat32x4 *a = JavascriptSIMDFloat32x4::FromVar(args[1]);
 
             SIMDValue result = SIMDFloat32x4Operation::OpNeg(a->GetValue());
@@ -349,7 +349,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDFloat32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 351\n");
             JavascriptSIMDFloat32x4 *a = JavascriptSIMDFloat32x4::FromVar(args[1]);
 
             SIMDValue result = SIMDFloat32x4Operation::OpNot(a->GetValue());
@@ -371,7 +371,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDFloat32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 373\n");
             JavascriptSIMDFloat32x4 *a = JavascriptSIMDFloat32x4::FromVar(args[1]);
 
             SIMDValue result = SIMDFloat32x4Operation::OpReciprocal(a->GetValue());
@@ -393,7 +393,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDFloat32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 395\n");
             JavascriptSIMDFloat32x4 *a = JavascriptSIMDFloat32x4::FromVar(args[1]);
             SIMDValue result = SIMDFloat32x4Operation::OpReciprocalSqrt(a->GetValue());
 
@@ -414,7 +414,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2 && JavascriptSIMDFloat32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 416\n");
             JavascriptSIMDFloat32x4 *a = JavascriptSIMDFloat32x4::FromVar(args[1]);
             SIMDValue result = SIMDFloat32x4Operation::OpSqrt(a->GetValue());
 
@@ -437,7 +437,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat32x4::Is(args[1]) && JavascriptSIMDFloat32x4::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 439\n");
             JavascriptSIMDFloat32x4 *a = JavascriptSIMDFloat32x4::FromVar(args[1]);
             JavascriptSIMDFloat32x4 *b = JavascriptSIMDFloat32x4::FromVar(args[2]);
             SIMDValue result, aValue, bValue;
@@ -466,10 +466,10 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3)
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 468\n");
             // strict type on both operands
             if (JavascriptSIMDFloat32x4::Is(args[1]) && JavascriptSIMDFloat32x4::Is(args[2]))
-            {
+            {LOGMEIN("SimdFloat32x4Lib.cpp] 471\n");
                 JavascriptSIMDFloat32x4 *a = JavascriptSIMDFloat32x4::FromVar(args[1]);
                 JavascriptSIMDFloat32x4 *b = JavascriptSIMDFloat32x4::FromVar(args[2]);
                 SIMDValue result, aValue, bValue;
@@ -499,7 +499,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat32x4::Is(args[1]) && JavascriptSIMDFloat32x4::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 501\n");
             JavascriptSIMDFloat32x4 *a = JavascriptSIMDFloat32x4::FromVar(args[1]);
             JavascriptSIMDFloat32x4 *b = JavascriptSIMDFloat32x4::FromVar(args[2]);
             SIMDValue result, aValue, bValue;
@@ -528,7 +528,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat32x4::Is(args[1]) && JavascriptSIMDFloat32x4::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 530\n");
             JavascriptSIMDFloat32x4 *a = JavascriptSIMDFloat32x4::FromVar(args[1]);
             JavascriptSIMDFloat32x4 *b = JavascriptSIMDFloat32x4::FromVar(args[2]);
             SIMDValue result, aValue, bValue;
@@ -557,7 +557,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat32x4::Is(args[1]) && JavascriptSIMDFloat32x4::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 559\n");
             JavascriptSIMDFloat32x4 *a = JavascriptSIMDFloat32x4::FromVar(args[1]);
             JavascriptSIMDFloat32x4 *b = JavascriptSIMDFloat32x4::FromVar(args[2]);
             SIMDValue result, aValue, bValue;
@@ -586,7 +586,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat32x4::Is(args[1]) && JavascriptSIMDFloat32x4::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 588\n");
             JavascriptSIMDFloat32x4 *a = JavascriptSIMDFloat32x4::FromVar(args[1]);
             JavascriptSIMDFloat32x4 *b = JavascriptSIMDFloat32x4::FromVar(args[2]);
             SIMDValue result, aValue, bValue;
@@ -615,7 +615,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat32x4::Is(args[1]) && JavascriptSIMDFloat32x4::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 617\n");
             JavascriptSIMDFloat32x4 *a = JavascriptSIMDFloat32x4::FromVar(args[1]);
             JavascriptSIMDFloat32x4 *b = JavascriptSIMDFloat32x4::FromVar(args[2]);
             SIMDValue result, aValue, bValue;
@@ -644,7 +644,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat32x4::Is(args[1]) && JavascriptSIMDFloat32x4::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 646\n");
             JavascriptSIMDFloat32x4 *a = JavascriptSIMDFloat32x4::FromVar(args[1]);
             JavascriptSIMDFloat32x4 *b = JavascriptSIMDFloat32x4::FromVar(args[2]);
             SIMDValue result, aValue, bValue;
@@ -673,7 +673,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat32x4::Is(args[1]) && JavascriptSIMDFloat32x4::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 675\n");
             JavascriptSIMDFloat32x4 *a = JavascriptSIMDFloat32x4::FromVar(args[1]);
             JavascriptSIMDFloat32x4 *b = JavascriptSIMDFloat32x4::FromVar(args[2]);
             SIMDValue result, aValue, bValue;
@@ -701,7 +701,7 @@ namespace Js
 
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         if (args.Info.Count >= 3 && JavascriptSIMDFloat32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 703\n");
             JavascriptSIMDFloat32x4 *a = JavascriptSIMDFloat32x4::FromVar(args[1]);
             SIMDValue result, aValue;
 
@@ -729,7 +729,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat32x4::Is(args[1]) && JavascriptSIMDFloat32x4::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 731\n");
             JavascriptSIMDFloat32x4 *a = JavascriptSIMDFloat32x4::FromVar(args[1]);
             JavascriptSIMDFloat32x4 *b = JavascriptSIMDFloat32x4::FromVar(args[2]);
             SIMDValue result, aValue, bValue;
@@ -758,7 +758,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat32x4::Is(args[1]) && JavascriptSIMDFloat32x4::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 760\n");
             JavascriptSIMDFloat32x4 *a = JavascriptSIMDFloat32x4::FromVar(args[1]);
             JavascriptSIMDFloat32x4 *b = JavascriptSIMDFloat32x4::FromVar(args[2]);
             SIMDValue result, aValue, bValue;
@@ -787,7 +787,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat32x4::Is(args[1]) && JavascriptSIMDFloat32x4::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 789\n");
             JavascriptSIMDFloat32x4 *a = JavascriptSIMDFloat32x4::FromVar(args[1]);
             JavascriptSIMDFloat32x4 *b = JavascriptSIMDFloat32x4::FromVar(args[2]);
             SIMDValue result, aValue, bValue;
@@ -816,7 +816,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat32x4::Is(args[1]) && JavascriptSIMDFloat32x4::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 818\n");
             JavascriptSIMDFloat32x4 *a = JavascriptSIMDFloat32x4::FromVar(args[1]);
             JavascriptSIMDFloat32x4 *b = JavascriptSIMDFloat32x4::FromVar(args[2]);
             SIMDValue result, aValue, bValue;
@@ -845,7 +845,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat32x4::Is(args[1]) && JavascriptSIMDFloat32x4::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 847\n");
             JavascriptSIMDFloat32x4 *a = JavascriptSIMDFloat32x4::FromVar(args[1]);
             JavascriptSIMDFloat32x4 *b = JavascriptSIMDFloat32x4::FromVar(args[2]);
             SIMDValue result, aValue, bValue;
@@ -874,7 +874,7 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat32x4::Is(args[1]) && JavascriptSIMDFloat32x4::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 876\n");
             JavascriptSIMDFloat32x4 *a = JavascriptSIMDFloat32x4::FromVar(args[1]);
             JavascriptSIMDFloat32x4 *b = JavascriptSIMDFloat32x4::FromVar(args[2]);
             SIMDValue result, aValue, bValue;
@@ -902,17 +902,17 @@ namespace Js
 
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         if (args.Info.Count >= 2 && JavascriptSIMDFloat32x4::Is(args[1]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 904\n");
             // type check on lane indices
             if (args.Info.Count < 6)
-            {
+            {LOGMEIN("SimdFloat32x4Lib.cpp] 907\n");
                 // missing lane args
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedNumber, _u("Lane index"));
             }
 
             Var lanes[4];
             for (uint i = 0; i < 4; ++i)
-            {
+            {LOGMEIN("SimdFloat32x4Lib.cpp] 914\n");
                 lanes[i] = args[i + 2];
             }
 
@@ -935,17 +935,17 @@ namespace Js
         // If any of the args are missing, then it is Undefined type which causes TypeError exception.
         // strict type on both operands
         if (args.Info.Count >= 3 && JavascriptSIMDFloat32x4::Is(args[1]) && JavascriptSIMDFloat32x4::Is(args[2]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 937\n");
             // type check on lane indices
             if (args.Info.Count < 7)
-            {
+            {LOGMEIN("SimdFloat32x4Lib.cpp] 940\n");
                 // missing lane args
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedNumber, _u("Lane index"));
             }
 
             Var lanes[4];
             for (uint i = 0; i < 4; ++i)
-            {
+            {LOGMEIN("SimdFloat32x4Lib.cpp] 947\n");
                 lanes[i] = args[i + 3];
             }
 
@@ -970,7 +970,7 @@ namespace Js
             JavascriptSIMDFloat32x4::Is(args[1]) &&
             JavascriptSIMDFloat32x4::Is(args[2]) &&
             JavascriptSIMDFloat32x4::Is(args[3]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 972\n");
             JavascriptSIMDFloat32x4 *t = JavascriptSIMDFloat32x4::FromVar(args[1]);
             JavascriptSIMDFloat32x4 *lower = JavascriptSIMDFloat32x4::FromVar(args[2]);
             JavascriptSIMDFloat32x4 *upper = JavascriptSIMDFloat32x4::FromVar(args[3]);
@@ -1005,7 +1005,7 @@ namespace Js
             JavascriptSIMDBool32x4::Is(args[1]) &&
             JavascriptSIMDFloat32x4::Is(args[2]) &&
             JavascriptSIMDFloat32x4::Is(args[3]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 1007\n");
             JavascriptSIMDBool32x4 *fmask = JavascriptSIMDBool32x4::FromVar(args[1]);
             Assert(fmask);
             JavascriptSIMDFloat32x4 *tvalue = JavascriptSIMDFloat32x4::FromVar(args[2]);
@@ -1038,7 +1038,7 @@ namespace Js
         Var tarray;
         Var index;
         if (args.Info.Count > 1)
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 1040\n");
             tarray = args[1];
         }
         else
@@ -1046,7 +1046,7 @@ namespace Js
             tarray = scriptContext->GetLibrary()->GetUndefined();
         }
         if (args.Info.Count > 2)
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 1048\n");
             index = args[2];
         }
         else
@@ -1070,7 +1070,7 @@ namespace Js
         Var tarray;
         Var index;
         if (args.Info.Count > 1)
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 1072\n");
             tarray = args[1];
         }
         else
@@ -1078,7 +1078,7 @@ namespace Js
             tarray = scriptContext->GetLibrary()->GetUndefined();
         }
         if (args.Info.Count > 2)
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 1080\n");
             index = args[2];
         }
         else
@@ -1102,7 +1102,7 @@ namespace Js
         Var tarray;
         Var index;
         if (args.Info.Count > 1)
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 1104\n");
             tarray = args[1];
         }
         else
@@ -1110,7 +1110,7 @@ namespace Js
             tarray = scriptContext->GetLibrary()->GetUndefined();
         }
         if (args.Info.Count > 2)
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 1112\n");
             index = args[2];
         }
         else
@@ -1134,7 +1134,7 @@ namespace Js
         Var tarray;
         Var index;
         if (args.Info.Count > 1)
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 1136\n");
             tarray = args[1];
         }
         else
@@ -1142,7 +1142,7 @@ namespace Js
             tarray = scriptContext->GetLibrary()->GetUndefined();
         }
         if (args.Info.Count > 2)
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 1144\n");
             index = args[2];
         }
         else
@@ -1164,7 +1164,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 4 && JavascriptSIMDFloat32x4::Is(args[3]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 1166\n");
             SIMDUtils::SIMD128TypedArrayStore<JavascriptSIMDFloat32x4>(args[1], args[2], args[3], 4 * FLOAT32_SIZE, scriptContext);
             return JavascriptSIMDFloat32x4::FromVar(args[3]);
         }
@@ -1182,7 +1182,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 4 && JavascriptSIMDFloat32x4::Is(args[3]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 1184\n");
             SIMDUtils::SIMD128TypedArrayStore<JavascriptSIMDFloat32x4>(args[1], args[2], args[3], 1 * FLOAT32_SIZE, scriptContext);
             return JavascriptSIMDFloat32x4::FromVar(args[3]);
         }
@@ -1200,7 +1200,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 4 && JavascriptSIMDFloat32x4::Is(args[3]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 1202\n");
             SIMDUtils::SIMD128TypedArrayStore<JavascriptSIMDFloat32x4>(args[1], args[2], args[3], 2 * FLOAT32_SIZE, scriptContext);
             return JavascriptSIMDFloat32x4::FromVar(args[3]);
         }
@@ -1218,7 +1218,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 4 && JavascriptSIMDFloat32x4::Is(args[3]))
-        {
+        {LOGMEIN("SimdFloat32x4Lib.cpp] 1220\n");
             SIMDUtils::SIMD128TypedArrayStore<JavascriptSIMDFloat32x4>(args[1], args[2], args[3], 3 * FLOAT32_SIZE, scriptContext);
             return JavascriptSIMDFloat32x4::FromVar(args[3]);
         }

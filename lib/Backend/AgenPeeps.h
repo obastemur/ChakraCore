@@ -13,7 +13,7 @@ private:
     Func *      func;
 
 public:
-    AgenPeeps(Func *func) : func(func){}
+    AgenPeeps(Func *func) : func(func){LOGMEIN("AgenPeeps.h] 15\n");}
     void                 PeepFunc();
     bool DependentInstrs(IR::Instr *instr1, IR::Instr *instr2);
 

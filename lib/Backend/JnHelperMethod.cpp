@@ -43,9 +43,9 @@ intptr_t const JnHelperMethodAddresses_SSE2[] =
 };
 
 intptr_t const *GetHelperMethods()
-{
+{LOGMEIN("JnHelperMethod.cpp] 45\n");
     if (AutoSystemInfo::Data.SSE2Available())
-    {
+    {LOGMEIN("JnHelperMethod.cpp] 47\n");
         return JnHelperMethodAddresses_SSE2;
     }
     return JnHelperMethodAddresses;
@@ -53,7 +53,7 @@ intptr_t const *GetHelperMethods()
 #else
 
 intptr_t const *GetHelperMethods()
-{
+{LOGMEIN("JnHelperMethod.cpp] 55\n");
     return JnHelperMethodAddresses;
 }
 #endif
@@ -62,7 +62,7 @@ intptr_t const *GetHelperMethods()
 class HelperTableCheck
 {
 public:
-    HelperTableCheck() {
+    HelperTableCheck() {LOGMEIN("JnHelperMethod.cpp] 64\n");
         CheckJnHelperTable(JnHelperMethodAddresses);
 #if defined(_M_IX86)
         CheckJnHelperTable(JnHelperMethodAddresses_SSE2);
@@ -74,7 +74,7 @@ public:
 static HelperTableCheck LoadTimeHelperTableCheck;
 
 void CheckJnHelperTable(intptr_t const* table)
-{
+{LOGMEIN("JnHelperMethod.cpp] 76\n");
     MEMORY_BASIC_INFORMATION memBuffer;
 
     // Make sure the helper table is in read-only memory for security reasons.
@@ -123,7 +123,7 @@ static intptr_t const helperMethodWrappers[] = {
 ///----------------------------------------------------------------------------
 intptr_t
 GetMethodAddress(ThreadContextInfo * context, IR::HelperCallOpnd* opnd)
-{
+{LOGMEIN("JnHelperMethod.cpp] 125\n");
     Assert(opnd);
 
 #if defined(_M_ARM32_OR_ARM64)
@@ -135,12 +135,12 @@ GetMethodAddress(ThreadContextInfo * context, IR::HelperCallOpnd* opnd)
     CompileAssert(_countof(helperMethodWrappers) == LowererMDFinal::MaxArgumentsToHelper + 1);
 
     if (opnd->IsDiagHelperCallOpnd())
-    {
+    {LOGMEIN("JnHelperMethod.cpp] 137\n");
         // Note: all arguments are already loaded for the original helper. Here we just return the address.
         IR::DiagHelperCallOpnd* diagOpnd = (IR::DiagHelperCallOpnd*)opnd;
 
         if (0 <= diagOpnd->m_argCount && diagOpnd->m_argCount <= LowererMDFinal::MaxArgumentsToHelper)
-        {
+        {LOGMEIN("JnHelperMethod.cpp] 142\n");
             return SHIFT_ADDR(context, helperMethodWrappers[diagOpnd->m_argCount]);
         }
         else
@@ -166,9 +166,9 @@ GetMethodAddress(ThreadContextInfo * context, IR::HelperCallOpnd* opnd)
 // Additionally, all function ptrs are automatically marked as safe CFG addresses by the compiler.
 // __declspec(guard(ignore)) can be used on methods to have the compiler not mark these as valid CFG targets.
 DECLSPEC_GUARDIGNORE  _NOINLINE intptr_t GetNonTableMethodAddress(ThreadContextInfo * context, JnHelperMethod helperMethod)
-{
+{LOGMEIN("JnHelperMethod.cpp] 168\n");
     switch (helperMethod)
-    {
+    {LOGMEIN("JnHelperMethod.cpp] 170\n");
     //
     //  DllImport methods
     //
@@ -326,10 +326,10 @@ DECLSPEC_GUARDIGNORE  _NOINLINE intptr_t GetNonTableMethodAddress(ThreadContextI
 ///
 ///----------------------------------------------------------------------------
 intptr_t GetMethodOriginalAddress(ThreadContextInfo * context, JnHelperMethod helperMethod)
-{
+{LOGMEIN("JnHelperMethod.cpp] 328\n");
     intptr_t address = GetHelperMethods()[static_cast<WORD>(helperMethod)];
     if (address == 0)
-    {
+    {LOGMEIN("JnHelperMethod.cpp] 331\n");
         return GetNonTableMethodAddress(context, helperMethod);
     }
 
@@ -359,7 +359,7 @@ char16 const * const JnHelperMethodNames[] =
 
 char16 const*
 GetMethodName(JnHelperMethod helperMethod)
-{
+{LOGMEIN("JnHelperMethod.cpp] 361\n");
     return JnHelperMethodNames[static_cast<WORD>(helperMethod)];
 }
 
@@ -370,9 +370,9 @@ GetMethodName(JnHelperMethod helperMethod)
 
 #if DBG_DUMP || defined(ENABLE_IR_VIEWER)
 const char16 *GetVtableName(VTableValue value)
-{
+{LOGMEIN("JnHelperMethod.cpp] 372\n");
     switch (value)
-    {
+    {LOGMEIN("JnHelperMethod.cpp] 374\n");
 #if !defined(_M_X64)
     case VtableJavascriptNumber:
         return _u("vtable JavascriptNumber");
@@ -506,12 +506,12 @@ static const BYTE JnHelperMethodAttributes[] =
 
 // Returns true if the helper can throw non-OOM / non-SO exception.
 bool CanThrow(IR::JnHelperMethod helper)
-{
+{LOGMEIN("JnHelperMethod.cpp] 508\n");
     return (JnHelperMethodAttributes[helper] & AttrCanThrow) != 0;
 }
 
 bool IsInVariant(IR::JnHelperMethod helper)
-{
+{LOGMEIN("JnHelperMethod.cpp] 513\n");
     return (JnHelperMethodAttributes[helper] & AttrInVariant) != 0;
 }
 

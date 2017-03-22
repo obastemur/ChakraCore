@@ -7,12 +7,12 @@
 namespace Js
 {
     ObjectPrototypeObject::ObjectPrototypeObject(DynamicType* type) : DynamicObject(type)
-    {
+    {LOGMEIN("ObjectPrototypeObject.cpp] 9\n");
         __proto__Enabled = true; // TODO[ianhall]: Does this still apply if __proto__ is now always enabled? Check with JC
     }
 
     ObjectPrototypeObject * ObjectPrototypeObject::New(Recycler * recycler, DynamicType * type)
-    {
+    {LOGMEIN("ObjectPrototypeObject.cpp] 14\n");
         return NewObject<ObjectPrototypeObject>(recycler, type);
     }
 
@@ -39,7 +39,7 @@ namespace Js
         // 2. ReturnIfAbrupt(O).
         RecyclableObject* object;
         if (args.Info.Count < 1 || !JavascriptConversion::ToObject(arg0, scriptContext, &object))
-        {
+        {LOGMEIN("ObjectPrototypeObject.cpp] 41\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedObject, _u("Object.prototype.__proto__"));
         }
 
@@ -72,11 +72,11 @@ namespace Js
         // 3. If Type(proto) is neither Object nor Null, return undefined.
         // 4. If Type(O) is not Object, return undefined.
         if (args.Info.Count < 1 || !JavascriptConversion::CheckObjectCoercible(arg0, scriptContext))
-        {
+        {LOGMEIN("ObjectPrototypeObject.cpp] 74\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedObject, _u("Object.prototype.__proto__"));
         }
         else if (args.Info.Count < 2 || !JavascriptOperators::IsObjectOrNull(args[1]) || !JavascriptOperators::IsObject(arg0))
-        {
+        {LOGMEIN("ObjectPrototypeObject.cpp] 78\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -93,10 +93,10 @@ namespace Js
     }
 
     BOOL ObjectPrototypeObject::DeleteProperty(PropertyId propertyId, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("ObjectPrototypeObject.cpp] 95\n");
         const BOOL result = __super::DeleteProperty(propertyId, flags);
         if (result && propertyId == PropertyIds::__proto__)
-        {
+        {LOGMEIN("ObjectPrototypeObject.cpp] 98\n");
             this->__proto__Enabled = false;
         }
 
@@ -104,12 +104,12 @@ namespace Js
     }
 
     BOOL ObjectPrototypeObject::DeleteProperty(JavascriptString *propertyNameString, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("ObjectPrototypeObject.cpp] 106\n");
         const BOOL result = __super::DeleteProperty(propertyNameString, flags);
 
         JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
         if (result && BuiltInPropertyRecords::__proto__.Equals(propertyName))
-        {
+        {LOGMEIN("ObjectPrototypeObject.cpp] 111\n");
             this->__proto__Enabled = false;
         }
 
@@ -117,9 +117,9 @@ namespace Js
     }
 
     void ObjectPrototypeObject::PostDefineOwnProperty__proto__(RecyclableObject* obj)
-    {
+    {LOGMEIN("ObjectPrototypeObject.cpp] 119\n");
         if (obj == this)
-        {
+        {LOGMEIN("ObjectPrototypeObject.cpp] 121\n");
             ScriptContext* scriptContext = this->GetScriptContext();
             Var getter, setter;
 
@@ -134,12 +134,12 @@ namespace Js
 
 #if ENABLE_TTD
     TTD::NSSnapObjects::SnapObjectType ObjectPrototypeObject::GetSnapTag_TTD() const
-    {
+    {LOGMEIN("ObjectPrototypeObject.cpp] 136\n");
         return TTD::NSSnapObjects::SnapObjectType::SnapWellKnownObject;
     }
 
     void ObjectPrototypeObject::ExtractSnapObjectDataInto(TTD::NSSnapObjects::SnapObject* objData, TTD::SlabAllocator& alloc)
-    {
+    {LOGMEIN("ObjectPrototypeObject.cpp] 141\n");
         TTD::NSSnapObjects::StdExtractSetKindSpecificInfo<void*, TTD::NSSnapObjects::SnapObjectType::SnapWellKnownObject>(objData, nullptr);
     }
 #endif

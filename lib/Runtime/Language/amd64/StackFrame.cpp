@@ -16,13 +16,13 @@ Js::Amd64StackFrame::Amd64StackFrame()
       hasCallerContext(false),
       callerContext(nullptr),
       addressOfCodeAddr(nullptr)
-{
+{LOGMEIN("StackFrame.cpp] 18\n");
 }
 
 Js::Amd64StackFrame::~Amd64StackFrame()
-{
+{LOGMEIN("StackFrame.cpp] 22\n");
     if (currentContext)
-    {
+    {LOGMEIN("StackFrame.cpp] 24\n");
         scriptContext->GetThreadContext()->GetAmd64ContextsManager()->Release(currentContext);
     }
 }
@@ -35,7 +35,7 @@ Js::Amd64StackFrame::~Amd64StackFrame()
 //                   then create new frames (e.g. for Next()) and unwind stack in them.
 
 bool Js::Amd64StackFrame::InitializeByReturnAddress(void *returnAddress, ScriptContext* scriptContext)
-{
+{LOGMEIN("StackFrame.cpp] 37\n");
     CONTEXT* pair = scriptContext->GetThreadContext()->GetAmd64ContextsManager()->Allocate();
     this->scriptContext = scriptContext;
     this->currentContext = pair;
@@ -63,19 +63,19 @@ bool Js::Amd64StackFrame::InitializeByReturnAddress(void *returnAddress, ScriptC
 }
 
 bool Js::Amd64StackFrame::Next()
-{
+{LOGMEIN("StackFrame.cpp] 65\n");
     if (hasCallerContext)
-    {
+    {LOGMEIN("StackFrame.cpp] 67\n");
         *currentContext = *callerContext;
         OnCurrentContextUpdated();
         return true;
     }
 
     if (JavascriptFunction::IsNativeAddress(this->scriptContext, (void*)this->currentContext->Rip))
-    {
+    {LOGMEIN("StackFrame.cpp] 74\n");
         this->addressOfCodeAddr = this->GetAddressOfReturnAddress(true /*isCurrentContextNative*/, false /*shouldCheckForNativeAddr*/);
         if (NextFromNativeAddress(this->currentContext))
-        {
+        {LOGMEIN("StackFrame.cpp] 77\n");
             OnCurrentContextUpdated();
             return true;
         }
@@ -85,7 +85,7 @@ bool Js::Amd64StackFrame::Next()
     EnsureFunctionEntry();
     this->addressOfCodeAddr = this->GetAddressOfReturnAddress();
     if (Next(currentContext, imageBase, functionEntry))
-    {
+    {LOGMEIN("StackFrame.cpp] 87\n");
         OnCurrentContextUpdated();
         return true;
     }
@@ -94,19 +94,19 @@ bool Js::Amd64StackFrame::Next()
 }
 
 VOID *Js::Amd64StackFrame::GetInstructionPointer()
-{
+{LOGMEIN("StackFrame.cpp] 96\n");
     return (VOID *)currentContext->Rip;
 }
 
 void *Js::Amd64StackFrame::GetFrame() const
-{
+{LOGMEIN("StackFrame.cpp] 101\n");
     return (void *)currentContext->Rbp;
 }
 
 VOID **Js::Amd64StackFrame::GetArgv(bool isCurrentContextNative, bool shouldCheckForNativeAddr)
-{
+{LOGMEIN("StackFrame.cpp] 106\n");
     if (EnsureCallerContext(isCurrentContextNative || (shouldCheckForNativeAddr && JavascriptFunction::IsNativeAddress(this->scriptContext, (void*)this->currentContext->Rip))))
-    {
+    {LOGMEIN("StackFrame.cpp] 108\n");
         return (VOID **)callerContext->Rsp;
     }
 
@@ -114,9 +114,9 @@ VOID **Js::Amd64StackFrame::GetArgv(bool isCurrentContextNative, bool shouldChec
 }
 
 VOID *Js::Amd64StackFrame::GetReturnAddress(bool isCurrentContextNative, bool shouldCheckForNativeAddr)
-{
+{LOGMEIN("StackFrame.cpp] 116\n");
     if (EnsureCallerContext(isCurrentContextNative || (shouldCheckForNativeAddr && JavascriptFunction::IsNativeAddress(this->scriptContext, (void*)this->currentContext->Rip))))
-    {
+    {LOGMEIN("StackFrame.cpp] 118\n");
         return (VOID *)callerContext->Rip;
     }
 
@@ -124,9 +124,9 @@ VOID *Js::Amd64StackFrame::GetReturnAddress(bool isCurrentContextNative, bool sh
 }
 
 void *Js::Amd64StackFrame::GetAddressOfReturnAddress(bool isCurrentContextNative, bool shouldCheckForNativeAddr)
-{
+{LOGMEIN("StackFrame.cpp] 126\n");
     if (EnsureCallerContext(isCurrentContextNative || (shouldCheckForNativeAddr && JavascriptFunction::IsNativeAddress(this->scriptContext, (void*)this->currentContext->Rip))))
-    {
+    {LOGMEIN("StackFrame.cpp] 128\n");
         return (void*)((VOID **)callerContext->Rsp - 1);
     }
 
@@ -134,7 +134,7 @@ void *Js::Amd64StackFrame::GetAddressOfReturnAddress(bool isCurrentContextNative
 }
 
 bool Js::Amd64StackFrame::Next(CONTEXT *context, ULONG64 imageBase, RUNTIME_FUNCTION *functionEntry)
-{
+{LOGMEIN("StackFrame.cpp] 136\n");
     Assert(context);
 
     VOID *handlerData = nullptr;
@@ -168,9 +168,9 @@ bool Js::Amd64StackFrame::Next(CONTEXT *context, ULONG64 imageBase, RUNTIME_FUNC
 
 bool
 Js::Amd64StackFrame::NextFromNativeAddress(CONTEXT * context)
-{
+{LOGMEIN("StackFrame.cpp] 170\n");
     if (!context->Rip)
-    {
+    {LOGMEIN("StackFrame.cpp] 172\n");
         return false;
     }
 
@@ -193,12 +193,12 @@ Js::Amd64StackFrame::NextFromNativeAddress(CONTEXT * context)
 
 bool
 Js::Amd64StackFrame::SkipToFrame(void * returnAddress)
-{
+{LOGMEIN("StackFrame.cpp] 195\n");
     bool found = false;
     while (Next())
-    {
+    {LOGMEIN("StackFrame.cpp] 198\n");
         if (((PVOID)currentContext->Rip) == returnAddress)
-        {
+        {LOGMEIN("StackFrame.cpp] 200\n");
             found = true;
             break;
         }
@@ -213,30 +213,30 @@ Js::Amd64StackFrame::SkipToFrame(void * returnAddress)
 
 bool
 Js::Amd64StackFrame::IsInStackCheckCode(void *entry, void *codeAddr, size_t stackCheckCodeHeight)
-{
+{LOGMEIN("StackFrame.cpp] 215\n");
     return ((size_t(codeAddr) - size_t(entry)) <= stackCheckCodeHeight);
 }
 
 Js::Amd64ContextsManager::Amd64ContextsManager()
     : curIndex(GENERAL_CONTEXT)
-{
+{LOGMEIN("StackFrame.cpp] 221\n");
 }
 
 _Ret_writes_(CONTEXT_PAIR_COUNT)
 CONTEXT* Js::Amd64ContextsManager::InternalGet(
     _In_range_(GENERAL_CONTEXT, OOM_CONTEXT) ContextsIndex index)
-{
+{LOGMEIN("StackFrame.cpp] 227\n");
     Assert(index < NUM_CONTEXTS);
     return &contexts[CONTEXT_PAIR_COUNT * index];
 }
 
 _Ret_writes_(CONTEXT_PAIR_COUNT)
 CONTEXT* Js::Amd64ContextsManager::Allocate()
-{
+{LOGMEIN("StackFrame.cpp] 234\n");
     CONTEXT* pair = NULL;
 
     switch(curIndex)
-    {
+    {LOGMEIN("StackFrame.cpp] 238\n");
     case GENERAL_CONTEXT: //0
         pair = InternalGet(curIndex++);
         Assert(curIndex == OOM_CONTEXT); // Next available is OOM_CONTEXT
@@ -245,7 +245,7 @@ CONTEXT* Js::Amd64ContextsManager::Allocate()
     case OOM_CONTEXT: //1
         pair = HeapNewNoThrowArray(CONTEXT, CONTEXT_PAIR_COUNT);
         if (!pair)
-        {
+        {LOGMEIN("StackFrame.cpp] 247\n");
             pair = InternalGet(curIndex++);
             Assert(curIndex == NUM_CONTEXTS); // Used up all stock contexts
         }
@@ -262,9 +262,9 @@ CONTEXT* Js::Amd64ContextsManager::Allocate()
 }
 
 void Js::Amd64ContextsManager::Release(_In_ CONTEXT* contexts)
-{
+{LOGMEIN("StackFrame.cpp] 264\n");
     switch(curIndex)
-    {
+    {LOGMEIN("StackFrame.cpp] 266\n");
     case GENERAL_CONTEXT:
         AssertMsg(false, "Unexpected release of CONTEXTs. No contexts allocated.");
         break;

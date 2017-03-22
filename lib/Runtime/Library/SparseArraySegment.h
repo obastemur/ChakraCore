@@ -25,17 +25,17 @@ namespace Js
 
         SparseArraySegmentBase(uint32 left, uint32 length, uint32 size);
 
-        bool    HasIndex(uint32 index) { return (left <= index) && index < (left + length); };
+        bool    HasIndex(uint32 index) {LOGMEIN("SparseArraySegment.h] 27\n"); return (left <= index) && index < (left + length); };
 
         uint32  RemoveUndefined(ScriptContext* scriptContext); //returns count of undefined removed
         void    EnsureSizeInBound();
 
-        static uint32 GetOffsetOfLeft() { return offsetof(SparseArraySegmentBase, left); }
-        static uint32 GetOffsetOfLength() { return offsetof(SparseArraySegmentBase, length); }
-        static uint32 GetOffsetOfSize() { return offsetof(SparseArraySegmentBase, size); }
-        static uint32 GetOffsetOfNext() { return offsetof(SparseArraySegmentBase, next); }
+        static uint32 GetOffsetOfLeft() {LOGMEIN("SparseArraySegment.h] 32\n"); return offsetof(SparseArraySegmentBase, left); }
+        static uint32 GetOffsetOfLength() {LOGMEIN("SparseArraySegment.h] 33\n"); return offsetof(SparseArraySegmentBase, length); }
+        static uint32 GetOffsetOfSize() {LOGMEIN("SparseArraySegment.h] 34\n"); return offsetof(SparseArraySegmentBase, size); }
+        static uint32 GetOffsetOfNext() {LOGMEIN("SparseArraySegment.h] 35\n"); return offsetof(SparseArraySegmentBase, next); }
 
-        static bool DoNativeArrayLeafSegment() { return !PHASE_OFF1(Js::NativeArrayLeafSegmentPhase); }
+        static bool DoNativeArrayLeafSegment() {LOGMEIN("SparseArraySegment.h] 37\n"); return !PHASE_OFF1(Js::NativeArrayLeafSegmentPhase); }
         static bool IsLeafSegment(SparseArraySegmentBase *seg, Recycler *recycler);
 
     protected:
@@ -47,7 +47,7 @@ namespace Js
     {
     public:
         SparseArraySegment(uint32 left, uint32 length, uint32 size) :
-            SparseArraySegmentBase(left, length, size) {}
+            SparseArraySegmentBase(left, length, size) {LOGMEIN("SparseArraySegment.h] 49\n");}
 
         Field(T) elements[]; // actual elements will follow this determined by size
 
@@ -92,14 +92,14 @@ namespace Js
 
         template <class S>
         static bool IsMissingItem(const WriteBarrierPtr<S>* value)
-        {
+        {LOGMEIN("SparseArraySegment.h] 94\n");
             return IsMissingItem(AddressOf(value[0]));
         }
 
         static uint32 GetAlignedSize(uint32 size);
 
         static inline SparseArraySegment* From(SparseArraySegmentBase* seg)
-        {
+        {LOGMEIN("SparseArraySegment.h] 101\n");
             return static_cast<SparseArraySegment*>(seg);
         }
 
@@ -118,32 +118,32 @@ namespace Js
 
     template<typename T>
     T SparseArraySegment<T>::GetMissingItem()
-    {
+    {LOGMEIN("SparseArraySegment.h] 120\n");
         return (T)JavascriptArray::MissingItem;
     }
 
     template<>
     inline int32 SparseArraySegment<int32>::GetMissingItem()
-    {
+    {LOGMEIN("SparseArraySegment.h] 126\n");
         return 0x80000002;
     }
 
     template<>
     inline double SparseArraySegment<double>::GetMissingItem()
-    {
+    {LOGMEIN("SparseArraySegment.h] 132\n");
         uint64 u = 0x8000000280000002;
         return *(double*)&u;
     }
 
     template<>
     inline bool SparseArraySegment<double>::IsMissingItem(const double* value)
-    {
+    {LOGMEIN("SparseArraySegment.h] 139\n");
         return *(uint64*)value == 0x8000000280000002ull;
     }
 
     template<typename T>
     bool SparseArraySegment<T>::IsMissingItem(const T* value)
-    {
+    {LOGMEIN("SparseArraySegment.h] 145\n");
         return *value == SparseArraySegment<T>::GetMissingItem();
     }
 } // namespace Js

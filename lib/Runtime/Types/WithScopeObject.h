@@ -15,10 +15,10 @@ namespace Js
             DEFINE_VTABLE_CTOR(WithScopeObject, RecyclableObject);
 
         public:
-            WithScopeObject(RecyclableObject *wrappedObject, StaticType * type) : RecyclableObject(type), wrappedObject(wrappedObject) {}
+            WithScopeObject(RecyclableObject *wrappedObject, StaticType * type) : RecyclableObject(type), wrappedObject(wrappedObject) {LOGMEIN("WithScopeObject.h] 17\n");}
             static bool Is(Var aValue);
             static WithScopeObject* FromVar(Var value);
-            RecyclableObject *GetWrappedObject() { return wrappedObject; }
+            RecyclableObject *GetWrappedObject() {LOGMEIN("WithScopeObject.h] 20\n"); return wrappedObject; }
             virtual BOOL HasProperty(PropertyId propertyId) override;
             virtual BOOL HasOwnProperty(PropertyId propertyId) override;
             virtual BOOL SetProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info) override;

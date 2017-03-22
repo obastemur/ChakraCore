@@ -27,10 +27,10 @@ namespace Js
         JavascriptExternalFunction(StdCallJavascriptMethod nativeMethod, DynamicType* type);
 
         virtual BOOL IsExternalFunction() override {return TRUE; }
-        inline void SetSignature(Var signature) { this->signature = signature; }
-        Var GetSignature() { return signature; }
-        inline void SetCallbackState(void *callbackState) { this->callbackState = callbackState; }
-        void *GetCallbackState() { return callbackState; }
+        inline void SetSignature(Var signature) {LOGMEIN("JavascriptExternalFunction.h] 29\n"); this->signature = signature; }
+        Var GetSignature() {LOGMEIN("JavascriptExternalFunction.h] 30\n"); return signature; }
+        inline void SetCallbackState(void *callbackState) {LOGMEIN("JavascriptExternalFunction.h] 31\n"); this->callbackState = callbackState; }
+        void *GetCallbackState() {LOGMEIN("JavascriptExternalFunction.h] 32\n"); return callbackState; }
 
         static const int ETW_MIN_COUNT_FOR_CALLER = 0x100; // power of 2
         class EntryInfo
@@ -42,11 +42,11 @@ namespace Js
             static FunctionInfo DefaultExternalFunctionThunk;
         };
 
-        ExternalMethod GetNativeMethod() { return nativeMethod; }
+        ExternalMethod GetNativeMethod() {LOGMEIN("JavascriptExternalFunction.h] 44\n"); return nativeMethod; }
         BOOL SetLengthProperty(Var length);
 
-        void SetPrototypeTypeId(JavascriptTypeId prototypeTypeId) { this->prototypeTypeId = prototypeTypeId; }
-        void SetExternalFlags(UINT64 flags) { this->flags = flags; }
+        void SetPrototypeTypeId(JavascriptTypeId prototypeTypeId) {LOGMEIN("JavascriptExternalFunction.h] 47\n"); this->prototypeTypeId = prototypeTypeId; }
+        void SetExternalFlags(UINT64 flags) {LOGMEIN("JavascriptExternalFunction.h] 48\n"); this->flags = flags; }
 
     private:
         Field(Var) signature;

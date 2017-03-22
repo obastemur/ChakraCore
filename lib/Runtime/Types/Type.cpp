@@ -21,16 +21,16 @@ namespace Js
         prototype(prototype),
         propertyCache(nullptr),
         flags(TypeFlagMask_None)
-    {
+    {LOGMEIN("Type.cpp] 23\n");
 #ifdef PROFILE_TYPES
         if (typeId < sizeof(scriptContext->typeCount)/sizeof(int))
-        {
+        {LOGMEIN("Type.cpp] 26\n");
             scriptContext->typeCount[typeId]++;
         }
 #endif
         this->entryPoint = entryPoint != nullptr ? entryPoint : RecyclableObject::DefaultEntryPoint;
         if (prototype)
-        {
+        {LOGMEIN("Type.cpp] 32\n");
             Assert(! CrossSite::NeedMarshalVar(prototype,scriptContext));
             prototype->SetIsPrototype();
         }
@@ -43,10 +43,10 @@ namespace Js
         entryPoint(type->entryPoint),
         flags(type->flags),
         propertyCache(nullptr)
-    {
+    {LOGMEIN("Type.cpp] 45\n");
 #ifdef PROFILE_TYPES
         if (typeId < sizeof(javascriptLibrary->GetScriptContext()->typeCount)/sizeof(int))
-        {
+        {LOGMEIN("Type.cpp] 48\n");
             javascriptLibrary->GetScriptContext()->typeCount[typeId]++;
         }
 #endif
@@ -59,34 +59,34 @@ namespace Js
         // changed consistently to use this copy constructor, so those would need to be fixed as well.
 
         if(type->AreThisAndPrototypesEnsuredToHaveOnlyWritableDataProperties())
-        {
+        {LOGMEIN("Type.cpp] 61\n");
             SetAreThisAndPrototypesEnsuredToHaveOnlyWritableDataProperties(true);
         }
         if(type->IsFalsy())
-        {
+        {LOGMEIN("Type.cpp] 65\n");
             SetIsFalsy(true);
         }
     }
 
     ScriptContext *
     Type::GetScriptContext() const
-    {
+    {LOGMEIN("Type.cpp] 72\n");
         return GetLibrary()->GetScriptContext();
     }
 
     Recycler *
     Type::GetRecycler() const
-    {
+    {LOGMEIN("Type.cpp] 78\n");
         return GetLibrary()->GetRecycler();
     }
 
     TypePropertyCache *Type::GetPropertyCache()
-    {
+    {LOGMEIN("Type.cpp] 83\n");
         return propertyCache;
     }
 
     TypePropertyCache *Type::CreatePropertyCache()
-    {
+    {LOGMEIN("Type.cpp] 88\n");
         Assert(!propertyCache);
 
         propertyCache = RecyclerNew(GetRecycler(), TypePropertyCache);
@@ -94,11 +94,11 @@ namespace Js
     }
 
     void Type::SetAreThisAndPrototypesEnsuredToHaveOnlyWritableDataProperties(const bool truth)
-    {
+    {LOGMEIN("Type.cpp] 96\n");
         if (truth)
-        {
+        {LOGMEIN("Type.cpp] 98\n");
             if (GetScriptContext()->IsClosed())
-            {
+            {LOGMEIN("Type.cpp] 100\n");
                 // The cache is disabled after the script context is closed, to avoid issues between being closed and being deleted,
                 // where the cache of these types in JavascriptLibrary may be reclaimed at any point
                 return;
@@ -114,14 +114,14 @@ namespace Js
     }
 
     BOOL Type::AreThisAndPrototypesEnsuredToHaveOnlyWritableDataProperties() const
-    {
+    {LOGMEIN("Type.cpp] 116\n");
         return flags & TypeFlagMask_AreThisAndPrototypesEnsuredToHaveOnlyWritableDataProperties;
     }
 
     void Type::SetIsFalsy(const bool truth)
-    {
+    {LOGMEIN("Type.cpp] 121\n");
         if (truth)
-        {
+        {LOGMEIN("Type.cpp] 123\n");
             Assert(this->GetScriptContext()->GetThreadContext()->CanBeFalsy(this->GetTypeId()));
             flags |= TypeFlagMask_IsFalsy;
         }
@@ -132,9 +132,9 @@ namespace Js
     }
 
     void Type::SetHasSpecialPrototype(const bool truth)
-    {
+    {LOGMEIN("Type.cpp] 134\n");
         if (truth)
-        {
+        {LOGMEIN("Type.cpp] 136\n");
             flags |= TypeFlagMask_HasSpecialPrototype;
         }
         else
@@ -144,30 +144,30 @@ namespace Js
     }
 
     uint32 Type::GetOffsetOfTypeId()
-    {
+    {LOGMEIN("Type.cpp] 146\n");
         return offsetof(Type, typeId);
     }
 
     uint32 Type::GetOffsetOfFlags()
-    {
+    {LOGMEIN("Type.cpp] 151\n");
         return offsetof(Type, flags);
     }
 
     uint32 Type::GetOffsetOfEntryPoint()
-    {
+    {LOGMEIN("Type.cpp] 156\n");
         return offsetof(Type, entryPoint);
     }
 
     uint32 Type::GetOffsetOfPrototype()
-    {
+    {LOGMEIN("Type.cpp] 161\n");
         return offsetof(Type, prototype);
     }
 
 #if defined(PROFILE_RECYCLER_ALLOC) && defined(RECYCLER_DUMP_OBJECT_GRAPH)
     bool Type::DumpObjectFunction(type_info const * typeinfo, bool isArray, void * objectAddress)
-    {
+    {LOGMEIN("Type.cpp] 167\n");
         if (isArray)
-        {
+        {LOGMEIN("Type.cpp] 169\n");
             // Don't deal with array
             return false;
         }
@@ -179,7 +179,7 @@ namespace Js
 
 #if ENABLE_TTD
     void Type::ExtractSnapType(TTD::NSSnapType::SnapType* sType, TTD::NSSnapType::SnapHandler* optHandler, TTD::SlabAllocator& alloc) const
-    {
+    {LOGMEIN("Type.cpp] 181\n");
         sType->TypePtrId = TTD_CONVERT_TYPEINFO_TO_PTR_ID(this);
         sType->JsTypeId = this->GetTypeId();
 
@@ -190,7 +190,7 @@ namespace Js
 
         sType->HasNoEnumerableProperties = false;
         if(Js::DynamicType::Is(this->typeId))
-        {
+        {LOGMEIN("Type.cpp] 192\n");
             sType->HasNoEnumerableProperties = static_cast<const Js::DynamicType*>(this)->GetHasNoEnumerableProperties();
         }
     }

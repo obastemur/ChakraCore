@@ -27,7 +27,7 @@ private:
     IRBuilder * m_builder;
 public:
     IRBuilderSwitchAdapter(IRBuilder * builder)
-        : m_builder(builder) {}
+        : m_builder(builder) {LOGMEIN("SwitchIRBuilder.h] 29\n");}
 
     virtual void AddBranchInstr(IR::BranchInstr * instr, uint32 offset, uint32 targetOffset, bool clearBackEdge = false);
 
@@ -47,7 +47,7 @@ private:
     IRBuilderAsmJs * m_builder;
 public:
     IRBuilderAsmJsSwitchAdapter(IRBuilderAsmJs * builder)
-        : m_builder(builder) {}
+        : m_builder(builder) {LOGMEIN("SwitchIRBuilder.h] 49\n");}
 
     virtual void AddBranchInstr(IR::BranchInstr * instr, uint32 offset, uint32 targetOffset, bool clearBackEdge = false);
 
@@ -96,7 +96,7 @@ public:
         , m_switchIntDynProfile(false)
         , m_switchStrDynProfile(false)
         , m_isAsmJs(false)
-        , m_seenOnlySingleCharStrCaseNodes(true) {}
+        , m_seenOnlySingleCharStrCaseNodes(true) {LOGMEIN("SwitchIRBuilder.h] 98\n");}
 
     void                Init(Func * func, JitArenaAllocator * tempAlloc, bool isAsmJs);
     void                BeginSwitch();

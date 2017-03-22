@@ -241,12 +241,12 @@ InterpreterThunkEmitter::InterpreterThunkEmitter(Js::ScriptContext* context, Are
     thunkCount(0),
     thunkBuffer(nullptr),
     isAsmInterpreterThunk(isAsmInterpreterThunk)
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 243\n");
 }
 
 SListBase<ThunkBlock>* 
 InterpreterThunkEmitter::GetThunkBlocksList()
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 248\n");
     return &thunkBlocks;
 }
 
@@ -254,14 +254,14 @@ InterpreterThunkEmitter::GetThunkBlocksList()
 // Returns the next thunk. Batch allocated PageCount pages of thunks and issue them one at a time
 //
 BYTE* InterpreterThunkEmitter::GetNextThunk(PVOID* ppDynamicInterpreterThunk)
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 256\n");
     Assert(ppDynamicInterpreterThunk);
     Assert(*ppDynamicInterpreterThunk == nullptr);
 
     if(thunkCount == 0)
-    {
+    {LOGMEIN("InterpreterThunkEmitter.cpp] 261\n");
         if(!this->freeListedThunkBlocks.Empty())
-        {
+        {LOGMEIN("InterpreterThunkEmitter.cpp] 263\n");
             return AllocateFromFreeList(ppDynamicInterpreterThunk);
         }
         NewThunkBlock();
@@ -286,7 +286,7 @@ BYTE* InterpreterThunkEmitter::GetNextThunk(PVOID* ppDynamicInterpreterThunk)
 // and this function can convert to the unique thunk return address to the beginning of the page which corresponds with the entrypoint
 //
 void* InterpreterThunkEmitter::ConvertToEntryPoint(PVOID dynamicInterpreterThunk)
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 288\n");
     Assert(dynamicInterpreterThunk != nullptr);
     void* entryPoint = (void*)((size_t)dynamicInterpreterThunk & (~((size_t)(BlockSize) - 1)));
 
@@ -297,10 +297,10 @@ void* InterpreterThunkEmitter::ConvertToEntryPoint(PVOID dynamicInterpreterThunk
 }
 
 void InterpreterThunkEmitter::NewThunkBlock()
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 299\n");
 #ifdef ENABLE_OOP_NATIVE_CODEGEN
     if (JITManager::GetJITManager()->IsOOPJITEnabled())
-    {
+    {LOGMEIN("InterpreterThunkEmitter.cpp] 302\n");
         NewOOPJITThunkBlock();
         return;
     }
@@ -311,11 +311,11 @@ void InterpreterThunkEmitter::NewThunkBlock()
 
     EmitBufferAllocation<VirtualAllocWrapper, PreReservedVirtualAllocWrapper> * allocation = emitBufferManager.AllocateBuffer(BlockSize, &buffer);
     if (allocation == nullptr)
-    {
+    {LOGMEIN("InterpreterThunkEmitter.cpp] 313\n");
         Js::Throw::OutOfMemory();
     }
     if (!emitBufferManager.ProtectBufferWithExecuteReadWriteForInterpreter(allocation))
-    {
+    {LOGMEIN("InterpreterThunkEmitter.cpp] 317\n");
         Js::Throw::OutOfMemory();
     }
 
@@ -339,7 +339,7 @@ void InterpreterThunkEmitter::NewThunkBlock()
     );
 
     if (!emitBufferManager.CommitBufferForInterpreter(allocation, buffer, BlockSize))
-    {
+    {LOGMEIN("InterpreterThunkEmitter.cpp] 341\n");
         Js::Throw::OutOfMemory();
     }
 
@@ -361,9 +361,9 @@ void InterpreterThunkEmitter::NewThunkBlock()
 
 #ifdef ENABLE_OOP_NATIVE_CODEGEN
 void InterpreterThunkEmitter::NewOOPJITThunkBlock()
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 363\n");
     if (!JITManager::GetJITManager()->IsConnected())
-    {
+    {LOGMEIN("InterpreterThunkEmitter.cpp] 365\n");
         Js::Throw::OutOfMemory();
     }
     InterpreterThunkInputIDL thunkInput;
@@ -377,7 +377,7 @@ void InterpreterThunkEmitter::NewOOPJITThunkBlock()
     BYTE* buffer = (BYTE*)thunkOutput.mappedBaseAddr;
 
     if (!CONFIG_FLAG(OOPCFGRegistration))
-    {
+    {LOGMEIN("InterpreterThunkEmitter.cpp] 379\n");
         this->scriptContext->GetThreadContext()->SetValidCallTargetForCFG(buffer);
     }
 
@@ -409,7 +409,7 @@ void InterpreterThunkEmitter::FillBuffer(
 #endif
     _Out_ DWORD * thunkCount
     )
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 411\n");
 #ifdef _M_X64
     PrologEncoder prologEncoder;
     prologEncoder.EncodeSmallProlog(PrologSize, StackAllocSize);
@@ -429,7 +429,7 @@ void InterpreterThunkEmitter::FillBuffer(
     // the static interpreter thunk invoked by the dynamic emitted thunk
 #ifdef ASMJS_PLAT
     if (asmJsThunk)
-    {
+    {LOGMEIN("InterpreterThunkEmitter.cpp] 431\n");
         interpreterThunk = SHIFT_ADDR(threadContext, &Js::InterpreterStackFrame::InterpreterAsmThunk);
     }
     else
@@ -519,7 +519,7 @@ void InterpreterThunkEmitter::EncodeInterpreterThunk(
     __in const intptr_t epilogStart,
     __in const DWORD epilogSize,
     __in const intptr_t interpreterThunk)
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 521\n");
     _Analysis_assume_(thunkSize == HeaderSize);
     // Encode MOVW
     DWORD lowerThunkBits = (uint32)interpreterThunk & 0x0000FFFF;
@@ -559,7 +559,7 @@ void InterpreterThunkEmitter::EncodeInterpreterThunk(
 }
 
 DWORD InterpreterThunkEmitter::EncodeMove(DWORD opCode, int reg, DWORD imm16)
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 561\n");
     DWORD encodedMove = reg << 24;
     DWORD encodedImm = 0;
     EncoderMD::EncodeImmediate16(imm16, &encodedImm);
@@ -570,7 +570,7 @@ DWORD InterpreterThunkEmitter::EncodeMove(DWORD opCode, int reg, DWORD imm16)
 }
 
 void InterpreterThunkEmitter::GeneratePdata(_In_ const BYTE* entryPoint, _In_ const DWORD functionSize, _Out_ RUNTIME_FUNCTION* function)
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 572\n");
     function->BeginAddress   = 0x1;                        // Since our base address is the start of the function - this is offset from the base address
     function->Flag           = 1;                          // Packed unwind data is used
     function->FunctionLength = functionSize / 2;
@@ -591,7 +591,7 @@ void InterpreterThunkEmitter::EncodeInterpreterThunk(
     __in const intptr_t epilogStart,
     __in const DWORD epilogSize,
     __in const intptr_t interpreterThunk)
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 593\n");
     int addrOffset = ThunkAddressOffset;
 
     _Analysis_assume_(thunkSize == HeaderSize);
@@ -645,7 +645,7 @@ void InterpreterThunkEmitter::EncodeInterpreterThunk(
 }
 
 DWORD InterpreterThunkEmitter::EncodeMove(DWORD opCode, int reg, DWORD imm16)
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 647\n");
     DWORD encodedMove = reg << 0;
     DWORD encodedImm = 0;
     EncoderMD::EncodeImmediate16(imm16, &encodedImm);
@@ -656,7 +656,7 @@ DWORD InterpreterThunkEmitter::EncodeMove(DWORD opCode, int reg, DWORD imm16)
 }
 
 void InterpreterThunkEmitter::GeneratePdata(_In_ const BYTE* entryPoint, _In_ const DWORD functionSize, _Out_ RUNTIME_FUNCTION* function)
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 658\n");
     function->BeginAddress = 0x0;               // Since our base address is the start of the function - this is offset from the base address
     function->Flag = 1;                         // Packed unwind data is used
     function->FunctionLength = functionSize / 4;
@@ -676,7 +676,7 @@ void InterpreterThunkEmitter::EncodeInterpreterThunk(
     __in const intptr_t epilogStart,
     __in const DWORD epilogSize,
     __in const intptr_t interpreterThunk)
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 678\n");
     _Analysis_assume_(thunkSize == HeaderSize);
     Emit(thunkBuffer, ThunkAddressOffset, (uintptr_t)interpreterThunk);
     thunkBuffer[DynamicThunkAddressOffset] = Js::FunctionBody::GetOffsetOfDynamicInterpreterThunk();
@@ -691,7 +691,7 @@ void InterpreterThunkEmitter::EncodeInterpreterThunk(
 
 /*static*/
 DWORD InterpreterThunkEmitter::FillDebugBreak(_Out_writes_bytes_all_(count) BYTE* dest, _In_ DWORD count)
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 693\n");
 #if defined(_M_ARM)
     Assert(count % 2 == 0);
 #elif defined(_M_ARM64)
@@ -725,13 +725,13 @@ DWORD InterpreterThunkEmitter::CopyWithAlignment(
 #if DBG
 bool
 InterpreterThunkEmitter::IsInHeap(void* address)
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 727\n");
 #ifdef ENABLE_OOP_NATIVE_CODEGEN
     if (JITManager::GetJITManager()->IsOOPJITEnabled())
-    {
+    {LOGMEIN("InterpreterThunkEmitter.cpp] 730\n");
         PSCRIPTCONTEXT_HANDLE remoteScript = this->scriptContext->GetRemoteScriptAddr(false);
         if (!remoteScript)
-        {
+        {LOGMEIN("InterpreterThunkEmitter.cpp] 733\n");
             return false;
         }
         boolean result;
@@ -751,7 +751,7 @@ InterpreterThunkEmitter::IsInHeap(void* address)
 // code running here.
 // The destructor of emitBufferManager will cause the eventual release.
 void InterpreterThunkEmitter::Close()
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 753\n");
 #if PDATA_ENABLED
     auto unregisterPdata = ([&] (const ThunkBlock& block)
     {
@@ -766,10 +766,10 @@ void InterpreterThunkEmitter::Close()
 
 #ifdef ENABLE_OOP_NATIVE_CODEGEN
     if (JITManager::GetJITManager()->IsOOPJITEnabled())
-    {
+    {LOGMEIN("InterpreterThunkEmitter.cpp] 768\n");
         PSCRIPTCONTEXT_HANDLE remoteScript = this->scriptContext->GetRemoteScriptAddr(false);
         if (remoteScript)
-        {
+        {LOGMEIN("InterpreterThunkEmitter.cpp] 771\n");
             JITManager::GetJITManager()->DecommitInterpreterBufferManager(remoteScript, this->isAsmInterpreterThunk);
         }
     }
@@ -785,9 +785,9 @@ void InterpreterThunkEmitter::Close()
 }
 
 void InterpreterThunkEmitter::Release(BYTE* thunkAddress, bool addtoFreeList)
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 787\n");
     if(!addtoFreeList)
-    {
+    {LOGMEIN("InterpreterThunkEmitter.cpp] 789\n");
         return;
     }
 
@@ -798,26 +798,26 @@ void InterpreterThunkEmitter::Release(BYTE* thunkAddress, bool addtoFreeList)
 
     ThunkBlock* block = freeListedThunkBlocks.Find(predicate);
     if(!block)
-    {
+    {LOGMEIN("InterpreterThunkEmitter.cpp] 800\n");
         block = thunkBlocks.MoveTo(&freeListedThunkBlocks, predicate);
     }
 
     // if EnsureFreeList fails in an OOM scenario - we just leak the thunks
     if(block && block->EnsureFreeList(allocator))
-    {
+    {LOGMEIN("InterpreterThunkEmitter.cpp] 806\n");
         block->Release(thunkAddress);
     }
 }
 
 BYTE* InterpreterThunkEmitter::AllocateFromFreeList(PVOID* ppDynamicInterpreterThunk )
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 812\n");
     ThunkBlock& block = this->freeListedThunkBlocks.Head();
     BYTE* thunk = block.AllocateFromFreeList();
 #if _M_ARM
     thunk = (BYTE*)((DWORD)thunk | 0x01);
 #endif
     if(block.IsFreeListEmpty())
-    {
+    {LOGMEIN("InterpreterThunkEmitter.cpp] 819\n");
         this->freeListedThunkBlocks.MoveHeadTo(&this->thunkBlocks);
     }
     *ppDynamicInterpreterThunk = thunk;
@@ -830,13 +830,13 @@ BYTE* InterpreterThunkEmitter::AllocateFromFreeList(PVOID* ppDynamicInterpreterT
 
 
 bool ThunkBlock::Contains(BYTE* address) const
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 832\n");
     bool contains = address >= start && address < (start + InterpreterThunkEmitter::BlockSize);
     return contains;
 }
 
 void ThunkBlock::Release(BYTE* address)
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 838\n");
     Assert(Contains(address));
     Assert(this->freeList);
 
@@ -845,7 +845,7 @@ void ThunkBlock::Release(BYTE* address)
 }
 
 BYTE* ThunkBlock::AllocateFromFreeList()
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 847\n");
     Assert(this->freeList);
     BVIndex index = this->freeList->GetNextBit(0);
     BYTE* address = ToThunkAddress(index);
@@ -854,30 +854,30 @@ BYTE* ThunkBlock::AllocateFromFreeList()
 }
 
 BVIndex ThunkBlock::FromThunkAddress(BYTE* address)
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 856\n");
     int index = ((uint)(address - start) - InterpreterThunkEmitter::HeaderSize) / InterpreterThunkEmitter::ThunkSize;
     Assert(index < InterpreterThunkEmitter::ThunksPerBlock);
     return index;
 }
 
 BYTE* ThunkBlock::ToThunkAddress(BVIndex index)
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 863\n");
     Assert(index < InterpreterThunkEmitter::ThunksPerBlock);
     BYTE* address = start + InterpreterThunkEmitter::HeaderSize + InterpreterThunkEmitter::ThunkSize * index;
     return address;
 }
 
 bool ThunkBlock::EnsureFreeList(ArenaAllocator* allocator)
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 870\n");
     if(!this->freeList)
-    {
+    {LOGMEIN("InterpreterThunkEmitter.cpp] 872\n");
         this->freeList = BVFixed::NewNoThrow(InterpreterThunkEmitter::ThunksPerBlock, allocator);
     }
     return this->freeList != nullptr;
 }
 
 bool ThunkBlock::IsFreeListEmpty() const
-{
+{LOGMEIN("InterpreterThunkEmitter.cpp] 879\n");
     Assert(this->freeList);
     return this->freeList->IsAllClear();
 }

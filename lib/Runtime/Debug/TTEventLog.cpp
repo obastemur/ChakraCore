@@ -10,14 +10,14 @@ namespace TTD
 {
     TTDJsRTFunctionCallActionPopperRecorder::TTDJsRTFunctionCallActionPopperRecorder()
         : m_ctx(nullptr), m_beginTime(0.0), m_callAction(nullptr)
-    {
+    {LOGMEIN("TTEventLog.cpp] 12\n");
         ;
     }
 
     TTDJsRTFunctionCallActionPopperRecorder::~TTDJsRTFunctionCallActionPopperRecorder()
-    {
+    {LOGMEIN("TTEventLog.cpp] 17\n");
         if(this->m_ctx != nullptr)
-        {
+        {LOGMEIN("TTEventLog.cpp] 19\n");
             TTDAssert(this->m_callAction != nullptr, "Should be set in sync with ctx!!!");
 
             TTD::EventLog* elog = this->m_ctx->GetThreadContext()->TTDLog;
@@ -29,7 +29,7 @@ namespace TTD
 
             //Update the time elapsed since a snapshot if needed
             if(cfAction->CallbackDepth == 0)
-            {
+            {LOGMEIN("TTEventLog.cpp] 31\n");
                 double elapsedTime = (elog->GetCurrentWallTime() - this->m_beginTime);
                 elog->IncrementElapsedSnapshotTime(elapsedTime);
             }
@@ -37,7 +37,7 @@ namespace TTD
     }
 
     void TTDJsRTFunctionCallActionPopperRecorder::InitializeForRecording(Js::ScriptContext* ctx, double beginWallTime, NSLogEvents::EventLogEntry* callAction)
-    {
+    {LOGMEIN("TTEventLog.cpp] 39\n");
         TTDAssert(this->m_ctx == nullptr && this->m_callAction == nullptr, "Don't double initialize!!!");
 
         this->m_ctx = ctx;
@@ -47,65 +47,65 @@ namespace TTD
 
     TTLastReturnLocationInfo::TTLastReturnLocationInfo()
         : m_isExceptionFrame(false)
-    {
+    {LOGMEIN("TTEventLog.cpp] 49\n");
         this->m_lastFrame = { 0 };
     }
 
     void TTLastReturnLocationInfo::SetReturnLocation(const SingleCallCounter& cframe)
-    {
+    {LOGMEIN("TTEventLog.cpp] 54\n");
         this->m_isExceptionFrame = false;
         this->m_lastFrame = cframe;
     }
 
     void TTLastReturnLocationInfo::SetExceptionLocation(const SingleCallCounter& cframe)
-    {
+    {LOGMEIN("TTEventLog.cpp] 60\n");
         this->m_isExceptionFrame = true;
         this->m_lastFrame = cframe;
     }
 
     bool TTLastReturnLocationInfo::IsDefined() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 66\n");
         return this->m_lastFrame.Function != nullptr;
     }
 
     bool TTLastReturnLocationInfo::IsReturnLocation() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 71\n");
         return this->IsDefined() && !this->m_isExceptionFrame;
     }
 
     bool TTLastReturnLocationInfo::IsExceptionLocation() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 76\n");
         return this->IsDefined() && this->m_isExceptionFrame;
     }
 
     const SingleCallCounter& TTLastReturnLocationInfo::GetLocation() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 81\n");
         TTDAssert(this->IsDefined(), "Should check this!");
 
         return this->m_lastFrame;
     }
 
     void TTLastReturnLocationInfo::Clear()
-    {
+    {LOGMEIN("TTEventLog.cpp] 88\n");
         if(this->IsDefined())
-        {
+        {LOGMEIN("TTEventLog.cpp] 90\n");
             this->m_isExceptionFrame = false;
             this->m_lastFrame = { 0 };
         }
     }
 
     void TTLastReturnLocationInfo::ClearReturnOnly()
-    {
+    {LOGMEIN("TTEventLog.cpp] 97\n");
         if(this->IsDefined() && !this->m_isExceptionFrame)
-        {
+        {LOGMEIN("TTEventLog.cpp] 99\n");
             this->Clear();
         }
     }
 
     void TTLastReturnLocationInfo::ClearExceptionOnly()
-    {
+    {LOGMEIN("TTEventLog.cpp] 105\n");
         if(this->IsDefined() && this->m_isExceptionFrame)
-        {
+        {LOGMEIN("TTEventLog.cpp] 107\n");
             this->Clear();
         }
     }
@@ -113,7 +113,7 @@ namespace TTD
     /////////////
 
     void TTEventList::AddArrayLink()
-    {
+    {LOGMEIN("TTEventLog.cpp] 115\n");
         TTEventListLink* newHeadBlock = this->m_alloc->SlabAllocateStruct<TTEventListLink>();
         newHeadBlock->BlockData = this->m_alloc->SlabAllocateFixedSizeArray<NSLogEvents::EventLogEntry, TTD_EVENTLOG_LIST_BLOCK_SIZE>();
         memset(newHeadBlock->BlockData, 0, TTD_EVENTLOG_LIST_BLOCK_SIZE * sizeof(NSLogEvents::EventLogEntry));
@@ -125,7 +125,7 @@ namespace TTD
         newHeadBlock->Previous = this->m_headBlock;
 
         if(this->m_headBlock != nullptr)
-        {
+        {LOGMEIN("TTEventLog.cpp] 127\n");
             this->m_headBlock->Next = newHeadBlock;
         }
 
@@ -133,12 +133,12 @@ namespace TTD
     }
 
     void TTEventList::RemoveArrayLink(TTEventListLink* block)
-    {
+    {LOGMEIN("TTEventLog.cpp] 135\n");
         TTDAssert(block->Previous == nullptr, "Not first event block in log!!!");
         TTDAssert(block->StartPos == block->CurrPos, "Haven't cleared all the events in this link");
 
         if(block->Next == nullptr)
-        {
+        {LOGMEIN("TTEventLog.cpp] 140\n");
             this->m_headBlock = nullptr; //was only 1 block to we are now all null
         }
         else
@@ -152,33 +152,33 @@ namespace TTD
 
     TTEventList::TTEventList(UnlinkableSlabAllocator* alloc)
         : m_alloc(alloc), m_headBlock(nullptr)
-    {
+    {LOGMEIN("TTEventLog.cpp] 154\n");
         ;
     }
 
     void TTEventList::UnloadEventList(NSLogEvents::EventLogEntryVTableEntry* vtable)
-    {
+    {LOGMEIN("TTEventLog.cpp] 159\n");
         if(this->m_headBlock == nullptr)
-        {
+        {LOGMEIN("TTEventLog.cpp] 161\n");
             return;
         }
 
         TTEventListLink* firstBlock = this->m_headBlock;
         while(firstBlock->Previous != nullptr)
-        {
+        {LOGMEIN("TTEventLog.cpp] 167\n");
             firstBlock = firstBlock->Previous;
         }
 
         TTEventListLink* curr = firstBlock;
         while(curr != nullptr)
-        {
+        {LOGMEIN("TTEventLog.cpp] 173\n");
             for(uint32 i = curr->StartPos; i < curr->CurrPos; ++i)
-            {
+            {LOGMEIN("TTEventLog.cpp] 175\n");
                 const NSLogEvents::EventLogEntry* entry = curr->BlockData + i;
                 auto unloadFP = vtable[(uint32)entry->EventKind].UnloadFP; //use vtable magic here
 
                 if(unloadFP != nullptr)
-                {
+                {LOGMEIN("TTEventLog.cpp] 180\n");
                     unloadFP(curr->BlockData + i, *(this->m_alloc));
                 }
             }
@@ -193,9 +193,9 @@ namespace TTD
     }
 
     NSLogEvents::EventLogEntry* TTEventList::GetNextAvailableEntry()
-    {
+    {LOGMEIN("TTEventLog.cpp] 195\n");
         if((this->m_headBlock == nullptr) || (this->m_headBlock->CurrPos == TTD_EVENTLOG_LIST_BLOCK_SIZE))
-        {
+        {LOGMEIN("TTEventLog.cpp] 197\n");
             this->AddArrayLink();
         }
 
@@ -206,7 +206,7 @@ namespace TTD
     }
 
     void TTEventList::DeleteFirstEntry(TTEventListLink* block, NSLogEvents::EventLogEntry* data, NSLogEvents::EventLogEntryVTableEntry* vtable)
-    {
+    {LOGMEIN("TTEventLog.cpp] 208\n");
         TTDAssert((block->BlockData + block->StartPos) == data, "Not the data at the start of the list!!!");
 
         auto unloadFP = vtable[(uint32)data->EventKind].UnloadFP; //use vtable magic here
@@ -218,22 +218,22 @@ namespace TTD
 
         block->StartPos++;
         if(block->StartPos == block->CurrPos)
-        {
+        {LOGMEIN("TTEventLog.cpp] 220\n");
             this->RemoveArrayLink(block);
         }
     }
 
     bool TTEventList::IsEmpty() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 226\n");
         return this->m_headBlock == nullptr;
     }
 
     uint32 TTEventList::Count() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 231\n");
         uint32 count = 0;
 
         for(TTEventListLink* curr = this->m_headBlock; curr != nullptr; curr = curr->Previous)
-        {
+        {LOGMEIN("TTEventLog.cpp] 235\n");
             count += (curr->CurrPos - curr->StartPos);
         }
 
@@ -242,44 +242,44 @@ namespace TTD
 
     TTEventList::Iterator::Iterator()
         : m_currLink(nullptr), m_currIdx(0)
-    {
+    {LOGMEIN("TTEventLog.cpp] 244\n");
         ;
     }
 
     TTEventList::Iterator::Iterator(TTEventListLink* head, uint32 pos)
         : m_currLink(head), m_currIdx(pos)
-    {
+    {LOGMEIN("TTEventLog.cpp] 250\n");
         ;
     }
 
     const NSLogEvents::EventLogEntry* TTEventList::Iterator::Current() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 255\n");
         TTDAssert(this->IsValid(), "Iterator is invalid!!!");
 
         return (this->m_currLink->BlockData + this->m_currIdx);
     }
 
     NSLogEvents::EventLogEntry* TTEventList::Iterator::Current()
-    {
+    {LOGMEIN("TTEventLog.cpp] 262\n");
         TTDAssert(this->IsValid(), "Iterator is invalid!!!");
 
         return (this->m_currLink->BlockData + this->m_currIdx);
     }
 
     TTEventList::TTEventListLink* TTEventList::Iterator::GetBlock()
-    {
+    {LOGMEIN("TTEventLog.cpp] 269\n");
         return this->m_currLink;
     }
 
     bool TTEventList::Iterator::IsValid() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 274\n");
         return (this->m_currLink != nullptr && this->m_currLink->StartPos <= this->m_currIdx && this->m_currIdx < this->m_currLink->CurrPos);
     }
 
     void TTEventList::Iterator::MoveNext()
-    {
+    {LOGMEIN("TTEventLog.cpp] 279\n");
         if(this->m_currIdx < (this->m_currLink->CurrPos - 1))
-        {
+        {LOGMEIN("TTEventLog.cpp] 281\n");
             this->m_currIdx++;
         }
         else
@@ -290,9 +290,9 @@ namespace TTD
     }
 
     void TTEventList::Iterator::MovePrevious()
-    {
+    {LOGMEIN("TTEventLog.cpp] 292\n");
         if(this->m_currIdx > this->m_currLink->StartPos)
-        {
+        {LOGMEIN("TTEventLog.cpp] 294\n");
             this->m_currIdx--;
         }
         else
@@ -303,16 +303,16 @@ namespace TTD
     }
 
     TTEventList::Iterator TTEventList::GetIteratorAtFirst() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 305\n");
         if(this->m_headBlock == nullptr)
-        {
+        {LOGMEIN("TTEventLog.cpp] 307\n");
             return Iterator(nullptr, 0);
         }
         else
         {
             TTEventListLink* firstBlock = this->m_headBlock;
             while(firstBlock->Previous != nullptr)
-            {
+            {LOGMEIN("TTEventLog.cpp] 314\n");
                 firstBlock = firstBlock->Previous;
             }
 
@@ -321,9 +321,9 @@ namespace TTD
     }
 
     TTEventList::Iterator TTEventList::GetIteratorAtLast() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 323\n");
         if(this->m_headBlock == nullptr)
-        {
+        {LOGMEIN("TTEventLog.cpp] 325\n");
             return Iterator(nullptr, 0);
         }
         else
@@ -335,23 +335,23 @@ namespace TTD
     //////
 
     const SingleCallCounter& EventLog::GetTopCallCounter() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 337\n");
         TTDAssert(this->m_callStack.Count() != 0, "Empty stack!");
 
         return this->m_callStack.Item(this->m_callStack.Count() - 1);
     }
 
     SingleCallCounter& EventLog::GetTopCallCounter()
-    {
+    {LOGMEIN("TTEventLog.cpp] 344\n");
         TTDAssert(this->m_callStack.Count() != 0, "Empty stack!");
 
         return this->m_callStack.Item(this->m_callStack.Count() - 1);
     }
 
     bool EventLog::TryGetTopCallCallerCounter(SingleCallCounter& caller) const
-    {
+    {LOGMEIN("TTEventLog.cpp] 351\n");
         if(this->m_callStack.Count() < 2)
-        {
+        {LOGMEIN("TTEventLog.cpp] 353\n");
             return false;
         }
         else
@@ -362,12 +362,12 @@ namespace TTD
     }
 
     int64 EventLog::GetCurrentEventTimeAndAdvance()
-    {
+    {LOGMEIN("TTEventLog.cpp] 364\n");
         return this->m_eventTimeCtr++;
     }
 
     void EventLog::AdvanceTimeAndPositionForReplay()
-    {
+    {LOGMEIN("TTEventLog.cpp] 369\n");
         this->m_eventTimeCtr++;
         this->m_currentReplayEventIterator.MoveNext();
 
@@ -377,15 +377,15 @@ namespace TTD
     }
 
     void EventLog::UpdateComputedMode()
-    {
+    {LOGMEIN("TTEventLog.cpp] 379\n");
         TTDAssert(this->m_modeStack.Count() > 0, "Should never be empty!!!");
 
         TTDMode cm = TTDMode::Invalid;
         for(uint32 i = 0; i < this->m_modeStack.Count(); ++i)
-        {
+        {LOGMEIN("TTEventLog.cpp] 384\n");
             TTDMode m = this->m_modeStack.GetAt(i);
             switch(m)
-            {
+            {LOGMEIN("TTEventLog.cpp] 387\n");
             case TTDMode::RecordMode:
             case TTDMode::ReplayMode:
             case TTDMode::DebuggerMode:
@@ -412,13 +412,13 @@ namespace TTD
         //Set fast path values on ThreadContext
         const JsUtil::List<Js::ScriptContext*, HeapAllocator>& contexts = this->m_threadContext->TTDContext->GetTTDContexts();
         for(int32 i = 0; i < contexts.Count(); ++i)
-        {
+        {LOGMEIN("TTEventLog.cpp] 414\n");
             this->SetModeFlagsOnContext(contexts.Item(i));
         }
     }
 
     void EventLog::UnloadRetainedData()
-    {
+    {LOGMEIN("TTEventLog.cpp] 420\n");
         if(this->m_lastInflateMap != nullptr)
         {
             TT_HEAP_DELETE(InflateMap, this->m_lastInflateMap);
@@ -426,7 +426,7 @@ namespace TTD
         }
 
         if(this->m_propertyRecordPinSet != nullptr)
-        {
+        {LOGMEIN("TTEventLog.cpp] 428\n");
             this->m_propertyRecordPinSet.Unroot(this->m_propertyRecordPinSet->GetAllocator());
         }
 
@@ -434,7 +434,7 @@ namespace TTD
     }
 
     SnapShot* EventLog::DoSnapshotExtract_Helper()
-    {
+    {LOGMEIN("TTEventLog.cpp] 436\n");
         SnapShot* snap = nullptr;
 
         this->m_snapExtractor.BeginSnapshot(this->m_threadContext);
@@ -455,11 +455,11 @@ namespace TTD
     }
 
     void EventLog::ReplaySnapshotEvent()
-    {
+    {LOGMEIN("TTEventLog.cpp] 457\n");
 #if ENABLE_SNAPSHOT_COMPARE
         SnapShot* snap = nullptr;
         try
-        {
+        {LOGMEIN("TTEventLog.cpp] 461\n");
             AUTO_NESTED_HANDLED_EXCEPTION_TYPE((ExceptionType)(ExceptionType_OutOfMemory | ExceptionType_StackOverflow));
 
             this->SetSnapshotOrInflateInProgress(true);
@@ -498,19 +498,19 @@ namespace TTD
     }
 
     void EventLog::ReplayEventLoopYieldPointEvent()
-    {
+    {LOGMEIN("TTEventLog.cpp] 500\n");
         this->m_threadContext->TTDContext->ClearLocalRootsAndRefreshMap();
 
         this->AdvanceTimeAndPositionForReplay(); //move along
     }
 
     void EventLog::AbortReplayReturnToHost()
-    {
+    {LOGMEIN("TTEventLog.cpp] 507\n");
         throw TTDebuggerAbortException::CreateAbortEndOfLog(_u("End of log reached -- returning to top-level."));
     }
 
     void EventLog::InitializeEventListVTable()
-    {
+    {LOGMEIN("TTEventLog.cpp] 512\n");
         this->m_eventListVTable = this->m_miscSlabAllocator.SlabAllocateArray<NSLogEvents::EventLogEntryVTableEntry>((uint32)NSLogEvents::EventKind::Count);
 
         this->m_eventListVTable[(uint32)NSLogEvents::EventKind::SnapshotTag] = { NSLogEvents::ContextExecuteKind::GlobalAPIWrapper, nullptr, NSLogEvents::SnapshotEventLogEntry_UnloadEventMemory, NSLogEvents::SnapshotEventLogEntry_Emit, NSLogEvents::SnapshotEventLogEntry_Parse};
@@ -611,7 +611,7 @@ namespace TTD
         m_snapExtractor(), m_elapsedExecutionTimeSinceSnapshot(0.0),
         m_lastInflateSnapshotTime(-1), m_lastInflateMap(nullptr), m_propertyRecordList(&this->m_miscSlabAllocator),
         m_loadedTopLevelScripts(&this->m_miscSlabAllocator), m_newFunctionTopLevelScripts(&this->m_miscSlabAllocator), m_evalTopLevelScripts(&this->m_miscSlabAllocator)
-    {
+    {LOGMEIN("TTEventLog.cpp] 613\n");
         this->InitializeEventListVTable();
 
         this->m_modeStack.Push(TTDMode::Invalid);
@@ -621,29 +621,29 @@ namespace TTD
     }
 
     EventLog::~EventLog()
-    {
+    {LOGMEIN("TTEventLog.cpp] 623\n");
         this->m_eventList.UnloadEventList(this->m_eventListVTable);
 
         this->UnloadRetainedData();
     }
 
     void EventLog::UnloadAllLogData()
-    {
+    {LOGMEIN("TTEventLog.cpp] 630\n");
         this->m_eventList.UnloadEventList(this->m_eventListVTable);
     }
 
 #if ENABLE_BASIC_TRACE || ENABLE_FULL_BC_TRACE
     TraceLogger* EventLog::GetTraceLogger()
-    {
+    {LOGMEIN("TTEventLog.cpp] 636\n");
         return &(this->m_diagnosticLogger);
     }
 #endif
 
     void EventLog::InitForTTDRecord()
-    {
+    {LOGMEIN("TTEventLog.cpp] 642\n");
         //pin all the current properties so they don't move/disappear on us
         for(Js::PropertyId pid = TotalNumberOfBuiltInProperties; pid < this->m_threadContext->GetMaxPropertyId(); ++pid)
-        {
+        {LOGMEIN("TTEventLog.cpp] 645\n");
             const Js::PropertyRecord* pRecord = this->m_threadContext->GetPropertyName(pid);
             this->AddPropertyRecord(pRecord);
         }
@@ -652,9 +652,9 @@ namespace TTD
     }
 
     void EventLog::InitForTTDReplay(TTDataIOInfo& iofp, const char* parseUri, size_t parseUriLength, bool debug)
-    {
+    {LOGMEIN("TTEventLog.cpp] 654\n");
         if (debug)
-        {
+        {LOGMEIN("TTEventLog.cpp] 656\n");
             this->SetGlobalMode(TTDMode::DebuggerMode);
         }
         else
@@ -668,25 +668,25 @@ namespace TTD
         JsUtil::BaseDictionary<Js::PropertyId, NSSnapType::SnapPropertyRecord*, HeapAllocator> pidMap(&HeapAllocator::Instance);
 
         for(auto iter = this->m_propertyRecordList.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {LOGMEIN("TTEventLog.cpp] 670\n");
             maxPid = max(maxPid, iter.Current()->PropertyId);
             pidMap.AddNew(iter.Current()->PropertyId, iter.Current());
         }
 
         for(Js::PropertyId cpid = TotalNumberOfBuiltInProperties; cpid <= maxPid; ++cpid)
-        {
+        {LOGMEIN("TTEventLog.cpp] 676\n");
             NSSnapType::SnapPropertyRecord* spRecord = pidMap.Item(cpid);
             const Js::PropertyRecord* newPropertyRecord = NSSnapType::InflatePropertyRecord(spRecord, this->m_threadContext);
 
             if(!this->m_propertyRecordPinSet->ContainsKey(const_cast<Js::PropertyRecord*>(newPropertyRecord)))
-            {
+            {LOGMEIN("TTEventLog.cpp] 681\n");
                 this->m_propertyRecordPinSet->AddNew(const_cast<Js::PropertyRecord*>(newPropertyRecord));
             }
         }
     }
 
     void EventLog::SetGlobalMode(TTDMode m)
-    {
+    {LOGMEIN("TTEventLog.cpp] 688\n");
         TTDAssert(m == TTDMode::RecordMode || m == TTDMode::ReplayMode || m == TTDMode::DebuggerMode, "These are the only valid global modes");
 
         this->m_modeStack.SetAt(0, m);
@@ -694,10 +694,10 @@ namespace TTD
     }
 
     void EventLog::SetSnapshotOrInflateInProgress(bool flag)
-    {
+    {LOGMEIN("TTEventLog.cpp] 696\n");
         const JsUtil::List<Js::ScriptContext*, HeapAllocator>& contexts = this->m_threadContext->TTDContext->GetTTDContexts();
         for(int32 i = 0; i < contexts.Count(); ++i)
-        {
+        {LOGMEIN("TTEventLog.cpp] 699\n");
             TTDAssert(contexts.Item(i)->TTDSnapshotOrInflateInProgress != flag, "This is not re-entrant!!!");
 
             contexts.Item(i)->TTDSnapshotOrInflateInProgress = flag;
@@ -705,7 +705,7 @@ namespace TTD
     }
 
     void EventLog::PushMode(TTDMode m)
-    {
+    {LOGMEIN("TTEventLog.cpp] 707\n");
         TTDAssert(m == TTDMode::CurrentlyEnabled || m == TTDMode::ExcludedExecutionTTAction || m == TTDMode::ExcludedExecutionDebuggerAction ||
             m == TTDMode::DebuggerSuppressGetter || m == TTDMode::DebuggerSuppressBreakpoints || m == TTDMode::DebuggerLogBreakpoints, "These are the only valid mode modifiers to push");
 
@@ -714,7 +714,7 @@ namespace TTD
     }
 
     void EventLog::PopMode(TTDMode m)
-    {
+    {LOGMEIN("TTEventLog.cpp] 716\n");
         TTDAssert(m == TTDMode::CurrentlyEnabled || m == TTDMode::ExcludedExecutionTTAction || m == TTDMode::ExcludedExecutionDebuggerAction ||
             m == TTDMode::DebuggerSuppressGetter || m == TTDMode::DebuggerSuppressBreakpoints || m == TTDMode::DebuggerLogBreakpoints, "These are the only valid mode modifiers to pop");
         TTDAssert(this->m_modeStack.Peek() == m, "Push/Pop is not matched so something went wrong.");
@@ -724,7 +724,7 @@ namespace TTD
     }
 
     void EventLog::SetModeFlagsOnContext(Js::ScriptContext* ctx)
-    {
+    {LOGMEIN("TTEventLog.cpp] 726\n");
         TTDMode cm = this->m_currentMode;
 
         ctx->TTDRecordModeEnabled = (cm & (TTDMode::RecordMode | TTDMode::AnyExcludedMode)) == TTDMode::RecordMode;
@@ -740,39 +740,39 @@ namespace TTD
     }
 
     void EventLog::GetModesForExplicitContextCreate(bool& inRecord, bool& activelyRecording, bool& inReplay)
-    {
+    {LOGMEIN("TTEventLog.cpp] 742\n");
         inRecord = (this->m_currentMode & (TTDMode::RecordMode | TTDMode::AnyExcludedMode)) == TTDMode::RecordMode;
         activelyRecording = (this->m_currentMode & (TTDMode::RecordMode | TTDMode::CurrentlyEnabled | TTDMode::AnyExcludedMode)) == (TTDMode::RecordMode | TTDMode::CurrentlyEnabled);
         inReplay = (this->m_currentMode & (TTDMode::ReplayMode | TTDMode::AnyExcludedMode)) == TTDMode::ReplayMode;
     }
 
     bool EventLog::IsDebugModeFlagSet() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 749\n");
         return (this->m_currentMode & TTDMode::DebuggerMode) == TTDMode::DebuggerMode;
     }
 
     bool EventLog::ShouldDoGetterInvocationSupression() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 754\n");
         return (this->m_currentMode & TTD::TTDMode::DebuggerMode) == TTD::TTDMode::DebuggerMode;
     }
 
     bool EventLog::ShouldSuppressBreakpointsForTimeTravelMove() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 759\n");
         return (this->m_currentMode & TTD::TTDMode::DebuggerSuppressBreakpoints) == TTD::TTDMode::DebuggerSuppressBreakpoints;
     }
 
     bool EventLog::ShouldRecordBreakpointsDuringTimeTravelScan() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 764\n");
         return (this->m_currentMode & TTD::TTDMode::DebuggerLogBreakpoints) == TTD::TTDMode::DebuggerLogBreakpoints;
     }
 
     void EventLog::AddPropertyRecord(const Js::PropertyRecord* record)
-    {
+    {LOGMEIN("TTEventLog.cpp] 769\n");
         this->m_propertyRecordPinSet->AddNew(const_cast<Js::PropertyRecord*>(record));
     }
 
     const NSSnapValues::TopLevelScriptLoadFunctionBodyResolveInfo* EventLog::AddScriptLoad(Js::FunctionBody* fb, Js::ModuleID moduleId, uint64 sourceContextId, const byte* source, uint32 sourceLen, LoadScriptFlag loadFlag)
-    {
+    {LOGMEIN("TTEventLog.cpp] 774\n");
         NSSnapValues::TopLevelScriptLoadFunctionBodyResolveInfo* fbInfo = this->m_loadedTopLevelScripts.NextOpenEntry();
         uint64 fCount = (this->m_loadedTopLevelScripts.Count() + this->m_newFunctionTopLevelScripts.Count() + this->m_evalTopLevelScripts.Count());
         bool isUtf8 = ((loadFlag & LoadScriptFlag_Utf8Source) == LoadScriptFlag_Utf8Source);
@@ -783,7 +783,7 @@ namespace TTD
     }
 
     const NSSnapValues::TopLevelNewFunctionBodyResolveInfo* EventLog::AddNewFunction(Js::FunctionBody* fb, Js::ModuleID moduleId, const char16* source, uint32 sourceLen)
-    {
+    {LOGMEIN("TTEventLog.cpp] 785\n");
         NSSnapValues::TopLevelNewFunctionBodyResolveInfo* fbInfo = this->m_newFunctionTopLevelScripts.NextOpenEntry();
         uint64 fCount = (this->m_loadedTopLevelScripts.Count() + this->m_newFunctionTopLevelScripts.Count() + this->m_evalTopLevelScripts.Count());
 
@@ -793,7 +793,7 @@ namespace TTD
     }
 
     const NSSnapValues::TopLevelEvalFunctionBodyResolveInfo* EventLog::AddEvalFunction(Js::FunctionBody* fb, Js::ModuleID moduleId, const char16* source, uint32 sourceLen, uint32 grfscr, bool registerDocument, BOOL isIndirect, BOOL strictMode)
-    {
+    {LOGMEIN("TTEventLog.cpp] 795\n");
         NSSnapValues::TopLevelEvalFunctionBodyResolveInfo* fbInfo = this->m_evalTopLevelScripts.NextOpenEntry();
         uint64 fCount = (this->m_loadedTopLevelScripts.Count() + this->m_newFunctionTopLevelScripts.Count() + this->m_evalTopLevelScripts.Count());
 
@@ -803,20 +803,20 @@ namespace TTD
     }
 
     void EventLog::RecordTopLevelCodeAction(uint64 bodyCtrId)
-    {
+    {LOGMEIN("TTEventLog.cpp] 805\n");
         NSLogEvents::CodeLoadEventLogEntry* clEvent = this->RecordGetInitializedEvent_DataOnly<NSLogEvents::CodeLoadEventLogEntry, NSLogEvents::EventKind::TopLevelCodeTag>();
         clEvent->BodyCounterId = bodyCtrId;
     }
 
     uint64 EventLog::ReplayTopLevelCodeAction()
-    {
+    {LOGMEIN("TTEventLog.cpp] 811\n");
         const NSLogEvents::CodeLoadEventLogEntry* clEvent = this->ReplayGetReplayEvent_Helper<NSLogEvents::CodeLoadEventLogEntry, NSLogEvents::EventKind::TopLevelCodeTag>();
 
         return clEvent->BodyCounterId;
     }
 
     void EventLog::RecordTelemetryLogEvent(Js::JavascriptString* infoStringJs, bool doPrint)
-    {
+    {LOGMEIN("TTEventLog.cpp] 818\n");
         NSLogEvents::TelemetryEventLogEntry* tEvent = this->RecordGetInitializedEvent_DataOnly<NSLogEvents::TelemetryEventLogEntry, NSLogEvents::EventKind::TelemetryLogTag>();
         this->m_eventSlabAllocator.CopyStringIntoWLength(infoStringJs->GetSz(), infoStringJs->GetLength(), tEvent->InfoString);
         tEvent->DoPrint = doPrint;
@@ -827,7 +827,7 @@ namespace TTD
     }
 
     void EventLog::ReplayTelemetryLogEvent(Js::JavascriptString* infoStringJs)
-    {
+    {LOGMEIN("TTEventLog.cpp] 829\n");
 #if !ENABLE_TTD_INTERNAL_DIAGNOSTICS
         this->AdvanceTimeAndPositionForReplay(); //just eat the telemetry event
 #else
@@ -837,7 +837,7 @@ namespace TTD
         const char16* infoStr = infoStringJs->GetSz();
 
         if(tEvent->InfoString.Length != infoStrLength)
-        {
+        {LOGMEIN("TTEventLog.cpp] 839\n");
             wprintf(_u("New Telemetry Msg: %ls\n"), infoStr);
             wprintf(_u("Original Telemetry Msg: %ls\n"), tEvent->InfoString.Contents);
             TTDAssert(false, "Telemetry messages differ??");
@@ -845,9 +845,9 @@ namespace TTD
         else
         {
             for(uint32 i = 0; i < infoStrLength; ++i)
-            {
+            {LOGMEIN("TTEventLog.cpp] 847\n");
                 if(tEvent->InfoString.Contents[i] != infoStr[i])
-                {
+                {LOGMEIN("TTEventLog.cpp] 849\n");
                     wprintf(_u("New Telemetry Msg: %ls\n"), infoStr);
                     wprintf(_u("Original Telemetry Msg: %ls\n"), tEvent->InfoString.Contents);
                     TTDAssert(false, "Telemetry messages differ??");
@@ -864,7 +864,7 @@ namespace TTD
     }
 
     void EventLog::RecordEmitLogEvent(Js::JavascriptString* uriString)
-    {
+    {LOGMEIN("TTEventLog.cpp] 866\n");
         this->RecordGetInitializedEvent_DataOnly<void*, NSLogEvents::EventKind::ExplicitLogWriteTag>();
 
         AutoArrayPtr<char> uri(HeapNewArrayZ(char, uriString->GetLength() * 3), uriString->GetLength() * 3);
@@ -874,36 +874,36 @@ namespace TTD
     }
 
     void EventLog::ReplayEmitLogEvent()
-    {
+    {LOGMEIN("TTEventLog.cpp] 876\n");
         this->ReplayGetReplayEvent_Helper<void*, NSLogEvents::EventKind::ExplicitLogWriteTag>();
 
         //check if at end of log -- if so we are done and don't want to execute any more
         if(!this->m_currentReplayEventIterator.IsValid())
-        {
+        {LOGMEIN("TTEventLog.cpp] 881\n");
             this->AbortReplayReturnToHost();
         }
     }
 
     void EventLog::RecordDateTimeEvent(double time)
-    {
+    {LOGMEIN("TTEventLog.cpp] 887\n");
         NSLogEvents::DoubleEventLogEntry* dEvent = this->RecordGetInitializedEvent_DataOnly<NSLogEvents::DoubleEventLogEntry, NSLogEvents::EventKind::DoubleTag>();
         dEvent->DoubleValue = time;
     }
 
     void EventLog::RecordDateStringEvent(Js::JavascriptString* stringValue)
-    {
+    {LOGMEIN("TTEventLog.cpp] 893\n");
         NSLogEvents::StringValueEventLogEntry* sEvent = this->RecordGetInitializedEvent_DataOnly<NSLogEvents::StringValueEventLogEntry, NSLogEvents::EventKind::StringTag>();
         this->m_eventSlabAllocator.CopyStringIntoWLength(stringValue->GetSz(), stringValue->GetLength(), sEvent->StringValue);
     }
 
     void EventLog::ReplayDateTimeEvent(double* result)
-    {
+    {LOGMEIN("TTEventLog.cpp] 899\n");
         const NSLogEvents::DoubleEventLogEntry* dEvent = this->ReplayGetReplayEvent_Helper<NSLogEvents::DoubleEventLogEntry, NSLogEvents::EventKind::DoubleTag>();
         *result = dEvent->DoubleValue;
     }
 
     void EventLog::ReplayDateStringEvent(Js::ScriptContext* ctx, Js::JavascriptString** result)
-    {
+    {LOGMEIN("TTEventLog.cpp] 905\n");
         const NSLogEvents::StringValueEventLogEntry* sEvent = this->ReplayGetReplayEvent_Helper<NSLogEvents::StringValueEventLogEntry, NSLogEvents::EventKind::StringTag>();
 
         const TTString& str = sEvent->StringValue;
@@ -911,24 +911,24 @@ namespace TTD
     }
 
     void EventLog::RecordExternalEntropyRandomEvent(uint64 seed0, uint64 seed1)
-    {
+    {LOGMEIN("TTEventLog.cpp] 913\n");
         NSLogEvents::RandomSeedEventLogEntry* rsEvent = this->RecordGetInitializedEvent_DataOnly<NSLogEvents::RandomSeedEventLogEntry, NSLogEvents::EventKind::RandomSeedTag>();
         rsEvent->Seed0 = seed0;
         rsEvent->Seed1 = seed1;
     }
 
     void EventLog::ReplayExternalEntropyRandomEvent(uint64* seed0, uint64* seed1)
-    {
+    {LOGMEIN("TTEventLog.cpp] 920\n");
         const NSLogEvents::RandomSeedEventLogEntry* rsEvent = this->ReplayGetReplayEvent_Helper<NSLogEvents::RandomSeedEventLogEntry, NSLogEvents::EventKind::RandomSeedTag>();
         *seed0 = rsEvent->Seed0;
         *seed1 = rsEvent->Seed1;
     }
 
     void EventLog::RecordPropertyEnumEvent(BOOL returnCode, Js::PropertyId pid, Js::PropertyAttributes attributes, Js::JavascriptString* propertyName)
-    {
+    {LOGMEIN("TTEventLog.cpp] 927\n");
         //When we replay we can just skip this pid cause it should never matter -- but if return code is false then we need to record the "at end" info
         if(returnCode && Js::IsInternalPropertyId(pid))
-        {
+        {LOGMEIN("TTEventLog.cpp] 930\n");
             return;
         }
 
@@ -940,12 +940,12 @@ namespace TTD
         InitializeAsNullPtrTTString(peEvent->PropertyString);
 #if ENABLE_TTD_INTERNAL_DIAGNOSTICS
         if(returnCode)
-        {
+        {LOGMEIN("TTEventLog.cpp] 942\n");
             this->m_eventSlabAllocator.CopyStringIntoWLength(propertyName->GetSz(), propertyName->GetLength(), peEvent->PropertyString);
         }
 #else
         if(returnCode && pid == Js::Constants::NoProperty)
-        {
+        {LOGMEIN("TTEventLog.cpp] 947\n");
             this->m_eventSlabAllocator.CopyStringIntoWLength(propertyName->GetSz(), propertyName->GetLength(), peEvent->PropertyString);
         }
 #endif
@@ -956,7 +956,7 @@ namespace TTD
     }
 
     void EventLog::ReplayPropertyEnumEvent(Js::ScriptContext* requestContext, BOOL* returnCode, Js::BigPropertyIndex* newIndex, const Js::DynamicObject* obj, Js::PropertyId* pid, Js::PropertyAttributes* attributes, Js::JavascriptString** propertyName)
-    {
+    {LOGMEIN("TTEventLog.cpp] 958\n");
         const NSLogEvents::PropertyEnumStepEventLogEntry* peEvent = this->ReplayGetReplayEvent_Helper<NSLogEvents::PropertyEnumStepEventLogEntry, NSLogEvents::EventKind::PropertyEnumTag>();
 
         *returnCode = peEvent->ReturnCode;
@@ -964,7 +964,7 @@ namespace TTD
         *attributes = peEvent->Attributes;
 
         if(*returnCode)
-        {
+        {LOGMEIN("TTEventLog.cpp] 966\n");
             TTDAssert(*pid != Js::Constants::NoProperty, "This is so weird we need to figure out what this means.");
             TTDAssert(!Js::IsInternalPropertyId(*pid), "We should skip recording this.");
 
@@ -989,19 +989,19 @@ namespace TTD
     }
 
     void EventLog::RecordSymbolCreationEvent(Js::PropertyId pid)
-    {
+    {LOGMEIN("TTEventLog.cpp] 991\n");
         NSLogEvents::SymbolCreationEventLogEntry* scEvent = this->RecordGetInitializedEvent_DataOnly<NSLogEvents::SymbolCreationEventLogEntry, NSLogEvents::EventKind::SymbolCreationTag>();
         scEvent->Pid = pid;
     }
 
     void EventLog::ReplaySymbolCreationEvent(Js::PropertyId* pid)
-    {
+    {LOGMEIN("TTEventLog.cpp] 997\n");
         const NSLogEvents::SymbolCreationEventLogEntry* scEvent = this->ReplayGetReplayEvent_Helper<NSLogEvents::SymbolCreationEventLogEntry, NSLogEvents::EventKind::SymbolCreationTag>();
         *pid = scEvent->Pid;
     }
 
     NSLogEvents::EventLogEntry* EventLog::RecordExternalCallEvent(Js::JavascriptFunction* func, int32 rootDepth, uint32 argc, Js::Var* argv, bool checkExceptions)
-    {
+    {LOGMEIN("TTEventLog.cpp] 1003\n");
         NSLogEvents::ExternalCallEventLogEntry* ecEvent = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::ExternalCallEventLogEntry, NSLogEvents::EventKind::ExternalCallTag>(&ecEvent);
 
@@ -1022,7 +1022,7 @@ namespace TTD
     }
 
     void EventLog::RecordExternalCallEvent_Complete(Js::JavascriptFunction* efunction, NSLogEvents::EventLogEntry* evt, Js::Var result)
-    {
+    {LOGMEIN("TTEventLog.cpp] 1024\n");
         NSLogEvents::ExternalCallEventLogEntry_ProcessReturn(evt, result, this->GetLastEventTime());
 
 #if ENABLE_BASIC_TRACE || ENABLE_FULL_BC_TRACE
@@ -1031,7 +1031,7 @@ namespace TTD
     }
 
     void EventLog::ReplayExternalCallEvent(Js::JavascriptFunction* function, uint32 argc, Js::Var* argv, Js::Var* result)
-    {
+    {LOGMEIN("TTEventLog.cpp] 1033\n");
         TTDAssert(result != nullptr, "Must be non-null!!!");
         TTDAssert(*result == nullptr, "And initialized to a default value.");
 
@@ -1053,7 +1053,7 @@ namespace TTD
         NSLogEvents::PassVarToHostInReplay(executeContext, recordedFunction, function);
 
         for(uint32 i = 0; i < argc; ++i)
-        {
+        {LOGMEIN("TTEventLog.cpp] 1055\n");
             Js::Var replayVar = argv[i];
             TTDVar recordedVar = ecEvent->ArgArray[i + 1];
             NSLogEvents::PassVarToHostInReplay(executeContext, recordedVar, replayVar);
@@ -1061,7 +1061,7 @@ namespace TTD
 
         //replay anything that happens in the external call
         BEGIN_LEAVE_SCRIPT(ctx)
-        {
+        {LOGMEIN("TTEventLog.cpp] 1063\n");
             this->ReplayActionEventSequenceThroughTime(ecEvent->AdditionalInfo->LastNestedEventTime);
         }
         END_LEAVE_SCRIPT(ctx);
@@ -1078,16 +1078,16 @@ namespace TTD
 
         //if we had exception info then we need to patch it up and do what the external call did
         if(ecEvent->AdditionalInfo->CheckExceptionStatus)
-        {
+        {LOGMEIN("TTEventLog.cpp] 1080\n");
             if(ctx->HasRecordedException())
-            {
+            {LOGMEIN("TTEventLog.cpp] 1082\n");
                 bool considerPassingToDebugger = false;
                 Js::JavascriptExceptionObject* recordedException = ctx->GetAndClearRecordedException(&considerPassingToDebugger);
                 if(recordedException != nullptr)
-                {
+                {LOGMEIN("TTEventLog.cpp] 1086\n");
                     // If this is script termination, then throw ScriptAbortExceptio, else throw normal Exception object.
                     if(recordedException == ctx->GetThreadContext()->GetPendingTerminatedErrorObject())
-                    {
+                    {LOGMEIN("TTEventLog.cpp] 1089\n");
                         throw Js::ScriptAbortException();
                     }
                     else
@@ -1099,7 +1099,7 @@ namespace TTD
         }
 
         if(*result == nullptr)
-        {
+        {LOGMEIN("TTEventLog.cpp] 1101\n");
             *result = ctx->GetLibrary()->GetUndefined();
         }
         else
@@ -1109,7 +1109,7 @@ namespace TTD
     }
 
     NSLogEvents::EventLogEntry* EventLog::RecordEnqueueTaskEvent(Js::Var taskVar)
-    {
+    {LOGMEIN("TTEventLog.cpp] 1111\n");
         NSLogEvents::ExternalCbRegisterCallEventLogEntry* ecEvent = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::ExternalCbRegisterCallEventLogEntry, NSLogEvents::EventKind::ExternalCbRegisterCall>(&ecEvent);
 
@@ -1125,14 +1125,14 @@ namespace TTD
     }
 
     void EventLog::RecordEnqueueTaskEvent_Complete(NSLogEvents::EventLogEntry* evt)
-    {
+    {LOGMEIN("TTEventLog.cpp] 1127\n");
         NSLogEvents::ExternalCbRegisterCallEventLogEntry* ecEvent = NSLogEvents::GetInlineEventDataAs<NSLogEvents::ExternalCbRegisterCallEventLogEntry, NSLogEvents::EventKind::ExternalCbRegisterCall>(evt);
 
         ecEvent->LastNestedEventTime = this->GetLastEventTime();
     }
 
     void EventLog::ReplayEnqueueTaskEvent(Js::ScriptContext* ctx, Js::Var taskVar)
-    {
+    {LOGMEIN("TTEventLog.cpp] 1134\n");
         const NSLogEvents::ExternalCbRegisterCallEventLogEntry* ecEvent = this->ReplayGetReplayEvent_Helper<NSLogEvents::ExternalCbRegisterCallEventLogEntry, NSLogEvents::EventKind::ExternalCbRegisterCall>();
         ThreadContextTTD* executeContext = ctx->GetThreadContext()->TTDContext;
 
@@ -1140,14 +1140,14 @@ namespace TTD
 
         //replay anything that happens when we are out of the call
         BEGIN_LEAVE_SCRIPT(ctx)
-        {
+        {LOGMEIN("TTEventLog.cpp] 1142\n");
             this->ReplayActionEventSequenceThroughTime(ecEvent->LastNestedEventTime);
         }
         END_LEAVE_SCRIPT(ctx);
     }
 
     void EventLog::PushCallEvent(Js::JavascriptFunction* function, uint32 argc, Js::Var* argv, bool isInFinally)
-    {
+    {LOGMEIN("TTEventLog.cpp] 1149\n");
         //Clear any previous last return frame info
         this->m_lastReturnLocation.ClearReturnOnly();
 
@@ -1181,12 +1181,12 @@ namespace TTD
         Js::Utf8SourceInfo* utf8SourceInfo = functionBody->GetUtf8SourceInfo();
 
         if(this->m_breakOnFirstUserCode)
-        {
+        {LOGMEIN("TTEventLog.cpp] 1183\n");
             this->m_breakOnFirstUserCode = false;
 
             Js::DebugDocument* debugDocument = utf8SourceInfo->GetDebugDocument();
             if(debugDocument != nullptr && SUCCEEDED(utf8SourceInfo->EnsureLineOffsetCacheNoThrow()))
-            {
+            {LOGMEIN("TTEventLog.cpp] 1188\n");
                 ULONG lineNumber = functionBody->GetLineNumber();
                 ULONG columnNumber = functionBody->GetColumnNumber();
                 uint startOffset = functionBody->GetStatementStartOffset(0);
@@ -1209,7 +1209,7 @@ namespace TTD
                 bool isNewBP = (probe == nullptr);
 
                 if(probe == nullptr)
-                {
+                {LOGMEIN("TTEventLog.cpp] 1211\n");
                     probe = debugDocument->SetBreakPoint(statement, BREAKPOINT_ENABLED);
                 }
 
@@ -1227,7 +1227,7 @@ namespace TTD
     }
 
     void EventLog::PopCallEvent(Js::JavascriptFunction* function, Js::Var result)
-    {
+    {LOGMEIN("TTEventLog.cpp] 1229\n");
         this->m_lastReturnLocation.SetReturnLocation(this->m_callStack.Last());
 
         this->m_runningFunctionTimeCtr++;
@@ -1239,12 +1239,12 @@ namespace TTD
     }
 
     void EventLog::PopCallEventException(Js::JavascriptFunction* function)
-    {
+    {LOGMEIN("TTEventLog.cpp] 1241\n");
         //If we already have the last return as an exception then just leave it.
         //That is where the exception was first rasied, this return is just propagating it in this return.
 
         if(!this->m_lastReturnLocation.IsExceptionLocation())
-        {
+        {LOGMEIN("TTEventLog.cpp] 1246\n");
             this->m_lastReturnLocation.SetExceptionLocation(this->m_callStack.Last());
         }
 
@@ -1257,100 +1257,100 @@ namespace TTD
     }
 
     void EventLog::ClearExceptionFrames()
-    {
+    {LOGMEIN("TTEventLog.cpp] 1259\n");
         this->m_lastReturnLocation.Clear();
     }
 
     void EventLog::SetBreakOnFirstUserCode()
-    {
+    {LOGMEIN("TTEventLog.cpp] 1264\n");
         this->m_breakOnFirstUserCode = true;
     }
 
     bool EventLog::HasPendingTTDBP() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 1269\n");
         return this->m_pendingTTDBP.HasValue();
     }
 
     int64 EventLog::GetPendingTTDBPTargetEventTime() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 1274\n");
         return this->m_pendingTTDBP.GetRootEventTime();
     }
 
     void EventLog::GetPendingTTDBPInfo(TTDebuggerSourceLocation& BPLocation) const
-    {
+    {LOGMEIN("TTEventLog.cpp] 1279\n");
         BPLocation.SetLocation(this->m_pendingTTDBP);
     }
 
     void EventLog::ClearPendingTTDBPInfo()
-    {
+    {LOGMEIN("TTEventLog.cpp] 1284\n");
         this->m_pendingTTDBP.Clear();
     }
 
     void EventLog::SetPendingTTDBPInfo(const TTDebuggerSourceLocation& BPLocation)
-    {
+    {LOGMEIN("TTEventLog.cpp] 1289\n");
         this->m_pendingTTDBP.SetLocation(BPLocation);
     }
 
     void EventLog::EnsureTTDBPInfoTopLevelBodyCtrPreInflate()
-    {
+    {LOGMEIN("TTEventLog.cpp] 1294\n");
         this->m_pendingTTDBP.EnsureTopLevelBodyCtrPreInflate();
     }
 
     int64 EventLog::GetPendingTTDMoveMode() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 1299\n");
         return this->m_pendingTTDMoveMode;
     }
 
     void EventLog::ClearPendingTTDMoveMode()
-    {
+    {LOGMEIN("TTEventLog.cpp] 1304\n");
         this->m_pendingTTDMoveMode = -1;
     }
 
     void EventLog::SetPendingTTDMoveMode(int64 mode)
-    {
+    {LOGMEIN("TTEventLog.cpp] 1309\n");
         this->m_pendingTTDMoveMode = mode;
     }
 
     bool EventLog::HasActiveBP() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 1314\n");
         return this->m_activeBPId != -1;
     }
 
     UINT EventLog::GetActiveBPId() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 1319\n");
         TTDAssert(this->HasActiveBP(), "Should check this first!!!");
 
         return (UINT)this->m_activeBPId;
     }
 
     void EventLog::ClearActiveBP()
-    {
+    {LOGMEIN("TTEventLog.cpp] 1326\n");
         this->m_activeBPId = -1;
         this->m_shouldRemoveWhenDone = false;
         this->m_activeTTDBP.Clear();
     }
 
     void EventLog::SetActiveBP(UINT bpId, bool isNewBP, const TTDebuggerSourceLocation& bpLocation)
-    {
+    {LOGMEIN("TTEventLog.cpp] 1333\n");
         this->m_activeBPId = bpId;
         this->m_shouldRemoveWhenDone = isNewBP;
         this->m_activeTTDBP.SetLocation(bpLocation);
     }
 
     bool EventLog::ProcessBPInfoPreBreak(Js::FunctionBody* fb)
-    {
+    {LOGMEIN("TTEventLog.cpp] 1340\n");
         //if we aren't in debug mode then we always trigger BP's
         if(!fb->GetScriptContext()->ShouldPerformDebuggerAction())
-        {
+        {LOGMEIN("TTEventLog.cpp] 1343\n");
             return true;
         }
 
         //If we are in debugger mode but are suppressing BP's for movement then suppress them
         if(this->ShouldSuppressBreakpointsForTimeTravelMove())
-        {
+        {LOGMEIN("TTEventLog.cpp] 1349\n");
             //Check if we need to record the visit to this bp
             if(this->ShouldRecordBreakpointsDuringTimeTravelScan())
-            {
+            {LOGMEIN("TTEventLog.cpp] 1352\n");
                 this->AddCurrentLocationDuringScan();
             }
 
@@ -1359,7 +1359,7 @@ namespace TTD
 
         //If we are in debug mode and don't have an active BP target then we treat BP's as usual
         if(!this->HasActiveBP())
-        {
+        {LOGMEIN("TTEventLog.cpp] 1361\n");
             return true;
         }
 
@@ -1378,18 +1378,18 @@ namespace TTD
     }
 
     void EventLog::ProcessBPInfoPostBreak(Js::FunctionBody* fb)
-    {
+    {LOGMEIN("TTEventLog.cpp] 1380\n");
         if(!fb->GetScriptContext()->ShouldPerformDebuggerAction())
-        {
+        {LOGMEIN("TTEventLog.cpp] 1382\n");
             return;
         }
 
         if(this->HasActiveBP())
-        {
+        {LOGMEIN("TTEventLog.cpp] 1387\n");
             Js::DebugDocument* debugDocument = fb->GetUtf8SourceInfo()->GetDebugDocument();
             Js::StatementLocation statement;
             if(this->m_shouldRemoveWhenDone && debugDocument->FindBPStatementLocation(this->GetActiveBPId(), &statement))
-            {
+            {LOGMEIN("TTEventLog.cpp] 1391\n");
                 debugDocument->SetBreakPoint(statement, BREAKPOINT_DELETED);
             }
 
@@ -1397,7 +1397,7 @@ namespace TTD
         }
 
         if(this->HasPendingTTDBP())
-        {
+        {LOGMEIN("TTEventLog.cpp] 1399\n");
             //Reset any step controller logic
             fb->GetScriptContext()->GetThreadContext()->GetDebugManager()->stepController.Deactivate();
 
@@ -1406,25 +1406,25 @@ namespace TTD
     }
 
     void EventLog::ClearBPScanInfo()
-    {
+    {LOGMEIN("TTEventLog.cpp] 1408\n");
         this->m_continueBreakPoint.Clear();
     }
 
     void EventLog::AddCurrentLocationDuringScan()
-    {
+    {LOGMEIN("TTEventLog.cpp] 1413\n");
         TTDebuggerSourceLocation current(this->m_topLevelCallbackEventTime, this->m_callStack.Last());
         if(this->m_pendingTTDBP.HasValue() && current.IsBefore(this->m_pendingTTDBP))
-        {
+        {LOGMEIN("TTEventLog.cpp] 1416\n");
             this->m_continueBreakPoint.SetLocation(current);
         }
     }
 
     bool EventLog::TryFindAndSetPreviousBP()
-    {
+    {LOGMEIN("TTEventLog.cpp] 1422\n");
         TTDAssert(this->m_pendingTTDBP.HasValue(), "This needs to have a value!!!");
 
         if(!this->m_continueBreakPoint.HasValue())
-        {
+        {LOGMEIN("TTEventLog.cpp] 1426\n");
             return false;
         }
         else
@@ -1437,38 +1437,38 @@ namespace TTD
     }
 
     void EventLog::LoadPreservedBPInfo()
-    {
+    {LOGMEIN("TTEventLog.cpp] 1439\n");
         //Unload this before we move again
         TTDAssert(this->m_preservedBPCount == 0, "This should always be clear???");
 
         uint32 bpCount = 0;
         const JsUtil::List<Js::ScriptContext*, HeapAllocator>& ctxs = this->m_threadContext->TTDContext->GetTTDContexts();
         for(int32 i = 0; i < ctxs.Count(); ++i)
-        {
+        {LOGMEIN("TTEventLog.cpp] 1446\n");
             Js::ProbeContainer* probeContainer = ctxs.Item(i)->GetDebugContext()->GetProbeContainer();
             probeContainer->MapProbes([&](int j, Js::Probe* pProbe)
             {
                 Js::BreakpointProbe* bp = (Js::BreakpointProbe*)pProbe;
                 if((int64)bp->GetId() != this->m_activeBPId)
-                {
+                {LOGMEIN("TTEventLog.cpp] 1452\n");
                     bpCount++;
                 }
             });
         }
 
         if(bpCount != 0)
-        {
+        {LOGMEIN("TTEventLog.cpp] 1459\n");
             this->m_preservedBreakPointSourceScriptArray = TT_HEAP_ALLOC_ARRAY_ZERO(TTD_LOG_PTR_ID, bpCount);
             this->m_preservedBreakPointLocationArray = TT_HEAP_ALLOC_ARRAY_ZERO(TTDebuggerSourceLocation*, bpCount);
 
             for(int32 i = 0; i < ctxs.Count(); ++i)
-            {
+            {LOGMEIN("TTEventLog.cpp] 1464\n");
                 Js::ProbeContainer* probeContainer = ctxs.Item(i)->GetDebugContext()->GetProbeContainer();
                 probeContainer->MapProbes([&](int j, Js::Probe* pProbe)
                 {
                     Js::BreakpointProbe* bp = (Js::BreakpointProbe*)pProbe;
                     if((int64)bp->GetId() != this->m_activeBPId)
-                    {
+                    {LOGMEIN("TTEventLog.cpp] 1470\n");
                         Js::FunctionBody* body = bp->GetFunctionBody();
                         int32 bpIndex = body->GetEnclosingStatementIndexFromByteCode(bp->GetBytecodeOffset());
 
@@ -1492,7 +1492,7 @@ namespace TTD
     }
 
     void EventLog::UnLoadPreservedBPInfo()
-    {
+    {LOGMEIN("TTEventLog.cpp] 1494\n");
         if(this->m_preservedBPCount != 0)
         {
             TT_HEAP_FREE_ARRAY(TTD_LOG_PTR_ID, this->m_preservedBreakPointSourceScriptArray, this->m_preservedBPCount);
@@ -1510,32 +1510,32 @@ namespace TTD
     }
 
     const uint32 EventLog::GetPerservedBPInfoCount() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 1512\n");
         return this->m_preservedBPCount;
     }
 
     TTD_LOG_PTR_ID* EventLog::GetPerservedBPInfoScriptArray()
-    {
+    {LOGMEIN("TTEventLog.cpp] 1517\n");
         return this->m_preservedBreakPointSourceScriptArray;
     }
 
     TTDebuggerSourceLocation** EventLog::GetPerservedBPInfoLocationArray()
-    {
+    {LOGMEIN("TTEventLog.cpp] 1522\n");
         return this->m_preservedBreakPointLocationArray;
     }
 
     void EventLog::UpdateLoopCountInfo()
-    {
+    {LOGMEIN("TTEventLog.cpp] 1527\n");
         SingleCallCounter& cfinfo = this->m_callStack.Last();
         cfinfo.LoopTime++;
     }
 
     void EventLog::UpdateCurrentStatementInfo(uint bytecodeOffset)
-    {
+    {LOGMEIN("TTEventLog.cpp] 1533\n");
         SingleCallCounter& cfinfo = this->GetTopCallCounter();
 
         if((cfinfo.CurrentStatementBytecodeMin <= bytecodeOffset) & (bytecodeOffset <= cfinfo.CurrentStatementBytecodeMax))
-        {
+        {LOGMEIN("TTEventLog.cpp] 1537\n");
             return;
         }
         else
@@ -1549,7 +1549,7 @@ namespace TTD
             Js::FunctionBody::StatementMap* pstmt = fb->GetStatementMaps()->Item(cIndex);
             bool newstmt = (cIndex != cfinfo.CurrentStatementIndex && pstmt->byteCodeSpan.begin <= (int)bytecodeOffset && (int)bytecodeOffset <= pstmt->byteCodeSpan.end);
             if(newstmt)
-            {
+            {LOGMEIN("TTEventLog.cpp] 1551\n");
                 cfinfo.LastStatementIndex = cfinfo.CurrentStatementIndex;
                 cfinfo.LastStatementLoopTime = cfinfo.CurrentStatementLoopTime;
 
@@ -1572,7 +1572,7 @@ namespace TTD
     }
 
     void EventLog::GetTimeAndPositionForDebugger(TTDebuggerSourceLocation& sourceLocation) const
-    {
+    {LOGMEIN("TTEventLog.cpp] 1574\n");
         const SingleCallCounter& cfinfo = this->GetTopCallCounter();
 
         ULONG srcLine = 0;
@@ -1585,7 +1585,7 @@ namespace TTD
 
 #if ENABLE_OBJECT_SOURCE_TRACKING
     void EventLog::GetTimeAndPositionForDiagnosticObjectTracking(DiagnosticOrigin& originInfo) const
-    {
+    {LOGMEIN("TTEventLog.cpp] 1587\n");
         const SingleCallCounter& cfinfo = this->GetTopCallCounter();
 
         ULONG srcLine = 0;
@@ -1598,7 +1598,7 @@ namespace TTD
 #endif
 
     bool EventLog::GetPreviousTimeAndPositionForDebugger(TTDebuggerSourceLocation& sourceLocation) const
-    {
+    {LOGMEIN("TTEventLog.cpp] 1600\n");
         bool noPrevious = false;
         const SingleCallCounter& cfinfo = this->GetTopCallCounter();
 
@@ -1608,13 +1608,13 @@ namespace TTD
         uint64 ftime = 0;
         uint64 ltime = 0;
         if(cfinfo.LastStatementIndex == -1)
-        {
+        {LOGMEIN("TTEventLog.cpp] 1610\n");
             SingleCallCounter cfinfoCaller = { 0 }; 
             bool hasCaller = this->TryGetTopCallCallerCounter(cfinfoCaller);
 
             //check if we are at the first statement in the callback event
             if(!hasCaller)
-            {
+            {LOGMEIN("TTEventLog.cpp] 1616\n");
                 //Set the position info to the current statement and return true
                 noPrevious = true;
 
@@ -1653,10 +1653,10 @@ namespace TTD
     }
 
     void EventLog::GetLastExecutedTimeAndPositionForDebugger(TTDebuggerSourceLocation& sourceLocation) const
-    {
+    {LOGMEIN("TTEventLog.cpp] 1655\n");
         const TTLastReturnLocationInfo& cframe = this->m_lastReturnLocation;
         if(!cframe.IsDefined())
-        {
+        {LOGMEIN("TTEventLog.cpp] 1658\n");
             sourceLocation.Clear();
             return;
         }
@@ -1672,29 +1672,29 @@ namespace TTD
     }
 
     int64 EventLog::GetCurrentHostCallbackId() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 1674\n");
         return this->m_hostCallbackId;
     }
 
     int64 EventLog::GetCurrentTopLevelEventTime() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 1679\n");
         return this->m_topLevelCallbackEventTime;
     }
 
     const NSLogEvents::JsRTCallbackAction* EventLog::GetEventForHostCallbackId(bool wantRegisterOp, int64 hostIdOfInterest) const
-    {
+    {LOGMEIN("TTEventLog.cpp] 1684\n");
         if(hostIdOfInterest == -1)
-        {
+        {LOGMEIN("TTEventLog.cpp] 1686\n");
             return nullptr;
         }
 
         for(auto iter = this->m_currentReplayEventIterator; iter.IsValid(); iter.MovePrevious())
-        {
+        {LOGMEIN("TTEventLog.cpp] 1691\n");
             if(iter.Current()->EventKind == NSLogEvents::EventKind::CallbackOpActionTag)
-            {
+            {LOGMEIN("TTEventLog.cpp] 1693\n");
                 const NSLogEvents::JsRTCallbackAction* callbackAction = NSLogEvents::GetInlineEventDataAs<NSLogEvents::JsRTCallbackAction, NSLogEvents::EventKind::CallbackOpActionTag>(iter.Current());
                 if(callbackAction->NewCallbackId == hostIdOfInterest && callbackAction->IsCreate == wantRegisterOp)
-                {
+                {LOGMEIN("TTEventLog.cpp] 1696\n");
                     return callbackAction;
                 }
             }
@@ -1704,11 +1704,11 @@ namespace TTD
     }
 
     int64 EventLog::GetFirstEventTimeInLog() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 1706\n");
         for(auto iter = this->m_eventList.GetIteratorAtFirst(); iter.IsValid(); iter.MoveNext())
-        {
+        {LOGMEIN("TTEventLog.cpp] 1708\n");
             if(NSLogEvents::IsJsRTActionRootCall(iter.Current()))
-            {
+            {LOGMEIN("TTEventLog.cpp] 1710\n");
                 return NSLogEvents::GetTimeFromRootCallOrSnapshot(iter.Current());
             }
         }
@@ -1717,11 +1717,11 @@ namespace TTD
     }
 
     int64 EventLog::GetLastEventTimeInLog() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 1719\n");
         for(auto iter = this->m_eventList.GetIteratorAtLast(); iter.IsValid(); iter.MovePrevious())
-        {
+        {LOGMEIN("TTEventLog.cpp] 1721\n");
             if(NSLogEvents::IsJsRTActionRootCall(iter.Current()))
-            {
+            {LOGMEIN("TTEventLog.cpp] 1723\n");
                 return NSLogEvents::GetTimeFromRootCallOrSnapshot(iter.Current());
             }
         }
@@ -1730,16 +1730,16 @@ namespace TTD
     }
 
     int64 EventLog::GetKthEventTimeInLog(uint32 k) const
-    {
+    {LOGMEIN("TTEventLog.cpp] 1732\n");
         uint32 topLevelCount = 0;
         for(auto iter = this->m_eventList.GetIteratorAtFirst(); iter.IsValid(); iter.MoveNext())
-        {
+        {LOGMEIN("TTEventLog.cpp] 1735\n");
             if(NSLogEvents::IsJsRTActionRootCall(iter.Current()))
-            {
+            {LOGMEIN("TTEventLog.cpp] 1737\n");
                 topLevelCount++;
 
                 if(topLevelCount == k)
-                {
+                {LOGMEIN("TTEventLog.cpp] 1741\n");
                     return NSLogEvents::GetTimeFromRootCallOrSnapshot(iter.Current());
                 }
             }
@@ -1749,7 +1749,7 @@ namespace TTD
     }
 
     void EventLog::ResetCallStackForTopLevelCall(int64 topLevelCallbackEventTime)
-    {
+    {LOGMEIN("TTEventLog.cpp] 1751\n");
         TTDAssert(this->m_callStack.Count() == 0, "We should be at the top-level entry!!!");
 
         this->m_runningFunctionTimeCtr = 0;
@@ -1760,33 +1760,33 @@ namespace TTD
     }
 
     bool EventLog::IsTimeForSnapshot() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 1762\n");
         return (this->m_elapsedExecutionTimeSinceSnapshot > this->m_threadContext->TTDContext->SnapInterval);
     }
 
     void EventLog::PruneLogLength()
-    {
+    {LOGMEIN("TTEventLog.cpp] 1767\n");
         uint32 maxEvents = this->m_threadContext->TTDContext->SnapHistoryLength;
         auto tailIter = this->m_eventList.GetIteratorAtLast();
         while(maxEvents != 0 && tailIter.IsValid())
-        {
+        {LOGMEIN("TTEventLog.cpp] 1771\n");
             if(tailIter.Current()->EventKind == NSLogEvents::EventKind::SnapshotTag)
-            {
+            {LOGMEIN("TTEventLog.cpp] 1773\n");
                 maxEvents--;
             }
 
             if(maxEvents != 0)
-            {
+            {LOGMEIN("TTEventLog.cpp] 1778\n");
                 //don't move when we point to the last snapshot we want to preserve (have as the new eventList start)
                 tailIter.MovePrevious();
             }
         }
 
         if(maxEvents == 0 && tailIter.IsValid())
-        {
+        {LOGMEIN("TTEventLog.cpp] 1785\n");
             auto delIter = this->m_eventList.GetIteratorAtFirst(); //we know tailIter is valid so at least 1 entry
             while(delIter.Current() != tailIter.Current())
-            {
+            {LOGMEIN("TTEventLog.cpp] 1788\n");
                 NSLogEvents::EventLogEntry* evt = delIter.Current();
                 TTEventList::TTEventListLink* block = delIter.GetBlock();
                 delIter.MoveNext();
@@ -1797,12 +1797,12 @@ namespace TTD
     }
 
     void EventLog::IncrementElapsedSnapshotTime(double addtlTime)
-    {
+    {LOGMEIN("TTEventLog.cpp] 1799\n");
         this->m_elapsedExecutionTimeSinceSnapshot += addtlTime;
     }
 
     void EventLog::DoSnapshotExtract()
-    {
+    {LOGMEIN("TTEventLog.cpp] 1804\n");
         this->SetSnapshotOrInflateInProgress(true);
         this->PushMode(TTDMode::ExcludedExecutionTTAction);
 
@@ -1823,7 +1823,7 @@ namespace TTD
     }
 
     void EventLog::DoRtrSnapIfNeeded()
-    {
+    {LOGMEIN("TTEventLog.cpp] 1825\n");
         TTDAssert(this->m_currentReplayEventIterator.IsValid() && NSLogEvents::IsJsRTActionRootCall(this->m_currentReplayEventIterator.Current()), "Something in wrong with the event position.");
 
         this->SetSnapshotOrInflateInProgress(true);
@@ -1831,7 +1831,7 @@ namespace TTD
 
         NSLogEvents::JsRTCallFunctionAction* rootCall = NSLogEvents::GetInlineEventDataAs<NSLogEvents::JsRTCallFunctionAction, NSLogEvents::EventKind::CallExistingFunctionActionTag>(this->m_currentReplayEventIterator.Current());
         if(rootCall->AdditionalInfo->AdditionalReplayInfo->RtRSnap == nullptr)
-        {
+        {LOGMEIN("TTEventLog.cpp] 1833\n");
             //Be careful to ensure that caller is actually doing this
             AUTO_NESTED_HANDLED_EXCEPTION_TYPE((ExceptionType)(ExceptionType_OutOfMemory | ExceptionType_JavascriptException));
 
@@ -1843,15 +1843,15 @@ namespace TTD
     }
 
     int64 EventLog::FindSnapTimeForEventTime(int64 targetTime, int64* optEndSnapTime)
-    {
+    {LOGMEIN("TTEventLog.cpp] 1845\n");
         int64 snapTime = -1;
         if(optEndSnapTime != nullptr)
-        {
+        {LOGMEIN("TTEventLog.cpp] 1848\n");
             *optEndSnapTime = -1;
         }
 
         for(auto iter = this->m_eventList.GetIteratorAtLast(); iter.IsValid(); iter.MovePrevious())
-        {
+        {LOGMEIN("TTEventLog.cpp] 1853\n");
             bool isSnap = false;
             bool isRoot = false;
             bool hasRtrSnap = false;
@@ -1859,21 +1859,21 @@ namespace TTD
 
             bool validSnap =  isSnap | (isRoot & hasRtrSnap);
             if(validSnap && time <= targetTime)
-            {
+            {LOGMEIN("TTEventLog.cpp] 1861\n");
                 snapTime = time;
                 break;
             }
         }
 
         if(optEndSnapTime != nullptr)
-        {
+        {LOGMEIN("TTEventLog.cpp] 1868\n");
             for(auto iter = this->m_eventList.GetIteratorAtFirst(); iter.IsValid(); iter.MoveNext())
-            {
+            {LOGMEIN("TTEventLog.cpp] 1870\n");
                 if(iter.Current()->EventKind == NSLogEvents::EventKind::SnapshotTag)
-                {
+                {LOGMEIN("TTEventLog.cpp] 1872\n");
                     NSLogEvents::SnapshotEventLogEntry* snapEvent = NSLogEvents::GetInlineEventDataAs<NSLogEvents::SnapshotEventLogEntry, NSLogEvents::EventKind::SnapshotTag>(iter.Current());
                     if(snapEvent->RestoreTimestamp > snapTime)
-                    {
+                    {LOGMEIN("TTEventLog.cpp] 1875\n");
                         *optEndSnapTime = snapEvent->RestoreTimestamp;
                         break;
                     }
@@ -1885,20 +1885,20 @@ namespace TTD
     }
 
     void EventLog::GetSnapShotBoundInterval(int64 targetTime, int64* snapIntervalStart, int64* snapIntervalEnd) const
-    {
+    {LOGMEIN("TTEventLog.cpp] 1887\n");
         *snapIntervalStart = -1;
         *snapIntervalEnd = -1;
 
         //move the iterator to the current snapshot just before the event
         auto iter = this->m_eventList.GetIteratorAtLast();
         while(iter.IsValid())
-        {
+        {LOGMEIN("TTEventLog.cpp] 1894\n");
             NSLogEvents::EventLogEntry* evt = iter.Current();
             if(evt->EventKind == NSLogEvents::EventKind::SnapshotTag)
-            {
+            {LOGMEIN("TTEventLog.cpp] 1897\n");
                 NSLogEvents::SnapshotEventLogEntry* snapEvent = NSLogEvents::GetInlineEventDataAs<NSLogEvents::SnapshotEventLogEntry, NSLogEvents::EventKind::SnapshotTag>(iter.Current());
                 if(snapEvent->RestoreTimestamp <= targetTime)
-                {
+                {LOGMEIN("TTEventLog.cpp] 1900\n");
                     *snapIntervalStart = snapEvent->RestoreTimestamp;
                     break;
                 }
@@ -1909,13 +1909,13 @@ namespace TTD
 
         //now move the iter to the next snapshot
         while(iter.IsValid())
-        {
+        {LOGMEIN("TTEventLog.cpp] 1911\n");
             NSLogEvents::EventLogEntry* evt = iter.Current();
             if(evt->EventKind == NSLogEvents::EventKind::SnapshotTag)
-            {
+            {LOGMEIN("TTEventLog.cpp] 1914\n");
                 NSLogEvents::SnapshotEventLogEntry* snapEvent = NSLogEvents::GetInlineEventDataAs<NSLogEvents::SnapshotEventLogEntry, NSLogEvents::EventKind::SnapshotTag>(iter.Current());
                 if(*snapIntervalStart < snapEvent->RestoreTimestamp)
-                {
+                {LOGMEIN("TTEventLog.cpp] 1917\n");
                     *snapIntervalEnd = snapEvent->RestoreTimestamp;
                     break;
                 }
@@ -1926,16 +1926,16 @@ namespace TTD
     }
 
     int64 EventLog::GetPreviousSnapshotInterval(int64 currentSnapTime) const
-    {
+    {LOGMEIN("TTEventLog.cpp] 1928\n");
         //move the iterator to the current snapshot just before the event
         for(auto iter = this->m_eventList.GetIteratorAtLast(); iter.IsValid(); iter.MovePrevious())
-        {
+        {LOGMEIN("TTEventLog.cpp] 1931\n");
             NSLogEvents::EventLogEntry* evt = iter.Current();
             if(evt->EventKind == NSLogEvents::EventKind::SnapshotTag)
-            {
+            {LOGMEIN("TTEventLog.cpp] 1934\n");
                 NSLogEvents::SnapshotEventLogEntry* snapEvent = NSLogEvents::GetInlineEventDataAs<NSLogEvents::SnapshotEventLogEntry, NSLogEvents::EventKind::SnapshotTag>(iter.Current());
                 if(snapEvent->RestoreTimestamp < currentSnapTime)
-                {
+                {LOGMEIN("TTEventLog.cpp] 1937\n");
                     return snapEvent->RestoreTimestamp;
                 }
             }
@@ -1945,20 +1945,20 @@ namespace TTD
     }
 
     void EventLog::DoSnapshotInflate(int64 etime)
-    {
+    {LOGMEIN("TTEventLog.cpp] 1947\n");
         this->PushMode(TTDMode::ExcludedExecutionTTAction);
 
         const SnapShot* snap = nullptr;
         int64 restoreEventTime = -1;
 
         for(auto iter = this->m_eventList.GetIteratorAtLast(); iter.IsValid(); iter.MovePrevious())
-        {
+        {LOGMEIN("TTEventLog.cpp] 1954\n");
             NSLogEvents::EventLogEntry* evt = iter.Current();
             if(evt->EventKind == NSLogEvents::EventKind::SnapshotTag)
-            {
+            {LOGMEIN("TTEventLog.cpp] 1957\n");
                 NSLogEvents::SnapshotEventLogEntry* snapEvent = NSLogEvents::GetInlineEventDataAs<NSLogEvents::SnapshotEventLogEntry, NSLogEvents::EventKind::SnapshotTag>(evt);
                 if(snapEvent->RestoreTimestamp == etime)
-                {
+                {LOGMEIN("TTEventLog.cpp] 1960\n");
                     NSLogEvents::SnapshotEventLogEntry_EnsureSnapshotDeserialized(evt, this->m_threadContext);
 
                     restoreEventTime = snapEvent->RestoreTimestamp;
@@ -1968,11 +1968,11 @@ namespace TTD
             }
 
             if(NSLogEvents::IsJsRTActionRootCall(evt))
-            {
+            {LOGMEIN("TTEventLog.cpp] 1970\n");
                 const NSLogEvents::JsRTCallFunctionAction* rootEntry = NSLogEvents::GetInlineEventDataAs<NSLogEvents::JsRTCallFunctionAction, NSLogEvents::EventKind::CallExistingFunctionActionTag>(evt);
 
                 if(rootEntry->AdditionalInfo->CallEventTime == etime)
-                {
+                {LOGMEIN("TTEventLog.cpp] 1974\n");
                     restoreEventTime = rootEntry->AdditionalInfo->CallEventTime;
                     snap = rootEntry->AdditionalInfo->AdditionalReplayInfo->RtRSnap;
                     break;
@@ -1986,7 +1986,7 @@ namespace TTD
         TTDIdentifierDictionary<uint64, NSSnapValues::TopLevelScriptLoadFunctionBodyResolveInfo*> topLevelLoadScriptMap;
         topLevelLoadScriptMap.Initialize(this->m_loadedTopLevelScripts.Count());
         for(auto iter = this->m_loadedTopLevelScripts.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {LOGMEIN("TTEventLog.cpp] 1988\n");
             topLevelLoadScriptMap.AddItem(iter.Current()->TopLevelBase.TopLevelBodyCtr, iter.Current());
             dbgScopeCount += iter.Current()->TopLevelBase.ScopeChainInfo.ScopeCount;
         }
@@ -1994,7 +1994,7 @@ namespace TTD
         TTDIdentifierDictionary<uint64, NSSnapValues::TopLevelNewFunctionBodyResolveInfo*> topLevelNewScriptMap;
         topLevelNewScriptMap.Initialize(this->m_newFunctionTopLevelScripts.Count());
         for(auto iter = this->m_newFunctionTopLevelScripts.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {LOGMEIN("TTEventLog.cpp] 1996\n");
             topLevelNewScriptMap.AddItem(iter.Current()->TopLevelBase.TopLevelBodyCtr, iter.Current());
             dbgScopeCount += iter.Current()->TopLevelBase.ScopeChainInfo.ScopeCount;
         }
@@ -2002,7 +2002,7 @@ namespace TTD
         TTDIdentifierDictionary<uint64, NSSnapValues::TopLevelEvalFunctionBodyResolveInfo*> topLevelEvalScriptMap;
         topLevelEvalScriptMap.Initialize(this->m_evalTopLevelScripts.Count());
         for(auto iter = this->m_evalTopLevelScripts.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {LOGMEIN("TTEventLog.cpp] 2004\n");
             topLevelEvalScriptMap.AddItem(iter.Current()->TopLevelBase.TopLevelBodyCtr, iter.Current());
             dbgScopeCount += iter.Current()->TopLevelBase.ScopeChainInfo.ScopeCount;
         }
@@ -2015,12 +2015,12 @@ namespace TTD
 
         //Fast checks ok but make sure we aren't blocked by a non-restorable well known object
         if(reuseInflateMap)
-        {
+        {LOGMEIN("TTEventLog.cpp] 2017\n");
             reuseInflateMap = snap->AllWellKnownObjectsReusable(this->m_lastInflateMap);
         }
 
         if(reuseInflateMap)
-        {
+        {LOGMEIN("TTEventLog.cpp] 2022\n");
             this->m_lastInflateMap->PrepForReInflate(snap->ContextCount(), snap->HandlerCount(), snap->TypeCount(), snap->PrimitiveCount() + snap->ObjectCount(), snap->BodyCount(), dbgScopeCount, snap->EnvCount(), snap->SlotArrayCount());
 
             //collect anything that is dead
@@ -2030,13 +2030,13 @@ namespace TTD
             //inflate into existing contexts
             const JsUtil::List<Js::ScriptContext*, HeapAllocator>& oldCtxts = threadCtx->GetTTDContexts();
             for(auto iter = snpCtxs.GetIterator(); iter.IsValid(); iter.MoveNext())
-            {
+            {LOGMEIN("TTEventLog.cpp] 2032\n");
                 const NSSnapValues::SnapContext* sCtx = iter.Current();
                 Js::ScriptContext* vCtx = nullptr;
                 for(int32 i = 0; i < oldCtxts.Count(); ++i)
-                {
+                {LOGMEIN("TTEventLog.cpp] 2036\n");
                     if(oldCtxts.Item(i)->ScriptContextLogTag == sCtx->ScriptContextLogId)
-                    {
+                    {LOGMEIN("TTEventLog.cpp] 2038\n");
                         vCtx = oldCtxts.Item(i);
                         break;
                     }
@@ -2050,7 +2050,7 @@ namespace TTD
         {
             bool shouldReleaseCtxs = false;
             if(this->m_lastInflateMap != nullptr)
-            {
+            {LOGMEIN("TTEventLog.cpp] 2052\n");
                 shouldReleaseCtxs = true;
 
                 TT_HEAP_DELETE(InflateMap, this->m_lastInflateMap);
@@ -2068,7 +2068,7 @@ namespace TTD
 
             //allocate and inflate into new contexts
             for(auto iter = snpCtxs.GetIterator(); iter.IsValid(); iter.MoveNext())
-            {
+            {LOGMEIN("TTEventLog.cpp] 2070\n");
                 const NSSnapValues::SnapContext* sCtx = iter.Current();
 
                 Js::ScriptContext* vCtx = nullptr;
@@ -2079,9 +2079,9 @@ namespace TTD
             threadCtx->ResetContextCreatedOrDestoyedInReplay();
 
             if(shouldReleaseCtxs)
-            {
+            {LOGMEIN("TTEventLog.cpp] 2081\n");
                 for(int32 i = 0; i < deadCtxs.Count(); ++i)
-                {
+                {LOGMEIN("TTEventLog.cpp] 2083\n");
                     threadCtx->TTDExternalObjectFunctions.pfReleaseJsRTContextCallback(deadCtxs.Item(i));
                 }
                 this->m_threadContext->GetRecycler()->CollectNow<CollectNowForceInThread>();
@@ -2089,7 +2089,7 @@ namespace TTD
 
             //We don't want to have a bunch of snapshots in memory (that will get big fast) so unload all but the current one
             for(auto iter = this->m_eventList.GetIteratorAtLast(); iter.IsValid(); iter.MovePrevious())
-            {
+            {LOGMEIN("TTEventLog.cpp] 2091\n");
                 bool isSnap = false;
                 bool isRoot = false;
                 bool hasRtrSnap = false;
@@ -2097,9 +2097,9 @@ namespace TTD
 
                 bool hasSnap = isSnap | (isRoot & hasRtrSnap);
                 if(hasSnap && time != etime)
-                {
+                {LOGMEIN("TTEventLog.cpp] 2099\n");
                     if(isSnap)
-                    {
+                    {LOGMEIN("TTEventLog.cpp] 2101\n");
                         NSLogEvents::SnapshotEventLogEntry_UnloadSnapshot(iter.Current());
                     }
                     else
@@ -2119,18 +2119,18 @@ namespace TTD
 
         this->m_eventTimeCtr = restoreEventTime;
         if(!this->m_eventList.IsEmpty())
-        {
+        {LOGMEIN("TTEventLog.cpp] 2121\n");
             this->m_currentReplayEventIterator = this->m_eventList.GetIteratorAtLast();
 
             while(true)
-            {
+            {LOGMEIN("TTEventLog.cpp] 2125\n");
                 bool isSnap = false;
                 bool isRoot = false;
                 bool hasRtrSnap = false;
                 int64 time = NSLogEvents::AccessTimeInRootCallOrSnapshot(this->m_currentReplayEventIterator.Current(), isSnap, isRoot, hasRtrSnap);
 
                 if((isSnap | isRoot) && time == this->m_eventTimeCtr)
-                {
+                {LOGMEIN("TTEventLog.cpp] 2132\n");
                     break;
                 }
 
@@ -2139,7 +2139,7 @@ namespace TTD
 
             //we want to advance to the event immediately after the snapshot as well so do that
             if(this->m_currentReplayEventIterator.Current()->EventKind == NSLogEvents::EventKind::SnapshotTag)
-            {
+            {LOGMEIN("TTEventLog.cpp] 2141\n");
                 this->m_eventTimeCtr++;
                 this->m_currentReplayEventIterator.MoveNext();
             }
@@ -2156,27 +2156,27 @@ namespace TTD
     }
 
     void EventLog::ReplayRootEventsToTime(int64 eventTime)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2158\n");
         while(this->m_eventTimeCtr < eventTime)
-        {
+        {LOGMEIN("TTEventLog.cpp] 2160\n");
             this->ReplaySingleRootEntry();
         }
     }
 
     void EventLog::ReplaySingleRootEntry()
-    {
+    {LOGMEIN("TTEventLog.cpp] 2166\n");
         if(!this->m_currentReplayEventIterator.IsValid())
-        {
+        {LOGMEIN("TTEventLog.cpp] 2168\n");
             this->AbortReplayReturnToHost();
         }
 
         NSLogEvents::EventKind eKind = this->m_currentReplayEventIterator.Current()->EventKind;
         if(eKind == NSLogEvents::EventKind::SnapshotTag)
-        {
+        {LOGMEIN("TTEventLog.cpp] 2174\n");
             this->ReplaySnapshotEvent();
         }
         else if(eKind == NSLogEvents::EventKind::EventLoopYieldPointTag)
-        {
+        {LOGMEIN("TTEventLog.cpp] 2178\n");
             this->ReplayEventLoopYieldPointEvent();
         }
         else
@@ -2192,17 +2192,17 @@ namespace TTD
     }
 
     void EventLog::ReplayActionEventSequenceThroughTime(int64 eventTime)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2194\n");
         while(this->m_eventTimeCtr <= eventTime)
-        {
+        {LOGMEIN("TTEventLog.cpp] 2196\n");
             this->ReplaySingleActionEventEntry();
         }
     }
 
     void EventLog::ReplaySingleActionEventEntry()
-    {
+    {LOGMEIN("TTEventLog.cpp] 2202\n");
         if(!this->m_currentReplayEventIterator.IsValid())
-        {
+        {LOGMEIN("TTEventLog.cpp] 2204\n");
             this->AbortReplayReturnToHost();
         }
 
@@ -2216,10 +2216,10 @@ namespace TTD
 
         ThreadContextTTD* executeContext = this->m_threadContext->TTDContext;
         if(execKind == NSLogEvents::ContextExecuteKind::GlobalAPIWrapper)
-        {
+        {LOGMEIN("TTEventLog.cpp] 2218\n");
             //enter/exit global wrapper -- see JsrtInternal.h
             try
-            {
+            {LOGMEIN("TTEventLog.cpp] 2221\n");
                 AUTO_NESTED_HANDLED_EXCEPTION_TYPE((ExceptionType)(ExceptionType_OutOfMemory | ExceptionType_StackOverflow));
 
                 executeFP(evt, executeContext);
@@ -2227,7 +2227,7 @@ namespace TTD
                 TTDAssert(NSLogEvents::EventCompletesNormally(evt), "All my action events should exit or terminate before return so no need to loop yet but may want to later");
             }
             catch(TTD::TTDebuggerAbortException)
-            {
+            {LOGMEIN("TTEventLog.cpp] 2229\n");
                 throw;
             }
             catch(...)
@@ -2236,7 +2236,7 @@ namespace TTD
             }
         }
         else if(execKind == NSLogEvents::ContextExecuteKind::ContextAPIWrapper)
-        {
+        {LOGMEIN("TTEventLog.cpp] 2238\n");
             //enter/exit context wrapper -- see JsrtInternal.h
             Js::ScriptContext* ctx = executeContext->GetActiveScriptContext();
 
@@ -2245,7 +2245,7 @@ namespace TTD
             TTDAssert(this->m_threadContext->TTDContext->GetActiveScriptContext() == ctx, "Make sure the replay host didn't change contexts on us unexpectedly without resetting back to the correct one.");
 
             try
-            {
+            {LOGMEIN("TTEventLog.cpp] 2247\n");
                 AUTO_NESTED_HANDLED_EXCEPTION_TYPE((ExceptionType)(ExceptionType_OutOfMemory | ExceptionType_JavascriptException));
 
                 // Enter script
@@ -2258,20 +2258,20 @@ namespace TTD
                 TTDAssert(NSLogEvents::EventCompletesNormally(evt), "All my action events should exit / terminate before return so no need to loop yet but may want to later");
             }
             catch(const Js::JavascriptException& err)
-            {
+            {LOGMEIN("TTEventLog.cpp] 2260\n");
                 TTDAssert(NSLogEvents::EventCompletesWithException(evt), "Should see same execption here");
 
                 ctx->GetThreadContext()->SetRecordedException(err.GetAndClear());
             }
             catch(Js::ScriptAbortException)
-            {
+            {LOGMEIN("TTEventLog.cpp] 2266\n");
                 TTDAssert(NSLogEvents::EventCompletesWithException(evt), "Should see same execption here");
 
                 Assert(ctx->GetThreadContext()->GetRecordedException() == nullptr);
                 ctx->GetThreadContext()->SetRecordedException(ctx->GetThreadContext()->GetPendingTerminatedErrorObject());
             }
             catch(TTD::TTDebuggerAbortException)
-            {
+            {LOGMEIN("TTEventLog.cpp] 2273\n");
                 throw;
             }
             catch(...)
@@ -2280,7 +2280,7 @@ namespace TTD
             }
         }
         else if(execKind == NSLogEvents::ContextExecuteKind::ContextAPINoScriptWrapper)
-        {
+        {LOGMEIN("TTEventLog.cpp] 2282\n");
             //enter/exit context no script wrapper -- see JsrtInternal.h
             Js::ScriptContext* ctx = executeContext->GetActiveScriptContext();
 
@@ -2289,7 +2289,7 @@ namespace TTD
             TTDAssert(this->m_threadContext->TTDContext->GetActiveScriptContext() == ctx, "Make sure the replay host didn't change contexts on us unexpectedly without resetting back to the correct one.");
 
             try
-            {
+            {LOGMEIN("TTEventLog.cpp] 2291\n");
                 AUTO_NESTED_HANDLED_EXCEPTION_TYPE((ExceptionType)(ExceptionType_OutOfMemory | ExceptionType_StackOverflow));
 
                 executeFP(evt, executeContext);
@@ -2297,21 +2297,21 @@ namespace TTD
                 TTDAssert(NSLogEvents::EventCompletesNormally(evt), "All my action events should both exit / terminate before return so no need to loop yet but may want to later");
             }
             catch(const Js::JavascriptException& err)
-            {
+            {LOGMEIN("TTEventLog.cpp] 2299\n");
                 TTDAssert(NSLogEvents::EventCompletesWithException(evt), "Should see same execption here");
 
                 TTDAssert(false, "Should never get JavascriptExceptionObject for ContextAPINoScriptWrapper.");
                 ctx->GetThreadContext()->SetRecordedException(err.GetAndClear());
             }
             catch(Js::ScriptAbortException)
-            {
+            {LOGMEIN("TTEventLog.cpp] 2306\n");
                 TTDAssert(NSLogEvents::EventCompletesWithException(evt), "Should see same execption here");
 
                 Assert(ctx->GetThreadContext()->GetRecordedException() == nullptr);
                 ctx->GetThreadContext()->SetRecordedException(ctx->GetThreadContext()->GetPendingTerminatedErrorObject());
             }
             catch(TTD::TTDebuggerAbortException)
-            {
+            {LOGMEIN("TTEventLog.cpp] 2313\n");
                 throw;
             }
             catch(...)
@@ -2333,23 +2333,23 @@ namespace TTD
     }
 
     bool EventLog::IsPropertyRecordRef(void* ref) const
-    {
+    {LOGMEIN("TTEventLog.cpp] 2335\n");
         //This is an ugly cast but we just want to know if the pointer is in the set so it is ok here
         return this->m_propertyRecordPinSet->ContainsKey((Js::PropertyRecord*)ref);
     }
 
     double EventLog::GetCurrentWallTime()
-    {
+    {LOGMEIN("TTEventLog.cpp] 2341\n");
         return this->m_timer.Now();
     }
 
     int64 EventLog::GetLastEventTime() const
-    {
+    {LOGMEIN("TTEventLog.cpp] 2346\n");
         return this->m_eventTimeCtr - 1;
     }
 
     NSLogEvents::EventLogEntry* EventLog::RecordJsRTCreateScriptContext(TTDJsRTActionResultAutoRecorder& actionPopper)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2351\n");
         NSLogEvents::JsRTCreateScriptContextAction* cAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTCreateScriptContextAction, NSLogEvents::EventKind::CreateScriptContextActionTag>(&cAction);
 
@@ -2362,7 +2362,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTCreateScriptContextResult(NSLogEvents::EventLogEntry* evt, Js::ScriptContext* newCtx)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2364\n");
         NSLogEvents::JsRTCreateScriptContextAction* cAction = NSLogEvents::GetInlineEventDataAs<NSLogEvents::JsRTCreateScriptContextAction, NSLogEvents::EventKind::CreateScriptContextActionTag>(evt);
         cAction->KnownObjects = this->m_eventSlabAllocator.SlabAllocateStruct<NSLogEvents::JsRTCreateScriptContextAction_KnownObjects>();
 
@@ -2374,7 +2374,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTSetCurrentContext(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var globalObject)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2376\n");
         NSLogEvents::JsRTVarsArgumentAction* sAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::SetActiveScriptContextActionTag>(&sAction);
         sAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(globalObject);
@@ -2383,7 +2383,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTDeadScriptEvent(const DeadScriptLogTagInfo& deadCtx)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2385\n");
         NSLogEvents::JsRTDestroyScriptContextAction* dAction = this->RecordGetInitializedEvent_DataOnly<NSLogEvents::JsRTDestroyScriptContextAction, NSLogEvents::EventKind::DeadScriptContextActionTag>();
         dAction->KnownObjects = this->m_eventSlabAllocator.SlabAllocateStruct<NSLogEvents::JsRTDestroyScriptContextAction_KnownObjects>();
 
@@ -2396,7 +2396,7 @@ namespace TTD
 
 #if !INT32VAR
     void EventLog::RecordJsRTCreateInteger(TTDJsRTActionResultAutoRecorder& actionPopper, int value)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2398\n");
         NSLogEvents::JsRTVarsWithIntegralUnionArgumentAction* iAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsWithIntegralUnionArgumentAction, NSLogEvents::EventKind::CreateIntegerActionTag>(&iAction);
         iAction->u_iVal = value;
@@ -2406,7 +2406,7 @@ namespace TTD
 #endif
 
     void EventLog::RecordJsRTCreateNumber(TTDJsRTActionResultAutoRecorder& actionPopper, double value)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2408\n");
         NSLogEvents::JsRTDoubleArgumentAction* dAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTDoubleArgumentAction, NSLogEvents::EventKind::CreateNumberActionTag>(&dAction);
         dAction->DoubleValue = value;
@@ -2415,7 +2415,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTCreateBoolean(TTDJsRTActionResultAutoRecorder& actionPopper, bool value)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2417\n");
         NSLogEvents::JsRTVarsWithIntegralUnionArgumentAction* bAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsWithIntegralUnionArgumentAction, NSLogEvents::EventKind::CreateBooleanActionTag>(&bAction);
         bAction->u_iVal = value;
@@ -2424,7 +2424,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTCreateString(TTDJsRTActionResultAutoRecorder& actionPopper, const char16* stringValue, size_t stringLength)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2426\n");
         NSLogEvents::JsRTStringArgumentAction* sAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTStringArgumentAction, NSLogEvents::EventKind::CreateStringActionTag>(&sAction);
         this->m_eventSlabAllocator.CopyStringIntoWLength(stringValue, (uint32)stringLength, sAction->StringValue);
@@ -2433,7 +2433,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTCreateSymbol(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var var)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2435\n");
         NSLogEvents::JsRTVarsArgumentAction* sAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::CreateSymbolActionTag>(&sAction);
         sAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(var);
@@ -2442,7 +2442,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTCreateError(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var msg)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2444\n");
         NSLogEvents::JsRTVarsArgumentAction* sAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::CreateErrorActionTag>(&sAction);
         sAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(msg);
@@ -2451,7 +2451,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTCreateRangeError(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var msg)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2453\n");
         NSLogEvents::JsRTVarsArgumentAction* sAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::CreateRangeErrorActionTag>(&sAction);
         sAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(msg);
@@ -2460,7 +2460,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTCreateReferenceError(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var msg)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2462\n");
         NSLogEvents::JsRTVarsArgumentAction* sAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::CreateReferenceErrorActionTag>(&sAction);
         sAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(msg);
@@ -2469,7 +2469,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTCreateSyntaxError(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var msg)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2471\n");
         NSLogEvents::JsRTVarsArgumentAction* sAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::CreateSyntaxErrorActionTag>(&sAction);
         sAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(msg);
@@ -2478,7 +2478,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTCreateTypeError(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var msg)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2480\n");
         NSLogEvents::JsRTVarsArgumentAction* sAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::CreateTypeErrorActionTag>(&sAction);
         sAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(msg);
@@ -2487,7 +2487,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTCreateURIError(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var msg)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2489\n");
         NSLogEvents::JsRTVarsArgumentAction* sAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::CreateURIErrorActionTag>(&sAction);
         sAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(msg);
@@ -2496,7 +2496,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTVarToNumberConversion(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var var)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2498\n");
         NSLogEvents::JsRTVarsArgumentAction* cAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::VarConvertToNumberActionTag>(&cAction);
         cAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(var);
@@ -2505,7 +2505,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTVarToBooleanConversion(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var var)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2507\n");
         NSLogEvents::JsRTVarsArgumentAction* cAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::VarConvertToBooleanActionTag>(&cAction);
         cAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(var);
@@ -2514,7 +2514,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTVarToStringConversion(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var var)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2516\n");
         NSLogEvents::JsRTVarsArgumentAction* cAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::VarConvertToStringActionTag>(&cAction);
         cAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(var);
@@ -2523,7 +2523,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTVarToObjectConversion(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var var)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2525\n");
         NSLogEvents::JsRTVarsArgumentAction* cAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::VarConvertToObjectActionTag>(&cAction);
         cAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(var);
@@ -2532,7 +2532,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTAddRootRef(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var var)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2534\n");
         NSLogEvents::JsRTVarsArgumentAction* addAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::AddRootRefActionTag>(&addAction);
         addAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(var);
@@ -2541,7 +2541,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTRemoveRootRef(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var var)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2543\n");
         NSLogEvents::JsRTVarsArgumentAction* removeAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::RemoveRootRefActionTag>(&removeAction);
         removeAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(var);
@@ -2550,21 +2550,21 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTEventLoopYieldPoint()
-    {
+    {LOGMEIN("TTEventLog.cpp] 2552\n");
         NSLogEvents::EventLoopYieldPointEntry* ypEvt = this->RecordGetInitializedEvent_DataOnly<NSLogEvents::EventLoopYieldPointEntry, NSLogEvents::EventKind::EventLoopYieldPointTag >();
         ypEvt->EventTimeStamp = this->GetLastEventTime();
         ypEvt->EventWallTime = this->GetCurrentWallTime();
 
         //Put this here in the hope that after handling an event there is an idle period where we can work without blocking user work
         if(this->IsTimeForSnapshot())
-        {
+        {LOGMEIN("TTEventLog.cpp] 2559\n");
             this->DoSnapshotExtract();
             this->PruneLogLength();
         }
     }
 
     void EventLog::RecordJsRTAllocateBasicObject(TTDJsRTActionResultAutoRecorder& actionPopper)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2566\n");
         NSLogEvents::JsRTVarsArgumentAction* cAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::AllocateObjectActionTag>(&cAction);
 
@@ -2572,7 +2572,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTAllocateExternalObject(TTDJsRTActionResultAutoRecorder& actionPopper)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2574\n");
         NSLogEvents::JsRTVarsArgumentAction* cAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::AllocateExternalObjectActionTag>(&cAction);
 
@@ -2580,7 +2580,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTAllocateBasicArray(TTDJsRTActionResultAutoRecorder& actionPopper, uint32 length)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2582\n");
         NSLogEvents::JsRTVarsWithIntegralUnionArgumentAction* cAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsWithIntegralUnionArgumentAction, NSLogEvents::EventKind::AllocateArrayActionTag>(&cAction);
         cAction->u_iVal = length;
@@ -2589,7 +2589,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTAllocateArrayBuffer(TTDJsRTActionResultAutoRecorder& actionPopper, uint32 size)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2591\n");
         NSLogEvents::JsRTVarsWithIntegralUnionArgumentAction* cAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsWithIntegralUnionArgumentAction, NSLogEvents::EventKind::AllocateArrayBufferActionTag>(&cAction);
         cAction->u_iVal = size;
@@ -2598,14 +2598,14 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTAllocateExternalArrayBuffer(TTDJsRTActionResultAutoRecorder& actionPopper, byte* buff, uint32 size)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2600\n");
         NSLogEvents::JsRTByteBufferAction* cAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTByteBufferAction, NSLogEvents::EventKind::AllocateExternalArrayBufferActionTag>(&cAction);
         cAction->Length = size;
 
         cAction->Buffer = nullptr; 
         if(cAction->Length != 0)
-        {
+        {LOGMEIN("TTEventLog.cpp] 2607\n");
             cAction->Buffer = this->m_eventSlabAllocator.SlabAllocateArray<byte>(cAction->Length);
             js_memcpy_s(cAction->Buffer, cAction->Length, buff, size);
         }
@@ -2614,7 +2614,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTAllocateFunction(TTDJsRTActionResultAutoRecorder& actionPopper, bool isNamed, Js::Var optName)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2616\n");
         NSLogEvents::JsRTVarsWithIntegralUnionArgumentAction* cAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsWithIntegralUnionArgumentAction, NSLogEvents::EventKind::AllocateFunctionActionTag>(&cAction);
         cAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(optName);
@@ -2624,7 +2624,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTHostExitProcess(TTDJsRTActionResultAutoRecorder& actionPopper, int32 exitCode)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2626\n");
         NSLogEvents::JsRTVarsWithIntegralUnionArgumentAction* eAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsWithIntegralUnionArgumentAction, NSLogEvents::EventKind::HostExitProcessTag>(&eAction);
         eAction->u_iVal = exitCode;
@@ -2633,7 +2633,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTGetAndClearException(TTDJsRTActionResultAutoRecorder& actionPopper)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2635\n");
         NSLogEvents::JsRTVarsArgumentAction* gcAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::GetAndClearExceptionActionTag>(&gcAction);
 
@@ -2641,7 +2641,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTSetException(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var var, bool propagateToDebugger)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2643\n");
         NSLogEvents::JsRTVarsWithIntegralUnionArgumentAction* spAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsWithIntegralUnionArgumentAction, NSLogEvents::EventKind::SetExceptionActionTag>(&spAction);
         spAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(var);
@@ -2651,10 +2651,10 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTHasProperty(TTDJsRTActionResultAutoRecorder& actionPopper, const Js::PropertyRecord* pRecord, Js::Var var)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2653\n");
         //The host may not have validated this yet (and will exit early if the check fails) so we check it here as well before getting the property id below
         if(pRecord == nullptr || Js::IsInternalPropertyId(pRecord->GetPropertyId()))
-        {
+        {LOGMEIN("TTEventLog.cpp] 2656\n");
             return;
         }
 
@@ -2667,7 +2667,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTInstanceOf(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var object, Js::Var constructor)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2669\n");
         NSLogEvents::JsRTVarsArgumentAction* gpAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::InstanceOfActionTag>(&gpAction);
         gpAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(object);
@@ -2677,7 +2677,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTEquals(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var var1, Js::Var var2, bool doStrict)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2679\n");
         NSLogEvents::JsRTVarsWithIntegralUnionArgumentAction* gpAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsWithIntegralUnionArgumentAction, NSLogEvents::EventKind::EqualsActionTag>(&gpAction);
         gpAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(var1);
@@ -2688,7 +2688,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTGetPropertyIdFromSymbol(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var sym)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2690\n");
         NSLogEvents::JsRTVarsArgumentAction* gpAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::GetPropertyIdFromSymbolTag>(&gpAction);
         gpAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(sym);
@@ -2697,7 +2697,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTGetPrototype(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var var)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2699\n");
         NSLogEvents::JsRTVarsArgumentAction* gpAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::GetPrototypeActionTag>(&gpAction);
         gpAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(var);
@@ -2706,10 +2706,10 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTGetProperty(TTDJsRTActionResultAutoRecorder& actionPopper, const Js::PropertyRecord* pRecord, Js::Var var)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2708\n");
         //The host may not have validated this yet (and will exit early if the check fails) so we check it here as well before getting the property id below
         if(pRecord == nullptr || Js::IsInternalPropertyId(pRecord->GetPropertyId()))
-        {
+        {LOGMEIN("TTEventLog.cpp] 2711\n");
             return;
         }
 
@@ -2722,7 +2722,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTGetIndex(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var index, Js::Var var)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2724\n");
         NSLogEvents::JsRTVarsArgumentAction* giAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::GetIndexActionTag>(&giAction);
         giAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(var);
@@ -2732,10 +2732,10 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTGetOwnPropertyInfo(TTDJsRTActionResultAutoRecorder& actionPopper, const Js::PropertyRecord* pRecord, Js::Var var)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2734\n");
         //The host may not have validated this yet (and will exit early if the check fails) so we check it here as well before getting the property id below
         if(pRecord == nullptr || Js::IsInternalPropertyId(pRecord->GetPropertyId()))
-        {
+        {LOGMEIN("TTEventLog.cpp] 2737\n");
             return;
         }
 
@@ -2748,7 +2748,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTGetOwnPropertyNamesInfo(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var var)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2750\n");
         NSLogEvents::JsRTVarsArgumentAction* gpAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::GetOwnPropertyNamesInfoActionTag>(&gpAction);
         gpAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(var);
@@ -2757,7 +2757,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTGetOwnPropertySymbolsInfo(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var var)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2759\n");
         NSLogEvents::JsRTVarsArgumentAction* gpAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::GetOwnPropertySymbolsInfoActionTag>(&gpAction);
         gpAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(var);
@@ -2766,10 +2766,10 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTDefineProperty(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var var, const Js::PropertyRecord* pRecord, Js::Var propertyDescriptor)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2768\n");
         //The host may not have validated this yet (and will exit early if the check fails) so we check it here as well before getting the property id below
         if(pRecord == nullptr || Js::IsInternalPropertyId(pRecord->GetPropertyId()))
-        {
+        {LOGMEIN("TTEventLog.cpp] 2771\n");
             return;
         }
 
@@ -2783,10 +2783,10 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTDeleteProperty(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var var, const Js::PropertyRecord* pRecord, bool useStrictRules)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2785\n");
         //The host may not have validated this yet (and will exit early if the check fails) so we check it here as well before getting the property id below
         if(pRecord == nullptr || Js::IsInternalPropertyId(pRecord->GetPropertyId()))
-        {
+        {LOGMEIN("TTEventLog.cpp] 2788\n");
             return;
         }
 
@@ -2800,7 +2800,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTSetPrototype(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var var, Js::Var proto)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2802\n");
         NSLogEvents::JsRTVarsArgumentAction* spAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::SetPrototypeActionTag>(&spAction);
         spAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(var);
@@ -2810,10 +2810,10 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTSetProperty(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var var, const Js::PropertyRecord* pRecord, Js::Var val, bool useStrictRules)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2812\n");
         //The host may not have validated this yet (and will exit early if the check fails) so we check it here as well before getting the property id below
         if(pRecord == nullptr || Js::IsInternalPropertyId(pRecord->GetPropertyId()))
-        {
+        {LOGMEIN("TTEventLog.cpp] 2815\n");
             return;
         }
 
@@ -2828,7 +2828,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTSetIndex(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var var, Js::Var index, Js::Var val)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2830\n");
         NSLogEvents::JsRTVarsArgumentAction* spAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::SetIndexActionTag>(&spAction);
         spAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(var);
@@ -2839,7 +2839,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTGetTypedArrayInfo(Js::Var var, Js::Var result)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2841\n");
         NSLogEvents::JsRTVarsArgumentAction* giAction = this->RecordGetInitializedEvent_DataOnly<NSLogEvents::JsRTVarsArgumentAction, NSLogEvents::EventKind::GetTypedArrayInfoActionTag>();
         giAction->Var1 = TTD_CONVERT_JSVAR_TO_TTDVAR(var);
 
@@ -2848,7 +2848,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTRawBufferCopySync(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var dst, uint32 dstIndex, Js::Var src, uint32 srcIndex, uint32 length)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2850\n");
         TTDAssert(Js::ArrayBuffer::Is(dst) && Js::ArrayBuffer::Is(src), "Not array buffer objects!!!");
         TTDAssert(dstIndex + length <= Js::ArrayBuffer::FromVar(dst)->GetByteLength(), "Copy off end of buffer!!!");
         TTDAssert(srcIndex + length <= Js::ArrayBuffer::FromVar(src)->GetByteLength(), "Copy off end of buffer!!!");
@@ -2865,7 +2865,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTRawBufferModifySync(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var dst, uint32 index, uint32 count)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2867\n");
         TTDAssert(Js::ArrayBuffer::Is(dst), "Not array buffer object!!!");
         TTDAssert(index + count <= Js::ArrayBuffer::FromVar(dst)->GetByteLength(), "Copy off end of buffer!!!");
 
@@ -2883,7 +2883,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTRawBufferAsyncModificationRegister(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var dst, uint32 index)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2885\n");
             NSLogEvents::JsRTRawBufferModifyAction* rbrAction = nullptr;
             NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTRawBufferModifyAction, NSLogEvents::EventKind::RawBufferAsyncModificationRegister>(&rbrAction);
             rbrAction->Trgt = TTD_CONVERT_JSVAR_TO_TTDVAR(dst);
@@ -2893,7 +2893,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTRawBufferAsyncModifyComplete(TTDJsRTActionResultAutoRecorder& actionPopper, TTDPendingAsyncBufferModification& pendingAsyncInfo, byte* finalModPos)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2895\n");
         Js::ArrayBuffer* dstBuff = Js::ArrayBuffer::FromVar(pendingAsyncInfo.ArrayBufferVar);
         byte* copyBuff = dstBuff->GetBuffer() + pendingAsyncInfo.Index;
 
@@ -2910,7 +2910,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTConstructCall(TTDJsRTActionResultAutoRecorder& actionPopper, Js::Var funcVar, uint32 argCount, Js::Var* args)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2912\n");
         NSLogEvents::JsRTConstructCallAction* ccAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTConstructCallAction, NSLogEvents::EventKind::ConstructCallActionTag>(&ccAction);
 
@@ -2926,7 +2926,7 @@ namespace TTD
     }
 
     void EventLog::RecordJsRTCallbackOperation(Js::ScriptContext* ctx, bool isCreate, bool isCancel, bool isRepeating, Js::JavascriptFunction* func, int64 callbackId)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2928\n");
         NSLogEvents::JsRTCallbackAction* cbrAction = this->RecordGetInitializedEvent_DataOnly<NSLogEvents::JsRTCallbackAction, NSLogEvents::EventKind::CallbackOpActionTag>();
         cbrAction->CurrentCallbackId = this->m_hostCallbackId;
         cbrAction->NewCallbackId = callbackId;
@@ -2941,7 +2941,7 @@ namespace TTD
     }
 
     NSLogEvents::EventLogEntry* EventLog::RecordJsRTCodeParse(TTDJsRTActionResultAutoRecorder& actionPopper, LoadScriptFlag loadFlag, bool isUft8, const byte* script, uint32 scriptByteLength, uint64 sourceContextId, const char16* sourceUri)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2943\n");
         NSLogEvents::JsRTCodeParseAction* cpAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTCodeParseAction, NSLogEvents::EventKind::CodeParseActionTag>(&cpAction);
         cpAction->AdditionalInfo = this->m_eventSlabAllocator.SlabAllocateStruct<NSLogEvents::JsRTCodeParseAction_AdditionalInfo>();
@@ -2965,7 +2965,7 @@ namespace TTD
     }
 
     NSLogEvents::EventLogEntry* EventLog::RecordJsRTCallFunction(TTDJsRTActionResultAutoRecorder& actionPopper, int32 rootDepth, Js::Var funcVar, uint32 argCount, Js::Var* args)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2967\n");
         NSLogEvents::JsRTCallFunctionAction* cAction = nullptr;
         NSLogEvents::EventLogEntry* evt = this->RecordGetInitializedEvent<NSLogEvents::JsRTCallFunctionAction, NSLogEvents::EventKind::CallExistingFunctionActionTag>(&cAction);
 
@@ -2983,7 +2983,7 @@ namespace TTD
     }
 
     void EventLog::EmitLog(const char* emitUri, size_t emitUriLength)
-    {
+    {LOGMEIN("TTEventLog.cpp] 2985\n");
 #if ENABLE_BASIC_TRACE || ENABLE_FULL_BC_TRACE
         this->m_diagnosticLogger.ForceFlush();
 #endif
@@ -3055,7 +3055,7 @@ namespace TTD
         writer.AdjustIndent(1);
         writer.WriteSeperator(NSTokens::Separator::BigSpaceSeparator);
         for(auto iter = this->m_eventList.GetIteratorAtFirst(); iter.IsValid(); iter.MoveNext())
-        {
+        {LOGMEIN("TTEventLog.cpp] 3057\n");
             const NSLogEvents::EventLogEntry* evt = iter.Current();
 
             NSTokens::Separator sep = firstElem ? NSTokens::Separator::NoSeparator : NSTokens::Separator::BigSpaceSeparator;
@@ -3067,16 +3067,16 @@ namespace TTD
             bool isExternalCall = (evt->EventKind == NSLogEvents::EventKind::ExternalCallTag);
             bool isRegisterCall = (evt->EventKind == NSLogEvents::EventKind::ExternalCbRegisterCall);
             if(isJsRTCall | isExternalCall | isRegisterCall)
-            {
+            {LOGMEIN("TTEventLog.cpp] 3069\n");
                 writer.WriteSequenceStart(NSTokens::Separator::BigSpaceSeparator);
 
                 int64 lastNestedTime = -1;
                 if(isJsRTCall)
-                {
+                {LOGMEIN("TTEventLog.cpp] 3074\n");
                     lastNestedTime = NSLogEvents::JsRTCallFunctionAction_GetLastNestedEventTime(evt);
                 }
                 else if(isExternalCall)
-                {
+                {LOGMEIN("TTEventLog.cpp] 3078\n");
                     lastNestedTime = NSLogEvents::ExternalCallEventLogEntry_GetLastNestedEventTime(evt);
                 }
                 else
@@ -3086,7 +3086,7 @@ namespace TTD
                 callNestingStack.Push(lastNestedTime);
 
                 if(lastNestedTime != evt->EventTimeStamp)
-                {
+                {LOGMEIN("TTEventLog.cpp] 3088\n");
                     writer.AdjustIndent(1);
 
                     writer.WriteSeperator(NSTokens::Separator::BigSpaceSeparator);
@@ -3095,18 +3095,18 @@ namespace TTD
             }
 
             if(!callNestingStack.Empty() && evt->EventTimeStamp == callNestingStack.Peek())
-            {
+            {LOGMEIN("TTEventLog.cpp] 3097\n");
                 int64 eTime = callNestingStack.Pop();
 
                 if(!isJsRTCall & !isExternalCall & !isRegisterCall)
-                {
+                {LOGMEIN("TTEventLog.cpp] 3101\n");
                     writer.AdjustIndent(-1);
                     writer.WriteSeperator(NSTokens::Separator::BigSpaceSeparator);
                 }
                 writer.WriteSequenceEnd();
 
                 while(!callNestingStack.Empty() && eTime == callNestingStack.Peek())
-                {
+                {LOGMEIN("TTEventLog.cpp] 3108\n");
                     callNestingStack.Pop();
 
                     writer.AdjustIndent(-1);
@@ -3125,7 +3125,7 @@ namespace TTD
         writer.AdjustIndent(1);
         bool firstProperty = true;
         for(auto iter = this->m_propertyRecordPinSet->GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {LOGMEIN("TTEventLog.cpp] 3127\n");
             NSTokens::Separator sep = (!firstProperty) ? NSTokens::Separator::CommaAndBigSpaceSeparator : NSTokens::Separator::BigSpaceSeparator;
             NSSnapType::EmitPropertyRecordAsSnapPropertyRecord(iter.CurrentValue(), &writer, sep);
 
@@ -3140,7 +3140,7 @@ namespace TTD
         writer.AdjustIndent(1);
         bool firstLoadScript = true;
         for(auto iter = this->m_loadedTopLevelScripts.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {LOGMEIN("TTEventLog.cpp] 3142\n");
             NSTokens::Separator sep = (!firstLoadScript) ? NSTokens::Separator::CommaAndBigSpaceSeparator : NSTokens::Separator::BigSpaceSeparator;
             NSSnapValues::EmitTopLevelLoadedFunctionBodyInfo(iter.Current(), this->m_threadContext, &writer, sep);
 
@@ -3154,7 +3154,7 @@ namespace TTD
         writer.AdjustIndent(1);
         bool firstNewScript = true;
         for(auto iter = this->m_newFunctionTopLevelScripts.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {LOGMEIN("TTEventLog.cpp] 3156\n");
             NSTokens::Separator sep = (!firstNewScript) ? NSTokens::Separator::CommaAndBigSpaceSeparator : NSTokens::Separator::BigSpaceSeparator;
             NSSnapValues::EmitTopLevelNewFunctionBodyInfo(iter.Current(), this->m_threadContext, &writer, sep);
 
@@ -3168,7 +3168,7 @@ namespace TTD
         writer.AdjustIndent(1);
         bool firstEvalScript = true;
         for(auto iter = this->m_evalTopLevelScripts.GetIterator(); iter.IsValid(); iter.MoveNext())
-        {
+        {LOGMEIN("TTEventLog.cpp] 3170\n");
             NSTokens::Separator sep = (!firstEvalScript) ? NSTokens::Separator::CommaAndBigSpaceSeparator : NSTokens::Separator::BigSpaceSeparator;
             NSSnapValues::EmitTopLevelEvalFunctionBodyInfo(iter.Current(), this->m_threadContext, &writer, sep);
 
@@ -3188,7 +3188,7 @@ namespace TTD
     }
 
     void EventLog::ParseLogInto(TTDataIOInfo& iofp, const char* parseUri, size_t parseUriLength)
-    {
+    {LOGMEIN("TTEventLog.cpp] 3190\n");
         iofp.ActiveTTUriLength = parseUriLength;
         iofp.ActiveTTUri = parseUri;
 
@@ -3237,7 +3237,7 @@ namespace TTD
         uint32 ecount = reader.ReadLengthValue(true);
         reader.ReadSequenceStart_WDefaultKey(true);
         for(uint32 i = 0; i < ecount; ++i)
-        {
+        {LOGMEIN("TTEventLog.cpp] 3239\n");
             NSLogEvents::EventLogEntry* evt = this->m_eventList.GetNextAvailableEntry();
             NSLogEvents::EventLogEntry_Parse(evt, this->m_eventListVTable, false, this->m_threadContext, &reader, this->m_eventSlabAllocator);
 
@@ -3246,16 +3246,16 @@ namespace TTD
             bool isExternalCall = (evt->EventKind == NSLogEvents::EventKind::ExternalCallTag);
             bool isRegisterCall = (evt->EventKind == NSLogEvents::EventKind::ExternalCbRegisterCall);
             if(isJsRTCall | isExternalCall | isRegisterCall)
-            {
+            {LOGMEIN("TTEventLog.cpp] 3248\n");
                 reader.ReadSequenceStart(false);
 
                 int64 lastNestedTime = -1;
                 if(isJsRTCall)
-                {
+                {LOGMEIN("TTEventLog.cpp] 3253\n");
                     lastNestedTime = NSLogEvents::JsRTCallFunctionAction_GetLastNestedEventTime(evt);
                 }
                 else if(isExternalCall)
-                {
+                {LOGMEIN("TTEventLog.cpp] 3257\n");
                     lastNestedTime = NSLogEvents::ExternalCallEventLogEntry_GetLastNestedEventTime(evt);
                 }
                 else
@@ -3268,7 +3268,7 @@ namespace TTD
             doSep = (!isJsRTCall & !isExternalCall & !isRegisterCall);
 
             while(callNestingStack.Count() != 0 && evt->EventTimeStamp == callNestingStack.Peek())
-            {
+            {LOGMEIN("TTEventLog.cpp] 3270\n");
                 callNestingStack.Pop();
                 reader.ReadSequenceEnd();
             }
@@ -3280,7 +3280,7 @@ namespace TTD
         uint32 propertyCount = reader.ReadLengthValue(true);
         reader.ReadSequenceStart_WDefaultKey(true);
         for(uint32 i = 0; i < propertyCount; ++i)
-        {
+        {LOGMEIN("TTEventLog.cpp] 3282\n");
             NSSnapType::SnapPropertyRecord* sRecord = this->m_propertyRecordList.NextOpenEntry();
             NSSnapType::ParseSnapPropertyRecord(sRecord, i != 0, &reader, this->m_miscSlabAllocator);
         }
@@ -3290,7 +3290,7 @@ namespace TTD
         uint32 loadedScriptCount = reader.ReadLengthValue(true);
         reader.ReadSequenceStart_WDefaultKey(true);
         for(uint32 i = 0; i < loadedScriptCount; ++i)
-        {
+        {LOGMEIN("TTEventLog.cpp] 3292\n");
             NSSnapValues::TopLevelScriptLoadFunctionBodyResolveInfo* fbInfo = this->m_loadedTopLevelScripts.NextOpenEntry();
             NSSnapValues::ParseTopLevelLoadedFunctionBodyInfo(fbInfo, i != 0, this->m_threadContext, &reader, this->m_miscSlabAllocator);
         }
@@ -3299,7 +3299,7 @@ namespace TTD
         uint32 newScriptCount = reader.ReadLengthValue(true);
         reader.ReadSequenceStart_WDefaultKey(true);
         for(uint32 i = 0; i < newScriptCount; ++i)
-        {
+        {LOGMEIN("TTEventLog.cpp] 3301\n");
             NSSnapValues::TopLevelNewFunctionBodyResolveInfo* fbInfo = this->m_newFunctionTopLevelScripts.NextOpenEntry();
             NSSnapValues::ParseTopLevelNewFunctionBodyInfo(fbInfo, i != 0, this->m_threadContext, &reader, this->m_miscSlabAllocator);
         }
@@ -3308,7 +3308,7 @@ namespace TTD
         uint32 evalScriptCount = reader.ReadLengthValue(true);
         reader.ReadSequenceStart_WDefaultKey(true);
         for(uint32 i = 0; i < evalScriptCount; ++i)
-        {
+        {LOGMEIN("TTEventLog.cpp] 3310\n");
             NSSnapValues::TopLevelEvalFunctionBodyResolveInfo* fbInfo = this->m_evalTopLevelScripts.NextOpenEntry();
             NSSnapValues::ParseTopLevelEvalFunctionBodyInfo(fbInfo, i != 0, this->m_threadContext, &reader, this->m_miscSlabAllocator);
         }

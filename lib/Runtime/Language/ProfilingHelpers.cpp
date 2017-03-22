@@ -12,7 +12,7 @@ namespace Js
         const Var varIndex,
         FunctionBody *const functionBody,
         const ProfileId profileId)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 14\n");
         Assert(base);
         Assert(varIndex);
         Assert(functionBody);
@@ -27,7 +27,7 @@ namespace Js
         const bool isJsArray = !TaggedNumber::Is(base) && VirtualTableInfo<JavascriptArray>::HasVirtualTable(base);
         const bool fastPath = isJsArray;
         if(fastPath)
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 29\n");
             JavascriptArray *const array = JavascriptArray::FromVar(base);
             ldElemInfo.arrayType = ValueType::FromArray(ObjectType::Array, array, TypeIds_Array).ToLikely();
 
@@ -45,13 +45,13 @@ namespace Js
             JavascriptArray::GetArrayForArrayOrObjectWithArray(base, &isObjectWithArray, &arrayTypeId);
 
         do // while(false)
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 47\n");
             // The fast path is only for JavascriptArray and doesn't cover native arrays, objects with internal arrays, or typed
             // arrays, but we still need to profile the array
 
             uint32 headSegmentLength;
             if(array)
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 53\n");
                 ldElemInfo.arrayType =
                     (
                         isObjectWithArray
@@ -64,7 +64,7 @@ namespace Js
                 headSegmentLength = head->length;
             }
             else if(TypedArrayBase::TryGetLengthForOptimizedTypedArray(base, &headSegmentLength, &arrayTypeId))
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 66\n");
                 bool isVirtual = (VirtualTableInfoBase::GetVirtualTable(base) == ValueType::GetVirtualTypedArrayVtable(arrayTypeId));
                 ldElemInfo.arrayType = ValueType::FromTypeId(arrayTypeId, isVirtual).ToLikely();
             }
@@ -74,7 +74,7 @@ namespace Js
             }
 
             if(!TaggedInt::Is(varIndex))
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 76\n");
                 ldElemInfo.neededHelperCall = true;
                 break;
             }
@@ -82,7 +82,7 @@ namespace Js
             const int32 index = TaggedInt::ToInt32(varIndex);
             const uint32 offset = index;
             if(index < 0 || offset >= headSegmentLength || (array && array->IsMissingHeadSegmentItem(offset)))
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 84\n");
                 ldElemInfo.neededHelperCall = true;
                 break;
             }
@@ -92,9 +92,9 @@ namespace Js
 
         const ValueType arrayType(ldElemInfo.GetArrayType());
         if(!arrayType.IsUninitialized())
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 94\n");
             if(arrayType.IsLikelyObject() && arrayType.GetObjectType() == ObjectType::Array && !arrayType.HasIntElements())
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 96\n");
                 JavascriptOperators::UpdateNativeArrayProfileInfoToCreateVarArray(
                     array,
                     arrayType.HasFloatElements(),
@@ -115,36 +115,36 @@ namespace Js
         const Var varIndex,
         ScriptContext *const scriptContext,
         LdElemInfo *const ldElemInfo)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 117\n");
         Assert(array);
         Assert(varIndex);
         Assert(scriptContext);
 
         do // while(false)
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 123\n");
             Assert(!array->IsCrossSiteObject());
             if (!TaggedInt::Is(varIndex))
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 126\n");
                 break;
             }
 
             int32 index = TaggedInt::ToInt32(varIndex);
 
             if (index < 0)
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 133\n");
                 break;
             }
 
             if(ldElemInfo)
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 138\n");
                 SparseArraySegment<Var> *const head = static_cast<SparseArraySegment<Var> *>(array->GetHead());
                 Assert(head->left == 0);
                 const uint32 offset = index;
                 if(offset < head->length)
-                {
+                {LOGMEIN("ProfilingHelpers.cpp] 143\n");
                     const Var element = head->elements[offset];
                     if(!SparseArraySegment<Var>::IsMissingItem(&element))
-                    {
+                    {LOGMEIN("ProfilingHelpers.cpp] 146\n");
                         // Successful fastpath
                         return element;
                     }
@@ -155,17 +155,17 @@ namespace Js
 
             SparseArraySegment<Var> *seg = (SparseArraySegment<Var>*)array->GetLastUsedSegment();
             if ((uint32) index < seg->left)
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 157\n");
                 break;
             }
 
             uint32 index2 = index - seg->left;
 
             if (index2 < seg->length)
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 164\n");
                 Var elem = seg->elements[index2];
                 if (elem != SparseArraySegment<Var>::GetMissingItem())
-                {
+                {LOGMEIN("ProfilingHelpers.cpp] 167\n");
                     // Successful fastpath
                     return elem;
                 }
@@ -173,7 +173,7 @@ namespace Js
         } while(false);
 
         if(ldElemInfo)
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 175\n");
             ldElemInfo->neededHelperCall = true;
         }
         return JavascriptOperators::OP_GetElementI(array, varIndex, scriptContext);
@@ -196,7 +196,7 @@ namespace Js
         FunctionBody *const functionBody,
         const ProfileId profileId,
         const PropertyOperationFlags flags)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 198\n");
         Assert(base);
         Assert(varIndex);
         Assert(value);
@@ -210,7 +210,7 @@ namespace Js
         ScriptContext *const scriptContext = functionBody->GetScriptContext();
         const bool fastPath = isJsArray && !JavascriptOperators::SetElementMayHaveImplicitCalls(scriptContext);
         if(fastPath)
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 212\n");
             JavascriptArray *const array = JavascriptArray::FromVar(base);
             stElemInfo.arrayType = ValueType::FromArray(ObjectType::Array, array, TypeIds_Array).ToLikely();
             stElemInfo.createdMissingValue = array->HasNoMissingValues();
@@ -226,7 +226,7 @@ namespace Js
         bool isObjectWithArray;
         TypeId arrayTypeId;
         if(isJsArray)
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 228\n");
             array = JavascriptArray::FromVar(base);
             isObjectWithArray = false;
             arrayTypeId = TypeIds_Array;
@@ -241,14 +241,14 @@ namespace Js
 #endif
 
         do // while(false)
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 243\n");
             // The fast path is only for JavascriptArray and doesn't cover native arrays, objects with internal arrays, or typed
             // arrays, but we still need to profile the array
 
             uint32 length;
             uint32 headSegmentLength;
             if(array)
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 250\n");
                 stElemInfo.arrayType =
                     (
                         isObjectWithArray
@@ -263,7 +263,7 @@ namespace Js
                 headSegmentLength = head->length;
             }
             else if(TypedArrayBase::TryGetLengthForOptimizedTypedArray(base, &headSegmentLength, &arrayTypeId))
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 265\n");
                 length = headSegmentLength;
                 bool isVirtual = (VirtualTableInfoBase::GetVirtualTable(base) == ValueType::GetVirtualTypedArrayVtable(arrayTypeId));
                 stElemInfo.arrayType = ValueType::FromTypeId(arrayTypeId, isVirtual).ToLikely();
@@ -274,31 +274,31 @@ namespace Js
             }
 
             if(!TaggedInt::Is(varIndex))
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 276\n");
                 stElemInfo.neededHelperCall = true;
                 break;
             }
 
             const int32 index = TaggedInt::ToInt32(varIndex);
             if(index < 0)
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 283\n");
                 stElemInfo.neededHelperCall = true;
                 break;
             }
 
             const uint32 offset = index;
             if(offset >= headSegmentLength)
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 290\n");
                 stElemInfo.storedOutsideHeadSegmentBounds = true;
                 if(!isObjectWithArray && offset >= length)
-                {
+                {LOGMEIN("ProfilingHelpers.cpp] 293\n");
                     stElemInfo.storedOutsideArrayBounds = true;
                 }
                 break;
             }
 
             if(array && array->IsMissingHeadSegmentItem(offset))
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 300\n");
                 stElemInfo.filledMissingValue = true;
             }
         } while(false);
@@ -306,9 +306,9 @@ namespace Js
         JavascriptOperators::OP_SetElementI(base, varIndex, value, scriptContext, flags);
 
         if(!stElemInfo.GetArrayType().IsUninitialized())
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 308\n");
             if(array)
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 310\n");
                 stElemInfo.createdMissingValue &= !array->HasNoMissingValues();
             }
             functionBody->GetDynamicProfileInfo()->RecordElementStore(functionBody, profileId, stElemInfo);
@@ -325,7 +325,7 @@ namespace Js
         ScriptContext *const scriptContext,
         const PropertyOperationFlags flags,
         StElemInfo *const stElemInfo)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 327\n");
         Assert(array);
         Assert(varIndex);
         Assert(value);
@@ -333,35 +333,35 @@ namespace Js
         Assert(!JavascriptOperators::SetElementMayHaveImplicitCalls(scriptContext));
 
         do // while(false)
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 335\n");
             if (!TaggedInt::Is(varIndex))
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 337\n");
                 break;
             }
 
             int32 index = TaggedInt::ToInt32(varIndex);
 
             if (index < 0)
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 344\n");
                 break;
             }
 
             if(stElemInfo)
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 349\n");
                 SparseArraySegmentBase *const head = array->GetHead();
                 Assert(head->left == 0);
                 const uint32 offset = index;
                 if(offset >= head->length)
-                {
+                {LOGMEIN("ProfilingHelpers.cpp] 354\n");
                     stElemInfo->storedOutsideHeadSegmentBounds = true;
                     if(offset >= array->GetLength())
-                    {
+                    {LOGMEIN("ProfilingHelpers.cpp] 357\n");
                         stElemInfo->storedOutsideArrayBounds = true;
                     }
                 }
 
                 if(offset < head->size)
-                {
+                {LOGMEIN("ProfilingHelpers.cpp] 363\n");
                     array->DirectProfiledSetItemInHeadSegmentAt(offset, value, stElemInfo);
                     return;
                 }
@@ -370,14 +370,14 @@ namespace Js
             SparseArraySegment<Var>* lastUsedSeg = (SparseArraySegment<Var>*)array->GetLastUsedSegment();
             if (lastUsedSeg == NULL ||
                 (uint32) index < lastUsedSeg->left)
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 372\n");
                 break;
             }
 
             uint32 index2 = index - lastUsedSeg->left;
 
             if (index2 < lastUsedSeg->size)
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 379\n");
                 // Successful fastpath
                 array->DirectSetItemInLastUsedSegmentAt(index2, value);
                 return;
@@ -385,7 +385,7 @@ namespace Js
         } while(false);
 
         if(stElemInfo)
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 387\n");
             stElemInfo->neededHelperCall = true;
         }
         JavascriptOperators::OP_SetElementI(array, varIndex, value, scriptContext, flags);
@@ -395,7 +395,7 @@ namespace Js
         const uint length,
         FunctionBody *const functionBody,
         const ProfileId profileId)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 397\n");
         Assert(functionBody);
         Assert(profileId != Constants::NoProfileId);
 
@@ -406,21 +406,21 @@ namespace Js
             functionBody->GetDynamicProfileInfo()->GetArrayCallSiteInfo(functionBody, profileId);
         Assert(arrayInfo);
         if (length > SparseArraySegmentBase::INLINE_CHUNK_SIZE || (functionBody->GetHasTry() && PHASE_OFF((Js::OptimizeTryCatchPhase), functionBody)))
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 408\n");
             arrayInfo->SetIsNotNativeArray();
         }
 
         ScriptContext *const scriptContext = functionBody->GetScriptContext();
         JavascriptArray *array;
         if (arrayInfo->IsNativeIntArray())
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 415\n");
             JavascriptNativeIntArray *const intArray = scriptContext->GetLibrary()->CreateNativeIntArrayLiteral(length);
             Recycler *recycler = scriptContext->GetRecycler();
             intArray->SetArrayCallSite(profileId, recycler->CreateWeakReferenceHandle(functionBody));
             array = intArray;
         }
         else if (arrayInfo->IsNativeFloatArray())
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 422\n");
             JavascriptNativeFloatArray *const floatArray = scriptContext->GetLibrary()->CreateNativeFloatArrayLiteral(length);
             Recycler *recycler = scriptContext->GetRecycler();
             floatArray->SetArrayCallSite(profileId, recycler->CreateWeakReferenceHandle(functionBody));
@@ -473,7 +473,7 @@ namespace Js
         // GetSpreadSize ensures that spreadSize < 2^24
         uint32 spreadSize = 0;
         if (spreadIndices != nullptr)
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 475\n");
             Arguments outArgs(CallInfo(args.Info.Flags, 0), nullptr);
             spreadSize = JavascriptFunction::GetSpreadSize(args, spreadIndices, scriptContext);
             Assert(spreadSize == (((1 << 24) - 1) & spreadSize));
@@ -521,7 +521,7 @@ namespace Js
         ScriptFunction *const caller,
         const ProfileId profileId,
         const ProfileId arrayProfileId)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 523\n");
         Assert(callee);
         Assert(args.Info.Count != 0);
         Assert(caller);
@@ -536,7 +536,7 @@ namespace Js
         ScriptContext *const scriptContext = callerFunctionBody->GetScriptContext();
         FunctionInfo *const calleeFunctionInfo = JavascriptOperators::GetConstructorFunctionInfo(callee, scriptContext);
         if (calleeFunctionInfo != &JavascriptArray::EntryInfo::NewInstance)
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 538\n");
             // It may be worth checking the object that we actually got back from the ctor, but
             // we should at least not keep bailing out at this call site.
             arrayInfo->SetIsNotNativeArray();
@@ -554,10 +554,10 @@ namespace Js
         args.Values[0] = nullptr;
         Var array;
         if (arrayInfo->IsNativeIntArray())
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 556\n");
             array = JavascriptNativeIntArray::NewInstance(RecyclableObject::FromVar(callee), args);
             if (VirtualTableInfo<JavascriptNativeIntArray>::HasVirtualTable(array))
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 559\n");
                 JavascriptNativeIntArray *const intArray = static_cast<JavascriptNativeIntArray *>(array);
                 intArray->SetArrayCallSite(arrayProfileId, scriptContext->GetRecycler()->CreateWeakReferenceHandle(callerFunctionBody));
             }
@@ -565,7 +565,7 @@ namespace Js
             {
                 arrayInfo->SetIsNotNativeIntArray();
                 if (VirtualTableInfo<JavascriptNativeFloatArray>::HasVirtualTable(array))
-                {
+                {LOGMEIN("ProfilingHelpers.cpp] 567\n");
                     JavascriptNativeFloatArray *const floatArray = static_cast<JavascriptNativeFloatArray *>(array);
                     floatArray->SetArrayCallSite(arrayProfileId, scriptContext->GetRecycler()->CreateWeakReferenceHandle(callerFunctionBody));
                 }
@@ -576,10 +576,10 @@ namespace Js
             }
         }
         else if (arrayInfo->IsNativeFloatArray())
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 578\n");
             array = JavascriptNativeFloatArray::NewInstance(RecyclableObject::FromVar(callee), args);
             if (VirtualTableInfo<JavascriptNativeFloatArray>::HasVirtualTable(array))
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 581\n");
                 JavascriptNativeFloatArray *const floatArray = static_cast<JavascriptNativeFloatArray *>(array);
                 floatArray->SetArrayCallSite(arrayProfileId, scriptContext->GetRecycler()->CreateWeakReferenceHandle(callerFunctionBody));
             }
@@ -603,7 +603,7 @@ namespace Js
         const ProfileId profileId,
         const InlineCacheIndex inlineCacheIndex,
         const Js::AuxArray<uint32> *spreadIndices)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 605\n");
         Assert(callee);
         Assert(args.Info.Count != 0);
         Assert(callerFunctionBody);
@@ -611,7 +611,7 @@ namespace Js
 
         ScriptContext *const scriptContext = callerFunctionBody->GetScriptContext();
         if(!TaggedNumber::Is(callee))
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 613\n");
             const auto calleeObject = JavascriptOperators::GetCallableObjectOrThrow(callee, scriptContext);
             const auto calleeFunctionInfo =
                 calleeObject->GetTypeId() == TypeIds_Function
@@ -637,7 +637,7 @@ namespace Js
     }
 
     void ProfilingHelpers::ProfileLdSlot(const Var value, FunctionBody *const functionBody, const ProfileId profileId)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 639\n");
         Assert(value);
         Assert(functionBody);
         Assert(profileId != Constants::NoProfileId);
@@ -650,7 +650,7 @@ namespace Js
         const PropertyId propertyId,
         const InlineCacheIndex inlineCacheIndex,
         void *const framePointer)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 652\n");
         ScriptFunction *const scriptFunction =
             ScriptFunction::FromVar(JavascriptCallStackLayout::FromFramePointer(framePointer)->functionObject);
         return
@@ -669,7 +669,7 @@ namespace Js
         const InlineCacheIndex inlineCacheIndex,
         void *const framePointer,
         const Var thisInstance)
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 671\n");
         ScriptFunction *const scriptFunction =
             ScriptFunction::FromVar(JavascriptCallStackLayout::FromFramePointer(framePointer)->functionObject);
         return
@@ -687,7 +687,7 @@ namespace Js
         const PropertyId propertyId,
         const InlineCacheIndex inlineCacheIndex,
         void *const framePointer)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 689\n");
         ScriptFunction *const scriptFunction =
             ScriptFunction::FromVar(JavascriptCallStackLayout::FromFramePointer(framePointer)->functionObject);
 
@@ -705,7 +705,7 @@ namespace Js
         const PropertyId propertyId,
         const InlineCacheIndex inlineCacheIndex,
         void *const framePointer)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 707\n");
         ScriptFunction *const scriptFunction =
             ScriptFunction::FromVar(JavascriptCallStackLayout::FromFramePointer(framePointer)->functionObject);
         return
@@ -723,7 +723,7 @@ namespace Js
         const PropertyId propertyId,
         const InlineCacheIndex inlineCacheIndex,
         void *const framePointer)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 725\n");
         ScriptFunction *const scriptFunction =
             ScriptFunction::FromVar(JavascriptCallStackLayout::FromFramePointer(framePointer)->functionObject);
         return
@@ -741,7 +741,7 @@ namespace Js
         const PropertyId propertyId,
         const InlineCacheIndex inlineCacheIndex,
         void *const framePointer)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 743\n");
         ScriptFunction *const scriptFunction =
             ScriptFunction::FromVar(JavascriptCallStackLayout::FromFramePointer(framePointer)->functionObject);
         return
@@ -759,7 +759,7 @@ namespace Js
         const PropertyId propertyId,
         const InlineCacheIndex inlineCacheIndex,
         void *const framePointer)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 761\n");
         ScriptFunction *const scriptFunction =
             ScriptFunction::FromVar(JavascriptCallStackLayout::FromFramePointer(framePointer)->functionObject);
 
@@ -776,7 +776,7 @@ namespace Js
         const PropertyId propertyId,
         const InlineCacheIndex inlineCacheIndex,
         void *const framePointer)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 778\n");
         ScriptFunction *const scriptFunction =
             ScriptFunction::FromVar(JavascriptCallStackLayout::FromFramePointer(framePointer)->functionObject);
         return
@@ -797,7 +797,7 @@ namespace Js
         const InlineCacheIndex inlineCacheIndex,
         FunctionBody *const functionBody,
         const Var thisInstance)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 799\n");
         Assert(instance);
         Assert(thisInstance);
         Assert(propertyId != Constants::NoProperty);
@@ -814,18 +814,18 @@ namespace Js
         Var value;
         FldInfoFlags fldInfoFlags = FldInfo_NoInfo;
         if (Root || (RecyclableObject::Is(instance) && RecyclableObject::Is(thisInstance)))
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 816\n");
             RecyclableObject *const object = RecyclableObject::FromVar(instance);
             RecyclableObject *const thisObject = RecyclableObject::FromVar(thisInstance);
 
             if (!Root && Method && (propertyId == PropertyIds::apply || propertyId == PropertyIds::call) && ScriptFunction::Is(object))
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 821\n");
                 // If the property being loaded is "apply"/"call", make an optimistic assumption that apply/call is not overridden and
                 // undefer the function right here if it was defer parsed before. This is required so that the load of "apply"/"call"
                 // happens from the same "type". Otherwise, we will have a polymorphic cache for load of "apply"/"call".
                 ScriptFunction *fn = ScriptFunction::FromVar(object);
                 if (fn->GetType()->GetEntryPoint() == JavascriptFunction::DeferredParsingThunk)
-                {
+                {LOGMEIN("ProfilingHelpers.cpp] 827\n");
                     JavascriptFunction::DeferredParse(&fn);
                 }
             }
@@ -842,7 +842,7 @@ namespace Js
                     scriptContext,
                     &operationInfo,
                     &propertyValueInfo))
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 844\n");
                 const auto PatchGetValue = &JavascriptOperators::PatchGetValueWithThisPtrNoFastPath;
                 const auto PatchGetRootValue = &JavascriptOperators::PatchGetRootValueNoFastPath_Var;
                 const auto PatchGetMethod = &JavascriptOperators::PatchGetMethodNoFastPath;
@@ -856,25 +856,25 @@ namespace Js
                 CacheOperators::PretendTryGetProperty<true, false>(object->GetType(), &operationInfo, &propertyValueInfo);
             }
             else if (!Root && !Method)
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 858\n");
                 // Inline cache hit. oldflags must match the new ones. If not there is mark it as polymorphic as there is likely
                 // a bailout to interpreter and change in the inline cache type.
                 const FldInfoFlags oldflags = dynamicProfileInfo->GetFldInfo(functionBody, inlineCacheIndex)->flags;
                 if ((oldflags != FldInfo_NoInfo) &&
                     !(oldflags & DynamicProfileInfo::FldInfoFlagsFromCacheType(operationInfo.cacheType)))
-                {
+                {LOGMEIN("ProfilingHelpers.cpp] 864\n");
                     fldInfoFlags = DynamicProfileInfo::MergeFldInfoFlags(fldInfoFlags, FldInfo_Polymorphic);
                 }
             }
 
             if (propertyId == Js::PropertyIds::arguments)
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 870\n");
                 fldInfoFlags = DynamicProfileInfo::MergeFldInfoFlags(fldInfoFlags, FldInfo_FromAccessor);
                 scriptContext->GetThreadContext()->AddImplicitCallFlags(ImplicitCall_Accessor);
             }
 
             if (!Root && operationInfo.isPolymorphic)
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 876\n");
                 fldInfoFlags = DynamicProfileInfo::MergeFldInfoFlags(fldInfoFlags, FldInfo_Polymorphic);
             }
             fldInfoFlags =
@@ -925,7 +925,7 @@ namespace Js
         InlineCache *const inlineCache,
         const InlineCacheIndex inlineCacheIndex,
         FunctionBody *const functionBody)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 927\n");
         Var val = nullptr;
         ScriptContext *scriptContext = functionBody->GetScriptContext();
 
@@ -948,7 +948,7 @@ namespace Js
         const InlineCacheIndex inlineCacheIndex,
         const Var value,
         void *const framePointer)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 950\n");
         ScriptFunction *const scriptFunction =
             ScriptFunction::FromVar(JavascriptCallStackLayout::FromFramePointer(framePointer)->functionObject);
         ProfiledStFld<false>(
@@ -969,7 +969,7 @@ namespace Js
         const Var value,
         void *const framePointer,
         const Var thisInstance)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 971\n");
         ScriptFunction *const scriptFunction =
             ScriptFunction::FromVar(JavascriptCallStackLayout::FromFramePointer(framePointer)->functionObject);
         ProfiledStFld<false>(
@@ -989,7 +989,7 @@ namespace Js
         const InlineCacheIndex inlineCacheIndex,
         const Var value,
         void *const framePointer)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 991\n");
         ScriptFunction *const scriptFunction =
             ScriptFunction::FromVar(JavascriptCallStackLayout::FromFramePointer(framePointer)->functionObject);
         ProfiledStFld<false>(
@@ -1009,7 +1009,7 @@ namespace Js
         const InlineCacheIndex inlineCacheIndex,
         const Var value,
         void *const framePointer)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 1011\n");
         ScriptFunction *const scriptFunction =
             ScriptFunction::FromVar(JavascriptCallStackLayout::FromFramePointer(framePointer)->functionObject);
         ProfiledStFld<true>(
@@ -1029,7 +1029,7 @@ namespace Js
         const InlineCacheIndex inlineCacheIndex,
         const Var value,
         void *const framePointer)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 1031\n");
         ScriptFunction *const scriptFunction =
             ScriptFunction::FromVar(JavascriptCallStackLayout::FromFramePointer(framePointer)->functionObject);
         ProfiledStFld<true>(
@@ -1053,7 +1053,7 @@ namespace Js
         const PropertyOperationFlags flags,
         ScriptFunction *const scriptFunction,
         const Var thisInstance)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 1055\n");
         Assert(instance);
         Assert(thisInstance);
         Assert(propertyId != Constants::NoProperty);
@@ -1072,7 +1072,7 @@ namespace Js
         ScriptContext *const scriptContext = functionBody->GetScriptContext();
         FldInfoFlags fldInfoFlags = FldInfo_NoInfo;
         if(Root || (RecyclableObject::Is(instance) && RecyclableObject::Is(thisInstance)))
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 1074\n");
             RecyclableObject *const object = RecyclableObject::FromVar(instance);
             RecyclableObject *const thisObject = RecyclableObject::FromVar(thisInstance);
             PropertyCacheOperationInfo operationInfo;
@@ -1087,7 +1087,7 @@ namespace Js
                     flags,
                     &operationInfo,
                     &propertyValueInfo))
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 1089\n");
                 ThreadContext* threadContext = scriptContext->GetThreadContext();
                 ImplicitCallFlags savedImplicitCallFlags = threadContext->GetImplicitCallFlags();
                 threadContext->ClearImplicitCallFlags();
@@ -1095,7 +1095,7 @@ namespace Js
                 Type *const oldType = object->GetType();
 
                 if (Root)
-                {
+                {LOGMEIN("ProfilingHelpers.cpp] 1097\n");
                     JavascriptOperators::PatchPutRootValueNoFastPath(functionBody, inlineCache, inlineCacheIndex, object, propertyId, value, flags);
                 }
                 else
@@ -1117,7 +1117,7 @@ namespace Js
                 // if there were live fields. This bailout always bails out.
                 Js::ImplicitCallFlags accessorCallFlag = (Js::ImplicitCallFlags)(Js::ImplicitCall_Accessor & ~Js::ImplicitCall_None);
                 if ((threadContext->GetImplicitCallFlags() & accessorCallFlag) != 0)
-                {
+                {LOGMEIN("ProfilingHelpers.cpp] 1119\n");
                     operationInfo.cacheType = CacheType_Setter;
                 }
                 threadContext->SetImplicitCallFlags((Js::ImplicitCallFlags)(savedImplicitCallFlags | threadContext->GetImplicitCallFlags()));
@@ -1125,7 +1125,7 @@ namespace Js
 
             // Only make the field polymorphic if we are not using the root object inline cache
             if(operationInfo.isPolymorphic && inlineCacheIndex < functionBody->GetRootObjectStoreInlineCacheStart())
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 1127\n");
                 // should not be a load inline cache
                 Assert(inlineCacheIndex < functionBody->GetRootObjectLoadInlineCacheStart());
                 fldInfoFlags = DynamicProfileInfo::MergeFldInfoFlags(fldInfoFlags, FldInfo_Polymorphic);
@@ -1147,7 +1147,7 @@ namespace Js
                 functionBody);
 
             if(scriptFunction->GetConstructorCache()->NeedsUpdateAfterCtor())
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 1149\n");
                 // This function has only 'this' statements and is being used as a constructor. When the constructor exits, the
                 // function object's constructor cache will be updated with the type produced by the constructor. From that
                 // point on, when the same function object is used as a constructor, the a new object with the final type will
@@ -1177,7 +1177,7 @@ namespace Js
         const InlineCacheIndex inlineCacheIndex,
         const Var value,
         void *const framePointer)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 1179\n");
         ScriptFunction *const scriptFunction =
             ScriptFunction::FromVar(JavascriptCallStackLayout::FromFramePointer(framePointer)->functionObject);
         ProfiledInitFld(
@@ -1196,7 +1196,7 @@ namespace Js
         const InlineCacheIndex inlineCacheIndex,
         const Var value,
         FunctionBody *const functionBody)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 1198\n");
         Assert(object);
         Assert(propertyId != Constants::NoProperty);
         Assert(inlineCache);
@@ -1218,7 +1218,7 @@ namespace Js
                 PropertyOperation_None,
                 &operationInfo,
                 &propertyValueInfo))
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 1220\n");
             Type *const oldType = object->GetType();
             JavascriptOperators::PatchInitValueNoFastPath(
                 functionBody,
@@ -1232,7 +1232,7 @@ namespace Js
 
         // Only make the field polymorphic if the we are not using the root object inline cache
         if(operationInfo.isPolymorphic && inlineCacheIndex < functionBody->GetRootObjectStoreInlineCacheStart())
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 1234\n");
             // should not be a load inline cache
             Assert(inlineCacheIndex < functionBody->GetRootObjectLoadInlineCacheStart());
             fldInfoFlags = DynamicProfileInfo::MergeFldInfoFlags(fldInfoFlags, FldInfo_Polymorphic);
@@ -1249,14 +1249,14 @@ namespace Js
         const CacheType cacheType,
         InlineCache *const inlineCache,
         FunctionBody *const functionBody)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 1251\n");
         RecyclableObject *callee = nullptr;
         if((cacheType & (CacheType_Getter | CacheType_Setter)) &&
             inlineCache->GetGetterSetter(object->GetType(), &callee))
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 1255\n");
             const bool canInline = functionBody->GetDynamicProfileInfo()->RecordLdFldCallSiteInfo(functionBody, callee, false /*callApplyTarget*/);
             if(canInline)
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 1258\n");
                 //updates this fldInfoFlags passed by reference.
                 fldInfoFlags = DynamicProfileInfo::MergeFldInfoFlags(fldInfoFlags, FldInfo_InlineCandidate);
             }
@@ -1269,13 +1269,13 @@ namespace Js
         const CacheType cacheType,
         InlineCache *const inlineCache,
         FunctionBody *const functionBody)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 1271\n");
         RecyclableObject *callee = nullptr;
         if(!(fldInfoFlags & FldInfo_Polymorphic) && inlineCache->GetCallApplyTarget(object, &callee))
-        {
+        {LOGMEIN("ProfilingHelpers.cpp] 1274\n");
             const bool canInline = functionBody->GetDynamicProfileInfo()->RecordLdFldCallSiteInfo(functionBody, callee, true /*callApplyTarget*/);
             if(canInline)
-            {
+            {LOGMEIN("ProfilingHelpers.cpp] 1277\n");
                 //updates the fldInfoFlags passed by reference.
                 fldInfoFlags = DynamicProfileInfo::MergeFldInfoFlags(fldInfoFlags, FldInfo_InlineCandidate);
             }
@@ -1283,7 +1283,7 @@ namespace Js
     }
 
     InlineCache *ProfilingHelpers::GetInlineCache(ScriptFunction *const scriptFunction, const InlineCacheIndex inlineCacheIndex)
-    {
+    {LOGMEIN("ProfilingHelpers.cpp] 1285\n");
         Assert(scriptFunction);
         Assert(inlineCacheIndex < scriptFunction->GetFunctionBody()->GetInlineCacheCount());
 

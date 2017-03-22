@@ -22,26 +22,26 @@ namespace WAsmJs
 
     uint32 ConvertOffset(uint32 ptr, uint32 fromSize, uint32 toSize);
     template<typename ToType> uint32 ConvertOffset(uint32 ptr, uint32 fromSize)
-    {
+    {LOGMEIN("WAsmjsUtils.h] 24\n");
         return ConvertOffset(ptr, fromSize, sizeof(ToType));
     }
     template<typename FromType, typename ToType> uint32 ConvertOffset(uint32 ptr)
-    {
+    {LOGMEIN("WAsmjsUtils.h] 28\n");
         return ConvertOffset(ptr, sizeof(FromType), sizeof(ToType));
     }
     template<typename T> uint32 ConvertToJsVarOffset(uint32 ptr)
-    {
+    {LOGMEIN("WAsmjsUtils.h] 32\n");
         return ConvertOffset<T, Js::Var>(ptr);
     }
     template<typename T> uint32 ConvertFromJsVarOffset(uint32 ptr)
-    {
+    {LOGMEIN("WAsmjsUtils.h] 36\n");
         return ConvertOffset<Js::Var, T>(ptr);
     }
 
     struct EmitInfoBase
     {
-        EmitInfoBase(RegSlot location_) : location(location_) {}
-        EmitInfoBase() : location(Js::Constants::NoRegister) {}
+        EmitInfoBase(RegSlot location_) : location(location_) {LOGMEIN("WAsmjsUtils.h] 42\n");}
+        EmitInfoBase() : location(Js::Constants::NoRegister) {LOGMEIN("WAsmjsUtils.h] 43\n");}
 
         RegSlot location;
     };
@@ -86,23 +86,23 @@ namespace WAsmJs
             , mFirstTmpReg( reservedSlotsCount )
             , mNextLocation( reservedSlotsCount )
             , mNbConst( reservedSlotsCount )
-        {
+        {LOGMEIN("WAsmjsUtils.h] 88\n");
         }
         // Get the number of const allocated
-        RegSlot GetConstCount() const      { return mNbConst; }
+        RegSlot GetConstCount() const      {LOGMEIN("WAsmjsUtils.h] 91\n"); return mNbConst; }
         // Get the location of the first temporary register
-        RegSlot GetFirstTmpRegister() const{ return mFirstTmpReg; }
+        RegSlot GetFirstTmpRegister() const{LOGMEIN("WAsmjsUtils.h] 93\n"); return mFirstTmpReg; }
         // Get the total number of temporary register allocated
-        RegSlot GetTmpCount() const        { return mRegisterCount-mFirstTmpReg; }
+        RegSlot GetTmpCount() const        {LOGMEIN("WAsmjsUtils.h] 95\n"); return mRegisterCount-mFirstTmpReg; }
         // Get number of local variables
-        RegSlot GetVarCount() const        { return mFirstTmpReg - mNbConst; }
+        RegSlot GetVarCount() const        {LOGMEIN("WAsmjsUtils.h] 97\n"); return mFirstTmpReg - mNbConst; }
         // Get the total number of variable allocated ( including temporaries )
-        RegSlot GetTotalVarCount() const   { return mRegisterCount - mNbConst; }
-        RegSlot GetRegisterCount() const   { return mRegisterCount; }
+        RegSlot GetTotalVarCount() const   {LOGMEIN("WAsmjsUtils.h] 99\n"); return mRegisterCount - mNbConst; }
+        RegSlot GetRegisterCount() const   {LOGMEIN("WAsmjsUtils.h] 100\n"); return mRegisterCount; }
 
         // Acquire a location for a register. Use only for arguments and Variables
         RegSlot AcquireRegister()
-        {
+        {LOGMEIN("WAsmjsUtils.h] 104\n");
             // Makes sure no temporary register have been allocated yet
             Assert(mFirstTmpReg == mRegisterCount && mNextLocation == mFirstTmpReg);
             ++mFirstTmpReg;
@@ -112,20 +112,20 @@ namespace WAsmJs
 
         // Acquire a location for a constant
         RegSlot AcquireConstRegister()
-        {
+        {LOGMEIN("WAsmjsUtils.h] 114\n");
             ++mNbConst;
             return AcquireRegister();
         }
 
         // Acquire a location for a temporary register
         RegSlot AcquireTmpRegister()
-        {
+        {LOGMEIN("WAsmjsUtils.h] 121\n");
             // Make sure this function is called correctly
             Assert(mNextLocation <= mRegisterCount && mNextLocation >= mFirstTmpReg);
 
             // Allocate a new temp pseudo-register, increasing the locals count if necessary.
             if(mNextLocation == mRegisterCount)
-            {
+            {LOGMEIN("WAsmjsUtils.h] 127\n");
                 ++mRegisterCount;
             }
 #if DBG_DUMP
@@ -136,13 +136,13 @@ namespace WAsmJs
 
         // Release a location for a temporary register, must be the last location acquired
         void ReleaseTmpRegister( RegSlot tmpReg )
-        {
+        {LOGMEIN("WAsmjsUtils.h] 138\n");
             // make sure the location released is valid
             Assert(tmpReg != Js::Constants::NoRegister);
 
             // Put this reg back on top of the temp stack (if it's a temp).
             if( this->IsTmpReg( tmpReg ) )
-            {
+            {LOGMEIN("WAsmjsUtils.h] 144\n");
                 Assert( tmpReg == this->mNextLocation - 1 );
 #if DBG_DUMP
                 PrintTmpRegisterAllocation(mNextLocation - 1, true);
@@ -153,21 +153,21 @@ namespace WAsmJs
 
         // Checks if the register is a temporary register
         bool IsTmpReg(RegSlot tmpReg)
-        {
+        {LOGMEIN("WAsmjsUtils.h] 155\n");
             Assert(mFirstTmpReg != Js::Constants::NoRegister);
             return !IsConstReg(tmpReg) && tmpReg >= mFirstTmpReg;
         }
 
         // Checks if the register is a const register
         bool IsConstReg(RegSlot reg)
-        {
+        {LOGMEIN("WAsmjsUtils.h] 162\n");
             // a register is const if it is between the first register and the end of consts
             return reg < mNbConst && reg != 0;
         }
 
         // Checks if the register is a variable register
         bool IsVarReg(RegSlot reg)
-        {
+        {LOGMEIN("WAsmjsUtils.h] 169\n");
             // a register is a var if it is between the last const and the end
             // equivalent to  reg>=mNbConst && reg<mRegisterCount
             // forcing unsigned, if reg < mNbConst then reg-mNbConst = 0xFFFFF..
@@ -176,19 +176,19 @@ namespace WAsmJs
 
         // Releases a location if its a temporary, safe to call with any expression
         void ReleaseLocation(const EmitInfoBase *pnode)
-        {
+        {LOGMEIN("WAsmjsUtils.h] 178\n");
             // Release the temp assigned to this expression so it can be re-used.
             if(pnode && pnode->location != Js::Constants::NoRegister)
-            {
+            {LOGMEIN("WAsmjsUtils.h] 181\n");
                 ReleaseTmpRegister(pnode->location);
             }
         }
 
         // Checks if the location points to a temporary register
         bool IsTmpLocation(const EmitInfoBase* pnode)
-        {
+        {LOGMEIN("WAsmjsUtils.h] 188\n");
             if(pnode && pnode->location != Js::Constants::NoRegister)
-            {
+            {LOGMEIN("WAsmjsUtils.h] 190\n");
                 return IsTmpReg(pnode->location);
             }
             return false;
@@ -196,9 +196,9 @@ namespace WAsmJs
 
         // Checks if the location points to a constant register
         bool IsConstLocation(const EmitInfoBase* pnode)
-        {
+        {LOGMEIN("WAsmjsUtils.h] 198\n");
             if(pnode && pnode->location != Js::Constants::NoRegister)
-            {
+            {LOGMEIN("WAsmjsUtils.h] 200\n");
                 return IsConstReg(pnode->location);
             }
             return false;
@@ -206,9 +206,9 @@ namespace WAsmJs
 
         // Checks if the location points to a variable register
         bool IsVarLocation(const EmitInfoBase* pnode)
-        {
+        {LOGMEIN("WAsmjsUtils.h] 208\n");
             if(pnode && pnode->location != Js::Constants::NoRegister)
-            {
+            {LOGMEIN("WAsmjsUtils.h] 210\n");
                 return IsVarReg(pnode->location);
             }
             return false;
@@ -216,9 +216,9 @@ namespace WAsmJs
 
         // Checks if the location is valid (within bounds of already allocated registers)
         bool IsValidLocation(const EmitInfoBase* pnode)
-        {
+        {LOGMEIN("WAsmjsUtils.h] 218\n");
             if(pnode && pnode->location != Js::Constants::NoRegister)
-            {
+            {LOGMEIN("WAsmjsUtils.h] 220\n");
                 return pnode->location < mRegisterCount;
             }
             return false;
@@ -241,7 +241,7 @@ namespace WAsmJs
 
     struct TypedSlotInfo
     {
-        TypedSlotInfo(): constCount(0), varCount(0), tmpCount(0), byteOffset(0), constSrcByteOffset(0) { }
+        TypedSlotInfo(): constCount(0), varCount(0), tmpCount(0), byteOffset(0), constSrcByteOffset(0) {LOGMEIN("WAsmjsUtils.h] 243\n"); }
         Field(uint32) constCount;
         Field(uint32) varCount;
         Field(uint32) tmpCount;

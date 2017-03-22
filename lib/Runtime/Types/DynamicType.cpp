@@ -33,21 +33,21 @@ namespace Js
 
     DynamicType *
     DynamicType::New(ScriptContext* scriptContext, TypeId typeId, RecyclableObject* prototype, JavascriptMethod entryPoint, DynamicTypeHandler * typeHandler, bool isLocked, bool isShared)
-    {
+    {LOGMEIN("DynamicType.cpp] 35\n");
         return RecyclerNew(scriptContext->GetRecycler(), DynamicType, scriptContext, typeId, prototype, entryPoint, typeHandler, isLocked, isShared);
     }
 
     bool
     DynamicType::Is(TypeId typeId)
-    {
+    {LOGMEIN("DynamicType.cpp] 41\n");
         return !StaticType::Is(typeId);
     }
 
     bool
     DynamicType::SetHasNoEnumerableProperties(bool value)
-    {
+    {LOGMEIN("DynamicType.cpp] 47\n");
         if (!value)
-        {
+        {LOGMEIN("DynamicType.cpp] 49\n");
             this->hasNoEnumerableProperties = value;
             return false;
         }
@@ -64,9 +64,9 @@ namespace Js
     }
 
     bool DynamicType::PrepareForTypeSnapshotEnumeration()
-    {
+    {LOGMEIN("DynamicType.cpp] 66\n");
         if (CONFIG_FLAG(TypeSnapshotEnumeration))
-        {
+        {LOGMEIN("DynamicType.cpp] 68\n");
             // Lock the type and handler, enabling us to enumerate properties of the type snapshotted
             // at the beginning of enumeration, despite property changes made by script during enumeration.
             return LockType(); // Note: this only works for type handlers that support locking.
@@ -80,44 +80,44 @@ namespace Js
     }
 
     void DynamicObject::InitSlots(DynamicObject * instance, ScriptContext * scriptContext)
-    {
+    {LOGMEIN("DynamicType.cpp] 82\n");
         Recycler * recycler = scriptContext->GetRecycler();
         int slotCapacity = GetTypeHandler()->GetSlotCapacity();
         int inlineSlotCapacity = GetTypeHandler()->GetInlineSlotCapacity();
         if (slotCapacity > inlineSlotCapacity)
-        {
+        {LOGMEIN("DynamicType.cpp] 87\n");
             instance->auxSlots = RecyclerNewArrayZ(recycler, Field(Var), slotCapacity - inlineSlotCapacity);
         }
     }
 
     int DynamicObject::GetPropertyCount()
-    {
+    {LOGMEIN("DynamicType.cpp] 93\n");
         if (!this->GetTypeHandler()->EnsureObjectReady(this))
-        {
+        {LOGMEIN("DynamicType.cpp] 95\n");
             return 0;
         }
         return GetTypeHandler()->GetPropertyCount();
     }
 
     PropertyId DynamicObject::GetPropertyId(PropertyIndex index)
-    {
+    {LOGMEIN("DynamicType.cpp] 102\n");
         return GetTypeHandler()->GetPropertyId(this->GetScriptContext(), index);
     }
 
     PropertyId DynamicObject::GetPropertyId(BigPropertyIndex index)
-    {
+    {LOGMEIN("DynamicType.cpp] 107\n");
         return GetTypeHandler()->GetPropertyId(this->GetScriptContext(), index);
     }
 
     PropertyIndex DynamicObject::GetPropertyIndex(PropertyId propertyId)
-    {
+    {LOGMEIN("DynamicType.cpp] 112\n");
         Assert(!Js::IsInternalPropertyId(propertyId));
         Assert(propertyId != Constants::NoProperty);
         return GetTypeHandler()->GetPropertyIndex(this->GetScriptContext()->GetPropertyName(propertyId));
     }
 
     BOOL DynamicObject::HasProperty(PropertyId propertyId)
-    {
+    {LOGMEIN("DynamicType.cpp] 119\n");
         // HasProperty can be invoked with propertyId = NoProperty in some cases, namely cross-thread and DOM
         // This is done to force creation of a type handler in case the type handler is deferred
         Assert(!Js::IsInternalPropertyId(propertyId) || propertyId == Js::Constants::NoProperty);
@@ -127,19 +127,19 @@ namespace Js
     // HasOwnProperty and HasProperty is the same for most objects except globalobject (moduleroot as well in legacy)
     // Note that in GlobalObject, HasProperty and HasRootProperty is not quite the same as it's handling let/const global etc.
     BOOL DynamicObject::HasOwnProperty(PropertyId propertyId)
-    {
+    {LOGMEIN("DynamicType.cpp] 129\n");
         Assert(!Js::IsInternalPropertyId(propertyId));
         return HasProperty(propertyId);
     }
 
     BOOL DynamicObject::GetProperty(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("DynamicType.cpp] 135\n");
         Assert(!Js::IsInternalPropertyId(propertyId));
         return GetTypeHandler()->GetProperty(this, originalInstance, propertyId, value, info, requestContext);
     }
 
     BOOL DynamicObject::GetProperty(Var originalInstance, JavascriptString* propertyNameString, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("DynamicType.cpp] 141\n");
         AssertMsg(!PropertyRecord::IsPropertyNameNumeric(propertyNameString->GetString(), propertyNameString->GetLength()),
             "Numeric property names should have been converted to uint or PropertyRecord* before calling GetProperty");
 
@@ -147,25 +147,25 @@ namespace Js
     }
 
     BOOL DynamicObject::GetInternalProperty(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("DynamicType.cpp] 149\n");
         Assert(Js::IsInternalPropertyId(propertyId));
         return GetTypeHandler()->GetProperty(this, originalInstance, propertyId, value, nullptr, requestContext);
     }
 
     BOOL DynamicObject::GetPropertyReference(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("DynamicType.cpp] 155\n");
         Assert(!Js::IsInternalPropertyId(propertyId));
         return GetTypeHandler()->GetProperty(this, originalInstance, propertyId, value, info, requestContext);
     }
 
     BOOL DynamicObject::SetProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {LOGMEIN("DynamicType.cpp] 161\n");
         Assert(!Js::IsInternalPropertyId(propertyId));
         return GetTypeHandler()->SetProperty(this, propertyId, value, flags, info);
     }
 
     BOOL DynamicObject::SetProperty(JavascriptString* propertyNameString, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {LOGMEIN("DynamicType.cpp] 167\n");
         AssertMsg(!PropertyRecord::IsPropertyNameNumeric(propertyNameString->GetString(), propertyNameString->GetLength()),
             "Numeric property names should have been converted to uint or PropertyRecord* before calling SetProperty");
 
@@ -173,19 +173,19 @@ namespace Js
     }
 
     BOOL DynamicObject::SetInternalProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {LOGMEIN("DynamicType.cpp] 175\n");
         Assert(Js::IsInternalPropertyId(propertyId));
         return GetTypeHandler()->SetProperty(this, propertyId, value, flags, nullptr);
     }
 
     DescriptorFlags DynamicObject::GetSetter(PropertyId propertyId, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("DynamicType.cpp] 181\n");
         Assert(!Js::IsInternalPropertyId(propertyId));
         return GetTypeHandler()->GetSetter(this, propertyId, setterValue, info, requestContext);
     }
 
     DescriptorFlags DynamicObject::GetSetter(JavascriptString* propertyNameString, Var* setterValue, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("DynamicType.cpp] 187\n");
         AssertMsg(!PropertyRecord::IsPropertyNameNumeric(propertyNameString->GetString(), propertyNameString->GetLength()),
             "Numeric property names should have been converted to uint or PropertyRecord* before calling GetSetter");
 
@@ -193,67 +193,67 @@ namespace Js
     }
 
     BOOL DynamicObject::InitProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {LOGMEIN("DynamicType.cpp] 195\n");
         Assert(!Js::IsInternalPropertyId(propertyId));
         return GetTypeHandler()->InitProperty(this, propertyId, value, flags, info);
     }
 
     BOOL DynamicObject::DeleteProperty(PropertyId propertyId, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("DynamicType.cpp] 201\n");
         Assert(!Js::IsInternalPropertyId(propertyId));
         return GetTypeHandler()->DeleteProperty(this, propertyId, flags);
     }
 
     BOOL DynamicObject::DeleteProperty(JavascriptString *propertyNameString, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("DynamicType.cpp] 207\n");
         return GetTypeHandler()->DeleteProperty(this, propertyNameString, flags);
     }
 
     BOOL DynamicObject::IsFixedProperty(PropertyId propertyId)
-    {
+    {LOGMEIN("DynamicType.cpp] 212\n");
         Assert(!Js::IsInternalPropertyId(propertyId));
         return GetTypeHandler()->IsFixedProperty(this, propertyId);
     }
 
     BOOL DynamicObject::HasItem(uint32 index)
-    {
+    {LOGMEIN("DynamicType.cpp] 218\n");
         return GetTypeHandler()->HasItem(this, index);
     }
 
     BOOL DynamicObject::HasOwnItem(uint32 index)
-    {
+    {LOGMEIN("DynamicType.cpp] 223\n");
         return HasItem(index);
     }
 
     BOOL DynamicObject::GetItem(Var originalInstance, uint32 index, Var* value, ScriptContext * requestContext)
-    {
+    {LOGMEIN("DynamicType.cpp] 228\n");
         return GetTypeHandler()->GetItem(this, originalInstance, index, value, requestContext);
     }
 
     BOOL DynamicObject::GetItemReference(Var originalInstance, uint32 index, Var* value, ScriptContext * requestContext)
-    {
+    {LOGMEIN("DynamicType.cpp] 233\n");
         return GetTypeHandler()->GetItem(this, originalInstance, index, value, requestContext);
     }
 
     DescriptorFlags DynamicObject::GetItemSetter(uint32 index, Var* setterValue, ScriptContext* requestContext)
-    {
+    {LOGMEIN("DynamicType.cpp] 238\n");
         return GetTypeHandler()->GetItemSetter(this, index, setterValue, requestContext);
     }
 
     BOOL DynamicObject::SetItem(uint32 index, Var value, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("DynamicType.cpp] 243\n");
         return GetTypeHandler()->SetItem(this, index, value, flags);
     }
 
     BOOL DynamicObject::DeleteItem(uint32 index, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("DynamicType.cpp] 248\n");
         return GetTypeHandler()->DeleteItem(this, index, flags);
     }
 
     BOOL DynamicObject::ToPrimitive(JavascriptHint hint, Var* result, ScriptContext * requestContext)
-    {
+    {LOGMEIN("DynamicType.cpp] 253\n");
         if(hint == JavascriptHint::HintString)
-        {
+        {LOGMEIN("DynamicType.cpp] 255\n");
             return ToPrimitiveImpl<PropertyIds::toString>(result, requestContext)
                 || ToPrimitiveImpl<PropertyIds::valueOf>(result, requestContext);
         }
@@ -268,7 +268,7 @@ namespace Js
 
     template <PropertyId propertyId>
     BOOL DynamicObject::ToPrimitiveImpl(Var* result, ScriptContext * requestContext)
-    {
+    {LOGMEIN("DynamicType.cpp] 270\n");
         CompileAssert(propertyId == PropertyIds::valueOf || propertyId == PropertyIds::toString);
         InlineCache * inlineCache = propertyId == PropertyIds::valueOf ? requestContext->GetValueOfInlineCache() : requestContext->GetToStringInlineCache();
         // Use per script context inline cache for valueOf and toString
@@ -276,9 +276,9 @@ namespace Js
 
         // Fast path to the default valueOf/toString implementation
         if (propertyId == PropertyIds::valueOf)
-        {
+        {LOGMEIN("DynamicType.cpp] 278\n");
             if (aValue == requestContext->GetLibrary()->GetObjectValueOfFunction())
-            {
+            {LOGMEIN("DynamicType.cpp] 280\n");
                 Assert(JavascriptConversion::IsCallable(aValue));
                 // The default Object.prototype.valueOf will in turn just call ToObject().
                 // The result is always an object if it is not undefined or null (which "this" is not)
@@ -288,7 +288,7 @@ namespace Js
         else
         {
             if (aValue == requestContext->GetLibrary()->GetObjectToStringFunction())
-            {
+            {LOGMEIN("DynamicType.cpp] 290\n");
                 Assert(JavascriptConversion::IsCallable(aValue));
                 // These typeIds should never be here (they override ToPrimitive or they don't derive to DynamicObject::ToPrimitive)
                 // Otherwise, they may case implicit call in ToStringHelper
@@ -302,9 +302,9 @@ namespace Js
         return CallToPrimitiveFunction(aValue, propertyId, result, requestContext);
     }
     BOOL DynamicObject::CallToPrimitiveFunction(Var toPrimitiveFunction, PropertyId propertyId, Var* result, ScriptContext * requestContext)
-    {
+    {LOGMEIN("DynamicType.cpp] 304\n");
         if (JavascriptConversion::IsCallable(toPrimitiveFunction))
-        {
+        {LOGMEIN("DynamicType.cpp] 306\n");
             RecyclableObject* toStringFunction = RecyclableObject::FromVar(toPrimitiveFunction);
 
             ThreadContext * threadContext = requestContext->GetThreadContext();
@@ -316,7 +316,7 @@ namespace Js
             });
 
             if (!aResult)
-            {
+            {LOGMEIN("DynamicType.cpp] 318\n");
                 // There was an implicit call and implicit calls are disabled. This would typically cause a bailout.
                 Assert(threadContext->IsDisableImplicitCall());
                 *result = requestContext->GetLibrary()->GetNull();
@@ -324,7 +324,7 @@ namespace Js
             }
 
             if (JavascriptOperators::GetTypeId(aResult) <= TypeIds_LastToPrimitiveType)
-            {
+            {LOGMEIN("DynamicType.cpp] 326\n");
                 *result = aResult;
                 return true;
             }
@@ -333,10 +333,10 @@ namespace Js
     }
 
     BOOL DynamicObject::GetEnumeratorWithPrefix(JavascriptEnumerator * prefixEnumerator, JavascriptStaticEnumerator * enumerator, EnumeratorFlags flags, ScriptContext * requestContext, ForInCache * forInCache)
-    {
+    {LOGMEIN("DynamicType.cpp] 335\n");
         Js::ArrayObject * arrayObject = nullptr;
         if (this->HasObjectArray())
-        {
+        {LOGMEIN("DynamicType.cpp] 338\n");
             arrayObject = this->GetObjectArrayOrFlagsAsArray();
             Assert(arrayObject->GetPropertyCount() == 0);
         }
@@ -344,32 +344,32 @@ namespace Js
     }
 
     BOOL DynamicObject::GetEnumerator(JavascriptStaticEnumerator * enumerator, EnumeratorFlags flags, ScriptContext * requestContext, ForInCache * forInCache)
-    {
+    {LOGMEIN("DynamicType.cpp] 346\n");
         return GetEnumeratorWithPrefix(nullptr, enumerator, flags, requestContext, forInCache);
     }
 
     BOOL DynamicObject::SetAccessors(PropertyId propertyId, Var getter, Var setter, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("DynamicType.cpp] 351\n");
         return GetTypeHandler()->SetAccessors(this, propertyId, getter, setter, flags);
     }
 
     BOOL DynamicObject::GetAccessors(PropertyId propertyId, Var *getter, Var *setter, ScriptContext * requestContext)
-    {
+    {LOGMEIN("DynamicType.cpp] 356\n");
         return GetTypeHandler()->GetAccessors(this, propertyId, getter, setter);
     }
 
     BOOL DynamicObject::PreventExtensions()
-    {
+    {LOGMEIN("DynamicType.cpp] 361\n");
         return GetTypeHandler()->PreventExtensions(this);
     }
 
     BOOL DynamicObject::Seal()
-    {
+    {LOGMEIN("DynamicType.cpp] 366\n");
         return GetTypeHandler()->Seal(this);
     }
 
     BOOL DynamicObject::Freeze()
-    {
+    {LOGMEIN("DynamicType.cpp] 371\n");
         Type* oldType = this->GetType();
         BOOL ret = GetTypeHandler()->Freeze(this);
 
@@ -377,7 +377,7 @@ namespace Js
         // Make sure the type is evolved so that the property string caches
         // are no longer hit.
         if (this->GetType() == oldType)
-        {
+        {LOGMEIN("DynamicType.cpp] 379\n");
             this->ChangeType();
         }
 
@@ -385,64 +385,64 @@ namespace Js
     }
 
     BOOL DynamicObject::IsSealed()
-    {
+    {LOGMEIN("DynamicType.cpp] 387\n");
         return GetTypeHandler()->IsSealed(this);
     }
 
     BOOL DynamicObject::IsFrozen()
-    {
+    {LOGMEIN("DynamicType.cpp] 392\n");
         return GetTypeHandler()->IsFrozen(this);
     }
 
     BOOL DynamicObject::IsWritable(PropertyId propertyId)
-    {
+    {LOGMEIN("DynamicType.cpp] 397\n");
         return GetTypeHandler()->IsWritable(this, propertyId);
     }
 
     BOOL DynamicObject::IsConfigurable(PropertyId propertyId)
-    {
+    {LOGMEIN("DynamicType.cpp] 402\n");
         return GetTypeHandler()->IsConfigurable(this, propertyId);
     }
 
     BOOL DynamicObject::IsEnumerable(PropertyId propertyId)
-    {
+    {LOGMEIN("DynamicType.cpp] 407\n");
         return GetTypeHandler()->IsEnumerable(this, propertyId);
     }
 
     BOOL DynamicObject::SetEnumerable(PropertyId propertyId, BOOL value)
-    {
+    {LOGMEIN("DynamicType.cpp] 412\n");
         return GetTypeHandler()->SetEnumerable(this, propertyId, value);
     }
 
     BOOL DynamicObject::SetWritable(PropertyId propertyId, BOOL value)
-    {
+    {LOGMEIN("DynamicType.cpp] 417\n");
         return GetTypeHandler()->SetWritable(this, propertyId, value);
     }
 
     BOOL DynamicObject::SetConfigurable(PropertyId propertyId, BOOL value)
-    {
+    {LOGMEIN("DynamicType.cpp] 422\n");
         return GetTypeHandler()->SetConfigurable(this, propertyId, value);
     }
 
     BOOL DynamicObject::SetAttributes(PropertyId propertyId, PropertyAttributes attributes)
-    {
+    {LOGMEIN("DynamicType.cpp] 427\n");
         return GetTypeHandler()->SetAttributes(this, propertyId, attributes);
     }
 
     BOOL DynamicObject::GetDiagValueString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {LOGMEIN("DynamicType.cpp] 432\n");
         stringBuilder->AppendCppLiteral(_u("{...}"));
         return TRUE;
     }
 
     BOOL DynamicObject::GetDiagTypeString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {LOGMEIN("DynamicType.cpp] 438\n");
         stringBuilder->AppendCppLiteral(_u("Object"));
         return TRUE;
     }
 
     Var DynamicObject::GetTypeOfString(ScriptContext * requestContext)
-    {
+    {LOGMEIN("DynamicType.cpp] 444\n");
         return requestContext->GetLibrary()->GetObjectTypeDisplayString();
     }
 
@@ -454,13 +454,13 @@ namespace Js
     //
     // throwIfNotExtensible should always be false for non-numeric properties.
     BOOL DynamicObject::SetPropertyWithAttributes(PropertyId propertyId, Var value, PropertyAttributes attributes, PropertyValueInfo* info, PropertyOperationFlags flags, SideEffects possibleSideEffects)
-    {
+    {LOGMEIN("DynamicType.cpp] 456\n");
         return GetTypeHandler()->SetPropertyWithAttributes(this, propertyId, value, attributes, info, flags, possibleSideEffects);
     }
 
 #if DBG
     bool DynamicObject::CanStorePropertyValueDirectly(PropertyId propertyId, bool allowLetConst)
-    {
+    {LOGMEIN("DynamicType.cpp] 462\n");
         return GetTypeHandler()->CanStorePropertyValueDirectly(this, propertyId, allowLetConst);
     }
 #endif
@@ -476,7 +476,7 @@ namespace Js
     }
 
     void DynamicObject::SetPrototype(RecyclableObject* newPrototype)
-    {
+    {LOGMEIN("DynamicType.cpp] 478\n");
         // Mark newPrototype it is being set as prototype
         newPrototype->SetIsPrototype();
 

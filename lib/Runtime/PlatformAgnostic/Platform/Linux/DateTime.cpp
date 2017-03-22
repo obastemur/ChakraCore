@@ -13,30 +13,30 @@ namespace PlatformAgnostic
 namespace DateTime
 {
     static inline bool IsLeap(const int year)
-    {
+    {LOGMEIN("DateTime.cpp] 15\n");
         return (0 == (year & 3)) && (0 != (year % 100) || 0 == (year % 400));
     }
 
     // Windows DateTime implementation normalizes the year beyond <1900 >2100
     // mktime etc. broken-out time bases 1900
     static inline int NormalizeYMDYear(const int base_year)
-    {
+    {LOGMEIN("DateTime.cpp] 22\n");
         int retval = base_year;
 
         if (base_year < -2100)
-        {
+        {LOGMEIN("DateTime.cpp] 26\n");
             retval = 2100;
         }
         else if (base_year < -1900)
-        {
+        {LOGMEIN("DateTime.cpp] 30\n");
             retval = base_year * -1;
         }
         else if (base_year >= 0 && base_year < 100)
-        {
+        {LOGMEIN("DateTime.cpp] 34\n");
             retval = 1900 + base_year;
         }
         else if (base_year < 0)
-        {
+        {LOGMEIN("DateTime.cpp] 38\n");
             retval = NormalizeYMDYear(-1 * base_year);
         }
 
@@ -48,21 +48,21 @@ namespace DateTime
         int year = time->tm_year;
 
         if (base_year < -2100)
-        {
+        {LOGMEIN("DateTime.cpp] 50\n");
             const int diff = year - 2100;
             year = abs(base_year) - diff;
         }
 
         if (base_year < -1900)
-        {
+        {LOGMEIN("DateTime.cpp] 56\n");
             year *= -1;
         }
         else if (base_year >= 0 && base_year < 100)
-        {
+        {LOGMEIN("DateTime.cpp] 60\n");
             year -= 1900;
         }
         else if (base_year < 0)
-        {
+        {LOGMEIN("DateTime.cpp] 64\n");
             const int org_base_year = NormalizeYMDYear(-1 * base_year);
             year = base_year - (org_base_year - year);
         }
@@ -88,7 +88,7 @@ namespace DateTime
         // temporarily add a calendar day for leap pass
         bool leap_year = IsLeap(time->tm_year);
         *leap_added = false;
-        if (ymd->yday == 60 && leap_year) {
+        if (ymd->yday == 60 && leap_year) {LOGMEIN("DateTime.cpp] 90\n");
             time->tm_mday++;
             *leap_added = true;
         }
@@ -107,10 +107,10 @@ namespace DateTime
         // mktime etc. broken-out time accepts 1900 as a start year while epoch is 1970
         // minus the previously added calendar day (see YMD_TO_TM)
         if (leap_added)
-        {
+        {LOGMEIN("DateTime.cpp] 109\n");
             AssertMsg(ymd->mday >= 0, "Day of month can't be a negative number");
             if (ymd->mday == 0)
-            {
+            {LOGMEIN("DateTime.cpp] 112\n");
                 ymd->mday = 29;
                 ymd->mon = 1;
             }
@@ -122,11 +122,11 @@ namespace DateTime
     }
 
     static void CopyTimeZoneName(WCHAR *wstr, size_t *length, const char *tm_zone)
-    {
+    {LOGMEIN("DateTime.cpp] 124\n");
         *length = strlen(tm_zone);
 
         for(int i = 0; i < *length; i++)
-        {
+        {LOGMEIN("DateTime.cpp] 128\n");
             wstr[i] = (WCHAR)tm_zone[i];
         }
 
@@ -134,7 +134,7 @@ namespace DateTime
     }
 
     const WCHAR *Utility::GetStandardName(size_t *nameLength, const DateTime::YMD *ymd)
-    {
+    {LOGMEIN("DateTime.cpp] 136\n");
         AssertMsg(ymd != NULL, "xplat needs DateTime::YMD is defined for this call");
         struct tm time_tm = {0};
         bool leap_added;
@@ -146,13 +146,13 @@ namespace DateTime
     }
 
     const WCHAR *Utility::GetDaylightName(size_t *nameLength, const DateTime::YMD *ymd)
-    {
+    {LOGMEIN("DateTime.cpp] 148\n");
         // xplat only gets the actual zone name for the given date
         return GetStandardName(nameLength, ymd);
     }
 
     static void YMDLocalToUtc(YMD *local, YMD *utc)
-    {
+    {LOGMEIN("DateTime.cpp] 154\n");
         struct tm local_tm = {0};
         bool leap_added;
         YMD_TO_TM(local, (&local_tm), &leap_added);
@@ -163,7 +163,7 @@ namespace DateTime
         tzset();
         time_t utime = timelocal(&local_tm);
         if (local_tm.tm_isdst)
-        {
+        {LOGMEIN("DateTime.cpp] 165\n");
             utime -= 3600;
         }
 
@@ -180,7 +180,7 @@ namespace DateTime
 
     static void YMDUtcToLocal(YMD *utc, YMD *local,
                           int &bias, int &offset, bool &isDaylightSavings)
-    {
+    {LOGMEIN("DateTime.cpp] 182\n");
         struct tm utc_tm = {0};
         bool leap_added;
         YMD_TO_TM(utc, &utc_tm, &leap_added);
@@ -206,7 +206,7 @@ namespace DateTime
     // DaylightTimeHelper ******
     double DaylightTimeHelper::UtcToLocal(double utcTime, int &bias,
                                           int &offset, bool &isDaylightSavings)
-    {
+    {LOGMEIN("DateTime.cpp] 208\n");
         YMD ymdUTC, local;
 
         Js::DateUtilities::GetYmdFromTv(utcTime, &ymdUTC);
@@ -217,7 +217,7 @@ namespace DateTime
     }
 
     double DaylightTimeHelper::LocalToUtc(double localTime)
-    {
+    {LOGMEIN("DateTime.cpp] 219\n");
         YMD ymdLocal, utc;
 
         Js::DateUtilities::GetYmdFromTv(localTime, &ymdLocal);

@@ -12,13 +12,13 @@ namespace Js
     public:
         BufferStringBuilder(charcount_t charLength, ScriptContext* scriptContext)
             : m_string( WritableString::New(charLength, scriptContext) )
-        {
+        {LOGMEIN("BufferStringBuilder.h] 14\n");
         }
 
         JavascriptString* ToString();
 
         void DbgAssertNotFrozen() const
-        {
+        {LOGMEIN("BufferStringBuilder.h] 20\n");
             AssertMsg(this->m_string != nullptr, "Do not call BufferStringBuilder methods after ToString() has been called.");
         }
 
@@ -26,14 +26,14 @@ namespace Js
             const char16* prefix, charcount_t cchPrefix,
             const char16* content, charcount_t cchContent,
             const char16* suffix, charcount_t cchSuffix)
-        {
+        {LOGMEIN("BufferStringBuilder.h] 28\n");
             DbgAssertNotFrozen();
             this->m_string->SetContent(prefix, cchPrefix, content, cchContent, suffix, cchSuffix);
         }
 
         // Caution: Do not retain the writable buffer after ToString has been called
         char16* DangerousGetWritableBuffer()
-        {
+        {LOGMEIN("BufferStringBuilder.h] 35\n");
             DbgAssertNotFrozen();
             return this->m_string->GetWritableBuffer();
         }
@@ -43,7 +43,7 @@ namespace Js
         public:
             static WritableString* New(charcount_t length, ScriptContext* scriptContext);
             char16* GetWritableBuffer() const
-            {
+            {LOGMEIN("BufferStringBuilder.h] 45\n");
                 return const_cast< char16* >( this->UnsafeGetBuffer() );
             }
 
@@ -59,7 +59,7 @@ namespace Js
         private:
             WritableString(StaticType * type, charcount_t length, const char16* szValue)
                 : JavascriptString(type, length, szValue)
-            {
+            {LOGMEIN("BufferStringBuilder.h] 61\n");
             }
 
             static char16* SafeCopyAndAdvancePtr(__out_ecount(cchDst) char16* dst, charcount_t& cchDst, __in_ecount(cch) const char16* ptr, charcount_t cch);

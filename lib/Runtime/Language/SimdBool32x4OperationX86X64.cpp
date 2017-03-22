@@ -9,14 +9,14 @@
 namespace Js
 {
     SIMDValue SIMDBool32x4Operation::OpBool32x4(bool x, bool y, bool z, bool w)
-    {
+    {LOGMEIN("SimdBool32x4OperationX86X64.cpp] 11\n");
         X86SIMDValue x86Result;
         x86Result.m128i_value = _mm_set_epi32(w * -1, z * -1, y * -1, x * -1);
         return X86SIMDValue::ToSIMDValue(x86Result);
     }
 
     SIMDValue SIMDBool32x4Operation::OpBool32x4(const SIMDValue& v)
-    {
+    {LOGMEIN("SimdBool32x4OperationX86X64.cpp] 18\n");
         // overload function with input parameter as SIMDValue for completeness
         SIMDValue result;
         result = v;
@@ -25,14 +25,14 @@ namespace Js
 
     // Unary Ops
     bool SIMDBool32x4Operation::OpAnyTrue(const SIMDValue& simd)
-    {
+    {LOGMEIN("SimdBool32x4OperationX86X64.cpp] 27\n");
         X86SIMDValue x86Simd = X86SIMDValue::ToX86SIMDValue(simd);
         int mask_8 = _mm_movemask_epi8(x86Simd.m128i_value); //latency 3, throughput 1
         return mask_8 != 0;
     }
 
     bool SIMDBool32x4Operation::OpAllTrue(const SIMDValue& simd)
-    {
+    {LOGMEIN("SimdBool32x4OperationX86X64.cpp] 34\n");
         X86SIMDValue x86Simd = X86SIMDValue::ToX86SIMDValue(simd);
         int mask_8 = _mm_movemask_epi8(x86Simd.m128i_value); //latency 3, throughput 1
         return mask_8 == 0xFFFF;

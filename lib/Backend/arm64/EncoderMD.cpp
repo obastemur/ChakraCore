@@ -7,9 +7,9 @@
 
 bool
 EncoderMD::EncodeImmediate16(int32 constant, DWORD * result)
-{
+{LOGMEIN("EncoderMD.cpp] 9\n");
     if (constant > 0xFFFF)
-    {
+    {LOGMEIN("EncoderMD.cpp] 11\n");
         return FALSE;
     }
 
@@ -21,7 +21,7 @@ EncoderMD::EncodeImmediate16(int32 constant, DWORD * result)
 
 ENCODE_32
 EncoderMD::BranchOffset_26(int64 x)
-{
+{LOGMEIN("EncoderMD.cpp] 23\n");
     Assert(IS_CONST_INT26(x >> 1));
     Assert((x & 0x3) == 0);
     x = x >> 2;

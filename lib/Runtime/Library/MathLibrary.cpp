@@ -15,16 +15,16 @@
 const LPCWSTR UCrtC99MathApis::LibraryName = _u("api-ms-win-crt-math-l1-1-0.dll");
 
 void UCrtC99MathApis::Ensure()
-{
+{LOGMEIN("MathLibrary.cpp] 17\n");
     if (m_isInit)
-    {
+    {LOGMEIN("MathLibrary.cpp] 19\n");
         return;
     }
 
     DelayLoadLibrary::EnsureFromSystemDirOnly();
 
     if (IsAvailable())
-    {
+    {LOGMEIN("MathLibrary.cpp] 26\n");
         m_pfnlog2  = (PFNMathFn)GetFunction("log2");
         m_pfnlog1p = (PFNMathFn)GetFunction("log1p");
         m_pfnexpm1 = (PFNMathFn)GetFunction("expm1");
@@ -42,7 +42,7 @@ void UCrtC99MathApis::Ensure()
             m_pfnatanh == nullptr ||
             m_pfntrunc == nullptr ||
             m_pfncbrt == nullptr)
-        {
+        {LOGMEIN("MathLibrary.cpp] 44\n");
             // If any of the APIs fail to load then presume the entire module is bogus and free it
             FreeLibrary(m_hModule);
             m_hModule = nullptr;
@@ -80,11 +80,11 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 82\n");
             Var arg = args[1];
 
             if (TaggedInt::Is(arg))
-            {
+            {LOGMEIN("MathLibrary.cpp] 86\n");
 #if defined(_M_X64_OR_ARM64)
                 __int64 result = ::_abs64(TaggedInt::ToInt32(arg));
 #else
@@ -105,10 +105,10 @@ namespace Js
     }
 
     double Math::Abs(double x)
-    {
+    {LOGMEIN("MathLibrary.cpp] 107\n");
         // ::fabs if linked from UCRT changes FPU ctrl word for NaN input
         if (NumberUtilities::IsNan(x))
-        {
+        {LOGMEIN("MathLibrary.cpp] 110\n");
             // canonicalize to 0xFFF8000..., so we can tag correctly on x64.
             return NumberConstants::NaN;
         }
@@ -132,7 +132,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 134\n");
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             double result = Math::Acos(x);
@@ -146,7 +146,7 @@ namespace Js
     }
 
     double Math::Acos(double x)
-    {
+    {LOGMEIN("MathLibrary.cpp] 148\n");
         double result;
 
 #if defined(_M_IX86) && defined(_WIN32)
@@ -154,8 +154,8 @@ namespace Js
         // If non Win32 CRT implementation already support SSE2,
         // then we get most of the perf already.
         if (AutoSystemInfo::Data.SSE2Available())
-        {
-            _asm {
+        {LOGMEIN("MathLibrary.cpp] 156\n");
+            _asm {LOGMEIN("MathLibrary.cpp] 157\n");
                 movsd xmm0, x
                 call dword ptr [__libm_sse2_acos]
                 movsd result, xmm0
@@ -186,7 +186,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 188\n");
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             double result = Math::Asin(x);
@@ -200,7 +200,7 @@ namespace Js
     }
 
     double Math::Asin(double x)
-    {
+    {LOGMEIN("MathLibrary.cpp] 202\n");
         double result;
 
 #if defined(_M_IX86) && defined(_WIN32)
@@ -208,8 +208,8 @@ namespace Js
         // If non Win32 CRT implementation already support SSE2,
         // then we get most of the perf already.
         if (AutoSystemInfo::Data.SSE2Available())
-        {
-            _asm {
+        {LOGMEIN("MathLibrary.cpp] 210\n");
+            _asm {LOGMEIN("MathLibrary.cpp] 211\n");
                 movsd xmm0, x
                 call dword ptr [__libm_sse2_asin]
                 movsd result, xmm0
@@ -240,7 +240,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 242\n");
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             double result = Math::Atan(x);
@@ -254,15 +254,15 @@ namespace Js
     }
 
     double Math::Atan(double x)
-    {
+    {LOGMEIN("MathLibrary.cpp] 256\n");
         double result;
 #if defined(_M_IX86) && defined(_WIN32)
         // This is for perf, not for functionality
         // If non Win32 CRT implementation already support SSE2,
         // then we get most of the perf already.
         if (AutoSystemInfo::Data.SSE2Available())
-        {
-            _asm {
+        {LOGMEIN("MathLibrary.cpp] 263\n");
+            _asm {LOGMEIN("MathLibrary.cpp] 264\n");
                 movsd xmm0, x
                 call dword ptr [__libm_sse2_atan]
                 movsd result, xmm0
@@ -293,7 +293,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 3)
-        {
+        {LOGMEIN("MathLibrary.cpp] 295\n");
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
             double y = JavascriptConversion::ToNumber(args[2], scriptContext);
             double result = Math::Atan2(x,y);
@@ -306,16 +306,16 @@ namespace Js
     }
 
     double Math::Atan2( double x, double y )
-    {
+    {LOGMEIN("MathLibrary.cpp] 308\n");
         double result;
 #if defined(_M_IX86) && defined(_WIN32)
         // This is for perf, not for functionality
         // If non Win32 CRT implementation already support SSE2,
         // then we get most of the perf already.
         if (AutoSystemInfo::Data.SSE2Available())
-        {
+        {LOGMEIN("MathLibrary.cpp] 315\n");
             _asm
-            {
+            {LOGMEIN("MathLibrary.cpp] 317\n");
                 movsd xmm0, x
                 movsd xmm1, y
                 call dword ptr[__libm_sse2_atan2]
@@ -349,18 +349,18 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 351\n");
             Var inputArg = args[1];
 
             if (TaggedInt::Is(inputArg))
-            {
+            {LOGMEIN("MathLibrary.cpp] 355\n");
                 return inputArg;
             }
 
             double x = JavascriptConversion::ToNumber(inputArg, scriptContext);
 #if defined(_M_ARM32_OR_ARM64)
             if (Js::JavascriptNumber::IsNan(x))
-            {
+            {LOGMEIN("MathLibrary.cpp] 362\n");
                 return scriptContext->GetLibrary()->GetNaN();
             }
 #endif
@@ -368,19 +368,19 @@ namespace Js
 #if (defined(_M_IX86) || defined(_M_X64)) \
     && (__SSE4_1__ || _WIN32) // _mm_ceil_sd needs this
             if (AutoSystemInfo::Data.SSE4_1Available())
-            {
+            {LOGMEIN("MathLibrary.cpp] 370\n");
                 __m128d input, output;
                 input = _mm_load_sd(&x);
                 output = _mm_ceil_sd(input, input);
                 int intResult = _mm_cvtsd_si32(output);
 
                 if (TaggedInt::IsOverflow(intResult) || intResult == 0 || intResult == 0x80000000)
-                {
+                {LOGMEIN("MathLibrary.cpp] 377\n");
                     double dblResult;
                     _mm_store_sd(&dblResult, output);
 
                     if (intResult == 0 && !JavascriptNumber::IsNegZero(dblResult))
-                    {
+                    {LOGMEIN("MathLibrary.cpp] 382\n");
                         return JavascriptNumber::ToVar(0, scriptContext);
                     }
 
@@ -401,7 +401,7 @@ namespace Js
                 intptr_t intResult = (intptr_t)result;
 
                 if (TaggedInt::IsOverflow(intResult) || JavascriptNumber::IsNegZero(result))
-                {
+                {LOGMEIN("MathLibrary.cpp] 403\n");
                     return JavascriptNumber::ToVarNoCheck(result, scriptContext);
                 }
                 else
@@ -433,7 +433,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 435\n");
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             double result = Math::Cos(x);
@@ -447,7 +447,7 @@ namespace Js
     }
 
     double Math::Cos(double x)
-    {
+    {LOGMEIN("MathLibrary.cpp] 449\n");
         double result;
 
 #if defined(_M_IX86) && defined(_WIN32)
@@ -455,8 +455,8 @@ namespace Js
         // If non Win32 CRT implementation already support SSE2,
         // then we get most of the perf already.
         if (AutoSystemInfo::Data.SSE2Available())
-        {
-            _asm {
+        {LOGMEIN("MathLibrary.cpp] 457\n");
+            _asm {LOGMEIN("MathLibrary.cpp] 458\n");
                 movsd xmm0, x
                 call dword ptr [__libm_sse2_cos]
                 movsd result, xmm0
@@ -486,7 +486,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 488\n");
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             double result = Math::Exp(x);
@@ -500,7 +500,7 @@ namespace Js
     }
 
     double Math::Exp(double x)
-    {
+    {LOGMEIN("MathLibrary.cpp] 502\n");
         double result;
 
 #if defined(_M_IX86) && defined(_WIN32)
@@ -508,8 +508,8 @@ namespace Js
         // If non Win32 CRT implementation already support SSE2,
         // then we get most of the perf already.
         if (AutoSystemInfo::Data.SSE2Available())
-        {
-            _asm {
+        {LOGMEIN("MathLibrary.cpp] 510\n");
+            _asm {LOGMEIN("MathLibrary.cpp] 511\n");
                 movsd xmm0, x
                 call dword ptr [__libm_sse2_exp]
                 movsd result, xmm0
@@ -541,18 +541,18 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 543\n");
             Var input = args[1];
 
             if (TaggedInt::Is(input))
-            {
+            {LOGMEIN("MathLibrary.cpp] 547\n");
                 return input;
             }
 
             double x = JavascriptConversion::ToNumber(input, scriptContext);
 #if defined(_M_ARM32_OR_ARM64)
             if (Js::JavascriptNumber::IsNan(x))
-            {
+            {LOGMEIN("MathLibrary.cpp] 554\n");
                 return scriptContext->GetLibrary()->GetNaN();
             }
 #endif
@@ -567,19 +567,19 @@ namespace Js
 #pragma warning(push)
 #pragma warning(disable:4700)  // // uninitialized local variable 'output' used, for call to _mm_floor_sd
     Var inline Math::FloorDouble(double d, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("MathLibrary.cpp] 569\n");
             // xplat-todo: use intrinsics here on linux
 #ifdef _MSC_VER
 #if defined(_M_IX86) || defined(_M_X64)
         if (AutoSystemInfo::Data.SSE4_1Available())
-        {
+        {LOGMEIN("MathLibrary.cpp] 574\n");
             __m128d input, output;
 
             int intResult;
 
             input = _mm_load_sd(&d);
             if (d >= 0.0)
-            {
+            {LOGMEIN("MathLibrary.cpp] 581\n");
                 output = input;
             }
             else
@@ -589,10 +589,10 @@ namespace Js
             intResult = _mm_cvttsd_si32(output);
 
             if (TaggedInt::IsOverflow(intResult) || intResult == 0x80000000 || JavascriptNumber::IsNegZero(d))
-            {
+            {LOGMEIN("MathLibrary.cpp] 591\n");
                 double dblResult;
                 if (d >= 0.0)
-                {
+                {LOGMEIN("MathLibrary.cpp] 594\n");
                     output = _mm_floor_sd(output, input);
                 }
                 _mm_store_sd(&dblResult, output);
@@ -614,7 +614,7 @@ namespace Js
             intptr_t intResult;
 
             if (d >= 0.0)
-            {
+            {LOGMEIN("MathLibrary.cpp] 616\n");
                 intResult = (intptr_t)d;
             }
             else
@@ -624,7 +624,7 @@ namespace Js
             }
 
             if (TaggedInt::IsOverflow(intResult) || JavascriptNumber::IsNegZero(d))
-            {
+            {LOGMEIN("MathLibrary.cpp] 626\n");
                 return JavascriptNumber::ToVarNoCheck(::floor(d), scriptContext);
             }
             else
@@ -650,7 +650,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 652\n");
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             double result = Math::Log(x);
@@ -664,7 +664,7 @@ namespace Js
     }
 
     double Math::Log(double x)
-    {
+    {LOGMEIN("MathLibrary.cpp] 666\n");
         double result;
 
 #if defined(_M_IX86) && defined(_WIN32)
@@ -672,8 +672,8 @@ namespace Js
         // If non Win32 CRT implementation already support SSE2,
         // then we get most of the perf already.
         if (AutoSystemInfo::Data.SSE2Available())
-        {
-            _asm {
+        {LOGMEIN("MathLibrary.cpp] 674\n");
+            _asm {LOGMEIN("MathLibrary.cpp] 675\n");
                 movsd xmm0, x
                 call dword ptr [__libm_sse2_log]
                 movsd result, xmm0
@@ -706,38 +706,38 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count <= 1)
-        {
+        {LOGMEIN("MathLibrary.cpp] 708\n");
             return scriptContext->GetLibrary()->GetNegativeInfinite();
         }
         else if (args.Info.Count == 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 712\n");
             double result = JavascriptConversion::ToNumber(args[1], scriptContext);
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
         }
         else if (args.Info.Count == 3)
-        {
+        {LOGMEIN("MathLibrary.cpp] 717\n");
             if (TaggedInt::Is(args[1]) && TaggedInt::Is(args[2]))
-            {
+            {LOGMEIN("MathLibrary.cpp] 719\n");
                 return TaggedInt::ToVarUnchecked(max(TaggedInt::ToInt32(args[1]), TaggedInt::ToInt32(args[2])));
             }
         }
 
         double current = JavascriptConversion::ToNumber(args[1], scriptContext);
         if(JavascriptNumber::IsNan(current))
-        {
+        {LOGMEIN("MathLibrary.cpp] 726\n");
             return scriptContext->GetLibrary()->GetNaN();
         }
 
         for (uint idxArg = 2; idxArg < args.Info.Count; idxArg++)
-        {
+        {LOGMEIN("MathLibrary.cpp] 731\n");
             double compare = JavascriptConversion::ToNumber(args[idxArg], scriptContext);
             if(JavascriptNumber::IsNan(compare))
-            {
+            {LOGMEIN("MathLibrary.cpp] 734\n");
                 return scriptContext->GetLibrary()->GetNaN();
             }
             if((JavascriptNumber::IsNegZero(current) && compare == 0) ||
                 current < compare )
-            {
+            {LOGMEIN("MathLibrary.cpp] 739\n");
                 current = compare;
             }
         }
@@ -764,38 +764,38 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count <= 1)
-        {
+        {LOGMEIN("MathLibrary.cpp] 766\n");
             return scriptContext->GetLibrary()->GetPositiveInfinite();
         }
         else if (args.Info.Count == 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 770\n");
             double result = JavascriptConversion::ToNumber(args[1], scriptContext);
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
         }
         else if (args.Info.Count == 3)
-        {
+        {LOGMEIN("MathLibrary.cpp] 775\n");
             if (TaggedInt::Is(args[1]) && TaggedInt::Is(args[2]))
-            {
+            {LOGMEIN("MathLibrary.cpp] 777\n");
                 return TaggedInt::ToVarUnchecked(min(TaggedInt::ToInt32(args[1]), TaggedInt::ToInt32(args[2])));
             }
         }
 
         double current = JavascriptConversion::ToNumber(args[1], scriptContext);
         if(JavascriptNumber::IsNan(current))
-        {
+        {LOGMEIN("MathLibrary.cpp] 784\n");
             return scriptContext->GetLibrary()->GetNaN();
         }
 
         for (uint idxArg = 2; idxArg < args.Info.Count; idxArg++)
-        {
+        {LOGMEIN("MathLibrary.cpp] 789\n");
             double compare = JavascriptConversion::ToNumber(args[idxArg], scriptContext);
             if(JavascriptNumber::IsNan(compare))
-            {
+            {LOGMEIN("MathLibrary.cpp] 792\n");
                 return scriptContext->GetLibrary()->GetNaN();
             }
             if((JavascriptNumber::IsNegZero(compare) && current == 0) ||
                 current > compare )
-            {
+            {LOGMEIN("MathLibrary.cpp] 797\n");
                 current = compare;
             }
         }
@@ -819,7 +819,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 3)
-        {
+        {LOGMEIN("MathLibrary.cpp] 821\n");
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
             double y = JavascriptConversion::ToNumber(args[2], scriptContext);
             double result = Math::Pow( x, y );
@@ -832,19 +832,19 @@ namespace Js
     }
 
     double Math::Pow( double x, double y )
-    {
+    {LOGMEIN("MathLibrary.cpp] 834\n");
         double result = 0;
 
 #if defined(_M_IX86) && defined(_WIN32) // TODO: xplat support
         // We can't just use "if (0 == y)" because NaN compares
         // equal to 0 according to our compilers.
         if( 0 == NumberUtilities::LuLoDbl( y ) && 0 == ( NumberUtilities::LuHiDbl( y ) & 0x7FFFFFFF ) )
-        {
+        {LOGMEIN("MathLibrary.cpp] 841\n");
             // Result is 1 even if x is NaN.
             result = 1;
         }
         else if( 1.0 == Math::Abs( x ) && !NumberUtilities::IsFinite( y ) )
-        {
+        {LOGMEIN("MathLibrary.cpp] 846\n");
             result = JavascriptNumber::NaN;
         }
         else
@@ -852,12 +852,12 @@ namespace Js
             int32 intY;
             // range [-8, 8] is from JavascriptNumber::DirectPowDoubleInt
             if (JavascriptNumber::TryGetInt32Value(y, &intY) && intY >= -8 && intY <= 8)
-            {
+            {LOGMEIN("MathLibrary.cpp] 854\n");
                 result = JavascriptNumber::DirectPowDoubleInt(x, intY);
             }
             else if( AutoSystemInfo::Data.SSE2Available() )
-            {
-                _asm {
+            {LOGMEIN("MathLibrary.cpp] 858\n");
+                _asm {LOGMEIN("MathLibrary.cpp] 859\n");
                     movsd xmm0, x
                     movsd xmm1, y
                     call dword ptr[__libm_sse2_pow]
@@ -913,34 +913,34 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 915\n");
             Var input = args[1];
 
             if (TaggedInt::Is(input))
-            {
+            {LOGMEIN("MathLibrary.cpp] 919\n");
                 return input;
             }
 
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
             if(JavascriptNumber::IsNan(x))
-            {
+            {LOGMEIN("MathLibrary.cpp] 925\n");
                 return scriptContext->GetLibrary()->GetNaN();
             }
 
             // for doubles, if x >= 2^52 or <= -2^52, x must be an integer, and adding 0.5 will overflow the
             // integer to the next one. Therefore, we directly return x.
             if (x == 0.0 || !NumberUtilities::IsFinite(x) || x >= 4503599627370496.0 || x <= -4503599627370496.0)
-            {
+            {LOGMEIN("MathLibrary.cpp] 932\n");
                 // 0.0 catches the -0 case...
                 return JavascriptNumber::ToVarNoCheck(x, scriptContext);
             }
 
-            if (x > 0 && x < 0.5) {
+            if (x > 0 && x < 0.5) {LOGMEIN("MathLibrary.cpp] 937\n");
                 return JavascriptNumber::ToVarNoCheck((double)Js::JavascriptNumber::k_Zero, scriptContext);
             }
 
             if(x < 0 && x >= -0.5)
-            {
+            {LOGMEIN("MathLibrary.cpp] 942\n");
                 return scriptContext->GetLibrary()->GetNegativeZero();
             }
 
@@ -968,7 +968,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 970\n");
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             double result = Math::Sin(x);
@@ -982,7 +982,7 @@ namespace Js
     }
 
     double Math::Sin(double x)
-    {
+    {LOGMEIN("MathLibrary.cpp] 984\n");
         double result;
 
 #if defined(_M_IX86) && defined(_WIN32)
@@ -990,8 +990,8 @@ namespace Js
         // If non Win32 CRT implementation already support SSE2,
         // then we get most of the perf already.
         if (AutoSystemInfo::Data.SSE2Available())
-        {
-            _asm {
+        {LOGMEIN("MathLibrary.cpp] 992\n");
+            _asm {LOGMEIN("MathLibrary.cpp] 993\n");
                 movsd xmm0, x
                 call dword ptr [__libm_sse2_sin]
                 movsd result, xmm0
@@ -1022,12 +1022,12 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 1024\n");
             Var arg = args[1];
             double x = JavascriptConversion::ToNumber(arg, scriptContext);
             double result = ::sqrt(x);
             if (TaggedInt::Is(arg))
-            {
+            {LOGMEIN("MathLibrary.cpp] 1029\n");
                 return JavascriptNumber::ToVarIntCheck(result, scriptContext);
             }
             else
@@ -1057,7 +1057,7 @@ namespace Js
         Assert(!(callInfo.Flags & CallFlags_New));
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 1059\n");
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
             double result = Math::Tan( x );
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
@@ -1069,15 +1069,15 @@ namespace Js
     }
 
     double Math::Tan( double x )
-    {
+    {LOGMEIN("MathLibrary.cpp] 1071\n");
         double result = 0;
 #if defined(_M_IX86) && defined(_WIN32)
         // This is for perf, not for functionality
         // If non Win32 CRT implementation already support SSE2,
         // then we get most of the perf already.
         if( AutoSystemInfo::Data.SSE2Available() )
-        {
-            _asm {
+        {LOGMEIN("MathLibrary.cpp] 1078\n");
+            _asm {LOGMEIN("MathLibrary.cpp] 1079\n");
                 movsd xmm0, x
                     call dword ptr[__libm_sse2_tan]
                     movsd result, xmm0
@@ -1108,7 +1108,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_log10);
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 1110\n");
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             double result = Math::Log10(x);
@@ -1122,7 +1122,7 @@ namespace Js
     }
 
     double Math::Log10(double x)
-    {
+    {LOGMEIN("MathLibrary.cpp] 1124\n");
         double result;
 
 #if defined(_M_IX86) && defined(_WIN32)
@@ -1130,8 +1130,8 @@ namespace Js
         // If non Win32 CRT implementation already support SSE2,
         // then we get most of the perf already.
         if (AutoSystemInfo::Data.SSE2Available())
-        {
-            _asm {
+        {LOGMEIN("MathLibrary.cpp] 1132\n");
+            _asm {LOGMEIN("MathLibrary.cpp] 1133\n");
                 movsd xmm0, x
                 call dword ptr [__libm_sse2_log10]
                 movsd result, xmm0
@@ -1162,7 +1162,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_log2);
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 1164\n");
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
             double result = Math::Log2(x, scriptContext);
             return JavascriptNumber::ToVarNoCheck(result, scriptContext);
@@ -1174,7 +1174,7 @@ namespace Js
     }
 
     double Math::Log2(double x, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("MathLibrary.cpp] 1176\n");
 #if defined(WHEN_UCRT_IS_LINKED_IN_BUILD) || !defined(_WIN32)
         return ::log2( x );
 #else
@@ -1203,7 +1203,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_log1p);
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 1205\n");
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
 #if defined(WHEN_UCRT_IS_LINKED_IN_BUILD) || !defined(_WIN32)
@@ -1240,7 +1240,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_expm1);
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 1242\n");
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
 #if defined(WHEN_UCRT_IS_LINKED_IN_BUILD) || !defined(_WIN32)
@@ -1277,7 +1277,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_cosh);
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 1279\n");
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             double result = ::cosh(x);
@@ -1306,7 +1306,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_sinh);
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 1308\n");
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             double result = ::sinh(x);
@@ -1335,7 +1335,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_tanh);
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 1337\n");
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             double result = ::tanh(x);
@@ -1364,7 +1364,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_acosh);
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 1366\n");
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
 #if defined(WHEN_UCRT_IS_LINKED_IN_BUILD) || !defined(_WIN32)
@@ -1375,11 +1375,11 @@ namespace Js
             // TODO: THE FALLBACK IS NOT ACCURATE; Universal CRT is available on Threshold so we should never fallback but ideally we would link at build time to these APIs instead of loading them at runtime
             UCrtC99MathApis* ucrtC99MathApis = scriptContext->GetThreadContext()->GetUCrtC99MathApis();
             if (ucrtC99MathApis->IsAvailable())
-            {
+            {LOGMEIN("MathLibrary.cpp] 1377\n");
                 return JavascriptNumber::ToVarNoCheck(ucrtC99MathApis->acosh(x), scriptContext);
             }
             else if (x >= 1.0)
-            {
+            {LOGMEIN("MathLibrary.cpp] 1381\n");
                 // Can be smarter about large values of x, e.g. as x -> Infinity, sqrt(x^2 - 1) -> x
                 // Therefore for large x, log(x+x) is sufficient, but how to decide what a large x is?
                 // Also ln(x+x) = ln 2x = ln 2 + ln x
@@ -1415,7 +1415,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_asinh);
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 1417\n");
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
 #if defined(WHEN_UCRT_IS_LINKED_IN_BUILD) || !defined(_WIN32)
@@ -1426,7 +1426,7 @@ namespace Js
             // TODO: THE FALLBACK IS NOT ACCURATE; Universal CRT is available on Threshold so we should never fallback but ideally we would link at build time to these APIs instead of loading them at runtime
             UCrtC99MathApis* ucrtC99MathApis = scriptContext->GetThreadContext()->GetUCrtC99MathApis();
             if (ucrtC99MathApis->IsAvailable())
-            {
+            {LOGMEIN("MathLibrary.cpp] 1428\n");
                 return JavascriptNumber::ToVarNoCheck(ucrtC99MathApis->asinh(x), scriptContext);
             }
             else
@@ -1462,7 +1462,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_atanh);
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 1464\n");
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
 #if defined(WHEN_UCRT_IS_LINKED_IN_BUILD) || !defined(_WIN32)
@@ -1473,11 +1473,11 @@ namespace Js
             // TODO: THE FALLBACK IS NOT ACCURATE; Universal CRT is available on Threshold so we should never fallback but ideally we would link at build time to these APIs instead of loading them at runtime
             UCrtC99MathApis* ucrtC99MathApis = scriptContext->GetThreadContext()->GetUCrtC99MathApis();
             if (ucrtC99MathApis->IsAvailable())
-            {
+            {LOGMEIN("MathLibrary.cpp] 1475\n");
                 return JavascriptNumber::ToVarNoCheck(ucrtC99MathApis->atanh(x), scriptContext);
             }
             else if (Math::Abs(x) < 1.0)
-            {
+            {LOGMEIN("MathLibrary.cpp] 1479\n");
                 double result = (JavascriptNumber::IsNegZero(x)) ? x : Math::Log((1.0 + x) / (1.0 - x)) / 2.0;
 
                 return JavascriptNumber::ToVarNoCheck(result, scriptContext);
@@ -1485,11 +1485,11 @@ namespace Js
             else
             {
                 if (x == -1.0)
-                {
+                {LOGMEIN("MathLibrary.cpp] 1487\n");
                     return scriptContext->GetLibrary()->GetNegativeInfinite();
                 }
                 else if (x == 1.0)
-                {
+                {LOGMEIN("MathLibrary.cpp] 1491\n");
                     return scriptContext->GetLibrary()->GetPositiveInfinite();
                 }
 
@@ -1528,12 +1528,12 @@ namespace Js
         double result = JavascriptNumber::k_Zero; // If there are no arguments return value is positive zero.
 
         if (args.Info.Count == 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 1530\n");
             // Special case for one argument
             double x1 = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             if (JavascriptNumber::IsPosInf(x1) || JavascriptNumber::IsNegInf(x1))
-            {
+            {LOGMEIN("MathLibrary.cpp] 1535\n");
                 result = JavascriptNumber::POSITIVE_INFINITY;
             }
             else
@@ -1542,18 +1542,18 @@ namespace Js
             }
         }
         else if (args.Info.Count == 3)
-        {
+        {LOGMEIN("MathLibrary.cpp] 1544\n");
             // CRT hypot call
             double x1 = JavascriptConversion::ToNumber(args[1], scriptContext);
             double x2 = JavascriptConversion::ToNumber(args[2], scriptContext);
 
             if (JavascriptNumber::IsPosInf(x1) || JavascriptNumber::IsNegInf(x1) ||
                 JavascriptNumber::IsPosInf(x2) || JavascriptNumber::IsNegInf(x2))
-            {
+            {LOGMEIN("MathLibrary.cpp] 1551\n");
                 result = JavascriptNumber::POSITIVE_INFINITY;
             }
             else if (JavascriptNumber::IsNan(x1) || JavascriptNumber::IsNan(x2))
-            {
+            {LOGMEIN("MathLibrary.cpp] 1555\n");
                 result = JavascriptNumber::NaN;
             }
             else
@@ -1562,7 +1562,7 @@ namespace Js
             }
         }
         else if (args.Info.Count > 3)
-        {
+        {LOGMEIN("MathLibrary.cpp] 1564\n");
             // Uncommon case of more than 2 arguments for hypot
             result = Math::HypotHelper(args, scriptContext);
         }
@@ -1571,7 +1571,7 @@ namespace Js
     }
 
     double Math::HypotHelper(Arguments args, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("MathLibrary.cpp] 1573\n");
         // CRT does not have a multiple version of hypot, so we implement it here ourselves.
         bool foundNaN = false;
         double scale = 0;
@@ -1579,18 +1579,18 @@ namespace Js
 
         //Ignore first argument which is this pointer
         for (uint counter = 1; counter < args.Info.Count; counter++)
-        {
+        {LOGMEIN("MathLibrary.cpp] 1581\n");
             double doubleVal = JavascriptConversion::ToNumber(args[counter], scriptContext);
 
             if (JavascriptNumber::IsPosInf(doubleVal) || JavascriptNumber::IsNegInf(doubleVal))
-            {
+            {LOGMEIN("MathLibrary.cpp] 1585\n");
                 return JavascriptNumber::POSITIVE_INFINITY;
             }
 
             if (!foundNaN)
-            {
+            {LOGMEIN("MathLibrary.cpp] 1590\n");
                 if (JavascriptNumber::IsNan(doubleVal))
-                {
+                {LOGMEIN("MathLibrary.cpp] 1592\n");
                     //Even though we found NaN, we still need to validate none of the other arguments are +∞ or -∞
                     foundNaN = true;
                 }
@@ -1598,13 +1598,13 @@ namespace Js
                 {
                     doubleVal = Math::Abs(doubleVal);
                     if (scale < doubleVal)
-                    {
+                    {LOGMEIN("MathLibrary.cpp] 1600\n");
                         sum = sum * (scale / doubleVal) * (scale / doubleVal) + 1; /* scale/scale === 1*/
                         //change the scale to new max value
                         scale = doubleVal;
                     }
                     else if (scale != 0)
-                    {
+                    {LOGMEIN("MathLibrary.cpp] 1606\n");
                         sum += (doubleVal / scale) * (doubleVal / scale);
                     }
                 }
@@ -1612,7 +1612,7 @@ namespace Js
         }
 
         if (foundNaN)
-        {
+        {LOGMEIN("MathLibrary.cpp] 1614\n");
             return JavascriptNumber::NaN;
         }
 
@@ -1635,7 +1635,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_trunc);
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 1637\n");
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
 #if defined(WHEN_UCRT_IS_LINKED_IN_BUILD) || !defined(_WIN32)
@@ -1672,15 +1672,15 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_sign);
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 1674\n");
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
             if (JavascriptNumber::IsNan(x))
-            {
+            {LOGMEIN("MathLibrary.cpp] 1678\n");
                 return scriptContext->GetLibrary()->GetNaN();
             }
             else if (JavascriptNumber::IsNegZero(x))
-            {
+            {LOGMEIN("MathLibrary.cpp] 1682\n");
                 return scriptContext->GetLibrary()->GetNegativeZero();
             }
             else
@@ -1710,7 +1710,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_cbrt);
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 1712\n");
             double x = JavascriptConversion::ToNumber(args[1], scriptContext);
 
 #if defined(WHEN_UCRT_IS_LINKED_IN_BUILD) || !defined(_WIN32)
@@ -1719,21 +1719,21 @@ namespace Js
             // TODO: THE FALLBACK IS NOT ACCURATE; Universal CRT is available on Threshold so we should never fallback but ideally we would link at build time to these APIs instead of loading them at runtime
             UCrtC99MathApis* ucrtC99MathApis = scriptContext->GetThreadContext()->GetUCrtC99MathApis();
             if (ucrtC99MathApis->IsAvailable())
-            {
+            {LOGMEIN("MathLibrary.cpp] 1721\n");
                 return JavascriptNumber::ToVarNoCheck(ucrtC99MathApis->cbrt(x), scriptContext);
             }
 
             bool isNeg = x < 0.0;
 
             if (isNeg)
-            {
+            {LOGMEIN("MathLibrary.cpp] 1728\n");
                 x = -x;
             }
 
             double result = (x == 0.0) ? x : Math::Exp(Math::Log(x) / 3.0);
 
             if (isNeg)
-            {
+            {LOGMEIN("MathLibrary.cpp] 1735\n");
                 result = -result;
             }
 #endif
@@ -1762,7 +1762,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_imul);
 
         if (args.Info.Count >= 3)
-        {
+        {LOGMEIN("MathLibrary.cpp] 1764\n");
             int32 x = JavascriptConversion::ToInt32(args[1], scriptContext);
             int32 y = JavascriptConversion::ToInt32(args[2], scriptContext);
 
@@ -1798,7 +1798,7 @@ namespace Js
         DWORD index;
 
         if (!_BitScanReverse(&index, uint32value))
-        {
+        {LOGMEIN("MathLibrary.cpp] 1800\n");
             return TaggedInt::ToVarUnchecked(32);
         }
         return TaggedInt::ToVarUnchecked(31 - index);
@@ -1816,7 +1816,7 @@ namespace Js
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Math_Constructor_fround);
 
         if (args.Info.Count >= 2)
-        {
+        {LOGMEIN("MathLibrary.cpp] 1818\n");
             float x = (float) JavascriptConversion::ToNumber(args[1], scriptContext);
 
             return JavascriptNumber::ToVarNoCheck((double) x, scriptContext);

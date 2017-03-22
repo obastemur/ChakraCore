@@ -15,7 +15,7 @@ namespace DateTime
 
     // This method is expected to return UTC time (See MSDN GetSystemTime)
     double HiResTimer::GetSystemTime()
-    {
+    {LOGMEIN("HiResTimer.cpp] 17\n");
 // todo: remove/move this when we have BSD/UNIX folder
 // todo-osx: mach_absolute_time
 #ifndef __APPLE__
@@ -23,7 +23,7 @@ namespace DateTime
         // method below returns UTC time. So, nothing else is needed
         // we use clock_gettime first due to expectation of better accuracy
         if (clock_gettime(CLOCK_REALTIME, &fast_time) == 0)
-        {
+        {LOGMEIN("HiResTimer.cpp] 25\n");
             return (fast_time.tv_sec * DateTimeTicks_PerSecond)
                    + (int32_t) (fast_time.tv_nsec / 1e6);
         }
@@ -45,7 +45,7 @@ namespace DateTime
 
         size_t milliseconds = 0;
         if(timeofday_retval != -1)
-        {
+        {LOGMEIN("HiResTimer.cpp] 47\n");
             milliseconds = timeval.tv_usec / DateTimeTicks_PerSecond;
 
             int old_sec = utc_tm.tm_sec;
@@ -54,7 +54,7 @@ namespace DateTime
             // just in case we reached the next
             // second in the interval between time() and gettimeofday()
             if(old_sec != new_sec)
-            {
+            {LOGMEIN("HiResTimer.cpp] 56\n");
                 milliseconds = 999;
             }  
         }                      
@@ -69,7 +69,7 @@ namespace DateTime
     }
 
     double HiResTimer::Now()
-    {
+    {LOGMEIN("HiResTimer.cpp] 71\n");
         return GetSystemTime();
     }
 

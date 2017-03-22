@@ -9,13 +9,13 @@ extern const IRType RegTypes[RegNumCount];
 
 LinearScanMD::LinearScanMD(Func *func)
     : func(func)
-{
+{LOGMEIN("LinearScanMD.cpp] 11\n");
     this->byteableRegsBv.ClearAll();
 
     FOREACH_REG(reg)
-    {
+    {LOGMEIN("LinearScanMD.cpp] 15\n");
         if (LinearScan::GetRegAttribs(reg) & RA_BYTEABLE)
-        {
+        {LOGMEIN("LinearScanMD.cpp] 17\n");
             this->byteableRegsBv.Set(reg);
         }
     } NEXT_REG;
@@ -27,10 +27,10 @@ LinearScanMD::LinearScanMD(Func *func)
 
 BitVector
 LinearScanMD::FilterRegIntSizeConstraints(BitVector regsBv, BitVector sizeUsageBv) const
-{
+{LOGMEIN("LinearScanMD.cpp] 29\n");
     // Requires byte-able reg?
     if (sizeUsageBv.Test(1))
-    {
+    {LOGMEIN("LinearScanMD.cpp] 32\n");
         regsBv.And(this->byteableRegsBv);
     }
 
@@ -39,31 +39,31 @@ LinearScanMD::FilterRegIntSizeConstraints(BitVector regsBv, BitVector sizeUsageB
 
 bool
 LinearScanMD::FitRegIntSizeConstraints(RegNum reg, BitVector sizeUsageBv) const
-{
+{LOGMEIN("LinearScanMD.cpp] 41\n");
     // Requires byte-able reg?
     return !sizeUsageBv.Test(1) || this->byteableRegsBv.Test(reg);
 }
 
 bool
 LinearScanMD::FitRegIntSizeConstraints(RegNum reg, IRType type) const
-{
+{LOGMEIN("LinearScanMD.cpp] 48\n");
     // Requires byte-able reg?
     return TySize[type] != 1 || this->byteableRegsBv.Test(reg);
 }
 
 StackSym *
 LinearScanMD::EnsureSpillSymForXmmReg(RegNum reg, Func *func, IRType type)
-{
+{LOGMEIN("LinearScanMD.cpp] 55\n");
     Assert(REGNUM_ISXMMXREG(reg));
 
     __analysis_assume(reg - RegXMM0 >= 0 && reg - RegXMM0 < XMM_REGCOUNT);
     StackSym *sym;
     if (type == TyFloat32)
-    {
+    {LOGMEIN("LinearScanMD.cpp] 61\n");
         sym = this->xmmSymTable32[reg - RegXMM0];
     }
     else if (type == TyFloat64)
-    {
+    {LOGMEIN("LinearScanMD.cpp] 65\n");
         sym = this->xmmSymTable64[reg - RegXMM0];
     }
     else
@@ -73,18 +73,18 @@ LinearScanMD::EnsureSpillSymForXmmReg(RegNum reg, Func *func, IRType type)
     }
 
     if (sym == NULL)
-    {
+    {LOGMEIN("LinearScanMD.cpp] 75\n");
         sym = StackSym::New(type, func);
         func->StackAllocate(sym, TySize[type]);
 
         __analysis_assume(reg - RegXMM0 < XMM_REGCOUNT);
 
         if (type == TyFloat32)
-        {
+        {LOGMEIN("LinearScanMD.cpp] 82\n");
             this->xmmSymTable32[reg - RegXMM0] = sym;
         }
         else if (type == TyFloat64)
-        {
+        {LOGMEIN("LinearScanMD.cpp] 86\n");
             this->xmmSymTable64[reg - RegXMM0] = sym;
         }
         else
@@ -99,12 +99,12 @@ LinearScanMD::EnsureSpillSymForXmmReg(RegNum reg, Func *func, IRType type)
 
 void
 LinearScanMD::GenerateBailOut(IR::Instr * instr, __in_ecount(registerSaveSymsCount) StackSym ** registerSaveSyms, uint registerSaveSymsCount)
-{
+{LOGMEIN("LinearScanMD.cpp] 101\n");
     Func *const func = instr->m_func;
     BailOutInfo *const bailOutInfo = instr->GetBailOutInfo();
     IR::Instr *firstInstr = instr->m_prev;
     if(bailOutInfo->branchConditionOpnd)
-    {
+    {LOGMEIN("LinearScanMD.cpp] 106\n");
         // Pass in the branch condition
         //     push condition
         IR::Instr *const newInstr = IR::Instr::New(Js::OpCode::PUSH, func);
@@ -116,9 +116,9 @@ LinearScanMD::GenerateBailOut(IR::Instr * instr, __in_ecount(registerSaveSymsCou
 
     // Pass in the bailout record
     //     push bailOutRecord
-    {
+    {LOGMEIN("LinearScanMD.cpp] 118\n");
         if (!func->IsOOPJIT()) // in-proc jit
-        {
+        {LOGMEIN("LinearScanMD.cpp] 120\n");
             IR::Instr *const newInstr = IR::Instr::New(Js::OpCode::PUSH, func);
             newInstr->SetSrc1(IR::AddrOpnd::New(bailOutInfo->bailOutRecord, IR::AddrOpndKindDynamicBailOutRecord, func, true));
             instr->InsertBefore(newInstr);
@@ -167,10 +167,10 @@ LinearScanMD::GenerateBailOut(IR::Instr * instr, __in_ecount(registerSaveSymsCou
 
     firstInstr = firstInstr->m_next;
     for(uint i = 0; i < registerSaveSymsCount; i++)
-    {
+    {LOGMEIN("LinearScanMD.cpp] 169\n");
         StackSym *const stackSym = registerSaveSyms[i];
         if(!stackSym)
-        {
+        {LOGMEIN("LinearScanMD.cpp] 172\n");
             continue;
         }
 
@@ -182,7 +182,7 @@ LinearScanMD::GenerateBailOut(IR::Instr * instr, __in_ecount(registerSaveSymsCou
 
 IR::Instr *
 LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, BailOutInfo * bailOutInfo)
-{
+{LOGMEIN("LinearScanMD.cpp] 184\n");
     BailOutRecord * bailOutRecord = bailOutInfo->bailOutRecord;
     IR::Instr * instrAfter = resumeLabelInstr->m_next;
     IR::Instr * newInstr;
@@ -199,7 +199,7 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
         IntConstType sizeValue = startCallParamCount;
         int32 stackAlignment = Math::Align<int32>(sizeValue*MachPtr, MachStackAlignment) - sizeValue*MachPtr;
         if (stackAlignment != 0)
-        {
+        {LOGMEIN("LinearScanMD.cpp] 201\n");
             sizeValue += 1;
         }
         sizeValue *= MachPtr;
@@ -207,9 +207,9 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
     });
 
     if (stackAdjustSize != 0)
-    {
+    {LOGMEIN("LinearScanMD.cpp] 209\n");
         if ((uint32)stackAdjustSize > AutoSystemInfo::PageSize)
-        {
+        {LOGMEIN("LinearScanMD.cpp] 211\n");
             //     mov eax, sizeOpnd->m_value
             //     call _chkstk
             IR::RegOpnd *eaxOpnd = IR::RegOpnd::New(nullptr, RegEAX, TyMachReg, this->func);
@@ -253,7 +253,7 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
     Assert(bailOutInfo->capturedValues.copyPropSyms.Empty());
 
     auto restoreSymFn = [this, &eaxRegOpnd, &ecxRegOpnd, &eaxRestoreInstr, &instrInsertStackSym, &instrInsertRegSym](SymID symId)
-    {
+    {LOGMEIN("LinearScanMD.cpp] 255\n");
         StackSym * stackSym = this->func->m_symTable->FindStackSym(symId);
         Assert(stackSym->IsVar());
 
@@ -265,7 +265,7 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
         Lifetime * lifetime = stackSym->scratch.linearScan.lifetime;
 
         if (lifetime->isSpilled)
-        {
+        {LOGMEIN("LinearScanMD.cpp] 267\n");
             // stack restores require an extra register since we can't move an indir directly to an indir on x86
             IR::Instr * instr = IR::Instr::New(Js::OpCode::MOV, ecxRegOpnd, srcOpnd, this->func);
             instrInsertStackSym->InsertBefore(instr);
@@ -288,7 +288,7 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
             instrInsertRegSym->InsertBefore(instr);
 
             if (instrInsertRegSym == instrInsertStackSym)
-            {
+            {LOGMEIN("LinearScanMD.cpp] 290\n");
                 // this is the first register sym, make sure we don't insert stack stores
                 // after this instruction so we can ensure eax and ecx remain free to use
                 // for restoring spilled stack syms.
@@ -296,7 +296,7 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
             }
 
             if (lifetime->reg == RegEAX)
-            {
+            {LOGMEIN("LinearScanMD.cpp] 298\n");
                 // ensure eax is restored last
                 Assert(instrInsertRegSym != instrInsertStackSym);
 
@@ -321,7 +321,7 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
     };
 
     FOREACH_BITSET_IN_SPARSEBV(symId, bailOutInfo->byteCodeUpwardExposedUsed)
-    {
+    {LOGMEIN("LinearScanMD.cpp] 323\n");
         restoreSymFn(symId);
     }
     NEXT_BITSET_IN_SPARSEBV;
@@ -329,7 +329,7 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
     if (bailOutInfo->capturedValues.argObjSyms)
     {
         FOREACH_BITSET_IN_SPARSEBV(symId, bailOutInfo->capturedValues.argObjSyms)
-        {
+        {LOGMEIN("LinearScanMD.cpp] 331\n");
             restoreSymFn(symId);
         }
         NEXT_BITSET_IN_SPARSEBV;
@@ -361,7 +361,7 @@ LinearScanMD::GenerateBailInForGeneratorYield(IR::Instr * resumeLabelInstr, Bail
 }
 
 __declspec(naked) void LinearScanMD::SaveAllRegisters(BailOutRecord *const bailOutRecord)
-{
+{LOGMEIN("LinearScanMD.cpp] 363\n");
     __asm
     {
         // [esp + 0 * 4] == return address
@@ -398,7 +398,7 @@ __declspec(naked) void LinearScanMD::SaveAllRegisters(BailOutRecord *const bailO
 }
 
 __declspec(naked) void LinearScanMD::SaveAllRegistersNoSse2(BailOutRecord *const bailOutRecord)
-{
+{LOGMEIN("LinearScanMD.cpp] 400\n");
     __asm
     {
         // [esp + 0 * 4] == return address
@@ -426,7 +426,7 @@ __declspec(naked) void LinearScanMD::SaveAllRegistersNoSse2(BailOutRecord *const
 }
 
 __declspec(naked) void LinearScanMD::SaveAllRegistersAndBailOut(BailOutRecord *const bailOutRecord)
-{
+{LOGMEIN("LinearScanMD.cpp] 428\n");
     __asm
     {
         // [esp + 0 * 4] == return address
@@ -438,7 +438,7 @@ __declspec(naked) void LinearScanMD::SaveAllRegistersAndBailOut(BailOutRecord *c
 }
 
 __declspec(naked) void LinearScanMD::SaveAllRegistersNoSse2AndBailOut(BailOutRecord *const bailOutRecord)
-{
+{LOGMEIN("LinearScanMD.cpp] 440\n");
     __asm
     {
         // [esp + 0 * 4] == return address
@@ -452,7 +452,7 @@ __declspec(naked) void LinearScanMD::SaveAllRegistersNoSse2AndBailOut(BailOutRec
 __declspec(naked) void LinearScanMD::SaveAllRegistersAndBranchBailOut(
     BranchBailOutRecord *const bailOutRecord,
     const BOOL condition)
-{
+{LOGMEIN("LinearScanMD.cpp] 454\n");
     __asm
     {
         // [esp + 0 * 4] == return address
@@ -467,7 +467,7 @@ __declspec(naked) void LinearScanMD::SaveAllRegistersAndBranchBailOut(
 __declspec(naked) void LinearScanMD::SaveAllRegistersNoSse2AndBranchBailOut(
     BranchBailOutRecord *const bailOutRecord,
     const BOOL condition)
-{
+{LOGMEIN("LinearScanMD.cpp] 469\n");
     __asm
     {
         // [esp + 0 * 4] == return address
@@ -483,7 +483,7 @@ void
 LinearScanMD::InsertOpHelperSpillAndRestores(SList<OpHelperBlock> *opHelperBlockList)
 {
     FOREACH_SLIST_ENTRY(OpHelperBlock, opHelperBlock, opHelperBlockList)
-    {
+    {LOGMEIN("LinearScanMD.cpp] 485\n");
         this->InsertOpHelperSpillsAndRestores(opHelperBlock);
     }
     NEXT_SLIST_ENTRY;
@@ -493,20 +493,20 @@ void
 LinearScanMD::InsertOpHelperSpillsAndRestores(OpHelperBlock const& opHelperBlock)
 {
     FOREACH_SLIST_ENTRY(OpHelperSpilledLifetime, opHelperSpilledLifetime, &opHelperBlock.spilledLifetime)
-    {
+    {LOGMEIN("LinearScanMD.cpp] 495\n");
         StackSym* sym = nullptr;
         if (opHelperSpilledLifetime.spillAsArg)
-        {
+        {LOGMEIN("LinearScanMD.cpp] 498\n");
             sym = opHelperSpilledLifetime.lifetime->sym;
             AnalysisAssert(sym);
             Assert(sym->IsAllocated());
         }
         if (RegTypes[opHelperSpilledLifetime.reg] == TyFloat64)
-        {
+        {LOGMEIN("LinearScanMD.cpp] 504\n");
             IRType type = opHelperSpilledLifetime.lifetime->sym->GetType();
             IR::RegOpnd * regOpnd = IR::RegOpnd::New(NULL, opHelperSpilledLifetime.reg, type, this->func);
             if (!sym)
-            {
+            {LOGMEIN("LinearScanMD.cpp] 508\n");
                 sym = EnsureSpillSymForXmmReg(regOpnd->GetReg(), this->func, type);
             }
             IR::Instr * pushInstr = IR::Instr::New(LowererMDArch::GetAssignOp(type), IR::SymOpnd::New(sym, type, this->func), regOpnd, this->func);
@@ -514,7 +514,7 @@ LinearScanMD::InsertOpHelperSpillsAndRestores(OpHelperBlock const& opHelperBlock
             pushInstr->CopyNumber(opHelperBlock.opHelperLabel);
 
             if (opHelperSpilledLifetime.reload)
-            {
+            {LOGMEIN("LinearScanMD.cpp] 516\n");
                 IR::Instr * popInstr = IR::Instr::New(LowererMDArch::GetAssignOp(type), regOpnd, IR::SymOpnd::New(sym, type, this->func), this->func);
                 opHelperBlock.opHelperEndInstr->InsertBefore(popInstr);
                 popInstr->CopyNumber(opHelperBlock.opHelperEndInstr);
@@ -524,14 +524,14 @@ LinearScanMD::InsertOpHelperSpillsAndRestores(OpHelperBlock const& opHelperBlock
         {
             IR::RegOpnd * regOpnd;
             if (!sym)
-            {
+            {LOGMEIN("LinearScanMD.cpp] 526\n");
                 regOpnd = IR::RegOpnd::New(NULL, opHelperSpilledLifetime.reg, TyMachPtr, this->func);
                 IR::Instr * pushInstr = IR::Instr::New(Js::OpCode::PUSH, this->func);
                 pushInstr->SetSrc1(regOpnd);
                 opHelperBlock.opHelperLabel->InsertAfter(pushInstr);
                 pushInstr->CopyNumber(opHelperBlock.opHelperLabel);
                 if (opHelperSpilledLifetime.reload)
-                {
+                {LOGMEIN("LinearScanMD.cpp] 533\n");
                      IR::Instr * popInstr = IR::Instr::New(Js::OpCode::POP, regOpnd, this->func);
                     opHelperBlock.opHelperEndInstr->InsertBefore(popInstr);
                     popInstr->CopyNumber(opHelperBlock.opHelperEndInstr);
@@ -543,7 +543,7 @@ LinearScanMD::InsertOpHelperSpillsAndRestores(OpHelperBlock const& opHelperBlock
                 IR::Instr* instr = LowererMD::CreateAssign(IR::SymOpnd::New(sym, sym->GetType(), func), regOpnd, opHelperBlock.opHelperLabel->m_next);
                 instr->CopyNumber(opHelperBlock.opHelperLabel);
                 if (opHelperSpilledLifetime.reload)
-                {
+                {LOGMEIN("LinearScanMD.cpp] 545\n");
                     instr = LowererMD::CreateAssign(regOpnd, IR::SymOpnd::New(sym, sym->GetType(), func), opHelperBlock.opHelperEndInstr);
                     instr->CopyNumber(opHelperBlock.opHelperEndInstr);
                 }
@@ -555,9 +555,9 @@ LinearScanMD::InsertOpHelperSpillsAndRestores(OpHelperBlock const& opHelperBlock
 }
 
 uint LinearScanMD::GetRegisterSaveIndex(RegNum reg)
-{
+{LOGMEIN("LinearScanMD.cpp] 557\n");
     if (RegTypes[reg] == TyFloat64)
-    {
+    {LOGMEIN("LinearScanMD.cpp] 559\n");
         // make room for maximum XMM reg size
         Assert(reg >= RegXMM0);
         return (reg - RegXMM0) * (sizeof(SIMDValue) / sizeof(Js::Var)) + RegXMM0;
@@ -569,11 +569,11 @@ uint LinearScanMD::GetRegisterSaveIndex(RegNum reg)
 }
 
 RegNum LinearScanMD::GetRegisterFromSaveIndex(uint offset)
-{
+{LOGMEIN("LinearScanMD.cpp] 571\n");
     return (RegNum)(offset >= RegXMM0 ? (offset - RegXMM0) / (sizeof(SIMDValue) / sizeof(Js::Var)) + RegXMM0 : offset);
 }
 
 RegNum LinearScanMD::GetParamReg(IR::SymOpnd *symOpnd, Func *func)
-{
+{LOGMEIN("LinearScanMD.cpp] 576\n");
     return RegNOREG;
 }

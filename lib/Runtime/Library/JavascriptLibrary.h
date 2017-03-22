@@ -84,7 +84,7 @@ namespace Js
     class UndeclaredBlockVariable : public RecyclableObject
     {
         friend class JavascriptLibrary;
-        UndeclaredBlockVariable(Type* type) : RecyclableObject(type) { }
+        UndeclaredBlockVariable(Type* type) : RecyclableObject(type) {LOGMEIN("JavascriptLibrary.h] 86\n"); }
     };
 
     class SourceTextModuleRecord;
@@ -98,35 +98,35 @@ namespace Js
         Field(uint32) count;
 
         uint32 AddSegment(SparseArraySegment<int32> *segment)
-        {
+        {LOGMEIN("JavascriptLibrary.h] 100\n");
             cache[count++] = segment;
             return count;
         }
 
         SparseArraySegment<int32> *GetSegmentByIndex(byte index)
-        {
+        {LOGMEIN("JavascriptLibrary.h] 106\n");
             Assert(index <= MAX_SIZE);
             return cache[index - 1];
         }
 
         bool IsNotOverHardLimit()
-        {
+        {LOGMEIN("JavascriptLibrary.h] 112\n");
             return count < MAX_SIZE;
         }
 
         bool IsNotFull()
-        {
+        {LOGMEIN("JavascriptLibrary.h] 117\n");
             return count < (uint32) CONFIG_FLAG(CopyOnAccessArraySegmentCacheSize);
         }
 
         bool IsValidIndex(uint32 index)
-        {
+        {LOGMEIN("JavascriptLibrary.h] 122\n");
             return count && index && index <= count;
         }
 
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         uint32 GetCount()
-        {
+        {LOGMEIN("JavascriptLibrary.h] 128\n");
             return count;
         }
 #endif
@@ -185,43 +185,43 @@ namespace Js
         Field(CacheForCopyOnAccessArraySegments *) cacheForCopyOnAccessArraySegments;
 #endif
 
-        static DWORD GetScriptContextOffset() { return offsetof(JavascriptLibrary, scriptContext); }
-        static DWORD GetUndeclBlockVarOffset() { return offsetof(JavascriptLibrary, undeclBlockVarSentinel); }
-        static DWORD GetEmptyStringOffset() { return offsetof(JavascriptLibrary, emptyString); }
-        static DWORD GetUndefinedValueOffset() { return offsetof(JavascriptLibrary, undefinedValue); }
-        static DWORD GetNullValueOffset() { return offsetof(JavascriptLibrary, nullValue); }
-        static DWORD GetBooleanTrueOffset() { return offsetof(JavascriptLibrary, booleanTrue); }
-        static DWORD GetBooleanFalseOffset() { return offsetof(JavascriptLibrary, booleanFalse); }
-        static DWORD GetNegativeZeroOffset() { return offsetof(JavascriptLibrary, negativeZero); }
-        static DWORD GetNumberTypeStaticOffset() { return offsetof(JavascriptLibrary, numberTypeStatic); }
-        static DWORD GetStringTypeStaticOffset() { return offsetof(JavascriptLibrary, stringTypeStatic); }
-        static DWORD GetObjectTypesOffset() { return offsetof(JavascriptLibrary, objectTypes); }
-        static DWORD GetObjectHeaderInlinedTypesOffset() { return offsetof(JavascriptLibrary, objectHeaderInlinedTypes); }
-        static DWORD GetRegexTypeOffset() { return offsetof(JavascriptLibrary, regexType); }
-        static DWORD GetArrayConstructorOffset() { return offsetof(JavascriptLibrary, arrayConstructor); }
-        static DWORD GetPositiveInfinityOffset() { return offsetof(JavascriptLibrary, positiveInfinite); }
-        static DWORD GetNaNOffset() { return offsetof(JavascriptLibrary, nan); }
-        static DWORD GetNativeIntArrayTypeOffset() { return offsetof(JavascriptLibrary, nativeIntArrayType); }
+        static DWORD GetScriptContextOffset() {LOGMEIN("JavascriptLibrary.h] 187\n"); return offsetof(JavascriptLibrary, scriptContext); }
+        static DWORD GetUndeclBlockVarOffset() {LOGMEIN("JavascriptLibrary.h] 188\n"); return offsetof(JavascriptLibrary, undeclBlockVarSentinel); }
+        static DWORD GetEmptyStringOffset() {LOGMEIN("JavascriptLibrary.h] 189\n"); return offsetof(JavascriptLibrary, emptyString); }
+        static DWORD GetUndefinedValueOffset() {LOGMEIN("JavascriptLibrary.h] 190\n"); return offsetof(JavascriptLibrary, undefinedValue); }
+        static DWORD GetNullValueOffset() {LOGMEIN("JavascriptLibrary.h] 191\n"); return offsetof(JavascriptLibrary, nullValue); }
+        static DWORD GetBooleanTrueOffset() {LOGMEIN("JavascriptLibrary.h] 192\n"); return offsetof(JavascriptLibrary, booleanTrue); }
+        static DWORD GetBooleanFalseOffset() {LOGMEIN("JavascriptLibrary.h] 193\n"); return offsetof(JavascriptLibrary, booleanFalse); }
+        static DWORD GetNegativeZeroOffset() {LOGMEIN("JavascriptLibrary.h] 194\n"); return offsetof(JavascriptLibrary, negativeZero); }
+        static DWORD GetNumberTypeStaticOffset() {LOGMEIN("JavascriptLibrary.h] 195\n"); return offsetof(JavascriptLibrary, numberTypeStatic); }
+        static DWORD GetStringTypeStaticOffset() {LOGMEIN("JavascriptLibrary.h] 196\n"); return offsetof(JavascriptLibrary, stringTypeStatic); }
+        static DWORD GetObjectTypesOffset() {LOGMEIN("JavascriptLibrary.h] 197\n"); return offsetof(JavascriptLibrary, objectTypes); }
+        static DWORD GetObjectHeaderInlinedTypesOffset() {LOGMEIN("JavascriptLibrary.h] 198\n"); return offsetof(JavascriptLibrary, objectHeaderInlinedTypes); }
+        static DWORD GetRegexTypeOffset() {LOGMEIN("JavascriptLibrary.h] 199\n"); return offsetof(JavascriptLibrary, regexType); }
+        static DWORD GetArrayConstructorOffset() {LOGMEIN("JavascriptLibrary.h] 200\n"); return offsetof(JavascriptLibrary, arrayConstructor); }
+        static DWORD GetPositiveInfinityOffset() {LOGMEIN("JavascriptLibrary.h] 201\n"); return offsetof(JavascriptLibrary, positiveInfinite); }
+        static DWORD GetNaNOffset() {LOGMEIN("JavascriptLibrary.h] 202\n"); return offsetof(JavascriptLibrary, nan); }
+        static DWORD GetNativeIntArrayTypeOffset() {LOGMEIN("JavascriptLibrary.h] 203\n"); return offsetof(JavascriptLibrary, nativeIntArrayType); }
 #if ENABLE_COPYONACCESS_ARRAY
-        static DWORD GetCopyOnAccessNativeIntArrayTypeOffset() { return offsetof(JavascriptLibrary, copyOnAccessNativeIntArrayType); }
+        static DWORD GetCopyOnAccessNativeIntArrayTypeOffset() {LOGMEIN("JavascriptLibrary.h] 205\n"); return offsetof(JavascriptLibrary, copyOnAccessNativeIntArrayType); }
 #endif
-        static DWORD GetNativeFloatArrayTypeOffset() { return offsetof(JavascriptLibrary, nativeFloatArrayType); }
-        static DWORD GetVTableAddressesOffset() { return offsetof(JavascriptLibrary, vtableAddresses); }
-        static DWORD GetConstructorCacheDefaultInstanceOffset() { return offsetof(JavascriptLibrary, constructorCacheDefaultInstance); }
-        static DWORD GetAbsDoubleCstOffset() { return offsetof(JavascriptLibrary, absDoubleCst); }
-        static DWORD GetUintConvertConstOffset() { return offsetof(JavascriptLibrary, uintConvertConst); }
-        static DWORD GetBuiltinFunctionsOffset() { return offsetof(JavascriptLibrary, builtinFunctions); }
-        static DWORD GetCharStringCacheOffset() { return offsetof(JavascriptLibrary, charStringCache); }
-        static DWORD GetCharStringCacheAOffset() { return GetCharStringCacheOffset() + CharStringCache::GetCharStringCacheAOffset(); }
-        const  JavascriptLibraryBase* GetLibraryBase() const { return static_cast<const JavascriptLibraryBase*>(this); }
-        void SetGlobalObject(GlobalObject* globalObject) {this->globalObject = globalObject; }
-        static DWORD GetRandSeed0Offset() { return offsetof(JavascriptLibrary, randSeed0); }
-        static DWORD GetRandSeed1Offset() { return offsetof(JavascriptLibrary, randSeed1); }
-        static DWORD GetTypeDisplayStringsOffset() { return offsetof(JavascriptLibrary, typeDisplayStrings); }
+        static DWORD GetNativeFloatArrayTypeOffset() {LOGMEIN("JavascriptLibrary.h] 207\n"); return offsetof(JavascriptLibrary, nativeFloatArrayType); }
+        static DWORD GetVTableAddressesOffset() {LOGMEIN("JavascriptLibrary.h] 208\n"); return offsetof(JavascriptLibrary, vtableAddresses); }
+        static DWORD GetConstructorCacheDefaultInstanceOffset() {LOGMEIN("JavascriptLibrary.h] 209\n"); return offsetof(JavascriptLibrary, constructorCacheDefaultInstance); }
+        static DWORD GetAbsDoubleCstOffset() {LOGMEIN("JavascriptLibrary.h] 210\n"); return offsetof(JavascriptLibrary, absDoubleCst); }
+        static DWORD GetUintConvertConstOffset() {LOGMEIN("JavascriptLibrary.h] 211\n"); return offsetof(JavascriptLibrary, uintConvertConst); }
+        static DWORD GetBuiltinFunctionsOffset() {LOGMEIN("JavascriptLibrary.h] 212\n"); return offsetof(JavascriptLibrary, builtinFunctions); }
+        static DWORD GetCharStringCacheOffset() {LOGMEIN("JavascriptLibrary.h] 213\n"); return offsetof(JavascriptLibrary, charStringCache); }
+        static DWORD GetCharStringCacheAOffset() {LOGMEIN("JavascriptLibrary.h] 214\n"); return GetCharStringCacheOffset() + CharStringCache::GetCharStringCacheAOffset(); }
+        const  JavascriptLibraryBase* GetLibraryBase() const {LOGMEIN("JavascriptLibrary.h] 215\n"); return static_cast<const JavascriptLibraryBase*>(this); }
+        void SetGlobalObject(GlobalObject* globalObject) {LOGMEIN("JavascriptLibrary.h] 216\n");this->globalObject = globalObject; }
+        static DWORD GetRandSeed0Offset() {LOGMEIN("JavascriptLibrary.h] 217\n"); return offsetof(JavascriptLibrary, randSeed0); }
+        static DWORD GetRandSeed1Offset() {LOGMEIN("JavascriptLibrary.h] 218\n"); return offsetof(JavascriptLibrary, randSeed1); }
+        static DWORD GetTypeDisplayStringsOffset() {LOGMEIN("JavascriptLibrary.h] 219\n"); return offsetof(JavascriptLibrary, typeDisplayStrings); }
         typedef bool (CALLBACK *PromiseContinuationCallback)(Var task, void *callbackState);
 
-        Var GetUndeclBlockVar() const { return undeclBlockVarSentinel; }
-        bool IsUndeclBlockVar(Var var) const { return var == undeclBlockVarSentinel; }
+        Var GetUndeclBlockVar() const {LOGMEIN("JavascriptLibrary.h] 222\n"); return undeclBlockVarSentinel; }
+        bool IsUndeclBlockVar(Var var) const {LOGMEIN("JavascriptLibrary.h] 223\n"); return var == undeclBlockVarSentinel; }
 
         static bool IsTypedArrayConstructor(Var constructor, ScriptContext* scriptContext);
 
@@ -606,125 +606,125 @@ namespace Js
             bindRefChunkCurrent(nullptr),
             bindRefChunkEnd(nullptr),
             dynamicFunctionReference(nullptr)
-        {
+        {LOGMEIN("JavascriptLibrary.h] 608\n");
             this->globalObject = globalObject;
         }
 
         void Initialize(ScriptContext* scriptContext, GlobalObject * globalObject);
         void Uninitialize();
-        GlobalObject* GetGlobalObject() const { return globalObject; }
-        ScriptContext* GetScriptContext() const { return scriptContext; }
+        GlobalObject* GetGlobalObject() const {LOGMEIN("JavascriptLibrary.h] 614\n"); return globalObject; }
+        ScriptContext* GetScriptContext() const {LOGMEIN("JavascriptLibrary.h] 615\n"); return scriptContext; }
 
-        Recycler * GetRecycler() const { return recycler; }
-        Var GetPI() { return pi; }
-        Var GetNaN() { return nan; }
-        Var GetNegativeInfinite() { return negativeInfinite; }
-        Var GetPositiveInfinite() { return positiveInfinite; }
-        Var GetMaxValue() { return maxValue; }
-        Var GetMinValue() { return minValue; }
-        Var GetNegativeZero() { return negativeZero; }
-        RecyclableObject* GetUndefined() { return undefinedValue; }
-        RecyclableObject* GetNull() { return nullValue; }
-        JavascriptBoolean* GetTrue() { return booleanTrue; }
-        JavascriptBoolean* GetFalse() { return booleanFalse; }
-        Var GetTrueOrFalse(BOOL value) { return value ? booleanTrue : booleanFalse; }
-        JavascriptSymbol* GetSymbolHasInstance() { return symbolHasInstance; }
-        JavascriptSymbol* GetSymbolIsConcatSpreadable() { return symbolIsConcatSpreadable; }
-        JavascriptSymbol* GetSymbolIterator() { return symbolIterator; }
-        JavascriptSymbol* GetSymbolMatch() { return symbolMatch; }
-        JavascriptSymbol* GetSymbolReplace() { return symbolReplace; }
-        JavascriptSymbol* GetSymbolSearch() { return symbolSearch; }
-        JavascriptSymbol* GetSymbolSplit() { return symbolSplit; }
-        JavascriptSymbol* GetSymbolSpecies() { return symbolSpecies; }
-        JavascriptSymbol* GetSymbolToPrimitive() { return symbolToPrimitive; }
-        JavascriptSymbol* GetSymbolToStringTag() { return symbolToStringTag; }
-        JavascriptSymbol* GetSymbolUnscopables() { return symbolUnscopables; }
-        JavascriptString* GetNullString() { return nullString; }
+        Recycler * GetRecycler() const {LOGMEIN("JavascriptLibrary.h] 617\n"); return recycler; }
+        Var GetPI() {LOGMEIN("JavascriptLibrary.h] 618\n"); return pi; }
+        Var GetNaN() {LOGMEIN("JavascriptLibrary.h] 619\n"); return nan; }
+        Var GetNegativeInfinite() {LOGMEIN("JavascriptLibrary.h] 620\n"); return negativeInfinite; }
+        Var GetPositiveInfinite() {LOGMEIN("JavascriptLibrary.h] 621\n"); return positiveInfinite; }
+        Var GetMaxValue() {LOGMEIN("JavascriptLibrary.h] 622\n"); return maxValue; }
+        Var GetMinValue() {LOGMEIN("JavascriptLibrary.h] 623\n"); return minValue; }
+        Var GetNegativeZero() {LOGMEIN("JavascriptLibrary.h] 624\n"); return negativeZero; }
+        RecyclableObject* GetUndefined() {LOGMEIN("JavascriptLibrary.h] 625\n"); return undefinedValue; }
+        RecyclableObject* GetNull() {LOGMEIN("JavascriptLibrary.h] 626\n"); return nullValue; }
+        JavascriptBoolean* GetTrue() {LOGMEIN("JavascriptLibrary.h] 627\n"); return booleanTrue; }
+        JavascriptBoolean* GetFalse() {LOGMEIN("JavascriptLibrary.h] 628\n"); return booleanFalse; }
+        Var GetTrueOrFalse(BOOL value) {LOGMEIN("JavascriptLibrary.h] 629\n"); return value ? booleanTrue : booleanFalse; }
+        JavascriptSymbol* GetSymbolHasInstance() {LOGMEIN("JavascriptLibrary.h] 630\n"); return symbolHasInstance; }
+        JavascriptSymbol* GetSymbolIsConcatSpreadable() {LOGMEIN("JavascriptLibrary.h] 631\n"); return symbolIsConcatSpreadable; }
+        JavascriptSymbol* GetSymbolIterator() {LOGMEIN("JavascriptLibrary.h] 632\n"); return symbolIterator; }
+        JavascriptSymbol* GetSymbolMatch() {LOGMEIN("JavascriptLibrary.h] 633\n"); return symbolMatch; }
+        JavascriptSymbol* GetSymbolReplace() {LOGMEIN("JavascriptLibrary.h] 634\n"); return symbolReplace; }
+        JavascriptSymbol* GetSymbolSearch() {LOGMEIN("JavascriptLibrary.h] 635\n"); return symbolSearch; }
+        JavascriptSymbol* GetSymbolSplit() {LOGMEIN("JavascriptLibrary.h] 636\n"); return symbolSplit; }
+        JavascriptSymbol* GetSymbolSpecies() {LOGMEIN("JavascriptLibrary.h] 637\n"); return symbolSpecies; }
+        JavascriptSymbol* GetSymbolToPrimitive() {LOGMEIN("JavascriptLibrary.h] 638\n"); return symbolToPrimitive; }
+        JavascriptSymbol* GetSymbolToStringTag() {LOGMEIN("JavascriptLibrary.h] 639\n"); return symbolToStringTag; }
+        JavascriptSymbol* GetSymbolUnscopables() {LOGMEIN("JavascriptLibrary.h] 640\n"); return symbolUnscopables; }
+        JavascriptString* GetNullString() {LOGMEIN("JavascriptLibrary.h] 641\n"); return nullString; }
         JavascriptString* GetEmptyString() const;
-        JavascriptString* GetWhackString() { return whackString; }
-        JavascriptString* GetUndefinedDisplayString() { return undefinedDisplayString; }
-        JavascriptString* GetNaNDisplayString() { return nanDisplayString; }
-        JavascriptString* GetQuotesString() { return quotesString; }
-        JavascriptString* GetNullDisplayString() { return nullDisplayString; }
-        JavascriptString* GetUnknownDisplayString() { return unknownDisplayString; }
-        JavascriptString* GetCommaDisplayString() { return commaDisplayString; }
-        JavascriptString* GetCommaSpaceDisplayString() { return commaSpaceDisplayString; }
-        JavascriptString* GetTrueDisplayString() { return trueDisplayString; }
-        JavascriptString* GetFalseDisplayString() { return falseDisplayString; }
-        JavascriptString* GetLengthDisplayString() { return lengthDisplayString; }
-        JavascriptString* GetObjectDisplayString() { return objectDisplayString; }
-        JavascriptString* GetStringTypeDisplayString() { return stringTypeDisplayString; }
-        JavascriptString* GetErrorDisplayString() const { return errorDisplayString; }
-        JavascriptString* GetFunctionPrefixString() { return functionPrefixString; }
-        JavascriptString* GetGeneratorFunctionPrefixString() { return generatorFunctionPrefixString; }
-        JavascriptString* GetAsyncFunctionPrefixString() { return asyncFunctionPrefixString; }
-        JavascriptString* GetFunctionDisplayString() { return functionDisplayString; }
-        JavascriptString* GetXDomainFunctionDisplayString() { return xDomainFunctionDisplayString; }
-        JavascriptString* GetInvalidDateString() { return invalidDateString; }
-        JavascriptString* GetObjectTypeDisplayString() const { return objectTypeDisplayString; }
-        JavascriptString* GetFunctionTypeDisplayString() const { return functionTypeDisplayString; }
-        JavascriptString* GetBooleanTypeDisplayString() const { return booleanTypeDisplayString; }
-        JavascriptString* GetNumberTypeDisplayString() const { return numberTypeDisplayString; }
-        JavascriptString* GetModuleTypeDisplayString() const { return moduleTypeDisplayString; }
-        JavascriptString* GetVariantDateTypeDisplayString() const { return variantDateTypeDisplayString; }
+        JavascriptString* GetWhackString() {LOGMEIN("JavascriptLibrary.h] 643\n"); return whackString; }
+        JavascriptString* GetUndefinedDisplayString() {LOGMEIN("JavascriptLibrary.h] 644\n"); return undefinedDisplayString; }
+        JavascriptString* GetNaNDisplayString() {LOGMEIN("JavascriptLibrary.h] 645\n"); return nanDisplayString; }
+        JavascriptString* GetQuotesString() {LOGMEIN("JavascriptLibrary.h] 646\n"); return quotesString; }
+        JavascriptString* GetNullDisplayString() {LOGMEIN("JavascriptLibrary.h] 647\n"); return nullDisplayString; }
+        JavascriptString* GetUnknownDisplayString() {LOGMEIN("JavascriptLibrary.h] 648\n"); return unknownDisplayString; }
+        JavascriptString* GetCommaDisplayString() {LOGMEIN("JavascriptLibrary.h] 649\n"); return commaDisplayString; }
+        JavascriptString* GetCommaSpaceDisplayString() {LOGMEIN("JavascriptLibrary.h] 650\n"); return commaSpaceDisplayString; }
+        JavascriptString* GetTrueDisplayString() {LOGMEIN("JavascriptLibrary.h] 651\n"); return trueDisplayString; }
+        JavascriptString* GetFalseDisplayString() {LOGMEIN("JavascriptLibrary.h] 652\n"); return falseDisplayString; }
+        JavascriptString* GetLengthDisplayString() {LOGMEIN("JavascriptLibrary.h] 653\n"); return lengthDisplayString; }
+        JavascriptString* GetObjectDisplayString() {LOGMEIN("JavascriptLibrary.h] 654\n"); return objectDisplayString; }
+        JavascriptString* GetStringTypeDisplayString() {LOGMEIN("JavascriptLibrary.h] 655\n"); return stringTypeDisplayString; }
+        JavascriptString* GetErrorDisplayString() const {LOGMEIN("JavascriptLibrary.h] 656\n"); return errorDisplayString; }
+        JavascriptString* GetFunctionPrefixString() {LOGMEIN("JavascriptLibrary.h] 657\n"); return functionPrefixString; }
+        JavascriptString* GetGeneratorFunctionPrefixString() {LOGMEIN("JavascriptLibrary.h] 658\n"); return generatorFunctionPrefixString; }
+        JavascriptString* GetAsyncFunctionPrefixString() {LOGMEIN("JavascriptLibrary.h] 659\n"); return asyncFunctionPrefixString; }
+        JavascriptString* GetFunctionDisplayString() {LOGMEIN("JavascriptLibrary.h] 660\n"); return functionDisplayString; }
+        JavascriptString* GetXDomainFunctionDisplayString() {LOGMEIN("JavascriptLibrary.h] 661\n"); return xDomainFunctionDisplayString; }
+        JavascriptString* GetInvalidDateString() {LOGMEIN("JavascriptLibrary.h] 662\n"); return invalidDateString; }
+        JavascriptString* GetObjectTypeDisplayString() const {LOGMEIN("JavascriptLibrary.h] 663\n"); return objectTypeDisplayString; }
+        JavascriptString* GetFunctionTypeDisplayString() const {LOGMEIN("JavascriptLibrary.h] 664\n"); return functionTypeDisplayString; }
+        JavascriptString* GetBooleanTypeDisplayString() const {LOGMEIN("JavascriptLibrary.h] 665\n"); return booleanTypeDisplayString; }
+        JavascriptString* GetNumberTypeDisplayString() const {LOGMEIN("JavascriptLibrary.h] 666\n"); return numberTypeDisplayString; }
+        JavascriptString* GetModuleTypeDisplayString() const {LOGMEIN("JavascriptLibrary.h] 667\n"); return moduleTypeDisplayString; }
+        JavascriptString* GetVariantDateTypeDisplayString() const {LOGMEIN("JavascriptLibrary.h] 668\n"); return variantDateTypeDisplayString; }
 
         // SIMD_JS
-        JavascriptString* GetSIMDFloat32x4DisplayString() const { return simdFloat32x4DisplayString; }
-        JavascriptString* GetSIMDFloat64x2DisplayString() const { return simdFloat64x2DisplayString; }
-        JavascriptString* GetSIMDInt32x4DisplayString()   const { return simdInt32x4DisplayString; }
-        JavascriptString* GetSIMDInt16x8DisplayString()   const { return simdInt16x8DisplayString; }
-        JavascriptString* GetSIMDInt8x16DisplayString()   const { return simdInt8x16DisplayString; }
+        JavascriptString* GetSIMDFloat32x4DisplayString() const {LOGMEIN("JavascriptLibrary.h] 671\n"); return simdFloat32x4DisplayString; }
+        JavascriptString* GetSIMDFloat64x2DisplayString() const {LOGMEIN("JavascriptLibrary.h] 672\n"); return simdFloat64x2DisplayString; }
+        JavascriptString* GetSIMDInt32x4DisplayString()   const {LOGMEIN("JavascriptLibrary.h] 673\n"); return simdInt32x4DisplayString; }
+        JavascriptString* GetSIMDInt16x8DisplayString()   const {LOGMEIN("JavascriptLibrary.h] 674\n"); return simdInt16x8DisplayString; }
+        JavascriptString* GetSIMDInt8x16DisplayString()   const {LOGMEIN("JavascriptLibrary.h] 675\n"); return simdInt8x16DisplayString; }
 
-        JavascriptString* GetSIMDBool32x4DisplayString()   const { return simdBool32x4DisplayString; }
-        JavascriptString* GetSIMDBool16x8DisplayString()   const { return simdBool16x8DisplayString; }
-        JavascriptString* GetSIMDBool8x16DisplayString()   const { return simdBool8x16DisplayString; }
+        JavascriptString* GetSIMDBool32x4DisplayString()   const {LOGMEIN("JavascriptLibrary.h] 677\n"); return simdBool32x4DisplayString; }
+        JavascriptString* GetSIMDBool16x8DisplayString()   const {LOGMEIN("JavascriptLibrary.h] 678\n"); return simdBool16x8DisplayString; }
+        JavascriptString* GetSIMDBool8x16DisplayString()   const {LOGMEIN("JavascriptLibrary.h] 679\n"); return simdBool8x16DisplayString; }
 
-        JavascriptString* GetSIMDUint32x4DisplayString()   const { return simdUint32x4DisplayString; }
-        JavascriptString* GetSIMDUint16x8DisplayString()   const { return simdUint16x8DisplayString; }
-        JavascriptString* GetSIMDUint8x16DisplayString()   const { return simdUint8x16DisplayString; }
+        JavascriptString* GetSIMDUint32x4DisplayString()   const {LOGMEIN("JavascriptLibrary.h] 681\n"); return simdUint32x4DisplayString; }
+        JavascriptString* GetSIMDUint16x8DisplayString()   const {LOGMEIN("JavascriptLibrary.h] 682\n"); return simdUint16x8DisplayString; }
+        JavascriptString* GetSIMDUint8x16DisplayString()   const {LOGMEIN("JavascriptLibrary.h] 683\n"); return simdUint8x16DisplayString; }
 
-        JavascriptString* GetSymbolTypeDisplayString() const { return symbolTypeDisplayString; }
-        JavascriptString* GetDebuggerDeadZoneBlockVariableString() { Assert(debuggerDeadZoneBlockVariableString); return debuggerDeadZoneBlockVariableString; }
+        JavascriptString* GetSymbolTypeDisplayString() const {LOGMEIN("JavascriptLibrary.h] 685\n"); return symbolTypeDisplayString; }
+        JavascriptString* GetDebuggerDeadZoneBlockVariableString() {LOGMEIN("JavascriptLibrary.h] 686\n"); Assert(debuggerDeadZoneBlockVariableString); return debuggerDeadZoneBlockVariableString; }
         JavascriptRegExp* CreateEmptyRegExp();
-        JavascriptFunction* GetObjectConstructor() const {return objectConstructor; }
-        JavascriptFunction* GetBooleanConstructor() const {return booleanConstructor; }
-        JavascriptFunction* GetDateConstructor() const {return dateConstructor; }
-        JavascriptFunction* GetFunctionConstructor() const {return functionConstructor; }
-        JavascriptFunction* GetNumberConstructor() const {return numberConstructor; }
-        JavascriptRegExpConstructor* GetRegExpConstructor() const {return regexConstructor; }
-        JavascriptFunction* GetStringConstructor() const {return stringConstructor; }
-        JavascriptFunction* GetArrayBufferConstructor() const {return arrayBufferConstructor; }
-        JavascriptFunction* GetErrorConstructor() const { return errorConstructor; }
-        JavascriptFunction* GetInt8ArrayConstructor() const {return Int8ArrayConstructor; }
-        JavascriptFunction* GetUint8ArrayConstructor() const {return Uint8ArrayConstructor; }
-        JavascriptFunction* GetInt16ArrayConstructor() const {return Int16ArrayConstructor; }
-        JavascriptFunction* GetUint16ArrayConstructor() const {return Uint16ArrayConstructor; }
-        JavascriptFunction* GetInt32ArrayConstructor() const {return Int32ArrayConstructor; }
-        JavascriptFunction* GetUint32ArrayConstructor() const {return Uint32ArrayConstructor; }
-        JavascriptFunction* GetFloat32ArrayConstructor() const {return Float32ArrayConstructor; }
-        JavascriptFunction* GetFloat64ArrayConstructor() const {return Float64ArrayConstructor; }
-        JavascriptFunction* GetWeakMapConstructor() const {return weakMapConstructor; }
-        JavascriptFunction* GetMapConstructor() const {return mapConstructor; }
-        JavascriptFunction* GetSetConstructor() const {return  setConstructor; }
-        JavascriptFunction* GetSymbolConstructor() const {return symbolConstructor; }
-        JavascriptFunction* GetEvalFunctionObject() { return evalFunctionObject; }
-        JavascriptFunction* GetArrayPrototypeValuesFunction() { return EnsureArrayPrototypeValuesFunction(); }
-        JavascriptFunction* GetArrayIteratorPrototypeBuiltinNextFunction() { return arrayIteratorPrototypeBuiltinNextFunction; }
-        DynamicObject* GetMathObject() const {return mathObject; }
-        DynamicObject* GetJSONObject() const {return JSONObject; }
-        DynamicObject* GetReflectObject() const { return reflectObject; }
-        const PropertyDescriptor* GetDefaultPropertyDescriptor() const { return &defaultPropertyDescriptor; }
-        DynamicObject* GetMissingPropertyHolder() const { return missingPropertyHolder; }
+        JavascriptFunction* GetObjectConstructor() const {LOGMEIN("JavascriptLibrary.h] 688\n");return objectConstructor; }
+        JavascriptFunction* GetBooleanConstructor() const {LOGMEIN("JavascriptLibrary.h] 689\n");return booleanConstructor; }
+        JavascriptFunction* GetDateConstructor() const {LOGMEIN("JavascriptLibrary.h] 690\n");return dateConstructor; }
+        JavascriptFunction* GetFunctionConstructor() const {LOGMEIN("JavascriptLibrary.h] 691\n");return functionConstructor; }
+        JavascriptFunction* GetNumberConstructor() const {LOGMEIN("JavascriptLibrary.h] 692\n");return numberConstructor; }
+        JavascriptRegExpConstructor* GetRegExpConstructor() const {LOGMEIN("JavascriptLibrary.h] 693\n");return regexConstructor; }
+        JavascriptFunction* GetStringConstructor() const {LOGMEIN("JavascriptLibrary.h] 694\n");return stringConstructor; }
+        JavascriptFunction* GetArrayBufferConstructor() const {LOGMEIN("JavascriptLibrary.h] 695\n");return arrayBufferConstructor; }
+        JavascriptFunction* GetErrorConstructor() const {LOGMEIN("JavascriptLibrary.h] 696\n"); return errorConstructor; }
+        JavascriptFunction* GetInt8ArrayConstructor() const {LOGMEIN("JavascriptLibrary.h] 697\n");return Int8ArrayConstructor; }
+        JavascriptFunction* GetUint8ArrayConstructor() const {LOGMEIN("JavascriptLibrary.h] 698\n");return Uint8ArrayConstructor; }
+        JavascriptFunction* GetInt16ArrayConstructor() const {LOGMEIN("JavascriptLibrary.h] 699\n");return Int16ArrayConstructor; }
+        JavascriptFunction* GetUint16ArrayConstructor() const {LOGMEIN("JavascriptLibrary.h] 700\n");return Uint16ArrayConstructor; }
+        JavascriptFunction* GetInt32ArrayConstructor() const {LOGMEIN("JavascriptLibrary.h] 701\n");return Int32ArrayConstructor; }
+        JavascriptFunction* GetUint32ArrayConstructor() const {LOGMEIN("JavascriptLibrary.h] 702\n");return Uint32ArrayConstructor; }
+        JavascriptFunction* GetFloat32ArrayConstructor() const {LOGMEIN("JavascriptLibrary.h] 703\n");return Float32ArrayConstructor; }
+        JavascriptFunction* GetFloat64ArrayConstructor() const {LOGMEIN("JavascriptLibrary.h] 704\n");return Float64ArrayConstructor; }
+        JavascriptFunction* GetWeakMapConstructor() const {LOGMEIN("JavascriptLibrary.h] 705\n");return weakMapConstructor; }
+        JavascriptFunction* GetMapConstructor() const {LOGMEIN("JavascriptLibrary.h] 706\n");return mapConstructor; }
+        JavascriptFunction* GetSetConstructor() const {LOGMEIN("JavascriptLibrary.h] 707\n");return  setConstructor; }
+        JavascriptFunction* GetSymbolConstructor() const {LOGMEIN("JavascriptLibrary.h] 708\n");return symbolConstructor; }
+        JavascriptFunction* GetEvalFunctionObject() {LOGMEIN("JavascriptLibrary.h] 709\n"); return evalFunctionObject; }
+        JavascriptFunction* GetArrayPrototypeValuesFunction() {LOGMEIN("JavascriptLibrary.h] 710\n"); return EnsureArrayPrototypeValuesFunction(); }
+        JavascriptFunction* GetArrayIteratorPrototypeBuiltinNextFunction() {LOGMEIN("JavascriptLibrary.h] 711\n"); return arrayIteratorPrototypeBuiltinNextFunction; }
+        DynamicObject* GetMathObject() const {LOGMEIN("JavascriptLibrary.h] 712\n");return mathObject; }
+        DynamicObject* GetJSONObject() const {LOGMEIN("JavascriptLibrary.h] 713\n");return JSONObject; }
+        DynamicObject* GetReflectObject() const {LOGMEIN("JavascriptLibrary.h] 714\n"); return reflectObject; }
+        const PropertyDescriptor* GetDefaultPropertyDescriptor() const {LOGMEIN("JavascriptLibrary.h] 715\n"); return &defaultPropertyDescriptor; }
+        DynamicObject* GetMissingPropertyHolder() const {LOGMEIN("JavascriptLibrary.h] 716\n"); return missingPropertyHolder; }
 
-        JavascriptFunction* GetSharedArrayBufferConstructor() { return sharedArrayBufferConstructor; }
-        DynamicObject* GetAtomicsObject() { return atomicsObject; }
+        JavascriptFunction* GetSharedArrayBufferConstructor() {LOGMEIN("JavascriptLibrary.h] 718\n"); return sharedArrayBufferConstructor; }
+        DynamicObject* GetAtomicsObject() {LOGMEIN("JavascriptLibrary.h] 719\n"); return atomicsObject; }
 
-        DynamicObject* GetWebAssemblyCompileErrorPrototype() const { return webAssemblyCompileErrorPrototype; }
-        DynamicObject* GetWebAssemblyCompileErrorConstructor() const { return webAssemblyCompileErrorConstructor; }
-        DynamicObject* GetWebAssemblyRuntimeErrorPrototype() const { return webAssemblyRuntimeErrorPrototype; }
-        DynamicObject* GetWebAssemblyRuntimeErrorConstructor() const { return webAssemblyRuntimeErrorConstructor; }
-        DynamicObject* GetWebAssemblyLinkErrorPrototype() const { return webAssemblyLinkErrorPrototype; }
-        DynamicObject* GetWebAssemblyLinkErrorConstructor() const { return webAssemblyLinkErrorConstructor; }
+        DynamicObject* GetWebAssemblyCompileErrorPrototype() const {LOGMEIN("JavascriptLibrary.h] 721\n"); return webAssemblyCompileErrorPrototype; }
+        DynamicObject* GetWebAssemblyCompileErrorConstructor() const {LOGMEIN("JavascriptLibrary.h] 722\n"); return webAssemblyCompileErrorConstructor; }
+        DynamicObject* GetWebAssemblyRuntimeErrorPrototype() const {LOGMEIN("JavascriptLibrary.h] 723\n"); return webAssemblyRuntimeErrorPrototype; }
+        DynamicObject* GetWebAssemblyRuntimeErrorConstructor() const {LOGMEIN("JavascriptLibrary.h] 724\n"); return webAssemblyRuntimeErrorConstructor; }
+        DynamicObject* GetWebAssemblyLinkErrorPrototype() const {LOGMEIN("JavascriptLibrary.h] 725\n"); return webAssemblyLinkErrorPrototype; }
+        DynamicObject* GetWebAssemblyLinkErrorConstructor() const {LOGMEIN("JavascriptLibrary.h] 726\n"); return webAssemblyLinkErrorConstructor; }
 
 #if ENABLE_TTD
         Js::PropertyId ExtractPrimitveSymbolId_TTD(Var value);
@@ -773,7 +773,7 @@ namespace Js
 #endif
 
 #ifdef ENABLE_INTL_OBJECT
-        DynamicObject* GetINTLObject() const { return IntlObject; }
+        DynamicObject* GetINTLObject() const {LOGMEIN("JavascriptLibrary.h] 775\n"); return IntlObject; }
         void ResetIntlObject();
         void EnsureIntlObjectReady();
         template <class Fn>
@@ -784,138 +784,138 @@ namespace Js
 #endif
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
-        DynamicType * GetDebugDisposableObjectType() { return debugDisposableObjectType; }
-        DynamicType * GetDebugFuncExecutorInDisposeObjectType() { return debugFuncExecutorInDisposeObjectType; }
+        DynamicType * GetDebugDisposableObjectType() {LOGMEIN("JavascriptLibrary.h] 786\n"); return debugDisposableObjectType; }
+        DynamicType * GetDebugFuncExecutorInDisposeObjectType() {LOGMEIN("JavascriptLibrary.h] 787\n"); return debugFuncExecutorInDisposeObjectType; }
 #endif
 
         DynamicType* GetErrorType(ErrorTypeEnum typeToCreate) const;
-        StaticType  * GetBooleanTypeStatic() const { return booleanTypeStatic; }
-        DynamicType * GetBooleanTypeDynamic() const { return booleanTypeDynamic; }
-        DynamicType * GetDateType() const { return dateType; }
-        DynamicType * GetBoundFunctionType() const { return boundFunctionType; }
-        DynamicType * GetRegExpConstructorType() const { return regexConstructorType; }
-        StaticType  * GetEnumeratorType() const { return enumeratorType; }
-        DynamicType * GetSpreadArgumentType() const { return SpreadArgumentType; }
-        StaticType  * GetWithType() const { return withType; }
-        DynamicType * GetErrorType() const { return errorType; }
-        DynamicType * GetEvalErrorType() const { return evalErrorType; }
-        DynamicType * GetRangeErrorType() const { return rangeErrorType; }
-        DynamicType * GetReferenceErrorType() const { return referenceErrorType; }
-        DynamicType * GetSyntaxErrorType() const { return syntaxErrorType; }
-        DynamicType * GetTypeErrorType() const { return typeErrorType; }
-        DynamicType * GetURIErrorType() const { return uriErrorType; }
-        DynamicType * GetWebAssemblyCompileErrorType() const { return webAssemblyCompileErrorType; }
-        DynamicType * GetWebAssemblyRuntimeErrorType() const { return webAssemblyRuntimeErrorType; }
-        DynamicType * GetWebAssemblyLinkErrorType() const { return webAssemblyLinkErrorType; }
-        StaticType  * GetNumberTypeStatic() const { return numberTypeStatic; }
-        StaticType  * GetInt64TypeStatic() const { return int64NumberTypeStatic; }
-        StaticType  * GetUInt64TypeStatic() const { return uint64NumberTypeStatic; }
-        DynamicType * GetNumberTypeDynamic() const { return numberTypeDynamic; }
-        DynamicType * GetPromiseType() const { return promiseType; }
+        StaticType  * GetBooleanTypeStatic() const {LOGMEIN("JavascriptLibrary.h] 791\n"); return booleanTypeStatic; }
+        DynamicType * GetBooleanTypeDynamic() const {LOGMEIN("JavascriptLibrary.h] 792\n"); return booleanTypeDynamic; }
+        DynamicType * GetDateType() const {LOGMEIN("JavascriptLibrary.h] 793\n"); return dateType; }
+        DynamicType * GetBoundFunctionType() const {LOGMEIN("JavascriptLibrary.h] 794\n"); return boundFunctionType; }
+        DynamicType * GetRegExpConstructorType() const {LOGMEIN("JavascriptLibrary.h] 795\n"); return regexConstructorType; }
+        StaticType  * GetEnumeratorType() const {LOGMEIN("JavascriptLibrary.h] 796\n"); return enumeratorType; }
+        DynamicType * GetSpreadArgumentType() const {LOGMEIN("JavascriptLibrary.h] 797\n"); return SpreadArgumentType; }
+        StaticType  * GetWithType() const {LOGMEIN("JavascriptLibrary.h] 798\n"); return withType; }
+        DynamicType * GetErrorType() const {LOGMEIN("JavascriptLibrary.h] 799\n"); return errorType; }
+        DynamicType * GetEvalErrorType() const {LOGMEIN("JavascriptLibrary.h] 800\n"); return evalErrorType; }
+        DynamicType * GetRangeErrorType() const {LOGMEIN("JavascriptLibrary.h] 801\n"); return rangeErrorType; }
+        DynamicType * GetReferenceErrorType() const {LOGMEIN("JavascriptLibrary.h] 802\n"); return referenceErrorType; }
+        DynamicType * GetSyntaxErrorType() const {LOGMEIN("JavascriptLibrary.h] 803\n"); return syntaxErrorType; }
+        DynamicType * GetTypeErrorType() const {LOGMEIN("JavascriptLibrary.h] 804\n"); return typeErrorType; }
+        DynamicType * GetURIErrorType() const {LOGMEIN("JavascriptLibrary.h] 805\n"); return uriErrorType; }
+        DynamicType * GetWebAssemblyCompileErrorType() const {LOGMEIN("JavascriptLibrary.h] 806\n"); return webAssemblyCompileErrorType; }
+        DynamicType * GetWebAssemblyRuntimeErrorType() const {LOGMEIN("JavascriptLibrary.h] 807\n"); return webAssemblyRuntimeErrorType; }
+        DynamicType * GetWebAssemblyLinkErrorType() const {LOGMEIN("JavascriptLibrary.h] 808\n"); return webAssemblyLinkErrorType; }
+        StaticType  * GetNumberTypeStatic() const {LOGMEIN("JavascriptLibrary.h] 809\n"); return numberTypeStatic; }
+        StaticType  * GetInt64TypeStatic() const {LOGMEIN("JavascriptLibrary.h] 810\n"); return int64NumberTypeStatic; }
+        StaticType  * GetUInt64TypeStatic() const {LOGMEIN("JavascriptLibrary.h] 811\n"); return uint64NumberTypeStatic; }
+        DynamicType * GetNumberTypeDynamic() const {LOGMEIN("JavascriptLibrary.h] 812\n"); return numberTypeDynamic; }
+        DynamicType * GetPromiseType() const {LOGMEIN("JavascriptLibrary.h] 813\n"); return promiseType; }
 
-        DynamicType * GetWebAssemblyModuleType()  const { return webAssemblyModuleType; }
-        DynamicType * GetWebAssemblyInstanceType()  const { return webAssemblyInstanceType; }
-        DynamicType * GetWebAssemblyMemoryType() const { return webAssemblyMemoryType; }
-        DynamicType * GetWebAssemblyTableType() const { return webAssemblyTableType; }
+        DynamicType * GetWebAssemblyModuleType()  const {LOGMEIN("JavascriptLibrary.h] 815\n"); return webAssemblyModuleType; }
+        DynamicType * GetWebAssemblyInstanceType()  const {LOGMEIN("JavascriptLibrary.h] 816\n"); return webAssemblyInstanceType; }
+        DynamicType * GetWebAssemblyMemoryType() const {LOGMEIN("JavascriptLibrary.h] 817\n"); return webAssemblyMemoryType; }
+        DynamicType * GetWebAssemblyTableType() const {LOGMEIN("JavascriptLibrary.h] 818\n"); return webAssemblyTableType; }
 
         // SIMD_JS
-        DynamicType * GetSIMDBool8x16TypeDynamic()  const { return simdBool8x16TypeDynamic;  }
-        DynamicType * GetSIMDBool16x8TypeDynamic()  const { return simdBool16x8TypeDynamic;  }
-        DynamicType * GetSIMDBool32x4TypeDynamic()  const { return simdBool32x4TypeDynamic;  }
-        DynamicType * GetSIMDInt8x16TypeDynamic()   const { return simdInt8x16TypeDynamic;   }
-        DynamicType * GetSIMDInt16x8TypeDynamic()   const { return simdInt16x8TypeDynamic;   }
-        DynamicType * GetSIMDInt32x4TypeDynamic()   const { return simdInt32x4TypeDynamic;   }
-        DynamicType * GetSIMDUint8x16TypeDynamic()  const { return simdUint8x16TypeDynamic;  }
-        DynamicType * GetSIMDUint16x8TypeDynamic()  const { return simdUint16x8TypeDynamic;  }
-        DynamicType * GetSIMDUint32x4TypeDynamic()  const { return simdUint32x4TypeDynamic;  }
-        DynamicType * GetSIMDFloat32x4TypeDynamic() const { return simdFloat32x4TypeDynamic; }
+        DynamicType * GetSIMDBool8x16TypeDynamic()  const {LOGMEIN("JavascriptLibrary.h] 821\n"); return simdBool8x16TypeDynamic;  }
+        DynamicType * GetSIMDBool16x8TypeDynamic()  const {LOGMEIN("JavascriptLibrary.h] 822\n"); return simdBool16x8TypeDynamic;  }
+        DynamicType * GetSIMDBool32x4TypeDynamic()  const {LOGMEIN("JavascriptLibrary.h] 823\n"); return simdBool32x4TypeDynamic;  }
+        DynamicType * GetSIMDInt8x16TypeDynamic()   const {LOGMEIN("JavascriptLibrary.h] 824\n"); return simdInt8x16TypeDynamic;   }
+        DynamicType * GetSIMDInt16x8TypeDynamic()   const {LOGMEIN("JavascriptLibrary.h] 825\n"); return simdInt16x8TypeDynamic;   }
+        DynamicType * GetSIMDInt32x4TypeDynamic()   const {LOGMEIN("JavascriptLibrary.h] 826\n"); return simdInt32x4TypeDynamic;   }
+        DynamicType * GetSIMDUint8x16TypeDynamic()  const {LOGMEIN("JavascriptLibrary.h] 827\n"); return simdUint8x16TypeDynamic;  }
+        DynamicType * GetSIMDUint16x8TypeDynamic()  const {LOGMEIN("JavascriptLibrary.h] 828\n"); return simdUint16x8TypeDynamic;  }
+        DynamicType * GetSIMDUint32x4TypeDynamic()  const {LOGMEIN("JavascriptLibrary.h] 829\n"); return simdUint32x4TypeDynamic;  }
+        DynamicType * GetSIMDFloat32x4TypeDynamic() const {LOGMEIN("JavascriptLibrary.h] 830\n"); return simdFloat32x4TypeDynamic; }
 
-        StaticType* GetSIMDFloat32x4TypeStatic() const { return simdFloat32x4TypeStatic; }
-        StaticType* GetSIMDFloat64x2TypeStatic() const { return simdFloat64x2TypeStatic; }
-        StaticType* GetSIMDInt32x4TypeStatic()   const { return simdInt32x4TypeStatic; }
-        StaticType* GetSIMDInt16x8TypeStatic()   const { return simdInt16x8TypeStatic; }
-        StaticType* GetSIMDInt8x16TypeStatic()   const { return simdInt8x16TypeStatic; }
-        StaticType* GetSIMDBool32x4TypeStatic() const { return simdBool32x4TypeStatic; }
-        StaticType* GetSIMDBool16x8TypeStatic() const { return simdBool16x8TypeStatic; }
-        StaticType* GetSIMDBool8x16TypeStatic() const { return simdBool8x16TypeStatic; }
-        StaticType* GetSIMDUInt32x4TypeStatic()   const { return simdUint32x4TypeStatic; }
-        StaticType* GetSIMDUint16x8TypeStatic()   const { return simdUint16x8TypeStatic; }
-        StaticType* GetSIMDUint8x16TypeStatic()   const { return simdUint8x16TypeStatic; }
+        StaticType* GetSIMDFloat32x4TypeStatic() const {LOGMEIN("JavascriptLibrary.h] 832\n"); return simdFloat32x4TypeStatic; }
+        StaticType* GetSIMDFloat64x2TypeStatic() const {LOGMEIN("JavascriptLibrary.h] 833\n"); return simdFloat64x2TypeStatic; }
+        StaticType* GetSIMDInt32x4TypeStatic()   const {LOGMEIN("JavascriptLibrary.h] 834\n"); return simdInt32x4TypeStatic; }
+        StaticType* GetSIMDInt16x8TypeStatic()   const {LOGMEIN("JavascriptLibrary.h] 835\n"); return simdInt16x8TypeStatic; }
+        StaticType* GetSIMDInt8x16TypeStatic()   const {LOGMEIN("JavascriptLibrary.h] 836\n"); return simdInt8x16TypeStatic; }
+        StaticType* GetSIMDBool32x4TypeStatic() const {LOGMEIN("JavascriptLibrary.h] 837\n"); return simdBool32x4TypeStatic; }
+        StaticType* GetSIMDBool16x8TypeStatic() const {LOGMEIN("JavascriptLibrary.h] 838\n"); return simdBool16x8TypeStatic; }
+        StaticType* GetSIMDBool8x16TypeStatic() const {LOGMEIN("JavascriptLibrary.h] 839\n"); return simdBool8x16TypeStatic; }
+        StaticType* GetSIMDUInt32x4TypeStatic()   const {LOGMEIN("JavascriptLibrary.h] 840\n"); return simdUint32x4TypeStatic; }
+        StaticType* GetSIMDUint16x8TypeStatic()   const {LOGMEIN("JavascriptLibrary.h] 841\n"); return simdUint16x8TypeStatic; }
+        StaticType* GetSIMDUint8x16TypeStatic()   const {LOGMEIN("JavascriptLibrary.h] 842\n"); return simdUint8x16TypeStatic; }
 
         DynamicType * GetObjectLiteralType(uint16 requestedInlineSlotCapacity);
         DynamicType * GetObjectHeaderInlinedLiteralType(uint16 requestedInlineSlotCapacity);
-        DynamicType * GetObjectType() const { return objectTypes[0]; }
-        DynamicType * GetObjectHeaderInlinedType() const { return objectHeaderInlinedTypes[0]; }
-        StaticType  * GetSymbolTypeStatic() const { return symbolTypeStatic; }
-        DynamicType * GetSymbolTypeDynamic() const { return symbolTypeDynamic; }
-        DynamicType * GetProxyType() const { return proxyType; }
-        DynamicType * GetHeapArgumentsObjectType() const { return heapArgumentsType; }
-        DynamicType * GetActivationObjectType() const { return activationObjectType; }
-        DynamicType * GetModuleNamespaceType() const { return moduleNamespaceType; }
-        DynamicType * GetArrayType() const { return arrayType; }
-        DynamicType * GetNativeIntArrayType() const { return nativeIntArrayType; }
+        DynamicType * GetObjectType() const {LOGMEIN("JavascriptLibrary.h] 846\n"); return objectTypes[0]; }
+        DynamicType * GetObjectHeaderInlinedType() const {LOGMEIN("JavascriptLibrary.h] 847\n"); return objectHeaderInlinedTypes[0]; }
+        StaticType  * GetSymbolTypeStatic() const {LOGMEIN("JavascriptLibrary.h] 848\n"); return symbolTypeStatic; }
+        DynamicType * GetSymbolTypeDynamic() const {LOGMEIN("JavascriptLibrary.h] 849\n"); return symbolTypeDynamic; }
+        DynamicType * GetProxyType() const {LOGMEIN("JavascriptLibrary.h] 850\n"); return proxyType; }
+        DynamicType * GetHeapArgumentsObjectType() const {LOGMEIN("JavascriptLibrary.h] 851\n"); return heapArgumentsType; }
+        DynamicType * GetActivationObjectType() const {LOGMEIN("JavascriptLibrary.h] 852\n"); return activationObjectType; }
+        DynamicType * GetModuleNamespaceType() const {LOGMEIN("JavascriptLibrary.h] 853\n"); return moduleNamespaceType; }
+        DynamicType * GetArrayType() const {LOGMEIN("JavascriptLibrary.h] 854\n"); return arrayType; }
+        DynamicType * GetNativeIntArrayType() const {LOGMEIN("JavascriptLibrary.h] 855\n"); return nativeIntArrayType; }
 #if ENABLE_COPYONACCESS_ARRAY
-        DynamicType * GetCopyOnAccessNativeIntArrayType() const { return copyOnAccessNativeIntArrayType; }
+        DynamicType * GetCopyOnAccessNativeIntArrayType() const {LOGMEIN("JavascriptLibrary.h] 857\n"); return copyOnAccessNativeIntArrayType; }
 #endif
-        DynamicType * GetNativeFloatArrayType() const { return nativeFloatArrayType; }
-        DynamicType * GetRegexPrototypeType() const { return regexPrototypeType; }
-        DynamicType * GetRegexType() const { return regexType; }
-        DynamicType * GetRegexResultType() const { return regexResultType; }
-        DynamicType * GetArrayBufferType() const { return arrayBufferType; }
+        DynamicType * GetNativeFloatArrayType() const {LOGMEIN("JavascriptLibrary.h] 859\n"); return nativeFloatArrayType; }
+        DynamicType * GetRegexPrototypeType() const {LOGMEIN("JavascriptLibrary.h] 860\n"); return regexPrototypeType; }
+        DynamicType * GetRegexType() const {LOGMEIN("JavascriptLibrary.h] 861\n"); return regexType; }
+        DynamicType * GetRegexResultType() const {LOGMEIN("JavascriptLibrary.h] 862\n"); return regexResultType; }
+        DynamicType * GetArrayBufferType() const {LOGMEIN("JavascriptLibrary.h] 863\n"); return arrayBufferType; }
         StaticType  * GetStringTypeStatic() const { AssertMsg(stringTypeStatic, "Where's stringTypeStatic?"); return stringTypeStatic; }
-        DynamicType * GetStringTypeDynamic() const { return stringTypeDynamic; }
-        StaticType  * GetVariantDateType() const { return variantDateType; }
+        DynamicType * GetStringTypeDynamic() const {LOGMEIN("JavascriptLibrary.h] 865\n"); return stringTypeDynamic; }
+        StaticType  * GetVariantDateType() const {LOGMEIN("JavascriptLibrary.h] 866\n"); return variantDateType; }
         void EnsureDebugObject(DynamicObject* newDebugObject);
-        DynamicObject* GetDebugObject() const { Assert(debugObject != nullptr); return debugObject; }
-        DynamicType * GetMapType() const { return mapType; }
-        DynamicType * GetSetType() const { return setType; }
-        DynamicType * GetWeakMapType() const { return weakMapType; }
-        DynamicType * GetWeakSetType() const { return weakSetType; }
-        DynamicType * GetArrayIteratorType() const { return arrayIteratorType; }
-        DynamicType * GetMapIteratorType() const { return mapIteratorType; }
-        DynamicType * GetSetIteratorType() const { return setIteratorType; }
-        DynamicType * GetStringIteratorType() const { return stringIteratorType; }
-        DynamicType * GetListIteratorType() const { return listIteratorType; }
-        JavascriptFunction* GetDefaultAccessorFunction() const { return defaultAccessorFunction; }
-        JavascriptFunction* GetStackTraceAccessorFunction() const { return stackTraceAccessorFunction; }
-        JavascriptFunction* GetThrowTypeErrorRestrictedPropertyAccessorFunction() const { return throwTypeErrorRestrictedPropertyAccessorFunction; }
-        JavascriptFunction* Get__proto__getterFunction() const { return __proto__getterFunction; }
-        JavascriptFunction* Get__proto__setterFunction() const { return __proto__setterFunction; }
+        DynamicObject* GetDebugObject() const {LOGMEIN("JavascriptLibrary.h] 868\n"); Assert(debugObject != nullptr); return debugObject; }
+        DynamicType * GetMapType() const {LOGMEIN("JavascriptLibrary.h] 869\n"); return mapType; }
+        DynamicType * GetSetType() const {LOGMEIN("JavascriptLibrary.h] 870\n"); return setType; }
+        DynamicType * GetWeakMapType() const {LOGMEIN("JavascriptLibrary.h] 871\n"); return weakMapType; }
+        DynamicType * GetWeakSetType() const {LOGMEIN("JavascriptLibrary.h] 872\n"); return weakSetType; }
+        DynamicType * GetArrayIteratorType() const {LOGMEIN("JavascriptLibrary.h] 873\n"); return arrayIteratorType; }
+        DynamicType * GetMapIteratorType() const {LOGMEIN("JavascriptLibrary.h] 874\n"); return mapIteratorType; }
+        DynamicType * GetSetIteratorType() const {LOGMEIN("JavascriptLibrary.h] 875\n"); return setIteratorType; }
+        DynamicType * GetStringIteratorType() const {LOGMEIN("JavascriptLibrary.h] 876\n"); return stringIteratorType; }
+        DynamicType * GetListIteratorType() const {LOGMEIN("JavascriptLibrary.h] 877\n"); return listIteratorType; }
+        JavascriptFunction* GetDefaultAccessorFunction() const {LOGMEIN("JavascriptLibrary.h] 878\n"); return defaultAccessorFunction; }
+        JavascriptFunction* GetStackTraceAccessorFunction() const {LOGMEIN("JavascriptLibrary.h] 879\n"); return stackTraceAccessorFunction; }
+        JavascriptFunction* GetThrowTypeErrorRestrictedPropertyAccessorFunction() const {LOGMEIN("JavascriptLibrary.h] 880\n"); return throwTypeErrorRestrictedPropertyAccessorFunction; }
+        JavascriptFunction* Get__proto__getterFunction() const {LOGMEIN("JavascriptLibrary.h] 881\n"); return __proto__getterFunction; }
+        JavascriptFunction* Get__proto__setterFunction() const {LOGMEIN("JavascriptLibrary.h] 882\n"); return __proto__setterFunction; }
 
-        JavascriptFunction* GetObjectValueOfFunction() const { return objectValueOfFunction; }
-        JavascriptFunction* GetObjectToStringFunction() const { return objectToStringFunction; }
+        JavascriptFunction* GetObjectValueOfFunction() const {LOGMEIN("JavascriptLibrary.h] 884\n"); return objectValueOfFunction; }
+        JavascriptFunction* GetObjectToStringFunction() const {LOGMEIN("JavascriptLibrary.h] 885\n"); return objectToStringFunction; }
 
         // SIMD_JS
-        JavascriptFunction* GetSIMDFloat32x4ToStringFunction() const { return simdFloat32x4ToStringFunction;  }
-        JavascriptFunction* GetSIMDFloat64x2ToStringFunction() const { return simdFloat64x2ToStringFunction; }
-        JavascriptFunction* GetSIMDInt32x4ToStringFunction()   const { return simdInt32x4ToStringFunction; }
-        JavascriptFunction* GetSIMDInt16x8ToStringFunction()   const { return simdInt16x8ToStringFunction; }
-        JavascriptFunction* GetSIMDInt8x16ToStringFunction()   const { return simdInt8x16ToStringFunction; }
-        JavascriptFunction* GetSIMDBool32x4ToStringFunction()   const { return simdBool32x4ToStringFunction; }
-        JavascriptFunction* GetSIMDBool16x8ToStringFunction()   const { return simdBool16x8ToStringFunction; }
-        JavascriptFunction* GetSIMDBool8x16ToStringFunction()   const { return simdBool8x16ToStringFunction; }
-        JavascriptFunction* GetSIMDUint32x4ToStringFunction()   const { return simdUint32x4ToStringFunction; }
-        JavascriptFunction* GetSIMDUint16x8ToStringFunction()   const { return simdUint16x8ToStringFunction; }
-        JavascriptFunction* GetSIMDUint8x16ToStringFunction()   const { return simdUint8x16ToStringFunction; }
+        JavascriptFunction* GetSIMDFloat32x4ToStringFunction() const {LOGMEIN("JavascriptLibrary.h] 888\n"); return simdFloat32x4ToStringFunction;  }
+        JavascriptFunction* GetSIMDFloat64x2ToStringFunction() const {LOGMEIN("JavascriptLibrary.h] 889\n"); return simdFloat64x2ToStringFunction; }
+        JavascriptFunction* GetSIMDInt32x4ToStringFunction()   const {LOGMEIN("JavascriptLibrary.h] 890\n"); return simdInt32x4ToStringFunction; }
+        JavascriptFunction* GetSIMDInt16x8ToStringFunction()   const {LOGMEIN("JavascriptLibrary.h] 891\n"); return simdInt16x8ToStringFunction; }
+        JavascriptFunction* GetSIMDInt8x16ToStringFunction()   const {LOGMEIN("JavascriptLibrary.h] 892\n"); return simdInt8x16ToStringFunction; }
+        JavascriptFunction* GetSIMDBool32x4ToStringFunction()   const {LOGMEIN("JavascriptLibrary.h] 893\n"); return simdBool32x4ToStringFunction; }
+        JavascriptFunction* GetSIMDBool16x8ToStringFunction()   const {LOGMEIN("JavascriptLibrary.h] 894\n"); return simdBool16x8ToStringFunction; }
+        JavascriptFunction* GetSIMDBool8x16ToStringFunction()   const {LOGMEIN("JavascriptLibrary.h] 895\n"); return simdBool8x16ToStringFunction; }
+        JavascriptFunction* GetSIMDUint32x4ToStringFunction()   const {LOGMEIN("JavascriptLibrary.h] 896\n"); return simdUint32x4ToStringFunction; }
+        JavascriptFunction* GetSIMDUint16x8ToStringFunction()   const {LOGMEIN("JavascriptLibrary.h] 897\n"); return simdUint16x8ToStringFunction; }
+        JavascriptFunction* GetSIMDUint8x16ToStringFunction()   const {LOGMEIN("JavascriptLibrary.h] 898\n"); return simdUint8x16ToStringFunction; }
 
-        JavascriptFunction* GetDebugObjectNonUserGetterFunction() const { return debugObjectNonUserGetterFunction; }
-        JavascriptFunction* GetDebugObjectNonUserSetterFunction() const { return debugObjectNonUserSetterFunction; }
+        JavascriptFunction* GetDebugObjectNonUserGetterFunction() const {LOGMEIN("JavascriptLibrary.h] 900\n"); return debugObjectNonUserGetterFunction; }
+        JavascriptFunction* GetDebugObjectNonUserSetterFunction() const {LOGMEIN("JavascriptLibrary.h] 901\n"); return debugObjectNonUserSetterFunction; }
 
-        UnifiedRegex::RegexPattern * GetEmptyRegexPattern() const { return emptyRegexPattern; }
-        JavascriptFunction* GetRegexExecFunction() const { return regexExecFunction; }
-        JavascriptFunction* GetRegexFlagsGetterFunction() const { return regexFlagsGetterFunction; }
-        JavascriptFunction* GetRegexGlobalGetterFunction() const { return regexGlobalGetterFunction; }
-        JavascriptFunction* GetRegexStickyGetterFunction() const { return regexStickyGetterFunction; }
-        JavascriptFunction* GetRegexUnicodeGetterFunction() const { return regexUnicodeGetterFunction; }
+        UnifiedRegex::RegexPattern * GetEmptyRegexPattern() const {LOGMEIN("JavascriptLibrary.h] 903\n"); return emptyRegexPattern; }
+        JavascriptFunction* GetRegexExecFunction() const {LOGMEIN("JavascriptLibrary.h] 904\n"); return regexExecFunction; }
+        JavascriptFunction* GetRegexFlagsGetterFunction() const {LOGMEIN("JavascriptLibrary.h] 905\n"); return regexFlagsGetterFunction; }
+        JavascriptFunction* GetRegexGlobalGetterFunction() const {LOGMEIN("JavascriptLibrary.h] 906\n"); return regexGlobalGetterFunction; }
+        JavascriptFunction* GetRegexStickyGetterFunction() const {LOGMEIN("JavascriptLibrary.h] 907\n"); return regexStickyGetterFunction; }
+        JavascriptFunction* GetRegexUnicodeGetterFunction() const {LOGMEIN("JavascriptLibrary.h] 908\n"); return regexUnicodeGetterFunction; }
 
-        int GetRegexConstructorSlotIndex() const { return regexConstructorSlotIndex;  }
-        int GetRegexExecSlotIndex() const { return regexExecSlotIndex;  }
-        int GetRegexFlagsGetterSlotIndex() const { return regexFlagsGetterSlotIndex;  }
-        int GetRegexGlobalGetterSlotIndex() const { return regexGlobalGetterSlotIndex;  }
-        int GetRegexStickyGetterSlotIndex() const { return regexStickyGetterSlotIndex;  }
-        int GetRegexUnicodeGetterSlotIndex() const { return regexUnicodeGetterSlotIndex;  }
+        int GetRegexConstructorSlotIndex() const {LOGMEIN("JavascriptLibrary.h] 910\n"); return regexConstructorSlotIndex;  }
+        int GetRegexExecSlotIndex() const {LOGMEIN("JavascriptLibrary.h] 911\n"); return regexExecSlotIndex;  }
+        int GetRegexFlagsGetterSlotIndex() const {LOGMEIN("JavascriptLibrary.h] 912\n"); return regexFlagsGetterSlotIndex;  }
+        int GetRegexGlobalGetterSlotIndex() const {LOGMEIN("JavascriptLibrary.h] 913\n"); return regexGlobalGetterSlotIndex;  }
+        int GetRegexStickyGetterSlotIndex() const {LOGMEIN("JavascriptLibrary.h] 914\n"); return regexStickyGetterSlotIndex;  }
+        int GetRegexUnicodeGetterSlotIndex() const {LOGMEIN("JavascriptLibrary.h] 915\n"); return regexUnicodeGetterSlotIndex;  }
 
-        TypePath* GetRootPath() const { return rootPath; }
+        TypePath* GetRootPath() const {LOGMEIN("JavascriptLibrary.h] 917\n"); return rootPath; }
         void BindReference(void * addr);
         void CleanupForClose();
         void BeginDynamicFunctionReferences();
@@ -924,19 +924,19 @@ namespace Js
 
         void SetDebugObjectNonUserAccessor(FunctionInfo *funcGetter, FunctionInfo *funcSetter);
 
-        JavascriptFunction* GetDebugObjectDebugModeGetterFunction() const { return debugObjectDebugModeGetterFunction; }
+        JavascriptFunction* GetDebugObjectDebugModeGetterFunction() const {LOGMEIN("JavascriptLibrary.h] 926\n"); return debugObjectDebugModeGetterFunction; }
         void SetDebugObjectDebugModeAccessor(FunctionInfo *funcGetter);
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
-        JavascriptFunction* GetDebugObjectFaultInjectionCookieGetterFunction() const { return debugObjectFaultInjectionCookieGetterFunction; }
-        JavascriptFunction* GetDebugObjectFaultInjectionCookieSetterFunction() const { return debugObjectFaultInjectionCookieSetterFunction; }
+        JavascriptFunction* GetDebugObjectFaultInjectionCookieGetterFunction() const {LOGMEIN("JavascriptLibrary.h] 930\n"); return debugObjectFaultInjectionCookieGetterFunction; }
+        JavascriptFunction* GetDebugObjectFaultInjectionCookieSetterFunction() const {LOGMEIN("JavascriptLibrary.h] 931\n"); return debugObjectFaultInjectionCookieSetterFunction; }
         void SetDebugObjectFaultInjectionCookieGetterAccessor(FunctionInfo *funcGetter, FunctionInfo *funcSetter);
 #endif
 
-        JavascriptFunction* GetArrayPrototypeToStringFunction() const { return arrayPrototypeToStringFunction; }
-        JavascriptFunction* GetArrayPrototypeToLocaleStringFunction() const { return arrayPrototypeToLocaleStringFunction; }
-        JavascriptFunction* GetIdentityFunction() const { return identityFunction; }
-        JavascriptFunction* GetThrowerFunction() const { return throwerFunction; }
+        JavascriptFunction* GetArrayPrototypeToStringFunction() const {LOGMEIN("JavascriptLibrary.h] 935\n"); return arrayPrototypeToStringFunction; }
+        JavascriptFunction* GetArrayPrototypeToLocaleStringFunction() const {LOGMEIN("JavascriptLibrary.h] 936\n"); return arrayPrototypeToLocaleStringFunction; }
+        JavascriptFunction* GetIdentityFunction() const {LOGMEIN("JavascriptLibrary.h] 937\n"); return identityFunction; }
+        JavascriptFunction* GetThrowerFunction() const {LOGMEIN("JavascriptLibrary.h] 938\n"); return throwerFunction; }
 
         void SetNativeHostPromiseContinuationFunction(PromiseContinuationCallback function, void *state);
 
@@ -970,20 +970,20 @@ namespace Js
         template <typename TypeName, bool clamped>
         inline DynamicType* GetTypedArrayType(TypeName);
 
-        template<> inline DynamicType* GetTypedArrayType<int8,false>(int8) { return int8ArrayType; };
-        template<> inline DynamicType* GetTypedArrayType<uint8,false>(uint8) { return uint8ArrayType; };
-        template<> inline DynamicType* GetTypedArrayType<uint8,true>(uint8) { return uint8ClampedArrayType; };
-        template<> inline DynamicType* GetTypedArrayType<int16,false>(int16) { return int16ArrayType; };
-        template<> inline DynamicType* GetTypedArrayType<uint16,false>(uint16) { return uint16ArrayType; };
-        template<> inline DynamicType* GetTypedArrayType<int32,false>(int32) { return int32ArrayType; };
-        template<> inline DynamicType* GetTypedArrayType<uint32,false>(uint32) { return uint32ArrayType; };
-        template<> inline DynamicType* GetTypedArrayType<float,false>(float) { return float32ArrayType; };
-        template<> inline DynamicType* GetTypedArrayType<double,false>(double) { return float64ArrayType; };
-        template<> inline DynamicType* GetTypedArrayType<int64,false>(int64) { return int64ArrayType; };
-        template<> inline DynamicType* GetTypedArrayType<uint64,false>(uint64) { return uint64ArrayType; };
-        template<> inline DynamicType* GetTypedArrayType<bool,false>(bool) { return boolArrayType; };
+        template<> inline DynamicType* GetTypedArrayType<int8,false>(int8) {LOGMEIN("JavascriptLibrary.h] 972\n"); return int8ArrayType; };
+        template<> inline DynamicType* GetTypedArrayType<uint8,false>(uint8) {LOGMEIN("JavascriptLibrary.h] 973\n"); return uint8ArrayType; };
+        template<> inline DynamicType* GetTypedArrayType<uint8,true>(uint8) {LOGMEIN("JavascriptLibrary.h] 974\n"); return uint8ClampedArrayType; };
+        template<> inline DynamicType* GetTypedArrayType<int16,false>(int16) {LOGMEIN("JavascriptLibrary.h] 975\n"); return int16ArrayType; };
+        template<> inline DynamicType* GetTypedArrayType<uint16,false>(uint16) {LOGMEIN("JavascriptLibrary.h] 976\n"); return uint16ArrayType; };
+        template<> inline DynamicType* GetTypedArrayType<int32,false>(int32) {LOGMEIN("JavascriptLibrary.h] 977\n"); return int32ArrayType; };
+        template<> inline DynamicType* GetTypedArrayType<uint32,false>(uint32) {LOGMEIN("JavascriptLibrary.h] 978\n"); return uint32ArrayType; };
+        template<> inline DynamicType* GetTypedArrayType<float,false>(float) {LOGMEIN("JavascriptLibrary.h] 979\n"); return float32ArrayType; };
+        template<> inline DynamicType* GetTypedArrayType<double,false>(double) {LOGMEIN("JavascriptLibrary.h] 980\n"); return float64ArrayType; };
+        template<> inline DynamicType* GetTypedArrayType<int64,false>(int64) {LOGMEIN("JavascriptLibrary.h] 981\n"); return int64ArrayType; };
+        template<> inline DynamicType* GetTypedArrayType<uint64,false>(uint64) {LOGMEIN("JavascriptLibrary.h] 982\n"); return uint64ArrayType; };
+        template<> inline DynamicType* GetTypedArrayType<bool,false>(bool) {LOGMEIN("JavascriptLibrary.h] 983\n"); return boolArrayType; };
 
-        DynamicType* GetCharArrayType() { return charArrayType; };
+        DynamicType* GetCharArrayType() {LOGMEIN("JavascriptLibrary.h] 985\n"); return charArrayType; };
 
         //
         // This method would be used for creating array literals, when we really need to create a huge array
@@ -1142,12 +1142,12 @@ namespace Js
 
         void SetCrossSiteForSharedFunctionType(JavascriptFunction * function);
 
-        bool IsPRNGSeeded() { return isPRNGSeeded; }
-        uint64 GetRandSeed0() { return randSeed0; }
-        uint64 GetRandSeed1() { return randSeed1; }
+        bool IsPRNGSeeded() {LOGMEIN("JavascriptLibrary.h] 1144\n"); return isPRNGSeeded; }
+        uint64 GetRandSeed0() {LOGMEIN("JavascriptLibrary.h] 1145\n"); return randSeed0; }
+        uint64 GetRandSeed1() {LOGMEIN("JavascriptLibrary.h] 1146\n"); return randSeed1; }
         void SetIsPRNGSeeded(bool val);
-        void SetRandSeed0(uint64 rs) { randSeed0 = rs;}
-        void SetRandSeed1(uint64 rs) { randSeed1 = rs; }
+        void SetRandSeed0(uint64 rs) {LOGMEIN("JavascriptLibrary.h] 1148\n"); randSeed0 = rs;}
+        void SetRandSeed1(uint64 rs) {LOGMEIN("JavascriptLibrary.h] 1149\n"); randSeed1 = rs; }
 
         void SetProfileMode(bool fSet);
         void SetDispatchProfile(bool fSet, JavascriptMethod dispatchInvoke);
@@ -1183,48 +1183,48 @@ namespace Js
         static bool IsFloatFunctionCallsite(BuiltinFunction index, size_t argc);
         static bool IsFltBuiltInConst(PropertyId id);
         static size_t GetArgCForBuiltIn(BuiltinFunction index)
-        {
+        {LOGMEIN("JavascriptLibrary.h] 1185\n");
             Assert(index < _countof(JavascriptLibrary::LibraryFunctionArgC));
             return JavascriptLibrary::LibraryFunctionArgC[index];
         }
         static BuiltInFlags GetFlagsForBuiltIn(BuiltinFunction index)
-        {
+        {LOGMEIN("JavascriptLibrary.h] 1190\n");
             Assert(index < _countof(JavascriptLibrary::LibraryFunctionFlags));
             return (BuiltInFlags)JavascriptLibrary::LibraryFunctionFlags[index];
         }
         static BuiltinFunction GetBuiltInInlineCandidateId(Js::OpCode opCode);
         static BuiltInArgSpecializationType GetBuiltInArgType(BuiltInFlags flags, BuiltInArgShift argGroup);
         static bool IsTypeSpecRequired(BuiltInFlags flags)
-        {
+        {LOGMEIN("JavascriptLibrary.h] 1197\n");
             return GetBuiltInArgType(flags, BuiltInArgShift::BIAS_Src1) || GetBuiltInArgType(flags, BuiltInArgShift::BIAS_Src2) || GetBuiltInArgType(flags, BuiltInArgShift::BIAS_Dst);
         }
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         static char16 const * GetNameForBuiltIn(BuiltinFunction index)
-        {
+        {LOGMEIN("JavascriptLibrary.h] 1202\n");
             Assert(index < _countof(JavascriptLibrary::LibraryFunctionName));
             return JavascriptLibrary::LibraryFunctionName[index];
         }
 #endif
 
         PropertyStringCacheMap* EnsurePropertyStringMap();
-        PropertyStringCacheMap* GetPropertyStringMap() { return this->propertyStringMap; }
+        PropertyStringCacheMap* GetPropertyStringMap() {LOGMEIN("JavascriptLibrary.h] 1209\n"); return this->propertyStringMap; }
 
         void TypeAndPrototypesAreEnsuredToHaveOnlyWritableDataProperties(Type *const type);
         void NoPrototypeChainsAreEnsuredToHaveOnlyWritableDataProperties();
 
         static bool ArrayIteratorPrototypeHasUserDefinedNext(ScriptContext *scriptContext);
 
-        CharStringCache& GetCharStringCache() { return charStringCache;  }
+        CharStringCache& GetCharStringCache() {LOGMEIN("JavascriptLibrary.h] 1216\n"); return charStringCache;  }
         static JavascriptLibrary * FromCharStringCache(CharStringCache * cache)
-        {
+        {LOGMEIN("JavascriptLibrary.h] 1218\n");
             return (JavascriptLibrary *)((uintptr_t)cache - offsetof(JavascriptLibrary, charStringCache));
         }
 
-        bool GetArrayObjectHasUserDefinedSpecies() const { return arrayObjectHasUserDefinedSpecies; }
-        void SetArrayObjectHasUserDefinedSpecies(bool val) { arrayObjectHasUserDefinedSpecies = val; }
+        bool GetArrayObjectHasUserDefinedSpecies() const {LOGMEIN("JavascriptLibrary.h] 1222\n"); return arrayObjectHasUserDefinedSpecies; }
+        void SetArrayObjectHasUserDefinedSpecies(bool val) {LOGMEIN("JavascriptLibrary.h] 1223\n"); arrayObjectHasUserDefinedSpecies = val; }
 
-        FunctionBody* GetFakeGlobalFuncForUndefer()const { return this->fakeGlobalFuncForUndefer; }
-        void SetFakeGlobalFuncForUndefer(FunctionBody* functionBody) { this->fakeGlobalFuncForUndefer = functionBody; }        
+        FunctionBody* GetFakeGlobalFuncForUndefer()const {LOGMEIN("JavascriptLibrary.h] 1225\n"); return this->fakeGlobalFuncForUndefer; }
+        void SetFakeGlobalFuncForUndefer(FunctionBody* functionBody) {LOGMEIN("JavascriptLibrary.h] 1226\n"); this->fakeGlobalFuncForUndefer = functionBody; }        
 
         ModuleRecordList* EnsureModuleRecordList();
         SourceTextModuleRecord* GetModuleRecord(uint moduleId);
@@ -1380,10 +1380,10 @@ namespace Js
         Field(ReferencedPropertyRecordHashSet*) referencedPropertyRecords;
 
         ReferencedPropertyRecordHashSet * EnsureReferencedPropertyRecordList()
-        {
+        {LOGMEIN("JavascriptLibrary.h] 1382\n");
             ReferencedPropertyRecordHashSet* pidList = this->referencedPropertyRecords;
             if (pidList == nullptr)
-            {
+            {LOGMEIN("JavascriptLibrary.h] 1385\n");
                 pidList = RecyclerNew(this->recycler, ReferencedPropertyRecordHashSet, this->recycler, 173);
                 this->referencedPropertyRecords = pidList;
             }
@@ -1391,7 +1391,7 @@ namespace Js
         }
 
         ReferencedPropertyRecordHashSet * GetReferencedPropertyRecordList() const
-        {
+        {LOGMEIN("JavascriptLibrary.h] 1393\n");
             return this->referencedPropertyRecords;
         }
 

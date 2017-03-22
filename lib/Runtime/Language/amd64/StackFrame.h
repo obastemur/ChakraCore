@@ -85,7 +85,7 @@ namespace Js {
         Amd64StackFrame();
         ~Amd64StackFrame();
 
-        bool InitializeByFrameId(void * returnAddress, ScriptContext* scriptContext) { return InitializeByReturnAddress(returnAddress, scriptContext); }
+        bool InitializeByFrameId(void * returnAddress, ScriptContext* scriptContext) {LOGMEIN("StackFrame.h] 87\n"); return InitializeByReturnAddress(returnAddress, scriptContext); }
         bool InitializeByReturnAddress(void * returnAddress, ScriptContext* scriptContext);
 
         bool Next();
@@ -94,10 +94,10 @@ namespace Js {
         void **GetArgv(bool isCurrentContextNative = false, bool shouldCheckForNativeAddr = true);
         void *GetReturnAddress(bool isCurrentContextNative = false, bool shouldCheckForNativeAddr = true);
         void *GetAddressOfReturnAddress(bool isCurrentContextNative = false, bool shouldCheckForNativeAddr = true);
-        void *GetAddressOfInstructionPointer() { return this->addressOfCodeAddr; }
+        void *GetAddressOfInstructionPointer() {LOGMEIN("StackFrame.h] 96\n"); return this->addressOfCodeAddr; }
         bool SkipToFrame(void * returnAddress);
         void *GetFrame() const;
-        size_t GetStackCheckCodeHeight() { return this->stackCheckCodeHeight; }
+        size_t GetStackCheckCodeHeight() {LOGMEIN("StackFrame.h] 99\n"); return this->stackCheckCodeHeight; }
         static bool IsInStackCheckCode(void *entry, void * codeAddr, size_t stackCheckCodeHeight);
 
     private:
@@ -133,24 +133,24 @@ namespace Js {
     class Amd64StackFrame
     {
     public:
-        Amd64StackFrame() : frame(nullptr), codeAddr(nullptr), stackCheckCodeHeight(0), addressOfCodeAddr(nullptr) {};
+        Amd64StackFrame() : frame(nullptr), codeAddr(nullptr), stackCheckCodeHeight(0), addressOfCodeAddr(nullptr) {LOGMEIN("StackFrame.h] 135\n");};
 
         bool InitializeByFrameId(void * frameAddress, ScriptContext* scriptContext);
         bool InitializeByReturnAddress(void * returnAddress, ScriptContext* scriptContext);
 
         bool Next();
 
-        void *  GetInstructionPointer() { return codeAddr; }
-        void ** GetArgv(bool isCurrentContextNative = false, bool shouldCheckForNativeAddr = true) { return frame + 2; } 
-        void *  GetReturnAddress(bool isCurrentContextNative = false, bool shouldCheckForNativeAddr = true) { return frame[1]; } 
-        void *  GetAddressOfReturnAddress(bool isCurrentContextNative = false, bool shouldCheckForNativeAddr = true) { return &frame[1]; } 
-        void *  GetAddressOfInstructionPointer() const { return addressOfCodeAddr; }
-        void *  GetFrame() const { return (void *)frame; }
+        void *  GetInstructionPointer() {LOGMEIN("StackFrame.h] 142\n"); return codeAddr; }
+        void ** GetArgv(bool isCurrentContextNative = false, bool shouldCheckForNativeAddr = true) {LOGMEIN("StackFrame.h] 143\n"); return frame + 2; } 
+        void *  GetReturnAddress(bool isCurrentContextNative = false, bool shouldCheckForNativeAddr = true) {LOGMEIN("StackFrame.h] 144\n"); return frame[1]; } 
+        void *  GetAddressOfReturnAddress(bool isCurrentContextNative = false, bool shouldCheckForNativeAddr = true) {LOGMEIN("StackFrame.h] 145\n"); return &frame[1]; } 
+        void *  GetAddressOfInstructionPointer() const {LOGMEIN("StackFrame.h] 146\n"); return addressOfCodeAddr; }
+        void *  GetFrame() const {LOGMEIN("StackFrame.h] 147\n"); return (void *)frame; }
 
-        void SetReturnAddress(void * address) { frame[1] = address; }
+        void SetReturnAddress(void * address) {LOGMEIN("StackFrame.h] 149\n"); frame[1] = address; }
         bool SkipToFrame(void * frameAddress);
 
-        size_t GetStackCheckCodeHeight() { return this->stackCheckCodeHeight; }
+        size_t GetStackCheckCodeHeight() {LOGMEIN("StackFrame.h] 152\n"); return this->stackCheckCodeHeight; }
         static bool IsInStackCheckCode(void *entry, void *codeAddr, size_t stackCheckCodeHeight);
 
     private:

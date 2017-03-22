@@ -50,7 +50,7 @@ namespace Js
 
         ProxyEntryPointInfo* GetEntryPointInfo() const;
         FunctionEntryPointInfo* GetFunctionEntryPointInfo() const
-        {
+        {LOGMEIN("ScriptFunction.h] 52\n");
             Assert(this->GetFunctionProxy()->IsDeferred() == FALSE);
             return (FunctionEntryPointInfo*) this->GetEntryPointInfo();
         }
@@ -59,16 +59,16 @@ namespace Js
         ScriptFunctionType * GetScriptFunctionType() const;
 
         uint32 GetFrameHeight(FunctionEntryPointInfo* entryPointInfo) const;
-        FrameDisplay* GetEnvironment() const { return environment; }
+        FrameDisplay* GetEnvironment() const {LOGMEIN("ScriptFunction.h] 61\n"); return environment; }
         void SetEnvironment(FrameDisplay * environment);
-        ActivationObjectEx *GetCachedScope() const { return cachedScopeObj; }
-        void SetCachedScope(ActivationObjectEx *obj) { cachedScopeObj = obj; }
+        ActivationObjectEx *GetCachedScope() const {LOGMEIN("ScriptFunction.h] 63\n"); return cachedScopeObj; }
+        void SetCachedScope(ActivationObjectEx *obj) {LOGMEIN("ScriptFunction.h] 64\n"); cachedScopeObj = obj; }
         void InvalidateCachedScopeChain();
 
-        static uint32 GetOffsetOfEnvironment() { return offsetof(ScriptFunction, environment); }
-        static uint32 GetOffsetOfCachedScopeObj() { return offsetof(ScriptFunction, cachedScopeObj); };
-        static uint32 GetOffsetOfHasInlineCaches() { return offsetof(ScriptFunction, hasInlineCaches); };
-        static uint32 GetOffsetOfHomeObj() { return  offsetof(ScriptFunction, homeObj); }
+        static uint32 GetOffsetOfEnvironment() {LOGMEIN("ScriptFunction.h] 67\n"); return offsetof(ScriptFunction, environment); }
+        static uint32 GetOffsetOfCachedScopeObj() {LOGMEIN("ScriptFunction.h] 68\n"); return offsetof(ScriptFunction, cachedScopeObj); };
+        static uint32 GetOffsetOfHasInlineCaches() {LOGMEIN("ScriptFunction.h] 69\n"); return offsetof(ScriptFunction, hasInlineCaches); };
+        static uint32 GetOffsetOfHomeObj() {LOGMEIN("ScriptFunction.h] 70\n"); return  offsetof(ScriptFunction, homeObj); }
 
         void ChangeEntryPoint(ProxyEntryPointInfo* entryPointInfo, JavascriptMethod entryPoint);
         JavascriptMethod UpdateThunkEntryPoint(FunctionEntryPointInfo* entryPointInfo, JavascriptMethod entryPoint);
@@ -80,13 +80,13 @@ namespace Js
         virtual Var GetSourceString() const;
         virtual Var EnsureSourceString();
 
-        bool GetHasInlineCaches() { return hasInlineCaches; }
-        void SetHasInlineCaches(bool has) { hasInlineCaches = has; }
+        bool GetHasInlineCaches() {LOGMEIN("ScriptFunction.h] 82\n"); return hasInlineCaches; }
+        void SetHasInlineCaches(bool has) {LOGMEIN("ScriptFunction.h] 83\n"); hasInlineCaches = has; }
 
-        bool HasSuperReference() { return hasSuperReference; }
-        void SetHasSuperReference(bool has) { hasSuperReference = has; }
+        bool HasSuperReference() {LOGMEIN("ScriptFunction.h] 85\n"); return hasSuperReference; }
+        void SetHasSuperReference(bool has) {LOGMEIN("ScriptFunction.h] 86\n"); hasSuperReference = has; }
 
-        void SetIsActiveScript(bool is) { isActiveScript = is; }
+        void SetIsActiveScript(bool is) {LOGMEIN("ScriptFunction.h] 88\n"); isActiveScript = is; }
 
         virtual Var GetHomeObj() const override { return homeObj; }
         virtual void SetHomeObj(Var homeObj) override { this->homeObj = homeObj; }
@@ -97,7 +97,7 @@ namespace Js
         JavascriptString* GetComputedName() const;
         virtual bool IsAnonymousFunction() const override;
 
-        virtual JavascriptFunction* GetRealFunctionObject() { return this; }
+        virtual JavascriptFunction* GetRealFunctionObject() {LOGMEIN("ScriptFunction.h] 99\n"); return this; }
 
         bool HasFunctionBody();
 #if ENABLE_TTD
@@ -120,15 +120,15 @@ namespace Js
         static bool IsWasmScriptFunction(Var func);
         static AsmJsScriptFunction* FromVar(Var func);
 
-        void SetModuleMemory(Field(Var)* mem) { m_moduleMemory = mem; }
-        Field(Var)* GetModuleMemory() const { return m_moduleMemory; }
+        void SetModuleMemory(Field(Var)* mem) {LOGMEIN("ScriptFunction.h] 122\n"); m_moduleMemory = mem; }
+        Field(Var)* GetModuleMemory() const {LOGMEIN("ScriptFunction.h] 123\n"); return m_moduleMemory; }
 
 #ifdef ENABLE_WASM
-        void SetSignature(Wasm::WasmSignature * sig) { m_signature = sig; }
-        Wasm::WasmSignature * GetSignature() const { return m_signature; }
-        static uint32 GetOffsetOfSignature() { return offsetof(AsmJsScriptFunction, m_signature); }
+        void SetSignature(Wasm::WasmSignature * sig) {LOGMEIN("ScriptFunction.h] 126\n"); m_signature = sig; }
+        Wasm::WasmSignature * GetSignature() const {LOGMEIN("ScriptFunction.h] 127\n"); return m_signature; }
+        static uint32 GetOffsetOfSignature() {LOGMEIN("ScriptFunction.h] 128\n"); return offsetof(AsmJsScriptFunction, m_signature); }
 #endif
-        static uint32 GetOffsetOfModuleMemory() { return offsetof(AsmJsScriptFunction, m_moduleMemory); }
+        static uint32 GetOffsetOfModuleMemory() {LOGMEIN("ScriptFunction.h] 130\n"); return offsetof(AsmJsScriptFunction, m_moduleMemory); }
     protected:
         AsmJsScriptFunction(DynamicType * type);
         DEFINE_VTABLE_CTOR(AsmJsScriptFunction, ScriptFunction);
@@ -172,11 +172,11 @@ namespace Js
         void ClearInlineCacheOnFunctionObject();
         void ClearBorrowedInlineCacheOnFunctionObject();
         InlineCache * GetInlineCache(uint index);
-        uint GetInlineCacheCount() { return inlineCacheCount; }
-        Field(void*)* GetInlineCaches() { return m_inlineCaches; }
-        bool GetHasOwnInlineCaches() { return hasOwnInlineCaches; }
+        uint GetInlineCacheCount() {LOGMEIN("ScriptFunction.h] 174\n"); return inlineCacheCount; }
+        Field(void*)* GetInlineCaches() {LOGMEIN("ScriptFunction.h] 175\n"); return m_inlineCaches; }
+        bool GetHasOwnInlineCaches() {LOGMEIN("ScriptFunction.h] 176\n"); return hasOwnInlineCaches; }
         void SetInlineCachesFromFunctionBody();
-        static uint32 GetOffsetOfInlineCaches() { return offsetof(ScriptFunctionWithInlineCache, m_inlineCaches); };
+        static uint32 GetOffsetOfInlineCaches() {LOGMEIN("ScriptFunction.h] 178\n"); return offsetof(ScriptFunctionWithInlineCache, m_inlineCaches); };
         template<bool isShutdown>
         void FreeOwnInlineCaches();
         virtual void Finalize(bool isShutdown) override;

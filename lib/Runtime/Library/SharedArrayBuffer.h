@@ -51,7 +51,7 @@ namespace Js
         ArrayBufferAllocationType allocationType;
         SharableState(SharedContents *c, ArrayBufferAllocationType t)
             : DetachedStateBase(TypeIds_SharedArrayBuffer), contents(c), allocationType(t)
-        { }
+        {LOGMEIN("SharedArrayBuffer.h] 53\n"); }
 
         virtual void ClearSelfOnly() override
         {
@@ -102,18 +102,18 @@ namespace Js
         virtual uint32 GetByteLength() const override;
         virtual BYTE* GetBuffer() const override;
 
-        static int GetByteLengthOffset() { Assert(false); return 0; }
-        static int GetBufferOffset() { Assert(false); return 0; }
+        static int GetByteLengthOffset() {LOGMEIN("SharedArrayBuffer.h] 104\n"); Assert(false); return 0; }
+        static int GetBufferOffset() {LOGMEIN("SharedArrayBuffer.h] 105\n"); Assert(false); return 0; }
         virtual bool IsArrayBuffer() override { return false; }
         virtual bool IsSharedArrayBuffer() override { return true; }
-        virtual ArrayBuffer * GetAsArrayBuffer() { return nullptr; }
+        virtual ArrayBuffer * GetAsArrayBuffer() {LOGMEIN("SharedArrayBuffer.h] 108\n"); return nullptr; }
         virtual SharedArrayBuffer * GetAsSharedArrayBuffer() override { return SharedArrayBuffer::FromVar(this); }
 
         static SharedArrayBuffer* NewFromSharedState(DetachedStateBase* state, JavascriptLibrary *library);
         static DetachedStateBase* GetSharableState(Var object);
 
         WaiterList *GetWaiterList(uint index);
-        SharedContents *GetSharedContents() { return sharedContents; }
+        SharedContents *GetSharedContents() {LOGMEIN("SharedArrayBuffer.h] 115\n"); return sharedContents; }
 
 #if _WIN64
         //maximum 2G -1  for amd64
@@ -122,7 +122,7 @@ namespace Js
         // maximum 1G to avoid arithmetic overflow.
         static const uint32 MaxSharedArrayBufferLength = 1 << 30;
 #endif
-        virtual bool IsValidVirtualBufferLength(uint length) { return false; }
+        virtual bool IsValidVirtualBufferLength(uint length) {LOGMEIN("SharedArrayBuffer.h] 124\n"); return false; }
 
     protected:
         FieldNoBarrier(SharedContents *) sharedContents;
@@ -151,8 +151,8 @@ namespace Js
     struct AgentOfBuffer
     {
     public:
-        AgentOfBuffer() :identity(NULL), event(NULL) {}
-        AgentOfBuffer(DWORD_PTR agent, HANDLE e) :identity(agent), event(e) {}
+        AgentOfBuffer() :identity(NULL), event(NULL) {LOGMEIN("SharedArrayBuffer.h] 153\n");}
+        AgentOfBuffer(DWORD_PTR agent, HANDLE e) :identity(agent), event(e) {LOGMEIN("SharedArrayBuffer.h] 154\n");}
         static bool AgentCanSuspend(ScriptContext *scriptContext);
 
         DWORD_PTR identity;
@@ -171,7 +171,7 @@ namespace Js
         void RemoveWaiter(DWORD_PTR waiter);
         uint32 RemoveAndWakeWaiters(int32 count);
 
-        CriticalSection * GetCriticalSectionForAccess() { return &csForAccess; }
+        CriticalSection * GetCriticalSectionForAccess() {LOGMEIN("SharedArrayBuffer.h] 173\n"); return &csForAccess; }
 
     private:
         void InitWaiterList();

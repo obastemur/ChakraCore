@@ -24,7 +24,7 @@ namespace Js
 #endif
         );
         static uint32 GetValueOffset()
-        {
+        {LOGMEIN("JavascriptNumber.h] 26\n");
             return offsetof(JavascriptNumber, m_value);
         }
 
@@ -54,7 +54,7 @@ namespace Js
         static bool TryToVarFast(int32 nValue, Var* result);
         static bool TryToVarFastWithCheck(double value, Var* result);
 
-        inline static BOOL IsNan(double value) { return NumberUtilities::IsNan(value); }
+        inline static BOOL IsNan(double value) {LOGMEIN("JavascriptNumber.h] 56\n"); return NumberUtilities::IsNan(value); }
         static bool IsZero(double value);
         static BOOL IsNegZero(double value);
         static bool IsPosInf(double value);
@@ -62,12 +62,12 @@ namespace Js
 
         template<bool acceptNegZero = false>
         static bool TryGetInt32Value(const double value, int32 *const int32Value)
-        {
+        {LOGMEIN("JavascriptNumber.h] 64\n");
             Assert(int32Value);
 
             const int32 i = static_cast<int32>(value);
             if (static_cast<double>(i) != value || (!acceptNegZero && IsNegZero(value)))
-            {
+            {LOGMEIN("JavascriptNumber.h] 69\n");
                 return false;
             }
 
@@ -129,8 +129,8 @@ namespace Js
 #endif
 #endif
 
-        inline static bool IsSpecial(double value, uint64 nSpecial) { return NumberUtilities::IsSpecial(value, nSpecial); }
-        inline static uint64 ToSpecial(double value) { return NumberUtilities::ToSpecial(value); }
+        inline static bool IsSpecial(double value, uint64 nSpecial) {LOGMEIN("JavascriptNumber.h] 131\n"); return NumberUtilities::IsSpecial(value, nSpecial); }
+        inline static uint64 ToSpecial(double value) {LOGMEIN("JavascriptNumber.h] 132\n"); return NumberUtilities::ToSpecial(value); }
 
         static JavascriptString* ToStringNan(ScriptContext* scriptContext);
         static JavascriptString* ToStringRadix10(double dValue, ScriptContext* scriptContext);
@@ -159,17 +159,17 @@ namespace Js
 
     private:
         void SetValue(double value)
-        {
+        {LOGMEIN("JavascriptNumber.h] 161\n");
             m_value = value;
         }
 
         double GetValue() const
-        {
+        {LOGMEIN("JavascriptNumber.h] 166\n");
             return m_value;
         }
 
         void SetSpecial(uint64 value)
-        {
+        {LOGMEIN("JavascriptNumber.h] 171\n");
             uint64* pnOverwrite = reinterpret_cast<uint64 *>(&this->m_value);
             *pnOverwrite = value;
         }
@@ -199,7 +199,7 @@ namespace Js
     // A float can have all 14 bits 0 iff it was a NaN in the first place. Since
     // we can only produce NaNs with top 13 bits set (see k_Nan) - this cannot happen.
     inline bool JavascriptNumber::Is_NoTaggedIntCheck(Var aValue)
-    {
+    {LOGMEIN("JavascriptNumber.h] 201\n");
         return ((uint64)aValue >> 50) != 0;
     }
 
@@ -213,44 +213,44 @@ namespace Js
 #endif
 
     inline bool JavascriptNumber::IsZero(double value)
-    {
+    {LOGMEIN("JavascriptNumber.h] 215\n");
         // succeeds for -0.0 as well
         return value == 0.0;
     }
 
     inline bool JavascriptNumber::IsPosInf(double value)
-    {
+    {LOGMEIN("JavascriptNumber.h] 221\n");
         return IsSpecial(value, k_PosInf);
     }
 
     inline bool JavascriptNumber::IsNegInf(double value)
-    {
+    {LOGMEIN("JavascriptNumber.h] 226\n");
         return IsSpecial(value, k_NegInf);
     }
 
     inline BOOL JavascriptNumber::IsNegZero(double value)
-    {
+    {LOGMEIN("JavascriptNumber.h] 231\n");
         return IsSpecial(value, k_NegZero);
     }
 
     template <class Lib>
     inline typename Lib::LibStringType JavascriptNumber::ToStringNan(const Lib& lib)
-    {
+    {LOGMEIN("JavascriptNumber.h] 237\n");
         return lib.CreateStringFromCppLiteral(_u("NaN"));
     }
 
     template <class Lib>
     inline typename Lib::LibStringType JavascriptNumber::ToStringNanOrInfinite(double value, const Lib& lib)
-    {
+    {LOGMEIN("JavascriptNumber.h] 243\n");
         if(!NumberUtilities::IsFinite(value))
-        {
+        {LOGMEIN("JavascriptNumber.h] 245\n");
             if(IsNan(value))
-            {
+            {LOGMEIN("JavascriptNumber.h] 247\n");
                 return ToStringNan(lib);
             }
 
             if(IsPosInf(value))
-            {
+            {LOGMEIN("JavascriptNumber.h] 252\n");
                 return lib.CreateStringFromCppLiteral(_u("Infinity"));
             }
             else

@@ -7,8 +7,8 @@
 namespace Js
 {
     // These implementations need to be compiled with /arch:sse2
-#define DivImpl(type, noinline) template<> noinline type AsmJsMath::Div(type aLeft, type aRight) { return aLeft / aRight; }
-#define MulImpl(type, noinline) template<> noinline type AsmJsMath::Mul(type aLeft, type aRight) { return aLeft * aRight; }
+#define DivImpl(type, noinline) template<> noinline type AsmJsMath::Div(type aLeft, type aRight) {LOGMEIN("AsmJsMath.cpp] 9\n"); return aLeft / aRight; }
+#define MulImpl(type, noinline) template<> noinline type AsmJsMath::Mul(type aLeft, type aRight) {LOGMEIN("AsmJsMath.cpp] 10\n"); return aLeft * aRight; }
 #define DivMulImpl(type, noinline) DivImpl(type, noinline) MulImpl(type, noinline)
 
 #if _M_IX86
@@ -25,13 +25,13 @@ namespace Js
 
     template<>
     int32 AsmJsMath::Div<int32>(int32 aLeft, int32 aRight)
-    {
+    {LOGMEIN("AsmJsMath.cpp] 27\n");
         return aRight == 0 ? 0 : (aLeft == (1 << 31) && aRight == -1) ? aLeft : aLeft / aRight;
     }
 
     template<>
     uint32 AsmJsMath::Div<uint32>(uint32 aLeft, uint32 aRight)
-    {
+    {LOGMEIN("AsmJsMath.cpp] 33\n");
         return aRight == 0 ? 0 : aLeft / aRight;
     }
 }

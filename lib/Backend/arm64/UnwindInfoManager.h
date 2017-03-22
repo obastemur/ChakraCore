@@ -24,120 +24,120 @@ public:
         epilogEndLabelId(0),
         pdataArray(NULL),
         xdataArray(NULL)
-    {
+    {LOGMEIN("UnwindInfoManager.h] 26\n");
     }
 
-    void Init(Func * func) { this->func = func; }
-    void EmitUnwindInfo(PBYTE funcStart, DWORD size, CustomHeap::Allocation* allocation) { __debugbreak(); }
-    DWORD EmitLongUnwindInfoChunk(DWORD remainingLength) { __debugbreak(); }
+    void Init(Func * func) {LOGMEIN("UnwindInfoManager.h] 29\n"); this->func = func; }
+    void EmitUnwindInfo(PBYTE funcStart, DWORD size, CustomHeap::Allocation* allocation) {LOGMEIN("UnwindInfoManager.h] 30\n"); __debugbreak(); }
+    DWORD EmitLongUnwindInfoChunk(DWORD remainingLength) {LOGMEIN("UnwindInfoManager.h] 31\n"); __debugbreak(); }
 
     void SetFunc(Func *func)
-    {
+    {LOGMEIN("UnwindInfoManager.h] 34\n");
         Assert(this->func == NULL);
         this->func = func;
     }
     Func * GetFunc() const
-    {
+    {LOGMEIN("UnwindInfoManager.h] 39\n");
         return this->func;
     }
 
     void SetFragmentStart(PBYTE pStart)
-    {
+    {LOGMEIN("UnwindInfoManager.h] 44\n");
         this->fragmentStart = pStart;
     }
     PBYTE GetFragmentStart() const
-    {
+    {LOGMEIN("UnwindInfoManager.h] 48\n");
         return this->fragmentStart;
     }
 
     void SetEpilogEndOffset(DWORD offset)
-    {
+    {LOGMEIN("UnwindInfoManager.h] 53\n");
         Assert(this->epilogEndOffset == 0);
         this->epilogEndOffset = offset;
     }
     DWORD GetEpilogEndOffset() const
-    {
+    {LOGMEIN("UnwindInfoManager.h] 58\n");
         return this->epilogEndOffset;
     }
 
     void SetPrologOffset(DWORD offset)
-    {
+    {LOGMEIN("UnwindInfoManager.h] 63\n");
         Assert(this->prologOffset == 0);
         this->prologOffset = offset;
     }
     DWORD GetPrologOffset() const
-    {
+    {LOGMEIN("UnwindInfoManager.h] 68\n");
         return this->prologOffset;
     }
 
     void SetFragmentLength(DWORD length)
-    {
+    {LOGMEIN("UnwindInfoManager.h] 73\n");
         this->fragmentLength = length;
     }
     DWORD GetFragmentLength() const
-    {
+    {LOGMEIN("UnwindInfoManager.h] 77\n");
         return this->fragmentLength;
     }
 
     void SetHomedParamCount(BYTE count)
-    {
+    {LOGMEIN("UnwindInfoManager.h] 82\n");
         Assert(this->homedParamCount == 0);
         this->homedParamCount = count;
     }
     DWORD GetHomedParamCount() const
-    {
+    {LOGMEIN("UnwindInfoManager.h] 87\n");
         return this->homedParamCount;
     }
 
     void SetStackDepth(DWORD depth)
-    {
+    {LOGMEIN("UnwindInfoManager.h] 92\n");
         Assert(this->stackDepth == 0);
         this->stackDepth = depth;
     }
     DWORD GetStackDepth() const
-    {
+    {LOGMEIN("UnwindInfoManager.h] 97\n");
         return this->stackDepth;
     }
 
     void SetHasCalls(bool has)
-    {
+    {LOGMEIN("UnwindInfoManager.h] 102\n");
         this->hasCalls = has;
     }
     bool GetHasCalls() const
-    {
+    {LOGMEIN("UnwindInfoManager.h] 106\n");
         return this->hasCalls;
     }
 
     void SetPrologStartLabel(DWORD id)
-    {
+    {LOGMEIN("UnwindInfoManager.h] 111\n");
         Assert(this->prologLabelId == 0);
         this->prologLabelId = id;
     }
     DWORD GetPrologStartLabel() const
-    {
+    {LOGMEIN("UnwindInfoManager.h] 116\n");
         return this->prologLabelId;
     }
 
     void SetEpilogEndLabel(DWORD id)
-    {
+    {LOGMEIN("UnwindInfoManager.h] 121\n");
         Assert(this->epilogEndLabelId == 0);
         this->epilogEndLabelId = id;
     }
     DWORD GetEpilogEndLabel() const
-    {
+    {LOGMEIN("UnwindInfoManager.h] 126\n");
         return this->epilogEndLabelId;
     }
 
-    bool GetHasChkStk() const { __debugbreak(); return 0; }
-    DWORD GetPDataCount(DWORD length) { __debugbreak(); return 0; }
-    void SetSavedReg(BYTE reg) { __debugbreak(); }
-    DWORD ClearSavedReg(DWORD mask, BYTE reg) const { __debugbreak(); return 0; }
+    bool GetHasChkStk() const {LOGMEIN("UnwindInfoManager.h] 130\n"); __debugbreak(); return 0; }
+    DWORD GetPDataCount(DWORD length) {LOGMEIN("UnwindInfoManager.h] 131\n"); __debugbreak(); return 0; }
+    void SetSavedReg(BYTE reg) {LOGMEIN("UnwindInfoManager.h] 132\n"); __debugbreak(); }
+    DWORD ClearSavedReg(DWORD mask, BYTE reg) const {LOGMEIN("UnwindInfoManager.h] 133\n"); __debugbreak(); return 0; }
 
-    void SetDoubleSavedRegList(DWORD doubleRegMask) { __debugbreak(); }
-    DWORD GetDoubleSavedRegList() const { __debugbreak(); return 0; }
+    void SetDoubleSavedRegList(DWORD doubleRegMask) {LOGMEIN("UnwindInfoManager.h] 135\n"); __debugbreak(); }
+    DWORD GetDoubleSavedRegList() const {LOGMEIN("UnwindInfoManager.h] 136\n"); __debugbreak(); return 0; }
 
-    static BYTE GetLastSavedReg(DWORD mask) { __debugbreak(); return 0; }
-    static BYTE GetFirstSavedReg(DWORD mask) { __debugbreak(); return 0; }
+    static BYTE GetLastSavedReg(DWORD mask) {LOGMEIN("UnwindInfoManager.h] 138\n"); __debugbreak(); return 0; }
+    static BYTE GetFirstSavedReg(DWORD mask) {LOGMEIN("UnwindInfoManager.h] 139\n"); __debugbreak(); return 0; }
 
 private:
 

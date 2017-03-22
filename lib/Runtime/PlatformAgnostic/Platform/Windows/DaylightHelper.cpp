@@ -30,27 +30,27 @@ namespace DateTime
     static HINSTANCE g_timezonedll = NULL;
 
     static HINSTANCE TryLoadLibrary()
-    {
+    {LOGMEIN("DaylightHelper.cpp] 32\n");
         if (g_timezonedll == NULL)
-        {
+        {LOGMEIN("DaylightHelper.cpp] 34\n");
             HMODULE hLocal = LoadLibraryExW(_u("api-ms-win-core-timezone-l1-1-0.dll"),
                                             nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
             if (hLocal != NULL)
-            {
+            {LOGMEIN("DaylightHelper.cpp] 38\n");
                 if (InterlockedCompareExchangePointer((PVOID*) &g_timezonedll, hLocal, NULL) != NULL)
-                {
+                {LOGMEIN("DaylightHelper.cpp] 40\n");
                     FreeLibrary(hLocal);
                 }
             }
         }
 
         if (g_timezonedll == NULL)
-        {
+        {LOGMEIN("DaylightHelper.cpp] 47\n");
             HMODULE hLocal = LoadLibraryExW(_u("kernel32.dll"), nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
             if (hLocal != NULL)
-            {
+            {LOGMEIN("DaylightHelper.cpp] 50\n");
                 if (InterlockedCompareExchangePointer((PVOID*) &g_timezonedll, hLocal, NULL) != NULL)
-                {
+                {LOGMEIN("DaylightHelper.cpp] 52\n");
                     FreeLibrary(hLocal);
                 }
             }
@@ -59,17 +59,17 @@ namespace DateTime
     }
 
     BOOL SysLocalToUtc(SYSTEMTIME *local, SYSTEMTIME *utc)
-    {
+    {LOGMEIN("DaylightHelper.cpp] 61\n");
         if (sysLocalToUtc == NULL)
-        {
+        {LOGMEIN("DaylightHelper.cpp] 63\n");
             HINSTANCE library = TryLoadLibrary();
             if (library != NULL && !CONFIG_ISENABLED(Js::ForceOldDateAPIFlag))
-            {
+            {LOGMEIN("DaylightHelper.cpp] 66\n");
                 sysLocalToUtc = (DateConversionFunction)
                                 GetProcAddress(library, "TzSpecificLocalTimeToSystemTimeEx");
             }
             if (sysLocalToUtc == NULL)
-            {
+            {LOGMEIN("DaylightHelper.cpp] 71\n");
                 sysLocalToUtc = (DateConversionFunction)TzSpecificLocalTimeToSystemTime;
             }
         }
@@ -77,17 +77,17 @@ namespace DateTime
     }
 
     BOOL SysUtcToLocal(SYSTEMTIME *utc, SYSTEMTIME *local)
-    {
+    {LOGMEIN("DaylightHelper.cpp] 79\n");
         if (sysUtcToLocal == NULL)
-        {
+        {LOGMEIN("DaylightHelper.cpp] 81\n");
             HINSTANCE library = TryLoadLibrary();
             if (library != NULL)
-            {
+            {LOGMEIN("DaylightHelper.cpp] 84\n");
                 sysUtcToLocal = (DateConversionFunction)
                                 GetProcAddress(library, "SystemTimeToTzSpecificLocalTimeEx");
             }
             if (sysUtcToLocal == NULL)
-            {
+            {LOGMEIN("DaylightHelper.cpp] 89\n");
                 sysUtcToLocal = (DateConversionFunction)SystemTimeToTzSpecificLocalTime;
             }
         }
@@ -95,12 +95,12 @@ namespace DateTime
     }
 
     static TimeZoneInfo* GetTimeZoneInfo(DaylightTimeHelperPlatformData &data, const double time)
-    {
+    {LOGMEIN("DaylightHelper.cpp] 97\n");
         if (data.cache1.IsValid(time)) return &(data.cache1);
         if (data.cache2.IsValid(time)) return &(data.cache2);
 
         if (data.useFirstCache)
-        {
+        {LOGMEIN("DaylightHelper.cpp] 102\n");
             data.cache1.Update(time);
             data.useFirstCache = false;
             return &(data.cache1);
@@ -118,7 +118,7 @@ namespace DateTime
     // local->utc->local conversions, so in order to be consistent with Windows
     // we rely on it to perform conversions. But it is slow.
     static inline bool IsCritical(const double time, TimeZoneInfo *timeZoneInfo)
-    {
+    {LOGMEIN("DaylightHelper.cpp] 120\n");
         return time > criticalMin && time < criticalMax &&
             (fabs(time - timeZoneInfo->daylightDate) < DateTimeTicks_PerLargestTZOffset ||
             fabs(time - timeZoneInfo->standardDate) < DateTimeTicks_PerLargestTZOffset ||
@@ -132,7 +132,7 @@ namespace DateTime
     // create a string representation of a date. So just compare whether difference
     // between local and utc time equal to bias.
     static inline bool IsDaylightSavings(const double utcTime, const double localTime, const int bias)
-    {
+    {LOGMEIN("DaylightHelper.cpp] 134\n");
         return ((int)(utcTime - localTime)) / ((int)(DateTimeTicks_PerMinute)) != bias;
     }
 
@@ -140,7 +140,7 @@ namespace DateTime
     // This function does not properly handle boundary cases.
     // But while we use IsCritical we don't care about it.
     static bool IsDaylightSavingsUnsafe(const double time, TimeZoneInfo *timeZoneInfo)
-    {
+    {LOGMEIN("DaylightHelper.cpp] 142\n");
         return timeZoneInfo->isDaylightTimeApplicable
                 && ((timeZoneInfo->daylightDate < timeZoneInfo->standardDate)
             ? timeZoneInfo->daylightDate <= time && time < timeZoneInfo->standardDate
@@ -149,12 +149,12 @@ namespace DateTime
 
     double UtcToLocalFast(const double utcTime, TimeZoneInfo *timeZoneInfo, int &bias,
                           int &offset, bool &isDaylightSavings)
-    {
+    {LOGMEIN("DaylightHelper.cpp] 151\n");
         double localTime;
         localTime = utcTime - DateTimeTicks_PerMinute * timeZoneInfo->bias;
         isDaylightSavings = IsDaylightSavingsUnsafe(utcTime, timeZoneInfo);
         if (isDaylightSavings)
-        {
+        {LOGMEIN("DaylightHelper.cpp] 156\n");
             localTime -= DateTimeTicks_PerMinute * timeZoneInfo->daylightBias;
         } else {
             localTime -= DateTimeTicks_PerMinute * timeZoneInfo->standardBias;
@@ -168,7 +168,7 @@ namespace DateTime
 
     static double UtcToLocalCritical(DaylightTimeHelperPlatformData &data, const double utcTime,
                               TimeZoneInfo *timeZoneInfo, int &bias, int &offset, bool &isDaylightSavings)
-    {
+    {LOGMEIN("DaylightHelper.cpp] 170\n");
         double localTime;
         SYSTEMTIME utcSystem, localSystem;
         YMD ymd;
@@ -177,7 +177,7 @@ namespace DateTime
         ymd.ToSystemTime(&utcSystem);
 
         if (!SysUtcToLocal(&utcSystem, &localSystem))
-        {
+        {LOGMEIN("DaylightHelper.cpp] 179\n");
             // SysUtcToLocal can fail if the date is beyond extreme internal
             // boundaries (e.g. > ~30000 years). Fall back to our fast (but
             // less accurate) version if the call fails.
@@ -186,7 +186,7 @@ namespace DateTime
 
         localTime = Js::DateUtilities::TimeFromSt(&localSystem);
         if (localSystem.wYear != utcSystem.wYear)
-        {
+        {LOGMEIN("DaylightHelper.cpp] 188\n");
             timeZoneInfo = GetTimeZoneInfo(data, localTime);
         }
 
@@ -200,11 +200,11 @@ namespace DateTime
     }
 
     double DaylightTimeHelper::UtcToLocal(const double utcTime, int &bias, int &offset, bool &isDaylightSavings)
-    {
+    {LOGMEIN("DaylightHelper.cpp] 202\n");
         TimeZoneInfo *timeZoneInfo = GetTimeZoneInfo(data, utcTime);
 
         if (IsCritical(utcTime, timeZoneInfo))
-        {
+        {LOGMEIN("DaylightHelper.cpp] 206\n");
             return UtcToLocalCritical(data, utcTime, timeZoneInfo, bias, offset, isDaylightSavings);
         }
         else
@@ -214,12 +214,12 @@ namespace DateTime
     }
 
     static double LocalToUtcFast(const double localTime, TimeZoneInfo *timeZoneInfo)
-    {
+    {LOGMEIN("DaylightHelper.cpp] 216\n");
         double utcTime = localTime + DateTimeTicks_PerMinute * timeZoneInfo->bias;
         bool isDaylightSavings = IsDaylightSavingsUnsafe(localTime, timeZoneInfo);
 
         if (isDaylightSavings)
-        {
+        {LOGMEIN("DaylightHelper.cpp] 221\n");
             utcTime += DateTimeTicks_PerMinute * timeZoneInfo->daylightBias;
         } else {
             utcTime += DateTimeTicks_PerMinute * timeZoneInfo->standardBias;
@@ -229,7 +229,7 @@ namespace DateTime
     }
 
     static double LocalToUtcCritical(const double localTime, TimeZoneInfo *timeZoneInfo)
-    {
+    {LOGMEIN("DaylightHelper.cpp] 231\n");
         SYSTEMTIME localSystem, utcSystem;
         YMD ymd;
 
@@ -237,7 +237,7 @@ namespace DateTime
         ymd.ToSystemTime(&localSystem);
 
         if (!SysLocalToUtc(&localSystem, &utcSystem))
-        {
+        {LOGMEIN("DaylightHelper.cpp] 239\n");
             // Fall back to our fast (but less accurate) version if the call fails.
             return LocalToUtcFast(localTime, timeZoneInfo);
         }
@@ -246,11 +246,11 @@ namespace DateTime
     }
 
     double DaylightTimeHelper::LocalToUtc(const double localTime)
-    {
+    {LOGMEIN("DaylightHelper.cpp] 248\n");
         TimeZoneInfo *timeZoneInfo = GetTimeZoneInfo(data, localTime);
 
         if (IsCritical(localTime, timeZoneInfo))
-        {
+        {LOGMEIN("DaylightHelper.cpp] 252\n");
             return LocalToUtcCritical(localTime, timeZoneInfo);
         }
         else

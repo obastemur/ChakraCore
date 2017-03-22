@@ -41,7 +41,7 @@ public:
 #endif
 
     void EnsureInitialized();
-    bool IsDynamic() const { return dwHostSourceContext == Js::Constants::NoHostSourceContext || isHostDynamicDocument; }
+    bool IsDynamic() const {LOGMEIN("SourceContextInfo.h] 43\n"); return dwHostSourceContext == Js::Constants::NoHostSourceContext || isHostDynamicDocument; }
     bool IsSourceProfileLoaded() const;
     SourceContextInfo* Clone(Js::ScriptContext* scriptContext) const;
 };

@@ -53,16 +53,16 @@ namespace Js
     };
 
     IndexType GetIndexTypeFromString(char16 const * propertyName, charcount_t propertyLength, ScriptContext* scriptContext, uint32* index, PropertyRecord const** propertyRecord, bool createIfNotFound)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 55\n");
         if (JavascriptOperators::TryConvertToUInt32(propertyName, propertyLength, index) &&
             (*index != JavascriptArray::InvalidIndex))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 58\n");
             return IndexType_Number;
         }
         else
         {
             if (createIfNotFound)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 64\n");
                 scriptContext->GetOrAddPropertyRecord(propertyName, propertyLength, propertyRecord);
             }
             else
@@ -74,15 +74,15 @@ namespace Js
     }
 
     IndexType GetIndexTypeFromPrimitive(Var indexVar, ScriptContext* scriptContext, uint32* index, PropertyRecord const ** propertyRecord, JavascriptString ** propertyNameString, bool createIfNotFound, bool preferJavascriptStringOverPropertyRecord)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 76\n");
         // CONSIDER: Only OP_SetElementI and OP_GetElementI use and take advantage of the
         // IndexType_JavascriptString result. Consider modifying other callers of GetIndexType to take
         // advantage of non-interned property strings where appropriate.
         if (TaggedInt::Is(indexVar))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 81\n");
             int indexInt = TaggedInt::ToInt32(indexVar);
             if (indexInt >= 0)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 84\n");
                 *index = (uint)indexInt;
                 return IndexType_Number;
             }
@@ -92,7 +92,7 @@ namespace Js
                 ::_itow_s(indexInt, buffer, sizeof(buffer) / sizeof(char16), 10);
                 charcount_t length = JavascriptString::GetBufferLength(buffer);
                 if (createIfNotFound || preferJavascriptStringOverPropertyRecord)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 94\n");
                     // When preferring JavascriptString objects, just return a PropertyRecord instead
                     // of creating temporary JavascriptString objects for every negative integer that
                     // comes through here.
@@ -106,7 +106,7 @@ namespace Js
             }
         }
         else if (JavascriptSymbol::Is(indexVar))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 108\n");
             JavascriptSymbol* symbol = JavascriptSymbol::FromVar(indexVar);
 
             // JavascriptSymbols cannot add a new PropertyRecord - they correspond to one and only one existing PropertyRecord.
@@ -123,10 +123,10 @@ namespace Js
             charcount_t const propertyLength = indexStr->GetLength();
 
             if (!createIfNotFound && preferJavascriptStringOverPropertyRecord)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 125\n");
                 if (JavascriptOperators::TryConvertToUInt32(propertyName, propertyLength, index) &&
                     (*index != JavascriptArray::InvalidIndex))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 128\n");
                     return IndexType_Number;
                 }
 
@@ -138,23 +138,23 @@ namespace Js
     }
 
     IndexType GetIndexTypeFromPrimitive(Var indexVar, ScriptContext* scriptContext, uint32* index, PropertyRecord const ** propertyRecord, bool createIfNotFound)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 140\n");
         return GetIndexTypeFromPrimitive(indexVar, scriptContext, index, propertyRecord, nullptr, createIfNotFound, false);
     }
 
     IndexType GetIndexType(Var& indexVar, ScriptContext* scriptContext, uint32* index, PropertyRecord const ** propertyRecord, JavascriptString ** propertyNameString, bool createIfNotFound, bool preferJavascriptStringOverPropertyRecord)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 145\n");
         indexVar = JavascriptConversion::ToPrimitive(indexVar, JavascriptHint::HintString, scriptContext);
         return GetIndexTypeFromPrimitive(indexVar, scriptContext, index, propertyRecord, propertyNameString, createIfNotFound, preferJavascriptStringOverPropertyRecord);
     }
 
     IndexType GetIndexType(Var& indexVar, ScriptContext* scriptContext, uint32* index, PropertyRecord const ** propertyRecord, bool createIfNotFound)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 151\n");
         return GetIndexType(indexVar, scriptContext, index, propertyRecord, nullptr, createIfNotFound, false);
     }
 
     BOOL FEqualDbl(double dbl1, double dbl2)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 156\n");
         // If the low ulongs don't match, they can't be equal.
         if (Js::NumberUtilities::LuLoDbl(dbl1) != Js::NumberUtilities::LuLoDbl(dbl2))
             return FALSE;
@@ -162,7 +162,7 @@ namespace Js
         // If the high ulongs don't match, they can be equal iff one is -0 and
         // the other is +0.
         if (Js::NumberUtilities::LuHiDbl(dbl1) != Js::NumberUtilities::LuHiDbl(dbl2))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 164\n");
             return 0x80000000 == (Js::NumberUtilities::LuHiDbl(dbl1) | Js::NumberUtilities::LuHiDbl(dbl2)) &&
                 0 == Js::NumberUtilities::LuLoDbl(dbl1);
         }
@@ -172,13 +172,13 @@ namespace Js
     }
 
     Var JavascriptOperators::OP_ApplyArgs(Var func, Var instance, __in_xcount(8) void** stackPtr, CallInfo callInfo, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 174\n");
         int argCount = callInfo.Count;
         ///
         /// Check func has internal [[Call]] property
         /// If not, throw TypeError
         ///
-        if (!JavascriptConversion::IsCallable(func)) {
+        if (!JavascriptConversion::IsCallable(func)) {LOGMEIN("JavascriptOperators.cpp] 180\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedFunction);
         }
 
@@ -194,7 +194,7 @@ namespace Js
         JavascriptMethod entryPoint = funcPtr->GetEntryPoint();
         Var ret;
 
-        switch (argCount) {
+        switch (argCount) {LOGMEIN("JavascriptOperators.cpp] 196\n");
         case 0:
             Assert(false);
             ret = CALL_ENTRYPOINT(entryPoint, funcPtr, callInfo);
@@ -220,7 +220,7 @@ namespace Js
         case 7:
             ret = CALL_ENTRYPOINT(entryPoint, funcPtr, callInfo, instance, stackPtr[0], stackPtr[1], stackPtr[2], stackPtr[3], stackPtr[4], stackPtr[5]);
             break;
-        default: {
+        default: {LOGMEIN("JavascriptOperators.cpp] 222\n");
             // Don't need stack probe here- we just did so above
             Arguments args(callInfo, stackPtr - 1);
             ret = JavascriptFunction::CallFunction<false>(funcPtr, entryPoint, args);
@@ -233,38 +233,38 @@ namespace Js
 #ifdef _M_IX86
     // Alias for overloaded JavascriptNumber::ToVar so it can be called unambiguously from native code
     Var JavascriptOperators::Int32ToVar(int32 value, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 235\n");
         return JavascriptNumber::ToVar(value, scriptContext);
     }
 
     // Alias for overloaded JavascriptNumber::ToVar so it can be called unambiguously from native code
     Var JavascriptOperators::Int32ToVarInPlace(int32 value, ScriptContext* scriptContext, JavascriptNumber* result)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 241\n");
         return JavascriptNumber::ToVarInPlace(value, scriptContext, result);
     }
 
     // Alias for overloaded JavascriptNumber::ToVar so it can be called unambiguously from native code
     Var JavascriptOperators::UInt32ToVar(uint32 value, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 247\n");
         return JavascriptNumber::ToVar(value, scriptContext);
     }
 
     // Alias for overloaded JavascriptNumber::ToVar so it can be called unambiguously from native code
     Var JavascriptOperators::UInt32ToVarInPlace(uint32 value, ScriptContext* scriptContext, JavascriptNumber* result)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 253\n");
         return JavascriptNumber::ToVarInPlace(value, scriptContext, result);
     }
 #endif
 
     Var JavascriptOperators::OP_FinishOddDivBy2(uint32 value, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 259\n");
         return JavascriptNumber::New((double)(value + 0.5), scriptContext);
     }
 
     Var JavascriptOperators::ToNumberInPlace(Var aRight, ScriptContext* scriptContext, JavascriptNumber* result)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 264\n");
         if (TaggedInt::Is(aRight) || JavascriptNumber::Is_NoTaggedIntCheck(aRight))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 266\n");
             return aRight;
         }
 
@@ -272,12 +272,12 @@ namespace Js
     }
 
     Var JavascriptOperators::Typeof(Var var, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 274\n");
 #ifdef ENABLE_SIMDJS
         if (SIMDUtils::IsSimdType(var) && scriptContext->GetConfig()->IsSimdjsEnabled())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 277\n");
             switch ((JavascriptOperators::GetTypeId(var)))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 279\n");
             case TypeIds_SIMDFloat32x4:
                 return scriptContext->GetLibrary()->GetSIMDFloat32x4DisplayString();
             //case TypeIds_SIMDFloat64x2:  //Type under review by the spec.
@@ -307,7 +307,7 @@ namespace Js
 #endif
         //All remaining types.
         switch (JavascriptOperators::GetTypeId(var))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 309\n");
         case TypeIds_Undefined:
             return scriptContext->GetLibrary()->GetUndefinedDisplayString();
         case TypeIds_Null:
@@ -321,7 +321,7 @@ namespace Js
         default:
             // Falsy objects are typeof 'undefined'.
             if (RecyclableObject::FromVar(var)->GetType()->IsFalsy())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 323\n");
                 return scriptContext->GetLibrary()->GetUndefinedDisplayString();
             }
             else
@@ -333,42 +333,42 @@ namespace Js
 
 
     Var JavascriptOperators::TypeofFld(Var instance, PropertyId propertyId, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 335\n");
         return TypeofFld_Internal(instance, false, propertyId, scriptContext);
     }
 
     Var JavascriptOperators::TypeofRootFld(Var instance, PropertyId propertyId, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 340\n");
         return TypeofFld_Internal(instance, true, propertyId, scriptContext);
     }
 
     Var JavascriptOperators::TypeofFld_Internal(Var instance, const bool isRoot, PropertyId propertyId, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 345\n");
         RecyclableObject* object = nullptr;
         if (FALSE == JavascriptOperators::GetPropertyObject(instance, scriptContext, &object))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 348\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_CannotGet_NullOrUndefined , scriptContext->GetPropertyName(propertyId)->GetBuffer());
         }
 
         Var value;
         try
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 354\n");
             Js::JavascriptExceptionOperators::AutoCatchHandlerExists autoCatchHandlerExists(scriptContext);
 
             // In edge mode, spec compat is more important than backward compat. Use spec/web behavior here
             if (isRoot
                     ? !JavascriptOperators::GetRootProperty(instance, propertyId, &value, scriptContext)
                     : !JavascriptOperators::GetProperty(instance, object, propertyId, &value, scriptContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 361\n");
                 return scriptContext->GetLibrary()->GetUndefinedDisplayString();
             }
             if (!scriptContext->IsUndeclBlockVar(value))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 365\n");
                 return JavascriptOperators::Typeof(value, scriptContext);
             }
         }
         catch(const JavascriptException& err)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 370\n");
             err.GetAndClear();  // discard exception object
             return scriptContext->GetLibrary()->GetUndefinedDisplayString();
         }
@@ -379,7 +379,7 @@ namespace Js
 
 
     Var JavascriptOperators::TypeofElem_UInt32(Var instance, uint32 index, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 381\n");
         if (JavascriptOperators::IsNumberFromNativeArray(instance, index, scriptContext))
             return scriptContext->GetLibrary()->GetNumberTypeDisplayString();
 
@@ -393,7 +393,7 @@ namespace Js
     }
 
     Var JavascriptOperators::TypeofElem_Int32(Var instance, int32 index, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 395\n");
         if (JavascriptOperators::IsNumberFromNativeArray(instance, index, scriptContext))
             return scriptContext->GetLibrary()->GetNumberTypeDisplayString();
 
@@ -408,11 +408,11 @@ namespace Js
     }
 
     Js::JavascriptString* GetPropertyDisplayNameForError(Var prop, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 410\n");
         JavascriptString* str;
 
         if (JavascriptSymbol::Is(prop))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 414\n");
             str = JavascriptSymbol::ToString(JavascriptSymbol::FromVar(prop)->GetValue(), scriptContext);
         }
         else
@@ -424,11 +424,11 @@ namespace Js
     }
 
     Var JavascriptOperators::TypeofElem(Var instance, Var index, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 426\n");
         RecyclableObject* object = nullptr;
 
         if (FALSE == JavascriptOperators::GetPropertyObject(instance, scriptContext, &object))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 430\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_CannotGet_NullOrUndefined, GetPropertyDisplayNameForError(index, scriptContext));
         }
 
@@ -441,17 +441,17 @@ namespace Js
         threadContext->ClearImplicitCallFlags();
 
         try
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 443\n");
             Js::JavascriptExceptionOperators::AutoCatchHandlerExists autoCatchHandlerExists(scriptContext);
             IndexType indexType = GetIndexType(index, scriptContext, &indexVal, &propertyRecord, false);
 
             // For JS Objects, don't create the propertyId if not already added
             if (indexType == IndexType_Number)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 449\n");
                 // In edge mode, we don't need to worry about the special "unknown" behavior. If the item is not available from Get,
                 // just return undefined.
                 if (!JavascriptOperators::GetItem(instance, object, indexVal, &member, scriptContext))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 453\n");
                     // If the instance doesn't have the item, typeof result is "undefined".
                     threadContext->CheckAndResetImplicitCallAccessorFlag();
                     threadContext->AddImplicitCallFlags(savedImplicitCallFlags);
@@ -462,16 +462,16 @@ namespace Js
             {
                 Assert(indexType == IndexType_PropertyId);
                 if (propertyRecord == nullptr && !JavascriptOperators::CanShortcutOnUnknownPropertyName(object))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 464\n");
                     indexType = GetIndexTypeFromPrimitive(index, scriptContext, &indexVal, &propertyRecord, true);
                     Assert(indexType == IndexType_PropertyId);
                     Assert(propertyRecord != nullptr);
                 }
 
                 if (propertyRecord != nullptr)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 471\n");
                     if (!JavascriptOperators::GetProperty(instance, object, propertyRecord->GetPropertyId(), &member, scriptContext))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 473\n");
                         // If the instance doesn't have the property, typeof result is "undefined".
                         threadContext->CheckAndResetImplicitCallAccessorFlag();
                         threadContext->AddImplicitCallFlags(savedImplicitCallFlags);
@@ -498,7 +498,7 @@ namespace Js
             return JavascriptOperators::Typeof(member, scriptContext);
         }
         catch(const JavascriptException& err)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 500\n");
             err.GetAndClear();  // discard exception object
             threadContext->CheckAndResetImplicitCallAccessorFlag();
             threadContext->AddImplicitCallFlags(savedImplicitCallFlags);
@@ -510,24 +510,24 @@ namespace Js
     // Delete the given Var
     //
     Var JavascriptOperators::Delete(Var var, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 512\n");
         return scriptContext->GetLibrary()->GetTrue();
     }
 
     BOOL JavascriptOperators::Equal_Full(Var aLeft, Var aRight, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 517\n");
         //
         // Fast-path SmInts and paired Number combinations.
         //
 
         if (aLeft == aRight)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 523\n");
             if (JavascriptNumber::Is(aLeft) && JavascriptNumber::IsNan(JavascriptNumber::GetValue(aLeft)))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 525\n");
                 return false;
             }
             else if (JavascriptVariantDate::Is(aLeft) == false) // only need to check on aLeft - since they are the same var, aRight would do the same
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 529\n");
                 return true;
             }
             else
@@ -541,14 +541,14 @@ namespace Js
         BOOL result = false;
 
         if (TaggedInt::Is(aLeft))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 543\n");
             if (TaggedInt::Is(aRight))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 545\n");
                 // If aLeft == aRight, we would already have returned true above.
                 return false;
             }
             else if (JavascriptNumber::Is_NoTaggedIntCheck(aRight))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 550\n");
                 return TaggedInt::ToDouble(aLeft) == JavascriptNumber::GetValue(aRight);
             }
             else
@@ -559,13 +559,13 @@ namespace Js
             }
         }
         else if (JavascriptNumber::Is_NoTaggedIntCheck(aLeft))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 561\n");
             if (TaggedInt::Is(aRight))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 563\n");
                 return TaggedInt::ToDouble(aRight) == JavascriptNumber::GetValue(aLeft);
             }
             else if(JavascriptNumber::Is_NoTaggedIntCheck(aRight))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 567\n");
                 return JavascriptNumber::GetValue(aLeft) == JavascriptNumber::GetValue(aRight);
             }
             else
@@ -577,13 +577,13 @@ namespace Js
         }
 #ifdef ENABLE_SIMDJS
         else if (SIMDUtils::IsSimdType(aLeft) && SIMDUtils::IsSimdType(aRight))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 579\n");
             return StrictEqualSIMD(aLeft, aRight, requestContext);
         }
 #endif
 
         if (RecyclableObject::FromVar(aLeft)->Equals(aRight, &result, requestContext))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 585\n");
             return result;
         }
         else
@@ -593,36 +593,36 @@ namespace Js
     }
 
     BOOL JavascriptOperators::Greater_Full(Var aLeft,Var aRight,ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 595\n");
         return RelationalComparisonHelper(aRight, aLeft, scriptContext, false, false);
     }
 
     BOOL JavascriptOperators::Less_Full(Var aLeft, Var aRight, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 600\n");
         return RelationalComparisonHelper(aLeft, aRight, scriptContext, true, false);
     }
 
     BOOL JavascriptOperators::RelationalComparisonHelper(Var aLeft, Var aRight, ScriptContext* scriptContext, bool leftFirst, bool undefinedAs)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 605\n");
         TypeId typeId = JavascriptOperators::GetTypeId(aLeft);
 
         if (typeId == TypeIds_Null)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 609\n");
             aLeft=TaggedInt::ToVarUnchecked(0);
         }
         else if (typeId == TypeIds_Undefined)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 613\n");
             aLeft=scriptContext->GetLibrary()->GetNaN();
         }
 
         typeId = JavascriptOperators::GetTypeId(aRight);
 
         if (typeId == TypeIds_Null)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 620\n");
             aRight=TaggedInt::ToVarUnchecked(0);
         }
         else if (typeId == TypeIds_Undefined)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 624\n");
             aRight=scriptContext->GetLibrary()->GetNaN();
         }
 
@@ -630,7 +630,7 @@ namespace Js
 
 #ifdef ENABLE_SIMDJS
         if (SIMDUtils::IsSimdType(aLeft) || SIMDUtils::IsSimdType(aRight))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 632\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_SIMDConversion, _u("SIMD type"));
         }
 #endif
@@ -638,11 +638,11 @@ namespace Js
         TypeId rightType = JavascriptOperators::GetTypeId(aRight);
 
         switch (leftType)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 640\n");
         case TypeIds_Integer:
             dblLeft = TaggedInt::ToDouble(aLeft);
             switch (rightType)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 644\n");
             case TypeIds_Integer:
                 dblRight = TaggedInt::ToDouble(aRight);
                 break;
@@ -657,7 +657,7 @@ namespace Js
         case TypeIds_Number:
             dblLeft = JavascriptNumber::GetValue(aLeft);
             switch (rightType)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 659\n");
             case TypeIds_Integer:
                 dblRight = TaggedInt::ToDouble(aRight);
                 break;
@@ -670,22 +670,22 @@ namespace Js
             }
             break;
         case TypeIds_Int64Number:
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 672\n");
                 switch (rightType)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 674\n");
                 case TypeIds_Int64Number:
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 676\n");
                         __int64 leftValue = JavascriptInt64Number::FromVar(aLeft)->GetValue();
                         __int64 rightValue = JavascriptInt64Number::FromVar(aRight)->GetValue();
                         return leftValue < rightValue;
                     }
                     break;
                 case TypeIds_UInt64Number:
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 683\n");
                         __int64 leftValue = JavascriptInt64Number::FromVar(aLeft)->GetValue();
                         unsigned __int64 rightValue = JavascriptUInt64Number::FromVar(aRight)->GetValue();
                         if (rightValue <= INT_MAX && leftValue >= 0)
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 687\n");
                             return leftValue < (__int64)rightValue;
                         }
                     }
@@ -700,21 +700,21 @@ namespace Js
         // i.e., two different numbers become the same after losing precision. We'll continue dbl comparison
         // if either number is not an int64 number.
         case TypeIds_UInt64Number:
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 702\n");
                 switch (rightType)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 704\n");
                 case TypeIds_Int64Number:
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 706\n");
                         unsigned __int64 leftValue = JavascriptUInt64Number::FromVar(aLeft)->GetValue();
                         __int64 rightValue = JavascriptInt64Number::FromVar(aRight)->GetValue();
                         if (leftValue < INT_MAX && rightValue >= 0)
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 710\n");
                             return (__int64)leftValue < rightValue;
                         }
                     }
                     break;
                 case TypeIds_UInt64Number:
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 716\n");
                         unsigned __int64 leftValue = JavascriptUInt64Number::FromVar(aLeft)->GetValue();
                         unsigned __int64 rightValue = JavascriptUInt64Number::FromVar(aRight)->GetValue();
                         return leftValue < rightValue;
@@ -727,7 +727,7 @@ namespace Js
             break;
         case TypeIds_String:
             switch (rightType)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 729\n");
             case TypeIds_Integer:
             case TypeIds_Number:
             case TypeIds_Boolean:
@@ -736,7 +736,7 @@ namespace Js
                 aRight = JavascriptConversion::ToPrimitive(aRight, JavascriptHint::HintNumber, scriptContext);
                 rightType = JavascriptOperators::GetTypeId(aRight);
                 if (rightType != TypeIds_String)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 738\n");
                     dblRight = JavascriptConversion::ToNumber(aRight, scriptContext);
                     break;
                 }
@@ -755,7 +755,7 @@ namespace Js
             break;
         default:
             if (leftFirst)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 757\n");
                 aLeft = JavascriptConversion::ToPrimitive(aLeft, JavascriptHint::HintNumber, scriptContext);
                 aRight = JavascriptConversion::ToPrimitive(aRight, JavascriptHint::HintNumber, scriptContext);
             }
@@ -774,13 +774,13 @@ namespace Js
         //
 
         if (JavascriptNumber::IsNan(dblLeft) || JavascriptNumber::IsNan(dblRight))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 776\n");
             return undefinedAs;
         }
 
         // this will succeed for -0.0 == 0.0 case as well
         if (dblLeft == dblRight)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 782\n");
             return false;
         }
 
@@ -789,20 +789,20 @@ namespace Js
 
 #ifdef ENABLE_SIMDJS
     BOOL JavascriptOperators::StrictEqualSIMD(Var aLeft, Var aRight, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 791\n");
         TypeId leftTid  = JavascriptOperators::GetTypeId(aLeft);
         TypeId rightTid = JavascriptOperators::GetTypeId(aRight);
         bool result = false;
 
 
         if (leftTid != rightTid)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 798\n");
             return result;
         }
         SIMDValue leftSimd;
         SIMDValue rightSimd;
         switch (leftTid)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 804\n");
         case TypeIds_SIMDBool8x16:
             leftSimd = JavascriptSIMDBool8x16::FromVar(aLeft)->GetValue();
             rightSimd = JavascriptSIMDBool8x16::FromVar(aRight)->GetValue();
@@ -844,7 +844,7 @@ namespace Js
             rightSimd = JavascriptSIMDFloat32x4::FromVar(aRight)->GetValue();
             result = true;
             for (int i = 0; i < 4; ++i)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 846\n");
                 Var laneVarLeft  = JavascriptNumber::ToVarWithCheck(leftSimd.f32[i], scriptContext);
                 Var laneVarRight = JavascriptNumber::ToVarWithCheck(rightSimd.f32[i], scriptContext);
                 result = result && JavascriptOperators::Equal(laneVarLeft, laneVarRight, scriptContext);
@@ -858,7 +858,7 @@ namespace Js
 #endif
 
     BOOL JavascriptOperators::StrictEqualString(Var aLeft, Var aRight)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 860\n");
         Assert(JavascriptOperators::GetTypeId(aRight) == TypeIds_String);
 
         if (JavascriptOperators::GetTypeId(aLeft) != TypeIds_String)
@@ -868,7 +868,7 @@ namespace Js
     }
 
     BOOL JavascriptOperators::StrictEqualEmptyString(Var aLeft)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 870\n");
         TypeId leftType = JavascriptOperators::GetTypeId(aLeft);
         if (leftType != TypeIds_String)
             return false;
@@ -877,23 +877,23 @@ namespace Js
     }
 
     BOOL JavascriptOperators::StrictEqual(Var aLeft, Var aRight, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 879\n");
         double dblLeft, dblRight;
         TypeId leftType = JavascriptOperators::GetTypeId(aLeft);
         TypeId rightType = JavascriptOperators::GetTypeId(aRight);
 
         switch (leftType)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 885\n");
         case TypeIds_String:
             switch (rightType)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 888\n");
             case TypeIds_String:
                 return JavascriptString::Equals(aLeft, aRight);
             }
             return FALSE;
         case TypeIds_Integer:
             switch (rightType)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 895\n");
             case TypeIds_Integer:
                 return aLeft == aRight;
             // we don't need to worry about int64: it cannot equal as we create
@@ -906,15 +906,15 @@ namespace Js
             return FALSE;
         case TypeIds_Int64Number:
             switch (rightType)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 908\n");
             case TypeIds_Int64Number:
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 910\n");
                     __int64 leftValue = JavascriptInt64Number::FromVar(aLeft)->GetValue();
                     __int64 rightValue = JavascriptInt64Number::FromVar(aRight)->GetValue();
                     return leftValue == rightValue;
                 }
             case TypeIds_UInt64Number:
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 916\n");
                     __int64 leftValue = JavascriptInt64Number::FromVar(aLeft)->GetValue();
                     unsigned __int64 rightValue = JavascriptInt64Number::FromVar(aRight)->GetValue();
                     return ((unsigned __int64)leftValue == rightValue);
@@ -927,15 +927,15 @@ namespace Js
             return FALSE;
         case TypeIds_UInt64Number:
             switch (rightType)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 929\n");
             case TypeIds_Int64Number:
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 931\n");
                     unsigned __int64 leftValue = JavascriptUInt64Number::FromVar(aLeft)->GetValue();
                     __int64 rightValue = JavascriptInt64Number::FromVar(aRight)->GetValue();
                     return (leftValue == (unsigned __int64)rightValue);
                 }
             case TypeIds_UInt64Number:
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 937\n");
                     unsigned __int64 leftValue = JavascriptUInt64Number::FromVar(aLeft)->GetValue();
                     unsigned __int64 rightValue = JavascriptInt64Number::FromVar(aRight)->GetValue();
                     return leftValue == rightValue;
@@ -949,7 +949,7 @@ namespace Js
 
         case TypeIds_Number:
             switch (rightType)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 951\n");
             case TypeIds_Integer:
                 dblLeft     = JavascriptNumber::GetValue(aLeft);
                 dblRight    = TaggedInt::ToDouble(aRight);
@@ -971,7 +971,7 @@ CommonNumber:
             return FALSE;
         case TypeIds_Boolean:
             switch (rightType)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 973\n");
             case TypeIds_Boolean:
                 return aLeft == aRight;
             }
@@ -988,9 +988,9 @@ CommonNumber:
 
         case TypeIds_Symbol:
             switch (rightType)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 990\n");
             case TypeIds_Symbol:
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 992\n");
                     const PropertyRecord* leftValue = JavascriptSymbol::FromVar(aLeft)->GetValue();
                     const PropertyRecord* rightValue = JavascriptSymbol::FromVar(aRight)->GetValue();
                     return leftValue == rightValue;
@@ -1001,13 +1001,13 @@ CommonNumber:
         case TypeIds_GlobalObject:
         case TypeIds_HostDispatch:
             switch (rightType)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1003\n");
                 case TypeIds_HostDispatch:
                 case TypeIds_GlobalObject:
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 1006\n");
                     BOOL result;
                     if(RecyclableObject::FromVar(aLeft)->StrictEquals(aRight, &result, requestContext))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 1009\n");
                         return result;
                     }
                     return false;
@@ -1033,24 +1033,24 @@ CommonNumber:
         }
 
         if (RecyclableObject::FromVar(aLeft)->CanHaveInterceptors())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1035\n");
             BOOL result;
             if (RecyclableObject::FromVar(aLeft)->StrictEquals(aRight, &result, requestContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1038\n");
                 if (result)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 1040\n");
                     return TRUE;
                 }
             }
         }
 
         if (!TaggedNumber::Is(aRight) && RecyclableObject::FromVar(aRight)->CanHaveInterceptors())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1047\n");
             BOOL result;
             if (RecyclableObject::FromVar(aRight)->StrictEquals(aLeft, &result, requestContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1050\n");
                 if (result)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 1052\n");
                     return TRUE;
                 }
             }
@@ -1060,9 +1060,9 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::HasOwnProperty(Var instance, PropertyId propertyId, ScriptContext *requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1062\n");
         if (TaggedNumber::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1064\n");
             return FALSE;
         }
         else
@@ -1070,7 +1070,7 @@ CommonNumber:
             RecyclableObject* object = RecyclableObject::FromVar(instance);
 
             if (JavascriptProxy::Is(instance))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1072\n");
                 PropertyDescriptor desc;
                 return GetOwnPropertyDescriptor(object, propertyId, requestContext, &desc);
             }
@@ -1078,10 +1078,10 @@ CommonNumber:
             {
                 PropertyString *propString = requestContext->TryGetPropertyString(propertyId);
                 if (propString != nullptr)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 1080\n");
                     const PropertyCache *propCache = propString->GetPropertyCache();
                     if (object->GetType() == propCache->type)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 1083\n");
                         // The type cached for the property was the same as the type of this object
                         // (i.e. obj in obj.hasOwnProperty), so we know the answer is "true".
                         Assert(TRUE == (object && object->HasOwnProperty(propertyId))); // sanity check on the fastpath result
@@ -1095,10 +1095,10 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::GetOwnAccessors(Var instance, PropertyId propertyId, Var* getter, Var* setter, ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1097\n");
         BOOL result;
         if (TaggedNumber::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1100\n");
             result = false;
         }
         else
@@ -1110,11 +1110,11 @@ CommonNumber:
     }
 
     JavascriptArray* JavascriptOperators::GetOwnPropertyNames(Var instance, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1112\n");
         RecyclableObject *object = RecyclableObject::FromVar(ToObject(instance, scriptContext));
 
         if (JavascriptProxy::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1116\n");
             JavascriptProxy* proxy = JavascriptProxy::FromVar(instance);
             return proxy->PropertyKeysTrap(JavascriptProxy::KeysTrapKind::GetOwnPropertyNamesKind, scriptContext);
         }
@@ -1123,12 +1123,12 @@ CommonNumber:
     }
 
     JavascriptArray* JavascriptOperators::GetOwnPropertySymbols(Var instance, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1125\n");
         RecyclableObject *object = RecyclableObject::FromVar(ToObject(instance, scriptContext));
         CHAKRATEL_LANGSTATS_INC_BUILTINCOUNT(Object_Constructor_getOwnPropertySymbols);
 
         if (JavascriptProxy::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1130\n");
             JavascriptProxy* proxy = JavascriptProxy::FromVar(instance);
             return proxy->PropertyKeysTrap(JavascriptProxy::KeysTrapKind::GetOwnPropertySymbolKind, scriptContext);
         }
@@ -1137,11 +1137,11 @@ CommonNumber:
     }
 
     JavascriptArray* JavascriptOperators::GetOwnPropertyKeys(Var instance, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1139\n");
         RecyclableObject *object = RecyclableObject::FromVar(ToObject(instance, scriptContext));
 
         if (JavascriptProxy::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1143\n");
             JavascriptProxy* proxy = JavascriptProxy::FromVar(instance);
             return proxy->PropertyKeysTrap(JavascriptProxy::KeysTrapKind::KeysKind, scriptContext);
         }
@@ -1150,11 +1150,11 @@ CommonNumber:
     }
 
     JavascriptArray* JavascriptOperators::GetOwnEnumerablePropertyNames(Var instance, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1152\n");
         RecyclableObject *object = RecyclableObject::FromVar(ToObject(instance, scriptContext));
 
         if (JavascriptProxy::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1156\n");
             JavascriptProxy* proxy = JavascriptProxy::FromVar(instance);
             JavascriptArray* proxyResult = proxy->PropertyKeysTrap(JavascriptProxy::KeysTrapKind::GetOwnPropertyNamesKind, scriptContext);
             JavascriptArray* proxyResultToReturn = scriptContext->GetLibrary()->CreateArray(0);
@@ -1165,7 +1165,7 @@ CommonNumber:
             const Js::PropertyRecord *propertyRecord;
             uint32 index = 0;
             for (uint32 i = 0; i < resultLength; i++)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1167\n");
                 element = proxyResult->DirectGetItem(i);
 
                 Assert(!JavascriptSymbol::Is(element));
@@ -1173,9 +1173,9 @@ CommonNumber:
                 PropertyDescriptor propertyDescriptor;
                 JavascriptConversion::ToPropertyKey(element, scriptContext, &propertyRecord);
                 if (JavascriptOperators::GetOwnPropertyDescriptor(RecyclableObject::FromVar(instance), propertyRecord->GetPropertyId(), scriptContext, &propertyDescriptor))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 1175\n");
                     if (propertyDescriptor.IsEnumerable())
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 1177\n");
                         proxyResultToReturn->DirectSetItemAt(index++, CrossSite::MarshalVar(scriptContext, element));
                     }
                 }
@@ -1186,11 +1186,11 @@ CommonNumber:
     }
 
     JavascriptArray* JavascriptOperators::GetOwnEnumerablePropertyNamesSymbols(Var instance, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1188\n");
         RecyclableObject *object = RecyclableObject::FromVar(ToObject(instance, scriptContext));
 
         if (JavascriptProxy::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1192\n");
             JavascriptProxy* proxy = JavascriptProxy::FromVar(instance);
             return proxy->PropertyKeysTrap(JavascriptProxy::KeysTrapKind::KeysKind, scriptContext);
         }
@@ -1198,10 +1198,10 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::GetOwnProperty(Var instance, PropertyId propertyId, Var* value, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1200\n");
         BOOL result;
         if (TaggedNumber::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1203\n");
             result = false;
         }
         else
@@ -1213,7 +1213,7 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::GetOwnPropertyDescriptor(RecyclableObject* obj, JavascriptString* propertyKey, ScriptContext* scriptContext, PropertyDescriptor* propertyDescriptor)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1215\n");
         return JavascriptOperators::GetOwnPropertyDescriptor(obj, JavascriptOperators::GetPropertyId(propertyKey, scriptContext), scriptContext, propertyDescriptor);
     }
 
@@ -1223,25 +1223,25 @@ CommonNumber:
     //   TRUE means success. The propertyDescriptor parameter gets the descriptor.
     //
     BOOL JavascriptOperators::GetOwnPropertyDescriptor(RecyclableObject* obj, PropertyId propertyId, ScriptContext* scriptContext, PropertyDescriptor* propertyDescriptor)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1225\n");
         Assert(obj);
         Assert(scriptContext);
         Assert(propertyDescriptor);
 
         if (JavascriptProxy::Is(obj))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1231\n");
             return JavascriptProxy::GetOwnPropertyDescriptor(obj, propertyId, scriptContext, propertyDescriptor);
         }
         Var getter, setter;
         if (false == JavascriptOperators::GetOwnAccessors(obj, propertyId, &getter, &setter, scriptContext))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1236\n");
             Var value;
             if (false == JavascriptOperators::GetOwnProperty(obj, propertyId, &value, scriptContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1239\n");
                 return FALSE;
             }
             if (nullptr != value)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1243\n");
                 propertyDescriptor->SetValue(value);
             }
 
@@ -1253,13 +1253,13 @@ CommonNumber:
         else
         {
             if (nullptr == getter)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1255\n");
                 getter = scriptContext->GetLibrary()->GetUndefined();
             }
             propertyDescriptor->SetGetter(getter);
 
             if (nullptr == setter)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1261\n");
                 setter = scriptContext->GetLibrary()->GetUndefined();
             }
             propertyDescriptor->SetSetter(setter);
@@ -1271,12 +1271,12 @@ CommonNumber:
     }
 
     inline RecyclableObject* JavascriptOperators::GetPrototypeNoTrap(RecyclableObject* instance)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1273\n");
         Type* type = instance->GetType();
         if (type->HasSpecialPrototype())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1276\n");
             if (type->GetTypeId() == TypeIds_Proxy)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1278\n");
                 // get back null
                 Assert(type->GetPrototype() == instance->GetScriptContext()->GetLibrary()->GetNull());
                 return type->GetPrototype();
@@ -1290,54 +1290,54 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::IsArray(Var instanceVar)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1292\n");
         if (!RecyclableObject::Is(instanceVar))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1294\n");
             return FALSE;
         }
         RecyclableObject* instance = RecyclableObject::FromVar(instanceVar);
         if (DynamicObject::IsAnyArray(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1299\n");
             return TRUE;
         }
         if (JavascriptProxy::Is(instanceVar))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1303\n");
             JavascriptProxy* proxy = JavascriptProxy::FromVar(instanceVar);
             return IsArray(proxy->GetTarget());
         }
         TypeId remoteTypeId = TypeIds_Limit;
         if (JavascriptOperators::GetRemoteTypeId(instanceVar, &remoteTypeId) &&
             DynamicObject::IsAnyArrayTypeId(remoteTypeId))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1310\n");
             return TRUE;
         }
         return FALSE;
     }
 
     BOOL JavascriptOperators::IsConstructor(Var instanceVar)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1317\n");
         if (!RecyclableObject::Is(instanceVar))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1319\n");
             return FALSE;
         }
         if (JavascriptProxy::Is(instanceVar))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1323\n");
             JavascriptProxy* proxy = JavascriptProxy::FromVar(instanceVar);
             return IsConstructor(proxy->GetTarget());
         }
         if (!JavascriptFunction::Is(instanceVar))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1328\n");
             return FALSE;
         }
         return JavascriptFunction::FromVar(instanceVar)->IsConstructor();
     }
 
     BOOL JavascriptOperators::IsConcatSpreadable(Var instanceVar)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1335\n");
         // an object is spreadable under two condition, either it is a JsArray
         // or you define an isconcatSpreadable flag on it.
         if (!JavascriptOperators::IsObject(instanceVar))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1339\n");
             return false;
         }
 
@@ -1345,13 +1345,13 @@ CommonNumber:
         ScriptContext* scriptContext = instance->GetScriptContext();
 
         if (!PHASE_OFF1(IsConcatSpreadableCachePhase))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1347\n");
             BOOL retVal = FALSE;
             Type *instanceType = instance->GetType();
             IsConcatSpreadableCache *isConcatSpreadableCache = scriptContext->GetThreadContext()->GetIsConcatSpreadableCache();
 
             if (isConcatSpreadableCache->TryGetIsConcatSpreadable(instanceType, &retVal))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1353\n");
                 OUTPUT_TRACE(Phase::IsConcatSpreadableCachePhase, _u("IsConcatSpreadableCache hit: %p\n"), instanceType);
                 return retVal;
             }
@@ -1360,14 +1360,14 @@ CommonNumber:
             BOOL hasUserDefinedSpreadable = JavascriptOperators::GetProperty(instance, instance, PropertyIds::_symbolIsConcatSpreadable, &spreadable, scriptContext);
 
             if (hasUserDefinedSpreadable && spreadable != scriptContext->GetLibrary()->GetUndefined())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1362\n");
                 return JavascriptConversion::ToBoolean(spreadable, scriptContext);
             }
 
             retVal = JavascriptOperators::IsArray(instance);
 
             if (!hasUserDefinedSpreadable)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1369\n");
                 OUTPUT_TRACE(Phase::IsConcatSpreadableCachePhase, _u("IsConcatSpreadableCache saved: %p\n"), instanceType);
                 isConcatSpreadableCache->CacheIsConcatSpreadable(instanceType, retVal);
             }
@@ -1377,7 +1377,7 @@ CommonNumber:
 
         Var spreadable = JavascriptOperators::GetProperty(instance, PropertyIds::_symbolIsConcatSpreadable, scriptContext);
         if (spreadable != scriptContext->GetLibrary()->GetUndefined())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1379\n");
             return JavascriptConversion::ToBoolean(spreadable, scriptContext);
         }
 
@@ -1385,7 +1385,7 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_LdCustomSpreadIteratorList(Var aRight, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1387\n");
 #if ENABLE_COPYONACCESS_ARRAY
         // We know we're going to read from this array. Do the conversion before we try to perform checks on the head segment.
         JavascriptLibrary::CheckAndConvertCopyOnAccessNativeIntArray(aRight);
@@ -1405,7 +1405,7 @@ CommonNumber:
              (TypedArrayBase::Is(aRight) && method == TypedArrayBase::EntryInfo::Values.GetOriginalEntryPoint()))
             // We can't optimize away the iterator if the array iterator prototype is user defined.
             && !JavascriptLibrary::ArrayIteratorPrototypeHasUserDefinedNext(scriptContext))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1407\n");
             return aRight;
         }
 
@@ -1418,9 +1418,9 @@ CommonNumber:
                 });
 
         if (!JavascriptOperators::IsObject(iteratorVar))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1420\n");
             if (!threadContext->RecordImplicitException())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1422\n");
                 return scriptContext->GetLibrary()->GetUndefined();
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedObject);
@@ -1431,24 +1431,24 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::IsPropertyUnscopable(Var instanceVar, JavascriptString *propertyString)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1433\n");
         // This never gets called.
         Throw::InternalError();
     }
 
     BOOL JavascriptOperators::IsPropertyUnscopable(Var instanceVar, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1439\n");
         RecyclableObject* instance = RecyclableObject::FromVar(instanceVar);
         ScriptContext * scriptContext = instance->GetScriptContext();
 
         Var unscopables = JavascriptOperators::GetProperty(instance, PropertyIds::_symbolUnscopables, scriptContext);
         if (JavascriptOperators::IsObject(unscopables))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1445\n");
             DynamicObject *unscopablesList = DynamicObject::FromVar(unscopables);
             Var value;
             //8.1.1.2.1.9.c If blocked is not undefined
             if (JavascriptOperators::GetProperty(unscopablesList, propertyId, &value, scriptContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1450\n");
                 return JavascriptConversion::ToBoolean(value, scriptContext);
             }
         }
@@ -1457,11 +1457,11 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::HasProperty(RecyclableObject* instance, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1459\n");
         while (JavascriptOperators::GetTypeId(instance) != TypeIds_Null)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1461\n");
             if (instance->HasProperty(propertyId))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1463\n");
                 return true;
             }
             instance = JavascriptOperators::GetPrototypeNoTrap(instance);
@@ -1470,18 +1470,18 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::HasPropertyUnscopables(RecyclableObject* instance, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1472\n");
         return JavascriptOperators::HasProperty(instance, propertyId)
             && !IsPropertyUnscopable(instance, propertyId);
     }
 
     BOOL JavascriptOperators::HasRootProperty(RecyclableObject* instance, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1478\n");
         Assert(RootObjectBase::Is(instance));
 
         RootObjectBase* rootObject = static_cast<RootObjectBase*>(instance);
         if (rootObject->HasRootProperty(propertyId))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1483\n");
             return true;
         }
         instance = instance->GetPrototype();
@@ -1490,35 +1490,35 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::HasProxyOrPrototypeInlineCacheProperty(RecyclableObject* instance, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1492\n");
         TypeId typeId;
         typeId = JavascriptOperators::GetTypeId(instance);
         if (typeId == Js::TypeIds_Proxy)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1496\n");
             // let's be more aggressive to disable inline prototype cache when proxy is presented in the prototypechain
             return true;
         }
         do
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1501\n");
             instance = instance->GetPrototype();
             typeId = JavascriptOperators::GetTypeId(instance);
             if (typeId == Js::TypeIds_Proxy)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1505\n");
                 // let's be more aggressive to disable inline prototype cache when proxy is presented in the prototypechain
                 return true;
             }
             if (typeId == TypeIds_Null)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1510\n");
                 break;
             }
             /* We can rule out object with deferred type handler, because they would have expanded if they are in the cache */
-            if (!instance->HasDeferredTypeHandler() && instance->HasProperty(propertyId)) { return true; }
+            if (!instance->HasDeferredTypeHandler() && instance->HasProperty(propertyId)) {LOGMEIN("JavascriptOperators.cpp] 1514\n"); return true; }
         } while (typeId != TypeIds_Null);
         return false;
     }
 
     BOOL JavascriptOperators::OP_HasProperty(Var instance, PropertyId propertyId, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1520\n");
         RecyclableObject* object = TaggedNumber::Is(instance) ?
             scriptContext->GetLibrary()->GetNumberPrototype() :
             RecyclableObject::FromVar(instance);
@@ -1527,7 +1527,7 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::OP_HasOwnProperty(Var instance, PropertyId propertyId, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1529\n");
         RecyclableObject* object = TaggedNumber::Is(instance) ?
             scriptContext->GetLibrary()->GetNumberPrototype() :
             RecyclableObject::FromVar(instance);
@@ -1537,7 +1537,7 @@ CommonNumber:
 
     // CONSIDER: Have logic similar to HasOwnPropertyNoHostObjectForHeapEnum
     BOOL JavascriptOperators::HasOwnPropertyNoHostObject(Var instance, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1539\n");
         AssertMsg(!TaggedNumber::Is(instance), "HasOwnPropertyNoHostObject int passed");
 
         RecyclableObject* object = RecyclableObject::FromVar(instance);
@@ -1547,25 +1547,25 @@ CommonNumber:
     // CONSIDER: Remove HasOwnPropertyNoHostObjectForHeapEnum and use GetOwnPropertyNoHostObjectForHeapEnum in its place by changing it
     // to return BOOL, true or false with whether the property exists or not, and return the value if not getter/setter as an out param.
     BOOL JavascriptOperators::HasOwnPropertyNoHostObjectForHeapEnum(Var instance, PropertyId propertyId, ScriptContext* requestContext, Var& getter, Var& setter)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1549\n");
         AssertMsg(!TaggedNumber::Is(instance), "HasOwnPropertyNoHostObjectForHeapEnum int passed");
 
         RecyclableObject * object = RecyclableObject::FromVar(instance);
         if (StaticType::Is(object->GetTypeId()))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1554\n");
             return FALSE;
         }
         getter = setter = NULL;
         DynamicObject* dynamicObject = DynamicObject::FromVar(instance);
         Assert(dynamicObject->GetScriptContext()->IsHeapEnumInProgress());
         if (dynamicObject->UseDynamicObjectForNoHostObjectAccess())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1561\n");
             if (!dynamicObject->DynamicObject::GetAccessors(propertyId, &getter, &setter, requestContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1563\n");
                 Var value;
                 if (!dynamicObject->DynamicObject::GetProperty(instance, propertyId, &value, NULL, requestContext) ||
                     (requestContext->IsUndeclBlockVar(value) && (ActivationObject::Is(instance) || RootObjectBase::Is(instance))))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 1567\n");
                     return FALSE;
                 }
             }
@@ -1573,11 +1573,11 @@ CommonNumber:
         else
         {
             if (!object->GetAccessors(propertyId, &getter, &setter, requestContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1575\n");
                 Var value;
                 if (!object->GetProperty(instance, propertyId, &value, NULL, requestContext) ||
                     (requestContext->IsUndeclBlockVar(value) && (ActivationObject::Is(instance) || RootObjectBase::Is(instance))))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 1579\n");
                     return FALSE;
                 }
             }
@@ -1586,34 +1586,34 @@ CommonNumber:
     }
 
     Var JavascriptOperators::GetOwnPropertyNoHostObjectForHeapEnum(Var instance, PropertyId propertyId, ScriptContext* requestContext, Var& getter, Var& setter)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1588\n");
         AssertMsg(!TaggedNumber::Is(instance), "GetDataPropertyNoHostObject int passed");
         Assert(HasOwnPropertyNoHostObjectForHeapEnum(instance, propertyId, requestContext, getter, setter) || getter || setter);
         DynamicObject* dynamicObject = DynamicObject::FromVar(instance);
         getter = setter = NULL;
         if (NULL == dynamicObject)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1594\n");
             return requestContext->GetLibrary()->GetUndefined();
         }
         Var returnVar = requestContext->GetLibrary()->GetUndefined();
         BOOL result = FALSE;
         if (dynamicObject->UseDynamicObjectForNoHostObjectAccess())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1600\n");
             if (! dynamicObject->DynamicObject::GetAccessors(propertyId, &getter, &setter, requestContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1602\n");
                 result = dynamicObject->DynamicObject::GetProperty(instance, propertyId, &returnVar, NULL, requestContext);
             }
         }
         else
         {
             if (! dynamicObject->GetAccessors(propertyId, &getter, &setter, requestContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1609\n");
                 result = dynamicObject->GetProperty(instance, propertyId, &returnVar, NULL, requestContext);
             }
         }
 
         if (result)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1615\n");
             return returnVar;
         }
         return requestContext->GetLibrary()->GetUndefined();
@@ -1621,11 +1621,11 @@ CommonNumber:
 
 
     BOOL JavascriptOperators::OP_HasOwnPropScoped(Var scope, PropertyId propertyId, Var defaultInstance, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1623\n");
         AssertMsg(scope == scriptContext->GetLibrary()->GetNull() || JavascriptArray::Is(scope),
                   "Invalid scope chain pointer passed - should be null or an array");
         if (JavascriptArray::Is(scope))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1627\n");
             JavascriptArray* arrScope = JavascriptArray::FromVar(scope);
             Var instance = arrScope->DirectGetItem(0);
             return JavascriptOperators::OP_HasOwnProperty(instance, propertyId, scriptContext);
@@ -1634,54 +1634,54 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::GetPropertyUnscopable(Var instance, RecyclableObject* propertyObject, PropertyId propertyId, Var* value, ScriptContext* requestContext, PropertyValueInfo* info)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1636\n");
         return GetProperty_Internal<true>(instance, propertyObject, false, propertyId, value, requestContext, info);
     }
 
     BOOL JavascriptOperators::GetProperty(Var instance, RecyclableObject* propertyObject, PropertyId propertyId, Var* value, ScriptContext* requestContext, PropertyValueInfo* info)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1641\n");
         return GetProperty_Internal<false>(instance, propertyObject, false, propertyId, value, requestContext, info);
     }
 
     BOOL JavascriptOperators::GetRootProperty(Var instance, PropertyId propertyId, Var* value, ScriptContext* requestContext, PropertyValueInfo* info)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1646\n");
         return GetProperty_Internal<false>(instance, RecyclableObject::FromVar(instance), true, propertyId, value, requestContext, info);
     }
 
     template <bool unscopables>
     BOOL JavascriptOperators::GetProperty_Internal(Var instance, RecyclableObject* propertyObject, const bool isRoot, PropertyId propertyId, Var* value, ScriptContext* requestContext, PropertyValueInfo* info)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1652\n");
         if (TaggedNumber::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1654\n");
             PropertyValueInfo::ClearCacheInfo(info);
         }
         RecyclableObject* object = propertyObject;
         BOOL foundProperty = FALSE;
         if (isRoot)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1660\n");
             Assert(RootObjectBase::Is(object));
 
             RootObjectBase* rootObject = static_cast<RootObjectBase*>(object);
             foundProperty = rootObject->GetRootProperty(instance, propertyId, value, info, requestContext);
         }
         while (!foundProperty && JavascriptOperators::GetTypeId(object) != TypeIds_Null)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1667\n");
 
             if (unscopables && IsPropertyUnscopable(object, propertyId))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1670\n");
                 break;
             }
             else
             {
                 if (object->GetProperty(instance, propertyId, value, info, requestContext))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 1676\n");
                     foundProperty = true;
                     break;
                 }
             }
 
             if (object->SkipsPrototype())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1683\n");
                 break;
             }
 
@@ -1689,15 +1689,15 @@ CommonNumber:
         }
 
         if (foundProperty)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1691\n");
 #if DBG
             if (DynamicObject::Is(object))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1694\n");
                 DynamicObject* dynamicObject = (DynamicObject*)object;
                 DynamicTypeHandler* dynamicTypeHandler = dynamicObject->GetDynamicType()->GetTypeHandler();
                 Var property;
                 if (dynamicTypeHandler->CheckFixedProperty(requestContext->GetPropertyName(propertyId), &property, requestContext))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 1699\n");
                     Assert(value == nullptr || *value == property);
                 }
             }
@@ -1706,12 +1706,12 @@ CommonNumber:
             // REVIEW: We might want to only check this if we need to (For LdRootFld or ScopedLdFld)
             //         Also we might want to throw here instead of checking it again in the caller
             if (value && !requestContext->IsUndeclBlockVar(*value) && !WithScopeObject::Is(object))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1708\n");
                 CacheOperators::CachePropertyRead(instance, object, isRoot, propertyId, false, info, requestContext);
             }
 #ifdef TELEMETRY_JSO
             if (TELEMETRY_PROPERTY_OPCODE_FILTER(propertyId))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1713\n");
                 requestContext->GetTelemetry().GetOpcodeTelemetry().GetProperty(instance, propertyId, value, /*successful: */true);
             }
 #endif
@@ -1722,27 +1722,27 @@ CommonNumber:
         {
 #ifdef MISSING_PROPERTY_STATS
             if (PHASE_STATS1(MissingPropertyCachePhase))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1724\n");
                 requestContext->RecordMissingPropertyMiss();
             }
 #endif
             if (PHASE_TRACE1(MissingPropertyCachePhase))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1729\n");
                 Output::Print(_u("MissingPropertyCaching: Missing property %d on slow path.\n"), propertyId);
             }
 
             // Only cache missing property lookups for non-root field loads on objects that have PathTypeHandlers, because only these objects guarantee a type change when the property is added,
             // which obviates the need to explicitly invalidate missing property inline caches.
             if (!PHASE_OFF1(MissingPropertyCachePhase) && !isRoot && DynamicObject::Is(instance) && ((DynamicObject*)instance)->GetDynamicType()->GetTypeHandler()->IsPathTypeHandler())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1736\n");
 #ifdef MISSING_PROPERTY_STATS
                 if (PHASE_STATS1(MissingPropertyCachePhase))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 1739\n");
                     requestContext->RecordMissingPropertyCacheAttempt();
                 }
 #endif
                 if (PHASE_TRACE1(MissingPropertyCachePhase))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 1744\n");
                     Output::Print(_u("MissingPropertyCache: Caching missing property for property %d.\n"), propertyId);
                 }
 
@@ -1751,9 +1751,9 @@ CommonNumber:
             }
 #if defined(TELEMETRY_JSO) || defined(TELEMETRY_AddToCache) // enabled for `TELEMETRY_AddToCache`, because this is the property-not-found codepath where the normal TELEMETRY_AddToCache code wouldn't be executed.
             if (TELEMETRY_PROPERTY_OPCODE_FILTER(propertyId))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1753\n");
                 if (info && info->AllowResizingPolymorphicInlineCache()) // If in interpreted mode, not JIT.
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 1755\n");
                     requestContext->GetTelemetry().GetOpcodeTelemetry().GetProperty(instance, propertyId, nullptr, /*successful: */false);
                 }
             }
@@ -1765,26 +1765,26 @@ CommonNumber:
 
     template<typename PropertyKeyType>
     BOOL JavascriptOperators::GetPropertyWPCache(Var instance, RecyclableObject* propertyObject, PropertyKeyType propertyKey, Var* value, ScriptContext* requestContext, PropertyString * propertyString)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1767\n");
         if (TaggedNumber::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1769\n");
             propertyString = NULL;
         }
         PropertyValueInfo info;
         RecyclableObject* object = propertyObject;
         while (JavascriptOperators::GetTypeId(object) != TypeIds_Null)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1775\n");
             if (object->GetProperty(instance, propertyKey, value, &info, requestContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1777\n");
                 if (propertyString != NULL)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 1779\n");
                     uint16 slotIndex = info.GetPropertyIndex();
                     if (slotIndex != Constants::NoSlot &&
                         info.GetInstance() == object &&
                         info.IsWritable() && !object->CanHaveInterceptors() &&
                         requestContext == object->GetScriptContext() &&
                         ((info.GetFlags() & (InlineCacheGetterFlag | InlineCacheSetterFlag)) == 0))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 1786\n");
                         uint16 inlineOrAuxSlotIndex;
                         bool isInlineSlot;
                         DynamicObject::FromVar(info.GetInstance())->GetTypeHandler()->PropertyIndexToInlineOrAuxSlotIndex(slotIndex, &inlineOrAuxSlotIndex, &isInlineSlot);
@@ -1794,7 +1794,7 @@ CommonNumber:
                 return TRUE;
             }
             if (object->SkipsPrototype())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1796\n");
                 break;
             }
             object = JavascriptOperators::GetPrototypeNoTrap(object);
@@ -1804,10 +1804,10 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::GetPropertyObject(Var instance, ScriptContext * scriptContext, RecyclableObject** propertyObject)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1806\n");
         Assert(propertyObject);
         if (TaggedNumber::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1809\n");
             *propertyObject = scriptContext->GetLibrary()->GetNumberPrototype();
             return TRUE;
         }
@@ -1815,7 +1815,7 @@ CommonNumber:
         TypeId typeId = object->GetTypeId();
         *propertyObject = object;
         if (typeId == TypeIds_Null || typeId == TypeIds_Undefined)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1817\n");
             return FALSE;
         }
         return TRUE;
@@ -1823,19 +1823,19 @@ CommonNumber:
 
 #if DBG
     BOOL JavascriptOperators::IsPropertyObject(RecyclableObject * instance)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1825\n");
         TypeId typeId = JavascriptOperators::GetTypeId(instance);
         return (typeId != TypeIds_Integer && typeId != TypeIds_Null && typeId != TypeIds_Undefined);
     }
 #endif
 
     Var JavascriptOperators::OP_GetProperty(Var instance, PropertyId propertyId, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1832\n");
         RecyclableObject* object = nullptr;
         if (FALSE == JavascriptOperators::GetPropertyObject(instance, scriptContext, &object))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1835\n");
             if (scriptContext->GetThreadContext()->RecordImplicitException())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1837\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_CannotGet_NullOrUndefined, scriptContext->GetPropertyName(propertyId)->GetBuffer());
             }
             else
@@ -1850,14 +1850,14 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_GetRootProperty(Var instance, PropertyId propertyId, PropertyValueInfo * info, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1852\n");
         AssertMsg(RootObjectBase::Is(instance), "Root must be an object!");
 
         Var value;
         if (JavascriptOperators::GetRootProperty(RecyclableObject::FromVar(instance), propertyId, &value, scriptContext, info))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1857\n");
             if (scriptContext->IsUndeclBlockVar(value))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1859\n");
                 JavascriptError::ThrowReferenceError(scriptContext, JSERR_UseBeforeDeclaration);
             }
             return value;
@@ -1867,17 +1867,17 @@ CommonNumber:
 
         JavascriptFunction * caller = nullptr;
         if (JavascriptStackWalker::GetCaller(&caller, scriptContext))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1869\n");
             FunctionBody * callerBody = caller->GetFunctionBody();
             if (callerBody && callerBody->GetUtf8SourceInfo()->GetIsXDomain())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1872\n");
                 propertyName = nullptr;
             }
         }
 
         // Don't error if we disabled implicit calls
         if (scriptContext->GetThreadContext()->RecordImplicitException())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1879\n");
             JavascriptError::ThrowReferenceError(scriptContext, JSERR_UndefVariable, propertyName);
         }
 
@@ -1885,16 +1885,16 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_GetThisScoped(FrameDisplay *pScope, Var defaultInstance, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1887\n");
         // NOTE: If changes are made to this logic be sure to update the debuggers as well
         int length = pScope->GetLength();
 
         for (int i = 0; i < length; i += 1)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1892\n");
             Var value;
             DynamicObject *obj = DynamicObject::FromVar(pScope->GetItem(i));
             if (JavascriptOperators::GetProperty(obj, Js::PropertyIds::_lexicalThisSlotSymbol, &value, scriptContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1896\n");
                 return value;
             }
         }
@@ -1903,11 +1903,11 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_UnwrapWithObj(Var aValue)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1905\n");
         return RecyclableObject::FromVar(aValue)->GetThisObjectOrUnWrap();
     }
     Var JavascriptOperators::OP_GetInstanceScoped(FrameDisplay *pScope, PropertyId propertyId, Var rootObject, Var* thisVar, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1909\n");
         // Similar to GetPropertyScoped, but instead of returning the property value, we return the instance that
         // owns it, or the global object if no instance is found.
 
@@ -1915,12 +1915,12 @@ CommonNumber:
         int length = pScope->GetLength();
 
         for (i = 0; i < length; i++)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1917\n");
             RecyclableObject *obj = (RecyclableObject*)pScope->GetItem(i);
 
 
             if (JavascriptOperators::HasProperty(obj, propertyId))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1922\n");
                 // HasProperty will call WithObjects HasProperty which will do the filtering
                 // All we have to do here is unwrap the object hence the api call
 
@@ -1931,9 +1931,9 @@ CommonNumber:
 
         *thisVar = scriptContext->GetLibrary()->GetUndefined();
         if (rootObject != scriptContext->GetGlobalObject())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1933\n");
             if (JavascriptOperators::OP_HasProperty(rootObject, propertyId, scriptContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1935\n");
                 return rootObject;
             }
         }
@@ -1942,11 +1942,11 @@ CommonNumber:
     }
 
     Var JavascriptOperators::GetPropertyReference(RecyclableObject *instance, PropertyId propertyId, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1944\n");
         Var value = nullptr;
         PropertyValueInfo info;
         if (JavascriptOperators::GetPropertyReference(instance, propertyId, &value, requestContext, &info))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1948\n");
             Assert(value != nullptr);
             return value;
         }
@@ -1954,47 +1954,47 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::GetPropertyReference(Var instance, RecyclableObject* propertyObject, PropertyId propertyId, Var* value, ScriptContext* requestContext, PropertyValueInfo* info)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1956\n");
         return GetPropertyReference_Internal(instance, propertyObject, false, propertyId, value, requestContext, info);
     }
 
     BOOL JavascriptOperators::GetRootPropertyReference(RecyclableObject* instance, PropertyId propertyId, Var* value, ScriptContext* requestContext, PropertyValueInfo* info)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1961\n");
         return GetPropertyReference_Internal(instance, instance, true, propertyId, value, requestContext, info);
     }
 
     BOOL JavascriptOperators::PropertyReferenceWalkUnscopable(Var instance, RecyclableObject** propertyObject, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1966\n");
         return PropertyReferenceWalk_Impl<true>(instance, propertyObject, propertyId, value, info, requestContext);
     }
 
     BOOL JavascriptOperators::PropertyReferenceWalk(Var instance, RecyclableObject** propertyObject, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1971\n");
         return PropertyReferenceWalk_Impl<false>(instance, propertyObject, propertyId, value, info, requestContext);
     }
 
     template <bool unscopables>
     BOOL JavascriptOperators::PropertyReferenceWalk_Impl(Var instance, RecyclableObject** propertyObject, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 1977\n");
         BOOL foundProperty = false;
         RecyclableObject* object = *propertyObject;
         while (!foundProperty && JavascriptOperators::GetTypeId(object) != TypeIds_Null)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 1981\n");
             if (unscopables && JavascriptOperators::IsPropertyUnscopable(object, propertyId))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1983\n");
                 break;
             }
             else
             {
                 if (object->GetPropertyReference(instance, propertyId, value, info, requestContext))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 1989\n");
                     foundProperty = true;
                     break;
                 }
             }
 
             if (object->SkipsPrototype())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 1996\n");
                 break; // will return false
             }
 
@@ -2006,30 +2006,30 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::GetPropertyReference_Internal(Var instance, RecyclableObject* propertyObject, const bool isRoot, PropertyId propertyId, Var* value, ScriptContext* requestContext, PropertyValueInfo* info)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2008\n");
         if (TaggedNumber::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2010\n");
             PropertyValueInfo::ClearCacheInfo(info);
         }
         BOOL foundProperty = FALSE;
         RecyclableObject* object = propertyObject;
 
         if (isRoot)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2017\n");
             foundProperty = RootObjectBase::FromVar(object)->GetRootPropertyReference(instance, propertyId, value, info, requestContext);
         }
         if (!foundProperty)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2021\n");
             foundProperty = PropertyReferenceWalk(instance, &object, propertyId, value, info, requestContext);
         }
 
         if (!foundProperty)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2026\n");
 #if defined(TELEMETRY_JSO) || defined(TELEMETRY_AddToCache) // enabled for `TELEMETRY_AddToCache`, because this is the property-not-found codepath where the normal TELEMETRY_AddToCache code wouldn't be executed.
             if (TELEMETRY_PROPERTY_OPCODE_FILTER(propertyId))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2029\n");
                 if (info && info->AllowResizingPolymorphicInlineCache()) // If in interpreted mode, not JIT.
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 2031\n");
                     requestContext->GetTelemetry().GetOpcodeTelemetry().GetProperty(instance, propertyId, nullptr, /*successful: */false);
                 }
             }
@@ -2039,17 +2039,17 @@ CommonNumber:
         }
 
         if (requestContext->IsUndeclBlockVar(*value))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2041\n");
             JavascriptError::ThrowReferenceError(requestContext, JSERR_UseBeforeDeclaration);
         }
 #if DBG
         if (DynamicObject::Is(object))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2046\n");
             DynamicObject* dynamicObject = (DynamicObject*)object;
             DynamicTypeHandler* dynamicTypeHandler = dynamicObject->GetDynamicType()->GetTypeHandler();
             Var property;
             if (dynamicTypeHandler->CheckFixedProperty(requestContext->GetPropertyName(propertyId), &property, requestContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2051\n");
                 Assert(value == nullptr || *value == property);
             }
         }
@@ -2061,14 +2061,14 @@ CommonNumber:
 
     template <typename PropertyKeyType, bool unscopable>
     DescriptorFlags JavascriptOperators::GetterSetter_Impl(RecyclableObject* instance, PropertyKeyType propertyKey, Var* setterValue, PropertyValueInfo* info, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2063\n");
         DescriptorFlags flags = None;
         RecyclableObject* object = instance;
         while (flags == None && JavascriptOperators::GetTypeId(object) != TypeIds_Null)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2067\n");
 
             if (unscopable && IsPropertyUnscopable(object, propertyKey))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2070\n");
                 break;
             }
             else
@@ -2076,7 +2076,7 @@ CommonNumber:
 
                 flags = object->GetSetter(propertyKey, setterValue, info, scriptContext);
                 if (flags != None)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 2078\n");
                     break;
                 }
             }
@@ -2088,22 +2088,22 @@ CommonNumber:
     }
 
     DescriptorFlags JavascriptOperators::GetterSetterUnscopable(RecyclableObject* instance, PropertyId propertyId, Var* setterValue, PropertyValueInfo* info, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2090\n");
         return GetterSetter_Impl<PropertyId, true>(instance, propertyId, setterValue, info, scriptContext);
     }
 
     DescriptorFlags JavascriptOperators::GetterSetter(RecyclableObject* instance, PropertyId propertyId, Var* setterValue, PropertyValueInfo* info, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2095\n");
         return GetterSetter_Impl<PropertyId, false>(instance, propertyId, setterValue, info, scriptContext);
     }
 
     DescriptorFlags JavascriptOperators::GetterSetter(RecyclableObject* instance, JavascriptString * propertyName, Var* setterValue, PropertyValueInfo* info, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2100\n");
         return GetterSetter_Impl<JavascriptString*, false>(instance, propertyName, setterValue, info, scriptContext);
     }
 
     void JavascriptOperators::OP_InvalidateProtoCaches(PropertyId propertyId, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2105\n");
         scriptContext->InvalidateProtoCaches(propertyId);
     }
 
@@ -2112,22 +2112,22 @@ CommonNumber:
     // If TRUE, check flags for details.
     BOOL JavascriptOperators::CheckPrototypesForAccessorOrNonWritableItem(RecyclableObject* instance, uint32 index,
         Var* setterValue, DescriptorFlags *flags, ScriptContext* scriptContext, BOOL skipPrototypeCheck /* = FALSE */)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2114\n");
         Assert(setterValue);
         Assert(flags);
 
         // Do a quick walk up the prototype chain to see if any of the prototypes has ever had ANY setter or non-writable property.
         if (CheckIfObjectAndPrototypeChainHasOnlyWritableDataProperties(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2120\n");
             return FALSE;
         }
 
         RecyclableObject* object = instance;
         while (JavascriptOperators::GetTypeId(object) != TypeIds_Null)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2126\n");
             *flags = object->GetItemSetter(index, setterValue, scriptContext);
             if (*flags != None || skipPrototypeCheck)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2129\n");
                 break;
             }
             object = object->GetPrototype();
@@ -2137,14 +2137,14 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::SetGlobalPropertyNoHost(char16 const * propertyName, charcount_t propertyLength, Var value, ScriptContext * scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2139\n");
         GlobalObject * globalObject = scriptContext->GetGlobalObject();
         uint32 index;
         PropertyRecord const * propertyRecord;
         IndexType indexType = GetIndexTypeFromString(propertyName, propertyLength, scriptContext, &index, &propertyRecord, true);
 
         if (indexType == IndexType_Number)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2146\n");
             return globalObject->DynamicObject::SetItem(index, value, PropertyOperation_None);
         }
         return globalObject->DynamicObject::SetProperty(propertyRecord->GetPropertyId(), value, PropertyOperation_None, NULL);
@@ -2152,23 +2152,23 @@ CommonNumber:
 
     template<typename PropertyKeyType>
     BOOL JavascriptOperators::SetPropertyWPCache(Var receiver, RecyclableObject* object, PropertyKeyType propertyKey, Var newValue, ScriptContext* requestContext, PropertyString * propertyString, PropertyOperationFlags propertyOperationFlags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2154\n");
         if (receiver)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2156\n");
             AnalysisAssert(object);
             Assert(!TaggedNumber::Is(receiver));
             Var setterValueOrProxy = nullptr;
             DescriptorFlags flags = None;
             if (JavascriptOperators::CheckPrototypesForAccessorOrNonWritableProperty(object, propertyKey, &setterValueOrProxy, &flags, NULL, requestContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2162\n");
                 if ((flags & Accessor) == Accessor)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 2164\n");
                     if (JavascriptError::ThrowIfStrictModeUndefinedSetter(propertyOperationFlags, setterValueOrProxy, requestContext))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 2166\n");
                         return TRUE;
                     }
                     if (setterValueOrProxy)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 2170\n");
                         receiver = (RecyclableObject::FromVar(receiver))->GetThisObjectOrUnWrap();
                         RecyclableObject* func = RecyclableObject::FromVar(setterValueOrProxy);
                         JavascriptOperators::CallSetter(func, receiver, newValue, requestContext);
@@ -2176,10 +2176,10 @@ CommonNumber:
                     return TRUE;
                 }
                 else if ((flags & Proxy) == Proxy)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 2178\n");
                     Assert(JavascriptProxy::Is(setterValueOrProxy));
                     JavascriptProxy* proxy = JavascriptProxy::FromVar(setterValueOrProxy);
-                    auto fn = [&](RecyclableObject* target) -> BOOL {
+                    auto fn = [&](RecyclableObject* target) -> BOOL {LOGMEIN("JavascriptOperators.cpp] 2181\n");
                         return JavascriptOperators::SetPropertyWPCache(receiver, target, propertyKey, newValue, requestContext, propertyString, propertyOperationFlags);
                     };
                     return proxy->SetPropertyTrap(receiver, JavascriptProxy::SetPropertyTrapKind::SetPropertyWPCacheKind, propertyKey, newValue, requestContext);
@@ -2194,19 +2194,19 @@ CommonNumber:
                 }
             }
             else if (!JavascriptOperators::IsObject(receiver))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2196\n");
                 JavascriptError::ThrowCantAssignIfStrictMode(propertyOperationFlags, requestContext);
                 return FALSE;
             }
 
             RecyclableObject* receiverObject = RecyclableObject::FromVar(receiver);
             if (receiver != object)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2203\n");
                 // If the receiver object has the property and it is an accessor then return false
                 PropertyDescriptor existingDesc;
                 if (JavascriptOperators::GetOwnPropertyDescriptor(receiverObject, propertyKey, requestContext, &existingDesc)
                     && existingDesc.IsAccessorDescriptor())
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 2208\n");
                     return FALSE;
                 }
             }
@@ -2214,16 +2214,16 @@ CommonNumber:
             // in 9.1.9, step 5, we should return false if receiver is not object, and that will happen in default RecyclableObject operation anyhow.
             PropertyValueInfo info;
             if (receiverObject->SetProperty(propertyKey, newValue, propertyOperationFlags, &info))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2216\n");
                 if (propertyString != NULL)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 2218\n");
                     uint16 slotIndex = info.GetPropertyIndex();
                     if (slotIndex != Constants::NoSlot &&
                         info.GetInstance() == receiverObject &&
                         !object->CanHaveInterceptors() &&
                         requestContext == receiverObject->GetScriptContext() &&
                         (info.GetFlags() != InlineCacheSetterFlag))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 2225\n");
                         uint16 inlineOrAuxSlotIndex;
                         bool isInlineSlot;
                         DynamicObject::FromVar(info.GetInstance())->GetTypeHandler()->PropertyIndexToInlineOrAuxSlotIndex(info.GetPropertyIndex(), &inlineOrAuxSlotIndex, &isInlineSlot);
@@ -2239,11 +2239,11 @@ CommonNumber:
 
     BOOL JavascriptOperators::SetItemOnTaggedNumber(Var receiver, RecyclableObject* object, uint32 index, Var newValue, ScriptContext* requestContext,
         PropertyOperationFlags propertyOperationFlags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2241\n");
         Assert(TaggedNumber::Is(receiver));
 
         if (requestContext->optimizationOverrides.GetSideEffects() & SideEffects_Accessor)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2245\n");
             Var setterValueOrProxy = nullptr;
             DescriptorFlags flags = None;
             if (object == nullptr)
@@ -2251,22 +2251,22 @@ CommonNumber:
                 GetPropertyObject(receiver, requestContext, &object);
             }
             if (JavascriptOperators::CheckPrototypesForAccessorOrNonWritableItem(object, index, &setterValueOrProxy, &flags, requestContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2253\n");
                 if ((flags & Accessor) == Accessor)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 2255\n");
                     if (JavascriptError::ThrowIfStrictModeUndefinedSetter(propertyOperationFlags, setterValueOrProxy, requestContext))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 2257\n");
                         return TRUE;
                     }
                     if (setterValueOrProxy)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 2261\n");
                         RecyclableObject* func = RecyclableObject::FromVar(setterValueOrProxy);
                         JavascriptOperators::CallSetter(func, receiver, newValue, requestContext);
                         return TRUE;
                     }
                 }
                 else if ((flags & Proxy) == Proxy)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 2268\n");
                     Assert(JavascriptProxy::Is(setterValueOrProxy));
                     JavascriptProxy* proxy = JavascriptProxy::FromVar(setterValueOrProxy);
                     const PropertyRecord* propertyRecord;
@@ -2287,11 +2287,11 @@ CommonNumber:
 
     BOOL JavascriptOperators::SetPropertyOnTaggedNumber(Var receiver, RecyclableObject* object, PropertyId propertyId, Var newValue, ScriptContext* requestContext,
         PropertyOperationFlags propertyOperationFlags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2289\n");
         Assert (TaggedNumber::Is(receiver));
 
         if (requestContext->optimizationOverrides.GetSideEffects() & SideEffects_Accessor)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2293\n");
             Var setterValueOrProxy = nullptr;
             PropertyValueInfo info;
             DescriptorFlags flags = None;
@@ -2300,15 +2300,15 @@ CommonNumber:
                 GetPropertyObject(receiver, requestContext, &object);
             }
             if (JavascriptOperators::CheckPrototypesForAccessorOrNonWritableProperty(object, propertyId, &setterValueOrProxy, &flags, &info, requestContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2302\n");
                 if ((flags & Accessor) == Accessor)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 2304\n");
                     if (JavascriptError::ThrowIfStrictModeUndefinedSetter(propertyOperationFlags, setterValueOrProxy, requestContext))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 2306\n");
                         return TRUE;
                     }
                     if (setterValueOrProxy)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 2310\n");
                         RecyclableObject* func = RecyclableObject::FromVar(setterValueOrProxy);
                         Assert(info.GetFlags() == InlineCacheSetterFlag || info.GetPropertyIndex() == Constants::NoSlot);
                         JavascriptOperators::CallSetter(func, receiver, newValue, requestContext);
@@ -2316,7 +2316,7 @@ CommonNumber:
                     }
                 }
                 else if ((flags & Proxy) == Proxy)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 2318\n");
                     Assert(JavascriptProxy::Is(setterValueOrProxy));
                     JavascriptProxy* proxy = JavascriptProxy::FromVar(setterValueOrProxy);
                     return proxy->SetPropertyTrap(receiver, JavascriptProxy::SetPropertyTrapKind::SetPropertyOnTaggedNumberKind, propertyId, newValue, requestContext);
@@ -2336,45 +2336,45 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::SetPropertyUnscopable(Var instance, RecyclableObject* receiver, PropertyId propertyId, Var newValue, PropertyValueInfo * info, ScriptContext* requestContext, PropertyOperationFlags propertyOperationFlags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2338\n");
         return SetProperty_Internal<true>(instance, receiver, false, propertyId, newValue, info, requestContext, propertyOperationFlags);
     }
 
     BOOL JavascriptOperators::SetProperty(Var receiver, RecyclableObject* object, PropertyId propertyId, Var newValue, PropertyValueInfo * info, ScriptContext* requestContext, PropertyOperationFlags propertyOperationFlags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2343\n");
         return SetProperty_Internal<false>(receiver, object, false, propertyId, newValue, info, requestContext, propertyOperationFlags);
     }
 
     BOOL JavascriptOperators::SetRootProperty(RecyclableObject* instance, PropertyId propertyId, Var newValue, PropertyValueInfo * info, ScriptContext* requestContext, PropertyOperationFlags propertyOperationFlags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2348\n");
         return SetProperty_Internal<false>(instance, instance, true, propertyId, newValue, info, requestContext, propertyOperationFlags);
     }
 
     template <bool unscopables>
     BOOL JavascriptOperators::SetProperty_Internal(Var receiver, RecyclableObject* object, const bool isRoot, PropertyId propertyId, Var newValue, PropertyValueInfo * info, ScriptContext* requestContext, PropertyOperationFlags propertyOperationFlags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2354\n");
         if (receiver)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2356\n");
             Assert(!TaggedNumber::Is(receiver));
             Var setterValueOrProxy = nullptr;
             DescriptorFlags flags = None;
             if ((isRoot && JavascriptOperators::CheckPrototypesForAccessorOrNonWritableRootProperty(object, propertyId, &setterValueOrProxy, &flags, info, requestContext)) ||
                 (!isRoot && JavascriptOperators::CheckPrototypesForAccessorOrNonWritableProperty(object, propertyId, &setterValueOrProxy, &flags, info, requestContext)))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2362\n");
                 if ((flags & Accessor) == Accessor)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 2364\n");
                     if (JavascriptError::ThrowIfStrictModeUndefinedSetter(propertyOperationFlags, setterValueOrProxy, requestContext) ||
                         JavascriptError::ThrowIfNotExtensibleUndefinedSetter(propertyOperationFlags, setterValueOrProxy, requestContext))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 2367\n");
                         return TRUE;
                     }
                     if (setterValueOrProxy)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 2371\n");
                         RecyclableObject* func = RecyclableObject::FromVar(setterValueOrProxy);
                         Assert(!info || info->GetFlags() == InlineCacheSetterFlag || info->GetPropertyIndex() == Constants::NoSlot);
 
                         if (WithScopeObject::Is(receiver))
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 2376\n");
                             receiver = (RecyclableObject::FromVar(receiver))->GetThisObjectOrUnWrap();
                         }
                         else
@@ -2383,7 +2383,7 @@ CommonNumber:
                         }
 #ifdef ENABLE_MUTATION_BREAKPOINT
                         if (MutationBreakpoint::IsFeatureEnabled(requestContext))
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 2385\n");
                             MutationBreakpoint::HandleSetProperty(requestContext, object, propertyId, newValue);
                         }
 #endif
@@ -2392,7 +2392,7 @@ CommonNumber:
                     return TRUE;
                 }
                 else if ((flags & Proxy) == Proxy)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 2394\n");
                     Assert(JavascriptProxy::Is(setterValueOrProxy));
                     JavascriptProxy* proxy = JavascriptProxy::FromVar(setterValueOrProxy);
                     // We can't cache the property at this time. both target and handler can be changed outside of the proxy, so the inline cache needs to be
@@ -2406,7 +2406,7 @@ CommonNumber:
                 {
                     Assert((flags & Data) == Data && (flags & Writable) == None);
                     if (flags & Const)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 2408\n");
                         JavascriptError::ThrowTypeError(requestContext, ERRAssignmentToConst);
                     }
 
@@ -2416,7 +2416,7 @@ CommonNumber:
                 }
             }
             else if (!JavascriptOperators::IsObject(receiver))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2418\n");
                 JavascriptError::ThrowCantAssignIfStrictMode(propertyOperationFlags, requestContext);
                 return FALSE;
             }
@@ -2431,7 +2431,7 @@ CommonNumber:
             Type *typeWithoutProperty = object->GetType();
             BOOL didSetProperty = false;
             if (isRoot)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2433\n");
                 AssertMsg(JavascriptOperators::GetTypeId(receiver) == TypeIds_GlobalObject
                     || JavascriptOperators::GetTypeId(receiver) == TypeIds_ModuleRoot,
                     "Root must be a global object!");
@@ -2443,16 +2443,16 @@ CommonNumber:
             {
                 RecyclableObject* instanceObject = RecyclableObject::FromVar(receiver);
                 while (JavascriptOperators::GetTypeId(instanceObject) != TypeIds_Null)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 2445\n");
                     if (unscopables && JavascriptOperators::IsPropertyUnscopable(instanceObject, propertyId))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 2447\n");
                         break;
                     }
                     else
                     {
                         didSetProperty = instanceObject->SetProperty(propertyId, newValue, propertyOperationFlags, info);
                         if (didSetProperty || !unscopables)
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 2454\n");
                             break;
                         }
                     }
@@ -2461,16 +2461,16 @@ CommonNumber:
             }
 
             if (didSetProperty)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2463\n");
                 bool updateCache = true;
 #ifdef ENABLE_MUTATION_BREAKPOINT
                 updateCache = updateCache && !doNotUpdateCacheForMbp;
 #endif
 
                 if (updateCache)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 2470\n");
                     if (!JavascriptProxy::Is(receiver))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 2472\n");
                         CacheOperators::CachePropertyWrite(RecyclableObject::FromVar(receiver), isRoot, typeWithoutProperty, propertyId, info, requestContext);
                     }
                 }
@@ -2482,21 +2482,21 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::IsNumberFromNativeArray(Var instance, uint32 index, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2484\n");
 #if ENABLE_COPYONACCESS_ARRAY
         JavascriptLibrary::CheckAndConvertCopyOnAccessNativeIntArray<Var>(instance);
 #endif
         Js::TypeId instanceType = JavascriptOperators::GetTypeId(instance);
         // Fast path for native and typed arrays.
         if ( (instanceType == TypeIds_NativeIntArray || instanceType == TypeIds_NativeFloatArray) || (instanceType >= TypeIds_Int8Array && instanceType <= TypeIds_Uint64Array) )
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2491\n");
             RecyclableObject* object = RecyclableObject::FromVar(instance);
             Var member;
 
             // If the item is found in the array own body, then it is a number
             if (JavascriptOperators::GetOwnItem(object, index, &member, scriptContext)
                 && !JavascriptOperators::IsUndefined(member))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2498\n");
                 return TRUE;
             }
         }
@@ -2504,20 +2504,20 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::GetAccessors(RecyclableObject* instance, PropertyId propertyId, ScriptContext* requestContext, Var* getter, Var* setter)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2506\n");
         RecyclableObject* object = instance;
 
         while (JavascriptOperators::GetTypeId(object) != TypeIds_Null)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2510\n");
             if (object->GetAccessors(propertyId, getter, setter, requestContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2512\n");
                 *getter = JavascriptOperators::CanonicalizeAccessor(*getter, requestContext);
                 *setter = JavascriptOperators::CanonicalizeAccessor(*setter, requestContext);
                 return TRUE;
             }
 
             if (object->SkipsPrototype())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2519\n");
                 break;
             }
             object = JavascriptOperators::GetPrototype(object);
@@ -2526,39 +2526,39 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::SetAccessors(RecyclableObject* instance, PropertyId propertyId, Var getter, Var setter, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2528\n");
         BOOL result = instance && instance->SetAccessors(propertyId, getter, setter, flags);
         return result;
     }
 
     BOOL JavascriptOperators::OP_SetProperty(Var instance, PropertyId propertyId, Var newValue, ScriptContext* scriptContext, PropertyValueInfo * info, PropertyOperationFlags flags, Var thisInstance)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2534\n");
         // The call into ToObject(dynamicObject) is avoided here by checking for null and undefined and doing nothing when dynamicObject is a primitive value.
         if (thisInstance == nullptr)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2537\n");
             thisInstance = instance;
         }
         TypeId typeId = JavascriptOperators::GetTypeId(thisInstance);
 
         if (typeId == TypeIds_Null || typeId == TypeIds_Undefined)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2543\n");
             if (scriptContext->GetThreadContext()->RecordImplicitException())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2545\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_CannotSet_NullOrUndefined, scriptContext->GetPropertyName(propertyId)->GetBuffer());
             }
             return TRUE;
         }
         else if (typeId == TypeIds_VariantDate)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2551\n");
             if (scriptContext->GetThreadContext()->RecordImplicitException())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2553\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_VarDate, scriptContext->GetPropertyName(propertyId)->GetBuffer());
             }
             return TRUE;
         }
 
         if (!TaggedNumber::Is(thisInstance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2560\n");
             return JavascriptOperators::SetProperty(RecyclableObject::FromVar(thisInstance), RecyclableObject::FromVar(instance), propertyId, newValue, info, scriptContext, flags);
         }
 
@@ -2567,7 +2567,7 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::OP_StFunctionExpression(Var obj, PropertyId propertyId, Var newValue)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2569\n");
         RecyclableObject* instance = RecyclableObject::FromVar(obj);
 
         instance->SetProperty(propertyId, newValue, PropertyOperation_None, NULL);
@@ -2578,7 +2578,7 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::OP_InitClassMember(Var obj, PropertyId propertyId, Var newValue)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2580\n");
         RecyclableObject* instance = RecyclableObject::FromVar(obj);
 
         PropertyOperationFlags flags = PropertyOperation_None;
@@ -2590,14 +2590,14 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::OP_InitLetProperty(Var obj, PropertyId propertyId, Var newValue)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2592\n");
         RecyclableObject* instance = RecyclableObject::FromVar(obj);
 
         PropertyOperationFlags flags = instance->GetScriptContext()->IsUndeclBlockVar(newValue) ? PropertyOperation_SpecialValue : PropertyOperation_None;
         PropertyAttributes attributes = PropertyLetDefaults;
 
         if (RootObjectBase::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2599\n");
             attributes |= PropertyLetConstGlobal;
         }
 
@@ -2607,14 +2607,14 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::OP_InitConstProperty(Var obj, PropertyId propertyId, Var newValue)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2609\n");
         RecyclableObject* instance = RecyclableObject::FromVar(obj);
 
         PropertyOperationFlags flags = instance->GetScriptContext()->IsUndeclBlockVar(newValue) ? PropertyOperation_SpecialValue : PropertyOperation_None;
         PropertyAttributes attributes = PropertyConstDefaults;
 
         if (RootObjectBase::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2616\n");
             attributes |= PropertyLetConstGlobal;
         }
 
@@ -2624,7 +2624,7 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::OP_InitUndeclRootLetProperty(Var obj, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2626\n");
         RecyclableObject* instance = RecyclableObject::FromVar(obj);
 
         PropertyOperationFlags flags = static_cast<PropertyOperationFlags>(PropertyOperation_SpecialValue | PropertyOperation_AllowUndecl);
@@ -2636,7 +2636,7 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::OP_InitUndeclRootConstProperty(Var obj, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2638\n");
         RecyclableObject* instance = RecyclableObject::FromVar(obj);
 
         PropertyOperationFlags flags = static_cast<PropertyOperationFlags>(PropertyOperation_SpecialValue | PropertyOperation_AllowUndecl);
@@ -2648,7 +2648,7 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::OP_InitUndeclConsoleLetProperty(Var obj, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2650\n");
         FrameDisplay *pScope = (FrameDisplay*)obj;
         AssertMsg(ConsoleScopeActivationObject::Is((DynamicObject*)pScope->GetItem(pScope->GetLength() - 1)), "How come we got this opcode without ConsoleScopeActivationObject?");
         RecyclableObject* instance = RecyclableObject::FromVar(pScope->GetItem(0));
@@ -2659,7 +2659,7 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::OP_InitUndeclConsoleConstProperty(Var obj, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2661\n");
         FrameDisplay *pScope = (FrameDisplay*)obj;
         AssertMsg(ConsoleScopeActivationObject::Is((DynamicObject*)pScope->GetItem(pScope->GetLength() - 1)), "How come we got this opcode without ConsoleScopeActivationObject?");
         RecyclableObject* instance = RecyclableObject::FromVar(pScope->GetItem(0));
@@ -2670,26 +2670,26 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::InitProperty(RecyclableObject* instance, PropertyId propertyId, Var newValue, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2672\n");
         return instance && instance->InitProperty(propertyId, newValue, flags);
     }
 
     BOOL JavascriptOperators::OP_InitProperty(Var instance, PropertyId propertyId, Var newValue)
-    {
-        if(TaggedNumber::Is(instance)) { return false; }
+    {LOGMEIN("JavascriptOperators.cpp] 2677\n");
+        if(TaggedNumber::Is(instance)) {LOGMEIN("JavascriptOperators.cpp] 2678\n"); return false; }
         return JavascriptOperators::InitProperty(RecyclableObject::FromVar(instance), propertyId, newValue);
     }
 
     BOOL JavascriptOperators::DeleteProperty(RecyclableObject* instance, PropertyId propertyId, PropertyOperationFlags propertyOperationFlags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2683\n");
         return DeleteProperty_Impl<false>(instance, propertyId, propertyOperationFlags);
     }
 
     bool JavascriptOperators::ShouldTryDeleteProperty(RecyclableObject* instance, JavascriptString *propertyNameString, PropertyRecord const **pPropertyRecord)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2688\n");
         PropertyRecord const *propertyRecord = nullptr;
         if (!JavascriptOperators::CanShortcutOnUnknownPropertyName(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2691\n");
             instance->GetScriptContext()->GetOrAddPropertyRecord(propertyNameString->GetString(), propertyNameString->GetLength(), &propertyRecord);
         }
         else
@@ -2698,7 +2698,7 @@ CommonNumber:
         }
 
         if (propertyRecord == nullptr)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2700\n");
             return false;
         }
         *pPropertyRecord = propertyRecord;
@@ -2706,12 +2706,12 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::DeleteProperty(RecyclableObject* instance, JavascriptString *propertyNameString, PropertyOperationFlags propertyOperationFlags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2708\n");
 #ifdef ENABLE_MUTATION_BREAKPOINT
         ScriptContext *scriptContext = instance->GetScriptContext();
         if (MutationBreakpoint::IsFeatureEnabled(scriptContext)
             && scriptContext->HasMutationBreakpoints())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2713\n");
             MutationBreakpoint::HandleDeleteProperty(scriptContext, instance, propertyNameString);
         }
 #endif
@@ -2719,21 +2719,21 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::DeletePropertyUnscopables(RecyclableObject* instance, PropertyId propertyId, PropertyOperationFlags propertyOperationFlags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2721\n");
         return DeleteProperty_Impl<true>(instance, propertyId, propertyOperationFlags);
     }
     template<bool unscopables>
     BOOL JavascriptOperators::DeleteProperty_Impl(RecyclableObject* instance, PropertyId propertyId, PropertyOperationFlags propertyOperationFlags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2726\n");
         if (unscopables && JavascriptOperators::IsPropertyUnscopable(instance, propertyId))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2728\n");
             return false;
         }
 #ifdef ENABLE_MUTATION_BREAKPOINT
         ScriptContext *scriptContext = instance->GetScriptContext();
         if (MutationBreakpoint::IsFeatureEnabled(scriptContext)
             && scriptContext->HasMutationBreakpoints())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2735\n");
             MutationBreakpoint::HandleDeleteProperty(scriptContext, instance, propertyId);
         }
 #endif
@@ -2742,15 +2742,15 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_DeleteProperty(Var instance, PropertyId propertyId, ScriptContext* scriptContext, PropertyOperationFlags propertyOperationFlags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2744\n");
         if(TaggedNumber::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2746\n");
             return scriptContext->GetLibrary()->GetTrue();
         }
 
         TypeId typeId = JavascriptOperators::GetTypeId(instance);
         if (typeId == TypeIds_Null || typeId == TypeIds_Undefined)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2752\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_CannotDelete_NullOrUndefined,
                 scriptContext->GetPropertyName(propertyId)->GetBuffer());
         }
@@ -2762,7 +2762,7 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_DeleteRootProperty(Var instance, PropertyId propertyId, ScriptContext* scriptContext, PropertyOperationFlags propertyOperationFlags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2764\n");
         AssertMsg(RootObjectBase::Is(instance), "Root must be a global object!");
         RootObjectBase* rootObject = static_cast<RootObjectBase*>(instance);
 
@@ -2772,7 +2772,7 @@ CommonNumber:
 
     template <bool IsFromFullJit, class TInlineCache>
     inline void JavascriptOperators::PatchSetPropertyScoped(FunctionBody *const functionBody, TInlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, FrameDisplay *pDisplay, PropertyId propertyId, Var newValue, Var defaultInstance, PropertyOperationFlags propertyOperationFlags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2774\n");
         // Set the property using a scope stack rather than an individual instance.
         // Walk the stack until we find an instance that has the property and store
         // the new value there.
@@ -2794,7 +2794,7 @@ CommonNumber:
         bool isLexicalThisSlotSymbol = (propertyId == PropertyIds::_lexicalThisSlotSymbol);
 
         for (uint16 i = 0; i < length; i++)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2796\n");
             object = (DynamicObject*)pDisplay->GetItem(i);
 
             AssertMsg(!ConsoleScopeActivationObject::Is(object) || (i == length - 1), "Invalid location for ConsoleScopeActivationObject");
@@ -2802,9 +2802,9 @@ CommonNumber:
             Type* type = object->GetType();
             if (CacheOperators::TrySetProperty<true, true, true, true, true, !TInlineCache::IsPolymorphic, TInlineCache::IsPolymorphic, false>(
                     object, false, propertyId, newValue, scriptContext, propertyOperationFlags, nullptr, &info))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2804\n");
                 if (isLexicalThisSlotSymbol && !JavascriptOperators::HasProperty(object, PropertyIds::_lexicalNewTargetSymbol))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 2806\n");
                     continue;
                 }
 
@@ -2819,11 +2819,11 @@ CommonNumber:
             Var setterValueOrProxy = nullptr;
             DescriptorFlags flags = None;
             if (JavascriptOperators::CheckPrototypesForAccessorOrNonWritableProperty(object, propertyId, &setterValueOrProxy, &flags, &info, scriptContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2821\n");
                 if ((flags & Accessor) == Accessor)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 2823\n");
                     if (setterValueOrProxy)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 2825\n");
                         JavascriptFunction* func = (JavascriptFunction*)setterValueOrProxy;
                         Assert(info.GetFlags() == InlineCacheSetterFlag || info.GetPropertyIndex() == Constants::NoSlot);
                         CacheOperators::CachePropertyWrite(object, false, type, propertyId, &info, scriptContext);
@@ -2834,10 +2834,10 @@ CommonNumber:
                     return;
                 }
                 else if ((flags & Proxy) == Proxy)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 2836\n");
                     Assert(JavascriptProxy::Is(setterValueOrProxy));
                     JavascriptProxy* proxy = JavascriptProxy::FromVar(setterValueOrProxy);
-                    auto fn = [&](RecyclableObject* target) -> BOOL {
+                    auto fn = [&](RecyclableObject* target) -> BOOL {LOGMEIN("JavascriptOperators.cpp] 2839\n");
                         return JavascriptOperators::SetProperty(object, target, propertyId, newValue, scriptContext, propertyOperationFlags);
                     };
                     // We can't cache the property at this time. both target and handler can be changed outside of the proxy, so the inline cache needs to be
@@ -2850,9 +2850,9 @@ CommonNumber:
                 {
                     Assert((flags & Data) == Data && (flags & Writable) == None);
                     if (!allowUndecInConsoleScope)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 2852\n");
                         if (flags & Const)
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 2854\n");
                             JavascriptError::ThrowTypeError(scriptContext, ERRAssignmentToConst);
                         }
 
@@ -2862,7 +2862,7 @@ CommonNumber:
                 }
             }
             else if (!JavascriptOperators::IsObject(object))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2864\n");
                 JavascriptError::ThrowCantAssignIfStrictMode(propertyOperationFlags, scriptContext);
             }
 
@@ -2871,7 +2871,7 @@ CommonNumber:
             // so we need to do a "has" first to make sure the "get" is valid (e.g., "get" on a HostDispatch
             // with implicit calls disabled will always "succeed").
             if (JavascriptOperators::HasProperty(object, propertyId))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2873\n");
                 DisableImplicitFlags disableImplicitFlags = scriptContext->GetThreadContext()->GetDisableImplicitFlags();
                 scriptContext->GetThreadContext()->SetDisableImplicitFlags(DisableImplicitCallAndExceptionFlag);
 
@@ -2881,7 +2881,7 @@ CommonNumber:
                 scriptContext->GetThreadContext()->SetDisableImplicitFlags(disableImplicitFlags);
 
                 if (result && scriptContext->IsUndeclBlockVar(value) && !allowUndecInConsoleScope && !isLexicalThisSlotSymbol)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 2883\n");
                     JavascriptError::ThrowReferenceError(scriptContext, JSERR_UseBeforeDeclaration);
                 }
 
@@ -2892,17 +2892,17 @@ CommonNumber:
 
 #if DBG_DUMP
                 if (PHASE_VERBOSE_TRACE1(Js::InlineCachePhase))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 2894\n");
                     CacheOperators::TraceCache(inlineCache, _u("PatchSetPropertyScoped"), propertyId, scriptContext, object);
                 }
 #endif
                 if (!JavascriptProxy::Is(object) && !allowUndecInConsoleScope)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 2899\n");
                     CacheOperators::CachePropertyWrite(object, false, type, propertyId, &info2, scriptContext);
                 }
 
                 if (isLexicalThisSlotSymbol && !JavascriptOperators::HasProperty(object, PropertyIds::_lexicalNewTargetSymbol))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 2904\n");
                     continue;
                 }
 
@@ -2914,10 +2914,10 @@ CommonNumber:
 
         // If we have console scope and no one in the scope had the property add it to console scope
         if ((length > 0) && ConsoleScopeActivationObject::Is(pDisplay->GetItem(length - 1)))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2916\n");
             // CheckPrototypesForAccessorOrNonWritableProperty does not check for const in global object. We should check it here.
             if ((length > 1) && GlobalObject::Is(pDisplay->GetItem(length - 2)))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2919\n");
                 GlobalObject* globalObject = GlobalObject::FromVar(pDisplay->GetItem(length - 2));
                 Var setterValue = nullptr;
 
@@ -2925,11 +2925,11 @@ CommonNumber:
                 Assert((flags & Accessor) != Accessor);
                 Assert((flags & Proxy) != Proxy);
                 if ((flags & Data) == Data && (flags & Writable) == None)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 2927\n");
                     if (!allowUndecInConsoleScope)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 2929\n");
                         if (flags & Const)
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 2931\n");
                             JavascriptError::ThrowTypeError(scriptContext, ERRAssignmentToConst);
                         }
                         Assert(!isLexicalThisSlotSymbol);
@@ -2948,7 +2948,7 @@ CommonNumber:
         AssertMsg(!TaggedNumber::Is(defaultInstance), "Root object is an int or tagged float?");
         Assert(defaultInstance != nullptr);
         RecyclableObject* obj = RecyclableObject::FromVar(defaultInstance);
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2950\n");
             //SetPropertyScoped does not use inline cache for default instance
             PropertyValueInfo info2;
             JavascriptOperators::SetRootProperty(obj, propertyId, newValue, &info2, scriptContext, (PropertyOperationFlags)(propertyOperationFlags | PropertyOperation_Root));
@@ -2960,17 +2960,17 @@ CommonNumber:
     template void JavascriptOperators::PatchSetPropertyScoped<true, PolymorphicInlineCache>(FunctionBody *const functionBody, PolymorphicInlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, FrameDisplay *pDisplay, PropertyId propertyId, Var newValue, Var defaultInstance, PropertyOperationFlags propertyOperationFlags);
 
     BOOL JavascriptOperators::OP_InitFuncScoped(FrameDisplay *pScope, PropertyId propertyId, Var newValue, Var defaultInstance, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2962\n");
         int i;
         int length = pScope->GetLength();
         DynamicObject *obj;
 
         for (i = 0; i < length; i++)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2968\n");
             obj = (DynamicObject*)pScope->GetItem(i);
 
             if (obj->InitFuncScoped(propertyId, newValue))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2972\n");
                 return TRUE;
             }
         }
@@ -2980,16 +2980,16 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::OP_InitPropertyScoped(FrameDisplay *pScope, PropertyId propertyId, Var newValue, Var defaultInstance, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 2982\n");
         int i;
         int length = pScope->GetLength();
         DynamicObject *obj;
 
         for (i = 0; i < length; i++)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 2988\n");
             obj = (DynamicObject*)pScope->GetItem(i);
             if (obj->InitPropertyScoped(propertyId, newValue))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 2991\n");
                 return TRUE;
             }
         }
@@ -3004,15 +3004,15 @@ CommonNumber:
         Var defaultInstance,
         ScriptContext* scriptContext,
         PropertyOperationFlags propertyOperationFlags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3006\n");
         int i;
         int length = pScope->GetLength();
 
         for (i = 0; i < length; i++)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3011\n");
             DynamicObject *obj = (DynamicObject*)pScope->GetItem(i);
             if (JavascriptOperators::HasProperty(obj, propertyId))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3014\n");
                 return scriptContext->GetLibrary()->CreateBoolean(JavascriptOperators::DeleteProperty(obj, propertyId, propertyOperationFlags));
             }
         }
@@ -3021,15 +3021,15 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_TypeofPropertyScoped(FrameDisplay *pScope, PropertyId propertyId, Var defaultInstance, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3023\n");
         int i;
         int length = pScope->GetLength();
 
         for (i = 0; i < length; i++)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3028\n");
             DynamicObject *obj = (DynamicObject*)pScope->GetItem(i);
             if (JavascriptOperators::HasProperty(obj, propertyId))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3031\n");
                 return JavascriptOperators::TypeofFld(obj, propertyId, scriptContext);
             }
         }
@@ -3038,12 +3038,12 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::HasOwnItem(RecyclableObject* object, uint32 index)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3040\n");
         return object->HasOwnItem(index);
     }
 
     BOOL JavascriptOperators::HasItem(RecyclableObject* object, uint64 index)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3045\n");
         PropertyRecord const * propertyRecord;
         ScriptContext* scriptContext = object->GetScriptContext();
         JavascriptOperators::GetPropertyIdForInt(index, scriptContext, &propertyRecord);
@@ -3051,14 +3051,14 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::HasItem(RecyclableObject* object, uint32 index)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3053\n");
 #if ENABLE_COPYONACCESS_ARRAY
         JavascriptLibrary::CheckAndConvertCopyOnAccessNativeIntArray<Var>(object);
 #endif
         while (JavascriptOperators::GetTypeId(object) != TypeIds_Null)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3058\n");
             if (object->HasItem(index))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3060\n");
                 return true;
             }
             // CONSIDER: Numeric property values shouldn't be on the prototype for now but if this changes
@@ -3069,21 +3069,21 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::GetOwnItem(RecyclableObject* object, uint32 index, Var* value, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3071\n");
         return object->GetItem(object, index, value, requestContext);
     }
 
     BOOL JavascriptOperators::GetItem(Var instance, RecyclableObject* propertyObject, uint32 index, Var* value, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3076\n");
         RecyclableObject* object = propertyObject;
         while (JavascriptOperators::GetTypeId(object) != TypeIds_Null)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3079\n");
             if (object->GetItem(instance, index, value, requestContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3081\n");
                 return true;
             }
             if (object->SkipsPrototype())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3085\n");
                 break;
             }
             object = JavascriptOperators::GetPrototypeNoTrap(object);
@@ -3093,16 +3093,16 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::GetItemReference(Var instance, RecyclableObject* propertyObject, uint32 index, Var* value, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3095\n");
         RecyclableObject* object = propertyObject;
         while (JavascriptOperators::GetTypeId(object) != TypeIds_Null)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3098\n");
             if (object->GetItemReference(instance, index, value, requestContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3100\n");
                 return true;
             }
             if (object->SkipsPrototype())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3104\n");
                 break;
             }
             object = JavascriptOperators::GetPrototypeNoTrap(object);
@@ -3112,36 +3112,36 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::SetItem(Var receiver, RecyclableObject* object, uint64 index, Var value, ScriptContext* scriptContext, PropertyOperationFlags propertyOperationFlags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3114\n");
         PropertyRecord const * propertyRecord;
         JavascriptOperators::GetPropertyIdForInt(index, scriptContext, &propertyRecord);
         return JavascriptOperators::SetProperty(receiver, object, propertyRecord->GetPropertyId(), value, scriptContext, propertyOperationFlags);
     }
 
     BOOL JavascriptOperators::SetItem(Var receiver, RecyclableObject* object, uint32 index, Var value, ScriptContext* scriptContext, PropertyOperationFlags propertyOperationFlags, BOOL skipPrototypeCheck /* = FALSE */)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3121\n");
         Var setterValueOrProxy = nullptr;
         DescriptorFlags flags = None;
         Assert(!TaggedNumber::Is(receiver));
         if (JavascriptOperators::CheckPrototypesForAccessorOrNonWritableItem(object, index, &setterValueOrProxy, &flags, scriptContext, skipPrototypeCheck))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3126\n");
             scriptContext->GetThreadContext()->AddImplicitCallFlags(ImplicitCall_NoOpSet);
             if ((flags & Accessor) == Accessor)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3129\n");
                 if (JavascriptError::ThrowIfStrictModeUndefinedSetter(propertyOperationFlags, setterValueOrProxy, scriptContext) ||
                     JavascriptError::ThrowIfNotExtensibleUndefinedSetter(propertyOperationFlags, setterValueOrProxy, scriptContext))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3132\n");
                     return TRUE;
                 }
                 if (setterValueOrProxy)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3136\n");
                     RecyclableObject* func = RecyclableObject::FromVar(setterValueOrProxy);
                     JavascriptOperators::CallSetter(func, receiver, value, scriptContext);
                 }
                 return TRUE;
             }
             else if ((flags & Proxy) == Proxy)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3143\n");
                 Assert(JavascriptProxy::Is(setterValueOrProxy));
                 JavascriptProxy* proxy = JavascriptProxy::FromVar(setterValueOrProxy);
                 const PropertyRecord* propertyRecord;
@@ -3152,7 +3152,7 @@ CommonNumber:
             {
                 Assert((flags & Data) == Data && (flags & Writable) == None);
                 if ((propertyOperationFlags & PropertyOperationFlags::PropertyOperation_ThrowIfNotExtensible) == PropertyOperationFlags::PropertyOperation_ThrowIfNotExtensible)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3154\n");
                     JavascriptError::ThrowTypeError(scriptContext, JSERR_NonExtensibleObject);
                 }
 
@@ -3162,7 +3162,7 @@ CommonNumber:
             }
         }
         else if (!JavascriptOperators::IsObject(receiver))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3164\n");
             JavascriptError::ThrowCantAssignIfStrictMode(propertyOperationFlags, scriptContext);
             return FALSE;
         }
@@ -3171,18 +3171,18 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::DeleteItem(RecyclableObject* object, uint32 index, PropertyOperationFlags propertyOperationFlags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3173\n");
         return object->DeleteItem(index, propertyOperationFlags);
     }
     BOOL JavascriptOperators::DeleteItem(RecyclableObject* object, uint64 index, PropertyOperationFlags propertyOperationFlags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3177\n");
         PropertyRecord const * propertyRecord;
         JavascriptOperators::GetPropertyIdForInt(index, object->GetScriptContext(), &propertyRecord);
         return JavascriptOperators::DeleteProperty(object, propertyRecord->GetPropertyId(), propertyOperationFlags);
     }
 
     BOOL JavascriptOperators::OP_HasItem(Var instance, Var index, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3184\n");
         RecyclableObject* object = TaggedNumber::Is(instance) ?
             scriptContext->GetLibrary()->GetNumberPrototype() :
             RecyclableObject::FromVar(instance);
@@ -3192,21 +3192,21 @@ CommonNumber:
         IndexType indexType = GetIndexType(index, scriptContext, &indexVal, &propertyRecord, false);
 
         if (indexType == IndexType_Number)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3194\n");
             return HasItem(object, indexVal);
         }
         else
         {
             Assert(indexType == IndexType_PropertyId);
             if (propertyRecord == nullptr && !JavascriptOperators::CanShortcutOnUnknownPropertyName(object))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3201\n");
                 indexType = GetIndexTypeFromPrimitive(index, scriptContext, &indexVal, &propertyRecord, true);
                 Assert(indexType == IndexType_PropertyId);
                 Assert(propertyRecord != nullptr);
             }
 
             if (propertyRecord != nullptr)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3208\n");
                 return HasProperty(object, propertyRecord->GetPropertyId());
             }
             else
@@ -3225,23 +3225,23 @@ CommonNumber:
 
 #if ENABLE_PROFILE_INFO
     void JavascriptOperators::UpdateNativeArrayProfileInfoToCreateVarArray(Var instance, const bool expectingNativeFloatArray, const bool expectingVarArray)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3227\n");
         Assert(instance);
         Assert(expectingNativeFloatArray ^ expectingVarArray);
 
         if (!JavascriptNativeArray::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3232\n");
             return;
         }
 
         ArrayCallSiteInfo *const arrayCallSiteInfo = JavascriptNativeArray::FromVar(instance)->GetArrayCallSiteInfo();
         if (!arrayCallSiteInfo)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3238\n");
             return;
         }
 
         if (expectingNativeFloatArray)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3243\n");
             // Profile data is expecting a native float array. Ensure that at the array's creation site, that a native int array
             // is not created, such that the profiled array type would be correct.
             arrayCallSiteInfo->SetIsNotNativeIntArray();
@@ -3256,7 +3256,7 @@ CommonNumber:
     }
 
     bool JavascriptOperators::SetElementMayHaveImplicitCalls(ScriptContext *const scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3258\n");
         return
             scriptContext->optimizationOverrides.GetArraySetElementFastPathVtable() ==
                 ScriptContextOptimizationOverrideInfo::InvalidVtable;
@@ -3264,12 +3264,12 @@ CommonNumber:
 #endif
 
     RecyclableObject *JavascriptOperators::GetCallableObjectOrThrow(const Var callee, ScriptContext *const scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3266\n");
         Assert(callee);
         Assert(scriptContext);
 
         if (TaggedNumber::Is(callee))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3271\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedFunction /* TODO-ERROR: get arg name - aFunc */);
         }
         return RecyclableObject::FromVar(callee);
@@ -3277,21 +3277,21 @@ CommonNumber:
 
 #if ENABLE_NATIVE_CODEGEN
     Var JavascriptOperators::OP_GetElementI_JIT(Var instance, Var index, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3279\n");
         Assert(Js::JavascriptStackWalker::ValidateTopJitFrame(scriptContext));
 
         return OP_GetElementI(instance, index, scriptContext);
     }
 #else
     Var JavascriptOperators::OP_GetElementI_JIT(Var instance, Var index, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3286\n");
         return OP_GetElementI(instance, index, scriptContext);
     }
 #endif
 
 #if ENABLE_NATIVE_CODEGEN
     Var JavascriptOperators::OP_GetElementI_JIT_ExpectingNativeFloatArray(Var instance, Var index, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3293\n");
         Assert(Js::JavascriptStackWalker::ValidateTopJitFrame(scriptContext));
 
         UpdateNativeArrayProfileInfoToCreateVarArray(instance, true, false);
@@ -3299,7 +3299,7 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_GetElementI_JIT_ExpectingVarArray(Var instance, Var index, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3301\n");
         Assert(Js::JavascriptStackWalker::ValidateTopJitFrame(scriptContext));
 
 
@@ -3309,7 +3309,7 @@ CommonNumber:
 #endif
 
     Var JavascriptOperators::OP_GetElementI_UInt32(Var instance, uint32 index, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3311\n");
 #if FLOATVAR
         return OP_GetElementI_JIT(instance, Js::JavascriptNumber::ToVar(index, scriptContext), scriptContext);
 #else
@@ -3320,7 +3320,7 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_GetElementI_UInt32_ExpectingNativeFloatArray(Var instance, uint32 index, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3322\n");
 #if ENABLE_PROFILE_INFO
         UpdateNativeArrayProfileInfoToCreateVarArray(instance, true, false);
 #endif
@@ -3328,7 +3328,7 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_GetElementI_UInt32_ExpectingVarArray(Var instance, uint32 index, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3330\n");
 #if ENABLE_PROFILE_INFO
         UpdateNativeArrayProfileInfoToCreateVarArray(instance, false, true);
 #endif
@@ -3336,7 +3336,7 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_GetElementI_Int32(Var instance, int32 index, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3338\n");
 #if FLOATVAR
         return OP_GetElementI_JIT(instance, Js::JavascriptNumber::ToVar(index, scriptContext), scriptContext);
 #else
@@ -3347,7 +3347,7 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_GetElementI_Int32_ExpectingNativeFloatArray(Var instance, int32 index, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3349\n");
 #if ENABLE_PROFILE_INFO
         UpdateNativeArrayProfileInfoToCreateVarArray(instance, true, false);
 #endif
@@ -3355,7 +3355,7 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_GetElementI_Int32_ExpectingVarArray(Var instance, int32 index, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3357\n");
 #if ENABLE_PROFILE_INFO
         UpdateNativeArrayProfileInfoToCreateVarArray(instance, false, true);
 #endif
@@ -3363,30 +3363,30 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::GetItemFromArrayPrototype(JavascriptArray * arr, int32 indexInt, Var * result, ScriptContext * scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3365\n");
         // try get from Array prototype
         RecyclableObject* prototype = arr->GetPrototype();
         if (JavascriptOperators::GetTypeId(prototype) != TypeIds_Array) //This can be TypeIds_ES5Array (or any other object changed through __proto__).
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3369\n");
             return false;
         }
 
         JavascriptArray* arrayPrototype = JavascriptArray::FromVar(prototype); //Prototype must be Array.prototype (unless changed through __proto__)
         if (arrayPrototype->GetLength() && arrayPrototype->GetItem(arrayPrototype, (uint32)indexInt, result, scriptContext))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3375\n");
             return true;
         }
 
         prototype = arrayPrototype->GetPrototype(); //Its prototype must be Object.prototype (unless changed through __proto__)
         if (prototype->GetScriptContext()->GetLibrary()->GetObjectPrototype() != prototype)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3381\n");
             return false;
         }
 
         if (DynamicObject::FromVar(prototype)->HasNonEmptyObjectArray())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3386\n");
             if (prototype->GetItem(arr, (uint32)indexInt, result, scriptContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3388\n");
                 return true;
             }
         }
@@ -3397,23 +3397,23 @@ CommonNumber:
 
     template <typename T>
     BOOL JavascriptOperators::OP_GetElementI_ArrayFastPath(T * arr, int indexInt, Var * result, ScriptContext * scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3399\n");
 #if ENABLE_COPYONACCESS_ARRAY
         JavascriptLibrary::CheckAndConvertCopyOnAccessNativeIntArray<Var>(arr);
 #endif
         if (indexInt >= 0)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3404\n");
             if (!CrossSite::IsCrossSiteObjectTyped(arr))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3406\n");
                 if (arr->T::DirectGetVarItemAt((uint32)indexInt, result, scriptContext))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3408\n");
                     return true;
                 }
             }
             else
             {
                 if (arr->GetItem(arr, (uint32)indexInt, result, scriptContext))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3415\n");
                     return true;
                 }
             }
@@ -3423,66 +3423,66 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_GetElementI(Var instance, Var index, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3425\n");
         JavascriptString *temp = NULL;
 #if ENABLE_COPYONACCESS_ARRAY
         JavascriptLibrary::CheckAndConvertCopyOnAccessNativeIntArray<Var>(instance);
 #endif
 
         if (TaggedInt::Is(index))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3432\n");
         TaggedIntIndex:
             switch (JavascriptOperators::GetTypeId(instance))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3435\n");
             case TypeIds_Array: //fast path for array
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3437\n");
                 Var result;
                 if (OP_GetElementI_ArrayFastPath(JavascriptArray::FromVar(instance), TaggedInt::ToInt32(index), &result, scriptContext))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3440\n");
                     return result;
                 }
                 break;
             }
             case TypeIds_NativeIntArray:
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3446\n");
                 Var result;
                 if (OP_GetElementI_ArrayFastPath(JavascriptNativeIntArray::FromVar(instance), TaggedInt::ToInt32(index), &result, scriptContext))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3449\n");
                     return result;
                 }
                 break;
             }
             case TypeIds_NativeFloatArray:
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3455\n");
                 Var result;
                 if (OP_GetElementI_ArrayFastPath(JavascriptNativeFloatArray::FromVar(instance), TaggedInt::ToInt32(index), &result, scriptContext))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3458\n");
                     return result;
                 }
                 break;
             }
 
             case TypeIds_String: // fast path for string
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3465\n");
                 charcount_t indexInt = TaggedInt::ToUInt32(index);
                 JavascriptString* string = JavascriptString::FromVar(instance);
                 Var result;
                 if (string->JavascriptString::GetItem(instance, indexInt, &result, scriptContext))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3470\n");
                     return result;
                 }
                 break;
             }
 
             case TypeIds_Int8Array:
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3477\n");
                 // The typed array will deal with all possible values for the index
                 int32 indexInt = TaggedInt::ToInt32(index);
                 if (VirtualTableInfo<Int8VirtualArray>::HasVirtualTable(instance))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3481\n");
                     Int8VirtualArray* int8Array = Int8VirtualArray::FromVar(instance);
                     if (!CrossSite::IsCrossSiteObjectTyped(int8Array) && indexInt >= 0)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 3484\n");
                         return int8Array->DirectGetItem(indexInt);
                     }
                 }
@@ -3490,7 +3490,7 @@ CommonNumber:
                 {
                     Int8Array* int8Array = Int8Array::FromVar(instance);
                     if (!CrossSite::IsCrossSiteObjectTyped(int8Array) && indexInt >= 0)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 3492\n");
                         return int8Array->DirectGetItem(indexInt);
                     }
                 }
@@ -3498,14 +3498,14 @@ CommonNumber:
             }
 
             case TypeIds_Uint8Array:
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3500\n");
                 // The typed array will deal with all possible values for the index
                 int32 indexInt = TaggedInt::ToInt32(index);
                 if (VirtualTableInfo<Uint8VirtualArray>::HasVirtualTable(instance))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3504\n");
                     Uint8VirtualArray* uint8Array = Uint8VirtualArray::FromVar(instance);
                     if (!CrossSite::IsCrossSiteObjectTyped(uint8Array) && indexInt >= 0)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 3507\n");
                         return uint8Array->DirectGetItem(indexInt);
                     }
                 }
@@ -3513,7 +3513,7 @@ CommonNumber:
                 {
                     Uint8Array* uint8Array = Uint8Array::FromVar(instance);
                     if (!CrossSite::IsCrossSiteObjectTyped(uint8Array) && indexInt >= 0)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 3515\n");
                         return uint8Array->DirectGetItem(indexInt);
                     }
                 }
@@ -3521,14 +3521,14 @@ CommonNumber:
             }
 
             case TypeIds_Uint8ClampedArray:
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3523\n");
                 // The typed array will deal with all possible values for the index
                 int32 indexInt = TaggedInt::ToInt32(index);
                 if (VirtualTableInfo<Uint8ClampedVirtualArray>::HasVirtualTable(instance))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3527\n");
                     Uint8ClampedVirtualArray* uint8ClampedArray = Uint8ClampedVirtualArray::FromVar(instance);
                     if (!CrossSite::IsCrossSiteObjectTyped(uint8ClampedArray) && indexInt >= 0)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 3530\n");
                         return uint8ClampedArray->DirectGetItem(indexInt);
                     }
                 }
@@ -3536,7 +3536,7 @@ CommonNumber:
                 {
                     Uint8ClampedArray* uint8ClampedArray = Uint8ClampedArray::FromVar(instance);
                     if (!CrossSite::IsCrossSiteObjectTyped(uint8ClampedArray) && indexInt >= 0)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 3538\n");
                         return uint8ClampedArray->DirectGetItem(indexInt);
                     }
                 }
@@ -3544,15 +3544,15 @@ CommonNumber:
             }
 
             case TypeIds_Int16Array:
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3546\n");
                 // The type array will deal with all possible values for the index
                 int32 indexInt = TaggedInt::ToInt32(index);
 
                 if (VirtualTableInfo<Int16VirtualArray>::HasVirtualTable(instance))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3551\n");
                     Int16VirtualArray* int16Array = Int16VirtualArray::FromVar(instance);
                     if (!CrossSite::IsCrossSiteObjectTyped(int16Array) && indexInt >= 0)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 3554\n");
                         return int16Array->DirectGetItem(indexInt);
                     }
                 }
@@ -3560,7 +3560,7 @@ CommonNumber:
                 {
                     Int16Array* int16Array = Int16Array::FromVar(instance);
                     if (!CrossSite::IsCrossSiteObjectTyped(int16Array) && indexInt >= 0)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 3562\n");
                         return int16Array->DirectGetItem(indexInt);
                     }
                 }
@@ -3568,15 +3568,15 @@ CommonNumber:
             }
 
             case TypeIds_Uint16Array:
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3570\n");
                 // The type array will deal with all possible values for the index
                 int32 indexInt = TaggedInt::ToInt32(index);
 
                 if (VirtualTableInfo<Uint16VirtualArray>::HasVirtualTable(instance))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3575\n");
                     Uint16VirtualArray* uint16Array = Uint16VirtualArray::FromVar(instance);
                     if (!CrossSite::IsCrossSiteObjectTyped(uint16Array) && indexInt >= 0)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 3578\n");
                         return uint16Array->DirectGetItem(indexInt);
                     }
                 }
@@ -3584,21 +3584,21 @@ CommonNumber:
                 {
                     Uint16Array* uint16Array = Uint16Array::FromVar(instance);
                     if (!CrossSite::IsCrossSiteObjectTyped(uint16Array) && indexInt >= 0)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 3586\n");
                         return uint16Array->DirectGetItem(indexInt);
                     }
                 }
                 break;
             }
             case TypeIds_Int32Array:
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3593\n");
                 // The type array will deal with all possible values for the index
                 int32 indexInt = TaggedInt::ToInt32(index);
                 if (VirtualTableInfo<Int32VirtualArray>::HasVirtualTable(instance))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3597\n");
                     Int32VirtualArray* int32Array = Int32VirtualArray::FromVar(instance);
                     if (!CrossSite::IsCrossSiteObjectTyped(int32Array) && indexInt >= 0)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 3600\n");
                         return int32Array->DirectGetItem(indexInt);
                     }
                 }
@@ -3606,7 +3606,7 @@ CommonNumber:
                 {
                     Int32Array* int32Array = Int32Array::FromVar(instance);
                     if (!CrossSite::IsCrossSiteObjectTyped(int32Array) && indexInt >= 0)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 3608\n");
                         return int32Array->DirectGetItem(indexInt);
                     }
                 }
@@ -3614,14 +3614,14 @@ CommonNumber:
 
             }
             case TypeIds_Uint32Array:
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3616\n");
                 // The type array will deal with all possible values for the index
                 int32 indexInt = TaggedInt::ToInt32(index);
                 if (VirtualTableInfo<Uint32VirtualArray>::HasVirtualTable(instance))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3620\n");
                     Uint32VirtualArray* uint32Array = Uint32VirtualArray::FromVar(instance);
                     if (!CrossSite::IsCrossSiteObjectTyped(uint32Array) && indexInt >= 0)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 3623\n");
                         return uint32Array->DirectGetItem(indexInt);
                     }
                 }
@@ -3629,22 +3629,22 @@ CommonNumber:
                 {
                     Uint32Array* uint32Array = Uint32Array::FromVar(instance);
                     if (!CrossSite::IsCrossSiteObjectTyped(uint32Array) && indexInt >= 0)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 3631\n");
                         return uint32Array->DirectGetItem(indexInt);
                     }
                 }
                 break;
             }
             case TypeIds_Float32Array:
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3638\n");
                 // The type array will deal with all possible values for the index
                 int32 indexInt = TaggedInt::ToInt32(index);
 
                 if (VirtualTableInfo<Float32VirtualArray>::HasVirtualTable(instance))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3643\n");
                     Float32VirtualArray* float32Array = Float32VirtualArray::FromVar(instance);
                     if (!CrossSite::IsCrossSiteObjectTyped(float32Array) && indexInt >= 0)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 3646\n");
                         return float32Array->DirectGetItem(indexInt);
                     }
                 }
@@ -3652,21 +3652,21 @@ CommonNumber:
                 {
                     Float32Array* float32Array = Float32Array::FromVar(instance);
                     if (!CrossSite::IsCrossSiteObjectTyped(float32Array) && indexInt >= 0)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 3654\n");
                         return float32Array->DirectGetItem(indexInt);
                     }
                 }
                 break;
             }
             case TypeIds_Float64Array:
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3661\n");
                 // The type array will deal with all possible values for the index
                 int32 indexInt = TaggedInt::ToInt32(index);
                 if (VirtualTableInfo<Float64VirtualArray>::HasVirtualTable(instance))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3665\n");
                     Float64VirtualArray* float64Array = Float64VirtualArray::FromVar(instance);
                     if (!CrossSite::IsCrossSiteObjectTyped(float64Array) && indexInt >= 0)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 3668\n");
                         return float64Array->DirectGetItem(indexInt);
                     }
                 }
@@ -3674,7 +3674,7 @@ CommonNumber:
                 {
                     Float64Array* float64Array = Float64Array::FromVar(instance);
                     if (!CrossSite::IsCrossSiteObjectTyped(float64Array) && indexInt >= 0)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 3676\n");
                         return float64Array->DirectGetItem(indexInt);
                     }
                 }
@@ -3686,39 +3686,39 @@ CommonNumber:
             }
         }
         else if (JavascriptNumber::Is_NoTaggedIntCheck(index))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3688\n");
             uint32 uint32Index = JavascriptConversion::ToUInt32(index, scriptContext);
 
             if ((double)uint32Index == JavascriptNumber::GetValue(index) && !TaggedInt::IsOverflow(uint32Index))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3692\n");
                 index = TaggedInt::ToVarUnchecked(uint32Index);
                 goto TaggedIntIndex;
             }
         }
         else if (JavascriptString::Is(index)) // fastpath for PropertyStrings
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3698\n");
             temp = JavascriptString::FromVar(index);
             Assert(temp->GetScriptContext() == scriptContext);
 
             if (VirtualTableInfo<Js::PropertyString>::HasVirtualTable(temp))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3703\n");
                 PropertyString * propertyString = (PropertyString*)temp;
                 PropertyCache const *cache = propertyString->GetPropertyCache();
                 RecyclableObject* object = nullptr;
                 if (FALSE == JavascriptOperators::GetPropertyObject(instance, scriptContext, &object))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3708\n");
                     JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_CannotGet_NullOrUndefined,
                         JavascriptString::FromVar(index)->GetSz());
                 }
                 if (object->GetType() == cache->type)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3713\n");
 #if DBG_DUMP
                     scriptContext->forinCache++;
 #endif
                     Assert(object->GetScriptContext() == scriptContext);
                     Var value;
                     if (cache->isInlineSlot)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 3720\n");
                         value = DynamicObject::FromVar(object)->GetInlineSlot(cache->dataSlotIndex);
                     }
                     else
@@ -3736,16 +3736,16 @@ CommonNumber:
                 PropertyRecord const * propertyRecord = propertyString->GetPropertyRecord();
                 Var value;
                 if (propertyRecord->IsNumeric())
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3738\n");
                     if (JavascriptOperators::GetItem(instance, object, propertyRecord->GetNumericValue(), &value, scriptContext))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 3740\n");
                         return value;
                     }
                 }
                 else
                 {
                     if (JavascriptOperators::GetPropertyWPCache(instance, object, propertyRecord->GetPropertyId(), &value, scriptContext, propertyString))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 3747\n");
                         return value;
                     }
                 }
@@ -3760,12 +3760,12 @@ CommonNumber:
     }
 
     Var JavascriptOperators::GetElementIHelper(Var instance, Var index, Var receiver, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3762\n");
         RecyclableObject* object = nullptr;
         if (FALSE == JavascriptOperators::GetPropertyObject(instance, scriptContext, &object))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3765\n");
             if (scriptContext->GetThreadContext()->RecordImplicitException())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3767\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_CannotGet_NullOrUndefined, GetPropertyDisplayNameForError(index, scriptContext));
             }
             else
@@ -3782,16 +3782,16 @@ CommonNumber:
         IndexType indexType = GetIndexType(index, scriptContext, &indexVal, &propertyRecord, &propertyNameString, false, true);
 
         if (indexType == IndexType_Number)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3784\n");
             if (JavascriptOperators::GetItem(receiver, object, indexVal, &value, scriptContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3786\n");
                 return value;
             }
         }
         else if (indexType == IndexType_JavascriptString)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3791\n");
             if (JavascriptOperators::GetPropertyWPCache(receiver, object, propertyNameString, &value, scriptContext, nullptr))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3793\n");
                 return value;
             }
         }
@@ -3799,16 +3799,16 @@ CommonNumber:
         {
             Assert(indexType == IndexType_PropertyId);
             if (propertyRecord == nullptr && !JavascriptOperators::CanShortcutOnUnknownPropertyName(object))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3801\n");
                 indexType = GetIndexTypeFromPrimitive(index, scriptContext, &indexVal, &propertyRecord, &propertyNameString, true, true);
                 Assert(indexType == IndexType_PropertyId);
                 Assert(propertyRecord != nullptr);
             }
 
             if (propertyRecord != nullptr)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3808\n");
                 if (JavascriptOperators::GetPropertyWPCache(receiver, object, propertyRecord->GetPropertyId(), &value, scriptContext, nullptr))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3810\n");
                     return value;
                 }
             }
@@ -3827,39 +3827,39 @@ CommonNumber:
     }
 
     int32 JavascriptOperators::OP_GetNativeIntElementI(Var instance, Var index)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3829\n");
 #if ENABLE_COPYONACCESS_ARRAY
         JavascriptLibrary::CheckAndConvertCopyOnAccessNativeIntArray<Var>(instance);
 #endif
         if (TaggedInt::Is(index))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3834\n");
             int32 indexInt = TaggedInt::ToInt32(index);
             if (indexInt < 0)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3837\n");
                 return JavascriptNativeIntArray::MissingItem;
             }
             JavascriptArray * arr = JavascriptArray::FromVar(instance);
             int32 result;
             if (arr->DirectGetItemAt((uint32)indexInt, &result))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3843\n");
                 return result;
             }
         }
         else if (JavascriptNumber::Is_NoTaggedIntCheck(index))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3848\n");
             int32 indexInt;
             bool isInt32;
             double dIndex = JavascriptNumber::GetValue(index);
             if (JavascriptNumber::TryGetInt32OrUInt32Value(dIndex, &indexInt, &isInt32))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3853\n");
                 if (isInt32 && indexInt < 0)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3855\n");
                     return JavascriptNativeIntArray::MissingItem;
                 }
                 JavascriptArray * arr = JavascriptArray::FromVar(instance);
                 int32 result;
                 if (arr->DirectGetItemAt((uint32)indexInt, &result))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3861\n");
                     return result;
                 }
             }
@@ -3873,7 +3873,7 @@ CommonNumber:
     }
 
     int32 JavascriptOperators::OP_GetNativeIntElementI_UInt32(Var instance, uint32 index, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3875\n");
 #if FLOATVAR
         return OP_GetNativeIntElementI(instance, Js::JavascriptNumber::ToVar(index, scriptContext));
 #else
@@ -3884,7 +3884,7 @@ CommonNumber:
     }
 
     int32 JavascriptOperators::OP_GetNativeIntElementI_Int32(Var instance, int32 index, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3886\n");
 #if FLOATVAR
         return OP_GetNativeIntElementI(instance, Js::JavascriptNumber::ToVar(index, scriptContext));
 #else
@@ -3895,41 +3895,41 @@ CommonNumber:
     }
 
     double JavascriptOperators::OP_GetNativeFloatElementI(Var instance, Var index)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3897\n");
         double result = 0;
 
         if (TaggedInt::Is(index))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3901\n");
             int32 indexInt = TaggedInt::ToInt32(index);
             if (indexInt < 0)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3904\n");
                 result = JavascriptNativeFloatArray::MissingItem;
             }
             else
             {
                 JavascriptArray * arr = JavascriptArray::FromVar(instance);
                 if (!arr->DirectGetItemAt((uint32)indexInt, &result))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3911\n");
                     result = JavascriptNativeFloatArray::MissingItem;
                 }
             }
         }
         else if (JavascriptNumber::Is_NoTaggedIntCheck(index))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3917\n");
             int32 indexInt;
             bool isInt32;
             double dIndex = JavascriptNumber::GetValue(index);
             if (JavascriptNumber::TryGetInt32OrUInt32Value(dIndex, &indexInt, &isInt32))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 3922\n");
                 if (isInt32 && indexInt < 0)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 3924\n");
                     result = JavascriptNativeFloatArray::MissingItem;
                 }
                 else
                 {
                     JavascriptArray * arr = JavascriptArray::FromVar(instance);
                     if (!arr->DirectGetItemAt((uint32)indexInt, &result))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 3931\n");
                         result = JavascriptNativeFloatArray::MissingItem;
                     }
                 }
@@ -3944,7 +3944,7 @@ CommonNumber:
     }
 
     double JavascriptOperators::OP_GetNativeFloatElementI_UInt32(Var instance, uint32 index, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3946\n");
 #if FLOATVAR
         return OP_GetNativeFloatElementI(instance, Js::JavascriptNumber::ToVar(index, scriptContext));
 #else
@@ -3955,7 +3955,7 @@ CommonNumber:
     }
 
     double JavascriptOperators::OP_GetNativeFloatElementI_Int32(Var instance, int32 index, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3957\n");
 #if FLOATVAR
         return OP_GetNativeFloatElementI(instance, Js::JavascriptNumber::ToVar(index, scriptContext));
 #else
@@ -3966,7 +3966,7 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_GetMethodElement_UInt32(Var instance, uint32 index, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3968\n");
 #if FLOATVAR
         return OP_GetMethodElement(instance, Js::JavascriptNumber::ToVar(index, scriptContext), scriptContext);
 #else
@@ -3977,7 +3977,7 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_GetMethodElement_Int32(Var instance, int32 index, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3979\n");
 #if FLOATVAR
         return OP_GetElementI(instance, Js::JavascriptNumber::ToVar(index, scriptContext), scriptContext);
 #else
@@ -3988,10 +3988,10 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_GetMethodElement(Var instance, Var index, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 3990\n");
         RecyclableObject* object = nullptr;
         if (FALSE == JavascriptOperators::GetPropertyObject(instance, scriptContext, &object))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 3993\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_CannotGet_NullOrUndefined, GetPropertyDisplayNameForError(index, scriptContext));
         }
 
@@ -4006,7 +4006,7 @@ CommonNumber:
         IndexType indexType = GetIndexType(index, scriptContext, &indexVal, &propertyRecord, false);
 
         if (indexType == IndexType_Number)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4008\n");
             hasProperty = JavascriptOperators::GetItemReference(instance, object, indexVal, &value, scriptContext);
         }
         else
@@ -4014,14 +4014,14 @@ CommonNumber:
             Assert(indexType == IndexType_PropertyId);
 
             if (propertyRecord == nullptr && !JavascriptOperators::CanShortcutOnUnknownPropertyName(object))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 4016\n");
                 indexType = GetIndexTypeFromPrimitive(index, scriptContext, &indexVal, &propertyRecord, true);
                 Assert(indexType == IndexType_PropertyId);
                 Assert(propertyRecord != nullptr);
             }
 
             if (propertyRecord != nullptr)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 4023\n");
                 hasProperty = JavascriptOperators::GetPropertyReference(instance, object, propertyRecord->GetPropertyId(), &value, scriptContext, NULL);
             }
 #if DBG
@@ -4037,10 +4037,10 @@ CommonNumber:
         }
 
         if (!hasProperty)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4039\n");
             JavascriptString* varName = nullptr;
             if (indexType == IndexType_PropertyId && propertyRecord != nullptr && propertyRecord->IsSymbol())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 4042\n");
                 varName = JavascriptSymbol::ToString(propertyRecord, scriptContext);
             }
             else
@@ -4053,7 +4053,7 @@ CommonNumber:
             value = ThrowErrorObject::CreateThrowTypeErrorObject(scriptContext, VBSERR_OLENoPropOrMethod, varName);
         }
         else if(!JavascriptConversion::IsCallable(value))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4055\n");
             // ES5 11.2.3 #2: We evaluate the call target but don't throw yet if target member is missing. We need to evaluate argList
             // first (#3). Postpone throwing error to invoke time.
             JavascriptString* varName = JavascriptConversion::ToString(index, scriptContext);
@@ -4066,7 +4066,7 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::OP_SetElementI_UInt32(Var instance, uint32 index, Var value, ScriptContext* scriptContext, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 4068\n");
 #if FLOATVAR
         return OP_SetElementI_JIT(instance, Js::JavascriptNumber::ToVar(index, scriptContext), value, scriptContext, flags);
 #else
@@ -4077,7 +4077,7 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::OP_SetElementI_Int32(Var instance, int32 index, Var value, ScriptContext* scriptContext, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 4079\n");
 #if FLOATVAR
         return OP_SetElementI_JIT(instance, Js::JavascriptNumber::ToVar(index, scriptContext), value, scriptContext, flags);
 #else
@@ -4088,9 +4088,9 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::OP_SetElementI_JIT(Var instance, Var index, Var value, ScriptContext* scriptContext, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 4090\n");
         if (TaggedNumber::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4092\n");
             return OP_SetElementI(instance, index, value, scriptContext, flags);
         }
 
@@ -4100,7 +4100,7 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::OP_SetElementI(Var instance, Var index, Var value, ScriptContext* scriptContext, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 4102\n");
 #if ENABLE_COPYONACCESS_ARRAY
         JavascriptLibrary::CheckAndConvertCopyOnAccessNativeIntArray<Var>(instance);
 #endif
@@ -4110,22 +4110,22 @@ CommonNumber:
         bool isTypedArray = (instanceType >= TypeIds_Int8Array && instanceType <= TypeIds_Float64Array);
 
         if (isTypedArray)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4112\n");
             if (TaggedInt::Is(index) || JavascriptNumber::Is_NoTaggedIntCheck(index) || JavascriptString::Is(index))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 4114\n");
                 BOOL returnValue = FALSE;
                 bool isNumericIndex = false;
                 switch (instanceType)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 4118\n");
                 case TypeIds_Int8Array:
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 4120\n");
                     // The typed array will deal with all possible values for the index
 
                     if (VirtualTableInfo<Int8VirtualArray>::HasVirtualTable(instance))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 4124\n");
                         Int8VirtualArray* int8Array = Int8VirtualArray::FromVar(instance);
                         if (!CrossSite::IsCrossSiteObjectTyped(int8Array))
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 4127\n");
                             returnValue = int8Array->ValidateIndexAndDirectSetItem(index, value, &isNumericIndex);
                         }
                     }
@@ -4133,7 +4133,7 @@ CommonNumber:
                     {
                         Int8Array* int8Array = Int8Array::FromVar(instance);
                         if (!CrossSite::IsCrossSiteObjectTyped(int8Array))
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 4135\n");
                             returnValue = int8Array->ValidateIndexAndDirectSetItem(index, value, &isNumericIndex);
                         }
                     }
@@ -4141,13 +4141,13 @@ CommonNumber:
                 }
 
                 case TypeIds_Uint8Array:
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 4143\n");
                     // The typed array will deal with all possible values for the index
                     if (VirtualTableInfo<Uint8VirtualArray>::HasVirtualTable(instance))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 4146\n");
                         Uint8VirtualArray* uint8Array = Uint8VirtualArray::FromVar(instance);
                         if (!CrossSite::IsCrossSiteObjectTyped(uint8Array))
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 4149\n");
                             returnValue = uint8Array->ValidateIndexAndDirectSetItem(index, value, &isNumericIndex);
                         }
                     }
@@ -4155,7 +4155,7 @@ CommonNumber:
                     {
                         Uint8Array* uint8Array = Uint8Array::FromVar(instance);
                         if (!CrossSite::IsCrossSiteObjectTyped(uint8Array))
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 4157\n");
                             returnValue = uint8Array->ValidateIndexAndDirectSetItem(index, value, &isNumericIndex);
                         }
                     }
@@ -4163,13 +4163,13 @@ CommonNumber:
                 }
 
                 case TypeIds_Uint8ClampedArray:
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 4165\n");
                     // The typed array will deal with all possible values for the index
                     if (VirtualTableInfo<Uint8ClampedVirtualArray>::HasVirtualTable(instance))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 4168\n");
                         Uint8ClampedVirtualArray* uint8ClampedArray = Uint8ClampedVirtualArray::FromVar(instance);
                         if (!CrossSite::IsCrossSiteObjectTyped(uint8ClampedArray))
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 4171\n");
                             returnValue = uint8ClampedArray->ValidateIndexAndDirectSetItem(index, value, &isNumericIndex);
                         }
                     }
@@ -4177,7 +4177,7 @@ CommonNumber:
                     {
                         Uint8ClampedArray* uint8ClampedArray = Uint8ClampedArray::FromVar(instance);
                         if (!CrossSite::IsCrossSiteObjectTyped(uint8ClampedArray))
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 4179\n");
                             returnValue = uint8ClampedArray->ValidateIndexAndDirectSetItem(index, value, &isNumericIndex);
                         }
                     }
@@ -4185,13 +4185,13 @@ CommonNumber:
                 }
 
                 case TypeIds_Int16Array:
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 4187\n");
                     // The type array will deal with all possible values for the index
                     if (VirtualTableInfo<Int16VirtualArray>::HasVirtualTable(instance))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 4190\n");
                         Int16VirtualArray* int16Array = Int16VirtualArray::FromVar(instance);
                         if (!CrossSite::IsCrossSiteObjectTyped(int16Array))
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 4193\n");
                             returnValue = int16Array->ValidateIndexAndDirectSetItem(index, value, &isNumericIndex);
                         }
                     }
@@ -4199,7 +4199,7 @@ CommonNumber:
                     {
                         Int16Array* int16Array = Int16Array::FromVar(instance);
                         if (!CrossSite::IsCrossSiteObjectTyped(int16Array))
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 4201\n");
                             returnValue = int16Array->ValidateIndexAndDirectSetItem(index, value, &isNumericIndex);
                         }
                     }
@@ -4207,14 +4207,14 @@ CommonNumber:
                 }
 
                 case TypeIds_Uint16Array:
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 4209\n");
                     // The type array will deal with all possible values for the index
 
                     if (VirtualTableInfo<Uint16VirtualArray>::HasVirtualTable(instance))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 4213\n");
                         Uint16VirtualArray* uint16Array = Uint16VirtualArray::FromVar(instance);
                         if (!CrossSite::IsCrossSiteObjectTyped(uint16Array))
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 4216\n");
                             returnValue = uint16Array->ValidateIndexAndDirectSetItem(index, value, &isNumericIndex);
                         }
                     }
@@ -4222,20 +4222,20 @@ CommonNumber:
                     {
                         Uint16Array* uint16Array = Uint16Array::FromVar(instance);
                         if (!CrossSite::IsCrossSiteObjectTyped(uint16Array))
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 4224\n");
                             returnValue = uint16Array->ValidateIndexAndDirectSetItem(index, value, &isNumericIndex);
                         }
                     }
                     break;
                 }
                 case TypeIds_Int32Array:
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 4231\n");
                     // The type array will deal with all possible values for the index
                     if (VirtualTableInfo<Int32VirtualArray>::HasVirtualTable(instance))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 4234\n");
                         Int32VirtualArray* int32Array = Int32VirtualArray::FromVar(instance);
                         if (!CrossSite::IsCrossSiteObjectTyped(int32Array))
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 4237\n");
                             returnValue = int32Array->ValidateIndexAndDirectSetItem(index, value, &isNumericIndex);
                         }
                     }
@@ -4243,21 +4243,21 @@ CommonNumber:
                     {
                         Int32Array* int32Array = Int32Array::FromVar(instance);
                         if (!CrossSite::IsCrossSiteObjectTyped(int32Array))
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 4245\n");
                             returnValue = int32Array->ValidateIndexAndDirectSetItem(index, value, &isNumericIndex);
                         }
                     }
                     break;
                 }
                 case TypeIds_Uint32Array:
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 4252\n");
                     // The type array will deal with all possible values for the index
 
                     if (VirtualTableInfo<Uint32VirtualArray>::HasVirtualTable(instance))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 4256\n");
                         Uint32VirtualArray* uint32Array = Uint32VirtualArray::FromVar(instance);
                         if (!CrossSite::IsCrossSiteObjectTyped(uint32Array))
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 4259\n");
                             returnValue = uint32Array->ValidateIndexAndDirectSetItem(index, value, &isNumericIndex);
                         }
                     }
@@ -4265,20 +4265,20 @@ CommonNumber:
                     {
                         Uint32Array* uint32Array = Uint32Array::FromVar(instance);
                         if (!CrossSite::IsCrossSiteObjectTyped(uint32Array))
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 4267\n");
                             returnValue = uint32Array->ValidateIndexAndDirectSetItem(index, value, &isNumericIndex);
                         }
                     }
                     break;
                 }
                 case TypeIds_Float32Array:
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 4274\n");
                     // The type array will deal with all possible values for the index
                     if (VirtualTableInfo<Float32VirtualArray>::HasVirtualTable(instance))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 4277\n");
                         Float32VirtualArray* float32Array = Float32VirtualArray::FromVar(instance);
                         if (!CrossSite::IsCrossSiteObjectTyped(float32Array))
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 4280\n");
                             returnValue = float32Array->ValidateIndexAndDirectSetItem(index, value, &isNumericIndex);
                         }
                     }
@@ -4286,21 +4286,21 @@ CommonNumber:
                     {
                         Float32Array* float32Array = Float32Array::FromVar(instance);
                         if (!CrossSite::IsCrossSiteObjectTyped(float32Array))
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 4288\n");
                             returnValue = float32Array->ValidateIndexAndDirectSetItem(index, value, &isNumericIndex);
                         }
                     }
                     break;
                 }
                 case TypeIds_Float64Array:
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 4295\n");
                     // The type array will deal with all possible values for the index
 
                     if (VirtualTableInfo<Float64VirtualArray>::HasVirtualTable(instance))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 4299\n");
                         Float64VirtualArray* float64Array = Float64VirtualArray::FromVar(instance);
                         if (!CrossSite::IsCrossSiteObjectTyped(float64Array))
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 4302\n");
                             returnValue = float64Array->ValidateIndexAndDirectSetItem(index, value, &isNumericIndex);
                         }
                     }
@@ -4308,7 +4308,7 @@ CommonNumber:
                     {
                         Float64Array* float64Array = Float64Array::FromVar(instance);
                         if (!CrossSite::IsCrossSiteObjectTyped(float64Array))
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 4310\n");
                             returnValue = float64Array->ValidateIndexAndDirectSetItem(index, value, &isNumericIndex);
                         }
                     }
@@ -4325,17 +4325,17 @@ CommonNumber:
         else
         {
             if (TaggedInt::Is(index))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 4327\n");
             TaggedIntIndex:
                 switch (instanceType)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 4330\n");
                 case TypeIds_NativeIntArray:
                 case TypeIds_NativeFloatArray:
                 case TypeIds_Array: // fast path for array
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 4334\n");
                     int indexInt = TaggedInt::ToInt32(index);
                     if (indexInt >= 0 && scriptContext->optimizationOverrides.IsEnabledArraySetElementFastPath())
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 4337\n");
                         JavascriptArray::FromVar(instance)->SetItem((uint32)indexInt, value, flags);
                         return true;
                     }
@@ -4344,12 +4344,12 @@ CommonNumber:
                 }
             }
             else if (JavascriptNumber::Is_NoTaggedIntCheck(index))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 4346\n");
                 double dIndexValue = JavascriptNumber::GetValue(index);
                 uint32 uint32Index = JavascriptConversion::ToUInt32(index, scriptContext);
 
                 if ((double)uint32Index == dIndexValue && !TaggedInt::IsOverflow(uint32Index))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 4351\n");
                     index = TaggedInt::ToVarUnchecked(uint32Index);
                     goto TaggedIntIndex;
                 }
@@ -4362,9 +4362,9 @@ CommonNumber:
         Assert(object == instance || TaggedNumber::Is(instance));
 
         if (isNullOrUndefined)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4364\n");
             if (!scriptContext->GetThreadContext()->RecordImplicitException())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 4366\n");
                 return FALSE;
             }
 
@@ -4375,7 +4375,7 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::SetElementIHelper(Var receiver, RecyclableObject* object, Var index, Var value, ScriptContext* scriptContext, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 4377\n");
         PropertyString * propertyString = nullptr;
         Js::IndexType indexType;
         uint32 indexVal = 0;
@@ -4383,10 +4383,10 @@ CommonNumber:
         JavascriptString * propertyNameString = nullptr;
 
         if (TaggedNumber::Is(receiver))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4385\n");
             indexType = GetIndexType(index, scriptContext, &indexVal, &propertyRecord, true);
             if (indexType == IndexType_Number)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 4388\n");
                 return  JavascriptOperators::SetItemOnTaggedNumber(receiver, object, indexVal, value, scriptContext, flags);
             }
             else
@@ -4398,14 +4398,14 @@ CommonNumber:
         // fastpath for PropertyStrings only if receiver == object
         if (!TaggedInt::Is(index) && JavascriptString::Is(index) &&
             VirtualTableInfo<Js::PropertyString>::HasVirtualTable(JavascriptString::FromVar(index)))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4400\n");
             propertyString = (PropertyString *)JavascriptString::FromVar(index);
 
             Assert(propertyString->GetScriptContext() == scriptContext);
 
             PropertyCache const * cache = propertyString->GetPropertyCache();
             if (receiver == object && object->GetType() == cache->type && cache->isStoreFieldEnabled)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 4407\n");
 #if DBG
                 propertyRecord = propertyString->GetPropertyRecord();
 #endif
@@ -4415,7 +4415,7 @@ CommonNumber:
                 Assert(object->GetScriptContext() == scriptContext);
                 Assert(!CrossSite::NeedMarshalVar(value, scriptContext));
                 if (cache->isInlineSlot)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 4417\n");
                     DynamicObject::FromVar(object)->SetInlineSlot(SetSlotArguments(propertyRecord->GetPropertyId(), cache->dataSlotIndex, value));
                 }
                 else
@@ -4427,7 +4427,7 @@ CommonNumber:
 
             propertyRecord = propertyString->GetPropertyRecord();
             if (propertyRecord->IsNumeric())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 4429\n");
                 indexType = IndexType_Number;
                 indexVal = propertyRecord->GetNumericValue();
             }
@@ -4448,7 +4448,7 @@ CommonNumber:
             indexType = GetIndexType(index, scriptContext, &indexVal, &propertyRecord, &propertyNameString, false, true);
             if (scriptContext->GetThreadContext()->IsDisableImplicitCall() &&
                 scriptContext->GetThreadContext()->GetImplicitCallFlags() != ImplicitCall_None)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 4450\n");
                 // We hit an implicit call trying to convert the index, and implicit calls are disabled, so
                 // quit before we try to store the element.
                 return FALSE;
@@ -4456,21 +4456,21 @@ CommonNumber:
         }
 
         if (indexType == IndexType_Number)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4458\n");
             return JavascriptOperators::SetItem(receiver, object, indexVal, value, scriptContext, flags);
         }
         else if (indexType == IndexType_JavascriptString)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4462\n");
             Assert(propertyNameString);
             JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
 
             if (BuiltInPropertyRecords::NaN.Equals(propertyName))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 4467\n");
                 // Follow SetProperty convention for NaN
                 return JavascriptOperators::SetProperty(receiver, object, PropertyIds::NaN, value, scriptContext, flags);
             }
             else if (BuiltInPropertyRecords::Infinity.Equals(propertyName))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 4472\n");
                 // Follow SetProperty convention for Infinity
                 return JavascriptOperators::SetProperty(receiver, object, PropertyIds::Infinity, value, scriptContext, flags);
             }
@@ -4478,11 +4478,11 @@ CommonNumber:
             return JavascriptOperators::SetPropertyWPCache(receiver, object, propertyNameString, value, scriptContext, nullptr, flags);
         }
         else if (indexType == IndexType_PropertyId)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4480\n");
             Assert(propertyRecord);
             PropertyId propId = propertyRecord->GetPropertyId();
             if (propId == PropertyIds::NaN || propId == PropertyIds::Infinity)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 4484\n");
                 // As we no longer convert o[x] into o.x for NaN and Infinity, we need to follow SetProperty convention for these,
                 // which would check for read-only properties, strict mode, etc.
                 // Note that "-Infinity" does not qualify as property name, so we don't have to take care of it.
@@ -4499,15 +4499,15 @@ CommonNumber:
         int32 iValue,
         ScriptContext* scriptContext,
         PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 4501\n");
         if (TaggedInt::Is(aElementIndex))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4503\n");
             int32 indexInt = TaggedInt::ToInt32(aElementIndex);
             if (indexInt >= 0 && scriptContext->optimizationOverrides.IsEnabledArraySetElementFastPath())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 4506\n");
                 JavascriptNativeIntArray *arr = JavascriptNativeIntArray::FromVar(instance);
                 if (!(arr->TryGrowHeadSegmentAndSetItem<int32, JavascriptNativeIntArray>((uint32)indexInt, iValue)))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 4509\n");
                     arr->SetItem(indexInt, iValue);
                 }
                 return TRUE;
@@ -4523,7 +4523,7 @@ CommonNumber:
         int32 iValue,
         ScriptContext* scriptContext,
         PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 4525\n");
 #if FLOATVAR
         return OP_SetNativeIntElementI(instance, Js::JavascriptNumber::ToVar(aElementIndex, scriptContext), iValue, scriptContext, flags);
 #else
@@ -4539,7 +4539,7 @@ CommonNumber:
         int32 iValue,
         ScriptContext* scriptContext,
         PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 4541\n");
 #if FLOATVAR
         return OP_SetNativeIntElementI(instance, Js::JavascriptNumber::ToVar(aElementIndex, scriptContext), iValue, scriptContext, flags);
 #else
@@ -4555,15 +4555,15 @@ CommonNumber:
         ScriptContext* scriptContext,
         PropertyOperationFlags flags,
         double dValue)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 4557\n");
         if (TaggedInt::Is(aElementIndex))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4559\n");
             int32 indexInt = TaggedInt::ToInt32(aElementIndex);
             if (indexInt >= 0 && scriptContext->optimizationOverrides.IsEnabledArraySetElementFastPath())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 4562\n");
                 JavascriptNativeFloatArray *arr = JavascriptNativeFloatArray::FromVar(instance);
                 if (!(arr->TryGrowHeadSegmentAndSetItem<double, JavascriptNativeFloatArray>((uint32)indexInt, dValue)))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 4565\n");
                     arr->SetItem(indexInt, dValue);
                 }
                 return TRUE;
@@ -4579,7 +4579,7 @@ CommonNumber:
         ScriptContext* scriptContext,
         PropertyOperationFlags flags,
         double dValue)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 4581\n");
 #if FLOATVAR
         return OP_SetNativeFloatElementI(instance, JavascriptNumber::ToVar(aElementIndex, scriptContext), scriptContext, flags, dValue);
 #else
@@ -4595,7 +4595,7 @@ CommonNumber:
         ScriptContext* scriptContext,
         PropertyOperationFlags flags,
         double dValue)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 4597\n");
 #if FLOATVAR
         return OP_SetNativeFloatElementI(instance, JavascriptNumber::ToVar(aElementIndex, scriptContext), scriptContext, flags, dValue);
 #else
@@ -4605,79 +4605,79 @@ CommonNumber:
 #endif
     }
     BOOL JavascriptOperators::OP_Memcopy(Var dstInstance, int32 dstStart, Var srcInstance, int32 srcStart, int32 length, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 4607\n");
         if (length <= 0)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4609\n");
             return false;
         }
 
         TypeId instanceType = JavascriptOperators::GetTypeId(srcInstance);
 
         if (instanceType != JavascriptOperators::GetTypeId(dstInstance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4616\n");
             return false;
         }
 
         if (srcStart != dstStart)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4621\n");
             return false;
         }
 
         BOOL  returnValue = false;
 #define MEMCOPY_TYPED_ARRAY(type, conversion) type ## ::FromVar(dstInstance)->DirectSetItemAtRange( type ## ::FromVar(srcInstance), srcStart, dstStart, length, JavascriptConversion:: ## conversion)
         switch (instanceType)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4628\n");
         case TypeIds_Int8Array:
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4630\n");
             returnValue = MEMCOPY_TYPED_ARRAY(Int8Array, ToInt8);
             break;
         }
         case TypeIds_Uint8Array:
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4635\n");
             returnValue = MEMCOPY_TYPED_ARRAY(Uint8Array, ToUInt8);
             break;
         }
         case TypeIds_Uint8ClampedArray:
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4640\n");
             returnValue = MEMCOPY_TYPED_ARRAY(Uint8ClampedArray, ToUInt8Clamped);
             break;
         }
         case TypeIds_Int16Array:
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4645\n");
             returnValue = MEMCOPY_TYPED_ARRAY(Int16Array, ToInt16);
             break;
         }
         case TypeIds_Uint16Array:
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4650\n");
             returnValue = MEMCOPY_TYPED_ARRAY(Uint16Array, ToUInt16);
             break;
         }
         case TypeIds_Int32Array:
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4655\n");
             returnValue = MEMCOPY_TYPED_ARRAY(Int32Array, ToInt32);
             break;
         }
         case TypeIds_Uint32Array:
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4660\n");
             returnValue = MEMCOPY_TYPED_ARRAY(Uint32Array, ToUInt32);
             break;
         }
         case TypeIds_Float32Array:
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4665\n");
             returnValue = MEMCOPY_TYPED_ARRAY(Float32Array, ToFloat);
             break;
         }
         case TypeIds_Float64Array:
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4670\n");
             returnValue = MEMCOPY_TYPED_ARRAY(Float64Array, ToNumber);
             break;
         }
         case TypeIds_Array:
         case TypeIds_NativeFloatArray:
         case TypeIds_NativeIntArray:
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4677\n");
             if (dstStart < 0 || srcStart < 0)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 4679\n");
                 // This is not supported, Bailout
                 break;
             }
@@ -4685,14 +4685,14 @@ CommonNumber:
             JavascriptArray* srcArray = JavascriptArray::FromVar(srcInstance);
             JavascriptArray* dstArray = JavascriptArray::FromVar(dstInstance);
             if (scriptContext->optimizationOverrides.IsEnabledArraySetElementFastPath())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 4687\n");
                 INT_PTR vt = VirtualTableInfoBase::GetVirtualTable(dstInstance);
                 if (instanceType == TypeIds_Array)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 4690\n");
                     returnValue = dstArray->DirectSetItemAtRangeFromArray<Var>(dstStart, length, srcArray, srcStart);
                 }
                 else if (instanceType == TypeIds_NativeIntArray)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 4694\n");
                     returnValue = dstArray->DirectSetItemAtRangeFromArray<int32>(dstStart, length, srcArray, srcStart);
                 }
                 else
@@ -4712,9 +4712,9 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::OP_Memset(Var instance, int32 start, Var value, int32 length, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 4714\n");
         if (length <= 0)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4716\n");
             return false;
         }
         TypeId instanceType = JavascriptOperators::GetTypeId(instance);
@@ -4723,78 +4723,78 @@ CommonNumber:
         // The typed array will deal with all possible values for the index
 #define MEMSET_TYPED_ARRAY(type, conversion) type ## ::FromVar(instance)->DirectSetItemAtRange(start, length, value, JavascriptConversion:: ## conversion)
         switch (instanceType)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4725\n");
         case TypeIds_Int8Array:
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4727\n");
             returnValue = MEMSET_TYPED_ARRAY(Int8Array, ToInt8);
             break;
         }
         case TypeIds_Uint8Array:
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4732\n");
             returnValue = MEMSET_TYPED_ARRAY(Uint8Array, ToUInt8);
             break;
         }
         case TypeIds_Uint8ClampedArray:
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4737\n");
             returnValue = MEMSET_TYPED_ARRAY(Uint8ClampedArray, ToUInt8Clamped);
             break;
         }
         case TypeIds_Int16Array:
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4742\n");
             returnValue = MEMSET_TYPED_ARRAY(Int16Array, ToInt16);
             break;
         }
         case TypeIds_Uint16Array:
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4747\n");
             returnValue = MEMSET_TYPED_ARRAY(Uint16Array, ToUInt16);
             break;
         }
         case TypeIds_Int32Array:
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4752\n");
             returnValue = MEMSET_TYPED_ARRAY(Int32Array, ToInt32);
             break;
         }
         case TypeIds_Uint32Array:
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4757\n");
             returnValue = MEMSET_TYPED_ARRAY(Uint32Array, ToUInt32);
             break;
         }
         case TypeIds_Float32Array:
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4762\n");
             returnValue = MEMSET_TYPED_ARRAY(Float32Array, ToFloat);
             break;
         }
         case TypeIds_Float64Array:
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4767\n");
             returnValue = MEMSET_TYPED_ARRAY(Float64Array, ToNumber);
             break;
         }
         case TypeIds_NativeFloatArray:
         case TypeIds_NativeIntArray:
         case TypeIds_Array:
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4774\n");
             if (start < 0)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 4776\n");
                 for (start; start < 0 && length > 0; ++start, --length)
                 {
                     if (!OP_SetElementI(instance, JavascriptNumber::ToVar(start, scriptContext), value, scriptContext))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 4780\n");
                         return false;
                     }
                 }
             }
             if (scriptContext->optimizationOverrides.IsEnabledArraySetElementFastPath())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 4786\n");
                 INT_PTR vt = VirtualTableInfoBase::GetVirtualTable(instance);
                 if (instanceType == TypeIds_Array)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 4789\n");
                     returnValue = JavascriptArray::FromVar(instance)->DirectSetItemAtRange<Var>(start, length, value);
                 }
                 else if (instanceType == TypeIds_NativeIntArray)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 4793\n");
                     // Only accept tagged int. Also covers case for MissingItem
                     if (!TaggedInt::Is(value))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 4796\n");
                         return false;
                     }
                     int32 intValue = JavascriptConversion::ToInt32(value, scriptContext);
@@ -4804,14 +4804,14 @@ CommonNumber:
                 {
                     // For native float arrays, the jit doesn't check the type of the source so we have to do it here
                     if (!JavascriptNumber::Is(value) && !TaggedNumber::Is(value))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 4806\n");
                         return false;
                     }
 
                     double doubleValue = JavascriptConversion::ToNumber(value, scriptContext);
                     // Special case for missing item
                     if (SparseArraySegment<double>::IsMissingItem(&doubleValue))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 4813\n");
                         return false;
                     }
                     returnValue = JavascriptArray::FromVar(instance)->DirectSetItemAtRange<double>(start, length, doubleValue);
@@ -4830,7 +4830,7 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_DeleteElementI_UInt32(Var instance, uint32 index, ScriptContext* scriptContext, PropertyOperationFlags propertyOperationFlags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 4832\n");
 #if FLOATVAR
         return OP_DeleteElementI(instance, Js::JavascriptNumber::ToVar(index, scriptContext), scriptContext, propertyOperationFlags);
 #else
@@ -4841,7 +4841,7 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_DeleteElementI_Int32(Var instance, int32 index, ScriptContext* scriptContext, PropertyOperationFlags propertyOperationFlags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 4843\n");
 #if FLOATVAR
         return OP_DeleteElementI(instance, Js::JavascriptNumber::ToVar(index, scriptContext), scriptContext, propertyOperationFlags);
 #else
@@ -4852,9 +4852,9 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_DeleteElementI(Var instance, Var index, ScriptContext* scriptContext, PropertyOperationFlags propertyOperationFlags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 4854\n");
         if(TaggedNumber::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4856\n");
             return scriptContext->GetLibrary()->GetTrue();
         }
 
@@ -4863,7 +4863,7 @@ CommonNumber:
 #endif
         TypeId typeId = JavascriptOperators::GetTypeId(instance);
         if (typeId == TypeIds_Null || typeId == TypeIds_Undefined)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4865\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_CannotDelete_NullOrUndefined, GetPropertyDisplayNameForError(index, scriptContext));
         }
 
@@ -4876,11 +4876,11 @@ CommonNumber:
         IndexType indexType = GetIndexType(index, scriptContext, &indexVal, &propertyRecord, &propertyNameString, false, true);
 
         if (indexType == IndexType_Number)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4878\n");
             result = JavascriptOperators::DeleteItem(object, indexVal, propertyOperationFlags);
         }
         else if (indexType == IndexType_JavascriptString)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4882\n");
             result = JavascriptOperators::DeleteProperty(object, propertyNameString, propertyOperationFlags);
         }
         else
@@ -4888,14 +4888,14 @@ CommonNumber:
             Assert(indexType == IndexType_PropertyId);
 
             if (propertyRecord == nullptr && !JavascriptOperators::CanShortcutOnUnknownPropertyName(object))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 4890\n");
                 indexType = GetIndexTypeFromPrimitive(index, scriptContext, &indexVal, &propertyRecord, true);
                 Assert(indexType == IndexType_PropertyId);
                 Assert(propertyRecord != nullptr);
             }
 
             if (propertyRecord != nullptr)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 4897\n");
                 result = JavascriptOperators::DeleteProperty(object, propertyRecord->GetPropertyId(), propertyOperationFlags);
             }
 #if DBG
@@ -4913,12 +4913,12 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_GetLength(Var instance, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 4915\n");
         return JavascriptOperators::OP_GetProperty(instance, PropertyIds::length, scriptContext);
     }
 
     Var JavascriptOperators::GetThisFromModuleRoot(Var thisVar)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 4920\n");
         RootObjectBase * rootObject = static_cast<RootObjectBase*>(thisVar);
         RecyclableObject* hostObject = rootObject->GetHostObject();
 
@@ -4926,35 +4926,35 @@ CommonNumber:
         // if the module root has the host object, use that as "this"
         //
         if (hostObject)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4928\n");
             thisVar = hostObject->GetHostDispatchVar();
         }
         return thisVar;
     }
 
     inline void JavascriptOperators::TryLoadRoot(Var& thisVar, TypeId typeId, int moduleID, ScriptContextInfo* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 4935\n");
         bool loadRoot = false;
         if (JavascriptOperators::IsUndefinedOrNullType(typeId) || typeId == TypeIds_ActivationObject)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4938\n");
             loadRoot = true;
         }
         else if (typeId == TypeIds_HostDispatch)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4942\n");
             TypeId remoteTypeId;
             if (RecyclableObject::FromVar(thisVar)->GetRemoteTypeId(&remoteTypeId))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 4945\n");
                 if (remoteTypeId == TypeIds_Null || remoteTypeId == TypeIds_Undefined || remoteTypeId == TypeIds_ActivationObject)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 4947\n");
                     loadRoot = true;
                 }
             }
         }
 
         if (loadRoot)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4954\n");
             if (moduleID == 0)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 4956\n");
                 thisVar = (Js::Var)scriptContext->GetGlobalObjectThisAddr();
             }
             else
@@ -4962,7 +4962,7 @@ CommonNumber:
                 // TODO: OOP JIT, create a copy of module roots in server side
                 Js::ModuleRoot * moduleRoot = JavascriptOperators::GetModuleRoot(moduleID, (ScriptContext*)scriptContext);
                 if (moduleRoot == nullptr)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 4964\n");
                     Assert(false);
                     thisVar = (Js::Var)scriptContext->GetUndefinedAddr();
                 }
@@ -4975,7 +4975,7 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_GetThis(Var thisVar, int moduleID, ScriptContextInfo* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 4977\n");
         //
         // if "this" is null or undefined
         //   Pass the global object
@@ -4990,11 +4990,11 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_GetThisNoFastPath(Var thisVar, int moduleID, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 4992\n");
         TypeId typeId = JavascriptOperators::GetTypeId(thisVar);
 
         if (JavascriptOperators::IsThisSelf(typeId))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 4996\n");
             Assert(typeId != TypeIds_GlobalObject || ((Js::GlobalObject*)thisVar)->ToThis() == thisVar);
             Assert(typeId != TypeIds_ModuleRoot || JavascriptOperators::GetThisFromModuleRoot(thisVar) == thisVar);
 
@@ -5005,14 +5005,14 @@ CommonNumber:
     }
 
     bool JavascriptOperators::IsThisSelf(TypeId typeId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5007\n");
         return (JavascriptOperators::IsObjectType(typeId) && ! JavascriptOperators::IsSpecialObjectType(typeId));
     }
 
     Var JavascriptOperators::GetThisHelper(Var thisVar, TypeId typeId, int moduleID, ScriptContextInfo *scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5012\n");
         if (! JavascriptOperators::IsObjectType(typeId) && ! JavascriptOperators::IsUndefinedOrNullType(typeId))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5014\n");
 #if ENABLE_NATIVE_CODEGEN
             Assert(!JITManager::GetJITManager()->IsJITServer());
 #endif
@@ -5034,11 +5034,11 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_StrictGetThis(Var thisVar, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5036\n");
         TypeId typeId = JavascriptOperators::GetTypeId(thisVar);
 
         if (typeId == TypeIds_ActivationObject)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5040\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -5046,18 +5046,18 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::GetRemoteTypeId(Var aValue, TypeId* typeId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5048\n");
         if (GetTypeId(aValue) != TypeIds_HostDispatch)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5050\n");
             return FALSE;
         }
         return RecyclableObject::FromVar(aValue)->GetRemoteTypeId(typeId);
     }
 
     BOOL JavascriptOperators::IsJsNativeObject(Var aValue)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5057\n");
         switch(GetTypeId(aValue))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5059\n");
             case TypeIds_Object:
             case TypeIds_Function:
             case TypeIds_Array:
@@ -5102,33 +5102,33 @@ CommonNumber:
     }
 
     bool JavascriptOperators::CanShortcutOnUnknownPropertyName(RecyclableObject *instance)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5104\n");
         if (!CanShortcutInstanceOnUnknownPropertyName(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5106\n");
             return false;
         }
         return CanShortcutPrototypeChainOnUnknownPropertyName(instance->GetPrototype());
     }
 
     bool JavascriptOperators::CanShortcutInstanceOnUnknownPropertyName(RecyclableObject *instance)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5113\n");
         if (PHASE_OFF1(Js::OptUnknownElementNamePhase))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5115\n");
             return false;
         }
 
         TypeId typeId = instance->GetTypeId();
         if (typeId == TypeIds_Proxy || typeId == TypeIds_HostDispatch)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5121\n");
             return false;
         }
         if (DynamicType::Is(typeId) &&
             static_cast<DynamicObject*>(instance)->GetTypeHandler()->IsStringTypeHandler())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5126\n");
             return false;
         }
         if (instance->IsExternal())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5130\n");
             return false;
         }
         return !(instance->HasDeferredTypeHandler() &&
@@ -5137,13 +5137,13 @@ CommonNumber:
     }
 
     bool JavascriptOperators::CanShortcutPrototypeChainOnUnknownPropertyName(RecyclableObject *prototype)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5139\n");
         Assert(prototype);
 
         for (; prototype->GetTypeId() != TypeIds_Null; prototype = prototype->GetPrototype())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5143\n");
             if (!CanShortcutInstanceOnUnknownPropertyName(prototype))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 5145\n");
                 return false;
             }
         }
@@ -5151,22 +5151,22 @@ CommonNumber:
     }
 
     RecyclableObject* JavascriptOperators::GetPrototype(RecyclableObject* instance)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5153\n");
         if (JavascriptOperators::GetTypeId(instance) == TypeIds_Null)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5155\n");
             return instance;
         }
         return instance->GetPrototype();
     }
 
     RecyclableObject* JavascriptOperators::OP_GetPrototype(Var instance, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5162\n");
         if (TaggedNumber::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5164\n");
             return scriptContext->GetLibrary()->GetNumberPrototype();
         }
         else if (JavascriptOperators::GetTypeId(instance) != TypeIds_Null)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5168\n");
             return JavascriptOperators::GetPrototype(RecyclableObject::FromVar(instance));
         }
         else
@@ -5176,20 +5176,20 @@ CommonNumber:
     }
 
      BOOL JavascriptOperators::OP_BrFncEqApply(Var instance, ScriptContext *scriptContext)
-     {
+     {LOGMEIN("JavascriptOperators.cpp] 5178\n");
          // JavascriptFunction && !HostDispatch
          if (JavascriptOperators::GetTypeId(instance) == TypeIds_Function)
-         {
+         {LOGMEIN("JavascriptOperators.cpp] 5181\n");
              FunctionProxy *bod= ((JavascriptFunction*)instance)->GetFunctionProxy();
              if (bod != nullptr)
-             {
+             {LOGMEIN("JavascriptOperators.cpp] 5184\n");
                  return bod->GetDirectEntryPoint(bod->GetDefaultEntryPointInfo()) == &Js::JavascriptFunction::EntryApply;
              }
              else
              {
                  FunctionInfo* info = ((JavascriptFunction *)instance)->GetFunctionInfo();
                  if (info != nullptr)
-                 {
+                 {LOGMEIN("JavascriptOperators.cpp] 5191\n");
                      return &Js::JavascriptFunction::EntryApply == info->GetOriginalEntryPoint();
                  }
                  else
@@ -5203,20 +5203,20 @@ CommonNumber:
      }
 
      BOOL JavascriptOperators::OP_BrFncNeqApply(Var instance, ScriptContext *scriptContext)
-     {
+     {LOGMEIN("JavascriptOperators.cpp] 5205\n");
          // JavascriptFunction and !HostDispatch
          if (JavascriptOperators::GetTypeId(instance) == TypeIds_Function)
-         {
+         {LOGMEIN("JavascriptOperators.cpp] 5208\n");
              FunctionProxy *bod = ((JavascriptFunction *)instance)->GetFunctionProxy();
              if (bod != nullptr)
-             {
+             {LOGMEIN("JavascriptOperators.cpp] 5211\n");
                  return bod->GetDirectEntryPoint(bod->GetDefaultEntryPointInfo()) != &Js::JavascriptFunction::EntryApply;
              }
              else
              {
                  FunctionInfo* info = ((JavascriptFunction *)instance)->GetFunctionInfo();
                  if (info != nullptr)
-                 {
+                 {LOGMEIN("JavascriptOperators.cpp] 5218\n");
                      return &Js::JavascriptFunction::EntryApply != info->GetOriginalEntryPoint();
                  }
                  else
@@ -5230,30 +5230,30 @@ CommonNumber:
      }
 
     BOOL JavascriptOperators::OP_BrHasSideEffects(int se, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5232\n");
         return (scriptContext->optimizationOverrides.GetSideEffects() & se) != SideEffects_None;
     }
 
     BOOL JavascriptOperators::OP_BrNotHasSideEffects(int se, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5237\n");
         return (scriptContext->optimizationOverrides.GetSideEffects() & se) == SideEffects_None;
     }
 
     // returns NULL if there is no more elements to enumerate.
     Var JavascriptOperators::OP_BrOnEmpty(ForInObjectEnumerator * aEnumerator)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5243\n");
         PropertyId id;
         return aEnumerator->MoveAndGetNext(id);
     }
 
     void JavascriptOperators::OP_InitForInEnumerator(Var enumerable, ForInObjectEnumerator * enumerator, ScriptContext* scriptContext, ForInCache * forInCache)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5249\n");
         RecyclableObject* enumerableObject;
 #if ENABLE_COPYONACCESS_ARRAY
         JavascriptLibrary::CheckAndConvertCopyOnAccessNativeIntArray<Var>(enumerable);
 #endif
         if (!GetPropertyObject(enumerable, scriptContext, &enumerableObject))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5255\n");
             enumerableObject = nullptr;
         }
 
@@ -5261,59 +5261,59 @@ CommonNumber:
     }
 
     Js::Var JavascriptOperators::OP_CmEq_A(Var a, Var b, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5263\n");
        return JavascriptBoolean::ToVar(JavascriptOperators::Equal(a, b, scriptContext), scriptContext);
     }
 
     Var JavascriptOperators::OP_CmNeq_A(Var a, Var b, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5268\n");
         return JavascriptBoolean::ToVar(JavascriptOperators::NotEqual(a,b,scriptContext), scriptContext);
     }
 
     Var JavascriptOperators::OP_CmSrEq_A(Var a, Var b, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5273\n");
        return JavascriptBoolean::ToVar(JavascriptOperators::StrictEqual(a, b, scriptContext), scriptContext);
     }
 
     Var JavascriptOperators::OP_CmSrEq_String(Var a, Var b, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5278\n");
         return JavascriptBoolean::ToVar(JavascriptOperators::StrictEqualString(a, b), scriptContext);
     }
 
     Var JavascriptOperators::OP_CmSrEq_EmptyString(Var a, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5283\n");
         return JavascriptBoolean::ToVar(JavascriptOperators::StrictEqualEmptyString(a), scriptContext);
     }
 
     Var JavascriptOperators::OP_CmSrNeq_A(Var a, Var b, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5288\n");
         return JavascriptBoolean::ToVar(JavascriptOperators::NotStrictEqual(a, b, scriptContext), scriptContext);
     }
 
     Var JavascriptOperators::OP_CmLt_A(Var a, Var b, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5293\n");
         return JavascriptBoolean::ToVar(JavascriptOperators::Less(a, b, scriptContext), scriptContext);
     }
 
     Var JavascriptOperators::OP_CmLe_A(Var a, Var b, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5298\n");
         return JavascriptBoolean::ToVar(JavascriptOperators::LessEqual(a, b, scriptContext), scriptContext);
     }
 
     Var JavascriptOperators::OP_CmGt_A(Var a, Var b, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5303\n");
         return JavascriptBoolean::ToVar(JavascriptOperators::Greater(a, b, scriptContext), scriptContext);
     }
 
     Var JavascriptOperators::OP_CmGe_A(Var a, Var b, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5308\n");
         return JavascriptBoolean::ToVar(JavascriptOperators::GreaterEqual(a, b, scriptContext), scriptContext);
     }
 
     DetachedStateBase* JavascriptOperators::DetachVarAndGetState(Var var)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5313\n");
         switch (GetTypeId(var))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5315\n");
         case TypeIds_ArrayBuffer:
             return Js::ArrayBuffer::FromVar(var)->DetachAndGetState();
         default:
@@ -5326,9 +5326,9 @@ CommonNumber:
     }
 
     bool JavascriptOperators::IsObjectDetached(Var var)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5328\n");
         switch (GetTypeId(var))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5330\n");
         case TypeIds_ArrayBuffer:
             return Js::ArrayBuffer::FromVar(var)->IsDetached();
         default:
@@ -5337,9 +5337,9 @@ CommonNumber:
     }
 
     Var JavascriptOperators::NewVarFromDetachedState(DetachedStateBase* state, JavascriptLibrary *library)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5339\n");
         switch (state->GetTypeId())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5341\n");
         case TypeIds_SharedArrayBuffer:
             return Js::SharedArrayBuffer::NewFromSharedState(state, library);
         case TypeIds_ArrayBuffer:
@@ -5352,12 +5352,12 @@ CommonNumber:
 
     DynamicType *
     JavascriptOperators::EnsureObjectLiteralType(ScriptContext* scriptContext, const Js::PropertyIdArray *propIds, Field(DynamicType*)* literalType)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5354\n");
         DynamicType * newType = *literalType;
         if (newType != nullptr)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5357\n");
             if (!newType->GetIsShared())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 5359\n");
                 newType->ShareType();
             }
         }
@@ -5381,7 +5381,7 @@ CommonNumber:
     }
 
     Var JavascriptOperators::NewScObjectLiteral(ScriptContext* scriptContext, const Js::PropertyIdArray *propIds, Field(DynamicType*)* literalType)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5383\n");
         Assert(propIds->count != 0);
         Assert(!propIds->hadDuplicates);        // duplicates are removed by parser
 
@@ -5389,7 +5389,7 @@ CommonNumber:
         // Empty objects not counted in the object literal counts
         scriptContext->objectLiteralInstanceCount++;
         if (propIds->count > scriptContext->objectLiteralMaxLength)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5391\n");
             scriptContext->objectLiteralMaxLength = propIds->count;
         }
 #endif
@@ -5398,7 +5398,7 @@ CommonNumber:
         DynamicObject* instance = DynamicObject::New(scriptContext->GetRecycler(), newType);
 
         if (!newType->GetIsShared())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5400\n");
             newType->GetTypeHandler()->SetSingletonInstanceIfNeeded(instance);
         }
 #ifdef PROFILE_OBJECT_LITERALS
@@ -5413,16 +5413,16 @@ CommonNumber:
     }
 
     uint JavascriptOperators::GetLiteralSlotCapacity(Js::PropertyIdArray const * propIds)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5415\n");
         const uint inlineSlotCapacity = GetLiteralInlineSlotCapacity(propIds);
         return DynamicTypeHandler::RoundUpSlotCapacity(propIds->count, static_cast<PropertyIndex>(inlineSlotCapacity));
     }
 
     uint JavascriptOperators::GetLiteralInlineSlotCapacity(
         Js::PropertyIdArray const * propIds)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5422\n");
         if (propIds->hadDuplicates)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5424\n");
             return 0;
         }
 
@@ -5435,7 +5435,7 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_InitCachedScope(Var varFunc, const Js::PropertyIdArray *propIds, Field(DynamicType*)* literalType, bool formalsAreLetDecls, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5437\n");
         ScriptFunction *func = JavascriptGeneratorFunction::Is(varFunc) || JavascriptAsyncFunction::Is(varFunc) ?
             JavascriptGeneratorFunction::FromVar(varFunc)->GetGeneratorVirtualScriptFunction() :
             ScriptFunction::FromVar(varFunc);
@@ -5444,7 +5444,7 @@ CommonNumber:
         // Empty objects not counted in the object literal counts
         scriptContext->objectLiteralInstanceCount++;
         if (propIds->count > scriptContext->objectLiteralMaxLength)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5446\n");
             scriptContext->objectLiteralMaxLength = propIds->count;
         }
 #endif
@@ -5455,9 +5455,9 @@ CommonNumber:
         PropertyId lastFuncSlot = Constants::NoProperty;
 
         if (firstFuncSlot != Constants::NoProperty)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5457\n");
             if (firstVarSlot == Constants::NoProperty)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 5459\n");
                 lastFuncSlot = propIds->count - 1;
             }
             else
@@ -5468,7 +5468,7 @@ CommonNumber:
 
         DynamicType *type = *literalType;
         if (type != nullptr)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5470\n");
 #ifdef PROFILE_OBJECT_LITERALS
             scriptContext->objectLiteralCacheCount++;
 #endif
@@ -5477,7 +5477,7 @@ CommonNumber:
         {
             type = scriptContext->GetLibrary()->GetActivationObjectType();
             if (formalsAreLetDecls)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 5479\n");
                 uint formalsSlotLimit = (firstFuncSlot != Constants::NoProperty) ? (uint)firstFuncSlot :
                                         (firstVarSlot != Constants::NoProperty) ? (uint)firstVarSlot :
                                         propIds->count;
@@ -5493,12 +5493,12 @@ CommonNumber:
 
         ActivationObjectEx *scopeObjEx = func->GetCachedScope();
         if (scopeObjEx && scopeObjEx->IsCommitted())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5495\n");
             scopeObjEx->ReplaceType(type);
             scopeObjEx->SetCommit(false);
 #if DBG
             for (uint i = firstVarSlot; i < propIds->count; i++)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 5500\n");
                 AssertMsg(scopeObjEx->GetSlot(i) == undef, "Var attached to cached scope");
             }
 #endif
@@ -5507,13 +5507,13 @@ CommonNumber:
         {
             ActivationObjectEx *tmp = RecyclerNewPlus(scriptContext->GetRecycler(), (cachedFuncCount == 0 ? 0 : cachedFuncCount - 1) * sizeof(FuncCacheEntry), ActivationObjectEx, type, func, cachedFuncCount, firstFuncSlot, lastFuncSlot);
             if (!scopeObjEx)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 5509\n");
                 func->SetCachedScope(tmp);
             }
             scopeObjEx = tmp;
 
             for (uint i = firstVarSlot; i < propIds->count; i++)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 5515\n");
                 scopeObjEx->SetSlot(SetSlotArguments(propIds->elements[i], i, undef));
             }
         }
@@ -5522,29 +5522,29 @@ CommonNumber:
     }
 
     void JavascriptOperators::OP_InvalidateCachedScope(void* varEnv, int32 envIndex)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5524\n");
         FrameDisplay *disp = (FrameDisplay*)varEnv;
         RecyclableObject *objScope = RecyclableObject::FromVar(disp->GetItem(envIndex));
         objScope->InvalidateCachedScope();
     }
 
     void JavascriptOperators::OP_InitCachedFuncs(Var varScope, FrameDisplay *pDisplay, const FuncInfoArray *info, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5531\n");
         ActivationObjectEx *scopeObj = (ActivationObjectEx*)ActivationObjectEx::FromVar(varScope);
         Assert(scopeObj->GetTypeHandler()->GetInlineSlotCapacity() == 0);
 
         uint funcCount = info->count;
 
         if (funcCount == 0)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5538\n");
             // Degenerate case: no nested funcs at all
             return;
         }
 
         if (scopeObj->HasCachedFuncs())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5544\n");
             for (uint i = 0; i < funcCount; i++)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 5546\n");
                 const FuncCacheEntry *entry = scopeObj->GetFuncCacheEntry(i);
                 ScriptFunction *func = entry->func;
 
@@ -5558,7 +5558,7 @@ CommonNumber:
 
                 uint scopeSlot = info->elements[i].scopeSlot;
                 if (scopeSlot != Constants::NoProperty)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 5560\n");
                     // CONSIDER: Store property IDs in FuncInfoArray in debug builds so we can properly assert in SetAuxSlot
                     scopeObj->SetAuxSlot(SetSlotArguments(Constants::NoProperty, scopeSlot, entry->func));
                 }
@@ -5569,7 +5569,7 @@ CommonNumber:
         // No cached functions, so create them and cache them.
         JavascriptFunction *funcParent = scopeObj->GetParentFunc();
         for (uint i = 0; i < funcCount; i++)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5571\n");
             const FuncInfoEntry *entry = &info->elements[i];
             uint nestedIndex = entry->nestedIndex;
             uint scopeSlot = entry->scopeSlot;
@@ -5583,7 +5583,7 @@ CommonNumber:
 
             scopeObj->SetCachedFunc(i, func);
             if (scopeSlot != Constants::NoProperty)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 5585\n");
                 // CONSIDER: Store property IDs in FuncInfoArray in debug builds so we can properly assert in SetAuxSlot
                 scopeObj->SetAuxSlot(SetSlotArguments(Constants::NoProperty, scopeSlot, func));
             }
@@ -5591,14 +5591,14 @@ CommonNumber:
     }
 
     Var JavascriptOperators::AddVarsToArraySegment(SparseArraySegment<Var> * segment, const Js::VarArray *vars)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5593\n");
         uint32 count = vars->count;
 
         Assert(segment->left == 0);
         Assert(count <= segment->size);
 
         if(count > segment->length)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5600\n");
             segment->length = count;
         }
         CopyArray(segment->elements, segment->length, vars->elements, count);
@@ -5607,35 +5607,35 @@ CommonNumber:
     }
 
     void JavascriptOperators::AddIntsToArraySegment(SparseArraySegment<int32> * segment, const Js::AuxArray<int32> *ints)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5609\n");
         uint32 count = ints->count;
 
         Assert(segment->left == 0);
         Assert(count <= segment->size);
 
         if(count > segment->length)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5616\n");
             segment->length = count;
         }
         js_memcpy_s(segment->elements, sizeof(int32) * segment->length, ints->elements, sizeof(int32) * count);
     }
 
     void JavascriptOperators::AddFloatsToArraySegment(SparseArraySegment<double> * segment, const Js::AuxArray<double> *doubles)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5623\n");
         uint32 count = doubles->count;
 
         Assert(segment->left == 0);
         Assert(count <= segment->size);
 
         if(count > segment->length)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5630\n");
             segment->length = count;
         }
         js_memcpy_s(segment->elements, sizeof(double) * segment->length, doubles->elements, sizeof(double) * count);
     }
 
     RecyclableObject * JavascriptOperators::GetPrototypeObject(RecyclableObject * constructorFunction, ScriptContext * scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5637\n");
         Var prototypeProperty = JavascriptOperators::GetProperty(constructorFunction, PropertyIds::prototype, scriptContext);
         RecyclableObject* prototypeObject;
         PrototypeObject(prototypeProperty, constructorFunction, scriptContext, &prototypeObject);
@@ -5643,7 +5643,7 @@ CommonNumber:
     }
 
     RecyclableObject * JavascriptOperators::GetPrototypeObjectForConstructorCache(RecyclableObject * constructor, ScriptContext* requestContext, bool& canBeCached)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5645\n");
         PropertyValueInfo info;
         Var prototypeValue;
         RecyclableObject* prototypeObject;
@@ -5653,16 +5653,16 @@ CommonNumber:
         // Do a local property lookup.  Since a function's prototype property is a non-configurable data property, we don't need to worry
         // about the prototype being an accessor property, whose getter returns different values every time it's called.
         if (constructor->GetProperty(constructor, PropertyIds::prototype, &prototypeValue, &info, requestContext))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5655\n");
             if (!JavascriptOperators::PrototypeObject(prototypeValue, constructor, requestContext, &prototypeObject))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 5657\n");
                 // The value returned by the property lookup is not a valid prototype object, default to object prototype.
                 Assert(prototypeObject == constructor->GetLibrary()->GetObjectPrototype());
             }
 
             // For these scenarios, we do not want to populate the cache.
             if (constructor->GetScriptContext() != requestContext || info.GetInstance() != constructor)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 5664\n");
                 return prototypeObject;
             }
         }
@@ -5677,11 +5677,11 @@ CommonNumber:
     }
 
     bool JavascriptOperators::PrototypeObject(Var prototypeProperty, RecyclableObject * constructorFunction, ScriptContext * scriptContext, RecyclableObject** prototypeObject)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5679\n");
         TypeId prototypeType = JavascriptOperators::GetTypeId(prototypeProperty);
 
         if (JavascriptOperators::IsObjectType(prototypeType))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5683\n");
             *prototypeObject = RecyclableObject::FromVar(prototypeProperty);
             return true;
         }
@@ -5690,17 +5690,17 @@ CommonNumber:
     }
 
     FunctionInfo* JavascriptOperators::GetConstructorFunctionInfo(Var instance, ScriptContext * scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5692\n");
         TypeId typeId = JavascriptOperators::GetTypeId(instance);
         if (typeId == TypeIds_Function)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5695\n");
             JavascriptFunction * function =  JavascriptFunction::FromVar(instance);
             return function->GetFunctionInfo();
         }
         if (typeId != TypeIds_HostDispatch && typeId != TypeIds_Proxy)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5700\n");
             if (typeId == TypeIds_Null)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 5702\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedObject);
             }
 
@@ -5710,12 +5710,12 @@ CommonNumber:
     }
 
     Var JavascriptOperators::NewJavascriptObjectNoArg(ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5712\n");
         DynamicObject * newObject = requestContext->GetLibrary()->CreateObject(true);
         JS_ETW(EventWriteJSCRIPT_RECYCLER_ALLOCATE_OBJECT(newObject));
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         if (Js::Configuration::Global.flags.IsEnabled(Js::autoProxyFlag))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5717\n");
             newObject = DynamicObject::FromVar(JavascriptProxy::AutoProxyWrapper(newObject));
         }
 #endif
@@ -5723,12 +5723,12 @@ CommonNumber:
     }
 
     Var JavascriptOperators::NewJavascriptArrayNoArg(ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5725\n");
         JavascriptArray * newArray = requestContext->GetLibrary()->CreateArray();
         JS_ETW(EventWriteJSCRIPT_RECYCLER_ALLOCATE_OBJECT(newArray));
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         if (Js::Configuration::Global.flags.IsEnabled(Js::autoProxyFlag))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5730\n");
             newArray = static_cast<JavascriptArray*>(JavascriptProxy::AutoProxyWrapper(newArray));
         }
 #endif
@@ -5736,17 +5736,17 @@ CommonNumber:
     }
 
     Var JavascriptOperators::NewScObjectNoArgNoCtorFull(Var instance, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5738\n");
         return NewScObjectNoArgNoCtorCommon(instance, requestContext, true);
     }
 
     Var JavascriptOperators::NewScObjectNoArgNoCtor(Var instance, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5743\n");
         return NewScObjectNoArgNoCtorCommon(instance, requestContext, false);
     }
 
     Var JavascriptOperators::NewScObjectNoArgNoCtorCommon(Var instance, ScriptContext* requestContext, bool isBaseClassConstructorNewScObject)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5748\n");
         RecyclableObject * object = RecyclableObject::FromVar(instance);
         FunctionInfo* functionInfo = JavascriptOperators::GetConstructorFunctionInfo(instance, requestContext);
         Assert(functionInfo != &JavascriptObject::EntryInfo::NewInstance); // built-ins are not inlined
@@ -5758,9 +5758,9 @@ CommonNumber:
     }
 
     Var JavascriptOperators::NewScObjectNoArg(Var instance, ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5760\n");
         if (JavascriptProxy::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5762\n");
             Arguments args(CallInfo(CallFlags_New, 1), &instance);
             JavascriptProxy* proxy = JavascriptProxy::FromVar(instance);
             return proxy->ConstructorTrap(args, requestContext, 0);
@@ -5770,7 +5770,7 @@ CommonNumber:
         RecyclableObject * object = RecyclableObject::FromVar(instance);
 
         if (functionInfo == &JavascriptObject::EntryInfo::NewInstance)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5772\n");
             // Fast path for new Object()
             Assert((functionInfo->GetAttributes() & FunctionInfo::ErrorOnNew) == 0);
             JavascriptLibrary* library = object->GetLibrary();
@@ -5779,7 +5779,7 @@ CommonNumber:
             JS_ETW(EventWriteJSCRIPT_RECYCLER_ALLOCATE_OBJECT(newObject));
 #if ENABLE_DEBUG_CONFIG_OPTIONS
             if (Js::Configuration::Global.flags.IsEnabled(Js::autoProxyFlag))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 5781\n");
                 newObject = DynamicObject::FromVar(JavascriptProxy::AutoProxyWrapper(newObject));
             }
 #endif
@@ -5794,14 +5794,14 @@ CommonNumber:
 
             ScriptContext * scriptContext = library->GetScriptContext();
             if (scriptContext != requestContext)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 5796\n");
                 CrossSite::MarshalDynamicObjectAndPrototype(requestContext, newObject);
             }
 
             return newObject;
         }
         else if (functionInfo == &JavascriptArray::EntryInfo::NewInstance)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5803\n");
             Assert((functionInfo->GetAttributes() & FunctionInfo::ErrorOnNew) == 0);
             JavascriptLibrary* library = object->GetLibrary();
 
@@ -5809,7 +5809,7 @@ CommonNumber:
             JS_ETW(EventWriteJSCRIPT_RECYCLER_ALLOCATE_OBJECT(newArray));
 #if ENABLE_DEBUG_CONFIG_OPTIONS
             if (Js::Configuration::Global.flags.IsEnabled(Js::autoProxyFlag))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 5811\n");
                 newArray = static_cast<JavascriptArray*>(JavascriptProxy::AutoProxyWrapper(newArray));
             }
 #endif
@@ -5824,7 +5824,7 @@ CommonNumber:
 
             ScriptContext * scriptContext = library->GetScriptContext();
             if (scriptContext != requestContext)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 5826\n");
                 CrossSite::MarshalDynamicObjectAndPrototype(requestContext, newArray);
             }
             return newArray;
@@ -5836,24 +5836,24 @@ CommonNumber:
 
         Var returnVar = CALL_FUNCTION(object, CallInfo(CallFlags_New, 1), newObject);
         if (JavascriptOperators::IsObject(returnVar))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5838\n");
             newObject = returnVar;
         }
 
         ConstructorCache * constructorCache = nullptr;
         if (JavascriptFunction::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5844\n");
             constructorCache = JavascriptFunction::FromVar(instance)->GetConstructorCache();
         }
 
         if (constructorCache != nullptr && constructorCache->NeedsUpdateAfterCtor())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5849\n");
             JavascriptOperators::UpdateNewScObjectCache(object, newObject, requestContext);
         }
 
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         if (Js::Configuration::Global.flags.IsEnabled(Js::autoProxyFlag))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5855\n");
             newObject = DynamicObject::FromVar(JavascriptProxy::AutoProxyWrapper(newObject));
             // this might come from a different scriptcontext.
             newObject = CrossSite::MarshalVar(requestContext, newObject);
@@ -5864,21 +5864,21 @@ CommonNumber:
     }
 
     Var JavascriptOperators::NewScObjectNoCtorFull(Var instance, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5866\n");
         return NewScObjectNoCtorCommon(instance, requestContext, true);
     }
 
     Var JavascriptOperators::NewScObjectNoCtor(Var instance, ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5871\n");
         return NewScObjectNoCtorCommon(instance, requestContext, false);
     }
 
     Var JavascriptOperators::NewScObjectNoCtorCommon(Var instance, ScriptContext* requestContext, bool isBaseClassConstructorNewScObject)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5876\n");
         FunctionInfo* functionInfo = JavascriptOperators::GetConstructorFunctionInfo(instance, requestContext);
 
         if (functionInfo)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5880\n");
             return JavascriptOperators::NewScObjectCommon(RecyclableObject::FromVar(instance), functionInfo, requestContext, isBaseClassConstructorNewScObject);
         }
         else
@@ -5888,11 +5888,11 @@ CommonNumber:
     }
 
     Var JavascriptOperators::NewScObjectHostDispatchOrProxy(RecyclableObject * function, ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5890\n");
         ScriptContext* functionScriptContext = function->GetScriptContext();
 
         if (JavascriptProxy::Is(function))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5894\n");
             // We can still call into NewScObjectNoCtor variations in JIT code for performance; however for proxy we don't
             // really need the new object as the trap will handle the "this" pointer separately. pass back nullptr to ensure
             // failure in invalid case.
@@ -5904,7 +5904,7 @@ CommonNumber:
         JS_ETW(EventWriteJSCRIPT_RECYCLER_ALLOCATE_OBJECT(object));
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         if (Js::Configuration::Global.flags.IsEnabled(Js::autoProxyFlag))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5906\n");
             object = DynamicObject::FromVar(JavascriptProxy::AutoProxyWrapper(object));
         }
 #endif
@@ -5912,7 +5912,7 @@ CommonNumber:
     }
 
     Var JavascriptOperators::NewScObjectCommon(RecyclableObject * function, FunctionInfo* functionInfo, ScriptContext * requestContext, bool isBaseClassConstructorNewScObject)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 5914\n");
         // CONSIDER: Allow for the cache to be repopulated if the type got collected, and a new one got populated with
         // the same number of inlined slots. This requires that the JIT-ed code actually load the type from the cache
         // (instead of hard-coding it), but it can (and must) keep the hard-coded number of inline slots.
@@ -5923,7 +5923,7 @@ CommonNumber:
 
         JavascriptFunction* constructor = JavascriptFunction::FromVar(function);
         if (functionInfo->IsClassConstructor() && !isBaseClassConstructorNewScObject)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5925\n");
             // If we are calling new on a class constructor, the contract is that we pass new.target as the 'this' argument.
             // function is the constructor on which we called new - which is new.target.
             // If we are trying to construct the object for a base class constructor as part of a super call, we should not
@@ -5937,7 +5937,7 @@ CommonNumber:
         Assert(constructorCache != nullptr);
         DynamicType* type = constructorCache->GetGuardValueAsType();
         if (type != nullptr && constructorCache->GetScriptContext() == requestContext)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5939\n");
 #if DBG
             bool cachedProtoCanBeCached;
             Assert(type->GetPrototype() == JavascriptOperators::GetPrototypeObjectForConstructorCache(constructor, requestContext, cachedProtoCanBeCached));
@@ -5952,7 +5952,7 @@ CommonNumber:
             JS_ETW(EventWriteJSCRIPT_RECYCLER_ALLOCATE_OBJECT(object));
 #if ENABLE_DEBUG_CONFIG_OPTIONS
             if (Js::Configuration::Global.flags.IsEnabled(Js::autoProxyFlag))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 5954\n");
                 object = DynamicObject::FromVar(JavascriptProxy::AutoProxyWrapper(object));
             }
 #endif
@@ -5960,14 +5960,14 @@ CommonNumber:
         }
 
         if (constructorCache->SkipDefaultNewObject())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5962\n");
             Assert(!constructorCache->NeedsUpdateAfterCtor());
 
 #if DBG_DUMP
             TraceUseConstructorCache(constructorCache, constructor, true);
 #endif
             if (isBaseClassConstructorNewScObject)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 5969\n");
                 return JavascriptOperators::CreateFromConstructor(function, requestContext);
             }
 
@@ -5985,7 +5985,7 @@ CommonNumber:
 
         FunctionInfo::Attributes attributes = functionInfo->GetAttributes();
         if (attributes & FunctionInfo::ErrorOnNew)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5987\n");
             JavascriptError::ThrowTypeError(requestContext, JSERR_ErrorOnNew);
         }
 
@@ -5994,17 +5994,17 @@ CommonNumber:
         FunctionBody * functionBody = ctorProxy != nullptr ? ctorProxy->EnsureDeserialized()->Parse() : nullptr;
 
         if (attributes & FunctionInfo::SkipDefaultNewObject)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 5996\n");
             // The constructor doesn't use the default new object.
 #pragma prefast(suppress:6236, "DevDiv bug 830883. False positive when PHASE_OFF is #defined as '(false)'.")
             if (!PHASE_OFF1(ConstructorCachePhase) && (functionBody == nullptr || !PHASE_OFF(ConstructorCachePhase, functionBody)))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 6000\n");
                 constructorCache = constructor->EnsureValidConstructorCache();
                 constructorCache->PopulateForSkipDefaultNewObject(constructorScriptContext);
 
 #if DBG_DUMP
                 if ((functionBody != nullptr && PHASE_TRACE(Js::ConstructorCachePhase, functionBody)) || (functionBody == nullptr && PHASE_TRACE1(Js::ConstructorCachePhase)))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 6006\n");
                     const char16* ctorName = functionBody != nullptr ? functionBody->GetDisplayName() : _u("<unknown>");
                     char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
@@ -6035,7 +6035,7 @@ CommonNumber:
         JS_ETW(EventWriteJSCRIPT_RECYCLER_ALLOCATE_OBJECT(newObject));
 #if ENABLE_DEBUG_CONFIG_OPTIONS
         if (Js::Configuration::Global.flags.IsEnabled(Js::autoProxyFlag))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6037\n");
             newObject = DynamicObject::FromVar(JavascriptProxy::AutoProxyWrapper(newObject));
         }
 #endif
@@ -6045,7 +6045,7 @@ CommonNumber:
         if (prototypeCanBeCached && functionBody != nullptr && requestContext == constructorScriptContext &&
             !Js::JavascriptProxy::Is(newObject) &&
             !PHASE_OFF1(ConstructorCachePhase) && !PHASE_OFF(ConstructorCachePhase, functionBody))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6047\n");
             DynamicType* newObjectType = newObject->GetDynamicType();
             // Initial type (without any properties) should always be shared up-front.  This allows us to populate the cache right away.
             Assert(newObjectType->GetIsShared());
@@ -6061,7 +6061,7 @@ CommonNumber:
 
 #if DBG_DUMP
             if ((functionBody != nullptr && PHASE_TRACE(Js::ConstructorCachePhase, functionBody)) || (functionBody == nullptr && PHASE_TRACE1(Js::ConstructorCachePhase)))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 6063\n");
                 const char16* ctorName = functionBody != nullptr ? functionBody->GetDisplayName() : _u("<unknown>");
                 char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
@@ -6077,7 +6077,7 @@ CommonNumber:
         {
 #if DBG_DUMP
             if ((functionBody != nullptr && PHASE_TRACE(Js::ConstructorCachePhase, functionBody)) || (functionBody == nullptr && PHASE_TRACE1(Js::ConstructorCachePhase)))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 6079\n");
                 const char16* ctorName = functionBody != nullptr ? functionBody->GetDisplayName() : _u("<unknown>");
                 char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
@@ -6097,10 +6097,10 @@ CommonNumber:
     }
 
     void JavascriptOperators::UpdateNewScObjectCache(Var function, Var instance, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6099\n");
         JavascriptFunction* constructor = JavascriptFunction::FromVar(function);
         if(constructor->GetScriptContext() != requestContext)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6102\n");
             // The cache is populated only when the constructor function's context is the same as the calling context. However,
             // the cached type is not finalized yet and may not be until multiple calls to the constructor have been made (see
             // flag ConstructorCallsRequiredToFinalizeCachedType). A subsequent call to the constructor may be made from a
@@ -6124,7 +6124,7 @@ CommonNumber:
         const bool finalizeCachedType =
             constructorCache->CallCount() >= CONFIG_FLAG(ConstructorCallsRequiredToFinalizeCachedType);
         if(!finalizeCachedType)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6126\n");
             constructorCache->IncCallCount();
         }
         else
@@ -6140,7 +6140,7 @@ CommonNumber:
         // the constructor updates its own prototype property.  If that happens we don't want to re-populate it here.  A new cache will
         // be created when the constructor is called again.
         if (constructorCache->IsInvalidated())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6142\n");
 #if DBG_DUMP
             TraceUpdateConstructorCache(constructorCache, constructorBody, false, _u("because cache is invalidated"));
 #endif
@@ -6150,15 +6150,15 @@ CommonNumber:
         Assert(constructorCache->GetGuardValueAsType() != nullptr);
 
         if (DynamicType::Is(RecyclableObject::FromVar(instance)->GetTypeId()))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6152\n");
             DynamicObject *object = DynamicObject::FromVar(instance);
             DynamicType* type = object->GetDynamicType();
             DynamicTypeHandler* typeHandler = type->GetTypeHandler();
 
             if (constructorBody->GetHasOnlyThisStmts())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 6158\n");
                 if (typeHandler->IsSharable())
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 6160\n");
 #if DBG
                     bool cachedProtoCanBeCached;
                     Assert(type->GetPrototype() == JavascriptOperators::GetPrototypeObjectForConstructorCache(constructor, requestContext, cachedProtoCanBeCached));
@@ -6175,18 +6175,18 @@ CommonNumber:
                     DynamicProfileInfo* profileInfo = constructorBody->HasDynamicProfileInfo() ? constructorBody->GetAnyDynamicProfileInfo() : nullptr;
                     if ((profileInfo != nullptr && profileInfo->GetImplicitCallFlags() <= ImplicitCall_None) ||
                         CheckIfPrototypeChainHasOnlyWritableDataProperties(type->GetPrototype()))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 6177\n");
                         Assert(typeHandler->GetPropertyCount() < Js::PropertyIndexRanges<PropertyIndex>::MaxValue);
 
                         for (PropertyIndex pi = 0; pi < typeHandler->GetPropertyCount(); pi++)
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 6181\n");
                             requestContext->RegisterConstructorCache(typeHandler->GetPropertyId(requestContext, pi), constructorCache);
                         }
 
                         Assert(constructorBody->GetUtf8SourceInfo()->GetIsLibraryCode() || !constructor->GetScriptContext()->IsScriptContextInDebugMode());
 
                         if (constructorCache->TryUpdateAfterConstructor(type, constructor->GetScriptContext()))
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 6188\n");
 #if DBG_DUMP
                             TraceUpdateConstructorCache(constructorCache, constructorBody, true, _u(""));
 #endif
@@ -6205,7 +6205,7 @@ CommonNumber:
                             ((profileInfo->GetImplicitCallFlags() & ~(Js::ImplicitCall_External | Js::ImplicitCall_Accessor)) == 0) &&
                             profileInfo != nullptr && CheckIfPrototypeChainHasOnlyWritableDataProperties(type->GetPrototype()) &&
                             Js::Configuration::Global.flags.Trace.IsEnabled(Js::HostOptPhase))
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 6207\n");
                             const char16* ctorName = constructorBody->GetDisplayName();
                             char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
                             Output::Print(_u("CtorCache: %s cache (0x%p) for ctor %s (#%u) did not update because external call"),
@@ -6246,7 +6246,7 @@ CommonNumber:
 
         // Whatever the constructor returned, if we're caching a type we want to be sure we shrink its inline slot capacity.
         if (finalizeCachedType && constructorCache->IsEnabled())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6248\n");
             DynamicType* cachedType = constructorCache->NeedsTypeUpdate() ? constructorCache->GetPendingType() : constructorCache->GetType();
             DynamicTypeHandler* cachedTypeHandler = cachedType->GetTypeHandler();
 
@@ -6255,7 +6255,7 @@ CommonNumber:
             // the cache as special (already possible) and forcing the shrinking during work item creation if we happen to JIT this
             // constructor while the cache is in this special state.
             if (cachedTypeHandler->GetInlineSlotCapacity())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 6257\n");
 #if DBG_DUMP
                 int inlineSlotCapacityBeforeShrink = cachedTypeHandler->GetInlineSlotCapacity();
 #endif
@@ -6274,9 +6274,9 @@ CommonNumber:
 #if DBG_DUMP
                 Assert(inlineSlotCapacityBeforeShrink >= cachedTypeHandler->GetInlineSlotCapacity());
                 if (Js::Configuration::Global.flags.Trace.IsEnabled(Js::InlineSlotsPhase))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 6276\n");
                     if (inlineSlotCapacityBeforeShrink != cachedTypeHandler->GetInlineSlotCapacity())
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 6278\n");
                         char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
                         Output::Print(_u("Inline slot capacity shrunk: Function:%04s Before:%d After:%d\n"),
@@ -6289,16 +6289,16 @@ CommonNumber:
     }
 
     void JavascriptOperators::TraceUseConstructorCache(const ConstructorCache* ctorCache, const JavascriptFunction* ctor, bool isHit)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6291\n");
 #if DBG_DUMP
         // We are under debug, so we can incur the extra check here.
         FunctionProxy* ctorBody = ctor->GetFunctionProxy();
         if (ctorBody != nullptr && !ctorBody->GetScriptContext()->IsClosed())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6296\n");
             ctorBody = ctorBody->EnsureDeserialized();
         }
         if ((ctorBody != nullptr && PHASE_TRACE(Js::ConstructorCachePhase, ctorBody)) || (ctorBody == nullptr && PHASE_TRACE1(Js::ConstructorCachePhase)))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6300\n");
             const char16* ctorName = ctorBody != nullptr ? ctorBody->GetDisplayName() : _u("<unknown>");
             char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
@@ -6312,10 +6312,10 @@ CommonNumber:
     }
 
     void JavascriptOperators::TraceUpdateConstructorCache(const ConstructorCache* ctorCache, const FunctionBody* ctorBody, bool updated, const char16* reason)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6314\n");
 #if DBG_DUMP
         if (PHASE_TRACE(Js::ConstructorCachePhase, ctorBody))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6317\n");
             const char16* ctorName = ctorBody->GetDisplayName();
             char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 
@@ -6331,7 +6331,7 @@ CommonNumber:
     }
 
     Var JavascriptOperators::NewScObject(const Var callee, const Arguments args, ScriptContext *const scriptContext, const Js::AuxArray<uint32> *spreadIndices)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6333\n");
         Assert(callee);
         Assert(args.Info.Count != 0);
         Assert(scriptContext);
@@ -6348,24 +6348,24 @@ CommonNumber:
     }
 
     Js::GlobalObject * JavascriptOperators::OP_LdRoot(ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6350\n");
         return scriptContext->GetGlobalObject();
     }
 
     Js::ModuleRoot * JavascriptOperators::GetModuleRoot(int moduleID, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6355\n");
         Assert(moduleID != kmodGlobal);
         JavascriptLibrary* library = scriptContext->GetLibrary();
         HostObjectBase *hostObject = library->GetGlobalObject()->GetHostObject();
         if (hostObject)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6360\n");
             Js::ModuleRoot * moduleRoot = hostObject->GetModuleRoot(moduleID);
             Assert(!CrossSite::NeedMarshalVar(moduleRoot, scriptContext));
             return moduleRoot;
         }
         HostScriptContext *hostScriptContext = scriptContext->GetHostScriptContext();
         if (hostScriptContext)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6367\n");
             Js::ModuleRoot * moduleRoot = hostScriptContext->GetModuleRoot(moduleID);
             Assert(!CrossSite::NeedMarshalVar(moduleRoot, scriptContext));
             return moduleRoot;
@@ -6375,10 +6375,10 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_LoadModuleRoot(int moduleID, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6377\n");
         Js::ModuleRoot * moduleRoot = GetModuleRoot(moduleID, scriptContext);
         if (moduleRoot)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6380\n");
             return moduleRoot;
         }
         Assert(false);
@@ -6386,27 +6386,27 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_LdNull(ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6388\n");
         return scriptContext->GetLibrary()->GetNull();
     }
 
     Var JavascriptOperators::OP_LdUndef(ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6393\n");
         return scriptContext->GetLibrary()->GetUndefined();
     }
 
     Var JavascriptOperators::OP_LdNaN(ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6398\n");
         return scriptContext->GetLibrary()->GetNaN();
     }
 
     Var JavascriptOperators::OP_LdInfinity(ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6403\n");
         return scriptContext->GetLibrary()->GetPositiveInfinite();
     }
 
     void JavascriptOperators::BuildHandlerScope(Var argThis, RecyclableObject * hostObject, FrameDisplay * pDisplay, ScriptContext * scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6408\n");
         Assert(argThis != nullptr);
         pDisplay->SetItem(0, TaggedNumber::Is(argThis) ? scriptContext->GetLibrary()->CreateNumberObject(argThis) : argThis);
         uint16 i = 1;
@@ -6417,16 +6417,16 @@ CommonNumber:
         // Now add any parent scopes
         // We need to support the namespace parent lookup in both fastDOM on and off scenario.
         while (aChild != NULL)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6419\n");
             Var aParent = hostObject->GetNamespaceParent(aChild);
 
             if (aParent == nullptr)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 6423\n");
                 break;
             }
             aParent = CrossSite::MarshalVar(scriptContext, aParent);
             if (i == length)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 6428\n");
                 length += 8;
                 FrameDisplay * tmp = RecyclerNewPlus(scriptContext->GetRecycler(), length * sizeof(void*), FrameDisplay, length);
                 js_memcpy_s((char*)tmp + tmp->GetOffsetOfScopes(), tmp->GetLength() * sizeof(void *), (char*)pDisplay + pDisplay->GetOffsetOfScopes(), pDisplay->GetLength() * sizeof(void*));
@@ -6441,7 +6441,7 @@ CommonNumber:
         pDisplay->SetLength(i);
     }
     FrameDisplay * JavascriptOperators::OP_LdHandlerScope(Var argThis, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6443\n");
 
         // The idea here is to build a stack of nested scopes in the form of a JS array.
         //
@@ -6452,14 +6452,14 @@ CommonNumber:
 
         // Put the implicit "this"
         if (argThis != NULL)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6454\n");
             RecyclableObject* hostObject = scriptContext->GetGlobalObject()->GetHostObject();
             if (hostObject == nullptr)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 6457\n");
                 hostObject = scriptContext->GetGlobalObject()->GetDirectHostObject();
             }
             if (hostObject != nullptr)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 6461\n");
                 uint16 length = 7;
                 FrameDisplay *pDisplay =
                     RecyclerNewPlus(scriptContext->GetRecycler(), length * sizeof(void*), FrameDisplay, length);
@@ -6472,7 +6472,7 @@ CommonNumber:
     }
 
     FrameDisplay* JavascriptOperators::OP_LdFrameDisplay(void *argHead, void *argEnv, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6474\n");
         // Build a display of nested frame objects.
         // argHead is the current scope; argEnv is either the lone trailing scope or an array of scopes
         // which we append to the new display.
@@ -6489,7 +6489,7 @@ CommonNumber:
 
         pDisplay = RecyclerNewPlus(scriptContext->GetRecycler(), length * sizeof(void*), FrameDisplay, length);
         for (int j = 0; j < length - 1; j++)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6491\n");
             pDisplay->SetItem(j + 1, envDisplay->GetItem(j));
         }
 
@@ -6499,12 +6499,12 @@ CommonNumber:
     }
 
     FrameDisplay* JavascriptOperators::OP_LdFrameDisplayNoParent(void *argHead, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6501\n");
         return OP_LdFrameDisplay(argHead, (void*)&NullFrameDisplay, scriptContext);
     }
 
     FrameDisplay* JavascriptOperators::OP_LdStrictFrameDisplay(void *argHead, void *argEnv, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6506\n");
         FrameDisplay * pDisplay = OP_LdFrameDisplay(argHead, argEnv, scriptContext);
         pDisplay->SetStrictMode(true);
 
@@ -6512,36 +6512,36 @@ CommonNumber:
     }
 
     FrameDisplay* JavascriptOperators::OP_LdStrictFrameDisplayNoParent(void *argHead, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6514\n");
         return OP_LdStrictFrameDisplay(argHead, (void*)&StrictNullFrameDisplay, scriptContext);
     }
 
     FrameDisplay* JavascriptOperators::OP_LdInnerFrameDisplay(void *argHead, void *argEnv, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6519\n");
         CheckInnerFrameDisplayArgument(argHead);
         return OP_LdFrameDisplay(argHead, argEnv, scriptContext);
     }
 
     FrameDisplay* JavascriptOperators::OP_LdInnerFrameDisplayNoParent(void *argHead, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6525\n");
         CheckInnerFrameDisplayArgument(argHead);
         return OP_LdFrameDisplayNoParent(argHead, scriptContext);
     }
 
     FrameDisplay* JavascriptOperators::OP_LdStrictInnerFrameDisplay(void *argHead, void *argEnv, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6531\n");
         CheckInnerFrameDisplayArgument(argHead);
         return OP_LdStrictFrameDisplay(argHead, argEnv, scriptContext);
     }
 
     FrameDisplay* JavascriptOperators::OP_LdStrictInnerFrameDisplayNoParent(void *argHead, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6537\n");
         CheckInnerFrameDisplayArgument(argHead);
         return OP_LdStrictFrameDisplayNoParent(argHead, scriptContext);
     }
 
     void JavascriptOperators::CheckInnerFrameDisplayArgument(void *argHead)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6543\n");
         if (ThreadContext::IsOnStack(argHead))
         {
             AssertMsg(false, "Illegal byte code: stack object as with scope");
@@ -6555,14 +6555,14 @@ CommonNumber:
     }
 
     Js::PropertyId JavascriptOperators::GetPropertyId(Var propertyName, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6557\n");
         PropertyRecord const * propertyRecord = nullptr;
         if (JavascriptSymbol::Is(propertyName))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6560\n");
             propertyRecord = JavascriptSymbol::FromVar(propertyName)->GetValue();
         }
         else if (JavascriptSymbolObject::Is(propertyName))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6564\n");
             propertyRecord = JavascriptSymbolObject::FromVar(propertyName)->GetValue();
         }
         else
@@ -6575,20 +6575,20 @@ CommonNumber:
     }
 
     void JavascriptOperators::OP_InitSetter(Var object, PropertyId propertyId, Var setter)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6577\n");
         AssertMsg(!TaggedNumber::Is(object), "SetMember on a non-object?");
         RecyclableObject::FromVar(object)->SetAccessors(propertyId, nullptr, setter);
     }
 
     void JavascriptOperators::OP_InitClassMemberSet(Var object, PropertyId propertyId, Var setter)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6583\n");
         JavascriptOperators::OP_InitSetter(object, propertyId, setter);
 
         RecyclableObject::FromVar(object)->SetAttributes(propertyId, PropertyClassMemberDefaults);
     }
 
     Js::PropertyId JavascriptOperators::OP_InitElemSetter(Var object, Var elementName, Var setter, ScriptContext* scriptContext, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6590\n");
         AssertMsg(!TaggedNumber::Is(object), "SetMember on a non-object?");
 
         PropertyId propertyId = JavascriptOperators::GetPropertyId(elementName, scriptContext);
@@ -6599,12 +6599,12 @@ CommonNumber:
     }
 
     Field(Var)* JavascriptOperators::OP_GetModuleExportSlotArrayAddress(uint moduleIndex, uint slotIndex, ScriptContextInfo* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6601\n");
         return scriptContext->GetModuleExportSlotArrayAddress(moduleIndex, slotIndex);
     }
 
     Field(Var)* JavascriptOperators::OP_GetModuleExportSlotAddress(uint moduleIndex, uint slotIndex, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6606\n");
         Field(Var)* moduleRecordSlots = OP_GetModuleExportSlotArrayAddress(moduleIndex, slotIndex, scriptContext);
         Assert(moduleRecordSlots != nullptr);
 
@@ -6612,7 +6612,7 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_LdModuleSlot(uint moduleIndex, uint slotIndex, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6614\n");
         Field(Var)* addr = OP_GetModuleExportSlotAddress(moduleIndex, slotIndex, scriptContext);
 
         Assert(addr != nullptr);
@@ -6621,7 +6621,7 @@ CommonNumber:
     }
 
     void JavascriptOperators::OP_StModuleSlot(uint moduleIndex, uint slotIndex, Var value, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6623\n");
         Assert(value != nullptr);
 
         Field(Var)* addr = OP_GetModuleExportSlotAddress(moduleIndex, slotIndex, scriptContext);
@@ -6632,13 +6632,13 @@ CommonNumber:
     }
 
     void JavascriptOperators::OP_InitClassMemberSetComputedName(Var object, Var elementName, Var value, ScriptContext* scriptContext, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6634\n");
         Js::PropertyId propertyId = JavascriptOperators::OP_InitElemSetter(object, elementName, value, scriptContext);
         RecyclableObject* instance = RecyclableObject::FromVar(object);
 
         // instance will be a function if it is the class constructor (otherwise it would be an object)
         if (JavascriptFunction::Is(instance) && Js::PropertyIds::prototype == propertyId)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6640\n");
             // It is a TypeError to have a static member with a computed name that evaluates to 'prototype'
             JavascriptError::ThrowTypeError(scriptContext, JSERR_ClassStaticMethodCannotBePrototype);
         }
@@ -6647,30 +6647,30 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::IsClassConstructor(Var instance)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6649\n");
         return JavascriptFunction::Is(instance) && (JavascriptFunction::FromVar(instance)->GetFunctionInfo()->IsClassConstructor() || !JavascriptFunction::FromVar(instance)->IsScriptFunction());
     }
 
     BOOL JavascriptOperators::IsBaseConstructorKind(Var instance)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6654\n");
         return JavascriptFunction::Is(instance) && (JavascriptFunction::FromVar(instance)->GetFunctionInfo()->GetBaseConstructorKind());
     }
 
     void JavascriptOperators::OP_InitGetter(Var object, PropertyId propertyId, Var getter)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6659\n");
         AssertMsg(!TaggedNumber::Is(object), "GetMember on a non-object?");
         RecyclableObject::FromVar(object)->SetAccessors(propertyId, getter, nullptr);
     }
 
     void JavascriptOperators::OP_InitClassMemberGet(Var object, PropertyId propertyId, Var getter)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6665\n");
         JavascriptOperators::OP_InitGetter(object, propertyId, getter);
 
         RecyclableObject::FromVar(object)->SetAttributes(propertyId, PropertyClassMemberDefaults);
     }
 
     Js::PropertyId JavascriptOperators::OP_InitElemGetter(Var object, Var elementName, Var getter, ScriptContext* scriptContext, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6672\n");
         AssertMsg(!TaggedNumber::Is(object), "GetMember on a non-object?");
 
         PropertyId propertyId = JavascriptOperators::GetPropertyId(elementName, scriptContext);
@@ -6681,13 +6681,13 @@ CommonNumber:
     }
 
     void JavascriptOperators::OP_InitClassMemberGetComputedName(Var object, Var elementName, Var value, ScriptContext* scriptContext, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6683\n");
         Js::PropertyId propertyId = JavascriptOperators::OP_InitElemGetter(object, elementName, value, scriptContext);
         RecyclableObject* instance = RecyclableObject::FromVar(object);
 
         // instance will be a function if it is the class constructor (otherwise it would be an object)
         if (JavascriptFunction::Is(instance) && Js::PropertyIds::prototype == propertyId)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6689\n");
             // It is a TypeError to have a static member with a computed name that evaluates to 'prototype'
             JavascriptError::ThrowTypeError(scriptContext, JSERR_ClassStaticMethodCannotBePrototype);
         }
@@ -6696,20 +6696,20 @@ CommonNumber:
     }
 
     void JavascriptOperators::OP_InitComputedProperty(Var object, Var elementName, Var value, ScriptContext* scriptContext, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6698\n");
         PropertyId propertyId = JavascriptOperators::GetPropertyId(elementName, scriptContext);
 
         RecyclableObject::FromVar(object)->InitProperty(propertyId, value, flags);
     }
 
     void JavascriptOperators::OP_InitClassMemberComputedName(Var object, Var elementName, Var value, ScriptContext* scriptContext, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6705\n");
         PropertyId propertyId = JavascriptOperators::GetPropertyId(elementName, scriptContext);
         RecyclableObject* instance = RecyclableObject::FromVar(object);
 
         // instance will be a function if it is the class constructor (otherwise it would be an object)
         if (JavascriptFunction::Is(instance) && Js::PropertyIds::prototype == propertyId)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6711\n");
             // It is a TypeError to have a static member with a computed name that evaluates to 'prototype'
             JavascriptError::ThrowTypeError(scriptContext, JSERR_ClassStaticMethodCannotBePrototype);
         }
@@ -6721,7 +6721,7 @@ CommonNumber:
     // Used by object literal {..., __proto__: ..., }.
     //
     void JavascriptOperators::OP_InitProto(Var instance, PropertyId propertyId, Var value)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6723\n");
         AssertMsg(RecyclableObject::Is(instance), "__proto__ member on a non-object?");
         Assert(propertyId == PropertyIds::__proto__);
 
@@ -6734,7 +6734,7 @@ CommonNumber:
         //        i.Return the result of calling the [[SetInheritance]] internal method of object with argument propValue.
         //    b.Return NormalCompletion(empty).
         if (JavascriptOperators::IsObjectOrNull(value))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6736\n");
             JavascriptObject::ChangePrototype(object, RecyclableObject::FromVar(value), /*validate*/false, scriptContext);
         }
     }
@@ -6746,12 +6746,12 @@ CommonNumber:
         Js::PropertyIdArray *propIds,
         uint32 formalsCount,
         ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6748\n");
         Var *paramIter = paramAddr;
         uint32 i = 0;
 
         for (paramIter = paramAddr + i; i < paramCount; i++, paramIter++)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6753\n");
             JavascriptOperators::SetItem(argumentsObject, argumentsObject, i, *paramIter, scriptContext, PropertyOperation_None, /* skipPrototypeCheck = */ TRUE);
         }
 
@@ -6759,7 +6759,7 @@ CommonNumber:
 
         // Now as the unmapping is done we need to fill those frame object with Undecl
         for (i = 0; i < formalsCount; i++)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6761\n");
             frameObject->SetSlot(SetSlotArguments(propIds != nullptr ? propIds->elements[i] : Js::Constants::NoProperty, i, scriptContext->GetLibrary()->GetUndeclBlockVar()));
         }
 
@@ -6767,7 +6767,7 @@ CommonNumber:
     }
 
     Var JavascriptOperators::LoadHeapArguments(JavascriptFunction *funcCallee, uint32 actualsCount, Var *paramAddr, Var frameObj, Var vArray, ScriptContext* scriptContext, bool nonSimpleParamList)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6769\n");
         AssertMsg(actualsCount != (unsigned int)-1, "Loading the arguments object in the global function?");
 
         // Create and initialize the Arguments object.
@@ -6775,7 +6775,7 @@ CommonNumber:
         uint32 formalsCount = 0;
         Js::PropertyIdArray *propIds = nullptr;
         if (vArray != scriptContext->GetLibrary()->GetNull())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6777\n");
             propIds = (Js::PropertyIdArray *)vArray;
             formalsCount = propIds->count;
             Assert(formalsCount != 0 && propIds != nullptr);
@@ -6786,7 +6786,7 @@ CommonNumber:
     }
 
     Var JavascriptOperators::LoadHeapArgsCached(JavascriptFunction *funcCallee, uint32 actualsCount, uint32 formalsCount, Var *paramAddr, Var frameObj, ScriptContext* scriptContext, bool nonSimpleParamList)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6788\n");
         // Disregard the "this" param.
         AssertMsg(actualsCount != (uint32)-1 && formalsCount != (uint32)-1,
                   "Loading the arguments object in the global function?");
@@ -6798,7 +6798,7 @@ CommonNumber:
 
     Var JavascriptOperators::FillScopeObject(JavascriptFunction *funcCallee, uint32 actualsCount, uint32 formalsCount, Var frameObj, Var * paramAddr,
         Js::PropertyIdArray *propIds, HeapArgumentsObject * argsObj, ScriptContext * scriptContext, bool nonSimpleParamList, bool useCachedScope)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6800\n");
         Assert(frameObj);
 
         // Transfer formal arguments (that were actually passed) from their ArgIn slots to the local frame object.
@@ -6807,10 +6807,10 @@ CommonNumber:
         Var *tmpAddr = paramAddr;
 
         if (formalsCount != 0)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6809\n");
             DynamicObject* frameObject = nullptr;
             if (useCachedScope)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 6812\n");
                 frameObject = DynamicObject::FromVar(frameObj);
                 __analysis_assume((uint32)frameObject->GetDynamicType()->GetTypeHandler()->GetSlotCapacity() >= formalsCount);
             }
@@ -6832,31 +6832,31 @@ CommonNumber:
             }
 
             if (argsObj && nonSimpleParamList)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 6834\n");
                 return ConvertToUnmappedArguments(argsObj, actualsCount, paramAddr, frameObject, propIds, formalsCount, scriptContext);
             }
 
             for (i = 0; i < formalsCount && i < actualsCount; i++, tmpAddr++)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 6839\n");
                 frameObject->SetSlot(SetSlotArguments(propIds != nullptr? propIds->elements[i] : Constants::NoProperty, i, *tmpAddr));
             }
 
             if (i < formalsCount)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 6844\n");
                 // The formals that weren't passed still need to be put in the frame object so that
                 // their names will be found. Initialize them to "undefined".
                 for (; i < formalsCount; i++)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 6848\n");
                     frameObject->SetSlot(SetSlotArguments(propIds != nullptr? propIds->elements[i] : Constants::NoProperty, i, scriptContext->GetLibrary()->GetUndefined()));
                 }
             }
         }
 
         if (argsObj != nullptr)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6855\n");
             // Transfer the unnamed actual arguments, if any, to the Arguments object itself.
             for (i = formalsCount, tmpAddr = paramAddr + i; i < actualsCount; i++, tmpAddr++)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 6858\n");
                 // ES5 10.6.11: use [[DefineOwnProperty]] semantics (instead of [[Put]]):
                 // do not check whether property is non-writable/etc in the prototype.
                 // ES3 semantics is same.
@@ -6864,7 +6864,7 @@ CommonNumber:
             }
 
             if (funcCallee->IsStrictMode())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 6866\n");
                 // If the formals are let decls, then we just overwrote the frame object slots with
                 // Undecl sentinels, and we can use the original arguments that were passed to the HeapArgumentsObject.
                 return argsObj->ConvertToUnmappedArgumentsObject(!nonSimpleParamList);
@@ -6874,7 +6874,7 @@ CommonNumber:
     }
 
     HeapArgumentsObject *JavascriptOperators::CreateHeapArguments(JavascriptFunction *funcCallee, uint32 actualsCount, uint32 formalsCount, Var frameObj, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6876\n");
         JavascriptLibrary *library = scriptContext->GetLibrary();
         HeapArgumentsObject *argsObj = library->CreateHeapArguments(frameObj, formalsCount, !!funcCallee->IsStrictMode());
 
@@ -6886,7 +6886,7 @@ CommonNumber:
         JavascriptOperators::SetProperty(argsObj, argsObj, PropertyIds::length, JavascriptNumber::ToVar(actualsCount, scriptContext), scriptContext);
         JavascriptOperators::SetProperty(argsObj, argsObj, PropertyIds::_symbolIterator, library->GetArrayPrototypeValuesFunction(), scriptContext);
         if (funcCallee->IsStrictMode())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6888\n");
             JavascriptFunction* restrictedPropertyAccessor = library->GetThrowTypeErrorRestrictedPropertyAccessorFunction();
             argsObj->SetAccessors(PropertyIds::caller, restrictedPropertyAccessor, restrictedPropertyAccessor, PropertyOperation_NonFixedValue);
 
@@ -6903,12 +6903,12 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_NewScopeObject(ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6905\n");
         return scriptContext->GetLibrary()->CreateActivationObject();
     }
 
     Var JavascriptOperators::OP_NewScopeObjectWithFormals(ScriptContext* scriptContext, JavascriptFunction * funcCallee, bool nonSimpleParamList)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6910\n");
         Js::ActivationObject * frameObject = (ActivationObject*)OP_NewScopeObject(scriptContext);
         // No fixed fields for formal parameters of the arguments object.  Also, mark all fields as initialized up-front, because
         // we will set them directly using SetSlot below, so the type handler will not have a chance to mark them as initialized later.
@@ -6927,7 +6927,7 @@ CommonNumber:
     }
 
     Field(Var)* JavascriptOperators::OP_NewScopeSlots(unsigned int size, ScriptContext *scriptContext, Var scope)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6929\n");
         Assert(size > ScopeSlots::FirstSlotIndex); // Should never see empty slot array
         Field(Var)* slotArray = RecyclerNewArray(scriptContext->GetRecycler(), Field(Var), size); // last initialized slot contains reference to array of propertyIds, correspondent to objects in previous slots
         uint count = size - ScopeSlots::FirstSlotIndex;
@@ -6938,7 +6938,7 @@ CommonNumber:
 
         Var undef = scriptContext->GetLibrary()->GetUndefined();
         for (unsigned int i = 0; i < count; i++)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6940\n");
             slots.Set(i, undef);
         }
 
@@ -6946,10 +6946,10 @@ CommonNumber:
     }
 
     Field(Var)* JavascriptOperators::OP_NewScopeSlotsWithoutPropIds(unsigned int count, int scopeIndex, ScriptContext *scriptContext, FunctionBody *functionBody)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6948\n");
         DebuggerScope* scope = reinterpret_cast<DebuggerScope*>(Constants::FunctionBodyUnavailable);
         if (scopeIndex != DebuggerScope::InvalidScopeIndex)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6951\n");
             AssertMsg(functionBody->GetScopeObjectChain(), "A scope chain should always be created when there are new scope slots for blocks.");
             scope = functionBody->GetScopeObjectChain()->pScopeChain->Item(scopeIndex);
         }
@@ -6957,7 +6957,7 @@ CommonNumber:
     }
 
     Field(Var)* JavascriptOperators::OP_CloneScopeSlots(Field(Var) *slotArray, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6959\n");
         ScopeSlots slots((Js::Var*)slotArray);
         uint size = ScopeSlots::FirstSlotIndex + slots.GetCount();
 
@@ -6968,40 +6968,40 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_NewPseudoScope(ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6970\n");
         return scriptContext->GetLibrary()->CreatePseudoActivationObject();
     }
 
     Var JavascriptOperators::OP_NewBlockScope(ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6975\n");
         return scriptContext->GetLibrary()->CreateBlockActivationObject();
     }
 
     Var JavascriptOperators::OP_CloneBlockScope(BlockActivationObject *blockScope, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6980\n");
         return blockScope->Clone(scriptContext);
     }
 
     Var JavascriptOperators::OP_IsInst(Var instance, Var aClass, ScriptContext* scriptContext, IsInstInlineCache* inlineCache)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 6985\n");
         if (!RecyclableObject::Is(aClass))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6987\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_Operand_Invalid_NeedFunction, _u("instanceof"));
         }
 
         RecyclableObject* constructor = RecyclableObject::FromVar(aClass);
         if (scriptContext->GetConfig()->IsES6HasInstanceEnabled())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 6993\n");
             Var instOfHandler = JavascriptOperators::GetProperty(constructor, PropertyIds::_symbolHasInstance, scriptContext);
             if (JavascriptOperators::IsUndefinedObject(instOfHandler)
                 || instOfHandler == scriptContext->GetBuiltInLibraryFunction(JavascriptFunction::EntryInfo::SymbolHasInstance.GetOriginalEntryPoint()))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 6997\n");
                 return JavascriptBoolean::ToVar(constructor->HasInstance(instance, scriptContext, inlineCache), scriptContext);
             }
             else
             {
                 if (!JavascriptConversion::IsCallable(instOfHandler))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 7003\n");
                     JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_NeedFunction, _u("Symbol[Symbol.hasInstance]"));
                 }
 
@@ -7022,9 +7022,9 @@ CommonNumber:
     }
 
     void JavascriptOperators::OP_InitClass(Var constructor, Var extends, ScriptContext * scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7024\n");
         if (JavascriptOperators::GetTypeId(constructor) != Js::TypeId::TypeIds_Function)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7026\n");
              JavascriptError::ThrowTypeError(scriptContext, JSERR_Operand_Invalid_NeedFunction, _u("class"));
         }
 
@@ -7035,11 +7035,11 @@ CommonNumber:
         JavascriptOperators::OP_SetHomeObj(constructor, constructor);
 
         if (extends)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7037\n");
             switch (JavascriptOperators::GetTypeId(extends))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 7039\n");
                 case Js::TypeId::TypeIds_Null:
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 7041\n");
                     Var ctorProto = JavascriptOperators::GetProperty(constructor, ctor, Js::PropertyIds::prototype, scriptContext);
                     RecyclableObject * ctorProtoObj = RecyclableObject::FromVar(ctorProto);
 
@@ -7049,7 +7049,7 @@ CommonNumber:
                     ctorProtoObj->SetEnumerable(Js::PropertyIds::constructor, FALSE);
 
                     if (ScriptFunctionBase::Is(constructor))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 7051\n");
                         ScriptFunctionBase::FromVar(constructor)->GetFunctionInfo()->SetBaseConstructorKind();
                     }
 
@@ -7059,23 +7059,23 @@ CommonNumber:
                 default:
                 {
                     if (!RecyclableObject::Is(extends))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 7061\n");
                         JavascriptError::ThrowTypeError(scriptContext, JSERR_InvalidPrototype, _u("extends"));
                     }
                     RecyclableObject * extendsObj = RecyclableObject::FromVar(extends);
                     if (!JavascriptOperators::IsConstructor(extendsObj))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 7066\n");
                         JavascriptError::ThrowTypeError(scriptContext, JSERR_ErrorOnNew);
                     }
                     if (!extendsObj->HasProperty(Js::PropertyIds::prototype))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 7070\n");
                         JavascriptError::ThrowTypeError(scriptContext, JSERR_InvalidPrototype);
                     }
 
                     Var extendsProto = JavascriptOperators::GetProperty(extends, extendsObj, Js::PropertyIds::prototype, scriptContext);
                     uint extendsProtoTypeId = JavascriptOperators::GetTypeId(extendsProto);
                     if (extendsProtoTypeId <= Js::TypeId::TypeIds_LastJavascriptPrimitiveType && extendsProtoTypeId != Js::TypeId::TypeIds_Null)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 7077\n");
                         JavascriptError::ThrowTypeError(scriptContext, JSERR_InvalidPrototype);
                     }
 
@@ -7098,71 +7098,71 @@ CommonNumber:
     }
 
     void JavascriptOperators::OP_LoadUndefinedToElement(Var instance, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7100\n");
         AssertMsg(!TaggedNumber::Is(instance), "Invalid scope/root object");
         JavascriptOperators::EnsureProperty(instance, propertyId);
     }
 
     void JavascriptOperators::OP_LoadUndefinedToElementScoped(FrameDisplay *pScope, PropertyId propertyId, Var defaultInstance, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7106\n");
         int i;
         int length = pScope->GetLength();
         Var argInstance;
         for (i = 0; i < length; i++)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7111\n");
             argInstance = pScope->GetItem(i);
             if (JavascriptOperators::EnsureProperty(argInstance, propertyId))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 7114\n");
                 return;
             }
         }
 
         if (!JavascriptOperators::HasOwnPropertyNoHostObject(defaultInstance, propertyId))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7120\n");
             // CONSIDER : Consider adding pre-initialization support to activation objects.
             JavascriptOperators::OP_InitPropertyScoped(pScope, propertyId, scriptContext->GetLibrary()->GetUndefined(), defaultInstance, scriptContext);
         }
     }
 
     void JavascriptOperators::OP_LoadUndefinedToElementDynamic(Var instance, PropertyId propertyId, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7127\n");
         if (!JavascriptOperators::HasOwnPropertyNoHostObject(instance, propertyId))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7129\n");
             RecyclableObject::FromVar(instance)->InitPropertyScoped(propertyId, scriptContext->GetLibrary()->GetUndefined());
         }
     }
 
     BOOL JavascriptOperators::EnsureProperty(Var instance, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7135\n");
         RecyclableObject *obj = RecyclableObject::FromVar(instance);
         return (obj && obj->EnsureProperty(propertyId));
     }
 
     void JavascriptOperators::OP_EnsureNoRootProperty(Var instance, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7141\n");
         Assert(RootObjectBase::Is(instance));
         RootObjectBase *obj = RootObjectBase::FromVar(instance);
         obj->EnsureNoProperty(propertyId);
     }
 
     void JavascriptOperators::OP_EnsureNoRootRedeclProperty(Var instance, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7148\n");
         Assert(RootObjectBase::Is(instance));
         RecyclableObject *obj = RecyclableObject::FromVar(instance);
         obj->EnsureNoRedeclProperty(propertyId);
     }
 
     void JavascriptOperators::OP_ScopedEnsureNoRedeclProperty(FrameDisplay *pDisplay, PropertyId propertyId, Var defaultInstance)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7155\n");
         int i;
         int length = pDisplay->GetLength();
         RecyclableObject *object;
 
         for (i = 0; i < length; i++)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7161\n");
             object = RecyclableObject::FromVar(pDisplay->GetItem(i));
             if (object->EnsureNoRedeclProperty(propertyId))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 7164\n");
                 return;
             }
         }
@@ -7172,11 +7172,11 @@ CommonNumber:
     }
 
     Var JavascriptOperators::IsIn(Var argProperty, Var instance, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7174\n");
         // Note that the fact that we haven't seen a given name before doesn't mean that the instance doesn't
 
         if (!IsObject(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7178\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_Operand_Invalid_NeedObject, _u("in"));
         }
 
@@ -7188,7 +7188,7 @@ CommonNumber:
 
         BOOL result;
         if( indexType == Js::IndexType_Number )
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7190\n");
             result = JavascriptOperators::HasItem( object, index );
         }
         else
@@ -7200,7 +7200,7 @@ CommonNumber:
             {
                 Assert(indexType != Js::IndexType_JavascriptString);
                 if( indexType == Js::IndexType_PropertyId )
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 7202\n");
                     scriptContext->GetTelemetry().GetOpcodeTelemetry().IsIn( instance, propertyId, result != 0 );
                 }
             }
@@ -7211,23 +7211,23 @@ CommonNumber:
 
     template <bool IsFromFullJit, class TInlineCache>
     inline Var JavascriptOperators::PatchGetValue(FunctionBody *const functionBody, TInlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, Var instance, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7213\n");
         return PatchGetValueWithThisPtr<IsFromFullJit, TInlineCache>(functionBody, inlineCache, inlineCacheIndex, instance, propertyId, instance);
     }
 
 
     template <bool IsFromFullJit, class TInlineCache>
     __forceinline Var JavascriptOperators::PatchGetValueWithThisPtr(FunctionBody *const functionBody, TInlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, Var instance, PropertyId propertyId, Var thisInstance)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7220\n");
         ScriptContext *const scriptContext = functionBody->GetScriptContext();
 
         Assert(Js::JavascriptStackWalker::ValidateTopJitFrame(scriptContext));
 
         RecyclableObject* object = nullptr;
         if (FALSE == JavascriptOperators::GetPropertyObject(instance, scriptContext, &object))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7227\n");
             if (scriptContext->GetThreadContext()->RecordImplicitException())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 7229\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_CannotGet_NullOrUndefined,
                     scriptContext->GetPropertyName(propertyId)->GetBuffer());
             }
@@ -7242,13 +7242,13 @@ CommonNumber:
         Var value;
         if (CacheOperators::TryGetProperty<true, true, true, true, true, true, !TInlineCache::IsPolymorphic, TInlineCache::IsPolymorphic, false>(
                 thisInstance, false, object, propertyId, &value, scriptContext, nullptr, &info))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7244\n");
             return value;
         }
 
 #if DBG_DUMP
         if (PHASE_VERBOSE_TRACE1(Js::InlineCachePhase))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7250\n");
             CacheOperators::TraceCache(inlineCache, _u("PatchGetValue"), propertyId, scriptContext, object);
         }
 #endif
@@ -7269,16 +7269,16 @@ CommonNumber:
 
     template <bool IsFromFullJit, class TInlineCache>
     Var JavascriptOperators::PatchGetValueForTypeOf(FunctionBody *const functionBody, TInlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, Var instance, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7271\n");
         ScriptContext *const scriptContext = functionBody->GetScriptContext();
 
         Assert(Js::JavascriptStackWalker::ValidateTopJitFrame(scriptContext));
 
         RecyclableObject* object = nullptr;
         if (FALSE == JavascriptOperators::GetPropertyObject(instance, scriptContext, &object))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7278\n");
             if (scriptContext->GetThreadContext()->RecordImplicitException())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 7280\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_CannotGet_NullOrUndefined,
                     scriptContext->GetPropertyName(propertyId)->GetBuffer());
             }
@@ -7293,13 +7293,13 @@ CommonNumber:
         Var value;
         if (CacheOperators::TryGetProperty<true, true, true, true, true, true, !TInlineCache::IsPolymorphic, TInlineCache::IsPolymorphic, false>(
             instance, false, object, propertyId, &value, scriptContext, nullptr, &info))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7295\n");
             return value;
         }
 
 #if DBG_DUMP
         if (PHASE_VERBOSE_TRACE1(Js::InlineCachePhase))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7301\n");
             CacheOperators::TraceCache(inlineCache, _u("PatchGetValueForTypeOf"), propertyId, scriptContext, object);
         }
 #endif
@@ -7318,19 +7318,19 @@ CommonNumber:
 
 
     Var JavascriptOperators::PatchGetValueUsingSpecifiedInlineCache(InlineCache * inlineCache, Var instance, RecyclableObject * object, PropertyId propertyId, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7320\n");
         PropertyValueInfo info;
         PropertyValueInfo::SetCacheInfo(&info, inlineCache);
         Var value;
         if (CacheOperators::TryGetProperty<true, true, true, true, false, true, !InlineCache::IsPolymorphic, InlineCache::IsPolymorphic, false>(
                 instance, false, object, propertyId, &value, scriptContext, nullptr, &info))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7326\n");
             return value;
         }
 
 #if DBG_DUMP
         if (PHASE_VERBOSE_TRACE1(Js::InlineCachePhase))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7332\n");
             CacheOperators::TraceCache(inlineCache, _u("PatchGetValue"), propertyId, scriptContext, object);
         }
 #endif
@@ -7339,19 +7339,19 @@ CommonNumber:
     }
 
     Var JavascriptOperators::PatchGetValueNoFastPath(FunctionBody *const functionBody, InlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, Var instance, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7341\n");
         return PatchGetValueWithThisPtrNoFastPath(functionBody, inlineCache, inlineCacheIndex, instance, propertyId, instance);
     }
 
     Var JavascriptOperators::PatchGetValueWithThisPtrNoFastPath(FunctionBody *const functionBody, InlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, Var instance, PropertyId propertyId, Var thisInstance)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7346\n");
         ScriptContext *const scriptContext = functionBody->GetScriptContext();
 
         RecyclableObject* object = nullptr;
         if (FALSE == JavascriptOperators::GetPropertyObject(instance, scriptContext, &object))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7351\n");
             if (scriptContext->GetThreadContext()->RecordImplicitException())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 7353\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_CannotGet_NullOrUndefined,
                     scriptContext->GetPropertyName(propertyId)->GetBuffer());
             }
@@ -7368,7 +7368,7 @@ CommonNumber:
 
     template <bool IsFromFullJit, class TInlineCache>
     inline Var JavascriptOperators::PatchGetRootValue(FunctionBody *const functionBody, TInlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, DynamicObject * object, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7370\n");
         AssertMsg(RootObjectBase::Is(object), "Root must be a global object!");
 
         ScriptContext *const scriptContext = functionBody->GetScriptContext();
@@ -7378,13 +7378,13 @@ CommonNumber:
         Var value;
         if (CacheOperators::TryGetProperty<true, true, true, false, true, false, !TInlineCache::IsPolymorphic, TInlineCache::IsPolymorphic, false>(
                 object, true, object, propertyId, &value, scriptContext, nullptr, &info))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7380\n");
             return value;
         }
 
 #if DBG_DUMP
         if (PHASE_VERBOSE_TRACE1(Js::InlineCachePhase))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7386\n");
             CacheOperators::TraceCache(inlineCache, _u("PatchGetRootValue"), propertyId, scriptContext, object);
         }
 #endif
@@ -7398,7 +7398,7 @@ CommonNumber:
 
     template <bool IsFromFullJit, class TInlineCache>
     Var JavascriptOperators::PatchGetRootValueForTypeOf(FunctionBody *const functionBody, TInlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, DynamicObject * object, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7400\n");
         AssertMsg(RootObjectBase::Is(object), "Root must be a global object!");
 
         ScriptContext *const scriptContext = functionBody->GetScriptContext();
@@ -7408,22 +7408,22 @@ CommonNumber:
         Var value = nullptr;
         if (CacheOperators::TryGetProperty<true, true, true, false, true, false, !TInlineCache::IsPolymorphic, TInlineCache::IsPolymorphic, false>(
             object, true, object, propertyId, &value, scriptContext, nullptr, &info))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7410\n");
             return value;
         }
 
 #if DBG_DUMP
         if (PHASE_VERBOSE_TRACE1(Js::InlineCachePhase))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7416\n");
             CacheOperators::TraceCache(inlineCache, _u("PatchGetRootValueForTypeOf"), propertyId, scriptContext, object);
         }
 #endif
         value = nullptr;
         BEGIN_TYPEOF_ERROR_HANDLER(scriptContext);
         if (JavascriptOperators::GetRootProperty(RecyclableObject::FromVar(object), propertyId, &value, scriptContext, &info))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7423\n");
             if (scriptContext->IsUndeclBlockVar(value))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 7425\n");
                 JavascriptError::ThrowReferenceError(scriptContext, JSERR_UseBeforeDeclaration);
             }
             return value;
@@ -7440,7 +7440,7 @@ CommonNumber:
 
 
     Var JavascriptOperators::PatchGetRootValueNoFastPath_Var(FunctionBody *const functionBody, InlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, Var instance, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7442\n");
         return
             PatchGetRootValueNoFastPath(
                 functionBody,
@@ -7451,7 +7451,7 @@ CommonNumber:
     }
 
     Var JavascriptOperators::PatchGetRootValueNoFastPath(FunctionBody *const functionBody, InlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, DynamicObject* object, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7453\n");
         AssertMsg(RootObjectBase::Is(object), "Root must be a global object!");
 
         ScriptContext *const scriptContext = functionBody->GetScriptContext();
@@ -7463,7 +7463,7 @@ CommonNumber:
 
     template <bool IsFromFullJit, class TInlineCache>
     inline Var JavascriptOperators::PatchGetPropertyScoped(FunctionBody *const functionBody, TInlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, FrameDisplay *pDisplay, PropertyId propertyId, Var defaultInstance)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7465\n");
         // Get the property, using a scope stack rather than an individual instance.
         // Walk the stack until we find an instance that has the property.
 
@@ -7473,25 +7473,25 @@ CommonNumber:
         PropertyValueInfo info;
         PropertyValueInfo::SetCacheInfo(&info, functionBody, inlineCache, inlineCacheIndex, !IsFromFullJit);
         for (uint16 i = 0; i < length; i++)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7475\n");
             DynamicObject* object = (DynamicObject*)pDisplay->GetItem(i);
             Var value;
             if (CacheOperators::TryGetProperty<true, true, true, false, true, true, !TInlineCache::IsPolymorphic, TInlineCache::IsPolymorphic, false>(
                     object, false, object, propertyId, &value, scriptContext, nullptr, &info))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 7480\n");
                 return value;
             }
 
 #if DBG_DUMP
             if (PHASE_VERBOSE_TRACE1(Js::InlineCachePhase))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 7486\n");
                 CacheOperators::TraceCache(inlineCache, _u("PatchGetPropertyScoped"), propertyId, scriptContext, object);
             }
 #endif
             if (JavascriptOperators::GetProperty(object, propertyId, &value, scriptContext, &info))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 7491\n");
                 if (scriptContext->IsUndeclBlockVar(value) && propertyId != PropertyIds::_lexicalThisSlotSymbol)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 7493\n");
                     JavascriptError::ThrowReferenceError(scriptContext, JSERR_UseBeforeDeclaration);
                 }
                 return value;
@@ -7501,7 +7501,7 @@ CommonNumber:
         // No one in the scope stack has the property, so get it from the default instance provided by the caller.
         Var value = JavascriptOperators::PatchGetRootValue<IsFromFullJit>(functionBody, inlineCache, inlineCacheIndex, DynamicObject::FromVar(defaultInstance), propertyId);
         if (scriptContext->IsUndeclBlockVar(value))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7503\n");
             JavascriptError::ThrowReferenceError(scriptContext, JSERR_UseBeforeDeclaration);
         }
         return value;
@@ -7513,7 +7513,7 @@ CommonNumber:
 
     template <bool IsFromFullJit, class TInlineCache>
     Var JavascriptOperators::PatchGetPropertyForTypeOfScoped(FunctionBody *const functionBody, TInlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, FrameDisplay *pDisplay, PropertyId propertyId, Var defaultInstance)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7515\n");
         Var value = nullptr;
         ScriptContext *scriptContext = functionBody->GetScriptContext();
 
@@ -7531,7 +7531,7 @@ CommonNumber:
 
     template <bool IsFromFullJit, class TInlineCache>
     inline Var JavascriptOperators::PatchGetMethod(FunctionBody *const functionBody, TInlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, Var instance, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7533\n");
         Assert(inlineCache != nullptr);
 
         ScriptContext *const scriptContext = functionBody->GetScriptContext();
@@ -7541,10 +7541,10 @@ CommonNumber:
         JavascriptLibrary::CheckAndConvertCopyOnAccessNativeIntArray<Var>(instance);
 #endif
         if (FALSE == JavascriptOperators::GetPropertyObject(instance, scriptContext, &object))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7543\n");
             // Don't error if we disabled implicit calls
             if (scriptContext->GetThreadContext()->RecordImplicitException())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 7546\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_CannotGet_NullOrUndefined,
                     scriptContext->GetPropertyName(propertyId)->GetBuffer());
             }
@@ -7552,7 +7552,7 @@ CommonNumber:
             {
 #ifdef TELEMETRY_JSO
                 if (TELEMETRY_PROPERTY_OPCODE_FILTER(propertyId))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 7554\n");
                     // `successful` will be true as PatchGetMethod throws an exception if not found.
                     scriptContext->GetTelemetry().GetOpcodeTelemetry().GetMethodProperty(object, propertyId, value, /*successful:*/false);
                 }
@@ -7566,13 +7566,13 @@ CommonNumber:
         Var value;
         if (CacheOperators::TryGetProperty<true, true, true, false, true, true, !TInlineCache::IsPolymorphic, TInlineCache::IsPolymorphic, false>(
                 instance, false, object, propertyId, &value, scriptContext, nullptr, &info))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7568\n");
             return value;
         }
 
 #if DBG_DUMP
         if (PHASE_VERBOSE_TRACE1(Js::InlineCachePhase))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7574\n");
             CacheOperators::TraceCache(inlineCache, _u("PatchGetMethod"), propertyId, scriptContext, object);
         }
 #endif
@@ -7580,7 +7580,7 @@ CommonNumber:
         value = Js::JavascriptOperators::PatchGetMethodFromObject(instance, object, propertyId, &info, scriptContext, false);
 #ifdef TELEMETRY_JSO
         if (TELEMETRY_PROPERTY_OPCODE_FILTER(propertyId))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7582\n");
             // `successful` will be true as PatchGetMethod throws an exception if not found.
             scriptContext->GetTelemetry().GetOpcodeTelemetry().GetMethodProperty(object, propertyId, value, /*successful:*/true);
         }
@@ -7594,7 +7594,7 @@ CommonNumber:
 
     template <bool IsFromFullJit, class TInlineCache>
     inline Var JavascriptOperators::PatchGetRootMethod(FunctionBody *const functionBody, TInlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, DynamicObject* object, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7596\n");
         Assert(inlineCache != nullptr);
 
         AssertMsg(RootObjectBase::Is(object), "Root must be a global object!");
@@ -7606,13 +7606,13 @@ CommonNumber:
         Var value;
         if (CacheOperators::TryGetProperty<true, true, true, false, true, false, !TInlineCache::IsPolymorphic, TInlineCache::IsPolymorphic, false>(
                 object, true, object, propertyId, &value, scriptContext, nullptr, &info))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7608\n");
             return value;
         }
 
 #if DBG_DUMP
         if (PHASE_VERBOSE_TRACE1(Js::InlineCachePhase))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7614\n");
             CacheOperators::TraceCache(inlineCache, _u("PatchGetRootMethod"), propertyId, scriptContext, object);
         }
 #endif
@@ -7620,7 +7620,7 @@ CommonNumber:
         value = Js::JavascriptOperators::PatchGetMethodFromObject(object, object, propertyId, &info, scriptContext, true);
 #ifdef TELEMETRY_JSO
         if (TELEMETRY_PROPERTY_OPCODE_FILTER(propertyId))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7622\n");
             // `successful` will be true as PatchGetMethod throws an exception if not found.
             scriptContext->GetTelemetry().GetOpcodeTelemetry().GetMethodProperty(object, propertyId, value, /*successful:*/ true);
         }
@@ -7634,17 +7634,17 @@ CommonNumber:
 
     template <bool IsFromFullJit, class TInlineCache>
     inline Var JavascriptOperators::PatchScopedGetMethod(FunctionBody *const functionBody, TInlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, Var instance, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7636\n");
         Assert(inlineCache != nullptr);
 
         ScriptContext *const scriptContext = functionBody->GetScriptContext();
 
         RecyclableObject* object = nullptr;
         if (FALSE == JavascriptOperators::GetPropertyObject(instance, scriptContext, &object))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7643\n");
             // Don't error if we disabled implicit calls
             if (scriptContext->GetThreadContext()->RecordImplicitException())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 7646\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_CannotGet_NullOrUndefined,
                     scriptContext->GetPropertyName(propertyId)->GetBuffer());
             }
@@ -7660,13 +7660,13 @@ CommonNumber:
         Var value;
         if (CacheOperators::TryGetProperty<true, true, true, false, true, false, !TInlineCache::IsPolymorphic, TInlineCache::IsPolymorphic, false>(
                 instance, isRoot, object, propertyId, &value, scriptContext, nullptr, &info))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7662\n");
             return value;
         }
 
 #if DBG_DUMP
         if (PHASE_VERBOSE_TRACE1(Js::InlineCachePhase))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7668\n");
             CacheOperators::TraceCache(inlineCache, _u("PatchGetMethod"), propertyId, scriptContext, object);
         }
 #endif
@@ -7679,15 +7679,15 @@ CommonNumber:
     template Var JavascriptOperators::PatchScopedGetMethod<true, PolymorphicInlineCache>(FunctionBody *const functionBody, PolymorphicInlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, Var instance, PropertyId propertyId);
 
     Var JavascriptOperators::PatchGetMethodNoFastPath(FunctionBody *const functionBody, InlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, Var instance, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7681\n");
         ScriptContext *const scriptContext = functionBody->GetScriptContext();
 
         RecyclableObject* object = nullptr;
         if (FALSE == JavascriptOperators::GetPropertyObject(instance, scriptContext, &object))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7686\n");
             // Don't error if we disabled implicit calls
             if (scriptContext->GetThreadContext()->RecordImplicitException())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 7689\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_CannotGet_NullOrUndefined,
                     scriptContext->GetPropertyName(propertyId)->GetBuffer());
             }
@@ -7703,7 +7703,7 @@ CommonNumber:
     }
 
     Var JavascriptOperators::PatchGetRootMethodNoFastPath_Var(FunctionBody *const functionBody, InlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, Var instance, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7705\n");
         return
             PatchGetRootMethodNoFastPath(
                 functionBody,
@@ -7714,7 +7714,7 @@ CommonNumber:
     }
 
     Var JavascriptOperators::PatchGetRootMethodNoFastPath(FunctionBody *const functionBody, InlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, DynamicObject* object, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7716\n");
         AssertMsg(RootObjectBase::Is(object), "Root must be a global object!");
 
         PropertyValueInfo info;
@@ -7723,14 +7723,14 @@ CommonNumber:
     }
 
     Var JavascriptOperators::PatchGetMethodFromObject(Var instance, RecyclableObject* propertyObject, PropertyId propertyId, PropertyValueInfo * info, ScriptContext* scriptContext, bool isRootLd)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7725\n");
         Assert(IsPropertyObject(propertyObject));
 
         Var value = nullptr;
         BOOL foundValue = FALSE;
 
         if (isRootLd)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7732\n");
             RootObjectBase* rootObject = RootObjectBase::FromVar(instance);
             foundValue = JavascriptOperators::GetRootPropertyReference(rootObject, propertyId, &value, scriptContext, info);
         }
@@ -7740,19 +7740,19 @@ CommonNumber:
         }
 
         if (!foundValue)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7742\n");
             // Don't error if we disabled implicit calls
             if (scriptContext->GetThreadContext()->RecordImplicitException())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 7745\n");
                 const char16* propertyName = scriptContext->GetPropertyName(propertyId)->GetBuffer();
 
                 value = scriptContext->GetLibrary()->GetUndefined();
                 JavascriptFunction * caller = NULL;
                 if (JavascriptStackWalker::GetCaller(&caller, scriptContext))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 7751\n");
                     FunctionBody * callerBody = caller->GetFunctionBody();
                     if (callerBody && callerBody->GetUtf8SourceInfo()->GetIsXDomain())
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 7754\n");
                         propertyName = NULL;
                     }
                 }
@@ -7776,7 +7776,7 @@ CommonNumber:
                 // Maintain old behavior prior to version 12.
                 bool isPropertyReference = !isRootLd;
                 if (!isPropertyReference)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 7778\n");
                     JavascriptError::ThrowReferenceError(scriptContext, JSERR_UndefVariable, propertyName);
                 }
                 else
@@ -7792,17 +7792,17 @@ CommonNumber:
 
     template <bool IsFromFullJit, class TInlineCache>
     inline void JavascriptOperators::PatchPutValue(FunctionBody *const functionBody, TInlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, Var instance, PropertyId propertyId, Var newValue, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7794\n");
         return PatchPutValueWithThisPtr<IsFromFullJit, TInlineCache>(functionBody, inlineCache, inlineCacheIndex, instance, propertyId, newValue, instance, flags);
     }
 
     template <bool IsFromFullJit, class TInlineCache>
     inline void JavascriptOperators::PatchPutValueWithThisPtr(FunctionBody *const functionBody, TInlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, Var instance, PropertyId propertyId, Var newValue, Var thisInstance, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7800\n");
         ScriptContext *const scriptContext = functionBody->GetScriptContext();
 
         if (TaggedNumber::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7804\n");
             JavascriptOperators::SetPropertyOnTaggedNumber(instance, nullptr, propertyId, newValue, scriptContext, flags);
             return;
         }
@@ -7815,13 +7815,13 @@ CommonNumber:
         PropertyValueInfo::SetCacheInfo(&info, functionBody, inlineCache, inlineCacheIndex, !IsFromFullJit);
         if (CacheOperators::TrySetProperty<true, true, true, true, true, !TInlineCache::IsPolymorphic, TInlineCache::IsPolymorphic, false>(
                 object, false, propertyId, newValue, scriptContext, flags, nullptr, &info))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7817\n");
             return;
         }
 
 #if DBG_DUMP
         if (PHASE_VERBOSE_TRACE1(Js::InlineCachePhase))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7823\n");
             CacheOperators::TraceCache(inlineCache, _u("PatchPutValue"), propertyId, scriptContext, object);
         }
 #endif
@@ -7830,16 +7830,16 @@ CommonNumber:
         ImplicitCallFlags currImplicitCallFlags = ImplicitCall_None;
         bool hasThisOnlyStatements = functionBody->GetHasOnlyThisStmts();
         if (hasThisOnlyStatements)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7832\n");
             prevImplicitCallFlags = CacheAndClearImplicitBit(scriptContext);
         }
         if (!JavascriptOperators::OP_SetProperty(object, propertyId, newValue, scriptContext, &info, flags, thisInstance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7836\n");
             // Add implicit call flags, to bail out if field copy prop may propagate the wrong value.
             scriptContext->GetThreadContext()->AddImplicitCallFlags(ImplicitCall_NoOpSet);
         }
         if (hasThisOnlyStatements)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7841\n");
             currImplicitCallFlags = CheckAndUpdateFunctionBodyWithImplicitFlag(functionBody);
             RestoreImplicitFlag(scriptContext, prevImplicitCallFlags, currImplicitCallFlags);
         }
@@ -7851,7 +7851,7 @@ CommonNumber:
 
     template <bool IsFromFullJit, class TInlineCache>
     inline void JavascriptOperators::PatchPutRootValue(FunctionBody *const functionBody, TInlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, Var instance, PropertyId propertyId, Var newValue, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7853\n");
         ScriptContext *const scriptContext = functionBody->GetScriptContext();
 
         RecyclableObject* object = RecyclableObject::FromVar(instance);
@@ -7859,13 +7859,13 @@ CommonNumber:
         PropertyValueInfo::SetCacheInfo(&info, functionBody, inlineCache, inlineCacheIndex, !IsFromFullJit);
         if (CacheOperators::TrySetProperty<true, true, true, true, false, !TInlineCache::IsPolymorphic, TInlineCache::IsPolymorphic, false>(
                 object, true, propertyId, newValue, scriptContext, flags, nullptr, &info))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7861\n");
             return;
         }
 
 #if DBG_DUMP
         if (PHASE_VERBOSE_TRACE1(Js::InlineCachePhase))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7867\n");
             CacheOperators::TraceCache(inlineCache, _u("PatchPutRootValue"), propertyId, scriptContext, object);
         }
 #endif
@@ -7874,16 +7874,16 @@ CommonNumber:
         ImplicitCallFlags currImplicitCallFlags = ImplicitCall_None;
         bool hasThisOnlyStatements = functionBody->GetHasOnlyThisStmts();
         if (hasThisOnlyStatements)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7876\n");
             prevImplicitCallFlags = CacheAndClearImplicitBit(scriptContext);
         }
         if (!JavascriptOperators::SetRootProperty(object, propertyId, newValue, &info, scriptContext, flags))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7880\n");
             // Add implicit call flags, to bail out if field copy prop may propagate the wrong value.
             scriptContext->GetThreadContext()->AddImplicitCallFlags(ImplicitCall_NoOpSet);
         }
         if (hasThisOnlyStatements)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7885\n");
             currImplicitCallFlags = CheckAndUpdateFunctionBodyWithImplicitFlag(functionBody);
             RestoreImplicitFlag(scriptContext, prevImplicitCallFlags, currImplicitCallFlags);
         }
@@ -7895,11 +7895,11 @@ CommonNumber:
 
     template <bool IsFromFullJit, class TInlineCache>
     inline void JavascriptOperators::PatchPutValueNoLocalFastPath(FunctionBody *const functionBody, TInlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, Var instance, PropertyId propertyId, Var newValue, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7897\n");
         ScriptContext *const scriptContext = functionBody->GetScriptContext();
 
         if (TaggedNumber::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7901\n");
             JavascriptOperators::SetPropertyOnTaggedNumber(instance,
                                         nullptr,
                                         propertyId,
@@ -7917,13 +7917,13 @@ CommonNumber:
         PropertyValueInfo::SetCacheInfo(&info, functionBody, inlineCache, inlineCacheIndex, !IsFromFullJit);
         if (CacheOperators::TrySetProperty<!TInlineCache::IsPolymorphic, true, true, true, true, !TInlineCache::IsPolymorphic, TInlineCache::IsPolymorphic, false>(
                 object, false, propertyId, newValue, scriptContext, flags, nullptr, &info))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7919\n");
             return;
         }
 
 #if DBG_DUMP
         if (PHASE_VERBOSE_TRACE1(Js::InlineCachePhase))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7925\n");
             CacheOperators::TraceCache(inlineCache, _u("PatchPutValueNoLocalFastPath"), propertyId, scriptContext, object);
         }
 #endif
@@ -7932,16 +7932,16 @@ CommonNumber:
         ImplicitCallFlags currImplicitCallFlags = ImplicitCall_None;
         bool hasThisOnlyStatements = functionBody->GetHasOnlyThisStmts();
         if (hasThisOnlyStatements)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7934\n");
             prevImplicitCallFlags = CacheAndClearImplicitBit(scriptContext);
         }
         if (!JavascriptOperators::OP_SetProperty(instance, propertyId, newValue, scriptContext, &info, flags))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7938\n");
             // Add implicit call flags, to bail out if field copy prop may propagate the wrong value.
             scriptContext->GetThreadContext()->AddImplicitCallFlags(ImplicitCall_NoOpSet);
         }
         if (hasThisOnlyStatements)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7943\n");
             currImplicitCallFlags = CheckAndUpdateFunctionBodyWithImplicitFlag(functionBody);
             RestoreImplicitFlag(scriptContext, prevImplicitCallFlags, currImplicitCallFlags);
         }
@@ -7953,11 +7953,11 @@ CommonNumber:
 
     template <bool IsFromFullJit, class TInlineCache>
     inline void JavascriptOperators::PatchPutValueWithThisPtrNoLocalFastPath(FunctionBody *const functionBody, TInlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, Var instance, PropertyId propertyId, Var newValue, Var thisInstance, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 7955\n");
         ScriptContext *const scriptContext = functionBody->GetScriptContext();
 
         if (TaggedNumber::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7959\n");
             JavascriptOperators::SetPropertyOnTaggedNumber(instance,
                 nullptr,
                 propertyId,
@@ -7975,13 +7975,13 @@ CommonNumber:
         PropertyValueInfo::SetCacheInfo(&info, functionBody, inlineCache, inlineCacheIndex, !IsFromFullJit);
         if (CacheOperators::TrySetProperty<!TInlineCache::IsPolymorphic, true, true, true, true, !TInlineCache::IsPolymorphic, TInlineCache::IsPolymorphic, false>(
             object, false, propertyId, newValue, scriptContext, flags, nullptr, &info))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7977\n");
             return;
         }
 
 #if DBG_DUMP
         if (PHASE_VERBOSE_TRACE1(Js::InlineCachePhase))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7983\n");
             CacheOperators::TraceCache(inlineCache, _u("PatchPutValueNoLocalFastPath"), propertyId, scriptContext, object);
         }
 #endif
@@ -7990,16 +7990,16 @@ CommonNumber:
         ImplicitCallFlags currImplicitCallFlags = ImplicitCall_None;
         bool hasThisOnlyStatements = functionBody->GetHasOnlyThisStmts();
         if (hasThisOnlyStatements)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7992\n");
             prevImplicitCallFlags = CacheAndClearImplicitBit(scriptContext);
         }
         if (!JavascriptOperators::OP_SetProperty(instance, propertyId, newValue, scriptContext, &info, flags, thisInstance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 7996\n");
             // Add implicit call flags, to bail out if field copy prop may propagate the wrong value.
             scriptContext->GetThreadContext()->AddImplicitCallFlags(ImplicitCall_NoOpSet);
         }
         if (hasThisOnlyStatements)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8001\n");
             currImplicitCallFlags = CheckAndUpdateFunctionBodyWithImplicitFlag(functionBody);
             RestoreImplicitFlag(scriptContext, prevImplicitCallFlags, currImplicitCallFlags);
         }
@@ -8011,7 +8011,7 @@ CommonNumber:
 
     template <bool IsFromFullJit, class TInlineCache>
     inline void JavascriptOperators::PatchPutRootValueNoLocalFastPath(FunctionBody *const functionBody, TInlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, Var instance, PropertyId propertyId, Var newValue, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 8013\n");
         ScriptContext *const scriptContext = functionBody->GetScriptContext();
 
         RecyclableObject *object = RecyclableObject::FromVar(instance);
@@ -8020,13 +8020,13 @@ CommonNumber:
         PropertyValueInfo::SetCacheInfo(&info, functionBody, inlineCache, inlineCacheIndex, !IsFromFullJit);
         if (CacheOperators::TrySetProperty<!TInlineCache::IsPolymorphic, true, true, true, false, !TInlineCache::IsPolymorphic, TInlineCache::IsPolymorphic, false>(
                 object, true, propertyId, newValue, scriptContext, flags, nullptr, &info))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8022\n");
             return;
         }
 
 #if DBG_DUMP
         if (PHASE_VERBOSE_TRACE1(Js::InlineCachePhase))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8028\n");
             CacheOperators::TraceCache(inlineCache, _u("PatchPutRootValueNoLocalFastPath"), propertyId, scriptContext, object);
         }
 #endif
@@ -8035,16 +8035,16 @@ CommonNumber:
         ImplicitCallFlags currImplicitCallFlags = ImplicitCall_None;
         bool hasThisOnlyStatements = functionBody->GetHasOnlyThisStmts();
         if (hasThisOnlyStatements)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8037\n");
             prevImplicitCallFlags = CacheAndClearImplicitBit(scriptContext);
         }
         if (!JavascriptOperators::SetRootProperty(object, propertyId, newValue, &info, scriptContext, flags))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8041\n");
             // Add implicit call flags, to bail out if field copy prop may propagate the wrong value.
             scriptContext->GetThreadContext()->AddImplicitCallFlags(ImplicitCall_NoOpSet);
         }
         if (hasThisOnlyStatements)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8046\n");
             currImplicitCallFlags = CheckAndUpdateFunctionBodyWithImplicitFlag(functionBody);
             RestoreImplicitFlag(scriptContext, prevImplicitCallFlags, currImplicitCallFlags);
         }
@@ -8060,11 +8060,11 @@ CommonNumber:
     }
 
     void JavascriptOperators::PatchPutValueWithThisPtrNoFastPath(FunctionBody *const functionBody, InlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, Var instance, PropertyId propertyId, Var newValue, Var thisInstance, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 8062\n");
         ScriptContext *const scriptContext = functionBody->GetScriptContext();
 
         if (TaggedNumber::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8066\n");
             JavascriptOperators::SetPropertyOnTaggedNumber(instance, nullptr, propertyId, newValue, scriptContext, flags);
             return;
         }
@@ -8073,14 +8073,14 @@ CommonNumber:
         PropertyValueInfo info;
         PropertyValueInfo::SetCacheInfo(&info, functionBody, inlineCache, inlineCacheIndex, true);
         if (!JavascriptOperators::OP_SetProperty(object, propertyId, newValue, scriptContext, &info, flags, thisInstance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8075\n");
             // Add implicit call flags, to bail out if field copy prop may propagate the wrong value.
             scriptContext->GetThreadContext()->AddImplicitCallFlags(ImplicitCall_NoOpSet);
         }
     }
 
     void JavascriptOperators::PatchPutRootValueNoFastPath(FunctionBody *const functionBody, InlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, Var instance, PropertyId propertyId, Var newValue, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 8082\n");
         ScriptContext *const scriptContext = functionBody->GetScriptContext();
 
         RecyclableObject* object = RecyclableObject::FromVar(instance);
@@ -8088,7 +8088,7 @@ CommonNumber:
         PropertyValueInfo info;
         PropertyValueInfo::SetCacheInfo(&info, functionBody, inlineCache, inlineCacheIndex, true);
         if (!JavascriptOperators::SetRootProperty(object, propertyId, newValue, &info, scriptContext, flags))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8090\n");
             // Add implicit call flags, to bail out if field copy prop may propagate the wrong value.
             scriptContext->GetThreadContext()->AddImplicitCallFlags(ImplicitCall_NoOpSet);
         }
@@ -8096,7 +8096,7 @@ CommonNumber:
 
     template <bool IsFromFullJit, class TInlineCache>
     inline void JavascriptOperators::PatchInitValue(FunctionBody *const functionBody, TInlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, RecyclableObject* object, PropertyId propertyId, Var newValue)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 8098\n");
         ScriptContext *const scriptContext = functionBody->GetScriptContext();
 
         const PropertyOperationFlags flags = newValue == NULL ? PropertyOperation_SpecialValue : PropertyOperation_None;
@@ -8104,13 +8104,13 @@ CommonNumber:
         PropertyValueInfo::SetCacheInfo(&info, functionBody, inlineCache, inlineCacheIndex, !IsFromFullJit);
         if (CacheOperators::TrySetProperty<true, true, false, true, true, !TInlineCache::IsPolymorphic, TInlineCache::IsPolymorphic, false>(
                 object, false, propertyId, newValue, scriptContext, flags, nullptr, &info))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8106\n");
             return;
         }
 
 #if DBG_DUMP
         if (PHASE_VERBOSE_TRACE1(Js::InlineCachePhase))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8112\n");
             CacheOperators::TraceCache(inlineCache, _u("PatchInitValue"), propertyId, scriptContext, object);
         }
 #endif
@@ -8121,7 +8121,7 @@ CommonNumber:
         // ever initialize to NULL in the right cases.  But the backend uses the StFld opcode for initialization, and it
         // would be cumbersome to thread the different helper calls all the way down
         if (object->InitProperty(propertyId, newValue, flags, &info))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8123\n");
             CacheOperators::CachePropertyWrite(object, false, typeWithoutProperty, propertyId, &info, scriptContext);
         }
     }
@@ -8131,21 +8131,21 @@ CommonNumber:
     template void JavascriptOperators::PatchInitValue<true, PolymorphicInlineCache>(FunctionBody *const functionBody, PolymorphicInlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, RecyclableObject* object, PropertyId propertyId, Var newValue);
 
     void JavascriptOperators::PatchInitValueNoFastPath(FunctionBody *const functionBody, InlineCache *const inlineCache, const InlineCacheIndex inlineCacheIndex, RecyclableObject* object, PropertyId propertyId, Var newValue)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 8133\n");
         PropertyValueInfo info;
         PropertyValueInfo::SetCacheInfo(&info, functionBody, inlineCache, inlineCacheIndex, true);
         Type *typeWithoutProperty = object->GetType();
         if (object->InitProperty(propertyId, newValue, PropertyOperation_None, &info))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8138\n");
             CacheOperators::CachePropertyWrite(object, false, typeWithoutProperty, propertyId, &info, functionBody->GetScriptContext());
         }
     }
 
 #if ENABLE_DEBUG_CONFIG_OPTIONS
     void JavascriptOperators::TracePropertyEquivalenceCheck(const JitEquivalentTypeGuard* guard, const Type* type, const Type* refType, bool isEquivalent, uint failedPropertyIndex)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 8145\n");
         if (PHASE_TRACE1(Js::EquivObjTypeSpecPhase))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8147\n");
             uint propertyCount = guard->GetCache()->record.propertyCount;
 
             Output::Print(_u("EquivObjTypeSpec: checking %u properties on operation %u, (type = 0x%p, ref type = 0x%p):\n"),
@@ -8154,12 +8154,12 @@ CommonNumber:
             const Js::TypeEquivalenceRecord& record = guard->GetCache()->record;
             ScriptContext* scriptContext = type->GetScriptContext();
             if (isEquivalent)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8156\n");
                 if (Js::Configuration::Global.flags.Verbose)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 8158\n");
                     Output::Print(_u("    <start>, "));
                     for (uint pi = 0; pi < propertyCount; pi++)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 8161\n");
                         const EquivalentPropertyEntry* refInfo = &record.properties[pi];
                         const PropertyRecord* propertyRecord = scriptContext->GetPropertyName(refInfo->propertyId);
                         Output::Print(_u("%s(#%d)@%ua%dw%d, "), propertyRecord->GetBuffer(), propertyRecord->GetPropertyId(), refInfo->slotIndex, refInfo->isAuxSlot, refInfo->mustBeWritable);
@@ -8173,7 +8173,7 @@ CommonNumber:
                 Js::PropertyEquivalenceInfo info(Constants::NoSlot, false, false);
                 const PropertyRecord* propertyRecord = scriptContext->GetPropertyName(refInfo->propertyId);
                 if (DynamicType::Is(type->GetTypeId()))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 8175\n");
                     Js::DynamicTypeHandler* typeHandler = (static_cast<const DynamicType*>(type))->GetTypeHandler();
                     typeHandler->GetPropertyEquivalenceInfo(propertyRecord, info);
                 }
@@ -8190,14 +8190,14 @@ CommonNumber:
 #endif
 
     bool JavascriptOperators::IsStaticTypeObjTypeSpecEquivalent(const TypeEquivalenceRecord& equivalenceRecord, uint& failedIndex)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 8192\n");
         uint propertyCount = equivalenceRecord.propertyCount;
         Js::EquivalentPropertyEntry* properties = equivalenceRecord.properties;
         for (uint pi = 0; pi < propertyCount; pi++)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8196\n");
             const EquivalentPropertyEntry* refInfo = &properties[pi];
             if (!IsStaticTypeObjTypeSpecEquivalent(refInfo))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8199\n");
                 failedIndex = pi;
                 return false;
             }
@@ -8206,31 +8206,31 @@ CommonNumber:
     }
 
     bool JavascriptOperators::IsStaticTypeObjTypeSpecEquivalent(const EquivalentPropertyEntry *entry)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 8208\n");
         // Objects of static types have no local properties, but they may load fields from their prototypes.
         return entry->slotIndex == Constants::NoSlot && !entry->mustBeWritable;
     }
 
     bool JavascriptOperators::CheckIfTypeIsEquivalentForFixedField(Type* type, JitEquivalentTypeGuard* guard)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 8214\n");
         if (guard->GetValue() == PropertyGuard::GuardValue::Invalidated_DuringSweep)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8216\n");
             return false;
         }
         return CheckIfTypeIsEquivalent(type, guard);
     }
 
     bool JavascriptOperators::CheckIfTypeIsEquivalent(Type* type, JitEquivalentTypeGuard* guard)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 8223\n");
         if (guard->GetValue() == PropertyGuard::GuardValue::Invalidated)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8225\n");
             return false;
         }
 
         AssertMsg(type && type->GetScriptContext(), "type and it's ScriptContext should be valid.");
 
         if (!guard->IsInvalidatedDuringSweep() && ((Js::Type*)guard->GetTypeAddr())->GetScriptContext() != type->GetScriptContext())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8232\n");
             // For valid guard value, can't cache cross-context objects
             return false;
         }
@@ -8246,15 +8246,15 @@ CommonNumber:
 
         Type* refType = equivTypes[0];
         if (refType == nullptr || refType->GetScriptContext() != type->GetScriptContext())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8248\n");
             // We could have guard that was invalidated while sweeping and now we have type coming from
             // different scriptContext. Make sure that it matches the scriptContext in cachedTypes.
             // If not, return false because as mentioned above, we don't cache cross-context objects.
 #if DBG
             if (refType == nullptr)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8254\n");
                 for (int i = 1;i < EQUIVALENT_TYPE_CACHE_SIZE;i++)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 8256\n");
                     AssertMsg(equivTypes[i] == nullptr, "In equiv typed caches, if first element is nullptr, all others should be nullptr");
                 }
             }
@@ -8264,12 +8264,12 @@ CommonNumber:
 
         if (type == equivTypes[0] || type == equivTypes[1] || type == equivTypes[2] || type == equivTypes[3] ||
             type == equivTypes[4] || type == equivTypes[5] || type == equivTypes[6] || type == equivTypes[7])
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8266\n");
 #if DBG
             if (PHASE_TRACE1(Js::EquivObjTypeSpecPhase))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8269\n");
                 if (guard->WasReincarnated())
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 8271\n");
                     Output::Print(_u("EquivObjTypeSpec: Guard 0x%p was reincarnated and working now \n"), guard);
                     Output::Flush();
                 }
@@ -8291,9 +8291,9 @@ CommonNumber:
         //    corresponding guard would have been invalidated and we would bail out (as above).
 
         if (cache->IsLoadedFromProto() && type->GetPrototype() != refType->GetPrototype())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8293\n");
             if (PHASE_TRACE1(Js::EquivObjTypeSpecPhase))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8295\n");
                 Output::Print(_u("EquivObjTypeSpec: failed check on operation %u (type = 0x%x, ref type = 0x%x, proto = 0x%x, ref proto = 0x%x) \n"),
                     guard->GetObjTypeSpecFldId(), type, refType, type->GetPrototype(), refType->GetPrototype());
                 Output::Flush();
@@ -8304,9 +8304,9 @@ CommonNumber:
 
 #pragma prefast(suppress:6011) // If type is nullptr, we would AV at the beginning of this method
         if (type->GetTypeId() != refType->GetTypeId())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8306\n");
             if (PHASE_TRACE1(Js::EquivObjTypeSpecPhase))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8308\n");
                 Output::Print(_u("EquivObjTypeSpec: failed check on operation %u (type = 0x%x, ref type = 0x%x, proto = 0x%x, ref proto = 0x%x) \n"),
                     guard->GetObjTypeSpecFldId(), type, refType, type->GetPrototype(), refType->GetPrototype());
                 Output::Flush();
@@ -8326,20 +8326,20 @@ CommonNumber:
         int emptySlotIndex = -1;
         int nonSharedTypeSlotIndex = -1;
         for (int i = 0;i < EQUIVALENT_TYPE_CACHE_SIZE;i++)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8328\n");
             // Track presence of cached non-shared type if cache is full
             if (isEquivTypesCacheFull)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8331\n");
                 if (DynamicType::Is(equivTypes[i]->GetTypeId()) &&
                     nonSharedTypeSlotIndex == -1 &&
                     !(static_cast<DynamicType*>(equivTypes[i]))->GetIsShared())
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 8335\n");
                     nonSharedTypeSlotIndex = i;
                 }
             }
             // Otherwise get the next available empty index
             else if (equivTypes[i] == nullptr)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8341\n");
                 emptySlotIndex = i;
                 break;
             };
@@ -8351,7 +8351,7 @@ CommonNumber:
             isEquivTypesCacheFull &&
             !dynamicType->GetIsShared() &&
             nonSharedTypeSlotIndex == -1)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8353\n");
             return false;
         }
 
@@ -8363,7 +8363,7 @@ CommonNumber:
         bool isEquivalent;
         uint failedPropertyIndex;
         if (dynamicType != nullptr)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8365\n");
             Js::DynamicTypeHandler* typeHandler = dynamicType->GetTypeHandler();
             isEquivalent = typeHandler->IsObjTypeSpecEquivalent(type, cache->record, failedPropertyIndex);
         }
@@ -8378,7 +8378,7 @@ CommonNumber:
 #endif
 
         if (!isEquivalent)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8380\n");
             return false;
         }
 
@@ -8390,9 +8390,9 @@ CommonNumber:
 
         // We have some empty slots, let us use those first
         if (emptySlotIndex != -1)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8392\n");
             if (PHASE_TRACE1(Js::EquivObjTypeSpecPhase))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8394\n");
                 Output::Print(_u("EquivObjTypeSpec: Saving type in unused slot of equiv types cache. \n"));
                 Output::Flush();
             }
@@ -8404,7 +8404,7 @@ CommonNumber:
             uintptr_t index = (reinterpret_cast<uintptr_t>(type) >> 4) & (EQUIVALENT_TYPE_CACHE_SIZE - 1);
 
             if (cache->nextEvictionVictim == EQUIVALENT_TYPE_CACHE_SIZE)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8406\n");
                 __analysis_assume(index < EQUIVALENT_TYPE_CACHE_SIZE);
                 // If nextEvictionVictim was never set, set it to next element after index
                 cache->nextEvictionVictim = (index + 1) & (EQUIVALENT_TYPE_CACHE_SIZE - 1);
@@ -8419,7 +8419,7 @@ CommonNumber:
             }
 
             if (PHASE_TRACE1(Js::EquivObjTypeSpecPhase))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8421\n");
                 Output::Print(_u("EquivObjTypeSpec: Saving type in used slot of equiv types cache at index = %d. NextEvictionVictim = %d. \n"), index, cache->nextEvictionVictim);
                 Output::Flush();
             }
@@ -8433,9 +8433,9 @@ CommonNumber:
         // evolving the type.
         // We also need to lock the type in case of, for instance, adding a property to a dictionary type handler.
         if (dynamicType != nullptr)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8435\n");
             if (!dynamicType->GetIsLocked())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8437\n");
                 dynamicType->LockType();
             }
         }
@@ -8446,7 +8446,7 @@ CommonNumber:
     }
 
     void JavascriptOperators::GetPropertyIdForInt(uint64 value, ScriptContext* scriptContext, PropertyRecord const ** propertyRecord)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 8448\n");
         char16 buffer[20];
         ::_ui64tow_s(value, buffer, sizeof(buffer)/sizeof(char16), 10);
         scriptContext->GetOrAddPropertyRecord(buffer, JavascriptString::GetBufferLength(buffer), propertyRecord);
@@ -8458,30 +8458,30 @@ CommonNumber:
     }
 
     Var JavascriptOperators::FromPropertyDescriptor(const PropertyDescriptor& descriptor, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 8460\n");
         DynamicObject* object = scriptContext->GetLibrary()->CreateObject();
 
         // ES5 Section 8.10.4 specifies the order for adding these properties.
         if (descriptor.IsDataDescriptor())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8465\n");
             if (descriptor.ValueSpecified())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8467\n");
                 JavascriptOperators::InitProperty(object, PropertyIds::value, descriptor.GetValue());
             }
             JavascriptOperators::InitProperty(object, PropertyIds::writable, JavascriptBoolean::ToVar(descriptor.IsWritable(),scriptContext));
         }
         else if (descriptor.IsAccessorDescriptor())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8473\n");
             JavascriptOperators::InitProperty(object, PropertyIds::get, JavascriptOperators::CanonicalizeAccessor(descriptor.GetGetter(), scriptContext));
             JavascriptOperators::InitProperty(object, PropertyIds::set, JavascriptOperators::CanonicalizeAccessor(descriptor.GetSetter(), scriptContext));
         }
 
         if (descriptor.EnumerableSpecified())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8479\n");
             JavascriptOperators::InitProperty(object, PropertyIds::enumerable, JavascriptBoolean::ToVar(descriptor.IsEnumerable(), scriptContext));
         }
         if (descriptor.ConfigurableSpecified())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8483\n");
             JavascriptOperators::InitProperty(object, PropertyIds::configurable, JavascriptBoolean::ToVar(descriptor.IsConfigurable(), scriptContext));
         }
         return object;
@@ -8492,12 +8492,12 @@ CommonNumber:
     // - TRUE = success.
     // - FALSE (can throw depending on throwOnError parameter) = unsuccessful.
     BOOL JavascriptOperators::DefineOwnPropertyDescriptor(RecyclableObject* obj, PropertyId propId, const PropertyDescriptor& descriptor, bool throwOnError, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 8494\n");
         Assert(obj);
         Assert(scriptContext);
 
         if (JavascriptProxy::Is(obj))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8499\n");
             return JavascriptProxy::DefineOwnPropertyDescriptor(obj, propId, descriptor, throwOnError, scriptContext);
         }
 
@@ -8509,29 +8509,29 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::IsCompatiblePropertyDescriptor(const PropertyDescriptor& descriptor, PropertyDescriptor* currentDescriptor, bool isExtensible, bool throwOnError, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 8511\n");
         return ValidateAndApplyPropertyDescriptor<false>(nullptr, Constants::NoProperty, descriptor, currentDescriptor, isExtensible, throwOnError, scriptContext);
     }
 
     template<bool needToSetProperty>
     BOOL JavascriptOperators::ValidateAndApplyPropertyDescriptor(RecyclableObject* obj, PropertyId propId, const PropertyDescriptor& descriptor,
         PropertyDescriptor* currentDescriptor, bool isExtensible, bool throwOnError, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 8518\n");
         Var defaultDataValue = scriptContext->GetLibrary()->GetUndefined();
         Var defaultAccessorValue = scriptContext->GetLibrary()->GetDefaultAccessorFunction();
 
         if (currentDescriptor == nullptr)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8523\n");
             if (!isExtensible) // ES5 8.12.9.3.
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8525\n");
                 return Reject(throwOnError, scriptContext, JSERR_DefineProperty_NotExtensible, propId);
             }
             else // ES5 8.12.9.4.
             {
                 if (needToSetProperty)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 8531\n");
                     if (descriptor.IsGenericDescriptor() || descriptor.IsDataDescriptor())
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 8533\n");
                         // ES5 8.12.9.4a: Create an own data property named P of object O whose [[Value]], [[Writable]],
                         // [[Enumerable]] and [[Configurable]]  attribute values are described by Desc.
                         // If the value of an attribute field of Desc is absent, the attribute of the newly created property
@@ -8558,7 +8558,7 @@ CommonNumber:
 
                         // If SetAccessors failed, the property wasn't created, so no need to change the attributes.
                         if (isSetAccessorsSuccess)
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 8560\n");
                             JavascriptOperators::SetAttributes(obj, propId, filledDescriptor, true);   // use 'force' as default attributes in type system are different from ES5.
                         }
                     }
@@ -8570,7 +8570,7 @@ CommonNumber:
         // ES5 8.12.9.5: Return true, if every field in Desc is absent.
         if (!descriptor.ConfigurableSpecified() && !descriptor.EnumerableSpecified() && !descriptor.WritableSpecified() &&
             !descriptor.ValueSpecified() && !descriptor.GetterSpecified() && !descriptor.SetterSpecified())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8572\n");
             return TRUE;
         }
 
@@ -8579,18 +8579,18 @@ CommonNumber:
         PropertyDescriptor filledDescriptor = descriptor.IsAccessorDescriptor() ? FillMissingPropertyDescriptorFields<true>(descriptor, scriptContext)
             : FillMissingPropertyDescriptorFields<false>(descriptor, scriptContext);
         if (JavascriptOperators::AreSamePropertyDescriptors(&filledDescriptor, currentDescriptor, scriptContext))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8581\n");
             return TRUE;
         }
 
         if (!currentDescriptor->IsConfigurable()) // ES5 8.12.9.7.
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8586\n");
             if (descriptor.ConfigurableSpecified() && descriptor.IsConfigurable())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8588\n");
                 return Reject(throwOnError, scriptContext, JSERR_DefineProperty_NotConfigurable, propId);
             }
             if (descriptor.EnumerableSpecified() && descriptor.IsEnumerable() != currentDescriptor->IsEnumerable())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8592\n");
                 return Reject(throwOnError, scriptContext, JSERR_DefineProperty_NotConfigurable, propId);
             }
         }
@@ -8609,19 +8609,19 @@ CommonNumber:
 
         // ES5 8.12.9.8: If IsGenericDescriptor(Desc) is true, then no further validation is required.
         if (!descriptor.IsGenericDescriptor())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8611\n");
             if (currentDescriptor->IsDataDescriptor() != descriptor.IsDataDescriptor())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8613\n");
                 // ES5 8.12.9.9: Else, if IsDataDescriptor(current) and IsDataDescriptor(Desc) have different results...
                 if (!currentDescriptor->IsConfigurable())
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 8616\n");
                     return Reject(throwOnError, scriptContext, JSERR_DefineProperty_NotConfigurable, propId);
                 }
 
                 if (needToSetProperty)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 8621\n");
                     if (currentDescriptor->IsDataDescriptor())
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 8623\n");
                         // ES5 8.12.9.9.b: Convert the property named P of object O from a data property to an accessor property.
                         // Preserve the existing values of the converted property's [[Configurable]] and [[Enumerable]] attributes
                         // and set the rest of the property's attributes to their default values.
@@ -8635,7 +8635,7 @@ CommonNumber:
                         Assert(isSetAccessorsSuccess || obj->CanHaveInterceptors());
 
                         if (isSetAccessorsSuccess)
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 8637\n");
                             tempDescriptor.SetAttributes(preserveFromObject, PropertyConfigurable | PropertyEnumerable);
                             forceSetAttributes = true;  // use SetAttrbiutes with 'force' as default attributes in type system are different from ES5.
                             mergeDescriptors = true;
@@ -8667,16 +8667,16 @@ CommonNumber:
                 }
             }
             else if (currentDescriptor->IsDataDescriptor() && descriptor.IsDataDescriptor())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8669\n");
                 // ES5 8.12.9.10: Else, if IsDataDescriptor(current) and IsDataDescriptor(Desc) are both true...
                 if (!currentDescriptor->IsConfigurable())
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 8672\n");
                     if (!currentDescriptor->IsWritable())
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 8674\n");
                         if ((descriptor.WritableSpecified() && descriptor.IsWritable()) ||  // ES5 8.12.9.10.a.i
                             (descriptor.ValueSpecified() &&
                                 !JavascriptConversion::SameValue(descriptor.GetValue(), currentDescriptor->GetValue()))) // ES5 8.12.9.10.a.ii
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 8678\n");
                             return Reject(throwOnError, scriptContext, JSERR_DefineProperty_NotWritable, propId);
                         }
                     }
@@ -8688,7 +8688,7 @@ CommonNumber:
                 // ES5 8.12.9.11: Else, IsAccessorDescriptor(current) and IsAccessorDescriptor(Desc) are both true, so...
                 Assert(currentDescriptor->IsAccessorDescriptor() && descriptor.IsAccessorDescriptor());
                 if (!currentDescriptor->IsConfigurable())
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 8690\n");
                     if ((descriptor.SetterSpecified() &&
                             !JavascriptConversion::SameValue(
                             JavascriptOperators::CanonicalizeAccessor(descriptor.GetSetter(), scriptContext),
@@ -8697,7 +8697,7 @@ CommonNumber:
                             !JavascriptConversion::SameValue(
                             JavascriptOperators::CanonicalizeAccessor(descriptor.GetGetter(), scriptContext),
                                 JavascriptOperators::CanonicalizeAccessor(currentDescriptor->GetGetter(), scriptContext))))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 8699\n");
                         return Reject(throwOnError, scriptContext, JSERR_DefineProperty_NotConfigurable, propId);
                     }
                 }
@@ -8707,9 +8707,9 @@ CommonNumber:
             //   ES5 8.12.9.12: For each attribute field of Desc that is present,
             //   set the correspondingly named attribute of the property named P of object O to the value of the field.
             if (descriptor.IsDataDescriptor())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8709\n");
                 if (descriptor.ValueSpecified() && needToSetProperty)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 8711\n");
                     // Set just the value by passing the current attributes of the property.
                     // If the property's attributes are also changing (perhaps becoming non-writable),
                     // this will be taken care of in the call to JavascriptOperators::SetAttributes below.
@@ -8719,11 +8719,11 @@ CommonNumber:
                 }
             }
             else if (descriptor.IsAccessorDescriptor() && needToSetProperty)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8721\n");
                 Assert(descriptor.GetterSpecified() || descriptor.SetterSpecified());
                 Var oldGetter = defaultAccessorValue, oldSetter = defaultAccessorValue;
                 if (!descriptor.GetterSpecified() || !descriptor.SetterSpecified())
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 8725\n");
                     // Unless both getter and setter are specified, make sure we don't overwrite old accessor.
                     obj->GetAccessors(propId, &oldGetter, &oldSetter, scriptContext);
                 }
@@ -8739,9 +8739,9 @@ CommonNumber:
         //   ES5 8.12.9.12: For each attribute field of Desc that is present,
         //   set the correspondingly named attribute of the property named P of object O to the value of the field.
         if (needToSetProperty)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8741\n");
             if (mergeDescriptors)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8743\n");
                 tempDescriptor.MergeFrom(descriptor);
                 JavascriptOperators::SetAttributes(obj, propId, tempDescriptor, forceSetAttributes);
             }
@@ -8755,11 +8755,11 @@ CommonNumber:
 
     template <bool isAccessor>
     PropertyDescriptor JavascriptOperators::FillMissingPropertyDescriptorFields(PropertyDescriptor descriptor, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 8757\n");
         PropertyDescriptor newDescriptor;
         const PropertyDescriptor* defaultDescriptor = scriptContext->GetLibrary()->GetDefaultPropertyDescriptor();
         if (isAccessor)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8761\n");
             newDescriptor.SetGetter(descriptor.GetterSpecified() ? descriptor.GetGetter() : defaultDescriptor->GetGetter());
             newDescriptor.SetSetter(descriptor.SetterSpecified() ? descriptor.GetSetter() : defaultDescriptor->GetSetter());
         }
@@ -8774,11 +8774,11 @@ CommonNumber:
     }
     // ES5: 15.4.5.1
     BOOL JavascriptOperators::DefineOwnPropertyForArray(JavascriptArray* arr, PropertyId propId, const PropertyDescriptor& descriptor, bool throwOnError, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 8776\n");
         if (propId == PropertyIds::length)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8778\n");
             if (!descriptor.ValueSpecified())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8780\n");
                 return DefineOwnPropertyDescriptor(arr, PropertyIds::length, descriptor, throwOnError, scriptContext);
             }
 
@@ -8788,19 +8788,19 @@ CommonNumber:
 
             uint32 oldLen = arr->GetLength();
             if (newLen >= oldLen)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8790\n");
                 return DefineOwnPropertyDescriptor(arr, PropertyIds::length, newLenDesc, throwOnError, scriptContext);
             }
 
             BOOL oldLenWritable = arr->IsWritable(PropertyIds::length);
             if (!oldLenWritable)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8796\n");
                 return Reject(throwOnError, scriptContext, JSERR_DefineProperty_NotWritable, propId);
             }
 
             bool newWritable = (!newLenDesc.WritableSpecified() || newLenDesc.IsWritable());
             if (!newWritable)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8802\n");
                 // Need to defer setting writable to false in case any elements cannot be deleted
                 newLenDesc.SetWritable(true);
             }
@@ -8820,19 +8820,19 @@ CommonNumber:
             //        to update here to set correct newWritable even on exception.
             //
             if (!succeeded)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8822\n");
                 return false;
             }
 
             if (!newWritable) // Now set requested newWritable.
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8827\n");
                 PropertyDescriptor newWritableDesc;
                 newWritableDesc.SetWritable(false);
                 DefineOwnPropertyDescriptor(arr, PropertyIds::length, newWritableDesc, false, scriptContext);
             }
 
             if (arr->GetLength() > newLen) // Delete incompleted
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8834\n");
                 // Since SetProperty(length) not throwing, we'll reject here
                 return Reject(throwOnError, scriptContext, JSERR_DefineProperty_Default, propId);
             }
@@ -8842,15 +8842,15 @@ CommonNumber:
 
         uint32 index;
         if (scriptContext->IsNumericPropertyId(propId, &index))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8844\n");
             if (index >= arr->GetLength() && !arr->IsWritable(PropertyIds::length))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8846\n");
                 return Reject(throwOnError, scriptContext, JSERR_DefineProperty_LengthNotWritable, propId);
             }
 
             BOOL succeeded = DefineOwnPropertyDescriptor(arr, propId, descriptor, false, scriptContext);
             if (!succeeded)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8852\n");
                 return Reject(throwOnError, scriptContext, JSERR_DefineProperty_Default, propId);
             }
 
@@ -8862,27 +8862,27 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::SetPropertyDescriptor(RecyclableObject* object, PropertyId propId, const PropertyDescriptor& descriptor)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 8864\n");
         if (descriptor.ValueSpecified())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8866\n");
             ScriptContext* requestContext = object->GetScriptContext(); // Real requestContext?
             JavascriptOperators::SetProperty(object, object, propId, descriptor.GetValue(), requestContext);
         }
         else if (descriptor.GetterSpecified() || descriptor.SetterSpecified())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8871\n");
             JavascriptOperators::SetAccessors(object, propId, descriptor.GetGetter(), descriptor.GetSetter());
         }
 
         if (descriptor.EnumerableSpecified())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8876\n");
             object->SetEnumerable(propId, descriptor.IsEnumerable());
         }
         if (descriptor.ConfigurableSpecified())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8880\n");
             object->SetConfigurable(propId, descriptor.IsConfigurable());
         }
         if (descriptor.WritableSpecified())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8884\n");
             object->SetWritable(propId, descriptor.IsWritable());
         }
 
@@ -8890,9 +8890,9 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::ToPropertyDescriptorForProxyObjects(Var propertySpec, PropertyDescriptor* descriptor, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 8892\n");
         if (!JavascriptOperators::IsObject(propertySpec))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8894\n");
             return FALSE;
         }
 
@@ -8900,9 +8900,9 @@ CommonNumber:
         RecyclableObject* propertySpecObj = RecyclableObject::FromVar(propertySpec);
 
         if (JavascriptOperators::HasProperty(propertySpecObj, PropertyIds::enumerable) == TRUE)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8902\n");
             if (JavascriptOperators::GetProperty(propertySpecObj, PropertyIds::enumerable, &value, scriptContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8904\n");
                 descriptor->SetEnumerable(JavascriptConversion::ToBoolean(value, scriptContext) ? true : false);
             }
             else
@@ -8913,9 +8913,9 @@ CommonNumber:
         }
 
         if (JavascriptOperators::HasProperty(propertySpecObj, PropertyIds::configurable) == TRUE)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8915\n");
             if (JavascriptOperators::GetProperty(propertySpecObj, PropertyIds::configurable, &value, scriptContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8917\n");
                 descriptor->SetConfigurable(JavascriptConversion::ToBoolean(value, scriptContext) ? true : false);
             }
             else
@@ -8926,9 +8926,9 @@ CommonNumber:
         }
 
         if (JavascriptOperators::HasProperty(propertySpecObj, PropertyIds::value) == TRUE)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8928\n");
             if (JavascriptOperators::GetProperty(propertySpecObj, PropertyIds::value, &value, scriptContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8930\n");
                 descriptor->SetValue(value);
             }
             else
@@ -8939,9 +8939,9 @@ CommonNumber:
         }
 
         if (JavascriptOperators::HasProperty(propertySpecObj, PropertyIds::writable) == TRUE)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8941\n");
             if (JavascriptOperators::GetProperty(propertySpecObj, PropertyIds::writable, &value, scriptContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8943\n");
                 descriptor->SetWritable(JavascriptConversion::ToBoolean(value, scriptContext) ? true : false);
             }
             else
@@ -8952,11 +8952,11 @@ CommonNumber:
         }
 
         if (JavascriptOperators::HasProperty(propertySpecObj, PropertyIds::get) == TRUE)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8954\n");
             if (JavascriptOperators::GetProperty(propertySpecObj, PropertyIds::get, &value, scriptContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8956\n");
                 if (JavascriptOperators::GetTypeId(value) != TypeIds_Undefined && (false == JavascriptConversion::IsCallable(value)))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 8958\n");
                     JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_NeedFunction, scriptContext->GetPropertyName(PropertyIds::get)->GetBuffer());
                 }
                 descriptor->SetGetter(value);
@@ -8969,11 +8969,11 @@ CommonNumber:
         }
 
         if (JavascriptOperators::HasProperty(propertySpecObj, PropertyIds::set) == TRUE)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8971\n");
             if (JavascriptOperators::GetProperty(propertySpecObj, PropertyIds::set, &value, scriptContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 8973\n");
                 if (JavascriptOperators::GetTypeId(value) != TypeIds_Undefined && (false == JavascriptConversion::IsCallable(value)))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 8975\n");
                     JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_NeedFunction, scriptContext->GetPropertyName(PropertyIds::set)->GetBuffer());
                 }
                 descriptor->SetSetter(value);
@@ -8989,9 +8989,9 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::ToPropertyDescriptorForGenericObjects(Var propertySpec, PropertyDescriptor* descriptor, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 8991\n");
         if (!JavascriptOperators::IsObject(propertySpec))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 8993\n");
             return FALSE;
         }
 
@@ -8999,38 +8999,38 @@ CommonNumber:
         RecyclableObject* propertySpecObj = RecyclableObject::FromVar(propertySpec);
 
         if (JavascriptOperators::GetProperty(propertySpecObj, PropertyIds::enumerable, &value, scriptContext))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9001\n");
             descriptor->SetEnumerable(JavascriptConversion::ToBoolean(value, scriptContext) ? true : false);
         }
 
         if (JavascriptOperators::GetProperty(propertySpecObj, PropertyIds::configurable, &value, scriptContext))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9006\n");
             descriptor->SetConfigurable(JavascriptConversion::ToBoolean(value, scriptContext) ? true : false);
         }
 
         if (JavascriptOperators::GetProperty(propertySpecObj, PropertyIds::value, &value, scriptContext))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9011\n");
             descriptor->SetValue(value);
         }
 
         if (JavascriptOperators::GetProperty(propertySpecObj, PropertyIds::writable, &value, scriptContext))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9016\n");
             descriptor->SetWritable(JavascriptConversion::ToBoolean(value, scriptContext) ? true : false);
         }
 
         if (JavascriptOperators::GetProperty(propertySpecObj, PropertyIds::get, &value, scriptContext))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9021\n");
             if (JavascriptOperators::GetTypeId(value) != TypeIds_Undefined && (false == JavascriptConversion::IsCallable(value)))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9023\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_NeedFunction, scriptContext->GetPropertyName(PropertyIds::get)->GetBuffer());
             }
             descriptor->SetGetter(value);
         }
 
         if (JavascriptOperators::GetProperty(propertySpecObj, PropertyIds::set, &value, scriptContext))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9030\n");
             if (JavascriptOperators::GetTypeId(value) != TypeIds_Undefined && (false == JavascriptConversion::IsCallable(value)))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9032\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_NeedFunction, scriptContext->GetPropertyName(PropertyIds::set)->GetBuffer());
             }
             descriptor->SetSetter(value);
@@ -9040,32 +9040,32 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::ToPropertyDescriptor(Var propertySpec, PropertyDescriptor* descriptor, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9042\n");
         if (JavascriptProxy::Is(propertySpec) || (
             RecyclableObject::Is(propertySpec) &&
             JavascriptOperators::CheckIfPrototypeChainContainsProxyObject(RecyclableObject::FromVar(propertySpec)->GetPrototype())))
         {
             if (ToPropertyDescriptorForProxyObjects(propertySpec, descriptor, scriptContext) == FALSE)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9048\n");
                 return FALSE;
             }
         }
         else
         {
             if (ToPropertyDescriptorForGenericObjects(propertySpec, descriptor, scriptContext) == FALSE)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9055\n");
                 return FALSE;
             }
         }
 
         if (descriptor->GetterSpecified() || descriptor->SetterSpecified())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9061\n");
             if (descriptor->ValueSpecified())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9063\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_CannotHaveAccessorsAndValue);
             }
             if (descriptor->WritableSpecified())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9067\n");
                 int32 hCode = descriptor->IsWritable() ? JSERR_InvalidAttributeTrue : JSERR_InvalidAttributeFalse;
                 JavascriptError::ThrowTypeError(scriptContext, hCode, _u("writable"));
             }
@@ -9077,27 +9077,27 @@ CommonNumber:
     }
 
     void JavascriptOperators::CompletePropertyDescriptor(PropertyDescriptor* resultDescriptor, PropertyDescriptor* likeDescriptor, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9079\n");
         const PropertyDescriptor* likePropertyDescriptor = likeDescriptor;
         //    1. Assert: LikeDesc is either a Property Descriptor or undefined.
         //    2. ReturnIfAbrupt(Desc).
         //    3. Assert : Desc is a Property Descriptor
         //    4. If LikeDesc is undefined, then set LikeDesc to Record{ [[Value]]: undefined, [[Writable]] : false, [[Get]] : undefined, [[Set]] : undefined, [[Enumerable]] : false, [[Configurable]] : false }.
         if (likePropertyDescriptor == nullptr)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9086\n");
             likePropertyDescriptor = requestContext->GetLibrary()->GetDefaultPropertyDescriptor();
         }
         //    5. If either IsGenericDescriptor(Desc) or IsDataDescriptor(Desc) is true, then
         if (resultDescriptor->IsDataDescriptor() || resultDescriptor->IsGenericDescriptor())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9091\n");
             //    a.If Desc does not have a[[Value]] field, then set Desc.[[Value]] to LikeDesc.[[Value]].
             //    b.If Desc does not have a[[Writable]] field, then set Desc.[[Writable]] to LikeDesc.[[Writable]].
             if (!resultDescriptor->ValueSpecified())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9095\n");
                 resultDescriptor->SetValue(likePropertyDescriptor->GetValue());
             }
             if (!resultDescriptor->WritableSpecified())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9099\n");
                 resultDescriptor->SetWritable(likePropertyDescriptor->IsWritable());
             }
         }
@@ -9107,11 +9107,11 @@ CommonNumber:
             //    a.If Desc does not have a[[Get]] field, then set Desc.[[Get]] to LikeDesc.[[Get]].
             //    b.If Desc does not have a[[Set]] field, then set Desc.[[Set]] to LikeDesc.[[Set]].
             if (!resultDescriptor->GetterSpecified())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9109\n");
                 resultDescriptor->SetGetter(likePropertyDescriptor->GetGetter());
             }
             if (!resultDescriptor->SetterSpecified())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9113\n");
                 resultDescriptor->SetSetter(likePropertyDescriptor->GetSetter());
             }
         }
@@ -9119,11 +9119,11 @@ CommonNumber:
         //    8. If Desc does not have a[[Configurable]] field, then set Desc.[[Configurable]] to LikeDesc.[[Configurable]].
         //    9. Return Desc.
         if (!resultDescriptor->EnumerableSpecified())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9121\n");
             resultDescriptor->SetEnumerable(likePropertyDescriptor->IsEnumerable());
         }
         if (!resultDescriptor->ConfigurableSpecified())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9125\n");
             resultDescriptor->SetConfigurable(likePropertyDescriptor->IsConfigurable());
         }
     }
@@ -9141,7 +9141,7 @@ CommonNumber:
         AssertMsg(args.Info.Count > 0, "Missing this argument in InvokePut");
 
         if (TaggedNumber::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9143\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedFunction /* TODO-ERROR: get arg name - aFunc */);
         }
         RecyclableObject* function = RecyclableObject::FromVar(instance);
@@ -9153,16 +9153,16 @@ CommonNumber:
     // If force parameter is true, we force SetAttributes call even if none of the attributes are defined by the descriptor.
     // NOTE: does not set [[Get]], [Set]], [[Value]]
     void JavascriptOperators::SetAttributes(RecyclableObject* object, PropertyId propId, const PropertyDescriptor& descriptor, bool force)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9155\n");
         Assert(object);
 
         BOOL isWritable = FALSE;
         if (descriptor.IsDataDescriptor())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9160\n");
             isWritable = descriptor.WritableSpecified() ? descriptor.IsWritable() : FALSE;
         }
         else if (descriptor.IsAccessorDescriptor())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9164\n");
             // The reason is that JavascriptOperators::OP_SetProperty checks for RecyclableObject::FromVar(instance)->IsWritableOrAccessor(propertyId),
             // which should in fact check for 'is writable or accessor' but since there is no GetAttributes, we can't do that efficiently.
             isWritable = TRUE;
@@ -9171,100 +9171,100 @@ CommonNumber:
         // CONSIDER: call object->SetAttributes which is much more efficient as that's 1 call instead of 3.
         //       Can't do that now as object->SetAttributes doesn't provide a way which attributes to modify and which not.
         if (force || descriptor.ConfigurableSpecified())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9173\n");
             object->SetConfigurable(propId, descriptor.ConfigurableSpecified() ? descriptor.IsConfigurable() : FALSE);
         }
         if (force || descriptor.EnumerableSpecified())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9177\n");
             object->SetEnumerable(propId, descriptor.EnumerableSpecified() ? descriptor.IsEnumerable() : FALSE);
         }
         if (force || descriptor.WritableSpecified() || isWritable)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9181\n");
             object->SetWritable(propId, isWritable);
         }
     }
 
     void JavascriptOperators::OP_ClearAttributes(Var instance, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9187\n");
         Assert(instance);
 
         if (RecyclableObject::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9191\n");
             RecyclableObject* obj = RecyclableObject::FromVar(instance);
             obj->SetAttributes(propertyId, PropertyNone);
         }
     }
 
     void JavascriptOperators::OP_Freeze(Var instance)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9198\n");
         Assert(instance);
 
         if (RecyclableObject::Is(instance))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9202\n");
             RecyclableObject* obj = RecyclableObject::FromVar(instance);
             obj->Freeze();
         }
     }
 
     BOOL JavascriptOperators::Reject(bool throwOnError, ScriptContext* scriptContext, int32 errorCode, PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9209\n");
         Assert(scriptContext);
 
         if (throwOnError)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9213\n");
             JavascriptError::ThrowTypeError(scriptContext, errorCode, scriptContext->GetThreadContext()->GetPropertyName(propertyId)->GetBuffer());
         }
         return FALSE;
     }
 
     bool JavascriptOperators::AreSamePropertyDescriptors(const PropertyDescriptor* x, const PropertyDescriptor* y, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9220\n");
         Assert(scriptContext);
 
         if (x->ConfigurableSpecified() != y->ConfigurableSpecified() || x->IsConfigurable() != y->IsConfigurable() ||
             x->EnumerableSpecified() != y->EnumerableSpecified() || x->IsEnumerable() != y->IsEnumerable())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9225\n");
             return false;
         }
 
         if (x->IsDataDescriptor())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9230\n");
             if (!y->IsDataDescriptor() || x->WritableSpecified() != y->WritableSpecified() || x->IsWritable() != y->IsWritable())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9232\n");
                 return false;
             }
 
             if (x->ValueSpecified())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9237\n");
                 if (!y->ValueSpecified() || !JavascriptConversion::SameValue(x->GetValue(), y->GetValue()))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 9239\n");
                     return false;
                 }
             }
         }
         else if (x->IsAccessorDescriptor())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9245\n");
             if (!y->IsAccessorDescriptor())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9247\n");
                 return false;
             }
 
             if (x->GetterSpecified())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9252\n");
                 if (!y->GetterSpecified() || !JavascriptConversion::SameValue(
                     JavascriptOperators::CanonicalizeAccessor(x->GetGetter(), scriptContext),
                     JavascriptOperators::CanonicalizeAccessor(y->GetGetter(), scriptContext)))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 9256\n");
                     return false;
                 }
             }
 
             if (x->SetterSpecified())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9262\n");
                 if (!y->SetterSpecified() || !JavascriptConversion::SameValue(
                     JavascriptOperators::CanonicalizeAccessor(x->GetSetter(), scriptContext),
                     JavascriptOperators::CanonicalizeAccessor(y->GetSetter(), scriptContext)))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 9266\n");
                     return false;
                 }
             }
@@ -9275,18 +9275,18 @@ CommonNumber:
 
     // Check if an accessor is undefined (null or defaultAccessor)
     bool JavascriptOperators::IsUndefinedAccessor(Var accessor, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9277\n");
         return nullptr == accessor || scriptContext->GetLibrary()->GetDefaultAccessorFunction() == accessor;
     }
 
     // Converts default accessor to undefined.
     // Can be used when comparing accessors.
     Var JavascriptOperators::CanonicalizeAccessor(Var accessor, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9284\n");
         Assert(scriptContext);
 
         if (IsUndefinedAccessor(accessor, scriptContext))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9288\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
         return accessor;
@@ -9298,14 +9298,14 @@ CommonNumber:
     }
 
     void FrameDisplay::SetItem(uint index, void* item)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9300\n");
         AssertMsg(index < this->length, "Invalid frame display access");
 
         scopes[index] = item;
     }
 
     void *FrameDisplay::GetItem(uint index)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9307\n");
         AssertMsg(index < this->length, "Invalid frame display access");
 
         return scopes[index];
@@ -9313,12 +9313,12 @@ CommonNumber:
 
     // Grab the "this" pointer, mapping a root object to its associated host object.
     Var JavascriptOperators::RootToThisObject(const Var object, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9315\n");
         Js::Var thisVar = object;
         TypeId typeId = Js::JavascriptOperators::GetTypeId(thisVar);
 
         switch (typeId)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9320\n");
         case Js::TypeIds_GlobalObject:
             return ((Js::GlobalObject*)thisVar)->ToThis();
 
@@ -9327,7 +9327,7 @@ CommonNumber:
 
         default:
             if (typeId == scriptContext->GetDirectHostTypeId())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9329\n");
                 return ((RecyclableObject*)thisVar)->GetLibrary()->GetGlobalObject()->ToThis();
             }
 
@@ -9337,10 +9337,10 @@ CommonNumber:
     }
 
     Var JavascriptOperators::CallGetter(RecyclableObject * const function, Var const object, ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9339\n");
 #if ENABLE_TTD
         if(function->GetScriptContext()->ShouldSuppressGetterInvocationForDebuggerEvaluation())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9342\n");
             return requestContext->GetLibrary()->GetUndefined();
         }
 #endif
@@ -9359,7 +9359,7 @@ CommonNumber:
 
             // Verify that the scriptcontext is alive before firing getter/setter
             if (!scriptContext->VerifyAlive(!function->IsExternal(), requestContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9361\n");
                 return nullptr;
             }
             CallFlags flags = CallFlags_Value;
@@ -9375,7 +9375,7 @@ CommonNumber:
     }
 
     void JavascriptOperators::CallSetter(RecyclableObject * const function, Var const  object, Var const value, ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9377\n");
         ScriptContext * scriptContext = function->GetScriptContext();
         ThreadContext * threadContext = scriptContext->GetThreadContext();
         threadContext->ExecuteImplicitCall(function, ImplicitCall_Accessor, [=]() -> Js::Var
@@ -9388,7 +9388,7 @@ CommonNumber:
 
             // Verify that the scriptcontext is alive before firing getter/setter
             if (!scriptContext->VerifyAlive(!function->IsExternal(), requestContext))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9390\n");
                 return nullptr;
             }
 
@@ -9397,7 +9397,7 @@ CommonNumber:
 
             // CONSIDER: Have requestContext everywhere, even in the setProperty related codepath.
             if (requestContext)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9399\n");
                 putValue = CrossSite::MarshalVar(requestContext, value);
             }
 
@@ -9405,7 +9405,7 @@ CommonNumber:
 
             RecyclableObject* marshalledFunction = function;
             if (requestContext)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9407\n");
                 marshalledFunction = RecyclableObject::FromVar(CrossSite::MarshalVar(requestContext, function));
             }
 
@@ -9422,20 +9422,20 @@ CommonNumber:
     }
 
     void * JavascriptOperators::AllocUninitializedNumber(Js::RecyclerJavascriptNumberAllocator * allocator)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9424\n");
         TRACK_ALLOC_INFO(allocator->GetRecycler(), Js::JavascriptNumber, Recycler, 0, (size_t)-1);
         return allocator->Alloc(sizeof(Js::JavascriptNumber));
     }
 
     void JavascriptOperators::ScriptAbort()
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9430\n");
         throw ScriptAbortException();
     }
 
     void PolymorphicInlineCache::Finalize(bool isShutdown)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9435\n");
         if (size == 0)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9437\n");
             // Already finalized
             Assert(!inlineCaches && !prev && !next);
             return;
@@ -9458,9 +9458,9 @@ CommonNumber:
         else
         {
             for (int i = 0; i < size; i++)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9460\n");
                 if (inlineCaches[i].RemoveFromInvalidationList())
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 9462\n");
                     unregisteredInlineCacheCount++;
                 }
             }
@@ -9473,10 +9473,10 @@ CommonNumber:
 
         // Remove this PolymorphicInlineCache from the list
         if (this == functionBody->GetPolymorphicInlineCachesHead())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9475\n");
             Assert(!prev);
             if (next)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9478\n");
                 Assert(next->prev == this);
                 next->prev = nullptr;
             }
@@ -9485,12 +9485,12 @@ CommonNumber:
         else
         {
             if (prev)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9487\n");
                 Assert(prev->next == this);
                 prev->next = next;
             }
             if (next)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9492\n");
                 Assert(next->prev == this);
                 next->prev = prev;
             }
@@ -9499,13 +9499,13 @@ CommonNumber:
         inlineCaches = nullptr;
         size = 0;
         if (unregisteredInlineCacheCount > 0)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9501\n");
             functionBody->GetScriptContext()->GetThreadContext()->NotifyInlineCacheBatchUnregistered(unregisteredInlineCacheCount);
         }
     }
 
     JavascriptString * JavascriptOperators::Concat3(Var aLeft, Var aCenter, Var aRight, ScriptContext * scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9507\n");
         // Make sure we do the conversion in order from left to right
         JavascriptString * strLeft = JavascriptConversion::ToPrimitiveString(aLeft, scriptContext);
         JavascriptString * strCenter = JavascriptConversion::ToPrimitiveString(aCenter, scriptContext);
@@ -9515,7 +9515,7 @@ CommonNumber:
 
     JavascriptString *
     JavascriptOperators::NewConcatStrMulti(Var a1, Var a2, uint count, ScriptContext * scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9517\n");
         // Make sure we do the conversion in order
         JavascriptString * str1 = JavascriptConversion::ToPrimitiveString(a1, scriptContext);
         JavascriptString * str2 = JavascriptConversion::ToPrimitiveString(a2, scriptContext);
@@ -9524,36 +9524,36 @@ CommonNumber:
 
     void
     JavascriptOperators::SetConcatStrMultiItem(Var concatStr, Var str, uint index, ScriptContext * scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9526\n");
         ConcatStringMulti::FromVar(concatStr)->SetItem(index,
             JavascriptConversion::ToPrimitiveString(str, scriptContext));
     }
 
     void
     JavascriptOperators::SetConcatStrMultiItem2(Var concatStr, Var str1, Var str2, uint index, ScriptContext * scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9533\n");
         ConcatStringMulti * cs = ConcatStringMulti::FromVar(concatStr);
         cs->SetItem(index, JavascriptConversion::ToPrimitiveString(str1, scriptContext));
         cs->SetItem(index + 1, JavascriptConversion::ToPrimitiveString(str2, scriptContext));
     }
 
     void JavascriptOperators::OP_SetComputedNameVar(Var method, Var computedNameVar)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9540\n");
         ScriptFunctionBase *scriptFunction = ScriptFunctionBase::FromVar(method);
         scriptFunction->SetComputedNameVar(computedNameVar);
     }
 
     void JavascriptOperators::OP_SetHomeObj(Var method, Var homeObj)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9546\n");
         ScriptFunctionBase *scriptFunction = ScriptFunctionBase::FromVar(method);
         scriptFunction->SetHomeObj(homeObj);
     }
 
     Var JavascriptOperators::OP_LdHomeObj(Var scriptFunction, ScriptContext * scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9552\n");
         // Ensure this is not a stack ScriptFunction
         if (!ScriptFunction::Is(scriptFunction) || ThreadContext::IsOnStack(scriptFunction))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9555\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -9567,9 +9567,9 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_LdHomeObjProto(Var homeObj, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9569\n");
         if (homeObj == nullptr || !RecyclableObject::Is(homeObj))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9571\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -9578,7 +9578,7 @@ CommonNumber:
         TypeId typeId = thisObjPrototype->GetTypeId();
 
         if (typeId == TypeIds_Null || typeId == TypeIds_Undefined)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9580\n");
             JavascriptError::ThrowReferenceError(scriptContext, JSERR_BadSuperReference);
         }
 
@@ -9587,7 +9587,7 @@ CommonNumber:
         RecyclableObject *superBase = thisObjPrototype->GetPrototype();
 
         if (superBase == nullptr || !RecyclableObject::Is(superBase))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9589\n");
             return scriptContext->GetLibrary()->GetUndefined();
         }
 
@@ -9595,7 +9595,7 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_LdFuncObj(Var scriptFunction, ScriptContext * scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9597\n");
         // use self as value of [[FunctionObject]] - this is true only for constructors
 
         Assert(RecyclableObject::Is(scriptFunction));
@@ -9604,11 +9604,11 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_LdFuncObjProto(Var funcObj, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9606\n");
         RecyclableObject *superCtor = RecyclableObject::FromVar(funcObj)->GetPrototype();
 
         if (superCtor == nullptr || !IsConstructor(superCtor))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9610\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_NotAConstructor);
         }
 
@@ -9616,38 +9616,38 @@ CommonNumber:
     }
 
     Var JavascriptOperators::ScopedLdHomeObjFuncObjHelper(Var scriptFunction, Js::PropertyId propertyId, ScriptContext * scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9618\n");
         ScriptFunction *instance = ScriptFunction::FromVar(scriptFunction);
         Var superRef = nullptr;
 
         FrameDisplay *frameDisplay = instance->GetEnvironment();
 
         if (frameDisplay->GetLength() == 0)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9625\n");
             // Globally scoped evals are a syntax error
             JavascriptError::ThrowSyntaxError(scriptContext, ERRSuperInGlobalEval, _u("super"));
         }
 
         // Iterate over the scopes in the FrameDisplay, looking for the super property.
         for (unsigned i = 0; i < frameDisplay->GetLength(); ++i)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9632\n");
             void *currScope = frameDisplay->GetItem(i);
             if (RecyclableObject::Is(currScope))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9635\n");
                 if (BlockActivationObject::Is(currScope))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 9637\n");
                     // We won't find super in a block scope.
                     continue;
                 }
 
                 RecyclableObject *recyclableObject = RecyclableObject::FromVar(currScope);
                 if (GetProperty(recyclableObject, propertyId, &superRef, scriptContext))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 9644\n");
                     return superRef;
                 }
 
                 if (HasProperty(recyclableObject, Js::PropertyIds::_lexicalThisSlotSymbol))
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 9649\n");
                     // If we reach 'this' and haven't found the super reference, we don't need to look any further.
                     JavascriptError::ThrowReferenceError(scriptContext, JSERR_BadSuperReference, _u("super"));
                 }
@@ -9659,39 +9659,39 @@ CommonNumber:
     }
 
     Var JavascriptOperators::OP_ScopedLdHomeObj(Var scriptFunction, ScriptContext * scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9661\n");
         return JavascriptOperators::ScopedLdHomeObjFuncObjHelper(scriptFunction, Js::PropertyIds::_superReferenceSymbol, scriptContext);
     }
 
     Var JavascriptOperators::OP_ScopedLdFuncObj(Var scriptFunction, ScriptContext * scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9666\n");
         return JavascriptOperators::ScopedLdHomeObjFuncObjHelper(scriptFunction, Js::PropertyIds::_superCtorReferenceSymbol, scriptContext);
     }
 
     Var JavascriptOperators::OP_ResumeYield(ResumeYieldData* yieldData, RecyclableObject* iterator)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9671\n");
         bool isNext = yieldData->exceptionObj == nullptr;
         bool isThrow = !isNext && !yieldData->exceptionObj->IsGeneratorReturnException();
 
         if (iterator != nullptr) // yield*
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9676\n");
             ScriptContext* scriptContext = iterator->GetScriptContext();
             PropertyId propertyId = isNext ? PropertyIds::next : isThrow ? PropertyIds::throw_ : PropertyIds::return_;
             Var prop = JavascriptOperators::GetProperty(iterator, propertyId, scriptContext);
 
             if (!isNext && JavascriptOperators::IsUndefinedOrNull(prop))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9682\n");
                 if (isThrow)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 9684\n");
                     // 5.b.iii.2
                     // NOTE: If iterator does not have a throw method, this throw is going to terminate the yield* loop.
                     // But first we need to give iterator a chance to clean up.
 
                     prop = JavascriptOperators::GetProperty(iterator, PropertyIds::return_, scriptContext);
                     if (!JavascriptOperators::IsUndefinedOrNull(prop))
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 9691\n");
                         if (!JavascriptConversion::IsCallable(prop))
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 9693\n");
                             JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_NeedFunction, _u("return"));
                         }
 
@@ -9701,7 +9701,7 @@ CommonNumber:
                         Var result = JavascriptFunction::CallFunction<true>(method, method->GetEntryPoint(), Arguments(callInfo, args));
 
                         if (!JavascriptOperators::IsObject(result))
-                        {
+                        {LOGMEIN("JavascriptOperators.cpp] 9703\n");
                             JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedObject);
                         }
                     }
@@ -9717,7 +9717,7 @@ CommonNumber:
             }
 
             if (!JavascriptConversion::IsCallable(prop))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9719\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_NeedFunction, isNext ? _u("next") : isThrow ? _u("throw") : _u("return"));
             }
 
@@ -9727,12 +9727,12 @@ CommonNumber:
             Var result = JavascriptFunction::CallFunction<true>(method, method->GetEntryPoint(), Arguments(callInfo, args));
 
             if (!JavascriptOperators::IsObject(result))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9729\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedObject);
             }
 
             if (isThrow || isNext)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9734\n");
                 // 5.b.ii.2
                 // NOTE: Exceptions from the inner iterator throw method are propagated.
                 // Normal completions from an inner throw method are processed similarly to an inner next.
@@ -9742,7 +9742,7 @@ CommonNumber:
             RecyclableObject* obj = RecyclableObject::FromVar(result);
             Var done = JavascriptOperators::GetProperty(obj, PropertyIds::done, scriptContext);
             if (done == iterator->GetLibrary()->GetTrue())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9744\n");
                 Var value = JavascriptOperators::GetProperty(obj, PropertyIds::value, scriptContext);
                 yieldData->exceptionObj->SetThrownObject(value);
                 // Do not use ThrowExceptionObject for return() API exceptions since these exceptions are not real exceptions
@@ -9753,12 +9753,12 @@ CommonNumber:
 
         // CONSIDER: Fast path this early out return path in JITed code before helper call to avoid the helper call overhead in the common case e.g. next() calls.
         if (isNext)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9755\n");
             return yieldData->data;
         }
 
         if (isThrow)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9760\n");
             // Use ThrowExceptionObject() to get debugger support for breaking on throw
             JavascriptExceptionOperators::ThrowExceptionObject(yieldData->exceptionObj, yieldData->exceptionObj->GetScriptContext(), true);
         }
@@ -9787,15 +9787,15 @@ CommonNumber:
 
     Js::Var
     JavascriptOperators::BoxStackInstance(Js::Var instance, ScriptContext * scriptContext, bool allowStackFunction)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9789\n");
         if (!ThreadContext::IsOnStack(instance) || (allowStackFunction && !TaggedNumber::Is(instance) && (*(int*)instance & 1)))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9791\n");
             return instance;
         }
 
         TypeId typeId = JavascriptOperators::GetTypeId(instance);
         switch (typeId)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9797\n");
         case Js::TypeIds_Number:
 #if !FLOATVAR
             return JavascriptNumber::BoxStackInstance(instance, scriptContext);
@@ -9830,31 +9830,31 @@ CommonNumber:
     }
     ImplicitCallFlags
     JavascriptOperators::CacheAndClearImplicitBit(ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9832\n");
         ImplicitCallFlags prevImplicitCallFlags = scriptContext->GetThreadContext()->GetImplicitCallFlags();
         scriptContext->GetThreadContext()->ClearImplicitCallFlags();
         return prevImplicitCallFlags;
     }
     ImplicitCallFlags
     JavascriptOperators::CheckAndUpdateFunctionBodyWithImplicitFlag(FunctionBody* functionBody)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9839\n");
         ScriptContext* scriptContext = functionBody->GetScriptContext();
         ImplicitCallFlags currImplicitCallFlags = scriptContext->GetThreadContext()->GetImplicitCallFlags();
         if ((currImplicitCallFlags > ImplicitCall_None))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9843\n");
             functionBody->SetHasOnlyThisStmts(false);
         }
         return currImplicitCallFlags;
     }
     void
     JavascriptOperators::RestoreImplicitFlag(ScriptContext* scriptContext, ImplicitCallFlags prevImplicitCallFlags, ImplicitCallFlags currImplicitCallFlags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9850\n");
         scriptContext->GetThreadContext()->SetImplicitCallFlags((ImplicitCallFlags)(prevImplicitCallFlags | currImplicitCallFlags));
     }
 
     FunctionProxy*
     JavascriptOperators::GetDeferredDeserializedFunctionProxy(JavascriptFunction* func)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9856\n");
         FunctionProxy* proxy = func->GetFunctionProxy();
         Assert(proxy->GetFunctionInfo()->GetFunctionProxy() != proxy);
         return proxy;
@@ -9862,10 +9862,10 @@ CommonNumber:
 
     template <>
     Js::Var JavascriptOperators::GetElementAtIndex(Js::JavascriptArray* arrayObject, UINT index, Js::ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9864\n");
         Js::Var result;
         if (Js::JavascriptOperators::OP_GetElementI_ArrayFastPath(arrayObject, index, &result, scriptContext))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9867\n");
             return result;
         }
         return scriptContext->GetMissingItemResult();
@@ -9873,10 +9873,10 @@ CommonNumber:
 
     template<>
     Js::Var JavascriptOperators::GetElementAtIndex(Js::JavascriptNativeIntArray* arrayObject, UINT index, Js::ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9875\n");
         Js::Var result;
         if (Js::JavascriptOperators::OP_GetElementI_ArrayFastPath(arrayObject, index, &result, scriptContext))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9878\n");
             return result;
         }
         return scriptContext->GetMissingItemResult();
@@ -9884,10 +9884,10 @@ CommonNumber:
 
     template<>
     Js::Var JavascriptOperators::GetElementAtIndex(Js::JavascriptNativeFloatArray* arrayObject, UINT index, Js::ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9886\n");
         Js::Var result;
         if (Js::JavascriptOperators::OP_GetElementI_ArrayFastPath(arrayObject, index, &result, scriptContext))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9889\n");
             return result;
         }
         return scriptContext->GetMissingItemResult();
@@ -9895,7 +9895,7 @@ CommonNumber:
 
     template<>
     Js::Var JavascriptOperators::GetElementAtIndex(Js::Var* arrayObject, UINT index, Js::ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9897\n");
         return Js::JavascriptOperators::OP_GetElementI_Int32(*arrayObject, index, scriptContext);
     }
 
@@ -9906,18 +9906,18 @@ CommonNumber:
         __in UINT elementSize,
         __out_bcount(length*elementSize) byte* buffer,
         Js::ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 9908\n");
         Var element;
         uint64 allocSize = length * elementSize;
 
         // TODO:further fast path the call for things like IntArray convert to int, floatarray convert to float etc.
         // such that we don't need boxing.
         switch (valueType)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 9915\n");
         case JsInt8Type:
             AnalysisAssert(elementSize == sizeof(int8));
             for (UINT i = 0; i < length; i++)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9919\n");
                 element = GetElementAtIndex(arrayObject, i, scriptContext);
                 AnalysisAssert((i + 1) * sizeof(int8) <= allocSize);
 #pragma prefast(suppress:22102)
@@ -9927,7 +9927,7 @@ CommonNumber:
         case JsUint8Type:
             AnalysisAssert(elementSize == sizeof(uint8));
             for (UINT i = 0; i < length; i++)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9929\n");
                 element = GetElementAtIndex(arrayObject, i, scriptContext);
                 AnalysisAssert((i + 1) * sizeof(uint8) <= allocSize);
                 ((uint8*)buffer)[i] = Js::JavascriptConversion::ToUInt8(element, scriptContext);
@@ -9936,7 +9936,7 @@ CommonNumber:
         case JsInt16Type:
             AnalysisAssert(elementSize == sizeof(int16));
             for (UINT i = 0; i < length; i++)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9938\n");
                 element = GetElementAtIndex(arrayObject, i, scriptContext);
                 AnalysisAssert((i + 1) * sizeof(int16) <= allocSize);
                 ((int16*)buffer)[i] = Js::JavascriptConversion::ToInt16(element, scriptContext);
@@ -9945,7 +9945,7 @@ CommonNumber:
         case JsUint16Type:
             AnalysisAssert(elementSize == sizeof(uint16));
             for (UINT i = 0; i < length; i++)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9947\n");
                 element = GetElementAtIndex(arrayObject, i, scriptContext);
                 AnalysisAssert((i + 1) * sizeof(uint16) <= allocSize);
                 ((uint16*)buffer)[i] = Js::JavascriptConversion::ToUInt16(element, scriptContext);
@@ -9954,7 +9954,7 @@ CommonNumber:
         case JsInt32Type:
             AnalysisAssert(elementSize == sizeof(int32));
             for (UINT i = 0; i < length; i++)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9956\n");
                 element = GetElementAtIndex(arrayObject, i, scriptContext);
                 AnalysisAssert((i + 1) * sizeof(int32) <= allocSize);
                 ((int32*)buffer)[i] = Js::JavascriptConversion::ToInt32(element, scriptContext);
@@ -9963,7 +9963,7 @@ CommonNumber:
         case JsUint32Type:
             AnalysisAssert(elementSize == sizeof(uint32));
             for (UINT i = 0; i < length; i++)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9965\n");
                 element = GetElementAtIndex(arrayObject, i, scriptContext);
                 AnalysisAssert((i + 1) * sizeof(uint32) <= allocSize);
                 ((uint32*)buffer)[i] = Js::JavascriptConversion::ToUInt32(element, scriptContext);
@@ -9972,7 +9972,7 @@ CommonNumber:
         case JsInt64Type:
             AnalysisAssert(elementSize == sizeof(int64));
             for (UINT i = 0; i < length; i++)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9974\n");
                 element = GetElementAtIndex(arrayObject, i, scriptContext);
                 AnalysisAssert((i + 1) * sizeof(int64) <= allocSize);
                 ((int64*)buffer)[i] = Js::JavascriptConversion::ToInt64(element, scriptContext);
@@ -9981,7 +9981,7 @@ CommonNumber:
         case JsUint64Type:
             AnalysisAssert(elementSize == sizeof(uint64));
             for (UINT i = 0; i < length; i++)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9983\n");
                 element = GetElementAtIndex(arrayObject, i, scriptContext);
                 AnalysisAssert((i + 1) * sizeof(uint64) <= allocSize);
                 ((uint64*)buffer)[i] = Js::JavascriptConversion::ToUInt64(element, scriptContext);
@@ -9990,7 +9990,7 @@ CommonNumber:
         case JsFloatType:
             AnalysisAssert(elementSize == sizeof(float));
             for (UINT i = 0; i < length; i++)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 9992\n");
                 element = GetElementAtIndex(arrayObject, i, scriptContext);
                 AnalysisAssert((i + 1) * sizeof(float) <= allocSize);
                 ((float*)buffer)[i] = Js::JavascriptConversion::ToFloat(element, scriptContext);
@@ -9999,7 +9999,7 @@ CommonNumber:
         case JsDoubleType:
             AnalysisAssert(elementSize == sizeof(double));
             for (UINT i = 0; i < length; i++)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10001\n");
                 element = GetElementAtIndex(arrayObject, i, scriptContext);
                 AnalysisAssert((i + 1) * sizeof(double) <= allocSize);
                 ((double*)buffer)[i] = Js::JavascriptConversion::ToNumber(element, scriptContext);
@@ -10008,7 +10008,7 @@ CommonNumber:
         case JsNativeStringType:
             AnalysisAssert(elementSize == sizeof(JsNativeString));
             for (UINT i = 0; i < length; i++)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10010\n");
                 element = GetElementAtIndex(arrayObject, i, scriptContext);
                 AnalysisAssert((i + 1) * sizeof(JsNativeString) <= allocSize);
                 Js::JavascriptString* string = Js::JavascriptConversion::ToString(element, scriptContext);
@@ -10027,10 +10027,10 @@ CommonNumber:
         __in UINT elementSize,
         __out_bcount(length*elementSize) byte* buffer,
         Js::ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10029\n");
         Js::DynamicObject* dynamicObject = DynamicObject::FromVar(arrayObject);
         if (dynamicObject->IsCrossSiteObject() || Js::TaggedInt::IsOverflow(length))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10032\n");
             Js::JavascriptOperators::ObjectToNativeArray(&arrayObject, valueType, length, elementSize, buffer, scriptContext);
         }
         else
@@ -10039,7 +10039,7 @@ CommonNumber:
             JavascriptLibrary::CheckAndConvertCopyOnAccessNativeIntArray<Var>(arrayObject);
 #endif
             switch (Js::JavascriptOperators::GetTypeId(arrayObject))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10041\n");
             case TypeIds_Array:
                 Js::JavascriptOperators::ObjectToNativeArray(Js::JavascriptArray::FromVar(arrayObject), valueType, length, elementSize, buffer, scriptContext);
                 break;
@@ -10058,7 +10058,7 @@ CommonNumber:
 
     // SpeciesConstructor abstract operation as described in ES6.0 Section 7.3.20
     Var JavascriptOperators::SpeciesConstructor(RecyclableObject* object, Var defaultConstructor, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10060\n");
         //1.Assert: Type(O) is Object.
         Assert(JavascriptOperators::IsObject(object));
 
@@ -10067,15 +10067,15 @@ CommonNumber:
         Var constructor = JavascriptOperators::GetProperty(object, PropertyIds::constructor, scriptContext);
 
         if (scriptContext->GetConfig()->IsES6SpeciesEnabled())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10069\n");
             //4.If C is undefined, return defaultConstructor.
             if (JavascriptOperators::IsUndefinedObject(constructor))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10072\n");
                 return defaultConstructor;
             }
             //5.If Type(C) is not Object, throw a TypeError exception.
             if (!JavascriptOperators::IsObject(constructor))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10077\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedObject, _u("[constructor]"));
             }
             //6.Let S be Get(C, @@species).
@@ -10083,7 +10083,7 @@ CommonNumber:
             Var species = nullptr;
             if (!JavascriptOperators::GetProperty(RecyclableObject::FromVar(constructor), PropertyIds::_symbolSpecies, &species, scriptContext)
                 || JavascriptOperators::IsUndefinedOrNull(species))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10085\n");
                 //8.If S is either undefined or null, return defaultConstructor.
                 return defaultConstructor;
             }
@@ -10091,7 +10091,7 @@ CommonNumber:
         }
         //9.If IsConstructor(S) is true, return S.
         if (JavascriptOperators::IsConstructor(constructor))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10093\n");
             return constructor;
         }
         //10.Throw a TypeError exception.
@@ -10099,30 +10099,30 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::GreaterEqual(Var aLeft, Var aRight, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10101\n");
         if (TaggedInt::Is(aLeft))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10103\n");
             if (TaggedInt::Is(aRight))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10105\n");
                 // Works whether it is TaggedInt31 or TaggedInt32
                 return ::Math::PointerCastToIntegralTruncate<int>(aLeft) >= ::Math::PointerCastToIntegralTruncate<int>(aRight);
             }
             if (JavascriptNumber::Is_NoTaggedIntCheck(aRight))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10110\n");
                 return TaggedInt::ToDouble(aLeft) >= JavascriptNumber::GetValue(aRight);
             }
         }
         else if (TaggedInt::Is(aRight))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10115\n");
             if (JavascriptNumber::Is_NoTaggedIntCheck(aLeft))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10117\n");
                 return JavascriptNumber::GetValue(aLeft) >= TaggedInt::ToDouble(aRight);
             }
         }
         else
         {
             if (JavascriptNumber::Is_NoTaggedIntCheck(aLeft) && JavascriptNumber::Is_NoTaggedIntCheck(aRight))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10124\n");
                 return JavascriptNumber::GetValue(aLeft) >= JavascriptNumber::GetValue(aRight);
             }
         }
@@ -10131,31 +10131,31 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::LessEqual(Var aLeft, Var aRight, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10133\n");
         if (TaggedInt::Is(aLeft))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10135\n");
             if (TaggedInt::Is(aRight))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10137\n");
                 // Works whether it is TaggedInt31 or TaggedInt32
                 return ::Math::PointerCastToIntegralTruncate<int>(aLeft) <= ::Math::PointerCastToIntegralTruncate<int>(aRight);
             }
 
             if (JavascriptNumber::Is_NoTaggedIntCheck(aRight))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10143\n");
                 return TaggedInt::ToDouble(aLeft) <= JavascriptNumber::GetValue(aRight);
             }
         }
         else if (TaggedInt::Is(aRight))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10148\n");
             if (JavascriptNumber::Is_NoTaggedIntCheck(aLeft))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10150\n");
                 return JavascriptNumber::GetValue(aLeft) <= TaggedInt::ToDouble(aRight);
             }
         }
         else
         {
             if (JavascriptNumber::Is_NoTaggedIntCheck(aLeft) && JavascriptNumber::Is_NoTaggedIntCheck(aRight))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10157\n");
                 return JavascriptNumber::GetValue(aLeft) <= JavascriptNumber::GetValue(aRight);
             }
         }
@@ -10164,7 +10164,7 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::NotEqual(Var aLeft, Var aRight, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10166\n");
         //
         // TODO: Change to use Abstract Equality Comparison Algorithm (ES3.0: S11.9.3):
         // - Evaluate left, then right, operands to preserve correct evaluation order.
@@ -10177,38 +10177,38 @@ CommonNumber:
     // NotStrictEqual() returns whether the two vars have strict equality, as
     // described in (ES3.0: S11.9.5, S11.9.6).
     BOOL JavascriptOperators::NotStrictEqual(Var aLeft, Var aRight, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10179\n");
         return !StrictEqual(aLeft, aRight, scriptContext);
     }
 
     bool JavascriptOperators::CheckIfObjectAndPrototypeChainHasOnlyWritableDataProperties(RecyclableObject* object)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10184\n");
         Assert(object);
         if (object->GetType()->HasSpecialPrototype())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10187\n");
             TypeId typeId = object->GetTypeId();
             if (typeId == TypeIds_Null)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10190\n");
                 return true;
             }
             if (typeId == TypeIds_Proxy)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10194\n");
                 return false;
             }
         }
         if (!object->HasOnlyWritableDataProperties())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10199\n");
             return false;
         }
         return CheckIfPrototypeChainHasOnlyWritableDataProperties(object->GetPrototype());
     }
 
     bool JavascriptOperators::CheckIfPrototypeChainHasOnlyWritableDataProperties(RecyclableObject* prototype)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10206\n");
         Assert(prototype);
 
         if (prototype->GetType()->AreThisAndPrototypesEnsuredToHaveOnlyWritableDataProperties())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10210\n");
             Assert(DoCheckIfPrototypeChainHasOnlyWritableDataProperties(prototype));
             return true;
         }
@@ -10218,7 +10218,7 @@ CommonNumber:
     // Does a quick check to see if the specified object (which should be a prototype object) and all objects in its prototype
     // chain have only writable data properties (i.e. no accessors or non-writable properties).
     bool JavascriptOperators::DoCheckIfPrototypeChainHasOnlyWritableDataProperties(RecyclableObject* prototype)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10220\n");
         Assert(prototype);
 
         Type *const originalType = prototype->GetType();
@@ -10226,23 +10226,23 @@ CommonNumber:
         bool onlyOneScriptContext = true;
         TypeId typeId;
         for (; (typeId = prototype->GetTypeId()) != TypeIds_Null; prototype = prototype->GetPrototype())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10228\n");
             if (typeId == TypeIds_Proxy)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10230\n");
                 return false;
             }
             if (!prototype->HasOnlyWritableDataProperties())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10234\n");
                 return false;
             }
             if (prototype->GetScriptContext() != scriptContext)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10238\n");
                 onlyOneScriptContext = false;
             }
         }
 
         if (onlyOneScriptContext)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10244\n");
             // See JavascriptLibrary::typesEnsuredToHaveOnlyWritableDataPropertiesInItAndPrototypeChain for a description of
             // this cache. Technically, we could register all prototypes in the chain but this is good enough for now.
             originalType->SetAreThisAndPrototypesEnsuredToHaveOnlyWritableDataProperties(true);
@@ -10254,18 +10254,18 @@ CommonNumber:
     // Checks to see if the specified object (which should be a prototype object)
     // contains a proxy anywhere in the prototype chain.
     bool JavascriptOperators::CheckIfPrototypeChainContainsProxyObject(RecyclableObject* prototype)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10256\n");
         if (prototype == nullptr)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10258\n");
             return false;
         }
 
         Assert(JavascriptOperators::IsObjectOrNull(prototype));
 
         while (prototype->GetTypeId() != TypeIds_Null)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10265\n");
             if (prototype->GetTypeId() == TypeIds_Proxy)
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10267\n");
                 return true;
             }
 
@@ -10276,11 +10276,11 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::Equal(Var aLeft, Var aRight, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10278\n");
         if (aLeft == aRight)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10280\n");
             if (TaggedInt::Is(aLeft) || JavascriptObject::Is(aLeft))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10282\n");
                 return true;
             }
             else
@@ -10290,16 +10290,16 @@ CommonNumber:
         }
 
         if (JavascriptString::Is(aLeft) && JavascriptString::Is(aRight))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10292\n");
             JavascriptString* left = (JavascriptString*)aLeft;
             JavascriptString* right = (JavascriptString*)aRight;
 
             if (left->GetLength() == right->GetLength())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10297\n");
                 if (left->UnsafeGetBuffer() != NULL && right->UnsafeGetBuffer() != NULL)
-                {
+                {LOGMEIN("JavascriptOperators.cpp] 10299\n");
                     if (left->GetLength() == 1)
-                    {
+                    {LOGMEIN("JavascriptOperators.cpp] 10301\n");
                         return left->UnsafeGetBuffer()[0] == right->UnsafeGetBuffer()[0];
                     }
                     return memcmp(left->UnsafeGetBuffer(), right->UnsafeGetBuffer(), left->GetLength() * sizeof(left->UnsafeGetBuffer()[0])) == 0;
@@ -10316,30 +10316,30 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::Greater(Var aLeft, Var aRight, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10318\n");
         if (TaggedInt::Is(aLeft))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10320\n");
             if (TaggedInt::Is(aRight))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10322\n");
                 // Works whether it is TaggedInt31 or TaggedInt32
                 return ::Math::PointerCastToIntegralTruncate<int>(aLeft) > ::Math::PointerCastToIntegralTruncate<int>(aRight);
             }
             if (JavascriptNumber::Is_NoTaggedIntCheck(aRight))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10327\n");
                 return TaggedInt::ToDouble(aLeft) > JavascriptNumber::GetValue(aRight);
             }
         }
         else if (TaggedInt::Is(aRight))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10332\n");
             if (JavascriptNumber::Is_NoTaggedIntCheck(aLeft))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10334\n");
                 return JavascriptNumber::GetValue(aLeft) > TaggedInt::ToDouble(aRight);
             }
         }
         else
         {
             if (JavascriptNumber::Is_NoTaggedIntCheck(aLeft) && JavascriptNumber::Is_NoTaggedIntCheck(aRight))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10341\n");
                 return JavascriptNumber::GetValue(aLeft) > JavascriptNumber::GetValue(aRight);
             }
         }
@@ -10348,30 +10348,30 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::Less(Var aLeft, Var aRight, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10350\n");
         if (TaggedInt::Is(aLeft))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10352\n");
             if (TaggedInt::Is(aRight))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10354\n");
                 // Works whether it is TaggedInt31 or TaggedInt32
                 return ::Math::PointerCastToIntegralTruncate<int>(aLeft) < ::Math::PointerCastToIntegralTruncate<int>(aRight);
             }
             if (JavascriptNumber::Is_NoTaggedIntCheck(aRight))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10359\n");
                 return TaggedInt::ToDouble(aLeft) < JavascriptNumber::GetValue(aRight);
             }
         }
         else if (TaggedInt::Is(aRight))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10364\n");
             if (JavascriptNumber::Is_NoTaggedIntCheck(aLeft))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10366\n");
                 return JavascriptNumber::GetValue(aLeft) < TaggedInt::ToDouble(aRight);
             }
         }
         else
         {
             if (JavascriptNumber::Is_NoTaggedIntCheck(aLeft) && JavascriptNumber::Is_NoTaggedIntCheck(aRight))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10373\n");
                 return JavascriptNumber::GetValue(aLeft) < JavascriptNumber::GetValue(aRight);
             }
         }
@@ -10380,10 +10380,10 @@ CommonNumber:
     }
 
     Var JavascriptOperators::ToObject(Var aRight, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10382\n");
         RecyclableObject* object = nullptr;
         if (FALSE == JavascriptConversion::ToObject(aRight, scriptContext, &object))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10385\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedObject /* TODO-ERROR: get arg name - aValue */);
         }
 
@@ -10391,7 +10391,7 @@ CommonNumber:
     }
 
     Var JavascriptOperators::ToWithObject(Var aRight, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10393\n");
         RecyclableObject* object = RecyclableObject::FromVar(aRight);
 
         WithScopeObject* withWrapper = RecyclerNew(scriptContext->GetRecycler(), WithScopeObject, object, scriptContext->GetLibrary()->GetWithType());
@@ -10399,9 +10399,9 @@ CommonNumber:
     }
 
     Var JavascriptOperators::ToNumber(Var aRight, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10401\n");
         if (TaggedInt::Is(aRight) || (JavascriptNumber::Is_NoTaggedIntCheck(aRight)))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10403\n");
             return aRight;
         }
 
@@ -10409,103 +10409,103 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::IsObject(Var aValue)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10411\n");
         return GetTypeId(aValue) > TypeIds_LastJavascriptPrimitiveType;
     }
 
     BOOL JavascriptOperators::IsObjectType(TypeId typeId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10416\n");
         return typeId > TypeIds_LastJavascriptPrimitiveType;
     }
 
     BOOL JavascriptOperators::IsExposedType(TypeId typeId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10421\n");
         return typeId <= TypeIds_LastTrueJavascriptObjectType && typeId != TypeIds_HostDispatch;
     }
 
     BOOL JavascriptOperators::IsObjectOrNull(Var instance)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10426\n");
         TypeId typeId = GetTypeId(instance);
         return IsObjectType(typeId) || typeId == TypeIds_Null;
     }
 
     BOOL JavascriptOperators::IsUndefined(Var instance)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10432\n");
         return JavascriptOperators::GetTypeId(instance) == TypeIds_Undefined;
     }
 
     BOOL JavascriptOperators::IsUndefinedOrNullType(TypeId typeId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10437\n");
         return typeId <= TypeIds_UndefinedOrNull;
     }
 
     BOOL JavascriptOperators::IsUndefinedOrNull(Var instance)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10442\n");
         return IsUndefinedOrNullType(JavascriptOperators::GetTypeId(instance));
     }
 
     BOOL JavascriptOperators::IsNull(Var instance)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10447\n");
         return JavascriptOperators::GetTypeId(instance) == TypeIds_Null;
     }
 
     BOOL JavascriptOperators::IsSpecialObjectType(TypeId typeId)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10452\n");
         return typeId > TypeIds_LastTrueJavascriptObjectType;
     }
 
     BOOL JavascriptOperators::IsUndefinedObject(Var instance)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10457\n");
         return JavascriptOperators::GetTypeId(instance) == TypeIds_Undefined;
     }
 
     BOOL JavascriptOperators::IsUndefinedObject(Var instance, RecyclableObject *libraryUndefined)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10462\n");
         Assert(JavascriptOperators::IsUndefinedObject(libraryUndefined));
 
         return instance == libraryUndefined;
     }
 
     BOOL JavascriptOperators::IsUndefinedObject(Var instance, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10469\n");
         return JavascriptOperators::IsUndefinedObject(instance, scriptContext->GetLibrary()->GetUndefined());
     }
 
     BOOL JavascriptOperators::IsUndefinedObject(Var instance, JavascriptLibrary* library)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10474\n");
         return JavascriptOperators::IsUndefinedObject(instance, library->GetUndefined());
     }
 
     BOOL JavascriptOperators::IsAnyNumberValue(Var instance)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10479\n");
         TypeId typeId = GetTypeId(instance);
         return TypeIds_FirstNumberType <= typeId && typeId <= TypeIds_LastNumberType;
     }
 
     // GetIterator as described in ES6.0 (draft 22) Section 7.4.1
     RecyclableObject* JavascriptOperators::GetIterator(Var iterable, ScriptContext* scriptContext, bool optional)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10486\n");
         RecyclableObject* iterableObj = RecyclableObject::FromVar(JavascriptOperators::ToObject(iterable, scriptContext));
         return JavascriptOperators::GetIterator(iterableObj, scriptContext, optional);
     }
 
     RecyclableObject* JavascriptOperators::GetIteratorFunction(Var iterable, ScriptContext* scriptContext, bool optional)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10492\n");
         RecyclableObject* iterableObj = RecyclableObject::FromVar(JavascriptOperators::ToObject(iterable, scriptContext));
         return JavascriptOperators::GetIteratorFunction(iterableObj, scriptContext, optional);
     }
 
     RecyclableObject* JavascriptOperators::GetIteratorFunction(RecyclableObject* instance, ScriptContext * scriptContext, bool optional)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10498\n");
         Var func = JavascriptOperators::GetProperty(instance, PropertyIds::_symbolIterator, scriptContext);
 
         if (optional && JavascriptOperators::IsUndefinedOrNull(func))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10502\n");
             return nullptr;
         }
 
         if (!JavascriptConversion::IsCallable(func))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10507\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_Property_NeedFunction);
         }
 
@@ -10514,11 +10514,11 @@ CommonNumber:
     }
 
     RecyclableObject* JavascriptOperators::GetIterator(RecyclableObject* instance, ScriptContext * scriptContext, bool optional)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10516\n");
         RecyclableObject* function = GetIteratorFunction(instance, scriptContext, optional);
 
         if (function == nullptr)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10520\n");
             Assert(optional);
             return nullptr;
         }
@@ -10526,7 +10526,7 @@ CommonNumber:
         Var iterator = CALL_FUNCTION(function, CallInfo(Js::CallFlags_Value, 1), instance);
 
         if (!JavascriptOperators::IsObject(iterator))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10528\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedObject);
         }
 
@@ -10534,13 +10534,13 @@ CommonNumber:
     }
 
     void JavascriptOperators::IteratorClose(RecyclableObject* iterator, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10536\n");
         try
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10538\n");
             Var func = JavascriptOperators::GetProperty(iterator, PropertyIds::return_, scriptContext);
 
             if (JavascriptConversion::IsCallable(func))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10542\n");
                 RecyclableObject* callable = RecyclableObject::FromVar(func);
                 Js::Var args[] = { iterator };
                 Js::CallInfo callInfo(Js::CallFlags_Value, _countof(args));
@@ -10548,7 +10548,7 @@ CommonNumber:
             }
         }
         catch (const JavascriptException& err)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10550\n");
             err.GetAndClear();  // discard exception object
             // We have arrived in this function due to AbruptCompletion (which is an exception), so we don't need to
             // propagate the exception of calling return function
@@ -10557,14 +10557,14 @@ CommonNumber:
 
     // IteratorNext as described in ES6.0 (draft 22) Section 7.4.2
     RecyclableObject* JavascriptOperators::IteratorNext(RecyclableObject* iterator, ScriptContext* scriptContext, Var value)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10559\n");
         Var func = JavascriptOperators::GetProperty(iterator, PropertyIds::next, scriptContext);
 
         ThreadContext *threadContext = scriptContext->GetThreadContext();
         if (!JavascriptConversion::IsCallable(func))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10564\n");
             if (!threadContext->RecordImplicitException())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10566\n");
                 return scriptContext->GetLibrary()->GetUndefined();
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedFunction);
@@ -10579,9 +10579,9 @@ CommonNumber:
             });
 
         if (!JavascriptOperators::IsObject(result))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10581\n");
             if (!threadContext->RecordImplicitException())
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10583\n");
                 return scriptContext->GetLibrary()->GetUndefined();
             }
             JavascriptError::ThrowTypeError(scriptContext, JSERR_NeedObject);
@@ -10592,7 +10592,7 @@ CommonNumber:
 
     // IteratorComplete as described in ES6.0 (draft 22) Section 7.4.3
     bool JavascriptOperators::IteratorComplete(RecyclableObject* iterResult, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10594\n");
         Var done = JavascriptOperators::GetProperty(iterResult, Js::PropertyIds::done, scriptContext);
 
         return JavascriptConversion::ToBool(done, scriptContext);
@@ -10600,13 +10600,13 @@ CommonNumber:
 
     // IteratorValue as described in ES6.0 (draft 22) Section 7.4.4
     Var JavascriptOperators::IteratorValue(RecyclableObject* iterResult, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10602\n");
         return JavascriptOperators::GetProperty(iterResult, Js::PropertyIds::value, scriptContext);
     }
 
     // IteratorStep as described in ES6.0 (draft 22) Section 7.4.5
     bool JavascriptOperators::IteratorStep(RecyclableObject* iterator, ScriptContext* scriptContext, RecyclableObject** result)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10608\n");
         Assert(result);
 
         *result = JavascriptOperators::IteratorNext(iterator, scriptContext);
@@ -10614,12 +10614,12 @@ CommonNumber:
     }
 
     bool JavascriptOperators::IteratorStepAndValue(RecyclableObject* iterator, ScriptContext* scriptContext, Var* resultValue)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10616\n");
         // CONSIDER: Fast-pathing for iterators that are built-ins?
         RecyclableObject* result = JavascriptOperators::IteratorNext(iterator, scriptContext);
 
         if (!JavascriptOperators::IteratorComplete(result, scriptContext))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10621\n");
             *resultValue = JavascriptOperators::IteratorValue(result, scriptContext);
             return true;
         }
@@ -10628,13 +10628,13 @@ CommonNumber:
     }
 
     RecyclableObject* JavascriptOperators::CreateFromConstructor(RecyclableObject* constructor, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10630\n");
         // Create a regular object and set the internal proto from the constructor
         return JavascriptOperators::OrdinaryCreateFromConstructor(constructor, scriptContext->GetLibrary()->CreateObject(), nullptr, scriptContext);
     }
 
     RecyclableObject* JavascriptOperators::OrdinaryCreateFromConstructor(RecyclableObject* constructor, RecyclableObject* obj, DynamicObject* intrinsicProto, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10636\n");
         // There isn't a good way for us to add internal properties to objects in Chakra.
         // Thus, caller should take care to create obj with the correct internal properties.
 
@@ -10644,7 +10644,7 @@ CommonNumber:
         // Else, we set the [[Prototype]] internal slot of obj to %intrinsicProto% - which should be the default.
         if (JavascriptOperators::IsObjectType(JavascriptOperators::GetTypeId(proto)) &&
             DynamicObject::FromVar(proto) != intrinsicProto)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10646\n");
             JavascriptObject::ChangePrototype(obj, RecyclableObject::FromVar(proto), /*validate*/true, scriptContext);
         }
 
@@ -10652,45 +10652,45 @@ CommonNumber:
     }
 
     Var JavascriptOperators::GetProperty(RecyclableObject* instance, PropertyId propertyId, ScriptContext* requestContext, PropertyValueInfo* info)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10654\n");
         return JavascriptOperators::GetProperty(instance, instance, propertyId, requestContext, info);
     }
 
     BOOL JavascriptOperators::GetProperty(RecyclableObject* instance, PropertyId propertyId, Var* value, ScriptContext* requestContext, PropertyValueInfo* info)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10659\n");
         return JavascriptOperators::GetProperty(instance, instance, propertyId, value, requestContext, info);
     }
 
     Var JavascriptOperators::GetProperty(Var instance, RecyclableObject* propertyObject, PropertyId propertyId, ScriptContext* requestContext, PropertyValueInfo* info)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10664\n");
         Var value;
         if (JavascriptOperators::GetProperty(instance, propertyObject, propertyId, &value, requestContext, info))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10667\n");
             return value;
         }
         return requestContext->GetMissingPropertyResult();
     }
 
     Var JavascriptOperators::GetRootProperty(RecyclableObject* instance, PropertyId propertyId, ScriptContext* requestContext, PropertyValueInfo* info)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10674\n");
         Var value;
         if (JavascriptOperators::GetRootProperty(instance, propertyId, &value, requestContext, info))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10677\n");
             return value;
         }
         return requestContext->GetMissingPropertyResult();
     }
 
     BOOL JavascriptOperators::GetPropertyReference(RecyclableObject *instance, PropertyId propertyId, Var* value, ScriptContext* requestContext, PropertyValueInfo* info)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10684\n");
         return JavascriptOperators::GetPropertyReference(instance, instance, propertyId, value, requestContext, info);
     }
 
     Var JavascriptOperators::GetItem(RecyclableObject* instance, uint32 index, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10689\n");
         Var value;
         if (GetItem(instance, index, &value, requestContext))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10692\n");
             return value;
         }
 
@@ -10698,10 +10698,10 @@ CommonNumber:
     }
 
     Var JavascriptOperators::GetItem(RecyclableObject* instance, uint64 index, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10700\n");
         Var value;
         if (GetItem(instance, index, &value, requestContext))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10703\n");
             return value;
         }
 
@@ -10709,26 +10709,26 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::GetItem(RecyclableObject* instance, uint64 index, Var* value, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10711\n");
         PropertyRecord const * propertyRecord;
         JavascriptOperators::GetPropertyIdForInt(index, requestContext, &propertyRecord);
         return JavascriptOperators::GetProperty(instance, propertyRecord->GetPropertyId(), value, requestContext);
     }
 
     BOOL JavascriptOperators::GetItem(RecyclableObject* instance, uint32 index, Var* value, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10718\n");
         return JavascriptOperators::GetItem(instance, instance, index, value, requestContext);
     }
 
     BOOL JavascriptOperators::GetItemReference(RecyclableObject* instance, uint32 index, Var* value, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10723\n");
         return GetItemReference(instance, instance, index, value, requestContext);
     }
 
     BOOL JavascriptOperators::CheckPrototypesForAccessorOrNonWritableProperty(RecyclableObject* instance, PropertyId propertyId, Var* setterValue, DescriptorFlags* flags, PropertyValueInfo* info, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10728\n");
         if (propertyId == Js::PropertyIds::__proto__)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10730\n");
             return CheckPrototypesForAccessorOrNonWritablePropertyCore<PropertyId, false, false>(instance, propertyId, setterValue, flags, info, scriptContext);
         }
         else
@@ -10738,9 +10738,9 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::CheckPrototypesForAccessorOrNonWritableRootProperty(RecyclableObject* instance, PropertyId propertyId, Var* setterValue, DescriptorFlags* flags, PropertyValueInfo* info, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10740\n");
         if (propertyId == Js::PropertyIds::__proto__)
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10742\n");
             return CheckPrototypesForAccessorOrNonWritablePropertyCore<PropertyId, false, true>(instance, propertyId, setterValue, flags, info, scriptContext);
         }
         else
@@ -10750,10 +10750,10 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::CheckPrototypesForAccessorOrNonWritableProperty(RecyclableObject* instance, JavascriptString* propertyNameString, Var* setterValue, DescriptorFlags* flags, PropertyValueInfo* info, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10752\n");
         JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
         if (Js::BuiltInPropertyRecords::__proto__.Equals(propertyName))
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10755\n");
             return CheckPrototypesForAccessorOrNonWritablePropertyCore<JavascriptString*, false, false>(instance, propertyNameString, setterValue, flags, info, scriptContext);
         }
         else
@@ -10763,19 +10763,19 @@ CommonNumber:
     }
 
     BOOL JavascriptOperators::SetProperty(Var instance, RecyclableObject* object, PropertyId propertyId, Var newValue, ScriptContext* requestContext, PropertyOperationFlags propertyOperationFlags)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10765\n");
         PropertyValueInfo info;
         return JavascriptOperators::SetProperty(instance, object, propertyId, newValue, &info, requestContext, propertyOperationFlags);
     }
 
     BOOL JavascriptOperators::TryConvertToUInt32(const char16* str, int length, uint32* intVal)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10771\n");
         return NumberUtilities::TryConvertToUInt32(str, length, intVal);
     }
 
     template <typename TPropertyKey>
     DescriptorFlags JavascriptOperators::GetRootSetter(RecyclableObject* instance, TPropertyKey propertyKey, Var *setterValue, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10777\n");
         // This is provided only so that CheckPrototypesForAccessorOrNonWritablePropertyCore will compile.
         // It will never be called.
         Throw::FatalInternalError();
@@ -10783,7 +10783,7 @@ CommonNumber:
 
     template <>
     inline DescriptorFlags JavascriptOperators::GetRootSetter(RecyclableObject* instance, PropertyId propertyId, Var *setterValue, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10785\n");
         AssertMsg(JavascriptOperators::GetTypeId(instance) == TypeIds_GlobalObject
             || JavascriptOperators::GetTypeId(instance) == TypeIds_ModuleRoot,
             "Root must be a global object!");
@@ -10794,15 +10794,15 @@ CommonNumber:
 
     // Helper to fetch @@species from a constructor object
     Var JavascriptOperators::GetSpecies(RecyclableObject* constructor, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptOperators.cpp] 10796\n");
         if (scriptContext->GetConfig()->IsES6SpeciesEnabled())
-        {
+        {LOGMEIN("JavascriptOperators.cpp] 10798\n");
             Var species = nullptr;
 
             // Let S be Get(C, @@species)
             if (JavascriptOperators::GetProperty(constructor, PropertyIds::_symbolSpecies, &species, scriptContext)
                 && !JavascriptOperators::IsUndefinedOrNull(species))
-            {
+            {LOGMEIN("JavascriptOperators.cpp] 10804\n");
                 // If S is neither undefined nor null, let C be S
                 return species;
             }

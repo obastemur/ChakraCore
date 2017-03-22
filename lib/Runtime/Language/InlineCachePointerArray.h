@@ -35,15 +35,15 @@ namespace Js
 
         template <class Fn>
         void Map(Fn fn, uint count) const
-        {
+        {LOGMEIN("InlineCachePointerArray.h] 37\n");
             if (NULL != inlineCaches)
-            {
+            {LOGMEIN("InlineCachePointerArray.h] 39\n");
                 for (uint i =0; i < count; i++)
-                {
+                {LOGMEIN("InlineCachePointerArray.h] 41\n");
                     T* inlineCache = inlineCaches[i];
 
                     if (inlineCache != NULL)
-                    {
+                    {LOGMEIN("InlineCachePointerArray.h] 45\n");
                         fn(inlineCache);
                     }
                 }

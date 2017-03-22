@@ -24,7 +24,7 @@ namespace Js
 
 bool
 ArmStackFrame::InitializeByFrameId(void * frame, ScriptContext* scriptContext)
-{
+{LOGMEIN("StackFrame.cpp] 26\n");
     return SkipToFrame(frame);
 }
 
@@ -35,12 +35,12 @@ ArmStackFrame::InitializeByFrameId(void * frame, ScriptContext* scriptContext)
 //     and not the address of blx itself.
 bool
 ArmStackFrame::InitializeByReturnAddress(void * returnAddress, ScriptContext* scriptContext)
-{
+{LOGMEIN("StackFrame.cpp] 37\n");
     this->frame = (void**)arm_GET_CURRENT_FRAME();
     while (Next())
-    {
+    {LOGMEIN("StackFrame.cpp] 40\n");
         if (this->codeAddr == returnAddress)
-        {
+        {LOGMEIN("StackFrame.cpp] 42\n");
             return true;
         }
     }
@@ -49,7 +49,7 @@ ArmStackFrame::InitializeByReturnAddress(void * returnAddress, ScriptContext* sc
 
 bool
 ArmStackFrame::Next()
-{
+{LOGMEIN("StackFrame.cpp] 51\n");
     this->addressOfCodeAddr = this->GetAddressOfReturnAddress();
     this->codeAddr = this->GetReturnAddress();
     this->frame = (void **)this->frame[0];
@@ -58,20 +58,20 @@ ArmStackFrame::Next()
 
 bool
 ArmStackFrame::SkipToFrame(void * frameAddress)
-{
+{LOGMEIN("StackFrame.cpp] 60\n");
     this->frame = (void **)frameAddress;
     return Next();
 }
 
 void *
 ArmStackFrame::GetInstructionPointer()
-{
+{LOGMEIN("StackFrame.cpp] 67\n");
     return codeAddr;
 }
 
 void **
 ArmStackFrame::GetArgv(bool isCurrentContextNative, bool shouldCheckForNativeAddr)
-{
+{LOGMEIN("StackFrame.cpp] 73\n");
     UNREFERENCED_PARAMETER(isCurrentContextNative);
     UNREFERENCED_PARAMETER(shouldCheckForNativeAddr);
     return this->frame + ArgOffsetFromFramePtr;
@@ -79,7 +79,7 @@ ArmStackFrame::GetArgv(bool isCurrentContextNative, bool shouldCheckForNativeAdd
 
 void *
 ArmStackFrame::GetReturnAddress(bool isCurrentContextNative, bool shouldCheckForNativeAddr)
-{
+{LOGMEIN("StackFrame.cpp] 81\n");
     UNREFERENCED_PARAMETER(isCurrentContextNative);
     UNREFERENCED_PARAMETER(shouldCheckForNativeAddr);
     return this->frame[ReturnAddrOffsetFromFramePtr];
@@ -87,7 +87,7 @@ ArmStackFrame::GetReturnAddress(bool isCurrentContextNative, bool shouldCheckFor
 
 void *
 ArmStackFrame::GetAddressOfReturnAddress(bool isCurrentContextNative, bool shouldCheckForNativeAddr)
-{
+{LOGMEIN("StackFrame.cpp] 89\n");
     UNREFERENCED_PARAMETER(isCurrentContextNative);
     UNREFERENCED_PARAMETER(shouldCheckForNativeAddr);
     return &this->frame[ReturnAddrOffsetFromFramePtr];
@@ -95,7 +95,7 @@ ArmStackFrame::GetAddressOfReturnAddress(bool isCurrentContextNative, bool shoul
 
 bool
 ArmStackFrame::IsInStackCheckCode(void *entry, void *codeAddr, size_t stackCheckCodeHeight)
-{
+{LOGMEIN("StackFrame.cpp] 97\n");
     return ((size_t(codeAddr) - size_t(entry)) <= stackCheckCodeHeight);
 }
 

@@ -15,7 +15,7 @@ namespace Js
     class DiagStackFrame
     {
     public:
-        virtual ~DiagStackFrame() {}
+        virtual ~DiagStackFrame() {LOGMEIN("DiagStackFrame.h] 17\n");}
         virtual JavascriptFunction* GetJavascriptFunction() = 0;
         virtual int GetByteCodeOffset() = 0;
         virtual DWORD_PTR GetStackAddress() = 0;

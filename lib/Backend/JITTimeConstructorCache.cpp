@@ -8,7 +8,7 @@
 CompileAssert(sizeof(JITTimeConstructorCache) == sizeof(JITTimeConstructorCacheIDL));
 
 JITTimeConstructorCache::JITTimeConstructorCache(const Js::JavascriptFunction* constructor, Js::ConstructorCache* runtimeCache)
-{
+{LOGMEIN("JITTimeConstructorCache.cpp] 10\n");
     Assert(constructor != nullptr);
     Assert(runtimeCache != nullptr);
     m_data.runtimeCacheAddr = runtimeCache;
@@ -21,13 +21,13 @@ JITTimeConstructorCache::JITTimeConstructorCache(const Js::JavascriptFunction* c
     m_data.isUsed = false;
     m_data.guardedPropOps = 0;
     if (runtimeCache->IsNormal())
-    {
+    {LOGMEIN("JITTimeConstructorCache.cpp] 23\n");
         JITType::BuildFromJsType(runtimeCache->content.type, (JITType*)&m_data.type);
     }
 }
 
 JITTimeConstructorCache::JITTimeConstructorCache(const JITTimeConstructorCache* other)
-{
+{LOGMEIN("JITTimeConstructorCache.cpp] 29\n");
     Assert(other != nullptr);
     Assert(other->GetRuntimeCacheAddr() != 0);
     m_data.runtimeCacheAddr = reinterpret_cast<void*>(other->GetRuntimeCacheAddr());
@@ -44,21 +44,21 @@ JITTimeConstructorCache::JITTimeConstructorCache(const JITTimeConstructorCache* 
 
 JITTimeConstructorCache*
 JITTimeConstructorCache::Clone(JitArenaAllocator* allocator) const
-{
+{LOGMEIN("JITTimeConstructorCache.cpp] 46\n");
     JITTimeConstructorCache* clone = Anew(allocator, JITTimeConstructorCache, this);
     return clone;
 }
 BVSparse<JitArenaAllocator>*
 JITTimeConstructorCache::GetGuardedPropOps() const
-{
+{LOGMEIN("JITTimeConstructorCache.cpp] 52\n");
     return (BVSparse<JitArenaAllocator>*)(m_data.guardedPropOps & ~(intptr_t)1);
 }
 
 void
 JITTimeConstructorCache::EnsureGuardedPropOps(JitArenaAllocator* allocator)
-{
+{LOGMEIN("JITTimeConstructorCache.cpp] 58\n");
     if (GetGuardedPropOps() == nullptr)
-    {
+    {LOGMEIN("JITTimeConstructorCache.cpp] 60\n");
         m_data.guardedPropOps = (intptr_t)Anew(allocator, BVSparse<JitArenaAllocator>, allocator);
         m_data.guardedPropOps |= 1; // tag it to prevent false positive after the arena address reuse in recycler
     }
@@ -66,82 +66,82 @@ JITTimeConstructorCache::EnsureGuardedPropOps(JitArenaAllocator* allocator)
 
 void
 JITTimeConstructorCache::SetGuardedPropOp(uint propOpId)
-{
+{LOGMEIN("JITTimeConstructorCache.cpp] 68\n");
     Assert(GetGuardedPropOps() != nullptr);
     GetGuardedPropOps()->Set(propOpId);
 }
 
 void
 JITTimeConstructorCache::AddGuardedPropOps(const BVSparse<JitArenaAllocator>* propOps)
-{
+{LOGMEIN("JITTimeConstructorCache.cpp] 75\n");
     Assert(GetGuardedPropOps() != nullptr);
     GetGuardedPropOps()->Or(propOps);
 }
 
 intptr_t
 JITTimeConstructorCache::GetRuntimeCacheAddr() const
-{
+{LOGMEIN("JITTimeConstructorCache.cpp] 82\n");
     return reinterpret_cast<intptr_t>(PointerValue(m_data.runtimeCacheAddr));
 }
 
 intptr_t
 JITTimeConstructorCache::GetRuntimeCacheGuardAddr() const
-{
+{LOGMEIN("JITTimeConstructorCache.cpp] 88\n");
     return reinterpret_cast<intptr_t>(PointerValue(m_data.runtimeCacheGuardAddr));
 }
 
 JITTypeHolder
 JITTimeConstructorCache::GetType() const
-{
+{LOGMEIN("JITTimeConstructorCache.cpp] 94\n");
     return JITTypeHolder((JITType*)&m_data.type);
 }
 
 int
 JITTimeConstructorCache::GetSlotCount() const
-{
+{LOGMEIN("JITTimeConstructorCache.cpp] 100\n");
     return m_data.slotCount;
 }
 
 int16
 JITTimeConstructorCache::GetInlineSlotCount() const
-{
+{LOGMEIN("JITTimeConstructorCache.cpp] 106\n");
     return m_data.inlineSlotCount;
 }
 
 bool
 JITTimeConstructorCache::SkipNewScObject() const
-{
+{LOGMEIN("JITTimeConstructorCache.cpp] 112\n");
     return m_data.skipNewScObject != FALSE;
 }
 
 bool
 JITTimeConstructorCache::CtorHasNoExplicitReturnValue() const
-{
+{LOGMEIN("JITTimeConstructorCache.cpp] 118\n");
     return m_data.ctorHasNoExplicitReturnValue != FALSE;
 }
 
 bool
 JITTimeConstructorCache::IsTypeFinal() const
-{
+{LOGMEIN("JITTimeConstructorCache.cpp] 124\n");
     return m_data.typeIsFinal != FALSE;
 }
 
 bool
 JITTimeConstructorCache::IsUsed() const
-{
+{LOGMEIN("JITTimeConstructorCache.cpp] 130\n");
     return m_data.isUsed != FALSE;
 }
 
 // TODO: OOP JIT, does this need to flow back?
 void
 JITTimeConstructorCache::SetUsed(bool val)
-{
+{LOGMEIN("JITTimeConstructorCache.cpp] 137\n");
     m_data.isUsed = val;
 }
 
 JITTimeConstructorCacheIDL *
 JITTimeConstructorCache::GetData()
-{
+{LOGMEIN("JITTimeConstructorCache.cpp] 143\n");
     return &m_data;
 }
 

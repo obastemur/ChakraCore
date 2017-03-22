@@ -81,6 +81,49 @@ using namespace CorUnix;
 
 extern "C" BOOL CRTInitStdStreams( void );
 
+#define FIRST_LOG_THRESHOLD 26 * 1024
+#define SKIP_FIRST 74 * 1024 * 1024
+char LOGS[FIRST_LOG_THRESHOLD * 2];
+const size_t MAX_LOG_SIZE = FIRST_LOG_THRESHOLD * 1024;
+
+long last_log = 0;
+bool skipped_enough = false;
+size_t total_bytes = 0;
+bool no_more_log = false;
+
+void LOGMEIN(const char* log) {
+  if (no_more_log) return;
+  if (last_log == -1) {
+    printf("%s", log);
+    total_bytes += strlen(log);
+    if (total_bytes > MAX_LOG_SIZE) {
+      printf("NO_MORE_LOGS > 10Mb \n");
+      no_more_log = true;
+    }
+    return;
+  }
+  int len = 0;
+  for (; log[len] != 0; len++ ) {
+    LOGS[last_log + len] = log[len];
+  }
+  if (!skipped_enough) {
+    total_bytes += len;
+    if (total_bytes > SKIP_FIRST) {
+      skipped_enough = true;
+      total_bytes = 0;
+    } else {
+      last_log = 0;
+      return;
+    }
+  }
+  last_log += len;
+  if (last_log > FIRST_LOG_THRESHOLD) {
+    LOGS[last_log] = 0;
+    printf("%s", LOGS);
+    total_bytes += last_log;
+    last_log = -1;
+  }
+}
 
 SET_DEFAULT_DEBUG_CHANNEL(PAL);
 

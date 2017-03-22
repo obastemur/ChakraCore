@@ -23,10 +23,10 @@ private:
 
 public:
     LEB128Wrapper(T value): value(value)
-    {}
+    {LOGMEIN("EhFrame.h] 25\n");}
 
     BYTE* Write(BYTE* pc) const
-    {
+    {LOGMEIN("EhFrame.h] 28\n");
         return EmitLEB128(pc, value);
     }
 };
@@ -50,12 +50,12 @@ class EhFrame
 
     public:
         Writer(BYTE* buffer, size_t size) : buffer(buffer), cur(buffer), size(size)
-        {}
+        {LOGMEIN("EhFrame.h] 52\n");}
 
         // Write a value, and advance cur position
         template <class T>
         void Write(T value)
-        {
+        {LOGMEIN("EhFrame.h] 57\n");
             *reinterpret_cast<T*>(cur) = value;
             cur += sizeof(value);
             Assert(Count() <= size);
@@ -64,7 +64,7 @@ class EhFrame
         // Write a ULEB128 or LEB128 value, and advance cur position
         template <class T>
         void Write(const LEB128Wrapper<T>& leb128)
-        {
+        {LOGMEIN("EhFrame.h] 66\n");
             cur = leb128.Write(cur);
             Assert(Count() <= size);
         }
@@ -72,20 +72,20 @@ class EhFrame
         // Write a value at an absolute position
         template <class T>
         void Write(size_t offset, T value)
-        {
+        {LOGMEIN("EhFrame.h] 74\n");
             Assert(offset + sizeof(value) <= size);
             *reinterpret_cast<T*>(buffer + offset) = value;
         }
 
         // Get original buffer head
         BYTE* Buffer() const
-        {
+        {LOGMEIN("EhFrame.h] 81\n");
             return buffer;
         }
 
         // Get count of written bytes (== offset of cur position)
         size_t Count() const
-        {
+        {LOGMEIN("EhFrame.h] 87\n");
             return cur - buffer;
         }
     };
@@ -98,16 +98,16 @@ class EhFrame
         size_t  beginOffset;    // where we'll update "length" record
 
         // To limit supported value types
-        void Emit(ubyte value) { writer->Write(value); }
-        void Emit(uhalf value) { writer->Write(value); }
-        void Emit(uword value) { writer->Write(value); }
-        void Emit(const void* absptr) { writer->Write(absptr); }
-        void Emit(LEB128 value) { writer->Write(value); }
-        void Emit(ULEB128 value) { writer->Write(value); }
+        void Emit(ubyte value) {LOGMEIN("EhFrame.h] 100\n"); writer->Write(value); }
+        void Emit(uhalf value) {LOGMEIN("EhFrame.h] 101\n"); writer->Write(value); }
+        void Emit(uword value) {LOGMEIN("EhFrame.h] 102\n"); writer->Write(value); }
+        void Emit(const void* absptr) {LOGMEIN("EhFrame.h] 103\n"); writer->Write(absptr); }
+        void Emit(LEB128 value) {LOGMEIN("EhFrame.h] 104\n"); writer->Write(value); }
+        void Emit(ULEB128 value) {LOGMEIN("EhFrame.h] 105\n"); writer->Write(value); }
 
         template <class T1>
         void Emit(ubyte op, T1 arg1)
-        {
+        {LOGMEIN("EhFrame.h] 109\n");
             Emit(op);
             Emit(arg1);
         }
@@ -121,14 +121,14 @@ class EhFrame
 
     public:
         Entry(Writer* writer) : writer(writer), beginOffset(-1)
-        {}
+        {LOGMEIN("EhFrame.h] 123\n");}
 
         void Begin();
         void End();
 
 #define ENTRY(name, op) \
     void cfi_##name() \
-    { Emit(static_cast<ubyte>(op)); }
+    {LOGMEIN("EhFrame.h] 130\n"); Emit(static_cast<ubyte>(op)); }
 
 #define ENTRY1(name, op, arg1_type) \
     void cfi_##name(arg1_type arg1) \
@@ -140,11 +140,11 @@ class EhFrame
 
 #define ENTRY_SM1(name, op, arg1_type) \
     void cfi_##name(arg1_type arg1) \
-    { Assert((arg1) <= 0x3F); Emit(static_cast<ubyte>((op) | arg1)); }
+    {LOGMEIN("EhFrame.h] 142\n"); Assert((arg1) <= 0x3F); Emit(static_cast<ubyte>((op) | arg1)); }
 
 #define ENTRY_SM2(name, op, arg1_type, arg2_type) \
     void cfi_##name(arg1_type arg1, arg2_type arg2) \
-    { Assert((arg1) <= 0x3F); Emit((op) | arg1, arg2); }
+    {LOGMEIN("EhFrame.h] 146\n"); Assert((arg1) <= 0x3F); Emit((op) | arg1, arg2); }
 
 #include "EhFrameCFI.inc"
 
@@ -156,7 +156,7 @@ class EhFrame
     {
     public:
         CIE(Writer* writer) : Entry(writer)
-        {}
+        {LOGMEIN("EhFrame.h] 158\n");}
 
         void Begin();
     };
@@ -169,7 +169,7 @@ class EhFrame
 
     public:
         FDE(Writer* writer) : Entry(writer)
-        {}
+        {LOGMEIN("EhFrame.h] 171\n");}
 
         void Begin();
         void UpdateAddressRange(const void* pcBegin, size_t pcRange);
@@ -183,24 +183,24 @@ public:
     EhFrame(BYTE* buffer, size_t size);
 
     Writer* GetWriter()
-    {
+    {LOGMEIN("EhFrame.h] 185\n");
         return &writer;
     }
 
     FDE* GetFDE()
-    {
+    {LOGMEIN("EhFrame.h] 190\n");
         return &fde;
     }
 
     void End();
 
     BYTE* Buffer() const
-    {
+    {LOGMEIN("EhFrame.h] 197\n");
         return writer.Buffer();
     }
 
     size_t Count() const
-    {
+    {LOGMEIN("EhFrame.h] 202\n");
         return writer.Count();
     }
 };

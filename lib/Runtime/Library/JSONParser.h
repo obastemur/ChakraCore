@@ -22,14 +22,14 @@ namespace JSON
             typeWithoutProperty(typeWithoutProperty),
             typeWithProperty(typeWithProperty),
             propertyIndex(propertyIndex),
-            next(nullptr) {}
+            next(nullptr) {LOGMEIN("JSONParser.h] 24\n");}
 
         static JsonTypeCache* New(ArenaAllocator* allocator,
             const Js::PropertyRecord* propertyRecord,
             Js::DynamicType* typeWithoutProperty,
             Js::DynamicType* typeWithProperty,
             Js::PropertyIndex propertyIndex)
-        {
+        {LOGMEIN("JSONParser.h] 31\n");
             return Anew(allocator, JsonTypeCache, propertyRecord, typeWithoutProperty, typeWithProperty, propertyIndex);
         }
 
@@ -37,7 +37,7 @@ namespace JSON
             Js::DynamicType* typeWithoutProperty,
             Js::DynamicType* typeWithProperty,
             Js::PropertyIndex propertyIndex)
-        {
+        {LOGMEIN("JSONParser.h] 39\n");
             this->propertyRecord = propertyRecord;
             this->typeWithoutProperty = typeWithoutProperty;
             this->typeWithProperty = typeWithProperty;
@@ -51,7 +51,7 @@ namespace JSON
     public:
         JSONParser(Js::ScriptContext* sc, Js::RecyclableObject* rv) : scriptContext(sc),
             reviver(rv),  arenaAllocatorObject(nullptr), arenaAllocator(nullptr), typeCacheList(nullptr)
-        {
+        {LOGMEIN("JSONParser.h] 53\n");
         };
 
         Js::Var Parse(LPCWSTR str, int length);
@@ -61,21 +61,21 @@ namespace JSON
 
     private:
         tokens Scan()
-        {
+        {LOGMEIN("JSONParser.h] 63\n");
             return m_scanner.Scan();
         }
 
         Js::Var ParseObject();
 
         void CheckCurrentToken(int tk, int wErr)
-        {
+        {LOGMEIN("JSONParser.h] 70\n");
             if (m_token.tk != tk)
                 m_scanner.ThrowSyntaxError(wErr);
             Scan();
         }
 
         bool IsCaching()
-        {
+        {LOGMEIN("JSONParser.h] 77\n");
             return arenaAllocator != nullptr;
         }
 

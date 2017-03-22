@@ -18,7 +18,7 @@ namespace Js
         DEFINE_VTABLE_CTOR(ES5ArrayIndexEnumerator, JavascriptArrayIndexEnumeratorBase);
 
     private:
-        ES5Array* GetArray() const { return ES5Array::FromVar(arrayObject); }
+        ES5Array* GetArray() const {LOGMEIN("ES5ArrayIndexEnumerator.h] 20\n"); return ES5Array::FromVar(arrayObject); }
 
     public:
         ES5ArrayIndexEnumerator(ES5Array* arrayObject, EnumeratorFlags flags, ScriptContext* scriptContext);

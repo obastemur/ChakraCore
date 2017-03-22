@@ -13,7 +13,7 @@
 namespace Js
 {
     void AsmJsByteCodeDumper::Dump(FunctionBody* body, const WAsmJs::TypedRegisterAllocator* typedRegister, AsmJsFunc* asmFunc)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 15\n");
         ByteCodeReader reader;
         reader.Create(body);
         StatementReader<FunctionBody::StatementMapList> statementReader;
@@ -23,32 +23,32 @@ namespace Js
         AsmJsFunctionInfo* funcInfo = body->GetAsmJsFunctionInfo();
         const ArgSlot argCount = funcInfo->GetArgCount();
         for (ArgSlot i = 0; i < argCount; i++)
-        {
+        {LOGMEIN("AsmJsByteCodeDumper.cpp] 25\n");
             AsmJsVarType var = funcInfo->GetArgType(i);
             if (i > 0)
-            {
+            {LOGMEIN("AsmJsByteCodeDumper.cpp] 28\n");
                 Output::Print(_u(", "));
             }
             if (var.isDouble())
-            {
+            {LOGMEIN("AsmJsByteCodeDumper.cpp] 32\n");
                 Output::Print(_u("+In%hu"), i);
             }
             else if (var.isFloat())
-            {
+            {LOGMEIN("AsmJsByteCodeDumper.cpp] 36\n");
                 Output::Print(_u("flt(In%hu)"), i);
             }
             else if (var.isInt())
-            {
+            {LOGMEIN("AsmJsByteCodeDumper.cpp] 40\n");
                 Output::Print(_u("In%hu|0"), i);
             }
             else if (var.isInt64())
-            {
+            {LOGMEIN("AsmJsByteCodeDumper.cpp] 44\n");
                 Output::Print(_u("int64(In%hu)"), i);
             }
             else if (var.isSIMD())
-            {
+            {LOGMEIN("AsmJsByteCodeDumper.cpp] 48\n");
                 switch (var.which())
-                {
+                {LOGMEIN("AsmJsByteCodeDumper.cpp] 50\n");
                 case AsmJsType::Int32x4:
                     Output::Print(_u("I4(In%hu)"), i);
                     break;
@@ -73,12 +73,12 @@ namespace Js
         Output::Print(_u("(size: %d [%d])\n"), body->GetByteCodeCount(), body->GetByteCodeWithoutLDACount());
 
         if (!typedRegister && asmFunc)
-        {
+        {LOGMEIN("AsmJsByteCodeDumper.cpp] 75\n");
             typedRegister = &asmFunc->GetTypedRegisterAllocator();
         }
 
         if (typedRegister)
-        {
+        {LOGMEIN("AsmJsByteCodeDumper.cpp] 80\n");
             typedRegister->DumpLocalsInfo();
         }
 
@@ -88,7 +88,7 @@ namespace Js
         }
 
         if (typedRegister)
-        {
+        {LOGMEIN("AsmJsByteCodeDumper.cpp] 90\n");
             Output::Print(_u("    Implicit Arg Ins:\n    ======== =====\n    "));
             uint32 iArgs[WAsmJs::LIMIT];
             typedRegister->GetArgumentStartIndex(iArgs);
@@ -98,26 +98,26 @@ namespace Js
             uint32 fArg = iArgs[WAsmJs::FLOAT32];
             uint32 simdArg = iArgs[WAsmJs::SIMD];
             for (ArgSlot i = 0; i < argCount; i++)
-            {
+            {LOGMEIN("AsmJsByteCodeDumper.cpp] 100\n");
                 AsmJsVarType var = funcInfo->GetArgType(i);
                 if (var.isDouble())
-                {
+                {LOGMEIN("AsmJsByteCodeDumper.cpp] 103\n");
                     Output::Print(_u(" D%d  In%d"), dArg++, i);
                 }
                 else if (var.isFloat())
-                {
+                {LOGMEIN("AsmJsByteCodeDumper.cpp] 107\n");
                     Output::Print(_u(" F%d  In%d"), fArg++, i);
                 }
                 else if (var.isInt())
-                {
+                {LOGMEIN("AsmJsByteCodeDumper.cpp] 111\n");
                     Output::Print(_u(" I%d  In%d"), iArg++, i);
                 }
                 else if (var.isInt64())
-                {
+                {LOGMEIN("AsmJsByteCodeDumper.cpp] 115\n");
                     Output::Print(_u(" L%d  In%d"), lArg++, i);
                 }
                 else if (var.isSIMD())
-                {
+                {LOGMEIN("AsmJsByteCodeDumper.cpp] 119\n");
                     Output::Print(_u(" SIMD%d  In%d"), simdArg++, i);
                 }
                 else
@@ -130,15 +130,15 @@ namespace Js
         }
 
         if (funcInfo->GetReturnType() == AsmJsRetType::Void)
-        {
+        {LOGMEIN("AsmJsByteCodeDumper.cpp] 132\n");
             Output::Print(_u("    0000   %-20s R0\n"), OpCodeUtilAsmJs::GetOpCodeName(OpCodeAsmJs::LdUndef));
         }
 
         uint32 statementIndex = 0;
         while (true)
-        {
+        {LOGMEIN("AsmJsByteCodeDumper.cpp] 138\n");
             while (statementReader.AtStatementBoundary(&reader))
-            {
+            {LOGMEIN("AsmJsByteCodeDumper.cpp] 140\n");
                 body->PrintStatementSourceLine(statementIndex);
                 statementIndex = statementReader.MoveNextStatementBoundary();
             }
@@ -146,25 +146,25 @@ namespace Js
             LayoutSize layoutSize;
             OpCodeAsmJs op = reader.ReadAsmJsOp(layoutSize);
             if (op == OpCodeAsmJs::EndOfBlock)
-            {
+            {LOGMEIN("AsmJsByteCodeDumper.cpp] 148\n");
                 Assert(reader.GetCurrentOffset() == body->GetByteCode()->GetLength());
                 break;
             }
             Output::Print(_u("    %04x %2s"), byteOffset, layoutSize == LargeLayout ? _u("L-") : layoutSize == MediumLayout ? _u("M-") : _u(""));
             DumpOp(op, layoutSize, reader, body);
             if (Js::Configuration::Global.flags.Verbose)
-            {
+            {LOGMEIN("AsmJsByteCodeDumper.cpp] 155\n");
                 int layoutStart = byteOffset + 2; // Account for the prefix op
                 int endByteOffset = reader.GetCurrentOffset();
                 Output::SkipToColumn(70);
                 if (layoutSize == LargeLayout)
-                {
+                {LOGMEIN("AsmJsByteCodeDumper.cpp] 160\n");
                     Output::Print(_u("%02X "),
                         op > Js::OpCodeAsmJs::MaxByteSizedOpcodes ?
                         Js::OpCodeAsmJs::ExtendedLargeLayoutPrefix : Js::OpCodeAsmJs::LargeLayoutPrefix);
                 }
                 else if (layoutSize == MediumLayout)
-                {
+                {LOGMEIN("AsmJsByteCodeDumper.cpp] 166\n");
                     Output::Print(_u("%02X "),
                         op > Js::OpCodeAsmJs::MaxByteSizedOpcodes ?
                         Js::OpCodeAsmJs::ExtendedMediumLayoutPrefix : Js::OpCodeAsmJs::MediumLayoutPrefix);
@@ -173,7 +173,7 @@ namespace Js
                 {
                     Assert(layoutSize == SmallLayout);
                     if (op > Js::OpCodeAsmJs::MaxByteSizedOpcodes)
-                    {
+                    {LOGMEIN("AsmJsByteCodeDumper.cpp] 175\n");
                         Output::Print(_u("%02X "), Js::OpCodeAsmJs::ExtendedOpcodePrefix);
                     }
                     else
@@ -185,14 +185,14 @@ namespace Js
 
                 Output::Print(_u("%02x"), (byte)op);
                 for (int i = layoutStart; i < endByteOffset; i++)
-                {
+                {LOGMEIN("AsmJsByteCodeDumper.cpp] 187\n");
                     Output::Print(_u(" %02x"), reader.GetRawByte(i));
                 }
             }
             Output::Print(_u("\n"));
         }
         if (statementReader.AtStatementBoundary(&reader))
-        {
+        {LOGMEIN("AsmJsByteCodeDumper.cpp] 194\n");
             body->PrintStatementSourceLine(statementIndex);
             statementIndex = statementReader.MoveNextStatementBoundary();
         }
@@ -202,16 +202,16 @@ namespace Js
 
     template<typename T, typename Func>
     void PrintTypedConstants(byte* table, WAsmJs::Types type, uint nConsts, Func printValFunc)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 204\n");
         T* constTable = (T*)table;
         if (nConsts > 0)
-        {
+        {LOGMEIN("AsmJsByteCodeDumper.cpp] 207\n");
             char16 buf[32];
             WAsmJs::RegisterSpace::GetTypeDebugName(type, buf, 32);
             Output::Print(_u("    Constant %s:\n    ======== =======\n    "), buf);
             WAsmJs::RegisterSpace::GetTypeDebugName(type, buf, 32, true);
             for (uint i = 0; i < nConsts; i++)
-            {
+            {LOGMEIN("AsmJsByteCodeDumper.cpp] 213\n");
                 Output::Print(_u(" %s%d  "), buf, i);
                 printValFunc(*constTable);
                 Output::Print(_u("\n    "));
@@ -221,23 +221,23 @@ namespace Js
     }
 
     void AsmJsByteCodeDumper::DumpConstants(AsmJsFunc* func, FunctionBody* body)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 223\n");
         byte* table = (byte*)((Var*)body->GetConstTable());
         auto constSrcInfos = func->GetTypedRegisterAllocator().GetConstSourceInfos();
         for (int i = 0; i < WAsmJs::LIMIT; ++i)
-        {
+        {LOGMEIN("AsmJsByteCodeDumper.cpp] 227\n");
             WAsmJs::Types type = (WAsmJs::Types)i;
             if (func->GetTypedRegisterAllocator().IsTypeExcluded(type))
-            {
+            {LOGMEIN("AsmJsByteCodeDumper.cpp] 230\n");
                 continue;
             }
             uint constCount = func->GetTypedRegisterAllocator().GetRegisterSpace(type)->GetConstCount();
             if (constCount > 0)
-            {
+            {LOGMEIN("AsmJsByteCodeDumper.cpp] 235\n");
                 uint offset = constSrcInfos.srcByteOffsets[i];
                 byte* tableOffseted = table + offset;
                 switch (type)
-                {
+                {LOGMEIN("AsmJsByteCodeDumper.cpp] 239\n");
                 case WAsmJs::INT32:   PrintTypedConstants<int>(tableOffseted, type, constCount, [](int v) {Output::Print(_u("%d"), v);}); break;
                 case WAsmJs::INT64:   PrintTypedConstants<int64>(tableOffseted, type, constCount, [](int64 v) {Output::Print(_u("%lld"), v);}); break;
                 case WAsmJs::FLOAT32: PrintTypedConstants<float>(tableOffseted, type, constCount, [](float v) {Output::Print(_u("%.4f"), v);}); break;
@@ -261,11 +261,11 @@ namespace Js
     }
 
     void AsmJsByteCodeDumper::DumpOp(OpCodeAsmJs op, LayoutSize layoutSize, ByteCodeReader& reader, FunctionBody* dumpFunction)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 263\n");
         Output::Print(_u("%-20s"), OpCodeUtilAsmJs::GetOpCodeName(op));
         OpLayoutTypeAsmJs nType = OpCodeUtilAsmJs::GetOpCodeLayout(op);
         switch (layoutSize * OpLayoutTypeAsmJs::Count + nType)
-        {
+        {LOGMEIN("AsmJsByteCodeDumper.cpp] 267\n");
 #define LAYOUT_TYPE(layout) \
             case OpLayoutTypeAsmJs::layout: \
                 Assert(layoutSize == SmallLayout); \
@@ -290,106 +290,106 @@ namespace Js
     }
 
     void AsmJsByteCodeDumper::DumpIntReg(RegSlot reg)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 292\n");
         Output::Print(_u(" I%d "), (int)reg);
     }
 
     void AsmJsByteCodeDumper::DumpLongReg(RegSlot reg)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 297\n");
         Output::Print(_u(" L%d "), (int)reg);
     }
 
     void AsmJsByteCodeDumper::DumpDoubleReg(RegSlot reg)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 302\n");
         Output::Print(_u(" D%d "), (int)reg);
     }
 
     void AsmJsByteCodeDumper::DumpFloatReg(RegSlot reg)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 307\n");
         Output::Print(_u(" F%d "), (int)reg);
     }
     void AsmJsByteCodeDumper::DumpR8Float(float value)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 311\n");
         Output::Print(_u(" float:%f "), value);
     }
 
     // Float32x4
     void AsmJsByteCodeDumper::DumpFloat32x4Reg(RegSlot reg)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 317\n");
         Output::Print(_u(" F4_%d "), (int)reg);
     }
 
     // Int32x4
     void AsmJsByteCodeDumper::DumpInt32x4Reg(RegSlot reg)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 323\n");
         Output::Print(_u(" I4_%d "), (int)reg);
     }
 
     void AsmJsByteCodeDumper::DumpUint32x4Reg(RegSlot reg)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 328\n");
         Output::Print(_u(" U4_%d "), (int)reg);
     }
 
     void AsmJsByteCodeDumper::DumpInt16x8Reg(RegSlot reg)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 333\n");
         Output::Print(_u(" I8_%d "), (int)reg);
     }
 
     // Int8x16
     void AsmJsByteCodeDumper::DumpInt8x16Reg(RegSlot reg)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 339\n");
         Output::Print(_u(" I16_%d "), (int)reg);
     }
 
     void AsmJsByteCodeDumper::DumpUint16x8Reg(RegSlot reg)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 344\n");
         Output::Print(_u(" U8_%d "), (int)reg);
     }
 
     void AsmJsByteCodeDumper::DumpUint8x16Reg(RegSlot reg)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 349\n");
         Output::Print(_u(" U16_%d "), (int)reg);
     }
     // Bool32x4
     void AsmJsByteCodeDumper::DumpBool32x4Reg(RegSlot reg)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 354\n");
         Output::Print(_u(" B4_%d "), (int)reg);
     }
 
     // Bool16x8
     void AsmJsByteCodeDumper::DumpBool16x8Reg(RegSlot reg)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 360\n");
         Output::Print(_u(" B8_%d "), (int)reg);
     }
 
     // Bool32x4
     void AsmJsByteCodeDumper::DumpBool8x16Reg(RegSlot reg)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 366\n");
         Output::Print(_u(" B16_%d "), (int)reg);
     }
 
     // Float64x2
     void AsmJsByteCodeDumper::DumpFloat64x2Reg(RegSlot reg)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 372\n");
         Output::Print(_u(" D2_%d "), (int)reg);
     }
 
     template <class T>
     void AsmJsByteCodeDumper::DumpElementSlot(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 378\n");
         switch (op)
-        {
+        {LOGMEIN("AsmJsByteCodeDumper.cpp] 380\n");
         case OpCodeAsmJs::LdSlot:
         case OpCodeAsmJs::LdSlotArr:
-        {
+        {LOGMEIN("AsmJsByteCodeDumper.cpp] 383\n");
 #ifdef ENABLE_WASM
             auto asmInfo = dumpFunction->GetAsmJsFunctionInfo();
             auto wasmInfo = asmInfo->GetWasmReaderInfo();
             if (wasmInfo)
-            {
+            {LOGMEIN("AsmJsByteCodeDumper.cpp] 388\n");
                 uint index = (uint)data->SlotIndex;
                 if (index - wasmInfo->m_module->GetFuncOffset() < wasmInfo->m_module->GetWasmFunctionCount())
-                {
+                {LOGMEIN("AsmJsByteCodeDumper.cpp] 391\n");
                     uint funcIndex = data->SlotIndex - wasmInfo->m_module->GetFuncOffset();
                     auto loadedFunc = wasmInfo->m_module->GetWasmFunctionInfo(funcIndex);
                     Output::Print(_u(" R%d = %s"), data->Value, loadedFunc->GetBody()->GetDisplayName());
@@ -511,11 +511,11 @@ namespace Js
 
     template <class T>
     void AsmJsByteCodeDumper::DumpAsmTypedArr(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 513\n");
         const char16* heapTag = nullptr;
         char16 valueTag = 'I';
         switch (data->ViewType)
-        {
+        {LOGMEIN("AsmJsByteCodeDumper.cpp] 517\n");
         case ArrayBufferView::TYPE_INT8:
             heapTag = _u("HEAP8"); valueTag = 'I';  break;
         case ArrayBufferView::TYPE_UINT8:
@@ -553,7 +553,7 @@ namespace Js
         }
 
         switch (op)
-        {
+        {LOGMEIN("AsmJsByteCodeDumper.cpp] 555\n");
         case OpCodeAsmJs::LdArr:
             Output::Print(_u(" %c%d = %s[I%d]"), valueTag, data->Value, heapTag, data->SlotIndex); break;
         case OpCodeAsmJs::LdArrWasm:
@@ -574,16 +574,16 @@ namespace Js
     }
 
     void AsmJsByteCodeDumper::DumpStartCall(OpCodeAsmJs op, const unaligned OpLayoutStartCall* data, FunctionBody * dumpFunction, ByteCodeReader& reader)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 576\n");
         Assert(op == OpCodeAsmJs::StartCall || op == OpCodeAsmJs::I_StartCall);
         Output::Print(_u(" ArgSize: %d"), data->ArgCount);
     }
 
     template <class T>
     void AsmJsByteCodeDumper::DumpAsmCall(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 583\n");
         if (data->Return != Constants::NoRegister)
-        {
+        {LOGMEIN("AsmJsByteCodeDumper.cpp] 585\n");
             DumpReg((RegSlot)data->Return);
             Output::Print(_u("="));
         }
@@ -592,40 +592,40 @@ namespace Js
 
     template <class T>
     void AsmJsByteCodeDumper::DumpAsmUnsigned1(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 594\n");
         DumpU4(data->C1);
     }
     void AsmJsByteCodeDumper::DumpEmpty(OpCodeAsmJs op, const unaligned OpLayoutEmpty* data, FunctionBody * dumpFunction, ByteCodeReader& reader)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 598\n");
         // empty
     }
 
     void AsmJsByteCodeDumper::DumpAsmBr(OpCodeAsmJs op, const unaligned OpLayoutAsmBr* data, FunctionBody * dumpFunction, ByteCodeReader& reader)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 603\n");
         DumpOffset(data->RelativeJumpOffset, reader);
     }
 
     template <class T>
     void AsmJsByteCodeDumper::DumpAsmReg1(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 609\n");
         DumpReg(data->R0);
     }
     template <class T>
     void AsmJsByteCodeDumper::DumpAsmReg2(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 614\n");
         DumpReg(data->R0);
         DumpReg(data->R1);
     }
     template <class T>
     void AsmJsByteCodeDumper::DumpAsmReg3(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 620\n");
         DumpReg(data->R0);
         DumpReg(data->R1);
         DumpReg(data->R2);
     }
     template <class T>
     void AsmJsByteCodeDumper::DumpAsmReg4(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 627\n");
         DumpReg(data->R0);
         DumpReg(data->R1);
         DumpReg(data->R2);
@@ -633,7 +633,7 @@ namespace Js
     }
     template <class T>
     void AsmJsByteCodeDumper::DumpAsmReg5(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 635\n");
         DumpReg(data->R0);
         DumpReg(data->R1);
         DumpReg(data->R2);
@@ -642,7 +642,7 @@ namespace Js
     }
     template <class T>
     void AsmJsByteCodeDumper::DumpAsmReg6(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 644\n");
         DumpReg(data->R0);
         DumpReg(data->R1);
         DumpReg(data->R2);
@@ -652,7 +652,7 @@ namespace Js
     }
     template <class T>
     void AsmJsByteCodeDumper::DumpAsmReg7(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 654\n");
         DumpReg(data->R0);
         DumpReg(data->R1);
         DumpReg(data->R2);
@@ -663,7 +663,7 @@ namespace Js
     }
     template <class T>
     void AsmJsByteCodeDumper::DumpAsmReg9(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 665\n");
         DumpReg(data->R0);
         DumpReg(data->R1);
         DumpReg(data->R2);
@@ -676,7 +676,7 @@ namespace Js
     }
     template <class T>
     void AsmJsByteCodeDumper::DumpAsmReg10(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 678\n");
         DumpReg(data->R0);
         DumpReg(data->R1);
         DumpReg(data->R2);
@@ -690,7 +690,7 @@ namespace Js
     }
     template <class T>
     void AsmJsByteCodeDumper::DumpAsmReg11(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 692\n");
         DumpReg(data->R0);
         DumpReg(data->R1);
         DumpReg(data->R2);
@@ -705,7 +705,7 @@ namespace Js
     }
     template <class T>
     void AsmJsByteCodeDumper::DumpAsmReg17(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 707\n");
         DumpReg(data->R0);
         DumpReg(data->R1);
         DumpReg(data->R2);
@@ -726,7 +726,7 @@ namespace Js
     }
     template <class T>
     void AsmJsByteCodeDumper::DumpAsmReg18(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 728\n");
         DumpReg(data->R0);
         DumpReg(data->R1);
         DumpReg(data->R2);
@@ -748,7 +748,7 @@ namespace Js
     }
     template <class T>
     void AsmJsByteCodeDumper::DumpAsmReg19(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 750\n");
         DumpReg(data->R0);
         DumpReg(data->R1);
         DumpReg(data->R2);
@@ -771,20 +771,20 @@ namespace Js
     }
 #define LAYOUT_TYPE_WMS_REG2(layout, t0, t1) \
     template <class T> void AsmJsByteCodeDumper::Dump##layout(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)\
-    {\
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 773\n");\
         Dump##t0##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t0(), 0));\
         Dump##t1##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t1(), 1));\
     }
 #define LAYOUT_TYPE_WMS_REG3(layout, t0, t1, t2) \
     template <class T> void AsmJsByteCodeDumper::Dump##layout(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)\
-    {\
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 779\n");\
         Dump##t0##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t0(), 0));\
         Dump##t1##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t1(), 1));\
         Dump##t2##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t2(), 2));\
     }
 #define LAYOUT_TYPE_WMS_REG4(layout, t0, t1, t2, t3)\
     template <class T> void AsmJsByteCodeDumper::Dump##layout(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)\
-    {\
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 786\n");\
         Dump##t0##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t0(), 0));\
         Dump##t1##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t1(), 1));\
         Dump##t2##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t2(), 2));\
@@ -792,7 +792,7 @@ namespace Js
     };
 #define LAYOUT_TYPE_WMS_REG5(layout, t0, t1, t2, t3, t4)\
     template <class T> void AsmJsByteCodeDumper::Dump##layout(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)\
-    {\
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 794\n");\
         Dump##t0##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t0(), 0));\
         Dump##t1##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t1(), 1));\
         Dump##t2##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t2(), 2));\
@@ -801,7 +801,7 @@ namespace Js
     };
 #define LAYOUT_TYPE_WMS_REG6(layout, t0, t1, t2, t3, t4, t5)\
     template <class T> void AsmJsByteCodeDumper::Dump##layout(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)\
-    {\
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 803\n");\
         Dump##t0##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t0(), 0));\
         Dump##t1##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t1(), 1));\
         Dump##t2##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t2(), 2));\
@@ -811,7 +811,7 @@ namespace Js
     };
 #define LAYOUT_TYPE_WMS_REG7(layout, t0, t1, t2, t3, t4, t5, t6)\
     template <class T> void AsmJsByteCodeDumper::Dump##layout(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)\
-    {\
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 813\n");\
         Dump##t0##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t0(), 0));\
         Dump##t1##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t1(), 1));\
         Dump##t2##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t2(), 2));\
@@ -822,7 +822,7 @@ namespace Js
     };
 #define LAYOUT_TYPE_WMS_REG9(layout, t0, t1, t2, t3, t4, t5, t6, t7, t8)\
     template <class T> void AsmJsByteCodeDumper::Dump##layout(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)\
-    {\
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 824\n");\
         Dump##t0##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t0(), 0));\
         Dump##t1##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t1(), 1));\
         Dump##t2##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t2(), 2));\
@@ -835,7 +835,7 @@ namespace Js
     };
 #define LAYOUT_TYPE_WMS_REG10(layout, t0, t1, t2, t3, t4, t5, t6, t7, t8, t9)\
     template <class T> void AsmJsByteCodeDumper::Dump##layout(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)\
-    {\
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 837\n");\
         Dump##t0##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t0(), 0));\
         Dump##t1##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t1(), 1));\
         Dump##t2##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t2(), 2));\
@@ -849,7 +849,7 @@ namespace Js
     };
 #define LAYOUT_TYPE_WMS_REG11(layout, t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10)\
     template <class T> void AsmJsByteCodeDumper::Dump##layout(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)\
-    {\
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 851\n");\
         Dump##t0##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t0(), 0));\
         Dump##t1##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t1(), 1));\
         Dump##t2##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t2(), 2));\
@@ -864,7 +864,7 @@ namespace Js
     };
 #define LAYOUT_TYPE_WMS_REG17(layout, t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16)\
     template <class T> void AsmJsByteCodeDumper::Dump##layout(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)\
-    {\
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 866\n");\
         Dump##t0##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t0(), 0));\
         Dump##t1##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t1(), 1));\
         Dump##t2##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t2(), 2));\
@@ -885,7 +885,7 @@ namespace Js
     };
 #define LAYOUT_TYPE_WMS_REG18(layout, t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17)\
     template <class T> void AsmJsByteCodeDumper::Dump##layout(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)\
-    {\
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 887\n");\
         Dump##t0##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t0(), 0));\
         Dump##t1##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t1(), 1));\
         Dump##t2##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t2(), 2));\
@@ -907,7 +907,7 @@ namespace Js
     };
 #define LAYOUT_TYPE_WMS_REG19(layout, t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18)\
     template <class T> void AsmJsByteCodeDumper::Dump##layout(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)\
-    {\
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 909\n");\
         Dump##t0##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t0(), 0));\
         Dump##t1##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t1(), 1));\
         Dump##t2##Reg(data->LAYOUT_FIELDS_DEF(LAYOUT_PREFIX_##t2(), 2));\
@@ -934,14 +934,14 @@ namespace Js
 
     template <class T>
     void AsmJsByteCodeDumper::DumpBrInt1(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 936\n");
         DumpOffset(data->RelativeJumpOffset, reader);
         DumpIntReg(data->I1);
     }
 
     template <class T>
     void AsmJsByteCodeDumper::DumpBrInt2(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 943\n");
         DumpOffset(data->RelativeJumpOffset, reader);
         DumpIntReg(data->I1);
         DumpIntReg(data->I2);
@@ -949,7 +949,7 @@ namespace Js
 
     template <class T>
     void AsmJsByteCodeDumper::DumpBrInt1Const1(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 951\n");
         DumpOffset(data->RelativeJumpOffset, reader);
         DumpIntReg(data->I1);
         DumpI4(data->C1);
@@ -957,11 +957,11 @@ namespace Js
 
     template <class T>
     void AsmJsByteCodeDumper::DumpAsmSimdTypedArr(OpCodeAsmJs op, const unaligned T * data, FunctionBody * dumpFunction, ByteCodeReader& reader)
-    {
+    {LOGMEIN("AsmJsByteCodeDumper.cpp] 959\n");
         const char16* heapTag = nullptr;
 
         switch (data->ViewType)
-        {
+        {LOGMEIN("AsmJsByteCodeDumper.cpp] 963\n");
         case ArrayBufferView::TYPE_INT8:
         case ArrayBufferView::TYPE_INT8_TO_INT64:
             heapTag = _u("HEAP8"); break;
@@ -1012,7 +1012,7 @@ namespace Js
             Output::Print(_u("%s[%d] = "), heapTag, data->SlotIndex); SIMD_DUMP_REG(type); break;\
 
         switch (op)
-        {
+        {LOGMEIN("AsmJsByteCodeDumper.cpp] 1014\n");
             SIMD_DUMP_ARR_VALUE(I4)
             SIMD_DUMP_ARR_VALUE(I8)
             SIMD_DUMP_ARR_VALUE(I16)

@@ -23,13 +23,13 @@ namespace Js
     }
 
     void WasmLibrary::SetWasmEntryPointToInterpreter(Js::ScriptFunction* func, bool deferParse)
-    {
+    {LOGMEIN("WasmLibrary.cpp] 25\n");
         Assert(AsmJsScriptFunction::Is(func));
         FunctionEntryPointInfo* entrypointInfo = (FunctionEntryPointInfo*)func->GetEntryPointInfo();
         entrypointInfo->SetIsAsmJSFunction(true);
 
         if (deferParse)
-        {
+        {LOGMEIN("WasmLibrary.cpp] 31\n");
             func->SetEntryPoint(WasmLibrary::WasmDeferredParseExternalThunk);
             entrypointInfo->jsMethod = WasmLibrary::WasmDeferredParseInternalThunk;
         }
@@ -98,7 +98,7 @@ namespace Js
 #endif // ENABLE_WASM
 
 Js::JavascriptMethod Js::WasmLibrary::WasmDeferredParseEntryPoint(Js::AsmJsScriptFunction** funcPtr, int internalCall)
-{
+{LOGMEIN("WasmLibrary.cpp] 100\n");
 #ifdef ENABLE_WASM
     AsmJsScriptFunction* func = *funcPtr;
 
@@ -109,24 +109,24 @@ Js::JavascriptMethod Js::WasmLibrary::WasmDeferredParseEntryPoint(Js::AsmJsScrip
     Js::FunctionEntryPointInfo * entrypointInfo = (Js::FunctionEntryPointInfo*)func->GetEntryPointInfo();
     Wasm::WasmReaderInfo* readerInfo = info->GetWasmReaderInfo();
     if (readerInfo)
-    {
+    {LOGMEIN("WasmLibrary.cpp] 111\n");
         info->SetWasmReaderInfo(nullptr);
         try
-        {
+        {LOGMEIN("WasmLibrary.cpp] 114\n");
             Wasm::WasmBytecodeGenerator::GenerateFunctionBytecode(scriptContext, readerInfo);
             func->GetDynamicType()->SetEntryPoint(Js::AsmJsExternalEntryPoint);
             entrypointInfo->jsMethod = AsmJsDefaultEntryThunk;
             // Do MTJRC/MAIC:0 check
 #if ENABLE_DEBUG_CONFIG_OPTIONS
             if (CONFIG_FLAG(ForceNative) || CONFIG_FLAG(MaxAsmJsInterpreterRunCount) == 0)
-            {
+            {LOGMEIN("WasmLibrary.cpp] 121\n");
                 GenerateFunction(scriptContext->GetNativeCodeGenerator(), body, func);
                 body->SetIsAsmJsFullJitScheduled(true);
             }
 #endif
         }
         catch (Wasm::WasmCompilationException& ex)
-        {
+        {LOGMEIN("WasmLibrary.cpp] 128\n");
             char16* originalMessage = ex.ReleaseErrorMessage();
             intptr_t offset = readerInfo->m_module->GetReader()->GetCurrentOffset();
             intptr_t start = readerInfo->m_funcInfo->m_readerInfo.startOffset;
@@ -158,12 +158,12 @@ Js::JavascriptMethod Js::WasmLibrary::WasmDeferredParseEntryPoint(Js::AsmJsScrip
         Js::JavascriptMethod externalEntryPoint = info->GetLazyError() ? WasmLazyTrapCallback : Js::AsmJsExternalEntryPoint;
         func->GetDynamicType()->SetEntryPoint(externalEntryPoint);
         if (body->GetIsAsmJsFullJitScheduled())
-        {
+        {LOGMEIN("WasmLibrary.cpp] 160\n");
             Js::FunctionEntryPointInfo* defaultEntryPoint = (Js::FunctionEntryPointInfo*)body->GetDefaultEntryPointInfo();
             func->ChangeEntryPoint(defaultEntryPoint, defaultEntryPoint->jsMethod);
         }
         else if (entrypointInfo->jsMethod == WasmLibrary::WasmDeferredParseInternalThunk)
-        {
+        {LOGMEIN("WasmLibrary.cpp] 165\n");
             // The entrypointInfo is still shared even if the type has been changed
             // However, no sibling functions changed this entry point yet, so fix it
             entrypointInfo->jsMethod = info->GetLazyError() ? WasmLazyTrapCallback : AsmJsDefaultEntryThunk;

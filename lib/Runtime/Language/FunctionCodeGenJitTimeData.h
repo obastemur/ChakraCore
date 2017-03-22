@@ -78,11 +78,11 @@ namespace Js
         FunctionBody *GetFunctionBody() const;
         Var GetGlobalThisObject() const;
         FunctionBodyDataIDL *GetJITBody() const;
-        FunctionCodeGenJitTimeData *GetNext() const { return next; }
+        FunctionCodeGenJitTimeData *GetNext() const {LOGMEIN("FunctionCodeGenJitTimeData.h] 80\n"); return next; }
 
-        const ObjTypeSpecFldInfoArray* GetObjTypeSpecFldInfoArray() const { return &this->objTypeSpecFldInfoArray; }
-        ObjTypeSpecFldInfoArray* GetObjTypeSpecFldInfoArray() { return &this->objTypeSpecFldInfoArray; }
-        EntryPointInfo* GetEntryPointInfo() const { return this->entryPointInfo; }
+        const ObjTypeSpecFldInfoArray* GetObjTypeSpecFldInfoArray() const {LOGMEIN("FunctionCodeGenJitTimeData.h] 82\n"); return &this->objTypeSpecFldInfoArray; }
+        ObjTypeSpecFldInfoArray* GetObjTypeSpecFldInfoArray() {LOGMEIN("FunctionCodeGenJitTimeData.h] 83\n"); return &this->objTypeSpecFldInfoArray; }
+        EntryPointInfo* GetEntryPointInfo() const {LOGMEIN("FunctionCodeGenJitTimeData.h] 84\n"); return this->entryPointInfo; }
 
     public:
         const FunctionCodeGenJitTimeData *GetInlinee(const ProfileId profiledCallSiteId) const;
@@ -94,17 +94,17 @@ namespace Js
             bool isInlined = true);
         uint InlineeCount() const;
         uint LdFldInlineeCount() const;
-        bool IsLdFldInlineePresent() const { return ldFldInlineeCount != 0; }
+        bool IsLdFldInlineePresent() const {LOGMEIN("FunctionCodeGenJitTimeData.h] 96\n"); return ldFldInlineeCount != 0; }
 
-        RecyclerWeakReference<FunctionBody> *GetWeakFuncRef() const { return this->weakFuncRef; }
+        RecyclerWeakReference<FunctionBody> *GetWeakFuncRef() const {LOGMEIN("FunctionCodeGenJitTimeData.h] 98\n"); return this->weakFuncRef; }
         void SetWeakFuncRef(RecyclerWeakReference<FunctionBody> *weakFuncRef)
-        {
+        {LOGMEIN("FunctionCodeGenJitTimeData.h] 100\n");
             Assert(this->weakFuncRef == nullptr || weakFuncRef == nullptr || this->weakFuncRef == weakFuncRef);
             this->weakFuncRef = weakFuncRef;
         }
 
         void SetPolymorphicInlineInfo(PolymorphicInlineCacheInfoIDL* inlineeInfo, PolymorphicInlineCacheInfoIDL* selfInfo, PolymorphicInlineCacheIDL* polymorphicInlineCaches)
-        {
+        {LOGMEIN("FunctionCodeGenJitTimeData.h] 106\n");
             this->inlineeInfo = inlineeInfo;
             this->selfInfo = selfInfo;
             this->polymorphicInlineCaches = polymorphicInlineCaches;
@@ -120,47 +120,47 @@ namespace Js
         // This can return null, if the functionInfo doesn't match.
         const FunctionCodeGenJitTimeData *GetJitTimeDataFromFunctionInfo(FunctionInfo *polyFunctioInfoy) const;
 
-        uint GetGlobalObjTypeSpecFldInfoCount() const { return this->globalObjTypeSpecFldInfoCount; }
-        Field(ObjTypeSpecFldInfo*)* GetGlobalObjTypeSpecFldInfoArray() const {return this->globalObjTypeSpecFldInfoArray; }
+        uint GetGlobalObjTypeSpecFldInfoCount() const {LOGMEIN("FunctionCodeGenJitTimeData.h] 122\n"); return this->globalObjTypeSpecFldInfoCount; }
+        Field(ObjTypeSpecFldInfo*)* GetGlobalObjTypeSpecFldInfoArray() const {LOGMEIN("FunctionCodeGenJitTimeData.h] 123\n");return this->globalObjTypeSpecFldInfoArray; }
 
         ObjTypeSpecFldInfo* GetGlobalObjTypeSpecFldInfo(uint propertyInfoId) const
-        {
+        {LOGMEIN("FunctionCodeGenJitTimeData.h] 126\n");
             Assert(this->globalObjTypeSpecFldInfoArray != nullptr && propertyInfoId < this->globalObjTypeSpecFldInfoCount);
             return this->globalObjTypeSpecFldInfoArray[propertyInfoId];
         }
 
         void SetGlobalObjTypeSpecFldInfo(uint propertyInfoId, ObjTypeSpecFldInfo* info) const
-        {
+        {LOGMEIN("FunctionCodeGenJitTimeData.h] 132\n");
             Assert(this->globalObjTypeSpecFldInfoArray != nullptr && propertyInfoId < this->globalObjTypeSpecFldInfoCount);
             this->globalObjTypeSpecFldInfoArray[propertyInfoId] = info;
         }
 
         void SetGlobalObjTypeSpecFldInfoArray(Field(ObjTypeSpecFldInfo*)* array, uint count)
-        {
+        {LOGMEIN("FunctionCodeGenJitTimeData.h] 138\n");
             Assert(array != nullptr);
             this->globalObjTypeSpecFldInfoArray = array;
             this->globalObjTypeSpecFldInfoCount = count;
         }
 
         bool GetIsInlined() const
-        {
+        {LOGMEIN("FunctionCodeGenJitTimeData.h] 145\n");
             return isInlined;
         }
         bool GetIsAggressiveInliningEnabled() const
-        {
+        {LOGMEIN("FunctionCodeGenJitTimeData.h] 149\n");
             return isAggressiveInliningEnabled;
         }
         void SetIsAggressiveInliningEnabled()
-        {
+        {LOGMEIN("FunctionCodeGenJitTimeData.h] 153\n");
             isAggressiveInliningEnabled = true;
         }
 
         void SetupRecursiveInlineeChain(
             Recycler *const recycler,
             const ProfileId profiledCallSiteId)
-        {
+        {LOGMEIN("FunctionCodeGenJitTimeData.h] 160\n");
             if (!inlinees)
-            {
+            {LOGMEIN("FunctionCodeGenJitTimeData.h] 162\n");
                 inlinees = RecyclerNewArrayZ(recycler, Field(FunctionCodeGenJitTimeData *), GetFunctionBody()->GetProfiledCallSiteCount());
             }
             inlinees[profiledCallSiteId] = this;

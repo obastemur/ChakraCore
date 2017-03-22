@@ -10,7 +10,7 @@
 namespace Js
 {
     SIMDValue SIMDFloat64x2Operation::OpFloat64x2(double x, double y)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 12\n");
         X86SIMDValue x86Result;
 
         // Sets the lower double-precision, floating-point value to x
@@ -21,7 +21,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat64x2Operation::OpSplat(double x)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 23\n");
         X86SIMDValue x86Result;
         // Sets the 2 double-precision, floating-point values to x
         x86Result.m128d_value = _mm_set1_pd(x);
@@ -31,7 +31,7 @@ namespace Js
 
     // Conversions
     SIMDValue SIMDFloat64x2Operation::OpFromFloat32x4(const SIMDValue& value)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 33\n");
         X86SIMDValue x86Result;
         X86SIMDValue v = X86SIMDValue::ToX86SIMDValue(value);
 
@@ -43,7 +43,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat64x2Operation::OpFromInt32x4(const SIMDValue& value)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 45\n");
         X86SIMDValue x86Result;
         X86SIMDValue v = X86SIMDValue::ToX86SIMDValue(value);
 
@@ -56,7 +56,7 @@ namespace Js
 
     // Unary Ops
     SIMDValue SIMDFloat64x2Operation::OpAbs(const SIMDValue& value)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 58\n");
         X86SIMDValue x86Result, SIGNMASK;
         X86SIMDValue v = X86SIMDValue::ToX86SIMDValue(value);
 
@@ -67,7 +67,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat64x2Operation::OpNeg(const SIMDValue& value)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 69\n");
         X86SIMDValue x86Result;
 
         X86SIMDValue SIGNMASK;
@@ -80,7 +80,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat64x2Operation::OpNot(const SIMDValue& value)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 82\n");
         X86SIMDValue x86Result;
 
         X86SIMDValue negativeOnes = { { -1, -1, -1, -1 } };
@@ -92,7 +92,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat64x2Operation::OpReciprocal(const SIMDValue& value)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 94\n");
         X86SIMDValue x86Result;
 
         X86SIMDValue doubleOnes;
@@ -105,7 +105,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat64x2Operation::OpReciprocalSqrt(const SIMDValue& value)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 107\n");
         X86SIMDValue x86Result;
 
         X86SIMDValue doubleOnes, temp;
@@ -119,7 +119,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat64x2Operation::OpSqrt(const SIMDValue& value)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 121\n");
         X86SIMDValue x86Result;
 
         X86SIMDValue v = X86SIMDValue::ToX86SIMDValue(value);
@@ -131,7 +131,7 @@ namespace Js
 
     // Binary Ops
     SIMDValue SIMDFloat64x2Operation::OpAdd(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 133\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -142,7 +142,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat64x2Operation::OpSub(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 144\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -153,7 +153,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat64x2Operation::OpMul(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 155\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -164,7 +164,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat64x2Operation::OpDiv(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 166\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -175,7 +175,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat64x2Operation::OpAnd(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 177\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -186,7 +186,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat64x2Operation::OpOr(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 188\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -197,7 +197,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat64x2Operation::OpXor(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 199\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -208,7 +208,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat64x2Operation::OpMin(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 210\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -220,7 +220,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat64x2Operation::OpMax(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 222\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -232,7 +232,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat64x2Operation::OpScale(const SIMDValue& Value, double scaleValue)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 234\n");
         X86SIMDValue x86Result;
         X86SIMDValue v = X86SIMDValue::ToX86SIMDValue(Value);
 
@@ -244,7 +244,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat64x2Operation::OpLessThan(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 246\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -254,7 +254,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat64x2Operation::OpLessThanOrEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 256\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -264,7 +264,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat64x2Operation::OpEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 266\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -274,7 +274,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat64x2Operation::OpNotEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 276\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -284,7 +284,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat64x2Operation::OpGreaterThan(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 286\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -294,7 +294,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat64x2Operation::OpGreaterThanOrEqual(const SIMDValue& aValue, const SIMDValue& bValue)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 296\n");
         X86SIMDValue x86Result;
         X86SIMDValue tmpaValue = X86SIMDValue::ToX86SIMDValue(aValue);
         X86SIMDValue tmpbValue = X86SIMDValue::ToX86SIMDValue(bValue);
@@ -304,7 +304,7 @@ namespace Js
     }
 
     SIMDValue SIMDFloat64x2Operation::OpSelect(const SIMDValue& mV, const SIMDValue& tV, const SIMDValue& fV)
-    {
+    {LOGMEIN("SimdFloat64x2OperationX86X64.cpp] 306\n");
         X86SIMDValue x86Result;
         X86SIMDValue maskValue  = X86SIMDValue::ToX86SIMDValue(mV);
         X86SIMDValue trueValue  = X86SIMDValue::ToX86SIMDValue(tV);

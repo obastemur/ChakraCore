@@ -9,36 +9,36 @@ JITOutput::JITOutput(JITOutputIDL * outputData) :
     m_outputData(outputData),
     m_inProcAlloc(nullptr),
     m_func(nullptr)
-{
+{LOGMEIN("JITOutput.cpp] 11\n");
 }
 
 void
 JITOutput::SetHasJITStackClosure()
-{
+{LOGMEIN("JITOutput.cpp] 16\n");
     m_outputData->hasJittedStackClosure = true;
 }
 
 void
 JITOutput::SetVarSlotsOffset(int32 offset)
-{
+{LOGMEIN("JITOutput.cpp] 22\n");
     m_outputData->localVarSlotsOffset = offset;
 }
 
 void
 JITOutput::SetVarChangedOffset(int32 offset)
-{
+{LOGMEIN("JITOutput.cpp] 28\n");
     m_outputData->localVarChangedOffset = offset;
 }
 
 void
 JITOutput::SetHasBailoutInstr(bool val)
-{
+{LOGMEIN("JITOutput.cpp] 34\n");
     m_outputData->hasBailoutInstr = val;
 }
 
 void
 JITOutput::SetArgUsedForBranch(uint8 param)
-{
+{LOGMEIN("JITOutput.cpp] 40\n");
     Assert(param > 0);
     Assert(param < Js::Constants::MaximumArgumentCountForConstantArgumentInlining);
     m_outputData->argUsedForBranch |= (1 << (param - 1));
@@ -46,56 +46,56 @@ JITOutput::SetArgUsedForBranch(uint8 param)
 
 void
 JITOutput::SetFrameHeight(uint val)
-{
+{LOGMEIN("JITOutput.cpp] 48\n");
     m_outputData->frameHeight = val;
 }
 
 void
 JITOutput::RecordThrowMap(Js::ThrowMapEntry * throwMap, uint mapCount)
-{
+{LOGMEIN("JITOutput.cpp] 54\n");
     m_outputData->throwMapOffset = NativeCodeData::GetDataTotalOffset(throwMap);
     m_outputData->throwMapCount = mapCount;
 }
 
 uint16
 JITOutput::GetArgUsedForBranch() const
-{
+{LOGMEIN("JITOutput.cpp] 61\n");
     return m_outputData->argUsedForBranch;
 }
 
 intptr_t
 JITOutput::GetCodeAddress() const
-{
+{LOGMEIN("JITOutput.cpp] 67\n");
     return (intptr_t)m_outputData->codeAddress;
 }
 
 void
 JITOutput::SetCodeAddress(intptr_t addr)
-{
+{LOGMEIN("JITOutput.cpp] 73\n");
     m_outputData->codeAddress = addr;
 }
 
 size_t
 JITOutput::GetCodeSize() const
-{
+{LOGMEIN("JITOutput.cpp] 79\n");
     return (size_t)m_outputData->codeSize;
 }
 
 ushort
 JITOutput::GetPdataCount() const
-{
+{LOGMEIN("JITOutput.cpp] 85\n");
     return m_outputData->pdataCount;
 }
 
 ushort
 JITOutput::GetXdataSize() const
-{
+{LOGMEIN("JITOutput.cpp] 91\n");
     return m_outputData->xdataSize;
 }
 
 EmitBufferAllocation<VirtualAllocWrapper, PreReservedVirtualAllocWrapper> *
 JITOutput::RecordInProcNativeCodeSize(Func *func, uint32 bytes, ushort pdataCount, ushort xdataSize)
-{
+{LOGMEIN("JITOutput.cpp] 97\n");
     m_func = func;
 
 #if defined(_M_ARM32_OR_ARM64)
@@ -108,7 +108,7 @@ JITOutput::RecordInProcNativeCodeSize(Func *func, uint32 bytes, ushort pdataCoun
     m_inProcAlloc = m_func->GetInProcCodeGenAllocators()->emitBufferManager.AllocateBuffer(bytes, &buffer, pdataCount, xdataSize, canAllocInPreReservedHeapPageSegment, true);
 
     if (buffer == nullptr)
-    {
+    {LOGMEIN("JITOutput.cpp] 110\n");
         Js::Throw::OutOfMemory();
     }
     m_outputData->codeAddress = (intptr_t)buffer;
@@ -122,7 +122,7 @@ JITOutput::RecordInProcNativeCodeSize(Func *func, uint32 bytes, ushort pdataCoun
 #if ENABLE_OOP_NATIVE_CODEGEN
 EmitBufferAllocation<SectionAllocWrapper, PreReservedSectionAllocWrapper> *
 JITOutput::RecordOOPNativeCodeSize(Func *func, uint32 bytes, ushort pdataCount, ushort xdataSize)
-{
+{LOGMEIN("JITOutput.cpp] 124\n");
     m_func = func;
 
 #if defined(_M_ARM32_OR_ARM64)
@@ -135,7 +135,7 @@ JITOutput::RecordOOPNativeCodeSize(Func *func, uint32 bytes, ushort pdataCount, 
     m_oopAlloc = m_func->GetOOPCodeGenAllocators()->emitBufferManager.AllocateBuffer(bytes, &buffer, pdataCount, xdataSize, canAllocInPreReservedHeapPageSegment, true);
 
     if (buffer == nullptr)
-    {
+    {LOGMEIN("JITOutput.cpp] 137\n");
         Js::Throw::OutOfMemory();
     }
 
@@ -150,7 +150,7 @@ JITOutput::RecordOOPNativeCodeSize(Func *func, uint32 bytes, ushort pdataCount, 
 
 void
 JITOutput::RecordNativeCode(const BYTE* sourceBuffer, BYTE* localCodeAddress)
-{
+{LOGMEIN("JITOutput.cpp] 152\n");
 #if ENABLE_OOP_NATIVE_CODEGEN
     if (JITManager::GetJITManager()->IsJITServer())
     {
@@ -166,16 +166,16 @@ JITOutput::RecordNativeCode(const BYTE* sourceBuffer, BYTE* localCodeAddress)
 template <typename TEmitBufferAllocation, typename TCodeGenAllocators>
 void
 JITOutput::RecordNativeCode(const BYTE* sourceBuffer, BYTE* localCodeAddress, TEmitBufferAllocation allocation, TCodeGenAllocators codeGenAllocators)
-{
+{LOGMEIN("JITOutput.cpp] 168\n");
     Assert(m_outputData->codeAddress == (intptr_t)allocation->allocation->address);
     if (!codeGenAllocators->emitBufferManager.CommitBuffer(allocation, localCodeAddress, m_outputData->codeSize, sourceBuffer))
-    {
+    {LOGMEIN("JITOutput.cpp] 171\n");
         Js::Throw::OutOfMemory();
     }
 
 #if DBG_DUMP
     if (m_func->IsLoopBody())
-    {
+    {LOGMEIN("JITOutput.cpp] 177\n");
         codeGenAllocators->emitBufferManager.totalBytesLoopBody += m_outputData->codeSize;
     }
 #endif
@@ -183,7 +183,7 @@ JITOutput::RecordNativeCode(const BYTE* sourceBuffer, BYTE* localCodeAddress, TE
 
 void
 JITOutput::RecordInlineeFrameOffsetsInfo(unsigned int offsetsArrayOffset, unsigned int offsetsArrayCount)
-{
+{LOGMEIN("JITOutput.cpp] 185\n");
     m_outputData->inlineeFrameOffsetArrayOffset = offsetsArrayOffset;
     m_outputData->inlineeFrameOffsetArrayCount = offsetsArrayCount;
 }
@@ -191,7 +191,7 @@ JITOutput::RecordInlineeFrameOffsetsInfo(unsigned int offsetsArrayOffset, unsign
 #if _M_X64
 void
 JITOutput::RecordUnwindInfo(BYTE *unwindInfo, size_t size, BYTE * xdataAddr, BYTE* localXdataAddr)
-{
+{LOGMEIN("JITOutput.cpp] 193\n");
     Assert(XDATA_SIZE >= size);
     memcpy_s(localXdataAddr, XDATA_SIZE, unwindInfo, size);
     m_outputData->xdataAddr = (intptr_t)xdataAddr;
@@ -200,7 +200,7 @@ JITOutput::RecordUnwindInfo(BYTE *unwindInfo, size_t size, BYTE * xdataAddr, BYT
 #elif _M_ARM
 size_t
 JITOutput::RecordUnwindInfo(size_t offset, BYTE *unwindInfo, size_t size, BYTE * xdataAddr)
-{
+{LOGMEIN("JITOutput.cpp] 202\n");
     BYTE *xdataFinal = xdataAddr + offset;
 
     Assert(xdataFinal);
@@ -212,17 +212,17 @@ JITOutput::RecordUnwindInfo(size_t offset, BYTE *unwindInfo, size_t size, BYTE *
 
 void
 JITOutput::RecordXData(BYTE * xdata)
-{
+{LOGMEIN("JITOutput.cpp] 214\n");
     m_outputData->xdataOffset = NativeCodeData::GetDataTotalOffset(xdata);
 }
 #endif
 
 void
 JITOutput::FinalizeNativeCode()
-{
+{LOGMEIN("JITOutput.cpp] 221\n");
 #if ENABLE_OOP_NATIVE_CODEGEN
     if (JITManager::GetJITManager()->IsJITServer())
-    {
+    {LOGMEIN("JITOutput.cpp] 224\n");
         m_func->GetOOPCodeGenAllocators()->emitBufferManager.CompletePreviousAllocation(m_oopAlloc);
     }
     else
@@ -241,6 +241,6 @@ JITOutput::FinalizeNativeCode()
 
 JITOutputIDL *
 JITOutput::GetOutputData()
-{
+{LOGMEIN("JITOutput.cpp] 243\n");
     return m_outputData;
 }

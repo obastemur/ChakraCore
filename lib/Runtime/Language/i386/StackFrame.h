@@ -13,24 +13,24 @@ namespace Js {
 
     class X86StackFrame {
     public:
-        X86StackFrame() : frame(nullptr), codeAddr(nullptr), stackCheckCodeHeight(0), addressOfCodeAddr(nullptr) {};
+        X86StackFrame() : frame(nullptr), codeAddr(nullptr), stackCheckCodeHeight(0), addressOfCodeAddr(nullptr) {LOGMEIN("StackFrame.h] 15\n");};
 
         bool InitializeByFrameId(void * frameAddress, ScriptContext* scriptContext);
         bool InitializeByReturnAddress(void * returnAddress, ScriptContext* scriptContext);
 
         bool Next();
 
-        void *  GetInstructionPointer() { return codeAddr; }
-        void ** GetArgv(bool isCurrentContextNative = false, bool shouldCheckForNativeAddr = true) { return frame + 2; } // parameters unused for x86, arm and arm64
-        void *  GetReturnAddress(bool isCurrentContextNative = false, bool shouldCheckForNativeAddr = true) { return frame[1]; } // parameters unused for x86, arm and arm64
-        void *  GetAddressOfReturnAddress(bool isCurrentContextNative = false, bool shouldCheckForNativeAddr = true) { return &frame[1]; } // parameters unused for x86, arm and arm64
-        void *  GetAddressOfInstructionPointer() const { return addressOfCodeAddr; }
-        void *  GetFrame() const { return (void *)frame; }
+        void *  GetInstructionPointer() {LOGMEIN("StackFrame.h] 22\n"); return codeAddr; }
+        void ** GetArgv(bool isCurrentContextNative = false, bool shouldCheckForNativeAddr = true) {LOGMEIN("StackFrame.h] 23\n"); return frame + 2; } // parameters unused for x86, arm and arm64
+        void *  GetReturnAddress(bool isCurrentContextNative = false, bool shouldCheckForNativeAddr = true) {LOGMEIN("StackFrame.h] 24\n"); return frame[1]; } // parameters unused for x86, arm and arm64
+        void *  GetAddressOfReturnAddress(bool isCurrentContextNative = false, bool shouldCheckForNativeAddr = true) {LOGMEIN("StackFrame.h] 25\n"); return &frame[1]; } // parameters unused for x86, arm and arm64
+        void *  GetAddressOfInstructionPointer() const {LOGMEIN("StackFrame.h] 26\n"); return addressOfCodeAddr; }
+        void *  GetFrame() const {LOGMEIN("StackFrame.h] 27\n"); return (void *)frame; }
 
-        void SetReturnAddress(void * address) { frame[1] = address; }
+        void SetReturnAddress(void * address) {LOGMEIN("StackFrame.h] 29\n"); frame[1] = address; }
         bool SkipToFrame(void * frameAddress);
 
-        size_t GetStackCheckCodeHeight() { return this->stackCheckCodeHeight; }
+        size_t GetStackCheckCodeHeight() {LOGMEIN("StackFrame.h] 32\n"); return this->stackCheckCodeHeight; }
         static bool IsInStackCheckCode(void *entry, void *codeAddr, size_t stackCheckCodeHeight);
 
     private:

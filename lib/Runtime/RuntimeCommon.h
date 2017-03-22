@@ -69,7 +69,7 @@ namespace Js
     END_ENUM_UINT()
 
     inline BOOL IsInternalPropertyId(PropertyId propertyId)
-    {
+    {LOGMEIN("RuntimeCommon.h] 71\n");
         return propertyId < InternalPropertyIds::Count;
     }
 
@@ -84,7 +84,7 @@ namespace Js
     END_ENUM_UINT()
 
     inline BOOL IsBuiltInPropertyId(PropertyId propertyId)
-    {
+    {LOGMEIN("RuntimeCommon.h] 86\n");
         return propertyId < TotalNumberOfBuiltInProperties;
     }
 

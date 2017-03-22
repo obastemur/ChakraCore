@@ -38,7 +38,7 @@ namespace Js
 
         virtual RecyclableObject * CloneToScriptContext(ScriptContext* requestContext) override;
 
-        inline SIMDValue GetValue() { return value; }
+        inline SIMDValue GetValue() {LOGMEIN("JavascriptSimdUint8x16.h] 40\n"); return value; }
         static const char16* GetTypeName();
         Var  Copy(ScriptContext* requestContext);
     };

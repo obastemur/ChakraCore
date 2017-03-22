@@ -12,29 +12,29 @@ namespace PlatformAgnostic
 namespace UnicodeText
 {
 CharacterTypeFlags GetLegacyCharacterTypeFlags(char16 ch)
-{
+{LOGMEIN("UnicodeText.Common.cpp] 14\n");
     Assert(ch >= 128);
 
     const char16 lineSeperatorChar = 0x2028;
     const char16 paraSeperatorChar = 0x2029;
 
     if (ch == lineSeperatorChar || ch == paraSeperatorChar)
-    {
+    {LOGMEIN("UnicodeText.Common.cpp] 21\n");
         return LineCharGroup;
     }
 
     CharacterClassificationType charClass = GetLegacyCharacterClassificationType(ch);
 
     if (charClass == CharacterClassificationType::Letter)
-    {
+    {LOGMEIN("UnicodeText.Common.cpp] 28\n");
         return LetterCharGroup;
     }
     else if (charClass == CharacterClassificationType::DigitOrPunct)
-    {
+    {LOGMEIN("UnicodeText.Common.cpp] 32\n");
         return IdChar;
     }
     else if (charClass == CharacterClassificationType::Whitespace)
-    {
+    {LOGMEIN("UnicodeText.Common.cpp] 36\n");
         return SpaceChar;
     }
 
@@ -46,22 +46,22 @@ namespace Internal
 {
 template <typename CharType>
 inline bool isDigit(__in CharType c)
-{
+{LOGMEIN("UnicodeText.Common.cpp] 48\n");
     return c >= '0' && c <= '9';
 }
 
 template <typename CharType>
 inline int readNumber(__inout CharType* &str)
-{
+{LOGMEIN("UnicodeText.Common.cpp] 54\n");
     int num = 0;
 
     // Count digits on each string
     while (isDigit(*str))
-    {
+    {LOGMEIN("UnicodeText.Common.cpp] 59\n");
         int newNum = (num * 10) + (*str - '0');
         Assert(newNum > num);
         if (newNum <= num)
-        {
+        {LOGMEIN("UnicodeText.Common.cpp] 63\n");
             return num;
         }
 
@@ -93,17 +93,17 @@ inline int readNumber(__inout CharType* &str)
 ///
 template <typename CharType>
 int LogicalStringCompareImpl(__in const CharType* p1, __in const CharType* p2)
-{
+{LOGMEIN("UnicodeText.Common.cpp] 95\n");
     Assert(p1 != nullptr);
     Assert(p2 != nullptr);
 
     while (*p1 && *p2)
-    {
+    {LOGMEIN("UnicodeText.Common.cpp] 100\n");
         bool isDigit1 = isDigit(*p1);
         bool isDigit2 = isDigit(*p2);
 
         if (isDigit1 ^ isDigit2)
-        {
+        {LOGMEIN("UnicodeText.Common.cpp] 105\n");
             // If either character exclusively is not a number, compare just the characters
             // since that's enough to sort the string
             CharType c1 = tolower(*p1);
@@ -112,25 +112,25 @@ int LogicalStringCompareImpl(__in const CharType* p1, __in const CharType* p2)
             Assert(c1 != c2);
 
             if (c1 < c2)
-            {
+            {LOGMEIN("UnicodeText.Common.cpp] 114\n");
                 return -1;
             }
 
             return 1;
         }
         else if (isDigit1 && isDigit2)
-        {
+        {LOGMEIN("UnicodeText.Common.cpp] 121\n");
             // Both current characters are digits, so we'll compare the numbers
             int numZero1 = 0, numZero2 = 0;
 
             // Count leading zeroes on each string
             while (*p1 == '0')
-            {
+            {LOGMEIN("UnicodeText.Common.cpp] 127\n");
                 p1++; numZero1++;
             }
 
             while (*p2 == '0')
-            {
+            {LOGMEIN("UnicodeText.Common.cpp] 132\n");
                 p2++; numZero2++;
             }
 
@@ -138,12 +138,12 @@ int LogicalStringCompareImpl(__in const CharType* p1, __in const CharType* p2)
             int num2 = readNumber(p2);
 
             if (num1 != num2)
-            {
+            {LOGMEIN("UnicodeText.Common.cpp] 140\n");
                 // If the numbers are unequal, just compare the numbers
                 return (num1 > num2) ? 1 : -1;
             }
             else if (numZero1 != numZero2)
-            {
+            {LOGMEIN("UnicodeText.Common.cpp] 145\n");
                 // The numbers are equal but the number of leading zeroes are not
                 // The one with the fewer number of leading zeroes is considered
                 // "larger" (gets sorted earlier)
@@ -156,16 +156,16 @@ int LogicalStringCompareImpl(__in const CharType* p1, __in const CharType* p2)
             // Both characters are not digits - scan till we find a
             // digit in the same position in each string
             while (*p1 && !isDigit(*p1) && *p2 && !isDigit(*p2))
-            {
+            {LOGMEIN("UnicodeText.Common.cpp] 158\n");
                 int c1 = tolower(*p1);
                 int c2 = tolower(*p2);
 
                 if (c1 < c2)
-                {
+                {LOGMEIN("UnicodeText.Common.cpp] 163\n");
                     return -1;
                 }
                 else if (c1 > c2)
-                {
+                {LOGMEIN("UnicodeText.Common.cpp] 167\n");
                     return 1;
                 }
 
@@ -190,11 +190,11 @@ int LogicalStringCompareImpl<char16>(__in const char16* str1, __in const char16*
 // Unnamespaced test code
 #if ENABLE_TEST_PLATFORM_AGNOSTIC
 void LogicalStringCompareTest(const WCHAR* str1, const WCHAR* str2, int expected)
-{
+{LOGMEIN("UnicodeText.Common.cpp] 192\n");
     int compareStringResult = CompareStringW(LOCALE_USER_DEFAULT, NORM_IGNORECASE | SORT_DIGITSASNUMBERS, str1, -1, str2, -1);
 
     if (compareStringResult == 0)
-    {
+    {LOGMEIN("UnicodeText.Common.cpp] 196\n");
         printf("ERROR: CompareStringW failed with error: %d\n", ::GetLastError());
         return;
     }

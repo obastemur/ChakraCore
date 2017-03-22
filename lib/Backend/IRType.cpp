@@ -34,32 +34,32 @@ const char16 * const TyDumpName[] = {
 #undef IRTYPE
 };
 
-bool IRType_IsSignedInt(IRType type) { return TyBaseType[type] == IRBaseType_Int; }
-bool IRType_IsUnsignedInt(IRType type) { return TyBaseType[type] == IRBaseType_Uint; }
-bool IRType_IsFloat(IRType type) { return TyBaseType[type] == IRBaseType_Float; }
+bool IRType_IsSignedInt(IRType type) {LOGMEIN("IRType.cpp] 36\n"); return TyBaseType[type] == IRBaseType_Int; }
+bool IRType_IsUnsignedInt(IRType type) {LOGMEIN("IRType.cpp] 37\n"); return TyBaseType[type] == IRBaseType_Uint; }
+bool IRType_IsFloat(IRType type) {LOGMEIN("IRType.cpp] 38\n"); return TyBaseType[type] == IRBaseType_Float; }
 bool IRType_IsNative(IRType type)
-{
+{LOGMEIN("IRType.cpp] 40\n");
     return TyBaseType[type] > IRBaseType_Illegal && TyBaseType[type] < IRBaseType_Var;
 }
 bool IRType_IsNativeInt(IRType type)
-{
+{LOGMEIN("IRType.cpp] 44\n");
     return TyBaseType[type] > IRBaseType_Illegal && TyBaseType[type] < IRBaseType_Float;
 }
-bool IRType_IsInt64(IRType type) { return type == TyInt64 || type == TyUint64; }
+bool IRType_IsInt64(IRType type) {LOGMEIN("IRType.cpp] 47\n"); return type == TyInt64 || type == TyUint64; }
 
 bool IRType_IsSimd(IRType type)
-{
+{LOGMEIN("IRType.cpp] 50\n");
     return TyBaseType[type] == IRBaseType_Simd;
 }
 
 bool IRType_IsSimd128(IRType type)
-{
+{LOGMEIN("IRType.cpp] 55\n");
     return type >= TySimd128F4 && type <= TySimd128D2;
 }
 
 #if DBG_DUMP || defined(ENABLE_IR_VIEWER)
 void IRType_Dump(IRType type)
-{
+{LOGMEIN("IRType.cpp] 61\n");
     Output::Print(TyDumpName[type]);
 }
 #endif

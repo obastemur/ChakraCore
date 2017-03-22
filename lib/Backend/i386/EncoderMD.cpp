@@ -89,7 +89,7 @@ enum CMP_IMM8
 
 void
 EncoderMD::Init(Encoder *encoder)
-{
+{LOGMEIN("EncoderMD.cpp] 91\n");
     m_encoder = encoder;
     m_relocList = nullptr;
     m_lastLoopLabelPosition = -1;
@@ -106,7 +106,7 @@ EncoderMD::Init(Encoder *encoder)
 
 const BYTE
 EncoderMD::GetOpcodeByte2(IR::Instr *instr)
-{
+{LOGMEIN("EncoderMD.cpp] 108\n");
     return OpcodeByte2[instr->m_opcode - (Js::OpCode::MDStart+1)];
 }
 
@@ -121,13 +121,13 @@ EncoderMD::GetOpcodeByte2(IR::Instr *instr)
 
 Forms
 EncoderMD::GetInstrForm(IR::Instr *instr)
-{
+{LOGMEIN("EncoderMD.cpp] 123\n");
     return OpcodeForms[instr->m_opcode - (Js::OpCode::MDStart+1)];
 }
 
 const BYTE *
 EncoderMD::GetFormTemplate(IR::Instr *instr)
-{
+{LOGMEIN("EncoderMD.cpp] 129\n");
     return OpcodeFormTemplate[instr->m_opcode - (Js::OpCode::MDStart + 1)].form;
 }
 
@@ -141,7 +141,7 @@ EncoderMD::GetFormTemplate(IR::Instr *instr)
 
 const BYTE *
 EncoderMD::GetOpbyte(IR::Instr *instr)
-{
+{LOGMEIN("EncoderMD.cpp] 143\n");
     return Opbyte[instr->m_opcode - (Js::OpCode::MDStart+1)].opbyte;
 }
 
@@ -155,7 +155,7 @@ EncoderMD::GetOpbyte(IR::Instr *instr)
 
 const BYTE
 EncoderMD::GetRegEncode(IR::RegOpnd *regOpnd)
-{
+{LOGMEIN("EncoderMD.cpp] 157\n");
     AssertMsg(regOpnd->GetReg() != RegNOREG, "RegOpnd should have valid reg in encoder");
 
     return RegEncode[regOpnd->GetReg()];
@@ -172,7 +172,7 @@ EncoderMD::GetRegEncode(IR::RegOpnd *regOpnd)
 
 const uint32
 EncoderMD::GetOpdope(IR::Instr *instr)
-{
+{LOGMEIN("EncoderMD.cpp] 174\n");
     return Opdope[instr->m_opcode - (Js::OpCode::MDStart+1)];
 }
 
@@ -186,7 +186,7 @@ EncoderMD::GetOpdope(IR::Instr *instr)
 
 const uint32
 EncoderMD::GetLeadIn(IR::Instr * instr)
-{
+{LOGMEIN("EncoderMD.cpp] 188\n");
     return OpcodeLeadIn[instr->m_opcode - (Js::OpCode::MDStart+1)];
 }
 ///----------------------------------------------------------------------------
@@ -199,7 +199,7 @@ EncoderMD::GetLeadIn(IR::Instr * instr)
 
 bool
 EncoderMD::FitsInByte(size_t value)
-{
+{LOGMEIN("EncoderMD.cpp] 201\n");
     return ((size_t)(signed char)(value & 0xFF) == value);
 }
 
@@ -213,20 +213,20 @@ EncoderMD::FitsInByte(size_t value)
 
 BYTE
 EncoderMD::GetMod(IR::IndirOpnd * opr, int* pDispSize)
-{
+{LOGMEIN("EncoderMD.cpp] 215\n");
     return GetMod(opr->AsIndirOpnd()->GetOffset(), (opr->GetBaseOpnd()->GetReg() == RegEBP), pDispSize);
 }
 
 BYTE
 EncoderMD::GetMod(IR::SymOpnd * symOpnd, int * pDispSize, RegNum& rmReg)
-{
+{LOGMEIN("EncoderMD.cpp] 221\n");
     StackSym * stackSym = symOpnd->m_sym->AsStackSym();
     int32 offset = stackSym->m_offset;
     rmReg = RegEBP;
     if (stackSym->IsArgSlotSym() && !stackSym->m_isOrphanedArg)
-    {
+    {LOGMEIN("EncoderMD.cpp] 226\n");
         if (stackSym->m_isInlinedArgSlot)
-        {
+        {LOGMEIN("EncoderMD.cpp] 228\n");
             Assert(offset >= 0);
             offset -= this->m_func->m_localStackHeight;
             stackSym->m_offset = offset;
@@ -246,14 +246,14 @@ EncoderMD::GetMod(IR::SymOpnd * symOpnd, int * pDispSize, RegNum& rmReg)
 
 BYTE
 EncoderMD::GetMod(size_t offset, bool baseRegIsEBP, int * pDispSize)
-{
+{LOGMEIN("EncoderMD.cpp] 248\n");
     if (offset == 0 && !baseRegIsEBP)
-    {
+    {LOGMEIN("EncoderMD.cpp] 250\n");
         *(pDispSize) = 0;
         return 0x00;
     }
     else if (this->FitsInByte(offset))
-    {
+    {LOGMEIN("EncoderMD.cpp] 255\n");
         *(pDispSize) = 1;
         return 0x40;
     }
@@ -274,7 +274,7 @@ EncoderMD::GetMod(size_t offset, bool baseRegIsEBP, int * pDispSize)
 
 void
 EncoderMD::EmitModRM(IR::Instr * instr, IR::Opnd *opnd, BYTE reg1)
-{
+{LOGMEIN("EncoderMD.cpp] 276\n");
     RegNum  rmReg;
     int dispSize;
     IR::IndirOpnd *indirOpnd;
@@ -292,7 +292,7 @@ EncoderMD::EmitModRM(IR::Instr * instr, IR::Opnd *opnd, BYTE reg1)
     reg1 = (reg1 & 7) << 3;       // mask and put in reg field
 
     switch (opnd->GetKind())
-    {
+    {LOGMEIN("EncoderMD.cpp] 294\n");
     case IR::OpndKindReg:
         regOpnd = opnd->AsRegOpnd();
 
@@ -302,7 +302,7 @@ EncoderMD::EmitModRM(IR::Instr * instr, IR::Opnd *opnd, BYTE reg1)
 
         // Special handling for TEST_AH
         if (instr->m_opcode == Js::OpCode::TEST_AH)
-        {
+        {LOGMEIN("EncoderMD.cpp] 304\n");
             // We can't represent AH in the IR.  We should have AL now, add 4 to represent AH.
             Assert(regOpnd->GetReg() == RegEAX && regOpnd->GetType() == TyInt8);
             reg += 4;
@@ -324,7 +324,7 @@ EncoderMD::EmitModRM(IR::Instr * instr, IR::Opnd *opnd, BYTE reg1)
         byte = (BYTE)(mod | reg1 | baseRegEncode);
         *(m_pc++) = byte;
         if (rmReg == RegESP)
-        {
+        {LOGMEIN("EncoderMD.cpp] 326\n");
             byte = (BYTE)(((baseRegEncode & 7) << 3) | (baseRegEncode & 7));
             *(m_pc++) = byte;
         }
@@ -345,7 +345,7 @@ EncoderMD::EmitModRM(IR::Instr * instr, IR::Opnd *opnd, BYTE reg1)
 
         regBase = this->GetRegEncode(baseOpnd);
         if (indexOpnd != nullptr)
-        {
+        {LOGMEIN("EncoderMD.cpp] 347\n");
             regIndex = this->GetRegEncode(indexOpnd);
             *(m_pc++) = (this->GetMod(indirOpnd, &dispSize) | reg1 | 0x4);
             *(m_pc++) = (((indirOpnd->GetScale() & 3) << 6) | ((regIndex & 7) << 3) | (regBase & 7));
@@ -354,7 +354,7 @@ EncoderMD::EmitModRM(IR::Instr * instr, IR::Opnd *opnd, BYTE reg1)
         {
             *(m_pc++) = (this->GetMod(indirOpnd, &dispSize) | reg1 | regBase);
             if (baseOpnd->GetReg() == RegESP)
-            {
+            {LOGMEIN("EncoderMD.cpp] 356\n");
                 // needs SIB byte
                 *(m_pc++) = ((regBase & 7) << 3) | (regBase & 7);
             }
@@ -391,8 +391,8 @@ EncoderMD::EmitModRM(IR::Instr * instr, IR::Opnd *opnd, BYTE reg1)
 
 void
 EncoderMD::EmitConst(size_t val, int size)
-{
-    switch (size) {
+{LOGMEIN("EncoderMD.cpp] 393\n");
+    switch (size) {LOGMEIN("EncoderMD.cpp] 394\n");
     case 0:
         return;
 
@@ -425,12 +425,12 @@ EncoderMD::EmitConst(size_t val, int size)
 
 int
 EncoderMD::EmitImmed(IR::Opnd * opnd, int opSize, int sbit)
-{
+{LOGMEIN("EncoderMD.cpp] 427\n");
     int retval = 0;
     StackSym *stackSym;
     size_t value = 0;
 
-    switch (opnd->GetKind()) {
+    switch (opnd->GetKind()) {LOGMEIN("EncoderMD.cpp] 432\n");
     case IR::OpndKindAddr:
         value = (uint32)opnd->AsAddrOpnd()->m_address;
         goto intConst;
@@ -439,7 +439,7 @@ EncoderMD::EmitImmed(IR::Opnd * opnd, int opSize, int sbit)
         value = opnd->AsIntConstOpnd()->GetValue();
 intConst:
         if (sbit && opSize > 1 && this->FitsInByte(value))
-        {
+        {LOGMEIN("EncoderMD.cpp] 441\n");
             opSize = 1;
             retval = 0x2;   /* set S bit */
         }
@@ -479,13 +479,13 @@ intConst:
 
 void
 EncoderMD::EmitCondBranch(IR::BranchInstr * branchInstr)
-{
+{LOGMEIN("EncoderMD.cpp] 481\n");
     IR::LabelInstr * labelInstr;
     // TODO: Make this more table-driven by mapping opcodes to condcodes.
     // (Will become more useful when we're emitting short branches as well.)
 
     switch (branchInstr->m_opcode)
-    {
+    {LOGMEIN("EncoderMD.cpp] 487\n");
     case Js::OpCode::JA:
         *(m_pc++) = 0x87;
         break;
@@ -572,7 +572,7 @@ EncoderMD::EmitCondBranch(IR::BranchInstr * branchInstr)
 
 ptrdiff_t
 EncoderMD::Encode(IR::Instr *instr, BYTE *pc, BYTE* beginCodeAddress)
-{
+{LOGMEIN("EncoderMD.cpp] 574\n");
     BYTE *opcodeByte;
     BYTE *instrStart, *instrRestart;
 
@@ -581,19 +581,19 @@ EncoderMD::Encode(IR::Instr *instr, BYTE *pc, BYTE* beginCodeAddress)
     pc = nullptr;  // just to avoid using it...
 
     if (instr->IsLowered() == false)
-    {
+    {LOGMEIN("EncoderMD.cpp] 583\n");
         if (instr->IsLabelInstr())
-        {
+        {LOGMEIN("EncoderMD.cpp] 585\n");
             IR::LabelInstr *labelInstr = instr->AsLabelInstr();
             labelInstr->SetPC(m_pc);
             if(!labelInstr->IsUnreferenced())
-            {
+            {LOGMEIN("EncoderMD.cpp] 589\n");
                 int relocEntryPosition = AppendRelocEntry(RelocTypeLabel, (void*) instr);
                 if (!PHASE_OFF(Js::LoopAlignPhase, m_func))
-                {
+                {LOGMEIN("EncoderMD.cpp] 592\n");
                     // we record position of last loop-top label (leaf loops) for loop alignment
                     if (labelInstr->m_isLoopTop && labelInstr->GetLoop()->isLeaf)
-                    {
+                    {LOGMEIN("EncoderMD.cpp] 595\n");
                         m_relocList->Item(relocEntryPosition).m_type = RelocType::RelocTypeAlignedLabel;
                     }
                 }
@@ -601,7 +601,7 @@ EncoderMD::Encode(IR::Instr *instr, BYTE *pc, BYTE* beginCodeAddress)
         }
 #if DBG_DUMP
         if( instr->IsEntryInstr() && Js::Configuration::Global.flags.DebugBreak.Contains( m_func->GetFunctionNumber() ) )
-        {
+        {LOGMEIN("EncoderMD.cpp] 603\n");
             IR::Instr *int3 = IR::Instr::New(Js::OpCode::INT, m_func);
             int3->SetSrc1(IR::IntConstOpnd::New(3, TyMachReg, m_func));
 
@@ -619,7 +619,7 @@ EncoderMD::Encode(IR::Instr *instr, BYTE *pc, BYTE* beginCodeAddress)
 
     // Canonicalize operands.
     if (this->GetOpdope(instr) & DDST)
-    {
+    {LOGMEIN("EncoderMD.cpp] 621\n");
         opr1 = dst;
         opr2 = src1;
     }
@@ -637,31 +637,31 @@ EncoderMD::Encode(IR::Instr *instr, BYTE *pc, BYTE* beginCodeAddress)
     instrRestart = instrStart = m_pc;
 
     if (instrSize == 2 && (this->GetOpdope(instr) & (DNO16|DFLT)) == 0)
-    {
+    {LOGMEIN("EncoderMD.cpp] 639\n");
         *instrRestart++ = 0x66;
     }
     if (this->GetOpdope(instr) & D66EX)
-    {
+    {LOGMEIN("EncoderMD.cpp] 643\n");
         if (opr1->IsFloat64() || opr2->IsFloat64())
-        {
+        {LOGMEIN("EncoderMD.cpp] 645\n");
             *instrRestart++ = 0x66;
         }
     }
     if (this->GetOpdope(instr) & (DZEROF|DF2|DF3|D66))
-    {
+    {LOGMEIN("EncoderMD.cpp] 650\n");
         if (this->GetOpdope(instr) & DZEROF)
-        {
+        {LOGMEIN("EncoderMD.cpp] 652\n");
         }
         else if (this->GetOpdope(instr) & DF2)
-        {
+        {LOGMEIN("EncoderMD.cpp] 655\n");
             *instrRestart++ = 0xf2;
         }
         else if (this->GetOpdope(instr) & DF3)
-        {
+        {LOGMEIN("EncoderMD.cpp] 659\n");
             *instrRestart++ = 0xf3;
         }
         else if (this->GetOpdope(instr) & D66)
-        {
+        {LOGMEIN("EncoderMD.cpp] 663\n");
             *instrRestart++ = 0x66;
         }
         else
@@ -672,7 +672,7 @@ EncoderMD::Encode(IR::Instr *instr, BYTE *pc, BYTE* beginCodeAddress)
         *instrRestart++ = 0xf;
 
         switch(leadIn)
-        {
+        {LOGMEIN("EncoderMD.cpp] 674\n");
         case OLB_NONE:
             break;
 
@@ -691,7 +691,7 @@ EncoderMD::Encode(IR::Instr *instr, BYTE *pc, BYTE* beginCodeAddress)
     // and its operands
 
     for(;; opcodeTemplate++, form++)
-    {
+    {LOGMEIN("EncoderMD.cpp] 693\n");
         AssertMsg(m_pc - instrStart <= MachMaxInstrSize, "MachMaxInstrSize not set correctly");
 
         m_pc = instrRestart;
@@ -702,18 +702,18 @@ EncoderMD::Encode(IR::Instr *instr, BYTE *pc, BYTE* beginCodeAddress)
         *(m_pc++) = *opcodeTemplate;
 
         switch ((*form) & FORM_MASK)
-        {
+        {LOGMEIN("EncoderMD.cpp] 704\n");
         case AX_IM:
             AnalysisAssert(opr1);
             if (!opr1->IsRegOpnd() || opr1->AsRegOpnd()->GetReg() != RegEAX
                 || !opr2->IsImmediateOpnd())
-            {
+            {LOGMEIN("EncoderMD.cpp] 709\n");
                 continue;
             }
 
             size_t value;
             switch (opr2->GetKind())
-            {
+            {LOGMEIN("EncoderMD.cpp] 715\n");
             case IR::OpndKindIntConst:
                 value = opr2->AsIntConstOpnd()->GetValue();
                 break;
@@ -726,13 +726,13 @@ EncoderMD::Encode(IR::Instr *instr, BYTE *pc, BYTE* beginCodeAddress)
             }
 
             if ((*form & SBIT) && FitsInByte(value))
-            {
+            {LOGMEIN("EncoderMD.cpp] 728\n");
                 // If the SBIT is set on this form, then it means
                 // that there is a short immediate form of this instruction
                 // available, and the short immediate encoding is a bit
                 // smaller for DWORD sized instrs
                 if (instrSize == 4)
-                {
+                {LOGMEIN("EncoderMD.cpp] 734\n");
                     continue;
                 }
 
@@ -740,7 +740,7 @@ EncoderMD::Encode(IR::Instr *instr, BYTE *pc, BYTE* beginCodeAddress)
                 // cause an LCP stall.  Use the 8-bit sign extended immediate
                 // form which uses the same number of instruction bytes.
                 if (instrSize == 2)
-                {
+                {LOGMEIN("EncoderMD.cpp] 742\n");
                     continue;
                 }
             }
@@ -754,7 +754,7 @@ EncoderMD::Encode(IR::Instr *instr, BYTE *pc, BYTE* beginCodeAddress)
         // general case immediate.  Special cases have already been checked
         case IMM:
             if (!opr2->IsImmediateOpnd() && !opr2->IsLabelOpnd())
-            {
+            {LOGMEIN("EncoderMD.cpp] 756\n");
                 continue;
             }
 
@@ -771,11 +771,11 @@ EncoderMD::Encode(IR::Instr *instr, BYTE *pc, BYTE* beginCodeAddress)
             break;
 
         case NO:
-            {
+            {LOGMEIN("EncoderMD.cpp] 773\n");
                 BYTE byte2 = this->GetOpcodeByte2(instr);
 
                 if (byte2)
-                {
+                {LOGMEIN("EncoderMD.cpp] 777\n");
                     *(m_pc)++ = byte2;
                 }
             }
@@ -784,16 +784,16 @@ EncoderMD::Encode(IR::Instr *instr, BYTE *pc, BYTE* beginCodeAddress)
         // Short immediate/reg
         case SHIMR:
             if (!opr1->IsRegOpnd())
-            {
+            {LOGMEIN("EncoderMD.cpp] 786\n");
                 continue;
             }
             if (!opr2->IsIntConstOpnd() && !opr2->IsAddrOpnd())
-            {
+            {LOGMEIN("EncoderMD.cpp] 790\n");
                 continue;
             }
             *opcodeByte |= this->GetRegEncode(opr1->AsRegOpnd());
             if (instrSize > 1)
-            {
+            {LOGMEIN("EncoderMD.cpp] 795\n");
                 *opcodeByte |= 0x8; /* set the W bit */
             }
             this->EmitImmed(opr2, instrSize, 0);  /* S bit known to be 0 */
@@ -810,12 +810,12 @@ EncoderMD::Encode(IR::Instr *instr, BYTE *pc, BYTE* beginCodeAddress)
 modrm:
             if ((instr->m_opcode == Js::OpCode::MOVSD || instr->m_opcode == Js::OpCode::MOVSS) &&
                 (!opr1->IsRegOpnd() || !REGNUM_ISXMMXREG(opr1->AsRegOpnd()->GetReg())))
-            {
+            {LOGMEIN("EncoderMD.cpp] 812\n");
                 *opcodeByte |= 1;
             }
 
             if (opr2 == nullptr)
-            {
+            {LOGMEIN("EncoderMD.cpp] 817\n");
                 BYTE byte2 = (this->GetOpcodeByte2(instr) >> 3);
 
                 this->EmitModRM(instr, opr1, byte2);
@@ -823,11 +823,11 @@ modrm:
             }
 
             if (opr1->IsRegOpnd())
-            {
+            {LOGMEIN("EncoderMD.cpp] 825\n");
                 this->EmitModRM(instr, opr2, this->GetRegEncode(opr1->AsRegOpnd()));
 
                 if ((*form) & DBIT)
-                {
+                {LOGMEIN("EncoderMD.cpp] 829\n");
                     *opcodeByte |= 0x2;     // set D bit
                 }
             }
@@ -843,11 +843,11 @@ modrm:
             /* make the opr1 be the mem operand (if any) */
 
             if (opr1->IsRegOpnd())
-            {
+            {LOGMEIN("EncoderMD.cpp] 845\n");
                 opr1 = opr2;
             }
             if (!opr1->IsRegOpnd() && (((*form) & FINT) ? instrSize == 2 : instrSize == 8))
-            {
+            {LOGMEIN("EncoderMD.cpp] 849\n");
                 *opcodeByte |= 4;   /* memsize bit */
             }
             this->EmitModRM(instr, opr1, this->GetOpcodeByte2(instr)>>3);
@@ -856,7 +856,7 @@ modrm:
         // reg in opbyte. Only whole register allowed
         case SH_REG:
             if (!opr1->IsRegOpnd())
-            {
+            {LOGMEIN("EncoderMD.cpp] 858\n");
                 continue;
             }
 
@@ -866,9 +866,9 @@ modrm:
         // short form immed. (must be unary)
         case SH_IM:
             if (!opr1->IsIntConstOpnd() && !opr1->IsAddrOpnd())
-            {
+            {LOGMEIN("EncoderMD.cpp] 868\n");
                 if (!opr1->IsLabelOpnd())
-                {
+                {LOGMEIN("EncoderMD.cpp] 870\n");
                     continue;
                 }
                 AppendRelocEntry(RelocTypeLabelUse, (void*) m_pc, opr1->AsLabelOpnd()->GetLabel());
@@ -883,7 +883,7 @@ modrm:
         case SHFT:
             this->EmitModRM(instr, opr1, this->GetOpcodeByte2(instr) >> 3);
             if (opr2->IsRegOpnd())
-            {
+            {LOGMEIN("EncoderMD.cpp] 885\n");
                 AssertMsg(opr2->AsRegOpnd()->GetReg() == RegECX, "Expected ECX as opr2 of variable shift");
                 *opcodeByte |= *(opcodeTemplate + 1);
             }
@@ -892,7 +892,7 @@ modrm:
                 AssertMsg(opr2->IsIntConstOpnd(), "Expected register or constant as shift amount opnd");
                 uint32 constValue = opr2->AsIntConstOpnd()->GetValue();
                 if (constValue == 1)
-                {
+                {LOGMEIN("EncoderMD.cpp] 894\n");
                     *opcodeByte |= 0x10;
                 }
                 else
@@ -910,7 +910,7 @@ modrm:
         case LABREL2:
 
             if (opr1 == nullptr)
-            {
+            {LOGMEIN("EncoderMD.cpp] 912\n");
                 // Unconditional branch
                 AssertMsg(instr->IsBranchInstr(), "Invalid LABREL2 form");
 
@@ -924,7 +924,7 @@ modrm:
                 AssertMsg(m_func->IsOOPJIT() || ( ((BYTE*)opr1->AsIntConstOpnd()->GetValue()) < m_encoder->m_encodeBuffer || ((BYTE *)opr1->AsIntConstOpnd()->GetValue()) >= m_encoder->m_encodeBuffer + m_encoder->m_encodeBufferSize), "Call Target within buffer.");
             }
             else if (opr1->IsHelperCallOpnd())
-            {
+            {LOGMEIN("EncoderMD.cpp] 926\n");
                 const void* fnAddress = (void*)IR::GetMethodAddress(m_func->GetThreadContextInfo(), opr1->AsHelperCallOpnd());
                 AppendRelocEntry(RelocTypeCallPcrel, (void*)m_pc, nullptr, fnAddress);
                 AssertMsg(sizeof(uint32) == sizeof(void*), "Sizes of void* assumed to be 32-bits");
@@ -942,13 +942,13 @@ modrm:
         case SPECIAL:
 
             switch (instr->m_opcode)
-            {
-            case Js::OpCode::RET: {
+            {LOGMEIN("EncoderMD.cpp] 944\n");
+            case Js::OpCode::RET: {LOGMEIN("EncoderMD.cpp] 945\n");
                 AssertMsg(opr1->IsIntConstOpnd(), "RET should have intConst as src");
                 uint32 constValue = opr1->AsIntConstOpnd()->GetValue();
 
                 if (constValue == 0)
-                {
+                {LOGMEIN("EncoderMD.cpp] 950\n");
                     *opcodeByte |= 0x1; // no imm16 follows
                 }
                 else {
@@ -973,7 +973,7 @@ modrm:
             case Js::OpCode::JNP:
             case Js::OpCode::JSB:
             case Js::OpCode::JNSB:
-            {
+            {LOGMEIN("EncoderMD.cpp] 975\n");
                 *opcodeByte = 0xf;
                 this->EmitCondBranch(instr->AsBranchInstr());
                 break;
@@ -983,7 +983,7 @@ modrm:
                 AssertMsg(opr1->IsRegOpnd() && instrSize != 1, "Illegal IMUL2");
 
                 if (!opr2->IsImmediateOpnd())
-                {
+                {LOGMEIN("EncoderMD.cpp] 985\n");
                     continue;
                 }
 
@@ -1000,7 +1000,7 @@ modrm:
 
             case Js::OpCode::INT:
                 if (opr1->AsIntConstOpnd()->GetValue() != 3)
-                {
+                {LOGMEIN("EncoderMD.cpp] 1002\n");
                     *opcodeByte |= 1;
                     *(m_pc)++ = (char)opr1->AsIntConstOpnd()->GetValue();
                 }
@@ -1008,13 +1008,13 @@ modrm:
 
             case Js::OpCode::FSTP:
                 if (opr1->IsRegOpnd())
-                {
+                {LOGMEIN("EncoderMD.cpp] 1010\n");
                     *opcodeByte |= 4;
                     this->EmitModRM(instr, opr1, this->GetOpcodeByte2(instr)>>3);
                     break;
                 }
                 if (instrSize != 10)
-                {
+                {LOGMEIN("EncoderMD.cpp] 1016\n");
                     continue;
                 }
                 *opcodeByte |= 2;
@@ -1026,9 +1026,9 @@ modrm:
                 // is second operand a MMX register? if so use "store" form
 
                 if (opr2->IsRegOpnd() && REGNUM_ISXMMXREG(opr2->AsRegOpnd()->GetReg()))
-                {
+                {LOGMEIN("EncoderMD.cpp] 1028\n");
                     if (opr1->IsRegOpnd())
-                    {
+                    {LOGMEIN("EncoderMD.cpp] 1030\n");
                         // have 2 choices - we do it this way to match Intel's
                         // tools; Have to swap operands to get right behavior from
                         // modrm code.
@@ -1059,7 +1059,7 @@ modrm:
             case Js::OpCode::MOVUPS:
             case Js::OpCode::MOVHPD:
                 if (!opr1->IsRegOpnd())
-                {
+                {LOGMEIN("EncoderMD.cpp] 1061\n");
                     Assert(opr2->IsRegOpnd());
 
                     *opcodeByte |= 0x01;
@@ -1073,7 +1073,7 @@ modrm:
                 break;
             case Js::OpCode::FLD:
                 if (instrSize != 10)
-                {
+                {LOGMEIN("EncoderMD.cpp] 1075\n");
                     continue;
                 }
                 *opcodeByte |= 0x2;
@@ -1082,7 +1082,7 @@ modrm:
 
             case Js::OpCode::NOP:
                 if (AutoSystemInfo::Data.SSE2Available() && instr->GetSrc1())
-                {
+                {LOGMEIN("EncoderMD.cpp] 1084\n");
                     // Multibyte NOP. Encode fast NOPs on SSE2 supported x86 system
                     Assert(instr->GetSrc1()->IsIntConstOpnd() && instr->GetSrc1()->GetType() == TyInt8);
                     unsigned nopSize = instr->GetSrc1()->AsIntConstOpnd()->GetValue();
@@ -1091,7 +1091,7 @@ modrm:
                     const BYTE *nopEncoding = Nop[nopSize - 1];
                     *opcodeByte = nopEncoding[0];
                     for (unsigned i = 1; i < nopSize; i++)
-                    {
+                    {LOGMEIN("EncoderMD.cpp] 1093\n");
                         *(m_pc)++ = nopEncoding[i];
                     }
                 }
@@ -1100,7 +1100,7 @@ modrm:
                     BYTE byte2 = this->GetOpcodeByte2(instr);
 
                     if (byte2)
-                    {
+                    {LOGMEIN("EncoderMD.cpp] 1102\n");
                         *(m_pc)++ = byte2;
                     }
                 }
@@ -1112,12 +1112,12 @@ modrm:
 
                 if (opr1->IsRegOpnd() && opr1->AsRegOpnd()->GetReg() == RegEAX
                     && opr2->IsRegOpnd())
-                {
+                {LOGMEIN("EncoderMD.cpp] 1114\n");
                     *opcodeByte |= this->GetRegEncode(opr2->AsRegOpnd());
                 }
                 else if (opr2->IsRegOpnd() && opr2->AsRegOpnd()->GetReg() == RegEAX
                     && opr1->IsRegOpnd())
-                {
+                {LOGMEIN("EncoderMD.cpp] 1119\n");
                     *opcodeByte |= this->GetRegEncode(opr1->AsRegOpnd());
                 }
                 else
@@ -1143,7 +1143,7 @@ modrm:
                     dst && (dst->IsRegOpnd() || dst->IsMemRefOpnd() || dst->IsIndirOpnd()), "Invalid dst type on BTR/BTS instruction.");
 
                 if (src2->IsImmediateOpnd())
-                {
+                {LOGMEIN("EncoderMD.cpp] 1145\n");
                     this->EmitModRM(instr, src1, this->GetOpcodeByte2(instr) >> 3);
                     Assert(src2->IsIntConstOpnd() && src2->GetType() == TyInt8);
                     *opcodeByte |= EmitImmed(src2, 1, 0);
@@ -1169,7 +1169,7 @@ modrm:
             case Js::OpCode::PSRLDQ:
                 Assert(opr1->IsRegOpnd());
                 if (src2 &&src2->IsIntConstOpnd())
-                {
+                {LOGMEIN("EncoderMD.cpp] 1171\n");
                     // SSE shift with IMM
                     this->EmitModRM(instr, opr1, this->GetOpcodeByte2(instr) >> 3);
                     break;
@@ -1179,7 +1179,7 @@ modrm:
                     // Variable shift amount
                     // fix opcode byte
                     switch (instr->m_opcode)
-                    {
+                    {LOGMEIN("EncoderMD.cpp] 1181\n");
                     case Js::OpCode::PSLLW:
                         *opcodeByte = 0xF1;
                         break;
@@ -1218,18 +1218,18 @@ modrm:
 
         // if instr has W bit, set it appropriately
         if ((*form & WBIT) && !(this->GetOpdope(instr) & DFLT) && instrSize != 1)
-        {
+        {LOGMEIN("EncoderMD.cpp] 1220\n");
             *opcodeByte |= 0x1; // set WBIT
         }
 
         AssertMsg(m_pc - instrStart <= MachMaxInstrSize, "MachMaxInstrSize not set correctly");
         if (this->GetOpdope(instr) & DSSE)
-        {
+        {LOGMEIN("EncoderMD.cpp] 1226\n");
             // extra imm8 byte for SSE instructions.
             uint valueImm = 0;
             bool writeImm = true;
             if (src2 &&src2->IsIntConstOpnd())
-            {
+            {LOGMEIN("EncoderMD.cpp] 1231\n");
                 valueImm = (uint)src2->AsIntConstOpnd()->GetImmediateValue(instr->m_func);
             }
             else
@@ -1237,7 +1237,7 @@ modrm:
                 // Variable src2, we are either encoding a CMP op, or don't need an Imm.
                 // src2(comparison byte) is missing in CMP instructions and is part of the opcode instead.
                 switch (instr->m_opcode)
-                {
+                {LOGMEIN("EncoderMD.cpp] 1239\n");
                 case Js::OpCode::CMPLTPS:
                 case Js::OpCode::CMPLTPD:
                     valueImm = CMP_IMM8::LT;
@@ -1265,7 +1265,7 @@ modrm:
             }
             
             if (writeImm)
-            {
+            {LOGMEIN("EncoderMD.cpp] 1267\n");
                 *(m_pc++) = (valueImm & 0xff);
             }
         }
@@ -1275,7 +1275,7 @@ modrm:
 
 int
 EncoderMD::AppendRelocEntry(RelocType type, void *ptr, IR::LabelInstr* labelInstr, const void * fnAddress)
-{
+{LOGMEIN("EncoderMD.cpp] 1277\n");
     if (m_relocList == nullptr)
         m_relocList = Anew(m_encoder->m_tempAlloc, RelocList, m_encoder->m_tempAlloc);
 
@@ -1287,14 +1287,14 @@ EncoderMD::AppendRelocEntry(RelocType type, void *ptr, IR::LabelInstr* labelInst
 
 int
 EncoderMD::FixRelocListEntry(uint32 index, int32 totalBytesSaved, BYTE *buffStart, BYTE* buffEnd)
-{
+{LOGMEIN("EncoderMD.cpp] 1289\n");
     BYTE* currentPc;
     EncodeRelocAndLabels &relocRecord = m_relocList->Item(index);
     int result = totalBytesSaved;
 
     // LabelInstr ?
     if (relocRecord.isLabel())
-    {
+    {LOGMEIN("EncoderMD.cpp] 1296\n");
         BYTE* newPC;
         currentPc = relocRecord.getLabelCurrPC();
 
@@ -1303,12 +1303,12 @@ EncoderMD::FixRelocListEntry(uint32 index, int32 totalBytesSaved, BYTE *buffStar
 
         // find the number of nops needed to align this loop top
         if (relocRecord.isAlignedLabel() && !PHASE_OFF(Js::LoopAlignPhase, m_func))
-        {
+        {LOGMEIN("EncoderMD.cpp] 1305\n");
             uint32 offset = (uint32)newPC - (uint32)buffStart;
             // Since the final code buffer is page aligned, it is enough to align the offset of the label.
             BYTE nopCount = m_encoder->FindNopCountFor16byteAlignment(offset);
             if (nopCount <= Js::Configuration::Global.flags.LoopAlignNopLimit)
-            {
+            {LOGMEIN("EncoderMD.cpp] 1310\n");
                 // new label pc
                 newPC += nopCount;
                 relocRecord.setLabelNopCount(nopCount);
@@ -1324,9 +1324,9 @@ EncoderMD::FixRelocListEntry(uint32 index, int32 totalBytesSaved, BYTE *buffStar
         currentPc = (BYTE*) relocRecord.m_origPtr;
         // ignore outside buffer offsets (e.g. JumpTable entries)
         if (currentPc >= buffStart && currentPc < buffEnd)
-        {
+        {LOGMEIN("EncoderMD.cpp] 1326\n");
             if (relocRecord.m_type == RelocTypeInlineeEntryOffset)
-            {
+            {LOGMEIN("EncoderMD.cpp] 1328\n");
                 // ptr points to imm32 offset of the instruction that needs to be adjusted
                 // offset is in top 28-bits, arg count in bottom 4
                 uint32 field = *((uint32*) relocRecord.m_origPtr);
@@ -1352,7 +1352,7 @@ EncoderMD::FixRelocListEntry(uint32 index, int32 totalBytesSaved, BYTE *buffStar
 void
 EncoderMD::FixMaps(uint32 brOffset, int32 bytesSaved, uint32 *inlineeFrameRecordsIndex, uint32 *inlineeFrameMapIndex,  uint32 *pragmaInstToRecordOffsetIndex, uint32 *offsetBuffIndex)
 
-{
+{LOGMEIN("EncoderMD.cpp] 1354\n");
     InlineeFrameRecords *recList = m_encoder->m_inlineeFrameRecords;
     InlineeFrameMap *mapList = m_encoder->m_inlineeFrameMap;
     PragmaInstrList *pInstrList = m_encoder->m_pragmaInstrToRecordOffset;
@@ -1390,21 +1390,21 @@ EncoderMD::FixMaps(uint32 brOffset, int32 bytesSaved, uint32 *inlineeFrameRecord
 ///----------------------------------------------------------------------------
 void
 EncoderMD::ApplyRelocs(uint32 codeBufferAddress, size_t codeSize, uint * bufferCRC, BOOL isBrShorteningSucceeded, bool isFinalBufferValidation)
-{
+{LOGMEIN("EncoderMD.cpp] 1392\n");
     for (int32 i = 0; i < m_relocList->Count(); i++)
-    {
+    {LOGMEIN("EncoderMD.cpp] 1394\n");
         EncodeRelocAndLabels *reloc = &m_relocList->Item(i);
         BYTE * relocAddress = (BYTE*)reloc->m_ptr;
         uint32 pcrel;
 
         switch (reloc->m_type)
-        {
+        {LOGMEIN("EncoderMD.cpp] 1400\n");
         case RelocTypeCallPcrel:
-            {
+            {LOGMEIN("EncoderMD.cpp] 1402\n");
                 pcrel = (uint32)(codeBufferAddress + (BYTE*)reloc->m_ptr - m_encoder->m_encodeBuffer + 4);
                 uint32 offset = (uint32)reloc->GetFnAddress() - pcrel;
                 if (!isFinalBufferValidation)
-                {
+                {LOGMEIN("EncoderMD.cpp] 1406\n");
                     Assert(*(uint32 *)relocAddress == 0);
                     *(uint32 *)relocAddress = offset;
                 }
@@ -1412,16 +1412,16 @@ EncoderMD::ApplyRelocs(uint32 codeBufferAddress, size_t codeSize, uint * bufferC
                 break;
             }
         case RelocTypeBranch:
-            {
+            {LOGMEIN("EncoderMD.cpp] 1414\n");
                 IR::LabelInstr * labelInstr = reloc->getBrTargetLabel();
                 AssertMsg(labelInstr->GetPC() != nullptr, "Branch to unemitted label?");
                 if (reloc->isShortBr())
-                {
+                {LOGMEIN("EncoderMD.cpp] 1418\n");
                     // short branch
                     pcrel = (uint32)(labelInstr->GetPC() - ((BYTE*)reloc->m_ptr + 1));
                     AssertMsg((int32)pcrel >= -128 && (int32)pcrel <= 127, "Offset doesn't fit in imm8.");
                     if (!isFinalBufferValidation)
-                    {
+                    {LOGMEIN("EncoderMD.cpp] 1423\n");
                         Assert(*(BYTE*)relocAddress == 0);
                         *(BYTE*)relocAddress = (BYTE)pcrel;
                     }
@@ -1434,7 +1434,7 @@ EncoderMD::ApplyRelocs(uint32 codeBufferAddress, size_t codeSize, uint * bufferC
                 {
                     pcrel = (uint32)(labelInstr->GetPC() - ((BYTE*)reloc->m_ptr + 4));
                     if (!isFinalBufferValidation)
-                    {
+                    {LOGMEIN("EncoderMD.cpp] 1436\n");
                         Assert(*(uint32 *)relocAddress == 0);
                         *(uint32 *)relocAddress = pcrel;
                     }
@@ -1447,13 +1447,13 @@ EncoderMD::ApplyRelocs(uint32 codeBufferAddress, size_t codeSize, uint * bufferC
                 break;
             }
         case RelocTypeLabelUse:
-            {
+            {LOGMEIN("EncoderMD.cpp] 1449\n");
                 IR::LabelInstr * labelInstr = reloc->GetLabelInstrForRelocTypeLabelUse();
                 AssertMsg(labelInstr->GetPC() != nullptr, "Branch to unemitted label?");
                 uint32 offset = uint32(labelInstr->GetPC() - m_encoder->m_encodeBuffer);
                 size_t targetAddress = (uint32)(offset + codeBufferAddress);
                 if (!isFinalBufferValidation)
-                {
+                {LOGMEIN("EncoderMD.cpp] 1455\n");
                     Assert(*(uint32 *)relocAddress == 0);
                     *(uint32 *)relocAddress = targetAddress;
                 }
@@ -1476,18 +1476,18 @@ EncoderMD::ApplyRelocs(uint32 codeBufferAddress, size_t codeSize, uint * bufferC
 
 uint
 EncoderMD::GetRelocDataSize(EncodeRelocAndLabels *reloc)
-{
+{LOGMEIN("EncoderMD.cpp] 1478\n");
     switch (reloc->m_type)
-    {
+    {LOGMEIN("EncoderMD.cpp] 1480\n");
         case RelocTypeCallPcrel:
         case RelocTypeLabelUse:
-        {
+        {LOGMEIN("EncoderMD.cpp] 1483\n");
             return sizeof(uint32);
         }
         case RelocTypeBranch:
-        {
+        {LOGMEIN("EncoderMD.cpp] 1487\n");
             if (reloc->isShortBr())
-            {
+            {LOGMEIN("EncoderMD.cpp] 1489\n");
                 return sizeof(BYTE);
             }
             else
@@ -1504,7 +1504,7 @@ EncoderMD::GetRelocDataSize(EncodeRelocAndLabels *reloc)
 
 BYTE * 
 EncoderMD::GetRelocBufferAddress(EncodeRelocAndLabels * reloc)
-{
+{LOGMEIN("EncoderMD.cpp] 1506\n");
     return (BYTE*)reloc->m_ptr;
 }
 
@@ -1518,15 +1518,15 @@ EncoderMD::GetRelocBufferAddress(EncodeRelocAndLabels * reloc)
 #ifdef DBG
 void
 EncoderMD::VerifyRelocList(BYTE *buffStart, BYTE *buffEnd)
-{
+{LOGMEIN("EncoderMD.cpp] 1520\n");
     BYTE *last_pc = 0, *pc;
 
     for (int32 i = 0; i < m_relocList->Count(); i ++)
-    {
+    {LOGMEIN("EncoderMD.cpp] 1524\n");
         EncodeRelocAndLabels &p = m_relocList->Item(i);
         // LabelInstr ?
         if (p.isLabel())
-        {
+        {LOGMEIN("EncoderMD.cpp] 1528\n");
             AssertMsg(p.m_ptr < buffStart || p.m_ptr >= buffEnd, "Invalid label instruction pointer.");
             pc = ((IR::LabelInstr*)p.m_ptr)->GetPC();
             AssertMsg(pc >= buffStart && pc < buffEnd, "LabelInstr offset has to be within buffer.");
@@ -1536,7 +1536,7 @@ EncoderMD::VerifyRelocList(BYTE *buffStart, BYTE *buffEnd)
 
         // The list is partially sorted, out of bound ptrs (JumpTable entries) don't follow.
         if (pc >= buffStart && pc < buffEnd)
-        {
+        {LOGMEIN("EncoderMD.cpp] 1538\n");
             if (last_pc)
                 AssertMsg(pc >= last_pc, "Unordered reloc list.");
             last_pc = pc;
@@ -1549,7 +1549,7 @@ EncoderMD::VerifyRelocList(BYTE *buffStart, BYTE *buffEnd)
 
 void
 EncoderMD::EncodeInlineeCallInfo(IR::Instr *instr, uint32 codeOffset)
-{
+{LOGMEIN("EncoderMD.cpp] 1551\n");
     Assert(instr->GetDst() &&
             instr->GetDst()->IsSymOpnd() &&
             instr->GetDst()->AsSymOpnd()->m_sym->IsStackSym() &&
@@ -1570,25 +1570,25 @@ EncoderMD::EncodeInlineeCallInfo(IR::Instr *instr, uint32 codeOffset)
 }
 
 bool EncoderMD::TryConstFold(IR::Instr *instr, IR::RegOpnd *regOpnd)
-{
+{LOGMEIN("EncoderMD.cpp] 1572\n");
     Assert(regOpnd->m_sym->IsConst());
 
     switch(GetInstrForm(instr))
-    {
+    {LOGMEIN("EncoderMD.cpp] 1576\n");
     case FORM_MOV:
         if (!instr->GetSrc1()->IsRegOpnd())
-        {
+        {LOGMEIN("EncoderMD.cpp] 1579\n");
             return false;
         }
         break;
 
     case FORM_PSHPOP:
         if (instr->m_opcode != Js::OpCode::PUSH)
-        {
+        {LOGMEIN("EncoderMD.cpp] 1586\n");
             return false;
         }
         if (!instr->GetSrc1()->IsRegOpnd())
-        {
+        {LOGMEIN("EncoderMD.cpp] 1590\n");
             return false;
         }
         break;
@@ -1596,7 +1596,7 @@ bool EncoderMD::TryConstFold(IR::Instr *instr, IR::RegOpnd *regOpnd)
     case FORM_BINOP:
     case FORM_SHIFT:
         if (regOpnd != instr->GetSrc2())
-        {
+        {LOGMEIN("EncoderMD.cpp] 1598\n");
             return false;
         }
         break;
@@ -1606,9 +1606,9 @@ bool EncoderMD::TryConstFold(IR::Instr *instr, IR::RegOpnd *regOpnd)
     }
 
     if(regOpnd != instr->GetSrc1() && regOpnd != instr->GetSrc2())
-    {
+    {LOGMEIN("EncoderMD.cpp] 1608\n");
         if(!regOpnd->m_sym->IsConst() || regOpnd->m_sym->IsFloatConst())
-        {
+        {LOGMEIN("EncoderMD.cpp] 1610\n");
             return false;
         }
 
@@ -1617,29 +1617,29 @@ bool EncoderMD::TryConstFold(IR::Instr *instr, IR::RegOpnd *regOpnd)
         bool foldedAllUses = true;
         IR::Opnd *const srcs[] = { instr->GetSrc1(), instr->GetSrc2(), instr->GetDst() };
         for(int i = 0; i < sizeof(srcs) / sizeof(srcs[0]); ++i)
-        {
+        {LOGMEIN("EncoderMD.cpp] 1619\n");
             const auto src = srcs[i];
             if(!src || !src->IsIndirOpnd())
-            {
+            {LOGMEIN("EncoderMD.cpp] 1622\n");
                 continue;
             }
 
             const auto indir = src->AsIndirOpnd();
             if(regOpnd == indir->GetBaseOpnd())
-            {
+            {LOGMEIN("EncoderMD.cpp] 1628\n");
                 // Can't const-fold into the base opnd
                 foundUse = true;
                 foldedAllUses = false;
                 continue;
             }
             if(regOpnd != indir->GetIndexOpnd())
-            {
+            {LOGMEIN("EncoderMD.cpp] 1635\n");
                 continue;
             }
 
             foundUse = true;
             if(!regOpnd->m_sym->IsIntConst())
-            {
+            {LOGMEIN("EncoderMD.cpp] 1641\n");
                 foldedAllUses = false;
                 continue;
             }
@@ -1648,7 +1648,7 @@ bool EncoderMD::TryConstFold(IR::Instr *instr, IR::RegOpnd *regOpnd)
             IntConstType offset = regOpnd->m_sym->GetIntConstValue();
             if(indir->GetScale() != 0 && Int32Math::Shl(offset, indir->GetScale(), &offset) ||
                 indir->GetOffset() != 0 && Int32Math::Add(indir->GetOffset(), offset, &offset))
-            {
+            {LOGMEIN("EncoderMD.cpp] 1650\n");
                 foldedAllUses = false;
                 continue;
             }
@@ -1664,20 +1664,20 @@ bool EncoderMD::TryConstFold(IR::Instr *instr, IR::RegOpnd *regOpnd)
 }
 
 bool EncoderMD::TryFold(IR::Instr *instr, IR::RegOpnd *regOpnd)
-{
+{LOGMEIN("EncoderMD.cpp] 1666\n");
     IR::Opnd *src1 = instr->GetSrc1();
     IR::Opnd *src2 = instr->GetSrc2();
     
     if (IRType_IsSimd128(regOpnd->GetType()))
-    {
+    {LOGMEIN("EncoderMD.cpp] 1671\n");
         // No folding for SIMD values. Alignment is not guaranteed.
         return false;
     }
     switch(GetInstrForm(instr))
-    {
+    {LOGMEIN("EncoderMD.cpp] 1676\n");
     case FORM_MOV:
         if (!instr->GetDst()->IsRegOpnd() || regOpnd != src1)
-        {
+        {LOGMEIN("EncoderMD.cpp] 1679\n");
             return false;
         }
         break;
@@ -1685,11 +1685,11 @@ bool EncoderMD::TryFold(IR::Instr *instr, IR::RegOpnd *regOpnd)
     case FORM_BINOP:
 
         if (regOpnd == src1 && instr->m_opcode == Js::OpCode::CMP && (src2->IsRegOpnd() || src1->IsImmediateOpnd()))
-        {
+        {LOGMEIN("EncoderMD.cpp] 1687\n");
             IR::Instr *instrNext = instr->GetNextRealInstrOrLabel();
 
             if (instrNext->IsBranchInstr() && instrNext->AsBranchInstr()->IsConditional())
-            {
+            {LOGMEIN("EncoderMD.cpp] 1691\n");
                 // Swap src and reverse branch
                 src2 = instr->UnlinkSrc1();
                 src1 = instr->UnlinkSrc2();
@@ -1703,23 +1703,23 @@ bool EncoderMD::TryFold(IR::Instr *instr, IR::RegOpnd *regOpnd)
             }
         }
         if (regOpnd != src2 || !src1->IsRegOpnd())
-        {
+        {LOGMEIN("EncoderMD.cpp] 1705\n");
             return false;
         }
         break;
 
     case FORM_MODRM:
         if (src2 == nullptr)
-        {
+        {LOGMEIN("EncoderMD.cpp] 1712\n");
             if (!instr->GetDst()->IsRegOpnd() || regOpnd != src1 || EncoderMD::IsOPEQ(instr))
-            {
+            {LOGMEIN("EncoderMD.cpp] 1714\n");
                 return false;
             }
         }
         else
         {
             if (regOpnd != src2 || !src1->IsRegOpnd())
-            {
+            {LOGMEIN("EncoderMD.cpp] 1721\n");
                 return false;
             }
         }
@@ -1727,25 +1727,25 @@ bool EncoderMD::TryFold(IR::Instr *instr, IR::RegOpnd *regOpnd)
 
     case FORM_PSHPOP:
         if (instr->m_opcode != Js::OpCode::PUSH)
-        {
+        {LOGMEIN("EncoderMD.cpp] 1729\n");
             return false;
         }
         if (!instr->GetSrc1()->IsRegOpnd())
-        {
+        {LOGMEIN("EncoderMD.cpp] 1733\n");
             return false;
         }
         break;
 
     case FORM_TEST:
         if (regOpnd == src1)
-        {
+        {LOGMEIN("EncoderMD.cpp] 1740\n");
             if (!src2->IsRegOpnd() && !src2->IsIntConstOpnd())
-            {
+            {LOGMEIN("EncoderMD.cpp] 1742\n");
                 return false;
             }
         }
         else if (src1->IsRegOpnd())
-        {
+        {LOGMEIN("EncoderMD.cpp] 1747\n");
             instr->SwapOpnds();
         }
         else
@@ -1764,22 +1764,22 @@ bool EncoderMD::TryFold(IR::Instr *instr, IR::RegOpnd *regOpnd)
 }
 
 bool EncoderMD::SetsConditionCode(IR::Instr *instr)
-{
+{LOGMEIN("EncoderMD.cpp] 1766\n");
     return instr->IsLowered() && (EncoderMD::GetOpdope(instr) & DSETCC);
 }
 
 bool EncoderMD::UsesConditionCode(IR::Instr *instr)
-{
+{LOGMEIN("EncoderMD.cpp] 1771\n");
     return instr->IsLowered() && (EncoderMD::GetOpdope(instr) & DUSECC);
 }
 
 void EncoderMD::UpdateRelocListWithNewBuffer(RelocList * relocList, BYTE * newBuffer, BYTE * oldBufferStart, BYTE * oldBufferEnd)
-{
+{LOGMEIN("EncoderMD.cpp] 1776\n");
     for (int32 i = 0; i < relocList->Count(); i++)
-    {
+    {LOGMEIN("EncoderMD.cpp] 1778\n");
         EncodeRelocAndLabels &reloc = relocList->Item(i);
         if (reloc.isLabel())
-        {
+        {LOGMEIN("EncoderMD.cpp] 1781\n");
             IR::LabelInstr* label = reloc.getLabel();
             AssertMsg((BYTE*)label < oldBufferStart || (BYTE*)label >= oldBufferEnd, "Invalid label pointer.");
 
@@ -1792,7 +1792,7 @@ void EncoderMD::UpdateRelocListWithNewBuffer(RelocList * relocList, BYTE * newBu
         }
         else if (reloc.m_type >= RelocTypeBranch && reloc.m_type <= RelocTypeLabelUse &&
             (BYTE*) reloc.m_origPtr >= oldBufferStart && (BYTE*) reloc.m_origPtr < oldBufferEnd)
-        {
+        {LOGMEIN("EncoderMD.cpp] 1794\n");
             // we need to relocate all new offset that were originally within buffer
             reloc.m_ptr = (BYTE*) reloc.m_ptr - oldBufferStart + newBuffer;
         }
@@ -1800,12 +1800,12 @@ void EncoderMD::UpdateRelocListWithNewBuffer(RelocList * relocList, BYTE * newBu
 }
 
 bool EncoderMD::IsOPEQ(IR::Instr *instr)
-{
+{LOGMEIN("EncoderMD.cpp] 1802\n");
     return instr->IsLowered() && (EncoderMD::GetOpdope(instr) & DOPEQ);
 }
 
 bool EncoderMD::IsSHIFT(IR::Instr *instr)
-{
+{LOGMEIN("EncoderMD.cpp] 1807\n");
     return (instr->IsLowered() && EncoderMD::GetInstrForm(instr) == FORM_SHIFT) ||
         instr->m_opcode == Js::OpCode::PSLLDQ || instr->m_opcode == Js::OpCode::PSRLDQ ||
         instr->m_opcode == Js::OpCode::PSLLW || instr->m_opcode == Js::OpCode::PSRLW ||

@@ -23,11 +23,11 @@ namespace Js
         EngineExtensionObjectBase(EngineInterfaceExtensionKind kind, Js::ScriptContext * context) :
             extensionKind(kind),
             scriptContext(context)
-        {
+        {LOGMEIN("EngineInterfaceObject.h] 25\n");
         }
 
-        EngineInterfaceExtensionKind GetExtensionKind() const { return extensionKind; }
-        ScriptContext* GetScriptContext() const { return scriptContext; }
+        EngineInterfaceExtensionKind GetExtensionKind() const {LOGMEIN("EngineInterfaceObject.h] 28\n"); return extensionKind; }
+        ScriptContext* GetScriptContext() const {LOGMEIN("EngineInterfaceObject.h] 29\n"); return scriptContext; }
         virtual void Initialize() = 0;
 #if DBG
         virtual void DumpByteCode() = 0;
@@ -57,8 +57,8 @@ namespace Js
         Field(EngineExtensionObjectBase*) engineExtensions[MaxEngineInterfaceExtensionKind + 1];
 
     public:
-        EngineInterfaceObject(DynamicType * type) : DynamicObject(type) {}
-        DynamicObject* GetCommonNativeInterfaces() const { return commonNativeInterfaces; }
+        EngineInterfaceObject(DynamicType * type) : DynamicObject(type) {LOGMEIN("EngineInterfaceObject.h] 59\n");}
+        DynamicObject* GetCommonNativeInterfaces() const {LOGMEIN("EngineInterfaceObject.h] 60\n"); return commonNativeInterfaces; }
         EngineExtensionObjectBase* GetEngineExtension(EngineInterfaceExtensionKind extensionKind) const;
         void SetEngineExtension(EngineInterfaceExtensionKind extensionKind, EngineExtensionObjectBase* extensionObject);
 

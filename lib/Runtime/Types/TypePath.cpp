@@ -13,20 +13,20 @@ namespace Js {
 #endif
 
     TypePath* TypePath::New(Recycler* recycler, uint size)
-    {
+    {LOGMEIN("TypePath.cpp] 15\n");
         Assert(size <= MaxPathTypeHandlerLength);
         size = max(size, InitialTypePathSize);
 
 
         if (PHASE_OFF1(Js::TypePathDynamicSizePhase))
-        {
+        {LOGMEIN("TypePath.cpp] 21\n");
             size = MaxPathTypeHandlerLength;
         }
         else
         {
             size = PowerOf2Policy::GetSize(size - TYPE_PATH_ALLOC_GRANULARITY_GAP);
             if (size < MaxPathTypeHandlerLength)
-            {
+            {LOGMEIN("TypePath.cpp] 28\n");
                 size += TYPE_PATH_ALLOC_GRANULARITY_GAP;
             }
         }
@@ -41,21 +41,21 @@ namespace Js {
     }
 
     PropertyIndex TypePath::Lookup(PropertyId propId,int typePathLength)
-    {
+    {LOGMEIN("TypePath.cpp] 43\n");
         return LookupInline(propId,typePathLength);
     }
 
     PropertyIndex TypePath::LookupInline(PropertyId propId,int typePathLength)
-    {
+    {LOGMEIN("TypePath.cpp] 48\n");
         if (propId == Constants::NoProperty)
-        {
+        {LOGMEIN("TypePath.cpp] 50\n");
            return Constants::NoSlot;
         }
 
         PropertyIndex propIndex = Constants::NoSlot;
         if (this->GetData()->map.TryGetValue(propId, &propIndex, assignments) &&
             propIndex < typePathLength)
-        {
+        {LOGMEIN("TypePath.cpp] 57\n");
             return propIndex;
         }
 
@@ -63,7 +63,7 @@ namespace Js {
     }
 
     TypePath * TypePath::Branch(Recycler * recycler, int pathLength, bool couldSeeProto)
-    {
+    {LOGMEIN("TypePath.cpp] 65\n");
         AssertMsg(pathLength < this->GetPathLength(), "Why are we branching at the tip of the type path?");
 
         // Ensure there is at least one free entry in the new path, so we can extend it.
@@ -71,14 +71,14 @@ namespace Js {
         TypePath * branchedPath = TypePath::New(recycler, pathLength + 1);
 
         for (PropertyIndex i = 0; i < pathLength; i++)
-        {
+        {LOGMEIN("TypePath.cpp] 73\n");
             branchedPath->AddInternal(assignments[i]);
 
 #ifdef SUPPORT_FIXED_FIELDS_ON_PATH_TYPES
             if (couldSeeProto)
-            {
+            {LOGMEIN("TypePath.cpp] 78\n");
                 if (this->GetData()->usedFixedFields.Test(i))
-                {
+                {LOGMEIN("TypePath.cpp] 80\n");
                     // We must conservatively copy all used as fixed bits if some prototype instance could also take
                     // this transition.  See comment in PathTypeHandlerBase::ConvertToSimpleDictionaryType.
                     // Yes, we could devise a more efficient way of copying bits 1 through pathLength, if performance of this
@@ -86,7 +86,7 @@ namespace Js {
                     branchedPath->GetData()->usedFixedFields.Set(i);
                 }
                 else if (this->GetData()->fixedFields.Test(i))
-                {
+                {LOGMEIN("TypePath.cpp] 88\n");
                     // We must clear any fixed fields that are not also used as fixed if some prototype instance could also take
                     // this transition.  See comment in PathTypeHandlerBase::ConvertToSimpleDictionaryType.
                     this->GetData()->fixedFields.Clear(i);
@@ -103,7 +103,7 @@ namespace Js {
         // and the instance from the old branch later switched to the new branch, it would magically gain a different set
         // of fixed properties!
         if (this->GetMaxInitializedLength() < pathLength)
-        {
+        {LOGMEIN("TypePath.cpp] 105\n");
             this->SetMaxInitializedLength(pathLength);
         }
         branchedPath->SetMaxInitializedLength(pathLength);
@@ -111,12 +111,12 @@ namespace Js {
 
 #ifdef SUPPORT_FIXED_FIELDS_ON_PATH_TYPES
         if (PHASE_VERBOSE_TRACE1(FixMethodPropsPhase))
-        {
+        {LOGMEIN("TypePath.cpp] 113\n");
             Output::Print(_u("FixedFields: TypePath::Branch: singleton: 0x%p(0x%p)\n"), PointerValue(this->singletonInstance), this->singletonInstance->Get());
             Output::Print(_u("   fixed fields:"));
 
             for (PropertyIndex i = 0; i < GetPathLength(); i++)
-            {
+            {LOGMEIN("TypePath.cpp] 118\n");
                 Output::Print(_u(" %s %d%d%d,"), GetPropertyId(i)->GetBuffer(),
                     i < GetMaxInitializedLength() ? 1 : 0,
                     GetIsFixedFieldAt(i, GetPathLength()) ? 1 : 0,
@@ -131,7 +131,7 @@ namespace Js {
     }
 
     TypePath * TypePath::Grow(Recycler * recycler)
-    {
+    {LOGMEIN("TypePath.cpp] 133\n");
         uint currentPathLength = this->GetPathLength();
         AssertMsg(this->GetPathSize() == currentPathLength, "Why are we growing the type path?");
 
@@ -156,7 +156,7 @@ namespace Js {
 
 #if DBG
     bool TypePath::HasSingletonInstanceOnlyIfNeeded()
-    {
+    {LOGMEIN("TypePath.cpp] 158\n");
 #ifdef SUPPORT_FIXED_FIELDS_ON_PATH_TYPES
         return DynamicTypeHandler::AreSingletonInstancesNeeded() || this->singletonInstance == nullptr;
 #else
@@ -166,14 +166,14 @@ namespace Js {
 #endif
 
     Var TypePath::GetSingletonFixedFieldAt(PropertyIndex index, int typePathLength, ScriptContext * requestContext)
-    {
+    {LOGMEIN("TypePath.cpp] 168\n");
 #ifdef SUPPORT_FIXED_FIELDS_ON_PATH_TYPES
         Assert(index < this->GetPathLength());
         Assert(index < typePathLength);
         Assert(typePathLength <= this->GetPathLength());
 
         if (!CanHaveFixedFields(typePathLength))
-        {
+        {LOGMEIN("TypePath.cpp] 175\n");
             return nullptr;
         }
 
@@ -187,11 +187,11 @@ namespace Js {
     }
 
     int TypePath::Data::Add(const PropertyRecord* propId, Field(const PropertyRecord *)* assignments)
-    {
+    {LOGMEIN("TypePath.cpp] 189\n");
         uint currentPathLength = this->pathLength;
         Assert(currentPathLength < this->pathSize);
         if (currentPathLength >= this->pathSize)
-        {
+        {LOGMEIN("TypePath.cpp] 193\n");
             Throw::InternalError();
         }
 
@@ -209,18 +209,18 @@ namespace Js {
     }
 
     int TypePath::AddInternal(const PropertyRecord * propId)
-    {
+    {LOGMEIN("TypePath.cpp] 211\n");
         int propertyIndex = this->GetData()->Add(propId, assignments);
 
 #ifdef SUPPORT_FIXED_FIELDS_ON_PATH_TYPES
         if (PHASE_VERBOSE_TRACE1(FixMethodPropsPhase))
-        {
+        {LOGMEIN("TypePath.cpp] 216\n");
             Output::Print(_u("FixedFields: TypePath::AddInternal: singleton = 0x%p(0x%p)\n"),
                 PointerValue(this->singletonInstance), this->singletonInstance != nullptr ? this->singletonInstance->Get() : nullptr);
             Output::Print(_u("   fixed fields:"));
 
             for (PropertyIndex i = 0; i < GetPathLength(); i++)
-            {
+            {LOGMEIN("TypePath.cpp] 222\n");
                 Output::Print(_u(" %s %d%d%d,"), GetPropertyId(i)->GetBuffer(),
                     i < GetMaxInitializedLength() ? 1 : 0,
                     GetIsFixedFieldAt(i, GetPathLength()) ? 1 : 0,
@@ -235,19 +235,19 @@ namespace Js {
     }
 
     void TypePath::AddBlankFieldAt(PropertyIndex index, int typePathLength)
-    {
+    {LOGMEIN("TypePath.cpp] 237\n");
         Assert(index >= this->GetMaxInitializedLength());
         this->SetMaxInitializedLength(index + 1);
 
 #ifdef SUPPORT_FIXED_FIELDS_ON_PATH_TYPES
         if (PHASE_VERBOSE_TRACE1(FixMethodPropsPhase))
-        {
+        {LOGMEIN("TypePath.cpp] 243\n");
             Output::Print(_u("FixedFields: TypePath::AddBlankFieldAt: singleton = 0x%p(0x%p)\n"),
                 PointerValue(this->singletonInstance), this->singletonInstance != nullptr ? this->singletonInstance->Get() : nullptr);
             Output::Print(_u("   fixed fields:"));
 
             for (PropertyIndex i = 0; i < GetPathLength(); i++)
-            {
+            {LOGMEIN("TypePath.cpp] 249\n");
                 Output::Print(_u(" %s %d%d%d,"), GetPropertyId(i)->GetBuffer(),
                     i < GetMaxInitializedLength() ? 1 : 0,
                     GetIsFixedFieldAt(i, GetPathLength()) ? 1 : 0,
@@ -260,7 +260,7 @@ namespace Js {
     }
 
     void TypePath::AddSingletonInstanceFieldAt(DynamicObject* instance, PropertyIndex index, bool isFixed, int typePathLength)
-    {
+    {LOGMEIN("TypePath.cpp] 262\n");
         Assert(index < this->GetPathLength());
         Assert(typePathLength >= this->GetMaxInitializedLength());
         Assert(index >= this->GetMaxInitializedLength());
@@ -270,26 +270,26 @@ namespace Js {
         Assert(!this->GetData()->fixedFields.Test(index) && !this->GetData()->usedFixedFields.Test(index));
 
         if (this->singletonInstance == nullptr)
-        {
+        {LOGMEIN("TypePath.cpp] 272\n");
             this->singletonInstance = instance->CreateWeakReferenceToSelf();
         }
 
         this->SetMaxInitializedLength(index + 1);
 
         if (isFixed)
-        {
+        {LOGMEIN("TypePath.cpp] 279\n");
             this->GetData()->fixedFields.Set(index);
         }
 
 #ifdef SUPPORT_FIXED_FIELDS_ON_PATH_TYPES
         if (PHASE_VERBOSE_TRACE1(FixMethodPropsPhase))
-        {
+        {LOGMEIN("TypePath.cpp] 285\n");
             Output::Print(_u("FixedFields: TypePath::AddSingletonInstanceFieldAt: singleton = 0x%p(0x%p)\n"),
                 PointerValue(this->singletonInstance), this->singletonInstance != nullptr ? this->singletonInstance->Get() : nullptr);
             Output::Print(_u("   fixed fields:"));
 
             for (PropertyIndex i = 0; i < GetPathLength(); i++)
-            {
+            {LOGMEIN("TypePath.cpp] 291\n");
                 Output::Print(_u(" %s %d%d%d,"), GetPropertyId(i)->GetBuffer(),
                     i < GetMaxInitializedLength() ? 1 : 0,
                     GetIsFixedFieldAt(i, GetPathLength()) ? 1 : 0,
@@ -302,7 +302,7 @@ namespace Js {
     }
 
     void TypePath::AddSingletonInstanceFieldAt(PropertyIndex index, int typePathLength)
-    {
+    {LOGMEIN("TypePath.cpp] 304\n");
         Assert(index < this->GetPathLength());
         Assert(typePathLength >= this->GetMaxInitializedLength());
         Assert(index >= this->GetMaxInitializedLength());
@@ -312,13 +312,13 @@ namespace Js {
 
 #ifdef SUPPORT_FIXED_FIELDS_ON_PATH_TYPES
         if (PHASE_VERBOSE_TRACE1(FixMethodPropsPhase))
-        {
+        {LOGMEIN("TypePath.cpp] 314\n");
             Output::Print(_u("FixedFields: TypePath::AddSingletonInstanceFieldAt: singleton = 0x%p(0x%p)\n"),
                 PointerValue(this->singletonInstance), this->singletonInstance != nullptr ? this->singletonInstance->Get() : nullptr);
             Output::Print(_u("   fixed fields:"));
 
             for (PropertyIndex i = 0; i < GetPathLength(); i++)
-            {
+            {LOGMEIN("TypePath.cpp] 320\n");
                 Output::Print(_u(" %s %d%d%d,"), GetPropertyId(i)->GetBuffer(),
                     i < GetMaxInitializedLength() ? 1 : 0,
                     GetIsFixedFieldAt(i, GetPathLength()) ? 1 : 0,

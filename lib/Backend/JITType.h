@@ -39,10 +39,10 @@ public:
     JITTypeHolderBase(JITType * t);
 
     template <class S>
-    JITTypeHolderBase(JITTypeHolderBase<S> other) : t(PointerValue(other.t)) {}
+    JITTypeHolderBase(JITTypeHolderBase<S> other) : t(PointerValue(other.t)) {LOGMEIN("JITType.h] 41\n");}
 
     template <class S>
-    void operator =(const JITTypeHolderBase<S> &other) { t = other.t; }
+    void operator =(const JITTypeHolderBase<S> &other) {LOGMEIN("JITType.h] 44\n"); t = other.t; }
 
     const JITType* operator->() const;
     bool operator== (const JITTypeHolderBase& p) const;

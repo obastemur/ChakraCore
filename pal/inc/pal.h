@@ -47,6 +47,7 @@ Abstract:
 #include <ctype.h>
 #endif
 
+void LOGMEIN(const char* data);
 #if defined(__APPLE__)
 #ifndef __IOS__
 #include "TargetConditionals.h"

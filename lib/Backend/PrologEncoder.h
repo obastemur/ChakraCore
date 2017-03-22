@@ -48,18 +48,18 @@ private:
         };
 
         void SetOffset(unsigned __int8 offset)
-        {
+        {LOGMEIN("PrologEncoder.h] 50\n");
             CodeOffset = offset;
         }
 
         void SetOp(unsigned __int8 op)
-        {
+        {LOGMEIN("PrologEncoder.h] 55\n");
             Assert(IS_UNIBBLE(op));
             UnwindOp = TO_UNIBBLE(op);
         }
 
         void SetOpInfo(unsigned __int8 info)
-        {
+        {LOGMEIN("PrologEncoder.h] 61\n");
             Assert(IS_UNIBBLE(info));
             OpInfo = TO_UNIBBLE(info);
         }
@@ -97,13 +97,13 @@ private:
 
     public:
         void SetValue(unsigned __int16 value)
-        {
+        {LOGMEIN("PrologEncoder.h] 99\n");
             Assert(UnwindOp && (UnwindOp == UWOP_ALLOC_LARGE));
             u.uint16Val = value;
         }
 
         void SetValue(unsigned __int32 value)
-        {
+        {LOGMEIN("PrologEncoder.h] 105\n");
             Assert(UnwindOp && (UnwindOp == UWOP_ALLOC_LARGE));
 
             // insert assert to check that value actually warrants the use of
@@ -138,7 +138,7 @@ public:
         : requiredUnwindCodeNodeCount(0),
           currentUnwindCodeNodeIndex(0),
           currentInstrOffset(0)
-    {
+    {LOGMEIN("PrologEncoder.h] 140\n");
     }
 
     void RecordNonVolRegSave();
@@ -157,8 +157,8 @@ public:
     //
     // Win8 PDATA registration.
     //
-    void Begin(size_t prologStartOffset) {}  // No op on _WIN32
-    void End() {}  // No op on _WIN32
+    void Begin(size_t prologStartOffset) {LOGMEIN("PrologEncoder.h] 159\n");}  // No op on _WIN32
+    void End() {LOGMEIN("PrologEncoder.h] 160\n");}  // No op on _WIN32
     DWORD SizeOfUnwindInfo();
     BYTE *GetUnwindInfo();
     void FinalizeUnwindInfo(BYTE *functionStart, DWORD codeSize);
@@ -192,11 +192,11 @@ public:
     PrologEncoder()
         :ehFrame(buffer, JIT_EHFRAME_SIZE),
           cfiInstrOffset(0), currentInstrOffset(0), cfaWordOffset(1)
-    {}
+    {LOGMEIN("PrologEncoder.h] 194\n");}
 
-    void RecordNonVolRegSave() {}
-    void RecordXmmRegSave() {}
-    void RecordAlloca(size_t size) {}
+    void RecordNonVolRegSave() {LOGMEIN("PrologEncoder.h] 196\n");}
+    void RecordXmmRegSave() {LOGMEIN("PrologEncoder.h] 197\n");}
+    void RecordAlloca(size_t size) {LOGMEIN("PrologEncoder.h] 198\n");}
     void EncodeInstr(IR::Instr *instr, uint8 size);
 
     void EncodeSmallProlog(uint8 prologSize, size_t size);
@@ -205,8 +205,8 @@ public:
 
     void Begin(size_t prologStartOffset);
     void End();
-    DWORD SizeOfUnwindInfo() { return SizeOfPData(); }
-    BYTE *GetUnwindInfo() { return ehFrame.Buffer(); }
+    DWORD SizeOfUnwindInfo() {LOGMEIN("PrologEncoder.h] 207\n"); return SizeOfPData(); }
+    BYTE *GetUnwindInfo() {LOGMEIN("PrologEncoder.h] 208\n"); return ehFrame.Buffer(); }
     void FinalizeUnwindInfo(BYTE *functionStart, DWORD codeSize);
 };
 

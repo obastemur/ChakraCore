@@ -32,7 +32,7 @@ namespace Js
     DEFINE_RECYCLER_TRACKER_PERF_COUNTER(JavascriptFunction);
     JavascriptFunction::JavascriptFunction(DynamicType * type)
         : DynamicObject(type), functionInfo(nullptr), constructorCache(&ConstructorCache::DefaultInstance)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 34\n");
         Assert(this->constructorCache != nullptr);
     }
 
@@ -40,11 +40,11 @@ namespace Js
     JavascriptFunction::JavascriptFunction(DynamicType * type, FunctionInfo * functionInfo)
         : DynamicObject(type), functionInfo(functionInfo), constructorCache(&ConstructorCache::DefaultInstance)
 
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 42\n");
         Assert(this->constructorCache != nullptr);
         this->GetTypeHandler()->ClearHasOnlyWritableDataProperties(); // length is non-writable
         if (GetTypeHandler()->GetFlags() & DynamicTypeHandler::IsPrototypeFlag)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 46\n");
             // No need to invalidate store field caches for non-writable properties here. Since this type is just being created, it cannot represent
             // an object that is already a prototype. If it becomes a prototype and then we attempt to add a property to an object derived from this
             // object, then we will check if this property is writable, and only if it is will we do the fast path for add property.
@@ -56,11 +56,11 @@ namespace Js
     JavascriptFunction::JavascriptFunction(DynamicType * type, FunctionInfo * functionInfo, ConstructorCache* cache)
         : DynamicObject(type), functionInfo(functionInfo), constructorCache(cache)
 
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 58\n");
         Assert(this->constructorCache != nullptr);
         this->GetTypeHandler()->ClearHasOnlyWritableDataProperties(); // length is non-writable
         if (GetTypeHandler()->GetFlags() & DynamicTypeHandler::IsPrototypeFlag)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 62\n");
             // No need to invalidate store field caches for non-writable properties here. Since this type is just being created, it cannot represent
             // an object that is already a prototype. If it becomes a prototype and then we attempt to add a property to an object derived from this
             // object, then we will check if this property is writable, and only if it is will we do the fast path for add property.
@@ -70,39 +70,39 @@ namespace Js
     }
 
     FunctionProxy *JavascriptFunction::GetFunctionProxy() const
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 72\n");
         Assert(functionInfo != nullptr);
         return functionInfo->GetFunctionProxy();
     }
 
     ParseableFunctionInfo *JavascriptFunction::GetParseableFunctionInfo() const
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 78\n");
         Assert(functionInfo != nullptr);
         return functionInfo->GetParseableFunctionInfo();
     }
 
     DeferDeserializeFunctionInfo *JavascriptFunction::GetDeferDeserializeFunctionInfo() const
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 84\n");
         Assert(functionInfo != nullptr);
         return functionInfo->GetDeferDeserializeFunctionInfo();
     }
 
     FunctionBody *JavascriptFunction::GetFunctionBody() const
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 90\n");
         Assert(functionInfo != nullptr);
         return functionInfo->GetFunctionBody();
     }
 
     BOOL JavascriptFunction::IsScriptFunction() const
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 96\n");
         Assert(functionInfo != nullptr);
         return functionInfo->HasBody();
     }
 
     bool JavascriptFunction::Is(Var aValue)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 102\n");
         if (JavascriptOperators::GetTypeId(aValue) == TypeIds_Function)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 104\n");
             return true;
         }
         return false;
@@ -116,25 +116,25 @@ namespace Js
     }
 
     BOOL JavascriptFunction::IsStrictMode() const
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 118\n");
         FunctionProxy * proxy = this->GetFunctionProxy();
         return proxy && proxy->EnsureDeserialized()->GetIsStrictMode();
     }
 
     BOOL JavascriptFunction::IsLambda() const
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 124\n");
         return this->GetFunctionInfo()->IsLambda();
     }
 
     BOOL JavascriptFunction::IsConstructor() const
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 129\n");
         return this->GetFunctionInfo()->IsConstructor();
     }
 
 #if DBG
     /* static */
     bool JavascriptFunction::IsBuiltinProperty(Var objectWithProperty, PropertyIds propertyId)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 136\n");
         return ScriptFunction::Is(objectWithProperty)
             && (propertyId == PropertyIds::length || (JavascriptFunction::FromVar(objectWithProperty)->HasRestrictedProperties() && (propertyId == PropertyIds::arguments || propertyId == PropertyIds::caller)));
     }
@@ -149,7 +149,7 @@ namespace Js
     static char16 const closeFuncBody[] = _u("\n}");
 
     Var JavascriptFunction::NewInstanceHelper(ScriptContext *scriptContext, RecyclableObject* function, CallInfo callInfo, Js::ArgumentReader& args, FunctionKind functionKind /* = FunctionKind::Normal */)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 151\n");
         JavascriptLibrary* library = function->GetLibrary();
 
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
@@ -166,9 +166,9 @@ namespace Js
         // Gather all the formals into a string like (fml1, fml2, fml3)
         JavascriptString *formals = library->CreateStringFromCppLiteral(openFormals);
         for (uint i = 1; i < args.Info.Count - 1; ++i)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 168\n");
             if (i != 1)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 170\n");
                 formals = JavascriptString::Concat(formals, separator);
             }
             formals = JavascriptString::Concat(formals, JavascriptConversion::ToString(args.Values[i], scriptContext));
@@ -177,7 +177,7 @@ namespace Js
         // Function body, last argument to Function(...)
         JavascriptString *fnBody = NULL;
         if (args.Info.Count > 1)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 179\n");
             fnBody = JavascriptConversion::ToString(args.Values[args.Info.Count - 1], scriptContext);
         }
 
@@ -197,7 +197,7 @@ namespace Js
         bs = JavascriptString::Concat(bs, formals);
         bs = JavascriptString::Concat(bs, library->CreateStringFromCppLiteral(openFuncBody));
         if (fnBody != NULL)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 199\n");
             bs = JavascriptString::Concat(bs, fnBody);
         }
 
@@ -213,14 +213,14 @@ namespace Js
         charcount_t sourceLen = bs->GetLength();
         EvalMapString key(sourceString, sourceLen, moduleID, strictMode, /* isLibraryCode = */ false);
         if (!scriptContext->IsInNewFunctionMap(key, &pfuncInfoCache))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 215\n");
             // Validate formals here
             scriptContext->GetGlobalObject()->ValidateSyntax(
                 scriptContext, formals->GetSz(), formals->GetLength(),
                 functionKind == FunctionKind::Generator, functionKind == FunctionKind::Async,
                 &Parser::ValidateFormals);
             if (fnBody != NULL)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 222\n");
                 // Validate function body
                 scriptContext->GetGlobalObject()->ValidateSyntax(
                     scriptContext, fnBody->GetSz(), fnBody->GetLength(),
@@ -239,7 +239,7 @@ namespace Js
 
 #if ENABLE_TTD
             if(!scriptContext->IsTTDRecordOrReplayModeEnabled())
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 241\n");
                 scriptContext->AddToNewFunctionMap(key, functionInfo->GetFunctionInfo());
             }
 #else
@@ -247,7 +247,7 @@ namespace Js
 #endif
         }
         else if (pfuncInfoCache->IsCoroutine())
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 249\n");
             pfuncScript = scriptContext->GetLibrary()->CreateGeneratorVirtualScriptFunction(pfuncInfoCache->GetFunctionProxy());
         }
         else
@@ -260,20 +260,20 @@ namespace Js
         //TODO: We may (probably?) want to use the debugger source rundown functionality here instead
         //
         if(scriptContext->IsTTDRecordModeEnabled() || scriptContext->ShouldPerformReplayAction())
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 262\n");
             //Make sure we have the body and text information available
             FunctionBody* globalBody = TTD::JsSupport::ForceAndGetFunctionBody(pfuncScript->GetParseableFunctionInfo());
             if(!scriptContext->TTDContextInfo->IsBodyAlreadyLoadedAtTopLevel(globalBody))
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 266\n");
                 uint64 bodyIdCtr = 0;
 
                 if(scriptContext->IsTTDRecordModeEnabled())
-                {
+                {LOGMEIN("JavascriptFunction.cpp] 270\n");
                     const TTD::NSSnapValues::TopLevelNewFunctionBodyResolveInfo* tbfi = scriptContext->GetThreadContext()->TTDLog->AddNewFunction(globalBody, moduleID, sourceString, sourceLen);
 
                     //We always want to register the top-level load but we don't always need to log the event
                     if(scriptContext->ShouldPerformRecordAction())
-                    {
+                    {LOGMEIN("JavascriptFunction.cpp] 275\n");
                         scriptContext->GetThreadContext()->TTDLog->RecordTopLevelCodeAction(tbfi->TopLevelBase.TopLevelBodyCtr);
                     }
 
@@ -281,7 +281,7 @@ namespace Js
                 }
 
                 if(scriptContext->ShouldPerformReplayAction())
-                {
+                {LOGMEIN("JavascriptFunction.cpp] 283\n");
                     bodyIdCtr = scriptContext->GetThreadContext()->TTDLog->ReplayTopLevelCodeAction();
                 }
 
@@ -295,7 +295,7 @@ namespace Js
         JS_ETW(EventWriteJSCRIPT_RECYCLER_ALLOCATE_FUNCTION(pfuncScript, EtwTrace::GetFunctionId(pfuncScript->GetFunctionProxy())));
 
         if (functionKind == FunctionKind::Generator || functionKind == FunctionKind::Async)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 297\n");
             Assert(pfuncScript->GetFunctionInfo()->IsCoroutine());
             auto pfuncVirt = static_cast<GeneratorVirtualScriptFunction*>(pfuncScript);
             auto pfuncGen = functionKind == FunctionKind::Async ?
@@ -368,7 +368,7 @@ namespace Js
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
 
         if (callInfo.Flags & CallFlags_New)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 370\n");
             JavascriptError::ThrowTypeError(scriptContext, VBSERR_ActionNotSupported);
         }
 
@@ -417,7 +417,7 @@ namespace Js
         /// If not, throw TypeError
         ///
         if (args.Info.Count == 0 || !JavascriptConversion::IsCallable(args[0]))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 419\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedFunction, _u("Function.prototype.apply"));
         }
 
@@ -426,15 +426,15 @@ namespace Js
         RecyclableObject* pFunc = RecyclableObject::FromVar(args[0]);
 
         if (args.Info.Count == 1)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 428\n");
             thisVar = scriptContext->GetLibrary()->GetUndefined();
         }
         else if (args.Info.Count == 2)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 432\n");
             thisVar = args.Values[1];
         }
         else if (args.Info.Count > 2)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 436\n");
             thisVar = args.Values[1];
             argArray = args.Values[2];
         }
@@ -444,10 +444,10 @@ namespace Js
 
     template <bool isConstruct>
     Var JavascriptFunction::CalloutHelper(RecyclableObject* pFunc, Var thisVar, Var overridingNewTarget, Var argArray, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 446\n");
         CallFlags callFlag;
         if (isConstruct)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 449\n");
             callFlag = CallFlags_New;
         }
         else
@@ -459,7 +459,7 @@ namespace Js
         Var stackArgs[STACK_ARGS_ALLOCA_THRESHOLD];
 
         if (nullptr == argArray)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 461\n");
             outArgs.Info.Count = 1;
             outArgs.Values = &thisVar;
         }
@@ -470,7 +470,7 @@ namespace Js
             bool isNullOrUndefined = (typeId == TypeIds_Null || typeId == TypeIds_Undefined);
 
             if (!isNullOrUndefined && !JavascriptOperators::IsObject(argArray)) // ES5: throw if Type(argArray) is not Object
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 472\n");
                 JavascriptError::ThrowTypeError(scriptContext, JSERR_FunctionArgument_NeedObject, _u("Function.prototype.apply"));
             }
 
@@ -479,11 +479,11 @@ namespace Js
             RecyclableObject* dynamicObject = RecyclableObject::FromVar(argArray);
 
             if (isNullOrUndefined)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 481\n");
                 len = 0;
             }
             else if (isArray)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 485\n");
 #if ENABLE_COPYONACCESS_ARRAY
                 JavascriptLibrary::CheckAndConvertCopyOnAccessNativeIntArray<Var>(argArray);
 #endif
@@ -497,13 +497,13 @@ namespace Js
             }
 
             if (len >= CallInfo::kMaxCountArgs)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 499\n");
                 JavascriptError::ThrowRangeError(scriptContext, JSERR_ArgListTooLarge);
             }
 
             outArgs.Info.Count = (uint)len + 1;
             if (len == 0)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 505\n");
                 outArgs.Values = &thisVar;
             }
             else
@@ -522,7 +522,7 @@ namespace Js
 
                 Var undefined = pFunc->GetLibrary()->GetUndefined();
                 if (isArray && arr->GetScriptContext() == scriptContext)
-                {
+                {LOGMEIN("JavascriptFunction.cpp] 524\n");
                     arr->ForEachItemInRange<false>(0, (uint)len, undefined, scriptContext,
                         [&outArgs](uint index, Var element)
                     {
@@ -532,10 +532,10 @@ namespace Js
                 else
                 {
                     for (uint i = 0; i < len; i++)
-                    {
+                    {LOGMEIN("JavascriptFunction.cpp] 534\n");
                         Var element;
                         if (!JavascriptOperators::GetItem(dynamicObject, i, &element, scriptContext))
-                        {
+                        {LOGMEIN("JavascriptFunction.cpp] 537\n");
                             element = undefined;
                         }
                         outArgs.Values[i + 1] = element;
@@ -545,7 +545,7 @@ namespace Js
         }
 
         if (isConstruct)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 547\n");
             return JavascriptFunction::CallAsConstructor(pFunc, overridingNewTarget, outArgs, scriptContext);
         }
         else
@@ -555,12 +555,12 @@ namespace Js
     }
 
     Var JavascriptFunction::ApplyHelper(RecyclableObject* function, Var thisArg, Var argArray, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 557\n");
         return CalloutHelper<false>(function, thisArg, /* overridingNewTarget = */nullptr, argArray, scriptContext);
     }
 
     Var JavascriptFunction::ConstructHelper(RecyclableObject* function, Var thisArg, Var overridingNewTarget, Var argArray, ScriptContext* scriptContext)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 562\n");
         return CalloutHelper<true>(function, thisArg, overridingNewTarget, argArray, scriptContext);
     }
 
@@ -580,7 +580,7 @@ namespace Js
         /// If not, throw TypeError
         ///
         if (args.Info.Count == 0 || !JavascriptConversion::IsCallable(args[0]))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 582\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedFunction, _u("Function.prototype.bind"));
         }
 
@@ -612,13 +612,13 @@ namespace Js
         /// If not, throw TypeError
         ///
         if (args.Info.Count == 0 || !JavascriptConversion::IsCallable(args[0]))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 614\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedFunction, _u("Function.prototype.call"));
         }
 
         RecyclableObject *pFunc = RecyclableObject::FromVar(args[0]);
         if (args.Info.Count == 1)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 620\n");
             args.Values[0] = scriptContext->GetLibrary()->GetUndefined();
         }
         else
@@ -627,7 +627,7 @@ namespace Js
             /// Remove function object from the arguments and pass the rest
             ///
             for (uint i = 0; i < args.Info.Count - 1; ++i)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 629\n");
                 args.Values[i] = args.Values[i + 1];
             }
             args.Info.Count = args.Info.Count - 1;
@@ -640,25 +640,25 @@ namespace Js
     }
 
     Var JavascriptFunction::CallRootFunctionInScript(JavascriptFunction* func, Arguments args)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 642\n");
         ScriptContext* scriptContext = func->GetScriptContext();
         if (scriptContext->GetThreadContext()->HasPreviousHostScriptContext())
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 645\n");
             ScriptContext* requestContext = scriptContext->GetThreadContext()->GetPreviousHostScriptContext()->GetScriptContext();
             func = JavascriptFunction::FromVar(CrossSite::MarshalVar(requestContext, func));
         }
         return func->CallRootFunction(args, scriptContext, true);
     }
     Var JavascriptFunction::CallRootFunction(Arguments args, ScriptContext * scriptContext, bool inScript)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 652\n");
         Var ret = nullptr;
 
 #ifdef FAULT_INJECTION
         if (Js::Configuration::Global.flags.FaultInjection >= 0)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 657\n");
             Js::FaultInjection::pfnHandleAV = JavascriptFunction::CallRootEventFilter;
             __try
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 660\n");
                 ret = CallRootFunctionInternal(args, scriptContext, inScript);
             }
             __finally
@@ -678,7 +678,7 @@ namespace Js
         ret = CallRootFunctionInternal(args, scriptContext, inScript);
 #else
         if (scriptContext->GetThreadContext()->GetAbnormalExceptionCode() != 0)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 680\n");
             // ensure that hosts are not doing SEH across Chakra frames, as that can lead to bad state (e.g. destructors not being called)
             UnexpectedExceptionHandling_fatal_error();
         }
@@ -696,7 +696,7 @@ namespace Js
                 exceptionInfo = *GetExceptionInformation(),
                 exceptionCode = GetExceptionCode(),
                 CallRootEventFilter(exceptionCode, GetExceptionInformation()))
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 698\n");
                 Assert(UNREACHED);
             }
         }
@@ -704,7 +704,7 @@ namespace Js
         {
             // 0xE06D7363 is C++ exception code
             if (exceptionCode != 0 && exceptionCode != 0xE06D7363 && AbnormalTermination() && !IsDebuggerPresent())
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 706\n");
                 scriptContext->GetThreadContext()->SetAbnormalExceptionCode(exceptionCode);
                 scriptContext->GetThreadContext()->SetAbnormalExceptionRecord(&exceptionInfo);
             }
@@ -715,10 +715,10 @@ namespace Js
         return ret;
     }
     Var JavascriptFunction::CallRootFunctionInternal(Arguments args, ScriptContext * scriptContext, bool inScript)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 717\n");
 #if DBG
         if (IsInAssert != 0)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 720\n");
             // Just don't execute anything if we are in an assert
             // throw the exception directly to avoid additional assert in Js::Throw::InternalError
             AssertOrFailFast(false);
@@ -726,7 +726,7 @@ namespace Js
 #endif
 
         if (inScript)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 728\n");
             Assert(!(args.Info.Flags & CallFlags_New));
             return JavascriptFunction::CallFunction<true>(this, GetEntryPoint(), args);
         }
@@ -734,7 +734,7 @@ namespace Js
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
         Js::Var varThis;
         if (PHASE_FORCE1(Js::EvalCompilePhase) && args.Info.Count == 0)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 736\n");
             varThis = JavascriptOperators::OP_GetThis(scriptContext->GetLibrary()->GetUndefined(), kmodGlobal, scriptContext);
             args.Info.Flags = (Js::CallFlags)(args.Info.Flags | CallFlags_Eval);
             args.Info.Count = 1;
@@ -750,10 +750,10 @@ namespace Js
         bool hasCaller = scriptContext->GetHostScriptContext() ? !!scriptContext->GetHostScriptContext()->HasCaller() : false;
         Assert(scriptContext == GetScriptContext());
         BEGIN_JS_RUNTIME_CALLROOT_EX(scriptContext, hasCaller)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 752\n");
             scriptContext->VerifyAlive(true);
             try
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 755\n");
                 varResult =
                     args.Info.Flags & CallFlags_New ?
                     CallAsConstructor(this, /* overridingNewTarget = */nullptr, args, scriptContext) :
@@ -761,17 +761,17 @@ namespace Js
 
                 // A recent compiler bug 150148 can incorrectly eliminate catch block, temporary workaround
                 if (threadContext == NULL)
-                {
+                {LOGMEIN("JavascriptFunction.cpp] 763\n");
                     throw JavascriptException(nullptr);
                 }
             }
             catch (const JavascriptException& err)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 768\n");
                 pExceptionObject = err.GetAndClear();
             }
 
             if (pExceptionObject)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 773\n");
                 JavascriptExceptionOperators::DoThrowCheckClone(pExceptionObject, scriptContext);
             }
         }
@@ -784,7 +784,7 @@ namespace Js
 #if DBG
     /*static*/
     void JavascriptFunction::CheckValidDebugThunk(ScriptContext* scriptContext, RecyclableObject *function)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 786\n");
         Assert(scriptContext != nullptr);
         Assert(function != nullptr);
 
@@ -793,17 +793,17 @@ namespace Js
             && function->GetEntryPoint() != scriptContext->CurrentThunk
             && function->GetEntryPoint() != scriptContext->CurrentCrossSiteThunk
             && JavascriptFunction::Is(function))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 795\n");
 
             JavascriptFunction *jsFunction = JavascriptFunction::FromVar(function);
             if (!jsFunction->IsBoundFunction()
                 && !jsFunction->GetFunctionInfo()->IsDeferred()
                 && (jsFunction->GetFunctionInfo()->GetAttributes() & FunctionInfo::DoNotProfile) != FunctionInfo::DoNotProfile
                 && jsFunction->GetFunctionInfo() != &JavascriptExternalFunction::EntryInfo::WrappedFunctionThunk)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 802\n");
                 Js::FunctionProxy *proxy = jsFunction->GetFunctionProxy();
                 if (proxy)
-                {
+                {LOGMEIN("JavascriptFunction.cpp] 805\n");
                     AssertMsg(proxy->HasValidEntryPoint(), "Function does not have valid entrypoint");
                 }
             }
@@ -812,14 +812,14 @@ namespace Js
 #endif
 
     Var JavascriptFunction::CallAsConstructor(Var v, Var overridingNewTarget, Arguments args, ScriptContext* scriptContext, const Js::AuxArray<uint32> *spreadIndices)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 814\n");
         Assert(v);
         Assert(args.Info.Flags & CallFlags_New);
         Assert(scriptContext);
 
         // newCount is ushort.
         if (args.Info.Count >= USHORT_MAX)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 821\n");
             JavascriptError::ThrowRangeError(scriptContext, JSERR_ArgListTooLarge);
         }
         AnalysisAssert(args.Info.Count < USHORT_MAX);
@@ -832,7 +832,7 @@ namespace Js
         // - For user-defined constructor functions, an empty object is created with the function's prototype
         Var resultObject = nullptr;
         if (overridingNewTarget != nullptr && args.Info.Count > 0)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 834\n");
             resultObject = args.Values[0];
         }
         else
@@ -850,9 +850,9 @@ namespace Js
         bool thisAlreadySpecified = false;
 
         if (overridingNewTarget != nullptr)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 852\n");
             if (ScriptFunction::Is(functionObj) && ScriptFunction::FromVar(functionObj)->GetFunctionInfo()->IsClassConstructor())
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 854\n");
                 thisAlreadySpecified = true;
                 args.Values[0] = overridingNewTarget;
             }
@@ -873,7 +873,7 @@ namespace Js
                 }
 
                 for (unsigned int i = 0; i < args.Info.Count; i++)
-                {
+                {LOGMEIN("JavascriptFunction.cpp] 875\n");
                     newValues[i] = args.Values[i];
                 }
 #pragma prefast(suppress:6386, "The index is within the bounds")
@@ -886,7 +886,7 @@ namespace Js
         // - Pass in the new empty object as the 'this' parameter. This can be null if an empty object was not created.
 
         if (!thisAlreadySpecified)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 888\n");
             newValues[0] = resultObject;
         }
 
@@ -894,7 +894,7 @@ namespace Js
         Arguments newArgs(newCallInfo, newValues);
 
         if (JavascriptProxy::Is(v))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 896\n");
             JavascriptProxy* proxy = JavascriptProxy::FromVar(v);
             return proxy->ConstructorTrap(newArgs, scriptContext, spreadIndices);
         }
@@ -908,7 +908,7 @@ namespace Js
 
         Var functionResult;
         if (spreadIndices != nullptr)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 910\n");
             functionResult = CallSpreadFunction(functionObj, newArgs, spreadIndices);
         }
         else
@@ -929,17 +929,17 @@ namespace Js
         const Var constructorReturnValue,
         Var newObject,
         JavascriptFunction *const function)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 931\n");
         Assert(constructorReturnValue);
 
         // CONSIDER: Using constructorCache->ctorHasNoExplicitReturnValue to speed up this interpreter code path.
         if (JavascriptOperators::IsObject(constructorReturnValue))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 936\n");
             newObject = constructorReturnValue;
         }
 
         if (function && function->GetConstructorCache()->NeedsUpdateAfterCtor())
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 941\n");
             JavascriptOperators::UpdateNewScObjectCache(function, newObject, function->GetScriptContext());
         }
 
@@ -956,18 +956,18 @@ namespace Js
     }
 
     uint32 JavascriptFunction::GetSpreadSize(const Arguments args, const Js::AuxArray<uint32> *spreadIndices, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 958\n");
         // Work out the expanded number of arguments.
         uint32 totalLength = args.Info.Count - spreadIndices->count;
         ::Math::RecordOverflowPolicy overflow;
         for (unsigned i = 0; i < spreadIndices->count; ++i)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 963\n");
             uint32 elementLength = JavascriptArray::GetSpreadArgLen(args[spreadIndices->elements[i]], scriptContext);
             totalLength = UInt32Math::Add(totalLength, elementLength, overflow);
         }
 
         if (totalLength >= CallInfo::kMaxCountArgs || overflow.HasOverflowed())
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 969\n");
             JavascriptError::ThrowRangeError(scriptContext, JSERR_ArgListTooLarge);
         }
 
@@ -975,7 +975,7 @@ namespace Js
     }
 
     void JavascriptFunction::SpreadArgs(const Arguments args, Arguments& destArgs, const Js::AuxArray<uint32> *spreadIndices, ScriptContext *scriptContext)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 977\n");
         Assert(args.Values != nullptr);
         Assert(destArgs.Values != nullptr);
 
@@ -988,10 +988,10 @@ namespace Js
         Var undefined = scriptContext->GetLibrary()->GetUndefined();
 
         for (unsigned i = 1, argsIndex = 1, spreadArgIndex = 0; i < callInfo.Count; ++i)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 990\n");
             uint32 spreadIndex = spreadIndices->elements[spreadArgIndex]; // Next index to be spread.
             if (i < spreadIndex)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 993\n");
                 // Copy everything until the next spread index.
                 js_memcpy_s(destArgs.Values + argsIndex,
                             destArgsByteSize - (argsIndex * sizeof(Var)),
@@ -1002,7 +1002,7 @@ namespace Js
                 continue;
             }
             else if (i > spreadIndex)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 1004\n");
                 // Copy everything after the last spread index.
                 js_memcpy_s(destArgs.Values + argsIndex,
                             destArgsByteSize - (argsIndex * sizeof(Var)),
@@ -1016,7 +1016,7 @@ namespace Js
                 Var instance = args[spreadIndex];
 
                 if (SpreadArgument::Is(instance))
-                {
+                {LOGMEIN("JavascriptFunction.cpp] 1018\n");
                     SpreadArgument* spreadedArgs = SpreadArgument::FromVar(instance);
                     uint size = spreadedArgs->GetArgumentSpreadCount();
                     const Var * spreadBuffer = spreadedArgs->GetArgumentSpread();
@@ -1033,12 +1033,12 @@ namespace Js
                     // We first try to interpret the spread parameter as a JavascriptArray.
                     JavascriptArray *arr = nullptr;
                     if (JavascriptArray::Is(instance))
-                    {
+                    {LOGMEIN("JavascriptFunction.cpp] 1035\n");
                         arr = JavascriptArray::FromVar(instance);
                     }
 
                     if (arr != nullptr && !arr->IsCrossSiteObject())
-                    {
+                    {LOGMEIN("JavascriptFunction.cpp] 1040\n");
                         uint32 length = arr->GetLength();
                         // CONSIDER: Optimize by creating a JavascriptArray routine which allows
                         // memcpy-like semantics in optimal situations (no gaps, etc.)
@@ -1049,10 +1049,10 @@ namespace Js
                         }
 
                         for (uint32 j = 0; j < length; j++)
-                        {
+                        {LOGMEIN("JavascriptFunction.cpp] 1051\n");
                             Var element;
                             if (!arr->DirectGetItemAtFull(j, &element))
-                            {
+                            {LOGMEIN("JavascriptFunction.cpp] 1054\n");
                                 element = undefined;
                             }
                             destArgs.Values[argsIndex++] = element;
@@ -1063,7 +1063,7 @@ namespace Js
                         // Emulate %ArrayPrototype%.values() iterator; basically iterate from 0 to length
                         RecyclableObject *propertyObject;
                         if (!JavascriptOperators::GetPropertyObject(instance, scriptContext, &propertyObject))
-                        {
+                        {LOGMEIN("JavascriptFunction.cpp] 1065\n");
                             JavascriptError::ThrowTypeError(scriptContext, JSERR_InvalidSpreadArgument);
                         }
 
@@ -1075,10 +1075,10 @@ namespace Js
                         }
 
                         for (uint j = 0; j < len; j++)
-                        {
+                        {LOGMEIN("JavascriptFunction.cpp] 1077\n");
                             Var element;
                             if (!JavascriptOperators::GetItem(instance, propertyObject, j, &element, scriptContext))
-                            {
+                            {LOGMEIN("JavascriptFunction.cpp] 1080\n");
                                 element = undefined;
                             }
                             destArgs.Values[argsIndex++] = element;
@@ -1087,7 +1087,7 @@ namespace Js
                 }
 
                 if (spreadArgIndex < spreadIndices->count - 1)
-                {
+                {LOGMEIN("JavascriptFunction.cpp] 1089\n");
                     spreadArgIndex++;
                 }
             }
@@ -1095,7 +1095,7 @@ namespace Js
     }
 
     Var JavascriptFunction::CallSpreadFunction(RecyclableObject* function, Arguments args, const Js::AuxArray<uint32> *spreadIndices)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1097\n");
         ScriptContext* scriptContext = function->GetScriptContext();
 
         // Work out the expanded number of arguments.
@@ -1125,7 +1125,7 @@ namespace Js
     }
 
     Var JavascriptFunction::CallFunction(Arguments args)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1127\n");
         return JavascriptFunction::CallFunction<true>(this, this->GetEntryPoint(), args);
     }
 
@@ -1135,28 +1135,28 @@ namespace Js
 #if _M_IX86
 #ifdef ASMJS_PLAT
     template <> int JavascriptFunction::CallAsmJsFunction<int>(RecyclableObject * function, JavascriptMethod entryPoint, uint argc, Var * argv)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1137\n");
         return CallAsmJsFunctionX86Thunk(function, entryPoint, argc, argv).retIntVal;
     }
     template <> int64 JavascriptFunction::CallAsmJsFunction<int64>(RecyclableObject * function, JavascriptMethod entryPoint, uint argc, Var * argv)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1141\n");
         return CallAsmJsFunctionX86Thunk(function, entryPoint, argc, argv).retInt64Val;
     }
     template <> float JavascriptFunction::CallAsmJsFunction<float>(RecyclableObject * function, JavascriptMethod entryPoint, uint argc, Var * argv)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1145\n");
         return CallAsmJsFunctionX86Thunk(function, entryPoint, argc, argv).retFloatVal;
     }
     template <> double JavascriptFunction::CallAsmJsFunction<double>(RecyclableObject * function, JavascriptMethod entryPoint, uint argc, Var * argv)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1149\n");
         return CallAsmJsFunctionX86Thunk(function, entryPoint, argc, argv).retDoubleVal;
     }
     template <> AsmJsSIMDValue JavascriptFunction::CallAsmJsFunction<AsmJsSIMDValue>(RecyclableObject * function, JavascriptMethod entryPoint, uint argc, Var * argv)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1153\n");
         return CallAsmJsFunctionX86Thunk(function, entryPoint, argc, argv).retSimdVal;
     }
 
     PossibleAsmJsReturnValues JavascriptFunction::CallAsmJsFunctionX86Thunk(RecyclableObject * function, JavascriptMethod entryPoint, uint argc, Var * argv)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1158\n");
         enum {
             IsFloat = 1 << AsmJsRetType::Float,
             IsDouble = 1 << AsmJsRetType::Double,
@@ -1263,7 +1263,7 @@ end:
 
 #ifdef __clang__
 void __cdecl _alloca_probe_16()
-{
+{LOGMEIN("JavascriptFunction.cpp] 1265\n");
     // todo: fix this!!!
     abort();
     __asm
@@ -1280,7 +1280,7 @@ void __cdecl _alloca_probe_16()
 
     static Var LocalCallFunction(RecyclableObject* function,
         JavascriptMethod entryPoint, Arguments args, bool doStackProbe)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1282\n");
         Js::Var varResult;
 
 #if DBG && ENABLE_NATIVE_CODEGEN
@@ -1325,7 +1325,7 @@ dbl_align:
             Var* dest = (Var*)data;
             Var* src = args.Values;
             for(unsigned int i =0; i < callInfo.Count; i++)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 1327\n");
                 dest[i] = src[i];
             }
         }
@@ -1359,19 +1359,19 @@ dbl_align:
     template <bool doStackProbe>
     Var JavascriptFunction::CallFunction(RecyclableObject* function,
         JavascriptMethod entryPoint, Arguments args)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1361\n");
         return LocalCallFunction(function, entryPoint, args, doStackProbe);
     }
 
 #elif _M_X64
     template <bool doStackProbe>
     Var JavascriptFunction::CallFunction(RecyclableObject *function, JavascriptMethod entryPoint, Arguments args)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1368\n");
         // compute size of stack to reserve and make sure we have enough stack.
         CallInfo callInfo = args.Info;
         uint argsSize = callInfo.Count * sizeof(Var);
         if (doStackProbe == true)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 1373\n");
             PROBE_STACK_CALL(function->GetScriptContext(), function, argsSize);
         }
 #if DBG && ENABLE_NATIVE_CODEGEN
@@ -1390,12 +1390,12 @@ dbl_align:
 
     template <bool doStackProbe>
     Var JavascriptFunction::CallFunction(RecyclableObject* function, JavascriptMethod entryPoint, Arguments args)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1392\n");
         // compute size of stack to reserve and make sure we have enough stack.
         CallInfo callInfo = args.Info;
         uint argsSize = callInfo.Count * sizeof(Var);
         if (doStackProbe)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 1397\n");
             PROBE_STACK_CALL(function->GetScriptContext(), function, argsSize);
         }
 
@@ -1408,11 +1408,11 @@ dbl_align:
         //(so that the asm code can assume 0 or more values will go on the stack: putting -1 values on the stack is unhealthy).
         unsigned count = args.Info.Count;
         if (count == 0)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 1410\n");
             varResult = CALL_ENTRYPOINT(entryPoint, (JavascriptFunction*)function, args.Info);
         }
         else if (count == 1)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 1414\n");
             varResult = CALL_ENTRYPOINT(entryPoint, (JavascriptFunction*)function, args.Info, args.Values[0]);
         }
         else
@@ -1430,12 +1430,12 @@ dbl_align:
 
     template <bool doStackProbe>
     Var JavascriptFunction::CallFunction(RecyclableObject* function, JavascriptMethod entryPoint, Arguments args)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1432\n");
         // compute size of stack to reserve and make sure we have enough stack.
         CallInfo callInfo = args.Info;
         uint argsSize = callInfo.Count * sizeof(Var);
         if (doStackProbe)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 1437\n");
             PROBE_STACK_CALL(function->GetScriptContext(), function, argsSize);
         }
 
@@ -1450,7 +1450,7 @@ dbl_align:
     }
 #else
     Var JavascriptFunction::CallFunction(RecyclableObject *function, JavascriptMethod entryPoint, Arguments args)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1452\n");
 #if DBG && ENABLE_NATIVE_CODEGEN
         CheckIsExecutable(function, entryPoint);
 #endif
@@ -1460,20 +1460,20 @@ dbl_align:
 #else
         Var varResult;
         switch (info.Count)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 1462\n");
         case 0:
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 1464\n");
                 varResult=entryPoint((JavascriptFunction*)function, args.Info);
                 break;
             }
-        case 1: {
+        case 1: {LOGMEIN("JavascriptFunction.cpp] 1468\n");
             varResult=entryPoint(
                 (JavascriptFunction*)function,
                 args.Info,
                 args.Values[0]);
             break;
                 }
-        case 2: {
+        case 2: {LOGMEIN("JavascriptFunction.cpp] 1475\n");
             varResult=entryPoint(
                 (JavascriptFunction*)function,
                 args.Info,
@@ -1481,7 +1481,7 @@ dbl_align:
                 args.Values[1]);
             break;
                 }
-        case 3: {
+        case 3: {LOGMEIN("JavascriptFunction.cpp] 1483\n");
             varResult=entryPoint(
                 (JavascriptFunction*)function,
                 args.Info,
@@ -1490,7 +1490,7 @@ dbl_align:
                 args.Values[2]);
             break;
                 }
-        case 4: {
+        case 4: {LOGMEIN("JavascriptFunction.cpp] 1492\n");
             varResult=entryPoint(
                 (JavascriptFunction*)function,
                 args.Info,
@@ -1500,7 +1500,7 @@ dbl_align:
                 args.Values[3]);
             break;
                 }
-        case 5: {
+        case 5: {LOGMEIN("JavascriptFunction.cpp] 1502\n");
             varResult=entryPoint(
                 (JavascriptFunction*)function,
                 args.Info,
@@ -1511,7 +1511,7 @@ dbl_align:
                 args.Values[4]);
             break;
                 }
-        case 6: {
+        case 6: {LOGMEIN("JavascriptFunction.cpp] 1513\n");
             varResult=entryPoint(
                 (JavascriptFunction*)function,
                 args.Info,
@@ -1523,7 +1523,7 @@ dbl_align:
                 args.Values[5]);
             break;
                 }
-        case 7: {
+        case 7: {LOGMEIN("JavascriptFunction.cpp] 1525\n");
             varResult=entryPoint(
                 (JavascriptFunction*)function,
                 args.Info,
@@ -1536,7 +1536,7 @@ dbl_align:
                 args.Values[6]);
             break;
                 }
-        case 8: {
+        case 8: {LOGMEIN("JavascriptFunction.cpp] 1538\n");
             varResult=entryPoint(
                 (JavascriptFunction*)function,
                 args.Info,
@@ -1550,7 +1550,7 @@ dbl_align:
                 args.Values[7]);
             break;
                 }
-        case 9: {
+        case 9: {LOGMEIN("JavascriptFunction.cpp] 1552\n");
             varResult=entryPoint(
                 (JavascriptFunction*)function,
                 args.Info,
@@ -1588,7 +1588,7 @@ dbl_align:
 
         AssertMsg(args.Info.Count > 0, "Should always have implicit 'this'");
         if (args.Info.Count == 0 || !JavascriptFunction::Is(args[0]))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 1590\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_This_NeedFunction, _u("Function.prototype.toString"));
         }
         JavascriptFunction *pFunc = JavascriptFunction::FromVar(args[0]);
@@ -1599,12 +1599,12 @@ dbl_align:
     }
 
     JavascriptString* JavascriptFunction::GetNativeFunctionDisplayString(ScriptContext *scriptContext, JavascriptString *name)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1601\n");
         return GetNativeFunctionDisplayStringCommon<JavascriptString>(scriptContext, name);
     }
 
     JavascriptString* JavascriptFunction::GetLibraryCodeDisplayString(ScriptContext *scriptContext, PCWSTR displayName)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1606\n");
         return GetLibraryCodeDisplayStringCommon<JavascriptString, JavascriptString*>(scriptContext, displayName);
     }
 
@@ -1619,7 +1619,7 @@ dbl_align:
     // of doing the 8 byte alignment would outweigh the benefit...
     __declspec (naked)
     void JavascriptFunction::CheckAlignment()
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1621\n");
         _asm
         {
             test esp, 0x4
@@ -1631,13 +1631,13 @@ LABEL1:
     }
 #else
     void JavascriptFunction::CheckAlignment()
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1633\n");
         // Note: in order to enable this on ARM, uncomment/fix code in LowerMD.cpp (LowerEntryInstr).
     }
 #endif
 
     BOOL JavascriptFunction::IsNativeAddress(ScriptContext * scriptContext, void * codeAddr)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1639\n");
 #if ENABLE_NATIVE_CODEGEN
         return scriptContext->IsNativeAddress(codeAddr);
 #else
@@ -1646,13 +1646,13 @@ LABEL1:
     }
 
     Js::JavascriptMethod JavascriptFunction::DeferredParse(ScriptFunction** functionRef)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1648\n");
         BOOL fParsed;
         return Js::ScriptFunction::DeferredParseCore(functionRef, fParsed);
     }
 
     Js::JavascriptMethod JavascriptFunction::DeferredParseCore(ScriptFunction** functionRef, BOOL &fParsed)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1654\n");
         // Do the actual deferred parsing and byte code generation, passing the new entry point to the caller.
 
         ParseableFunctionInfo* functionInfo = (*functionRef)->GetParseableFunctionInfo();
@@ -1661,9 +1661,9 @@ LABEL1:
         Assert(functionInfo);
 
         if (functionInfo->IsDeferredParseFunction())
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 1663\n");
             if (ScriptFunctionWithInlineCache::Is(*functionRef))
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 1665\n");
                 // If inline caches were populated from a function body that has been redeferred, the caches have been cleaned up,
                 // so clear the pointers. REVIEW: Is this a perf loss in some cases?
                 ScriptFunctionWithInlineCache::FromVar(*functionRef)->ClearBorrowedInlineCacheOnFunctionObject();
@@ -1695,10 +1695,10 @@ LABEL1:
         JavascriptMethod thunkEntryPoint = (*functionRef)->UpdateUndeferredBody(funcBody);
 
         if (ScriptFunctionWithInlineCache::Is(*functionRef))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 1697\n");
             ScriptFunctionWithInlineCache * funcObjectWithInlineCache = ScriptFunctionWithInlineCache::FromVar(*functionRef);
             if (!funcObjectWithInlineCache->GetHasOwnInlineCaches())
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 1700\n");
                 funcObjectWithInlineCache->SetInlineCachesFromFunctionBody();
             }
         }
@@ -1707,7 +1707,7 @@ LABEL1:
     }
 
     void JavascriptFunction::ReparseAsmJsModule(ScriptFunction** functionRef)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1709\n");
         ParseableFunctionInfo* functionInfo = (*functionRef)->GetParseableFunctionInfo();
 
         Assert(functionInfo);
@@ -1762,18 +1762,18 @@ LABEL1:
 #endif
 
     ConstructorCache* JavascriptFunction::EnsureValidConstructorCache()
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1764\n");
         Assert(this->constructorCache != nullptr);
         this->constructorCache = ConstructorCache::EnsureValidInstance(this->constructorCache, this->GetScriptContext());
         return this->constructorCache;
     }
 
     void JavascriptFunction::ResetConstructorCacheToDefault()
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1771\n");
         Assert(this->constructorCache != nullptr);
 
         if (!this->constructorCache->IsDefault())
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 1775\n");
             this->constructorCache = &ConstructorCache::DefaultInstance;
         }
     }
@@ -1811,7 +1811,7 @@ LABEL1:
 #endif
 
     Js::JavascriptMethod JavascriptFunction::DeferredDeserialize(ScriptFunction* function)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1813\n");
         FunctionInfo* funcInfo = function->GetFunctionInfo();
         Assert(funcInfo);
         FunctionBody* funcBody = nullptr;
@@ -1824,7 +1824,7 @@ LABEL1:
         // we don't hold on to the proxy for too long, and rethunk it so that it directly
         // calls the default entry point the next time around
         if (funcInfo->IsDeferredDeserializeFunction())
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 1826\n");
             DeferDeserializeFunctionInfo* deferDeserializeFunction = funcInfo->GetDeferDeserializeFunctionInfo();
 
             // This is the first call to the function, ensure dynamic profile info
@@ -1844,12 +1844,12 @@ LABEL1:
         return function->UpdateUndeferredBody(funcBody);
     }
     void JavascriptFunction::SetEntryPoint(JavascriptMethod method)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1846\n");
         this->GetDynamicType()->SetEntryPoint(method);
     }
 
     Var JavascriptFunction::EnsureSourceString()
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1851\n");
         return this->GetLibrary()->GetFunctionDisplayString();
     }
 
@@ -1880,7 +1880,7 @@ LABEL1:
     */
 #if ENABLE_NATIVE_CODEGEN && defined(_M_X64)
     ArrayAccessDecoder::InstructionData ArrayAccessDecoder::CheckValidInstr(BYTE* &pc, PEXCEPTION_POINTERS exceptionInfo) // get the reg operand and isLoad and
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 1882\n");
         InstructionData instrData;
         uint prefixValue = 0;
         ArrayAccessDecoder::RexByteValue rexByteValue;
@@ -1892,37 +1892,37 @@ LABEL1:
         // Read first  byte - check for prefix
         BYTE* beginPc = pc;
         if (((*pc) == 0x0F2) || ((*pc) == 0x0F3))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 1894\n");
             //MOVSD or MOVSS
             prefixValue = *pc;
             isFloat = true;
             pc++;
         }
         else if (*pc == 0x66)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 1901\n");
             prefixValue = *pc;
             pc++;
         }
 
         // Check for Rex Byte - After prefix we should have a rexByte if there is one
         if (*pc >= 0x40 && *pc <= 0x4F)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 1908\n");
             rexByteValue.rexValue = *pc;
             uint rexByte = *pc - 0x40;
             if (rexByte & 0x8)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 1912\n");
                 rexByteValue.isW = true;
             }
             if (rexByte & 0x4)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 1916\n");
                 rexByteValue.isR = true;
             }
             if (rexByte & 0x2)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 1920\n");
                 rexByteValue.isX = true;
             }
             if (rexByte & 0x1)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 1924\n");
                 rexByteValue.isB = true;
             }
             pc++;
@@ -1931,11 +1931,11 @@ LABEL1:
         // read opcode
         // Is one of the move instructions , i.e. mov, movsx, movzx, movsxd, movss or movsd
         switch (*pc)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 1933\n");
         //MOV - Store
         case 0x89:
         case 0x88:
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 1937\n");
             pc++;
             instrData.isLoad = false;
             break;
@@ -1943,62 +1943,62 @@ LABEL1:
         //MOV - Load
         case 0x8A:
         case 0x8B:
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 1945\n");
             pc++;
             instrData.isLoad = true;
             break;
         }
         case 0x0F:
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 1951\n");
             // more than one byte opcode and hence we will read pc multiple times
             pc++;
             //MOVSX  , MOVSXD
             if (*pc == 0xBE || *pc == 0xBF)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 1956\n");
                 instrData.isLoad = true;
             }
             //MOVZX
             else if (*pc == 0xB6 || *pc == 0xB7)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 1961\n");
                 instrData.isLoad = true;
             }
             //MOVSS - Load
             else if (*pc == 0x10 && prefixValue == 0xF3)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 1966\n");
                 Assert(isFloat);
                 instrData.isLoad = true;
                 instrData.isFloat32 = true;
             }
             //MOVSS - Store
             else if (*pc == 0x11 && prefixValue == 0xF3)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 1973\n");
                 Assert(isFloat);
                 instrData.isLoad = false;
                 instrData.isFloat32 = true;
             }
             //MOVSD - Load
             else if (*pc == 0x10 && prefixValue == 0xF2)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 1980\n");
                 Assert(isFloat);
                 instrData.isLoad = true;
                 instrData.isFloat64 = true;
             }
             //MOVSD - Store
             else if (*pc == 0x11 && prefixValue == 0xF2)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 1987\n");
                 Assert(isFloat);
                 instrData.isLoad = false;
                 instrData.isFloat64 = true;
             }
             //MOVUPS - Load
             else if (*pc == 0x10 && prefixValue == 0)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 1994\n");
                 instrData.isLoad = true;
                 instrData.isSimd = true;
             }
             //MOVUPS - Store
             else if (*pc == 0x11 && prefixValue == 0)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2000\n");
                 instrData.isLoad = false;
                 instrData.isSimd = true;
             }
@@ -2013,22 +2013,22 @@ LABEL1:
         // MOV
         case 0xC6:
         case 0xC7:
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2015\n");
             instrData.isLoad = false;
             instrData.isFloat64 = false;
             isImmediate = true;
             if (*pc == 0xC6)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2020\n");
                 immBytes = 1;
             }
             else if (rexByteValue.isW) // For MOV, REX.W set means we have a 32 bit immediate value, which gets extended to 64 bit.
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2024\n");
                 immBytes = 4;
             }
             else
             {
                 if (prefixValue == 0x66)
-                {
+                {LOGMEIN("JavascriptFunction.cpp] 2030\n");
                     immBytes = 2;
                 }
                 else
@@ -2046,7 +2046,7 @@ LABEL1:
         }
         // if the opcode is not a move return
         if (instrData.isInvalidInstr)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2048\n");
             return instrData;
         }
 
@@ -2071,7 +2071,7 @@ LABEL1:
         Assert(rmVal <= 0x07);
 
         switch (modVal)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2073\n");
         case 0x00:
             dispBytes = 0;
             break;
@@ -2087,13 +2087,13 @@ LABEL1:
         }
 
         if (instrData.isInvalidInstr)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2089\n");
             return instrData;
         }
 
         // Get the R/M value and see if SIB is present , else get the buffer reg
         if (rmVal == 0x04)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2095\n");
             isSIB = true;
         }
         else
@@ -2108,7 +2108,7 @@ LABEL1:
         pc++;
         // Check if we have SIB and in that case bufferReg should not be set
         if (isSIB)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2110\n");
             Assert(!instrData.bufferReg);
             // Get the Base and Index Reg from SIB and ensure that Scale is zero
             // We don't care about the Index reg
@@ -2121,18 +2121,18 @@ LABEL1:
         }
         // check for the Rex.B value and append it to the base register
         if (rexByteValue.isB)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2123\n");
             instrData.bufferReg |= 1 << 3;
         }
         // check for the Rex.R value and append it to the dst register
         if (rexByteValue.isR)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2128\n");
             instrData.dstReg |= 1 << 3;
         }
 
         // Get the buffer address - this is always 64 bit GPR
         switch (instrData.bufferReg)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2134\n");
         case 0x0:
             instrData.bufferValue = exceptionInfo->ContextRecord->Rax;
             break;
@@ -2189,18 +2189,18 @@ LABEL1:
         }
         // add the pc for displacement , we don't need the displacement Byte value
         if (dispBytes > 0)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2191\n");
             pc = pc + dispBytes;
         }
         instrData.instrSizeInByte = (uint)(pc - beginPc);
         if (isImmediate)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2196\n");
             Assert(immBytes > 0);
             instrData.instrSizeInByte += immBytes;
         }
         // Calculate the number of bytes read in order to get the length of the instruction , ensure that the length should never be greater than 15 bytes
         if (instrData.instrSizeInByte > 15)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2202\n");
             // no instr size can be greater than 15
             instrData.isInvalidInstr = true;
         }
@@ -2208,9 +2208,9 @@ LABEL1:
     }
 
     bool JavascriptFunction::ResumeForOutOfBoundsArrayRefs(int exceptionCode, PEXCEPTION_POINTERS exceptionInfo)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2210\n");
         if (exceptionCode != STATUS_ACCESS_VIOLATION)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2212\n");
             return false;
         }
 
@@ -2218,19 +2218,19 @@ LABEL1:
 
         // AV should come from JITed code, since we don't eliminate bound checks in interpreter
         if (!threadContext->IsNativeAddress((Var)exceptionInfo->ContextRecord->Rip))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2220\n");
             return false;
         }
 
         Var* addressOfFuncObj = (Var*)(exceptionInfo->ContextRecord->Rbp + 2 * sizeof(Var));
         if (!addressOfFuncObj)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2226\n");
             return false;
         }
 
         Js::ScriptFunction* func = (ScriptFunction::Is(*addressOfFuncObj))?(Js::ScriptFunction*)(*addressOfFuncObj):nullptr;
         if (!func)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2232\n");
             return false;
         }
 
@@ -2243,7 +2243,7 @@ LABEL1:
 
         // ensure that all our objects are heap allocated
         if (!(isFuncObjHeapAllocated && isEntryPointHeapAllocated && isFunctionBodyHeapAllocated))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2245\n");
             return false;
         }
         Js::FunctionBody* funcBody = func->GetFunctionBody();
@@ -2251,18 +2251,18 @@ LABEL1:
         bool isWasmOnly = funcBody->IsWasmFunction();
         BYTE* buffer = nullptr;
         if (isWAsmJs)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2253\n");
             // some extra checks for asm.js because we have slightly more information that we can validate
             uintptr_t moduleMemory = (uintptr_t)((AsmJsScriptFunction*)func)->GetModuleMemory();
             if (!moduleMemory)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2257\n");
                 return false;
             }
 
             ArrayBuffer* arrayBuffer = nullptr;
 #ifdef ENABLE_WASM
             if (isWasmOnly)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2264\n");
                 WebAssemblyMemory* mem = *(WebAssemblyMemory**)(moduleMemory + WebAssemblyModule::GetMemoryOffset());
                 arrayBuffer = mem->GetBuffer();
             }
@@ -2273,7 +2273,7 @@ LABEL1:
             }
 
             if (!arrayBuffer || !arrayBuffer->GetBuffer())
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2275\n");
                 // don't have a heap buffer for asm.js... so this shouldn't be an asm.js heap access
                 return false;
             }
@@ -2282,7 +2282,7 @@ LABEL1:
             uint bufferLength = arrayBuffer->GetByteLength();
 
             if (!isWasmOnly && !arrayBuffer->IsValidAsmJsBufferLength(bufferLength))
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2284\n");
                 return false;
             }
         }
@@ -2291,38 +2291,38 @@ LABEL1:
         ArrayAccessDecoder::InstructionData instrData = ArrayAccessDecoder::CheckValidInstr(pc, exceptionInfo);
         // Check If the instruction is valid
         if (instrData.isInvalidInstr)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2293\n");
             return false;
         }
 
         // If we didn't find the array buffer, ignore
         if (!instrData.bufferValue)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2299\n");
             return false;
         }
 
         // If asm.js, make sure the base address is that of the heap buffer
         if (instrData.bufferValue != (uint64)buffer)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2305\n");
             if (isWAsmJs)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2307\n");
                 return false;
             }
         }
         else if (isWasmOnly)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2312\n");
             JavascriptError::ThrowWebAssemblyRuntimeError(func->GetScriptContext(), JSERR_InvalidTypedArrayIndex);
         }
 
         // SIMD loads/stores do bounds checks.
         if (instrData.isSimd)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2318\n");
             return false;
         }
 
         // Set the dst reg if the instr type is load
         if (instrData.isLoad)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2324\n");
             Var exceptionInfoReg = exceptionInfo->ContextRecord;
             Var* exceptionInfoIntReg = (Var*)((uint64)exceptionInfoReg + offsetof(CONTEXT, Rax)); // offset in the contextRecord for RAX , the assert below checks for any change in the exceptionInfo struct
             Var* exceptionInfoFloatReg = (Var*)((uint64)exceptionInfoReg + offsetof(CONTEXT, Xmm0));// offset in the contextRecord for XMM0 , the assert below checks for any change in the exceptionInfo struct
@@ -2330,15 +2330,15 @@ LABEL1:
             Assert((uint64)*exceptionInfoFloatReg == exceptionInfo->ContextRecord->Xmm0.Low);
 
             if (instrData.isLoad)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2332\n");
                 double nanVal = JavascriptNumber::NaN;
                 if (instrData.isFloat64)
-                {
+                {LOGMEIN("JavascriptFunction.cpp] 2335\n");
                     double* destRegLocation = (double*)((uint64)exceptionInfoFloatReg + 16 * (instrData.dstReg));
                     *destRegLocation = nanVal;
                 }
                 else if (instrData.isFloat32)
-                {
+                {LOGMEIN("JavascriptFunction.cpp] 2340\n");
                     float* destRegLocation = (float*)((uint64)exceptionInfoFloatReg + 16 * (instrData.dstReg));
                     *destRegLocation = (float)nanVal;
                 }
@@ -2357,10 +2357,10 @@ LABEL1:
 #endif
 
     int JavascriptFunction::CallRootEventFilter(int exceptionCode, PEXCEPTION_POINTERS exceptionInfo)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2359\n");
 #if ENABLE_NATIVE_CODEGEN && defined(_M_X64)
         if (ResumeForOutOfBoundsArrayRefs(exceptionCode, exceptionInfo))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2362\n");
             return EXCEPTION_CONTINUE_EXECUTION;
         }
 #endif
@@ -2369,14 +2369,14 @@ LABEL1:
 
 #if DBG
     void JavascriptFunction::VerifyEntryPoint()
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2371\n");
         JavascriptMethod callEntryPoint = this->GetType()->GetEntryPoint();
         if (this->IsCrossSiteObject())
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2374\n");
             Assert(CrossSite::IsThunk(callEntryPoint));
         }
         else if (ScriptFunction::Is(this))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2378\n");
         }
         else
         {
@@ -2397,7 +2397,7 @@ LABEL1:
     };
 
     bool JavascriptFunction::HasRestrictedProperties() const
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2399\n");
         return !(
             this->functionInfo->IsClassMethod() ||
             this->functionInfo->IsClassConstructor() ||
@@ -2410,19 +2410,19 @@ LABEL1:
     }
 
     BOOL JavascriptFunction::HasProperty(PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2412\n");
         switch (propertyId)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2414\n");
         case PropertyIds::caller:
         case PropertyIds::arguments:
             if (this->HasRestrictedProperties())
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2418\n");
                 return true;
             }
             break;
         case PropertyIds::length:
             if (this->IsScriptFunction())
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2424\n");
                 return true;
             }
             break;
@@ -2431,7 +2431,7 @@ LABEL1:
     }
 
     BOOL JavascriptFunction::GetAccessors(PropertyId propertyId, Var *getter, Var *setter, ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2433\n");
         Assert(!this->IsBoundFunction());
         Assert(propertyId != Constants::NoProperty);
         Assert(getter);
@@ -2439,13 +2439,13 @@ LABEL1:
         Assert(requestContext);
 
         if (this->HasRestrictedProperties())
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2441\n");
             switch (propertyId)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2443\n");
             case PropertyIds::caller:
             case PropertyIds::arguments:
                 if (this->GetEntryPoint() == JavascriptFunction::PrototypeEntryPoint)
-                {
+                {LOGMEIN("JavascriptFunction.cpp] 2447\n");
                     *setter = *getter = requestContext->GetLibrary()->GetThrowTypeErrorRestrictedPropertyAccessorFunction();
                     return true;
                 }
@@ -2457,10 +2457,10 @@ LABEL1:
     }
 
     DescriptorFlags JavascriptFunction::GetSetter(PropertyId propertyId, Var *setterValue, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2459\n");
         DescriptorFlags flags;
         if (GetSetterBuiltIns(propertyId, setterValue, info, requestContext, &flags))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2462\n");
             return flags;
         }
 
@@ -2468,13 +2468,13 @@ LABEL1:
     }
 
     DescriptorFlags JavascriptFunction::GetSetter(JavascriptString* propertyNameString, Var *setterValue, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2470\n");
         DescriptorFlags flags;
         PropertyRecord const* propertyRecord;
         this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
 
         if (propertyRecord != nullptr && GetSetterBuiltIns(propertyRecord->GetPropertyId(), setterValue, info, requestContext, &flags))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2476\n");
             return flags;
         }
 
@@ -2482,19 +2482,19 @@ LABEL1:
     }
 
     bool JavascriptFunction::GetSetterBuiltIns(PropertyId propertyId, Var *setterValue, PropertyValueInfo* info, ScriptContext* requestContext, DescriptorFlags* descriptorFlags)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2484\n");
         Assert(propertyId != Constants::NoProperty);
         Assert(setterValue);
         Assert(requestContext);
 
         switch (propertyId)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2490\n");
         case PropertyIds::caller:
         case PropertyIds::arguments:
-            if (this->HasRestrictedProperties()) {
+            if (this->HasRestrictedProperties()) {LOGMEIN("JavascriptFunction.cpp] 2493\n");
                 PropertyValueInfo::SetNoCache(info, this);
                 if (this->GetEntryPoint() == JavascriptFunction::PrototypeEntryPoint)
-                {
+                {LOGMEIN("JavascriptFunction.cpp] 2496\n");
                     *setterValue = requestContext->GetLibrary()->GetThrowTypeErrorRestrictedPropertyAccessorFunction();
                     *descriptorFlags = Accessor;
                 }
@@ -2511,21 +2511,21 @@ LABEL1:
     }
 
     BOOL JavascriptFunction::IsConfigurable(PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2513\n");
         if (DynamicObject::GetPropertyIndex(propertyId) == Constants::NoSlot)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2515\n");
             switch (propertyId)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2517\n");
             case PropertyIds::caller:
             case PropertyIds::arguments:
                 if (this->HasRestrictedProperties())
-                {
+                {LOGMEIN("JavascriptFunction.cpp] 2521\n");
                     return false;
                 }
                 break;
             case PropertyIds::length:
                 if (this->IsScriptFunction() || this->IsBoundFunction())
-                {
+                {LOGMEIN("JavascriptFunction.cpp] 2527\n");
                     return true;
                 }
                 break;
@@ -2535,21 +2535,21 @@ LABEL1:
     }
 
     BOOL JavascriptFunction::IsEnumerable(PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2537\n");
         if (DynamicObject::GetPropertyIndex(propertyId) == Constants::NoSlot)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2539\n");
             switch (propertyId)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2541\n");
             case PropertyIds::caller:
             case PropertyIds::arguments:
                 if (this->HasRestrictedProperties())
-                {
+                {LOGMEIN("JavascriptFunction.cpp] 2545\n");
                     return false;
                 }
                 break;
             case PropertyIds::length:
                 if (this->IsScriptFunction())
-                {
+                {LOGMEIN("JavascriptFunction.cpp] 2551\n");
                     return false;
                 }
                 break;
@@ -2559,21 +2559,21 @@ LABEL1:
     }
 
     BOOL JavascriptFunction::IsWritable(PropertyId propertyId)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2561\n");
         if (DynamicObject::GetPropertyIndex(propertyId) == Constants::NoSlot)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2563\n");
             switch (propertyId)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2565\n");
             case PropertyIds::caller:
             case PropertyIds::arguments:
                 if (this->HasRestrictedProperties())
-                {
+                {LOGMEIN("JavascriptFunction.cpp] 2569\n");
                     return false;
                 }
                 break;
             case PropertyIds::length:
                 if (this->IsScriptFunction())
-                {
+                {LOGMEIN("JavascriptFunction.cpp] 2575\n");
                     return false;
                 }
                 break;
@@ -2583,21 +2583,21 @@ LABEL1:
     }
 
     BOOL JavascriptFunction::GetSpecialPropertyName(uint32 index, Var *propertyName, ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2585\n");
         uint length = GetSpecialPropertyCount();
         if (index < length)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2588\n");
             Assert(DynamicObject::GetPropertyIndex(specialPropertyIds[index]) == Constants::NoSlot);
             *propertyName = requestContext->GetPropertyString(specialPropertyIds[index]);
             return true;
         }
 
         if (index == length)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2595\n");
             if (this->IsScriptFunction() || this->IsBoundFunction())
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2597\n");
                 if (DynamicObject::GetPropertyIndex(PropertyIds::length) == Constants::NoSlot)
-                {
+                {LOGMEIN("JavascriptFunction.cpp] 2599\n");
                     //Only for user defined functions length is a special property.
                     *propertyName = requestContext->GetPropertyString(PropertyIds::length);
                     return true;
@@ -2609,39 +2609,39 @@ LABEL1:
 
     // Returns the number of special non-enumerable properties this type has.
     uint JavascriptFunction::GetSpecialPropertyCount() const
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2611\n");
         return this->HasRestrictedProperties() ? _countof(specialPropertyIds) : 0;
     }
 
     // Returns the list of special non-enumerable properties for the type.
     PropertyId const * JavascriptFunction::GetSpecialPropertyIds() const
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2617\n");
         return specialPropertyIds;
     }
 
     BOOL JavascriptFunction::GetPropertyReference(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2622\n");
         return JavascriptFunction::GetProperty(originalInstance, propertyId, value, info, requestContext);
     }
 
     JavascriptFunction* JavascriptFunction::FindCaller(BOOL* foundThis, JavascriptFunction* nullValue, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2627\n");
         ScriptContext* scriptContext = this->GetScriptContext();
 
         JavascriptFunction* funcCaller = nullValue;
         JavascriptStackWalker walker(scriptContext);
 
         if (walker.WalkToTarget(this))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2634\n");
             *foundThis = TRUE;
             while (walker.GetCaller(&funcCaller))
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2637\n");
                 if (walker.IsCallerGlobalFunction())
-                {
+                {LOGMEIN("JavascriptFunction.cpp] 2639\n");
                     // Caller is global/eval. If it's eval, keep looking.
                     // Otherwise, return null.
                     if (walker.IsEvalCaller())
-                    {
+                    {LOGMEIN("JavascriptFunction.cpp] 2643\n");
                         continue;
                     }
                     funcCaller = nullValue;
@@ -2650,13 +2650,13 @@ LABEL1:
             }
 
             if (funcCaller->GetScriptContext() != requestContext && funcCaller->GetTypeId() == TypeIds_Null)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2652\n");
                 // There are cases where StackWalker might return null value from different scriptContext
                 // Caller of this function expects nullValue from the requestContext.
                 funcCaller = nullValue;
             }
             if (ScriptFunction::Is(funcCaller))
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2658\n");
                 // Is this is the internal function of a generator function then return the original generator function
                 funcCaller = ScriptFunction::FromVar(funcCaller)->GetRealFunctionObject();
             }
@@ -2666,19 +2666,19 @@ LABEL1:
     }
 
     BOOL JavascriptFunction::GetCallerProperty(Var originalInstance, Var* value, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2668\n");
         ScriptContext* scriptContext = this->GetScriptContext();
         *value = nullptr;
 
         if (this->IsStrictMode())
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2673\n");
             return false;
         }
 
         if (this->GetEntryPoint() == JavascriptFunction::PrototypeEntryPoint)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2678\n");
             if (scriptContext->GetThreadContext()->RecordImplicitException())
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2680\n");
                 JavascriptFunction* accessor = requestContext->GetLibrary()->GetThrowTypeErrorRestrictedPropertyAccessorFunction();
                 *value = CALL_FUNCTION(accessor, CallInfo(1), originalInstance);
             }
@@ -2687,7 +2687,7 @@ LABEL1:
 
         JavascriptFunction* nullValue = (JavascriptFunction*)requestContext->GetLibrary()->GetNull();
         if (this->IsLibraryCode()) // Hide .caller for builtins
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2689\n");
             *value = nullValue;
             return true;
         }
@@ -2705,34 +2705,34 @@ LABEL1:
         // window.onerror scenario.
         *value = funcCaller;
         if (foundThis && funcCaller == nullValue && scriptContext->GetThreadContext()->HasUnhandledException())
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2707\n");
             Js::JavascriptExceptionObject* unhandledExceptionObject = scriptContext->GetThreadContext()->GetUnhandledExceptionObject();
             if (unhandledExceptionObject)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2710\n");
                 JavascriptFunction* exceptionFunction = unhandledExceptionObject->GetFunction();
                 // This is for getcaller in window.onError. The behavior is different in different browsers
                 if (exceptionFunction 
                     && scriptContext == exceptionFunction->GetScriptContext()
                     && exceptionFunction->IsScriptFunction()
                     && !exceptionFunction->GetFunctionBody()->GetIsGlobalFunc())
-                {
+                {LOGMEIN("JavascriptFunction.cpp] 2717\n");
                     *value = exceptionFunction;
                 }
             }
         }
         else if (foundThis && scriptContext != funcCaller->GetScriptContext())
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2723\n");
             HRESULT hr = scriptContext->GetHostScriptContext()->CheckCrossDomainScriptContext(funcCaller->GetScriptContext());
             if (S_OK != hr)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2726\n");
                 *value = scriptContext->GetLibrary()->GetNull();
             }
         }
 
         if (Js::JavascriptFunction::Is(*value) && Js::JavascriptFunction::FromVar(*value)->IsStrictMode())
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2732\n");
             if (scriptContext->GetThreadContext()->RecordImplicitException())
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2734\n");
                 // ES5.15.3.5.4 [[Get]] (P) -- access to the 'caller' property of strict mode function results in TypeError.
                 // Note that for caller coming from remote context (see the check right above) we can't call IsStrictMode()
                 // unless CheckCrossDomainScriptContext succeeds. If it fails we don't know whether caller is strict mode
@@ -2745,18 +2745,18 @@ LABEL1:
     }
 
     BOOL JavascriptFunction::GetArgumentsProperty(Var originalInstance, Var* value, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2747\n");
         ScriptContext* scriptContext = this->GetScriptContext();
 
         if (this->IsStrictMode())
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2751\n");
             return false;
         }
 
         if (this->GetEntryPoint() == JavascriptFunction::PrototypeEntryPoint)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2756\n");
             if (scriptContext->GetThreadContext()->RecordImplicitException())
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2758\n");
                 JavascriptFunction* accessor = requestContext->GetLibrary()->GetThrowTypeErrorRestrictedPropertyAccessorFunction();
                 *value = CALL_FUNCTION(accessor, CallInfo(1), originalInstance);
             }
@@ -2764,7 +2764,7 @@ LABEL1:
         }
 
         if (!this->IsScriptFunction())
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2766\n");
             // builtin function do not have an argument object - return null.
             *value = scriptContext->GetLibrary()->GetNull();
             return true;
@@ -2777,9 +2777,9 @@ LABEL1:
         JavascriptStackWalker walker(scriptContext);
 
         if (walker.WalkToTarget(this))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2779\n");
             if (walker.IsCallerGlobalFunction())
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2781\n");
                 *value = requestContext->GetLibrary()->GetNull();
             }
             else
@@ -2807,13 +2807,13 @@ LABEL1:
     }
 
     BOOL JavascriptFunction::GetProperty(Var originalInstance, PropertyId propertyId, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2809\n");
         BOOL result = DynamicObject::GetProperty(originalInstance, propertyId, value, info, requestContext);
 
         if (result)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2813\n");
             if (propertyId == PropertyIds::prototype)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2815\n");
                 PropertyValueInfo::DisableStoreFieldCache(info);
             }
         }
@@ -2826,16 +2826,16 @@ LABEL1:
     }
 
     BOOL JavascriptFunction::GetProperty(Var originalInstance, JavascriptString* propertyNameString, Var* value, PropertyValueInfo* info, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2828\n");
         BOOL result;
         PropertyRecord const* propertyRecord;
         this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
 
         result = DynamicObject::GetProperty(originalInstance, propertyNameString, value, info, requestContext);
         if (result)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2835\n");
             if (propertyRecord != nullptr && propertyRecord->GetPropertyId() == PropertyIds::prototype)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2837\n");
                 PropertyValueInfo::DisableStoreFieldCache(info);
             }
 
@@ -2851,24 +2851,24 @@ LABEL1:
     }
 
     bool JavascriptFunction::GetPropertyBuiltIns(Var originalInstance, PropertyId propertyId, Var* value, ScriptContext* requestContext, BOOL* result)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2853\n");
         if (propertyId == PropertyIds::caller && this->HasRestrictedProperties())
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2855\n");
             *result = GetCallerProperty(originalInstance, value, requestContext);
             return true;
         }
 
         if (propertyId == PropertyIds::arguments && this->HasRestrictedProperties())
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2861\n");
             *result = GetArgumentsProperty(originalInstance, value, requestContext);
             return true;
         }
 
         if (propertyId == PropertyIds::length)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2867\n");
             FunctionProxy *proxy = this->GetFunctionProxy();
             if (proxy)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2870\n");
                 *value = TaggedInt::ToVarUnchecked(proxy->EnsureDeserialized()->GetReportedInParamsCount() - 1);
                 *result = true;
                 return true;
@@ -2879,27 +2879,27 @@ LABEL1:
     }
 
     BOOL JavascriptFunction::SetProperty(PropertyId propertyId, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2881\n");
         bool isReadOnly = false;
         switch (propertyId)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2884\n");
         case PropertyIds::caller:
             if (this->HasRestrictedProperties())
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2887\n");
                 isReadOnly = true;
             }
             break;
 
         case PropertyIds::arguments:
             if (this->HasRestrictedProperties())
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2894\n");
                 isReadOnly = true;
             }
             break;
 
         case PropertyIds::length:
             if (this->IsScriptFunction())
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2901\n");
                 isReadOnly = true;
             }
             break;
@@ -2907,7 +2907,7 @@ LABEL1:
         }
 
         if (isReadOnly)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2909\n");
             JavascriptError::ThrowCantAssignIfStrictMode(flags, this->GetScriptContext());
             return false;
         }
@@ -2915,7 +2915,7 @@ LABEL1:
         BOOL result = DynamicObject::SetProperty(propertyId, value, flags, info);
 
         if (propertyId == PropertyIds::prototype || propertyId == PropertyIds::_symbolHasInstance)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2917\n");
             PropertyValueInfo::SetNoCache(info, this);
             InvalidateConstructorCacheOnPrototypeChange();
             this->GetScriptContext()->GetThreadContext()->InvalidateIsInstInlineCachesForFunction(this);
@@ -2925,11 +2925,11 @@ LABEL1:
     }
 
     BOOL JavascriptFunction::SetPropertyWithAttributes(PropertyId propertyId, Var value, PropertyAttributes attributes, PropertyValueInfo* info, PropertyOperationFlags flags, SideEffects possibleSideEffects)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2927\n");
         BOOL result = __super::SetPropertyWithAttributes(propertyId, value, attributes, info, flags, possibleSideEffects);
 
         if (propertyId == PropertyIds::prototype || propertyId == PropertyIds::_symbolHasInstance)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2931\n");
             PropertyValueInfo::SetNoCache(info, this);
             InvalidateConstructorCacheOnPrototypeChange();
             this->GetScriptContext()->GetThreadContext()->InvalidateIsInstInlineCachesForFunction(this);
@@ -2939,12 +2939,12 @@ LABEL1:
     }
 
     BOOL JavascriptFunction::SetProperty(JavascriptString* propertyNameString, Var value, PropertyOperationFlags flags, PropertyValueInfo* info)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2941\n");
         PropertyRecord const * propertyRecord;
         this->GetScriptContext()->FindPropertyRecord(propertyNameString, &propertyRecord);
 
         if (propertyRecord != nullptr)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2946\n");
             return JavascriptFunction::SetProperty(propertyRecord->GetPropertyId(), value, flags, info);
         }
         else
@@ -2954,20 +2954,20 @@ LABEL1:
     }
 
     BOOL JavascriptFunction::DeleteProperty(PropertyId propertyId, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2956\n");
         switch (propertyId)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2958\n");
         case PropertyIds::caller:
         case PropertyIds::arguments:
             if (this->HasRestrictedProperties())
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2962\n");
                 JavascriptError::ThrowCantDeleteIfStrictMode(flags, this->GetScriptContext(), this->GetScriptContext()->GetPropertyName(propertyId)->GetBuffer());
                 return false;
             }
             break;
         case PropertyIds::length:
             if (this->IsScriptFunction())
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2969\n");
                 JavascriptError::ThrowCantDeleteIfStrictMode(flags, this->GetScriptContext(), this->GetScriptContext()->GetPropertyName(propertyId)->GetBuffer());
                 return false;
             }
@@ -2977,7 +2977,7 @@ LABEL1:
         BOOL result = DynamicObject::DeleteProperty(propertyId, flags);
 
         if (result && (propertyId == PropertyIds::prototype || propertyId == PropertyIds::_symbolHasInstance))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2979\n");
             InvalidateConstructorCacheOnPrototypeChange();
             this->GetScriptContext()->GetThreadContext()->InvalidateIsInstInlineCachesForFunction(this);
         }
@@ -2986,20 +2986,20 @@ LABEL1:
     }
 
     BOOL JavascriptFunction::DeleteProperty(JavascriptString *propertyNameString, PropertyOperationFlags flags)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 2988\n");
         JsUtil::CharacterBuffer<WCHAR> propertyName(propertyNameString->GetString(), propertyNameString->GetLength());
         if (BuiltInPropertyRecords::caller.Equals(propertyName) || BuiltInPropertyRecords::arguments.Equals(propertyName))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2991\n");
             if (this->HasRestrictedProperties())
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 2993\n");
                 JavascriptError::ThrowCantDeleteIfStrictMode(flags, this->GetScriptContext(), propertyNameString->GetString());
                 return false;
             }
         }
         else if (BuiltInPropertyRecords::length.Equals(propertyName))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 2999\n");
             if (this->IsScriptFunction())
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 3001\n");
                 JavascriptError::ThrowCantDeleteIfStrictMode(flags, this->GetScriptContext(), propertyNameString->GetString());
                 return false;
             }
@@ -3008,7 +3008,7 @@ LABEL1:
         BOOL result = DynamicObject::DeleteProperty(propertyNameString, flags);
 
         if (result && (BuiltInPropertyRecords::prototype.Equals(propertyName) || BuiltInPropertyRecords::_symbolHasInstance.Equals(propertyName)))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 3010\n");
             InvalidateConstructorCacheOnPrototypeChange();
             this->GetScriptContext()->GetThreadContext()->InvalidateIsInstInlineCachesForFunction(this);
         }
@@ -3017,12 +3017,12 @@ LABEL1:
     }
 
     void JavascriptFunction::InvalidateConstructorCacheOnPrototypeChange()
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 3019\n");
         Assert(this->constructorCache != nullptr);
 
 #if DBG_DUMP
         if (PHASE_TRACE1(Js::ConstructorCachePhase))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 3024\n");
             // This is under DBG_DUMP so we can allow a check
             ParseableFunctionInfo* body = this->GetFunctionProxy() != nullptr ? this->GetFunctionProxy()->EnsureDeserialized() : nullptr;
             const char16* ctorName = body != nullptr ? body->GetDisplayName() : _u("<unknown>");
@@ -3041,7 +3041,7 @@ LABEL1:
 
 #if DBG_DUMP
         if (PHASE_TRACE1(Js::ConstructorCachePhase))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 3043\n");
             // This is under DBG_DUMP so we can allow a check
             ParseableFunctionInfo* body = this->GetFunctionProxy() != nullptr ? this->GetFunctionProxy()->EnsureDeserialized() : nullptr;
             const char16* ctorName = body != nullptr ? body->GetDisplayName() : _u("<unknown>");
@@ -3058,20 +3058,20 @@ LABEL1:
     }
 
     BOOL JavascriptFunction::GetDiagValueString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 3060\n");
         JavascriptString * pString = NULL;
 
         Var sourceString = this->GetSourceString();
 
         if (sourceString == nullptr)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 3066\n");
             FunctionProxy* proxy = this->GetFunctionProxy();
             if (proxy)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 3069\n");
                 ParseableFunctionInfo * func = proxy->EnsureDeserialized();
                 Utf8SourceInfo* sourceInfo = func->GetUtf8SourceInfo();
                 if (sourceInfo->GetIsLibraryCode())
-                {
+                {LOGMEIN("JavascriptFunction.cpp] 3073\n");
                     charcount_t displayNameLength = 0;
                     pString = JavascriptFunction::GetLibraryCodeDisplayString(this->GetScriptContext(), func->GetShortDisplayName(&displayNameLength));
                 }
@@ -3095,7 +3095,7 @@ LABEL1:
         else
         {
             if (TaggedInt::Is(sourceString))
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 3097\n");
                 pString = GetNativeFunctionDisplayString(this->GetScriptContext(), this->GetScriptContext()->GetPropertyString(TaggedInt::ToInt32(sourceString)));
             }
             else
@@ -3112,13 +3112,13 @@ LABEL1:
     }
 
     BOOL JavascriptFunction::GetDiagTypeString(StringBuilder<ArenaAllocator>* stringBuilder, ScriptContext* requestContext)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 3114\n");
         stringBuilder->AppendCppLiteral(_u("Object, (Function)"));
         return TRUE;
     }
 
     JavascriptString* JavascriptFunction::GetDisplayNameImpl() const
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 3120\n");
         Assert(this->GetFunctionProxy() != nullptr); // The caller should guarantee a proxy exists
         ParseableFunctionInfo * func = this->GetFunctionProxy()->EnsureDeserialized();
         charcount_t length = 0;
@@ -3128,19 +3128,19 @@ LABEL1:
     }
 
     JavascriptString* JavascriptFunction::DisplayNameHelper(const char16* name, charcount_t length) const
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 3130\n");
         ScriptContext* scriptContext = this->GetScriptContext();
         Assert(this->GetFunctionProxy() != nullptr); // The caller should guarantee a proxy exists
         ParseableFunctionInfo * func = this->GetFunctionProxy()->EnsureDeserialized();
         if (func->GetDisplayName() == Js::Constants::FunctionCode)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 3135\n");
             return LiteralString::NewCopyBuffer(Js::Constants::Anonymous, Js::Constants::AnonymousLength, scriptContext);
         }
         else if (func->GetIsAccessor())
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 3139\n");
             const char16* accessorName = func->GetDisplayName();
             if (accessorName[0] == _u('g'))
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 3142\n");
                 return LiteralString::Concat(LiteralString::NewCopySz(_u("get "), scriptContext), LiteralString::NewCopyBuffer(name, length, scriptContext));
             }
             AssertMsg(accessorName[0] == _u('s'), "should be a set");
@@ -3150,13 +3150,13 @@ LABEL1:
     }
 
     bool JavascriptFunction::GetFunctionName(JavascriptString** name) const
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 3152\n");
         Assert(name != nullptr);
         FunctionProxy* proxy = this->GetFunctionProxy();
         JavascriptFunction* thisFunction = const_cast<JavascriptFunction*>(this);
 
         if (proxy || thisFunction->IsBoundFunction() || JavascriptGeneratorFunction::Is(thisFunction) || JavascriptAsyncFunction::Is(thisFunction))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 3158\n");
             *name = GetDisplayNameImpl();
             return true;
         }
@@ -3166,15 +3166,15 @@ LABEL1:
     }
 
     bool JavascriptFunction::GetSourceStringName(JavascriptString** name) const
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 3168\n");
         Assert(name != nullptr);
         ScriptContext* scriptContext = this->GetScriptContext();
         Var sourceString = this->GetSourceString();
 
         if (sourceString)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 3174\n");
             if (TaggedInt::Is(sourceString))
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 3176\n");
                 int32 propertyIdOfSourceString = TaggedInt::ToInt32(sourceString);
                 *name = scriptContext->GetPropertyString(propertyIdOfSourceString);
                 return true;
@@ -3187,19 +3187,19 @@ LABEL1:
     }
 
     JavascriptString* JavascriptFunction::GetDisplayName() const
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 3189\n");
         ScriptContext* scriptContext = this->GetScriptContext();
         FunctionProxy* proxy = this->GetFunctionProxy();
         JavascriptLibrary* library = scriptContext->GetLibrary();
 
         if (proxy)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 3195\n");
             ParseableFunctionInfo * func = proxy->EnsureDeserialized();
             return LiteralString::NewCopySz(func->GetDisplayName(), scriptContext);
         }
         JavascriptString* sourceStringName = nullptr;
         if (GetSourceStringName(&sourceStringName))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 3201\n");
             return sourceStringName;
         }
 
@@ -3207,13 +3207,13 @@ LABEL1:
     }
 
     Var JavascriptFunction::GetTypeOfString(ScriptContext * requestContext)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 3209\n");
         return requestContext->GetLibrary()->GetFunctionTypeDisplayString();
     }
 
     // Check if this function is native/script library code
     bool JavascriptFunction::IsLibraryCode() const
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 3215\n");
         return !this->IsScriptFunction() || this->GetFunctionProxy()->GetUtf8SourceInfo()->GetIsLibraryCode();
     }
 
@@ -3229,7 +3229,7 @@ LABEL1:
 
         RecyclableObject * constructor = RecyclableObject::FromVar(args[0]);
         if (!JavascriptConversion::IsCallable(constructor) || args.Info.Count < 2)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 3231\n");
             return JavascriptBoolean::ToVar(FALSE, scriptContext);
         }
 
@@ -3240,11 +3240,11 @@ LABEL1:
     }
 
     BOOL JavascriptFunction::HasInstance(Var instance, ScriptContext* scriptContext, IsInstInlineCache* inlineCache)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 3242\n");
         Var funcPrototype;
 
         if (this->GetTypeHandler()->GetHasKnownSlot0())
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 3246\n");
             Assert(this->GetDynamicType()->GetTypeHandler()->GetPropertyId(scriptContext, (PropertyIndex)0) == PropertyIds::prototype);
             funcPrototype = this->GetSlot(0);
         }
@@ -3257,7 +3257,7 @@ LABEL1:
     }
 
     BOOL JavascriptFunction::HasInstance(Var funcPrototype, Var instance, ScriptContext * scriptContext, IsInstInlineCache* inlineCache, JavascriptFunction *function)
-    {
+    {LOGMEIN("JavascriptFunction.cpp] 3259\n");
         BOOL result = FALSE;
         JavascriptBoolean * javascriptResult;
 
@@ -3265,11 +3265,11 @@ LABEL1:
         // if "instance" is not a JavascriptObject, return false
         //
         if (!JavascriptOperators::IsObject(instance))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 3267\n");
             // Only update the cache for primitive cache if it is empty already for the JIT fast path
             if (inlineCache && inlineCache->function == nullptr
                 && scriptContext == function->GetScriptContext())// only register when function has same scriptContext
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 3271\n");
                 inlineCache->Cache(RecyclableObject::Is(instance) ?
                     RecyclableObject::FromVar(instance)->GetType() : nullptr,
                     function, scriptContext->GetLibrary()->GetFalse(), scriptContext);
@@ -3293,10 +3293,10 @@ LABEL1:
         // However, object o's type (even if it is of the same "shape" as before) will be different, because the object types are permanently
         // bound and unique to the script context from which they were created.  Hence, the cache may miss, even if the function matches.
         if (inlineCache != nullptr)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 3295\n");
             Assert(function != nullptr);
             if (inlineCache->TryGetResult(instance, function, &javascriptResult))
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 3298\n");
                 return javascriptResult == scriptContext->GetLibrary()->GetTrue();
             }
         }
@@ -3321,16 +3321,16 @@ LABEL1:
         Var prototype = JavascriptOperators::GetPrototype(RecyclableObject::FromVar(instance));
 
         if (!JavascriptOperators::IsObject(funcPrototype))
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 3323\n");
             JavascriptError::ThrowTypeError(scriptContext, JSERR_InvalidPrototype);
         }
 
         // Since we missed the cache, we must now walk the prototype chain of the object to check if the given function's prototype is somewhere in
         // that chain. If it is, we return true. Otherwise (i.e., we hit the end of the chain before finding the function's prototype) we return false.
         while (JavascriptOperators::GetTypeId(prototype) != TypeIds_Null)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 3330\n");
             if (prototype == funcPrototype)
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 3332\n");
                 result = TRUE;
                 break;
             }
@@ -3340,7 +3340,7 @@ LABEL1:
 
         // Now that we know the answer, let's cache it for next time if we have a cache.
         if (inlineCache != NULL)
-        {
+        {LOGMEIN("JavascriptFunction.cpp] 3342\n");
             Assert(function != NULL);
             JavascriptBoolean * boolResult = result ? scriptContext->GetLibrary()->GetTrue() :
                 scriptContext->GetLibrary()->GetFalse();
@@ -3349,7 +3349,7 @@ LABEL1:
             if (!instanceType->HasSpecialPrototype()
                 && scriptContext == function->GetScriptContext()) // only register when function has same scriptContext, otherwise when scriptContext close
                                                                   // and the isInst inline cache chain will be broken by clearing the arenaAllocator
-            {
+            {LOGMEIN("JavascriptFunction.cpp] 3351\n");
                 inlineCache->Cache(instanceType, function, boolResult, scriptContext);
             }
         }

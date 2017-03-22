@@ -16,85 +16,85 @@ IntBounds::IntBounds(
     wasConstantUpperBoundEstablishedExplicitly(wasConstantUpperBoundEstablishedExplicitly),
     relativeLowerBounds(allocator),
     relativeUpperBounds(allocator)
-{
+{LOGMEIN("IntBounds.cpp] 18\n");
 }
 
 IntBounds *IntBounds::New(
     const IntConstantBounds &constantBounds,
     const bool wasConstantUpperBoundEstablishedExplicitly,
     JitArenaAllocator *const allocator)
-{
+{LOGMEIN("IntBounds.cpp] 25\n");
     Assert(allocator);
     return JitAnew(allocator, IntBounds, constantBounds, wasConstantUpperBoundEstablishedExplicitly, allocator);
 }
 
 IntBounds *IntBounds::Clone() const
-{
+{LOGMEIN("IntBounds.cpp] 31\n");
     JitArenaAllocator *const allocator = relativeLowerBounds.GetAllocator();
     return JitAnew(allocator, IntBounds, *this);
 }
 
 void IntBounds::Delete() const
-{
+{LOGMEIN("IntBounds.cpp] 37\n");
     JitArenaAllocator *const allocator = relativeLowerBounds.GetAllocator();
     JitAdelete(allocator, const_cast<IntBounds *>(this));
 }
 
 void IntBounds::Verify() const
-{
+{LOGMEIN("IntBounds.cpp] 43\n");
     Assert(this);
     Assert(constantLowerBound <= constantUpperBound);
     Assert(HasBounds());
 }
 
 bool IntBounds::HasBounds() const
-{
+{LOGMEIN("IntBounds.cpp] 50\n");
     return constantLowerBound != IntConstMin || constantUpperBound != IntConstMax || RequiresIntBoundedValueInfo();
 }
 
 bool IntBounds::RequiresIntBoundedValueInfo(const ValueType valueType) const
-{
+{LOGMEIN("IntBounds.cpp] 55\n");
     Assert(valueType.IsLikelyInt());
     return !valueType.IsInt() || RequiresIntBoundedValueInfo();
 }
 
 bool IntBounds::RequiresIntBoundedValueInfo() const
-{
+{LOGMEIN("IntBounds.cpp] 61\n");
     return WasConstantUpperBoundEstablishedExplicitly() || relativeLowerBounds.Count() != 0 || relativeUpperBounds.Count() != 0;
 }
 
 int IntBounds::ConstantLowerBound() const
-{
+{LOGMEIN("IntBounds.cpp] 66\n");
     return constantLowerBound;
 }
 
 int IntBounds::ConstantUpperBound() const
-{
+{LOGMEIN("IntBounds.cpp] 71\n");
     return constantUpperBound;
 }
 
 IntConstantBounds IntBounds::ConstantBounds() const
-{
+{LOGMEIN("IntBounds.cpp] 76\n");
     return IntConstantBounds(ConstantLowerBound(), ConstantUpperBound());
 }
 
 bool IntBounds::WasConstantUpperBoundEstablishedExplicitly() const
-{
+{LOGMEIN("IntBounds.cpp] 81\n");
     return wasConstantUpperBoundEstablishedExplicitly;
 }
 
 const RelativeIntBoundSet &IntBounds::RelativeLowerBounds() const
-{
+{LOGMEIN("IntBounds.cpp] 86\n");
     return relativeLowerBounds;
 }
 
 const RelativeIntBoundSet &IntBounds::RelativeUpperBounds() const
-{
+{LOGMEIN("IntBounds.cpp] 91\n");
     return relativeUpperBounds;
 }
 
 void IntBounds::SetLowerBound(const int constantBound)
-{
+{LOGMEIN("IntBounds.cpp] 96\n");
     if(constantLowerBound < constantBound && constantBound <= constantUpperBound)
         constantLowerBound = constantBound;
 }
@@ -105,7 +105,7 @@ void IntBounds::SetLowerBound(const int constantBoundBase, const int offset)
 }
 
 void IntBounds::SetUpperBound(const int constantBound, const bool wasEstablishedExplicitly)
-{
+{LOGMEIN("IntBounds.cpp] 107\n");
     if(constantLowerBound <= constantBound && constantBound < constantUpperBound)
         constantUpperBound = constantBound;
     if(wasEstablishedExplicitly)
@@ -119,7 +119,7 @@ void IntBounds::SetUpperBound(const int constantBoundBase, const int offset, con
 
 template<bool Lower>
 void IntBounds::SetBound(const int constantBoundBase, const int offset, const bool wasEstablishedExplicitly)
-{
+{LOGMEIN("IntBounds.cpp] 121\n");
     int constantBound;
     if(offset == 0)
         constantBound = constantBoundBase;
@@ -172,7 +172,7 @@ void IntBounds::SetBound(
     const Value *const baseValue,
     const int offset,
     const bool wasEstablishedExplicitly)
-{
+{LOGMEIN("IntBounds.cpp] 174\n");
     Assert(baseValue);
     Assert(baseValue->GetValueNumber() != myValueNumber);
 
@@ -194,19 +194,19 @@ void IntBounds::SetBound(
     RelativeIntBoundSet &boundSet = Lower ? relativeLowerBounds : relativeUpperBounds;
     const RelativeIntBoundSet &oppositeBoundSet = Lower ? relativeUpperBounds : relativeLowerBounds;
     if(baseValueInfo->IsIntBounded())
-    {
+    {LOGMEIN("IntBounds.cpp] 196\n");
         const IntBounds *const baseValueBounds = baseValueInfo->AsIntBounded()->Bounds();
         const RelativeIntBoundSet &baseValueBoundSet =
             Lower ? baseValueBounds->relativeLowerBounds : baseValueBounds->relativeUpperBounds;
         for(auto it = baseValueBoundSet.GetIterator(); it.IsValid(); it.MoveNext())
-        {
+        {LOGMEIN("IntBounds.cpp] 201\n");
             ValueRelativeOffset bound(it.CurrentValue());
             if(bound.BaseValueNumber() == myValueNumber || !bound.Add(offset))
                 continue;
             const ValueRelativeOffset *existingOppositeBound;
             if(oppositeBoundSet.TryGetReference(bound.BaseValueNumber(), &existingOppositeBound) &&
                 (Lower ? bound.Offset() > existingOppositeBound->Offset() : bound.Offset() < existingOppositeBound->Offset()))
-            {
+            {LOGMEIN("IntBounds.cpp] 208\n");
                 // This bound contradicts the existing opposite bound on the same base value number:
                 //     - Setting a lower bound (base + offset) when (base + offset2) is an upper bound and (offset > offset2)
                 //     - Setting an upper bound (base + offset) when (base + offset2) is a lower bound and (offset < offset2)
@@ -225,7 +225,7 @@ void IntBounds::SetBound(
     const ValueRelativeOffset *existingOppositeBound;
     if(oppositeBoundSet.TryGetReference(bound.BaseValueNumber(), &existingOppositeBound) &&
         (Lower ? offset > existingOppositeBound->Offset() : offset < existingOppositeBound->Offset()))
-    {
+    {LOGMEIN("IntBounds.cpp] 227\n");
         // This bound contradicts the existing opposite bound on the same base value number:
         //     - Setting a lower bound (base + offset) when (base + offset2) is an upper bound and (offset > offset2)
         //     - Setting an upper bound (base + offset) when (base + offset2) is a lower bound and (offset < offset2)
@@ -239,18 +239,18 @@ void IntBounds::SetBound(
 }
 
 bool IntBounds::SetIsNot(const int constantValue, const bool isExplicit)
-{
+{LOGMEIN("IntBounds.cpp] 241\n");
     if(constantLowerBound == constantUpperBound)
         return false;
 
     Assert(constantLowerBound < constantUpperBound);
     if(constantValue == constantLowerBound)
-    {
+    {LOGMEIN("IntBounds.cpp] 247\n");
         ++constantLowerBound;
         return true;
     }
     if(constantValue == constantUpperBound)
-    {
+    {LOGMEIN("IntBounds.cpp] 252\n");
         --constantUpperBound;
         if(isExplicit)
             wasConstantUpperBoundEstablishedExplicitly = true;
@@ -260,7 +260,7 @@ bool IntBounds::SetIsNot(const int constantValue, const bool isExplicit)
 }
 
 bool IntBounds::SetIsNot(const Value *const value, const bool isExplicit)
-{
+{LOGMEIN("IntBounds.cpp] 262\n");
     Assert(value);
 
     ValueInfo *const valueInfo = value->GetValueInfo();
@@ -269,7 +269,7 @@ bool IntBounds::SetIsNot(const Value *const value, const bool isExplicit)
     int constantValue;
     bool changed;
     if(valueInfo->TryGetIntConstantValue(&constantValue, true))
-    {
+    {LOGMEIN("IntBounds.cpp] 271\n");
         changed = SetIsNot(constantValue, isExplicit);
         if(valueInfo->IsInt())
             return changed;
@@ -289,7 +289,7 @@ bool IntBounds::SetIsNot(const Value *const value, const bool isExplicit)
     if(existingLowerBoundOffsetIsZero)
         existingLowerBound->SetOffset(1);
     else
-    {
+    {LOGMEIN("IntBounds.cpp] 291\n");
         existingUpperBound->SetOffset(-1);
         if(isExplicit)
             existingUpperBound->SetWasEstablishedExplicitly();
@@ -298,7 +298,7 @@ bool IntBounds::SetIsNot(const Value *const value, const bool isExplicit)
 }
 
 bool IntBounds::IsGreaterThanOrEqualTo(const int constantValue, const int constantBoundBase, const int offset)
-{
+{LOGMEIN("IntBounds.cpp] 300\n");
     if(offset == 0)
         return constantValue >= constantBoundBase;
     if(offset == 1)
@@ -313,7 +313,7 @@ bool IntBounds::IsGreaterThanOrEqualTo(const int constantValue, const int consta
 }
 
 bool IntBounds::IsLessThanOrEqualTo(const int constantValue, const int constantBoundBase, const int offset)
-{
+{LOGMEIN("IntBounds.cpp] 315\n");
     if(offset == 0)
         return constantValue <= constantBoundBase;
     if(offset == -1)
@@ -328,17 +328,17 @@ bool IntBounds::IsLessThanOrEqualTo(const int constantValue, const int constantB
 }
 
 bool IntBounds::IsGreaterThanOrEqualTo(const int constantBoundBase, const int offset) const
-{
+{LOGMEIN("IntBounds.cpp] 330\n");
     return IsGreaterThanOrEqualTo(constantLowerBound, constantBoundBase, offset);
 }
 
 bool IntBounds::IsLessThanOrEqualTo(const int constantBoundBase, const int offset) const
-{
+{LOGMEIN("IntBounds.cpp] 335\n");
     return IsLessThanOrEqualTo(constantUpperBound, constantBoundBase, offset);
 }
 
 bool IntBounds::IsGreaterThanOrEqualTo(const Value *const value, const int offset) const
-{
+{LOGMEIN("IntBounds.cpp] 340\n");
     Assert(value);
 
     ValueInfo *const valueInfo = value->GetValueInfo();
@@ -356,7 +356,7 @@ bool IntBounds::IsGreaterThanOrEqualTo(const Value *const value, const int offse
 }
 
 bool IntBounds::IsLessThanOrEqualTo(const Value *const value, const int offset) const
-{
+{LOGMEIN("IntBounds.cpp] 358\n");
     Assert(value);
 
     ValueInfo *const valueInfo = value->GetValueInfo();
@@ -379,7 +379,7 @@ const IntBounds *IntBounds::Add(
     const bool baseValueInfoIsPrecise,
     const IntConstantBounds &newConstantBounds,
     JitArenaAllocator *const allocator)
-{
+{LOGMEIN("IntBounds.cpp] 381\n");
     Assert(baseValue);
     Assert(baseValue->GetValueInfo()->IsLikelyInt());
     Assert(!baseValue->GetValueInfo()->HasIntConstantValue());
@@ -389,11 +389,11 @@ const IntBounds *IntBounds::Add(
     ValueInfo *const baseValueInfo = baseValue->GetValueInfo();
     const IntBounds *const baseBounds = baseValueInfo->IsIntBounded() ? baseValueInfo->AsIntBounded()->Bounds() : nullptr;
     if(baseBounds && baseBounds->WasConstantUpperBoundEstablishedExplicitly())
-    {
+    {LOGMEIN("IntBounds.cpp] 391\n");
         int baseAdjustedConstantUpperBound;
         if(!Int32Math::Add(baseBounds->ConstantUpperBound(), n, &baseAdjustedConstantUpperBound) &&
             baseAdjustedConstantUpperBound == newConstantBounds.UpperBound())
-        {
+        {LOGMEIN("IntBounds.cpp] 395\n");
             wasConstantUpperBoundEstablishedExplicitly = true;
         }
     }
@@ -405,18 +405,18 @@ const IntBounds *IntBounds::Add(
     // Adjust the relative bounds by the constant. The base value info would not be precise for instance, when we're in a loop
     // and the value was created before the loop or in a previous loop iteration.
     if(n < 0 && !baseValueInfoIsPrecise)
-    {
+    {LOGMEIN("IntBounds.cpp] 407\n");
         // Don't know the number of similar decreases in value that will take place
         Assert(newBounds->constantLowerBound == IntConstMin);
     }
     else if(baseBounds)
-    {
+    {LOGMEIN("IntBounds.cpp] 412\n");
         Assert(!baseBounds->relativeLowerBounds.ContainsKey(baseValue->GetValueNumber()));
         newBounds->relativeLowerBounds.Copy(&baseBounds->relativeLowerBounds);
         if(n != 0)
-        {
+        {LOGMEIN("IntBounds.cpp] 416\n");
             for(auto it = newBounds->relativeLowerBounds.GetIteratorWithRemovalSupport(); it.IsValid(); it.MoveNext())
-            {
+            {LOGMEIN("IntBounds.cpp] 418\n");
                 ValueRelativeOffset &bound = it.CurrentValueReference();
                 if(!bound.Add(n))
                     it.RemoveCurrent();
@@ -424,18 +424,18 @@ const IntBounds *IntBounds::Add(
         }
     }
     if(n > 0 && !baseValueInfoIsPrecise)
-    {
+    {LOGMEIN("IntBounds.cpp] 426\n");
         // Don't know the number of similar increases in value that will take place, so clear the relative upper bounds
         Assert(newBounds->constantUpperBound == IntConstMax);
     }
     else if(baseBounds)
-    {
+    {LOGMEIN("IntBounds.cpp] 431\n");
         Assert(!baseBounds->relativeUpperBounds.ContainsKey(baseValue->GetValueNumber()));
         newBounds->relativeUpperBounds.Copy(&baseBounds->relativeUpperBounds);
         if(n != 0)
-        {
+        {LOGMEIN("IntBounds.cpp] 435\n");
             for(auto it = newBounds->relativeUpperBounds.GetIteratorWithRemovalSupport(); it.IsValid(); it.MoveNext())
-            {
+            {LOGMEIN("IntBounds.cpp] 437\n");
                 ValueRelativeOffset &bound = it.CurrentValueReference();
                 if(!bound.Add(n))
                     it.RemoveCurrent();
@@ -455,14 +455,14 @@ const IntBounds *IntBounds::Add(
 }
 
 bool IntBounds::AddCannotOverflowBasedOnRelativeBounds(const int n) const
-{
+{LOGMEIN("IntBounds.cpp] 457\n");
     Assert(n != 0);
 
     if(n >= 0)
-    {
+    {LOGMEIN("IntBounds.cpp] 461\n");
         const int maxBoundOffset = -n;
         for(auto it = relativeUpperBounds.GetIterator(); it.IsValid(); it.MoveNext())
-        {
+        {LOGMEIN("IntBounds.cpp] 464\n");
             // If (a < b), then (a + 1) cannot overflow
             const ValueRelativeOffset &bound = it.CurrentValue();
             if(bound.Offset() <= maxBoundOffset)
@@ -475,14 +475,14 @@ bool IntBounds::AddCannotOverflowBasedOnRelativeBounds(const int n) const
 }
 
 bool IntBounds::SubCannotOverflowBasedOnRelativeBounds(const int n) const
-{
+{LOGMEIN("IntBounds.cpp] 477\n");
     Assert(n != 0);
 
     if(n >= 0)
-    {
+    {LOGMEIN("IntBounds.cpp] 481\n");
         const int minBoundOffset = n;
         for(auto it = relativeLowerBounds.GetIterator(); it.IsValid(); it.MoveNext())
-        {
+        {LOGMEIN("IntBounds.cpp] 484\n");
             // If (a > b), then (a - 1) cannot overflow
             const ValueRelativeOffset &bound = it.CurrentValue();
             if(bound.Offset() >= minBoundOffset)
@@ -499,7 +499,7 @@ const IntBounds *IntBounds::Merge(
     const IntBounds *const bounds0,
     const Value *const bounds1Value,
     const IntConstantBounds &constantBounds1)
-{
+{LOGMEIN("IntBounds.cpp] 501\n");
     Assert(bounds0Value);
     bounds0->Verify();
     Assert(bounds1Value);
@@ -520,7 +520,7 @@ const IntBounds *IntBounds::Merge(
         constantBounds.UpperBound() == IntConstMax &&
         !commonLowerBound &&
         !commonUpperBound)
-    {
+    {LOGMEIN("IntBounds.cpp] 522\n");
         return nullptr;
     }
 
@@ -530,7 +530,7 @@ const IntBounds *IntBounds::Merge(
     if(bounds0Value->GetValueNumber() == bounds1ValueNumber)
         return mergedBounds;
     if(commonLowerBound)
-    {
+    {LOGMEIN("IntBounds.cpp] 532\n");
         ValueRelativeOffset mergedLowerBound(*commonLowerBound);
         if(constantBounds1.IsConstant())
             mergedLowerBound.MergeConstantValue<true, false>(constantBounds1.LowerBound());
@@ -539,7 +539,7 @@ const IntBounds *IntBounds::Merge(
         mergedBounds->relativeLowerBounds.Add(mergedLowerBound);
     }
     if(commonUpperBound)
-    {
+    {LOGMEIN("IntBounds.cpp] 541\n");
         ValueRelativeOffset mergedUpperBound(*commonUpperBound);
         if(constantBounds1.IsConstant())
             mergedUpperBound.MergeConstantValue<false, false>(constantBounds1.LowerBound());
@@ -557,7 +557,7 @@ const IntBounds *IntBounds::Merge(
     const IntBounds *const bounds0,
     const Value *const bounds1Value,
     const IntBounds *const bounds1)
-{
+{LOGMEIN("IntBounds.cpp] 559\n");
     Assert(bounds0Value);
     bounds0->Verify();
     Assert(bounds1Value);
@@ -576,7 +576,7 @@ const IntBounds *IntBounds::Merge(
     MergeBoundSets<true>(bounds0Value, bounds0, bounds1Value, bounds1, mergedBounds);
     MergeBoundSets<false>(bounds0Value, bounds0, bounds1Value, bounds1, mergedBounds);
     if(mergedBounds->HasBounds())
-    {
+    {LOGMEIN("IntBounds.cpp] 578\n");
         mergedBounds->Verify();
         return mergedBounds;
     }
@@ -591,7 +591,7 @@ void IntBounds::MergeBoundSets(
     const Value *const bounds1Value,
     const IntBounds *const bounds1,
     IntBounds *const mergedBounds)
-{
+{LOGMEIN("IntBounds.cpp] 593\n");
     Assert(bounds0Value);
     bounds0->Verify();
     Assert(bounds1Value);
@@ -604,7 +604,7 @@ void IntBounds::MergeBoundSets(
     RelativeIntBoundSet *mergedBoundSet;
     const RelativeIntBoundSet *boundSet0, *boundSet1;
     if(Lower)
-    {
+    {LOGMEIN("IntBounds.cpp] 606\n");
         mergedBoundSet = &mergedBounds->relativeLowerBounds;
         boundSet0 = &bounds0->relativeLowerBounds;
         boundSet1 = &bounds1->relativeLowerBounds;
@@ -619,7 +619,7 @@ void IntBounds::MergeBoundSets(
     // Iterate over the smaller set and look up in the larger set for compatible bounds that can be merged
     const RelativeIntBoundSet *iterateOver, *lookUpIn;
     if(boundSet0->Count() <= boundSet1->Count())
-    {
+    {LOGMEIN("IntBounds.cpp] 621\n");
         iterateOver = boundSet0;
         lookUpIn = boundSet1;
     }
@@ -629,7 +629,7 @@ void IntBounds::MergeBoundSets(
         lookUpIn = boundSet0;
     }
     for(auto it = iterateOver->GetIterator(); it.IsValid(); it.MoveNext())
-    {
+    {LOGMEIN("IntBounds.cpp] 631\n");
         const ValueRelativeOffset &iterateOver_bound(it.CurrentValue());
         const ValueNumber baseValueNumber = iterateOver_bound.BaseValueNumber();
         const ValueRelativeOffset *lookUpIn_bound;
@@ -646,13 +646,13 @@ void IntBounds::MergeBoundSets(
         return;
     const ValueRelativeOffset *bound;
     if(boundSet0->TryGetReference(bounds1ValueNumber, &bound))
-    {
+    {LOGMEIN("IntBounds.cpp] 648\n");
         ValueRelativeOffset mergedBound(bounds1Value, true);
         mergedBound.Merge<Lower, false>(*bound);
         mergedBoundSet->Add(mergedBound);
     }
     if(boundSet1->TryGetReference(bounds0ValueNumber, &bound))
-    {
+    {LOGMEIN("IntBounds.cpp] 654\n");
         ValueRelativeOffset mergedBound(bounds0Value, true);
         mergedBound.Merge<Lower, false>(*bound);
         mergedBoundSet->Add(mergedBound);
@@ -667,16 +667,16 @@ IntBoundCheckCompatibilityId::IntBoundCheckCompatibilityId(
     const ValueNumber leftValueNumber,
     const ValueNumber rightValueNumber)
     : leftValueNumber(leftValueNumber), rightValueNumber(rightValueNumber)
-{
+{LOGMEIN("IntBounds.cpp] 669\n");
 }
 
 bool IntBoundCheckCompatibilityId::operator ==(const IntBoundCheckCompatibilityId &other) const
-{
+{LOGMEIN("IntBounds.cpp] 673\n");
     return leftValueNumber == other.leftValueNumber && rightValueNumber == other.rightValueNumber;
 }
 
 IntBoundCheckCompatibilityId::operator hash_t() const
-{
+{LOGMEIN("IntBounds.cpp] 678\n");
     return static_cast<hash_t>(static_cast<hash_t>(leftValueNumber) + static_cast<hash_t>(rightValueNumber));
 }
 
@@ -694,64 +694,64 @@ IntBoundCheck::IntBoundCheck(
     IR::Instr *const instr,
     BasicBlock *const block)
     : leftValueNumber(leftValueNumber), rightValueNumber(rightValueNumber), instr(instr), block(block)
-{
+{LOGMEIN("IntBounds.cpp] 696\n");
     Assert(IsValid());
 }
 
 #if DBG
 
 bool IntBoundCheck::IsValid() const
-{
+{LOGMEIN("IntBounds.cpp] 703\n");
     return leftValueNumber != InvalidValueNumber;
 }
 
 #endif
 
 ValueNumber IntBoundCheck::LeftValueNumber() const
-{
+{LOGMEIN("IntBounds.cpp] 710\n");
     Assert(IsValid());
     return leftValueNumber;
 }
 
 ValueNumber IntBoundCheck::RightValueNumber() const
-{
+{LOGMEIN("IntBounds.cpp] 716\n");
     Assert(IsValid());
     return rightValueNumber;
 }
 
 IR::Instr *IntBoundCheck::Instr() const
-{
+{LOGMEIN("IntBounds.cpp] 722\n");
     Assert(IsValid());
     return instr;
 }
 
 BasicBlock *IntBoundCheck::Block() const
-{
+{LOGMEIN("IntBounds.cpp] 728\n");
     Assert(IsValid());
     return block;
 }
 
 IntBoundCheckCompatibilityId IntBoundCheck::CompatibilityId() const
-{
+{LOGMEIN("IntBounds.cpp] 734\n");
     return IntBoundCheckCompatibilityId(leftValueNumber, rightValueNumber);
 }
 
 bool IntBoundCheck::SetBoundOffset(const int offset, const bool isLoopCountBasedBound) const
-{
+{LOGMEIN("IntBounds.cpp] 739\n");
     Assert(IsValid());
 
     // Determine the previous offset from the instruction (src1 <= src2 + dst)
     IR::IntConstOpnd *dstOpnd = nullptr;
     IntConstType previousOffset = 0;
     if (instr->GetDst())
-    {
+    {LOGMEIN("IntBounds.cpp] 746\n");
         dstOpnd = instr->GetDst()->AsIntConstOpnd();
         previousOffset = dstOpnd->GetValue();
     }
 
     IR::IntConstOpnd *src1Opnd = nullptr;
     if (instr->GetSrc1()->IsIntConstOpnd())
-    {
+    {LOGMEIN("IntBounds.cpp] 753\n");
         src1Opnd = instr->GetSrc1()->AsIntConstOpnd();
         if (IntConstMath::Sub(previousOffset, src1Opnd->GetValue(), &previousOffset))
             return false;
@@ -773,7 +773,7 @@ bool IntBoundCheck::SetBoundOffset(const int offset, const bool isLoopCountBased
 
     Assert(offsetDecrease > 0);
     if(src1Opnd)
-    {
+    {LOGMEIN("IntBounds.cpp] 775\n");
         // Prefer to increase src1, as this is an upper bound check and src1 corresponds to the index
         IntConstType newSrc1Value;
         if(IntConstMath::Add(src1Opnd->GetValue(), offsetDecrease, &newSrc1Value))
@@ -781,7 +781,7 @@ bool IntBoundCheck::SetBoundOffset(const int offset, const bool isLoopCountBased
         src1Opnd->SetValue(newSrc1Value);
     }
     else if(dstOpnd)
-    {
+    {LOGMEIN("IntBounds.cpp] 783\n");
         IntConstType newDstValue;
         if(IntConstMath::Sub(dstOpnd->GetValue(), offsetDecrease, &newDstValue))
             return false;
@@ -794,7 +794,7 @@ bool IntBoundCheck::SetBoundOffset(const int offset, const bool isLoopCountBased
         instr->SetDst(IR::IntConstOpnd::New(-offsetDecrease, TyMachReg, instr->m_func, true));
 
     switch(instr->GetBailOutKind())
-    {
+    {LOGMEIN("IntBounds.cpp] 796\n");
         case IR::BailOutOnFailedHoistedBoundCheck:
             if(isLoopCountBasedBound)
                 instr->SetBailOutKind(IR::BailOutOnFailedHoistedLoopCountBasedBoundCheck);

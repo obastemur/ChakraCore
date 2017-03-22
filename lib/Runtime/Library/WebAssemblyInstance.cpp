@@ -13,7 +13,7 @@ namespace Js
 {
 
 Var GetImportVariable(Wasm::WasmImport* wi, ScriptContext* ctx, Var ffi)
-{
+{LOGMEIN("WebAssemblyInstance.cpp] 15\n");
     PropertyRecord const * modPropertyRecord = nullptr;
     const char16* modName = wi->modName;
     uint32 modNameLen = wi->modNameLen;
@@ -26,7 +26,7 @@ Var GetImportVariable(Wasm::WasmImport* wi, ScriptContext* ctx, Var ffi)
     ctx->GetOrAddPropertyRecord(name, nameLen, &propertyRecord);
 
     if (!RecyclableObject::Is(modProp))
-    {
+    {LOGMEIN("WebAssemblyInstance.cpp] 28\n");
         JavascriptError::ThrowTypeError(ctx, WASMERR_InvalidImport);
     }
     return JavascriptOperators::OP_GetProperty(modProp, propertyRecord->GetPropertyId(), ctx);
@@ -35,20 +35,20 @@ Var GetImportVariable(Wasm::WasmImport* wi, ScriptContext* ctx, Var ffi)
 WebAssemblyInstance::WebAssemblyInstance(WebAssemblyModule * wasmModule, DynamicType * type) :
     DynamicObject(type),
     m_module(wasmModule)
-{
+{LOGMEIN("WebAssemblyInstance.cpp] 37\n");
 }
 
 /* static */
 bool
 WebAssemblyInstance::Is(Var value)
-{
+{LOGMEIN("WebAssemblyInstance.cpp] 43\n");
     return JavascriptOperators::GetTypeId(value) == TypeIds_WebAssemblyInstance;
 }
 
 /* static */
 WebAssemblyInstance *
 WebAssemblyInstance::FromVar(Var value)
-{
+{LOGMEIN("WebAssemblyInstance.cpp] 50\n");
     Assert(WebAssemblyInstance::Is(value));
     return static_cast<WebAssemblyInstance*>(value);
 }
@@ -70,19 +70,19 @@ WebAssemblyInstance::NewInstance(RecyclableObject* function, CallInfo callInfo, 
     Assert(isCtorSuperCall || !(callInfo.Flags & CallFlags_New) || args[0] == nullptr);
 
     if (!(callInfo.Flags & CallFlags_New) || (newTarget && JavascriptOperators::IsUndefinedObject(newTarget)))
-    {
+    {LOGMEIN("WebAssemblyInstance.cpp] 72\n");
         JavascriptError::ThrowTypeError(scriptContext, JSERR_ClassConstructorCannotBeCalledWithoutNew, _u("WebAssembly.Instance"));
     }
 
     if (args.Info.Count < 2 || !WebAssemblyModule::Is(args[1]))
-    {
+    {LOGMEIN("WebAssemblyInstance.cpp] 77\n");
         JavascriptError::ThrowTypeError(scriptContext, WASMERR_NeedModule);
     }
     WebAssemblyModule * module = WebAssemblyModule::FromVar(args[1]);
 
     Var importObject = scriptContext->GetLibrary()->GetUndefined();
     if (args.Info.Count >= 3)
-    {
+    {LOGMEIN("WebAssemblyInstance.cpp] 84\n");
         importObject = args[2];
     }
 
@@ -91,14 +91,14 @@ WebAssemblyInstance::NewInstance(RecyclableObject* function, CallInfo callInfo, 
 
 WebAssemblyInstance *
 WebAssemblyInstance::CreateInstance(WebAssemblyModule * module, Var importObject)
-{
+{LOGMEIN("WebAssemblyInstance.cpp] 93\n");
     if (!JavascriptOperators::IsUndefined(importObject) && !JavascriptOperators::IsObject(importObject))
-    {
+    {LOGMEIN("WebAssemblyInstance.cpp] 95\n");
         JavascriptError::ThrowTypeError(module->GetScriptContext(), JSERR_NeedObject);
     }
 
     if (module->GetImportCount() > 0 && !JavascriptOperators::IsObject(importObject))
-    {
+    {LOGMEIN("WebAssemblyInstance.cpp] 100\n");
         JavascriptError::ThrowTypeError(module->GetScriptContext(), JSERR_NeedObject);
     }
 
@@ -125,13 +125,13 @@ WebAssemblyInstance::CreateInstance(WebAssemblyModule * module, Var importObject
         JavascriptOperators::OP_SetProperty(newInstance, PropertyIds::exports, exportsNamespace, scriptContext);
     }
     catch (Wasm::WasmCompilationException& e)
-    {
+    {LOGMEIN("WebAssemblyInstance.cpp] 127\n");
         JavascriptError::ThrowWebAssemblyLinkErrorVar(scriptContext, WASMERR_WasmLinkError, e.ReleaseErrorMessage());
     }
 
     uint32 startFuncIdx = module->GetStartFunction();
     if (startFuncIdx != Js::Constants::UninitializedValue)
-    {
+    {LOGMEIN("WebAssemblyInstance.cpp] 133\n");
         AsmJsScriptFunction* start = environment.GetWasmFunction(startFuncIdx);
         Js::CallInfo info(Js::CallFlags_New, 1);
         Js::Arguments startArg(info, (Var*)&start);
@@ -142,14 +142,14 @@ WebAssemblyInstance::CreateInstance(WebAssemblyModule * module, Var importObject
 }
 
 void WebAssemblyInstance::LoadFunctions(WebAssemblyModule * wasmModule, ScriptContext* ctx, WebAssemblyEnvironment* env)
-{
+{LOGMEIN("WebAssemblyInstance.cpp] 144\n");
     FrameDisplay * frameDisplay = RecyclerNewPlus(ctx->GetRecycler(), sizeof(void*), FrameDisplay, 1);
     frameDisplay->SetItem(0, env->GetStartPtr());
 
     for (uint i = 0; i < wasmModule->GetWasmFunctionCount(); ++i)
-    {
+    {LOGMEIN("WebAssemblyInstance.cpp] 149\n");
         if (i < wasmModule->GetImportedFunctionCount() && env->GetWasmFunction(i) != nullptr)
-        {
+        {LOGMEIN("WebAssemblyInstance.cpp] 151\n");
             continue;
         }
         AsmJsScriptFunction * funcObj = ctx->GetLibrary()->CreateAsmJsScriptFunction(wasmModule->GetWasmFunctionInfo(i)->GetBody());
@@ -160,10 +160,10 @@ void WebAssemblyInstance::LoadFunctions(WebAssemblyModule * wasmModule, ScriptCo
         env->SetWasmFunction(i, funcObj);
 
         if (!PHASE_OFF(WasmDeferredPhase, body))
-        {
+        {LOGMEIN("WebAssemblyInstance.cpp] 162\n");
             // if we still have WasmReaderInfo we haven't yet parsed
             if (body->GetAsmJsFunctionInfo()->GetWasmReaderInfo())
-            {
+            {LOGMEIN("WebAssemblyInstance.cpp] 165\n");
                 WasmLibrary::SetWasmEntryPointToInterpreter(funcObj, true);
             }
         }
@@ -171,13 +171,13 @@ void WebAssemblyInstance::LoadFunctions(WebAssemblyModule * wasmModule, ScriptCo
         {
             AsmJsFunctionInfo* info = body->GetAsmJsFunctionInfo();
             if (info->GetWasmReaderInfo())
-            {
+            {LOGMEIN("WebAssemblyInstance.cpp] 173\n");
                 WasmLibrary::SetWasmEntryPointToInterpreter(funcObj, false);
 #if ENABLE_DEBUG_CONFIG_OPTIONS
                 // Do MTJRC/MAIC:0 check
                 const bool noJit = PHASE_OFF(BackEndPhase, body) || PHASE_OFF(FullJitPhase, body) || ctx->GetConfig()->IsNoNative();
                 if (!noJit && (CONFIG_FLAG(ForceNative) || CONFIG_FLAG(MaxAsmJsInterpreterRunCount) == 0))
-                {
+                {LOGMEIN("WebAssemblyInstance.cpp] 179\n");
                     GenerateFunction(ctx->GetNativeCodeGenerator(), body, funcObj);
                     body->SetIsAsmJsFullJitScheduled(true);
                 }
@@ -189,40 +189,40 @@ void WebAssemblyInstance::LoadFunctions(WebAssemblyModule * wasmModule, ScriptCo
 }
 
 void WebAssemblyInstance::LoadDataSegs(WebAssemblyModule * wasmModule, ScriptContext* ctx, WebAssemblyEnvironment* env)
-{
+{LOGMEIN("WebAssemblyInstance.cpp] 191\n");
     WebAssemblyMemory* mem = env->GetMemory(0);
     Assert(mem);
     ArrayBuffer* buffer = mem->GetBuffer();
 
     for (uint32 iSeg = 0; iSeg < wasmModule->GetDataSegCount(); ++iSeg)
-    {
+    {LOGMEIN("WebAssemblyInstance.cpp] 197\n");
         Wasm::WasmDataSegment* segment = wasmModule->GetDataSeg(iSeg);
         Assert(segment != nullptr);
         const uint32 offset = env->GetDataSegmentOffset(iSeg);
         const uint32 size = segment->GetSourceSize();
 
         if (size > 0)
-        {
+        {LOGMEIN("WebAssemblyInstance.cpp] 204\n");
             js_memcpy_s(buffer->GetBuffer() + offset, (uint32)buffer->GetByteLength() - offset, segment->GetData(), size);
         }
     }
 }
 
 Var WebAssemblyInstance::BuildObject(WebAssemblyModule * wasmModule, ScriptContext* scriptContext, WebAssemblyEnvironment* env)
-{
+{LOGMEIN("WebAssemblyInstance.cpp] 211\n");
     Js::Var exportsNamespace = JavascriptOperators::NewJavascriptObjectNoArg(scriptContext);
     for (uint32 iExport = 0; iExport < wasmModule->GetExportCount(); ++iExport)
-    {
+    {LOGMEIN("WebAssemblyInstance.cpp] 214\n");
         Wasm::WasmExport* wasmExport = wasmModule->GetExport(iExport);
         Assert(wasmExport);
         if (wasmExport)
-        {
+        {LOGMEIN("WebAssemblyInstance.cpp] 218\n");
             PropertyRecord const * propertyRecord = nullptr;
             scriptContext->GetOrAddPropertyRecord(wasmExport->name, wasmExport->nameLength, &propertyRecord);
 
             Var obj = scriptContext->GetLibrary()->GetUndefined();
             switch (wasmExport->kind)
-            {
+            {LOGMEIN("WebAssemblyInstance.cpp] 224\n");
             case Wasm::ExternalKinds::Table:
                 obj = env->GetTable(wasmExport->index);
                 break;
@@ -235,12 +235,12 @@ Var WebAssemblyInstance::BuildObject(WebAssemblyModule * wasmModule, ScriptConte
             case Wasm::ExternalKinds::Global:
                 Wasm::WasmGlobal* global = wasmModule->GetGlobal(wasmExport->index);
                 if (global->IsMutable())
-                {
+                {LOGMEIN("WebAssemblyInstance.cpp] 237\n");
                     JavascriptError::ThrowTypeError(wasmModule->GetScriptContext(), WASMERR_MutableGlobal);
                 }
                 Wasm::WasmConstLitNode cnst = env->GetGlobalValue(global);
                 switch (global->GetType())
-                {
+                {LOGMEIN("WebAssemblyInstance.cpp] 242\n");
                 case Wasm::WasmTypes::I32:
                     obj = JavascriptNumber::ToVar(cnst.i32, scriptContext);
                     break;
@@ -268,26 +268,26 @@ void WebAssemblyInstance::LoadImports(
     ScriptContext* ctx,
     Var ffi,
     WebAssemblyEnvironment* env)
-{
+{LOGMEIN("WebAssemblyInstance.cpp] 270\n");
     const uint32 importCount = wasmModule->GetImportCount();
     if (importCount > 0 && (!ffi || !RecyclableObject::Is(ffi)))
-    {
+    {LOGMEIN("WebAssemblyInstance.cpp] 273\n");
         JavascriptError::ThrowTypeError(ctx, WASMERR_InvalidImport);
     }
 
     uint32 counters[Wasm::ExternalKinds::Limit];
     memset(counters, 0, sizeof(counters));
     for (uint32 i = 0; i < importCount; ++i)
-    {
+    {LOGMEIN("WebAssemblyInstance.cpp] 280\n");
         Wasm::WasmImport* import = wasmModule->GetImport(i);
         Var prop = GetImportVariable(import, ctx, ffi);
         uint32& counter = counters[import->kind];
         switch (import->kind)
-        {
+        {LOGMEIN("WebAssemblyInstance.cpp] 285\n");
         case Wasm::ExternalKinds::Function:
-        {
+        {LOGMEIN("WebAssemblyInstance.cpp] 287\n");
             if (!JavascriptFunction::Is(prop))
-            {
+            {LOGMEIN("WebAssemblyInstance.cpp] 289\n");
                 JavascriptError::ThrowWebAssemblyLinkError(ctx, JSERR_Property_NeedFunction);
             }
             Assert(counter < wasmModule->GetImportedFunctionCount());
@@ -295,11 +295,11 @@ void WebAssemblyInstance::LoadImports(
 
             env->SetImportedFunction(counter, prop);
             if (AsmJsScriptFunction::IsWasmScriptFunction(prop))
-            {
+            {LOGMEIN("WebAssemblyInstance.cpp] 297\n");
                 Assert(env->GetWasmFunction(counter) == nullptr);
                 AsmJsScriptFunction* func = AsmJsScriptFunction::FromVar(prop);
                 if (!wasmModule->GetWasmFunctionInfo(counter)->GetSignature()->IsEquivalent(func->GetSignature()))
-                {
+                {LOGMEIN("WebAssemblyInstance.cpp] 301\n");
                     JavascriptError::ThrowWebAssemblyLinkError(ctx, WASMERR_SignatureMismatch);
                 }
                 // Imported Wasm functions can be called directly
@@ -308,22 +308,22 @@ void WebAssemblyInstance::LoadImports(
             break;
         }
         case Wasm::ExternalKinds::Memory:
-        {
+        {LOGMEIN("WebAssemblyInstance.cpp] 310\n");
             Assert(wasmModule->HasMemoryImport());
             if (wasmModule->HasMemoryImport())
-            {
+            {LOGMEIN("WebAssemblyInstance.cpp] 313\n");
                 if (!WebAssemblyMemory::Is(prop))
-                {
+                {LOGMEIN("WebAssemblyInstance.cpp] 315\n");
                     JavascriptError::ThrowWebAssemblyLinkError(ctx, WASMERR_NeedMemoryObject);
                 }
                 WebAssemblyMemory * mem = WebAssemblyMemory::FromVar(prop);
 
                 if (mem->GetInitialLength() < wasmModule->GetMemoryInitSize())
-                {
+                {LOGMEIN("WebAssemblyInstance.cpp] 321\n");
                     throw Wasm::WasmCompilationException(_u("Imported memory initial size (%u) is smaller than declared (%u)"), mem->GetInitialLength(), wasmModule->GetMemoryInitSize());
                 }
                 if (mem->GetMaximumLength() > wasmModule->GetMemoryMaxSize())
-                {
+                {LOGMEIN("WebAssemblyInstance.cpp] 325\n");
                     throw Wasm::WasmCompilationException(_u("Imported memory maximum size (%u) is larger than declared (%u)"),mem->GetMaximumLength(), wasmModule->GetMemoryMaxSize());
                 }
                 env->SetMemory(counter, mem);
@@ -331,18 +331,18 @@ void WebAssemblyInstance::LoadImports(
             break;
         }
         case Wasm::ExternalKinds::Table:
-        {
+        {LOGMEIN("WebAssemblyInstance.cpp] 333\n");
             Assert(wasmModule->HasTableImport());
             if (wasmModule->HasTableImport())
-            {
+            {LOGMEIN("WebAssemblyInstance.cpp] 336\n");
                 if (!WebAssemblyTable::Is(prop))
-                {
+                {LOGMEIN("WebAssemblyInstance.cpp] 338\n");
                     JavascriptError::ThrowWebAssemblyLinkError(ctx, WASMERR_NeedTableObject);
                 }
                 WebAssemblyTable * table = WebAssemblyTable::FromVar(prop);
 
                 if (!wasmModule->IsValidTableImport(table))
-                {
+                {LOGMEIN("WebAssemblyInstance.cpp] 344\n");
                     JavascriptError::ThrowWebAssemblyLinkError(ctx, WASMERR_NeedTableObject);
                 }
                 env->SetTable(counter, table);
@@ -350,17 +350,17 @@ void WebAssemblyInstance::LoadImports(
             break;
         }
         case Wasm::ExternalKinds::Global:
-        {
+        {LOGMEIN("WebAssemblyInstance.cpp] 352\n");
             Wasm::WasmGlobal* global = wasmModule->GetGlobal(counter);
             if (global->IsMutable() || (!JavascriptNumber::Is(prop) && !TaggedInt::Is(prop)))
-            {
+            {LOGMEIN("WebAssemblyInstance.cpp] 355\n");
                 JavascriptError::ThrowWebAssemblyLinkError(ctx, WASMERR_InvalidImport);
             }
 
             Assert(global->GetReferenceType() == Wasm::GlobalReferenceTypes::ImportedReference);
             Wasm::WasmConstLitNode cnst = {0};
             switch (global->GetType())
-            {
+            {LOGMEIN("WebAssemblyInstance.cpp] 362\n");
             case Wasm::WasmTypes::I32: cnst.i32 = JavascriptConversion::ToInt32(prop, ctx); break;
             case Wasm::WasmTypes::F32: cnst.f32 = (float)JavascriptConversion::ToNumber(prop, ctx); break;
             case Wasm::WasmTypes::F64: cnst.f64 = JavascriptConversion::ToNumber(prop, ctx); break;
@@ -379,30 +379,30 @@ void WebAssemblyInstance::LoadImports(
 }
 
 void WebAssemblyInstance::LoadGlobals(WebAssemblyModule * wasmModule, ScriptContext* ctx, WebAssemblyEnvironment* env)
-{
+{LOGMEIN("WebAssemblyInstance.cpp] 381\n");
     uint count = wasmModule->GetGlobalCount();
     for (uint i = 0; i < count; i++)
-    {
+    {LOGMEIN("WebAssemblyInstance.cpp] 384\n");
         Wasm::WasmGlobal* global = wasmModule->GetGlobal(i);
         Wasm::WasmConstLitNode cnst = {};
 
         if (global->GetReferenceType() == Wasm::GlobalReferenceTypes::ImportedReference)
-        {
+        {LOGMEIN("WebAssemblyInstance.cpp] 389\n");
             // the value should already be resolved
             continue;
         }
 
         if (global->GetReferenceType() == Wasm::GlobalReferenceTypes::LocalReference)
-        {
+        {LOGMEIN("WebAssemblyInstance.cpp] 395\n");
             Wasm::WasmGlobal* sourceGlobal = wasmModule->GetGlobal(global->GetGlobalIndexInit());
             if (sourceGlobal->GetReferenceType() != Wasm::GlobalReferenceTypes::Const &&
                 sourceGlobal->GetReferenceType() != Wasm::GlobalReferenceTypes::ImportedReference)
-            {
+            {LOGMEIN("WebAssemblyInstance.cpp] 399\n");
                 JavascriptError::ThrowTypeError(ctx, WASMERR_InvalidGlobalRef);
             }
             
             if (sourceGlobal->GetType() != global->GetType())
-            {
+            {LOGMEIN("WebAssemblyInstance.cpp] 404\n");
                 JavascriptError::ThrowTypeError(ctx, WASMERR_InvalidTypeConversion);
             }
             cnst = env->GetGlobalValue(sourceGlobal);
@@ -417,19 +417,19 @@ void WebAssemblyInstance::LoadGlobals(WebAssemblyModule * wasmModule, ScriptCont
 }
 
 void WebAssemblyInstance::LoadIndirectFunctionTable(WebAssemblyModule * wasmModule, ScriptContext* ctx, WebAssemblyEnvironment* env)
-{
+{LOGMEIN("WebAssemblyInstance.cpp] 419\n");
     WebAssemblyTable* table = env->GetTable(0);
     Assert(table != nullptr);
 
     for (uint elementsIndex = 0; elementsIndex < wasmModule->GetElementSegCount(); ++elementsIndex)
-    {
+    {LOGMEIN("WebAssemblyInstance.cpp] 424\n");
         Wasm::WasmElementSegment* eSeg = wasmModule->GetElementSeg(elementsIndex);
 
         if (eSeg->GetNumElements() > 0)
-        {
+        {LOGMEIN("WebAssemblyInstance.cpp] 428\n");
             uint offset = env->GetElementSegmentOffset(elementsIndex);
             for (uint segIndex = 0; segIndex < eSeg->GetNumElements(); ++segIndex)
-            {
+            {LOGMEIN("WebAssemblyInstance.cpp] 431\n");
                 uint funcIndex = eSeg->GetElement(segIndex);
                 Var funcObj = env->GetWasmFunction(funcIndex);
                 table->DirectSetValue(segIndex + offset, funcObj);
@@ -440,12 +440,12 @@ void WebAssemblyInstance::LoadIndirectFunctionTable(WebAssemblyModule * wasmModu
 
 
 void WebAssemblyInstance::ValidateTableAndMemory(WebAssemblyModule * wasmModule, ScriptContext* ctx, WebAssemblyEnvironment* env)
-{
+{LOGMEIN("WebAssemblyInstance.cpp] 442\n");
     WebAssemblyTable* table = env->GetTable(0);
     if (wasmModule->HasTableImport())
-    {
+    {LOGMEIN("WebAssemblyInstance.cpp] 445\n");
         if (table == nullptr)
-        {
+        {LOGMEIN("WebAssemblyInstance.cpp] 447\n");
             JavascriptError::ThrowWebAssemblyLinkError(ctx, WASMERR_NeedTableObject);
         }
     }
@@ -457,9 +457,9 @@ void WebAssemblyInstance::ValidateTableAndMemory(WebAssemblyModule * wasmModule,
 
     WebAssemblyMemory* mem = env->GetMemory(0);
     if (wasmModule->HasMemoryImport())
-    {
+    {LOGMEIN("WebAssemblyInstance.cpp] 459\n");
         if (mem == nullptr)
-        {
+        {LOGMEIN("WebAssemblyInstance.cpp] 461\n");
             JavascriptError::ThrowWebAssemblyLinkError(ctx, WASMERR_NeedMemoryObject);
         }
     }
@@ -470,7 +470,7 @@ void WebAssemblyInstance::ValidateTableAndMemory(WebAssemblyModule * wasmModule,
     }
     ArrayBuffer * buffer = mem->GetBuffer();
     if (buffer->IsDetached())
-    {
+    {LOGMEIN("WebAssemblyInstance.cpp] 472\n");
         JavascriptError::ThrowTypeError(wasmModule->GetScriptContext(), JSERR_DetachedTypedArray);
     }
 

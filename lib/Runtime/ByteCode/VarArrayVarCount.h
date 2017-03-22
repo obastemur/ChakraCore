@@ -12,7 +12,7 @@ namespace Js
         Var elements[];
 
         VarArrayVarCount(Var count) : count(count)
-        {
+        {LOGMEIN("VarArrayVarCount.h] 14\n");
         }
 
         void SetCount(uint count);

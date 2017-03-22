@@ -6,26 +6,26 @@
 
 InliningDecider::InliningDecider(Js::FunctionBody *const topFunc, bool isLoopBody, bool isInDebugMode, const ExecutionMode jitMode)
     : topFunc(topFunc), isLoopBody(isLoopBody), isInDebugMode(isInDebugMode), jitMode(jitMode), bytecodeInlinedCount(0), numberOfInlineesWithLoop (0), threshold(topFunc->GetByteCodeWithoutLDACount(), isLoopBody)
-{
+{LOGMEIN("InliningDecider.cpp] 8\n");
     Assert(topFunc);
 }
 
 InliningDecider::~InliningDecider()
-{
+{LOGMEIN("InliningDecider.cpp] 13\n");
     INLINE_FLUSH();
 }
 
 bool InliningDecider::InlineIntoTopFunc() const
-{
+{LOGMEIN("InliningDecider.cpp] 18\n");
     if (this->jitMode == ExecutionMode::SimpleJit ||
         PHASE_OFF(Js::InlinePhase, this->topFunc) ||
         PHASE_OFF(Js::GlobOptPhase, this->topFunc))
-    {
+    {LOGMEIN("InliningDecider.cpp] 22\n");
         return false;
     }
 
     if (this->topFunc->GetHasTry())
-    {
+    {LOGMEIN("InliningDecider.cpp] 27\n");
 #if defined(DBG_DUMP) || defined(ENABLE_DEBUG_CONFIG_OPTIONS)
         char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 #endif
@@ -39,7 +39,7 @@ bool InliningDecider::InlineIntoTopFunc() const
 }
 
 bool InliningDecider::InlineIntoInliner(Js::FunctionBody *const inliner) const
-{
+{LOGMEIN("InliningDecider.cpp] 41\n");
     Assert(inliner);
     Assert(this->jitMode == ExecutionMode::FullJit);
 
@@ -49,19 +49,19 @@ bool InliningDecider::InlineIntoInliner(Js::FunctionBody *const inliner) const
 
     if (PHASE_OFF(Js::InlinePhase, inliner) ||
         PHASE_OFF(Js::GlobOptPhase, inliner))
-    {
+    {LOGMEIN("InliningDecider.cpp] 51\n");
         return false;
     }
 
     if (!inliner->HasDynamicProfileInfo())
-    {
+    {LOGMEIN("InliningDecider.cpp] 56\n");
         INLINE_TESTTRACE(_u("INLINING: Skip Inline: No dynamic profile info\tCaller: %s (%s)\n"), inliner->GetDisplayName(),
             inliner->GetDebugNumberSet(debugStringBuffer));
         return false;
     }
 
     if (inliner->GetProfiledCallSiteCount() == 0 && !inliner->GetAnyDynamicProfileInfo()->HasLdFldCallSiteInfo())
-    {
+    {LOGMEIN("InliningDecider.cpp] 63\n");
         INLINE_TESTTRACE_VERBOSE(_u("INLINING: Skip Inline: Leaf function\tCaller: %s (%s)\n"), inliner->GetDisplayName(),
             inliner->GetDebugNumberSet(debugStringBuffer));
         // Nothing to do
@@ -69,7 +69,7 @@ bool InliningDecider::InlineIntoInliner(Js::FunctionBody *const inliner) const
     }
 
     if (!inliner->GetAnyDynamicProfileInfo()->HasCallSiteInfo(inliner))
-    {
+    {LOGMEIN("InliningDecider.cpp] 71\n");
         INLINE_TESTTRACE(_u("INLINING: Skip Inline: No call site info\tCaller: %s (#%d)\n"), inliner->GetDisplayName(),
             inliner->GetDebugNumberSet(debugStringBuffer));
         return false;
@@ -79,7 +79,7 @@ bool InliningDecider::InlineIntoInliner(Js::FunctionBody *const inliner) const
 }
 
 Js::FunctionInfo *InliningDecider::GetCallSiteFuncInfo(Js::FunctionBody *const inliner, const Js::ProfileId profiledCallSiteId, bool* isConstructorCall, bool* isPolymorphicCall)
-{
+{LOGMEIN("InliningDecider.cpp] 81\n");
     Assert(inliner);
     Assert(profiledCallSiteId < inliner->GetProfiledCallSiteCount());
 
@@ -90,7 +90,7 @@ Js::FunctionInfo *InliningDecider::GetCallSiteFuncInfo(Js::FunctionBody *const i
 }
 
 uint16 InliningDecider::GetConstantArgInfo(Js::FunctionBody *const inliner, const Js::ProfileId profiledCallSiteId)
-{
+{LOGMEIN("InliningDecider.cpp] 92\n");
     Assert(inliner);
     Assert(profiledCallSiteId < inliner->GetProfiledCallSiteCount());
 
@@ -102,7 +102,7 @@ uint16 InliningDecider::GetConstantArgInfo(Js::FunctionBody *const inliner, cons
 
 
 bool InliningDecider::HasCallSiteInfo(Js::FunctionBody *const inliner, const Js::ProfileId profiledCallSiteId)
-{
+{LOGMEIN("InliningDecider.cpp] 104\n");
     Assert(inliner);
     Assert(profiledCallSiteId < inliner->GetProfiledCallSiteCount());
 
@@ -114,12 +114,12 @@ bool InliningDecider::HasCallSiteInfo(Js::FunctionBody *const inliner, const Js:
 
 
 Js::FunctionInfo *InliningDecider::InlineCallSite(Js::FunctionBody *const inliner, const Js::ProfileId profiledCallSiteId, uint recursiveInlineDepth)
-{
+{LOGMEIN("InliningDecider.cpp] 116\n");
     bool isConstructorCall;
     bool isPolymorphicCall;
     Js::FunctionInfo *functionInfo = GetCallSiteFuncInfo(inliner, profiledCallSiteId, &isConstructorCall, &isPolymorphicCall);
     if (functionInfo)
-    {
+    {LOGMEIN("InliningDecider.cpp] 121\n");
         return Inline(inliner, functionInfo, isConstructorCall, false, GetConstantArgInfo(inliner, profiledCallSiteId), profiledCallSiteId, recursiveInlineDepth, true);
     }
     return nullptr;
@@ -127,7 +127,7 @@ Js::FunctionInfo *InliningDecider::InlineCallSite(Js::FunctionBody *const inline
 
 uint InliningDecider::InlinePolymorphicCallSite(Js::FunctionBody *const inliner, const Js::ProfileId profiledCallSiteId,
     Js::FunctionBody** functionBodyArray, uint functionBodyArrayLength, bool* canInlineArray, uint recursiveInlineDepth)
-{
+{LOGMEIN("InliningDecider.cpp] 129\n");
     Assert(inliner);
     Assert(profiledCallSiteId < inliner->GetProfiledCallSiteCount());
     Assert(functionBodyArray);
@@ -137,7 +137,7 @@ uint InliningDecider::InlinePolymorphicCallSite(Js::FunctionBody *const inliner,
 
     bool isConstructorCall;
     if (!profileData->GetPolymorphicCallSiteInfo(inliner, profiledCallSiteId, &isConstructorCall, functionBodyArray, functionBodyArrayLength))
-    {
+    {LOGMEIN("InliningDecider.cpp] 139\n");
         return false;
     }
 
@@ -145,24 +145,24 @@ uint InliningDecider::InlinePolymorphicCallSite(Js::FunctionBody *const inliner,
     uint actualInlineeCount  = 0;
 
     for (inlineeCount = 0; inlineeCount < functionBodyArrayLength; inlineeCount++)
-    {
+    {LOGMEIN("InliningDecider.cpp] 147\n");
         if (!functionBodyArray[inlineeCount])
-        {
+        {LOGMEIN("InliningDecider.cpp] 149\n");
             AssertMsg(inlineeCount >= 2, "There are at least two polymorphic call site");
             break;
         }
         if (Inline(inliner, functionBodyArray[inlineeCount]->GetFunctionInfo(), isConstructorCall, true /*isPolymorphicCall*/, 0, profiledCallSiteId, recursiveInlineDepth, false))
-        {
+        {LOGMEIN("InliningDecider.cpp] 154\n");
             canInlineArray[inlineeCount] = true;
             actualInlineeCount++;
         }
     }
     if (inlineeCount != actualInlineeCount)
-    {
+    {LOGMEIN("InliningDecider.cpp] 160\n");
         // We generate polymorphic dispatch and call even if there are no inlinees as it's seen to provide a perf boost
         // Skip loop bodies for now as we do not handle re-jit scenarios for the bailouts from them
         if (!PHASE_OFF(Js::PartialPolymorphicInlinePhase, inliner) && !this->isLoopBody)
-        {
+        {LOGMEIN("InliningDecider.cpp] 164\n");
 #if defined(DBG_DUMP) || defined(ENABLE_DEBUG_CONFIG_OPTIONS)
             char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
             char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
@@ -182,16 +182,16 @@ uint InliningDecider::InlinePolymorphicCallSite(Js::FunctionBody *const inliner,
 
 Js::FunctionInfo *InliningDecider::Inline(Js::FunctionBody *const inliner, Js::FunctionInfo* functionInfo,
     bool isConstructorCall, bool isPolymorphicCall, uint16 constantArgInfo, Js::ProfileId callSiteId, uint recursiveInlineDepth, bool allowRecursiveInlining)
-{
+{LOGMEIN("InliningDecider.cpp] 184\n");
 #if defined(DBG_DUMP) || defined(ENABLE_DEBUG_CONFIG_OPTIONS)
     char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
     char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 #endif
     Js::FunctionProxy * proxy = functionInfo->GetFunctionProxy();
     if (proxy && proxy->IsFunctionBody())
-    {
+    {LOGMEIN("InliningDecider.cpp] 191\n");
         if (isLoopBody && PHASE_OFF(Js::InlineInJitLoopBodyPhase, this->topFunc))
-        {
+        {LOGMEIN("InliningDecider.cpp] 193\n");
             INLINE_TESTTRACE_VERBOSE(_u("INLINING: Skip Inline: Jit loop body: %s (%s)\n"), this->topFunc->GetDisplayName(),
                 this->topFunc->GetDebugNumberSet(debugStringBuffer));
             return nullptr;
@@ -205,12 +205,12 @@ Js::FunctionInfo *InliningDecider::Inline(Js::FunctionBody *const inliner, Js::F
             PHASE_OFF(Js::GlobOptPhase, inlinee) ||
             !ContinueInliningUserDefinedFunctions(this->bytecodeInlinedCount) ||
             this->isInDebugMode)
-        {
+        {LOGMEIN("InliningDecider.cpp] 207\n");
             return nullptr;
         }
 
         if (functionInfo->IsDeferred() || inlinee->GetByteCode() == nullptr)
-        {
+        {LOGMEIN("InliningDecider.cpp] 212\n");
             // DeferredParse...
             INLINE_TESTTRACE(_u("INLINING: Skip Inline: No bytecode\tInlinee: %s (%s)\tCaller: %s (%s)\n"),
                 inlinee->GetDisplayName(), inlinee->GetDebugNumberSet(debugStringBuffer), inliner->GetDisplayName(),
@@ -219,7 +219,7 @@ Js::FunctionInfo *InliningDecider::Inline(Js::FunctionBody *const inliner, Js::F
         }
 
         if (inlinee->GetHasTry())
-        {
+        {LOGMEIN("InliningDecider.cpp] 221\n");
             INLINE_TESTTRACE(_u("INLINING: Skip Inline: Has try\tInlinee: %s (%s)\tCaller: %s (%s)\n"),
                 inlinee->GetDisplayName(), inlinee->GetDebugNumberSet(debugStringBuffer), inliner->GetDisplayName(),
                 inliner->GetDebugNumberSet(debugStringBuffer2));
@@ -228,7 +228,7 @@ Js::FunctionInfo *InliningDecider::Inline(Js::FunctionBody *const inliner, Js::F
 
         // This is a hard limit as the argOuts array is statically sized.
         if (inlinee->GetInParamsCount() > Js::InlineeCallInfo::MaxInlineeArgoutCount)
-        {
+        {LOGMEIN("InliningDecider.cpp] 230\n");
             INLINE_TESTTRACE(_u("INLINING: Skip Inline: Params count greater then MaxInlineeArgoutCount\tInlinee: %s (%s)\tParamcount: %d\tMaxInlineeArgoutCount: %d\tCaller: %s (%s)\n"),
                 inlinee->GetDisplayName(), inlinee->GetDebugNumberSet(debugStringBuffer), inlinee->GetInParamsCount(), Js::InlineeCallInfo::MaxInlineeArgoutCount,
                 inliner->GetDisplayName(), inliner->GetDebugNumberSet(debugStringBuffer2));
@@ -236,7 +236,7 @@ Js::FunctionInfo *InliningDecider::Inline(Js::FunctionBody *const inliner, Js::F
         }
 
         if (inlinee->GetInParamsCount() == 0)
-        {
+        {LOGMEIN("InliningDecider.cpp] 238\n");
             // Inline candidate has no params, not even a this pointer.  This can only be the global function,
             // which we shouldn't inline.
             INLINE_TESTTRACE(_u("INLINING: Skip Inline: Params count is zero!\tInlinee: %s (%s)\tParamcount: %d\tCaller: %s (%s)\n"),
@@ -246,7 +246,7 @@ Js::FunctionInfo *InliningDecider::Inline(Js::FunctionBody *const inliner, Js::F
         }
 
         if (inlinee->GetDontInline())
-        {
+        {LOGMEIN("InliningDecider.cpp] 248\n");
             INLINE_TESTTRACE(_u("INLINING: Skip Inline: Do not inline\tInlinee: %s (%s)\tCaller: %s (%s)\n"),
                 inlinee->GetDisplayName(), inlinee->GetDebugNumberSet(debugStringBuffer), inliner->GetDisplayName(),
                 inliner->GetDebugNumberSet(debugStringBuffer2));
@@ -255,7 +255,7 @@ Js::FunctionInfo *InliningDecider::Inline(Js::FunctionBody *const inliner, Js::F
 
         // Do not inline a call to a class constructor if it isn't part of a new expression since the call will throw a TypeError anyway.
         if (inlinee->IsClassConstructor() && !isConstructorCall)
-        {
+        {LOGMEIN("InliningDecider.cpp] 257\n");
             INLINE_TESTTRACE(_u("INLINING: Skip Inline: Class constructor without new keyword\tInlinee: %s (%s)\tCaller: %s (%s)\n"),
                 inlinee->GetDisplayName(), inlinee->GetDebugNumberSet(debugStringBuffer), inliner->GetDisplayName(),
                 inliner->GetDebugNumberSet(debugStringBuffer2));
@@ -263,7 +263,7 @@ Js::FunctionInfo *InliningDecider::Inline(Js::FunctionBody *const inliner, Js::F
         }
 
         if (!DeciderInlineIntoInliner(inlinee, inliner, isConstructorCall, isPolymorphicCall, constantArgInfo, recursiveInlineDepth, allowRecursiveInlining))
-        {
+        {LOGMEIN("InliningDecider.cpp] 265\n");
             return nullptr;
         }
 
@@ -280,7 +280,7 @@ Js::FunctionInfo *InliningDecider::Inline(Js::FunctionBody *const inliner, Js::F
     GetBuiltInInfo(functionInfo, &builtInInlineCandidateOpCode, &builtInReturnType);
 
     if(builtInInlineCandidateOpCode == 0 && builtInReturnType.IsUninitialized())
-    {
+    {LOGMEIN("InliningDecider.cpp] 282\n");
         return nullptr;
     }
 
@@ -291,7 +291,7 @@ Js::FunctionInfo *InliningDecider::Inline(Js::FunctionBody *const inliner, Js::F
             PHASE_OFF(Js::GlobOptPhase, inliner) ||
             isConstructorCall
         ))
-    {
+    {LOGMEIN("InliningDecider.cpp] 293\n");
         return nullptr;
     }
 
@@ -307,7 +307,7 @@ bool InliningDecider::GetBuiltInInfo(
     Js::OpCode *const inlineCandidateOpCode,
     ValueType *const returnType
 )
-{
+{LOGMEIN("InliningDecider.cpp] 309\n");
     Assert(funcInfo);
     Assert(inlineCandidateOpCode);
     Assert(returnType);
@@ -316,7 +316,7 @@ bool InliningDecider::GetBuiltInInfo(
     *returnType = ValueType::Uninitialized;
 
     if (funcInfo->HasBody())
-    {
+    {LOGMEIN("InliningDecider.cpp] 318\n");
         return false;
     }
     return InliningDecider::GetBuiltInInfoCommon(
@@ -331,7 +331,7 @@ bool InliningDecider::GetBuiltInInfo(
     Js::OpCode *const inlineCandidateOpCode,
     ValueType *const returnType
 )
-{
+{LOGMEIN("InliningDecider.cpp] 333\n");
     Assert(funcInfo);
     Assert(inlineCandidateOpCode);
     Assert(returnType);
@@ -340,7 +340,7 @@ bool InliningDecider::GetBuiltInInfo(
     *returnType = ValueType::Uninitialized;
 
     if (funcInfo->HasBody())
-    {
+    {LOGMEIN("InliningDecider.cpp] 342\n");
         return false;
     }
     return InliningDecider::GetBuiltInInfoCommon(
@@ -354,11 +354,11 @@ bool InliningDecider::GetBuiltInInfoCommon(
     Js::OpCode *const inlineCandidateOpCode,
     ValueType *const returnType
     )
-{
+{LOGMEIN("InliningDecider.cpp] 356\n");
     // TODO: consider adding another column to JavascriptBuiltInFunctionList.h/LibraryFunction.h
     // and getting helper method from there instead of multiple switch labels. And for return value types too.
     switch (localFuncId)
-    {
+    {LOGMEIN("InliningDecider.cpp] 360\n");
     case Js::JavascriptBuiltInFunction::Math_Abs:
         *inlineCandidateOpCode = Js::OpCode::InlineMathAbs;
         break;
@@ -627,11 +627,11 @@ bool InliningDecider::GetBuiltInInfoCommon(
     // we only inline, and hence type-spec on IA
 #if defined(_M_X64) || defined(_M_IX86)
     default:
-    {
+    {LOGMEIN("InliningDecider.cpp] 629\n");
 #if 0 // TODO OOP JIT, inline SIMD
         // inline only if simdjs and simd128 type-spec is enabled.
         if (scriptContext->GetConfig()->IsSimdjsEnabled() && SIMD128_TYPE_SPEC_FLAG)
-        {
+        {LOGMEIN("InliningDecider.cpp] 633\n");
             *inlineCandidateOpCode = scriptContext->GetThreadContext()->GetSimdOpcodeFromFuncInfo(funcInfo);
         }
         else
@@ -647,7 +647,7 @@ bool InliningDecider::GetBuiltInInfoCommon(
 }
 
 bool InliningDecider::CanRecursivelyInline(Js::FunctionBody * inlinee, Js::FunctionBody *inliner, bool allowRecursiveInlining, uint recursiveInlineDepth)
-{
+{LOGMEIN("InliningDecider.cpp] 649\n");
 #if defined(DBG_DUMP) || defined(ENABLE_DEBUG_CONFIG_OPTIONS)
     char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
     char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
@@ -658,7 +658,7 @@ bool InliningDecider::CanRecursivelyInline(Js::FunctionBody * inlinee, Js::Funct
         && allowRecursiveInlining
         &&  inlinee == inliner
         &&  inlinee->CanInlineRecursively(recursiveInlineDepth))
-    {
+    {LOGMEIN("InliningDecider.cpp] 660\n");
         INLINE_TESTTRACE(_u("INLINING: Inlined recursively\tInlinee: %s (%s)\tCaller: %s (%s)\tDepth: %d\n"),
             inlinee->GetDisplayName(), inlinee->GetDebugNumberSet(debugStringBuffer),
             inliner->GetDisplayName(), inliner->GetDebugNumberSet(debugStringBuffer2), recursiveInlineDepth);
@@ -666,7 +666,7 @@ bool InliningDecider::CanRecursivelyInline(Js::FunctionBody * inlinee, Js::Funct
     }
 
     if (!inlinee->CanInlineAgain())
-    {
+    {LOGMEIN("InliningDecider.cpp] 668\n");
         INLINE_TESTTRACE(_u("INLINING: Skip Inline: Do not inline recursive functions\tInlinee: %s (%s)\tCaller: %s (%s)\n"),
             inlinee->GetDisplayName(), inlinee->GetDebugNumberSet(debugStringBuffer),
             inliner->GetDisplayName(), inliner->GetDebugNumberSet(debugStringBuffer2));
@@ -682,37 +682,37 @@ bool InliningDecider::DeciderInlineIntoInliner(Js::FunctionBody * inlinee, Js::F
 {
 
     if (!CanRecursivelyInline(inlinee, inliner, allowRecursiveInlining, recursiveInlineDepth))
-    {
+    {LOGMEIN("InliningDecider.cpp] 684\n");
         return false;
     }
 
     if (inlinee->GetIsAsmjsMode() || inliner->GetIsAsmjsMode())
-    {
+    {LOGMEIN("InliningDecider.cpp] 689\n");
         return false;
     }
 
     if (PHASE_FORCE(Js::InlinePhase, this->topFunc) ||
         PHASE_FORCE(Js::InlinePhase, inliner) ||
         PHASE_FORCE(Js::InlinePhase, inlinee))
-    {
+    {LOGMEIN("InliningDecider.cpp] 696\n");
         return true;
     }
 
     if (PHASE_OFF(Js::InlinePhase, this->topFunc) ||
         PHASE_OFF(Js::InlinePhase, inliner) ||
         PHASE_OFF(Js::InlinePhase, inlinee))
-    {
+    {LOGMEIN("InliningDecider.cpp] 703\n");
         return false;
     }
 
     if (PHASE_FORCE(Js::InlineTreePhase, this->topFunc) ||
         PHASE_FORCE(Js::InlineTreePhase, inliner))
-    {
+    {LOGMEIN("InliningDecider.cpp] 709\n");
         return true;
     }
 
     if (PHASE_FORCE(Js::InlineAtEveryCallerPhase, inlinee))
-    {
+    {LOGMEIN("InliningDecider.cpp] 714\n");
         return true;
     }
 
@@ -740,19 +740,19 @@ bool InliningDecider::DeciderInlineIntoInliner(Js::FunctionBody * inlinee, Js::F
 
     uint16 mask = constantArgInfo &  inlinee->m_argUsedForBranch;
     if (mask && inlineeByteCodeCount <  (uint)CONFIG_FLAG(ConstantArgumentInlineThreshold))
-    {
+    {LOGMEIN("InliningDecider.cpp] 742\n");
         return true;
     }
 
     int inlineThreshold = threshold.inlineThreshold;
     if (!isPolymorphicCall && !isConstructorCall && IsInlineeLeaf(inlinee) && (inlinee->GetLoopCount() <= 2))
-    {
+    {LOGMEIN("InliningDecider.cpp] 748\n");
         // Inlinee is a leaf function
         if (inlinee->GetLoopCount() == 0 || GetNumberOfInlineesWithLoop() <= (uint)threshold.maxNumberOfInlineesWithLoop) // Don't inlinee too many inlinees with loops.
-        {
+        {LOGMEIN("InliningDecider.cpp] 751\n");
             // Negative LeafInlineThreshold disable the threshold
             if (threshold.leafInlineThreshold >= 0)
-            {
+            {LOGMEIN("InliningDecider.cpp] 754\n");
                 inlineThreshold += threshold.leafInlineThreshold - threshold.inlineThreshold;
             }
         }
@@ -765,14 +765,14 @@ bool InliningDecider::DeciderInlineIntoInliner(Js::FunctionBody * inlinee, Js::F
 #endif
 
     if (inlinee->GetHasLoops())
-    {
+    {LOGMEIN("InliningDecider.cpp] 767\n");
         if (threshold.loopInlineThreshold < 0 ||                                     // Negative LoopInlineThreshold disable inlining with loop
             GetNumberOfInlineesWithLoop()  >(uint)threshold.maxNumberOfInlineesWithLoop || // See if we are inlining too many inlinees with loops.
             (inlinee->GetLoopCount() > 2) ||                                         // Allow at most 2 loops.
             inlinee->GetHasNestedLoop() ||                                           // Nested loops are not a good inlinee candidate
             isConstructorCall ||                                                     // If the function is constructor with loops, don't inline.
             PHASE_OFF(Js::InlineFunctionsWithLoopsPhase, this->topFunc))
-        {
+        {LOGMEIN("InliningDecider.cpp] 774\n");
             INLINE_TESTTRACE(_u("INLINING: Skip Inline: Has loops \tBytecode size: %d \tgetNumberOfInlineesWithLoop: %d\tloopCount: %d\thasNestedLoop: %B\tisConstructorCall:%B\tInlinee: %s (%s)\tCaller: %s (%s) \tRoot: %s (%s)\n"),
                 inlinee->GetByteCodeCount(),
                 GetNumberOfInlineesWithLoop(),
@@ -792,10 +792,10 @@ bool InliningDecider::DeciderInlineIntoInliner(Js::FunctionBody * inlinee, Js::F
     }
 
     if (isPolymorphicCall)
-    {
+    {LOGMEIN("InliningDecider.cpp] 794\n");
         if (threshold.polymorphicInlineThreshold < 0 ||                              // Negative PolymorphicInlineThreshold disable inlining
             isConstructorCall)
-        {
+        {LOGMEIN("InliningDecider.cpp] 797\n");
             INLINE_TESTTRACE(_u("INLINING: Skip Inline: Polymorphic call under PolymorphicInlineThreshold: %d \tBytecode size: %d\tInlinee: %s (%s)\tCaller: %s (%s) \tRoot: %s (%s)\n"),
                 threshold.polymorphicInlineThreshold,
                 inlinee->GetByteCodeCount(),
@@ -811,32 +811,32 @@ bool InliningDecider::DeciderInlineIntoInliner(Js::FunctionBody * inlinee, Js::F
     }
 
     if (isConstructorCall)
-    {
+    {LOGMEIN("InliningDecider.cpp] 813\n");
 #pragma prefast(suppress: 6285, "logical-or of constants is by design")
         if (PHASE_OFF(Js::InlineConstructorsPhase, this->topFunc) ||
             PHASE_OFF(Js::InlineConstructorsPhase, inliner) ||
             PHASE_OFF(Js::InlineConstructorsPhase, inlinee) ||
             !CONFIG_FLAG(CloneInlinedPolymorphicCaches))
-        {
+        {LOGMEIN("InliningDecider.cpp] 819\n");
             return false;
         }
 
         if (PHASE_FORCE(Js::InlineConstructorsPhase, this->topFunc) ||
             PHASE_FORCE(Js::InlineConstructorsPhase, inliner) ||
             PHASE_FORCE(Js::InlineConstructorsPhase, inlinee))
-        {
+        {LOGMEIN("InliningDecider.cpp] 826\n");
             return true;
         }
 
         if (inlinee->HasDynamicProfileInfo() && inlinee->GetAnyDynamicProfileInfo()->HasPolymorphicFldAccess())
-        {
+        {LOGMEIN("InliningDecider.cpp] 831\n");
             // As of now this is not dependent on bytecodeInlinedThreshold.
             return true;
         }
 
         // Negative ConstructorInlineThreshold always disable constructor inlining
         if (threshold.constructorInlineThreshold < 0)
-        {
+        {LOGMEIN("InliningDecider.cpp] 838\n");
             INLINE_TESTTRACE(_u("INLINING: Skip Inline: Constructor with no polymorphic field access \tBytecode size: %d\tInlinee: %s (%s)\tCaller: %s (%s) \tRoot: %s (%s)\n"),
                 inlinee->GetByteCodeCount(),
                 inlinee->GetDisplayName(), inlinee->GetDebugNumberSet(debugStringBuffer),
@@ -853,14 +853,14 @@ bool InliningDecider::DeciderInlineIntoInliner(Js::FunctionBody * inlinee, Js::F
     }
 
     if (threshold.forLoopBody)
-    {
+    {LOGMEIN("InliningDecider.cpp] 855\n");
         inlineThreshold /= CONFIG_FLAG(InlineInLoopBodyScaleDownFactor);
     }
 
     if (inlineThreshold > 0 && inlineeByteCodeCount <= (uint)inlineThreshold)
-    {
+    {LOGMEIN("InliningDecider.cpp] 860\n");
         if (inlinee->GetLoopCount())
-        {
+        {LOGMEIN("InliningDecider.cpp] 862\n");
             IncrementNumberOfInlineesWithLoop();
         }
         return true;
@@ -872,12 +872,12 @@ bool InliningDecider::DeciderInlineIntoInliner(Js::FunctionBody * inlinee, Js::F
 }
 
 bool InliningDecider::ContinueInliningUserDefinedFunctions(uint32 bytecodeInlinedCount) const
-{
+{LOGMEIN("InliningDecider.cpp] 874\n");
 #if ENABLE_DEBUG_CONFIG_OPTIONS
     char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
 #endif
     if (PHASE_FORCE(Js::InlinePhase, this->topFunc) || bytecodeInlinedCount <= (uint)this->threshold.inlineCountMax)
-    {
+    {LOGMEIN("InliningDecider.cpp] 879\n");
         return true;
     }
 
@@ -892,12 +892,12 @@ bool InliningDecider::ContinueInliningUserDefinedFunctions(uint32 bytecodeInline
 // static
 void InliningDecider::TraceInlining(Js::FunctionBody *const inliner, const char16* inlineeName, const char16* inlineeFunctionIdandNumberString, uint inlineeByteCodeCount,
     Js::FunctionBody* topFunc, uint inlinedByteCodeCount, Js::FunctionBody *const inlinee, uint callSiteId, bool inLoopBody, uint builtIn)
-{
+{LOGMEIN("InliningDecider.cpp] 894\n");
     char16 debugStringBuffer[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
     char16 debugStringBuffer2[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
     char16 debugStringBuffer3[MAX_FUNCTION_BODY_DEBUG_STRING_SIZE];
     if (inlineeName == nullptr)
-    {
+    {LOGMEIN("InliningDecider.cpp] 899\n");
         int len = swprintf_s(debugStringBuffer3, MAX_FUNCTION_BODY_DEBUG_STRING_SIZE, _u("built In Id: %u"), builtIn);
         Assert(len > 14);
         inlineeName = debugStringBuffer3;
@@ -923,14 +923,14 @@ void InliningDecider::TraceInlining(Js::FunctionBody *const inliner, const char1
     // Now Trace inlining across files cases
 
     if (builtIn != -1)  // built-in functions
-    {
+    {LOGMEIN("InliningDecider.cpp] 925\n");
         return;
     }
 
     Assert(inliner && inlinee);
 
     if (inliner->GetSourceContextId() != inlinee->GetSourceContextId())
-    {
+    {LOGMEIN("InliningDecider.cpp] 932\n");
         INLINE_TESTTRACE(_u("INLINING_ACROSS_FILES: Inlinee: %s (%s)\tSize: %d\tCaller: %s (%s)\tSize: %d\tInlineCount: %d\tRoot: %s (%s)\tSize: %d\n"),
             inlinee->GetDisplayName(), inlinee->GetDebugNumberSet(debugStringBuffer), inlinee->GetByteCodeCount(),
             inliner->GetDisplayName(), inliner->GetDebugNumberSet(debugStringBuffer2), inliner->GetByteCodeCount(), inlinedByteCodeCount,

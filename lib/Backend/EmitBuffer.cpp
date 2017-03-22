@@ -16,7 +16,7 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::EmitBufferManager(Aren
     allocations(nullptr),
     scriptContext(scriptContext),
     processHandle(processHandle)
-{
+{LOGMEIN("EmitBuffer.cpp] 18\n");
 #if DBG_DUMP
     this->totalBytesCode = 0;
     this->totalBytesLoopBody = 0;
@@ -33,51 +33,51 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::EmitBufferManager(Aren
 //----------------------------------------------------------------------------
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::~EmitBufferManager()
-{
+{LOGMEIN("EmitBuffer.cpp] 35\n");
     Clear();
 }
 
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 void
 EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::Decommit()
-{
+{LOGMEIN("EmitBuffer.cpp] 42\n");
     FreeAllocations(false);
 }
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 void
 EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::Clear()
-{
+{LOGMEIN("EmitBuffer.cpp] 48\n");
     FreeAllocations(true);
 }
 
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 void
 EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::FreeAllocations(bool release)
-{
+{LOGMEIN("EmitBuffer.cpp] 55\n");
     AutoRealOrFakeCriticalSection<SyncObject> autoCs(&this->criticalSection);
 
 #if DBG_DUMP
     if (!release && PHASE_STATS1(Js::EmitterPhase))
-    {
+    {LOGMEIN("EmitBuffer.cpp] 60\n");
         this->DumpAndResetStats(Js::Configuration::Global.flags.Filename);
     }
 #endif
 
     TEmitBufferAllocation * allocation = this->allocations;
     while (allocation != nullptr)
-    {
+    {LOGMEIN("EmitBuffer.cpp] 67\n");
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
         if(CONFIG_FLAG(CheckEmitBufferPermissions))
-        {
+        {LOGMEIN("EmitBuffer.cpp] 70\n");
             CheckBufferPermissions(allocation);
         }
 #endif
         if (release)
-        {
+        {LOGMEIN("EmitBuffer.cpp] 75\n");
             this->allocationHeap.Free(allocation->allocation);
         }
         else if ((scriptContext != nullptr) && allocation->recorded)
-        {
+        {LOGMEIN("EmitBuffer.cpp] 79\n");
             // In case of ThunkEmitter the script context would be null and we don't want to track that as code size.
             this->scriptContext->GetThreadContext()->SubCodeSize(allocation->bytesCommitted);
             allocation->recorded = false;
@@ -86,7 +86,7 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::FreeAllocations(bool r
         allocation = allocation->nextAllocation;
     }
     if (release)
-    {
+    {LOGMEIN("EmitBuffer.cpp] 88\n");
         this->allocations = nullptr;
     }
     else
@@ -97,7 +97,7 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::FreeAllocations(bool r
 
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 bool EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::IsInHeap(__in void* address)
-{
+{LOGMEIN("EmitBuffer.cpp] 99\n");
     AutoRealOrFakeCriticalSection<SyncObject> autocs(&this->criticalSection);
     return this->allocationHeap.IsInHeap(address);
 }
@@ -109,19 +109,19 @@ public:
     AutoCustomHeapPointer(CustomHeap::Heap<TAlloc, TPreReservedAlloc> * allocationHeap, CustomHeap::Allocation* heapAllocation) :
         _allocationHeap(allocationHeap),
         _heapAllocation(heapAllocation)
-    {
+    {LOGMEIN("EmitBuffer.cpp] 111\n");
     }
 
     ~AutoCustomHeapPointer()
-    {
+    {LOGMEIN("EmitBuffer.cpp] 115\n");
         if (_heapAllocation)
-        {
+        {LOGMEIN("EmitBuffer.cpp] 117\n");
             _allocationHeap->Free(_heapAllocation);
         }
     }
 
     CustomHeap::Allocation* Detach()
-    {
+    {LOGMEIN("EmitBuffer.cpp] 123\n");
         CustomHeap::Allocation* allocation = _heapAllocation;
         Assert(allocation != nullptr);
         _heapAllocation = nullptr;
@@ -140,7 +140,7 @@ private:
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 EmitBufferAllocation<TAlloc, TPreReservedAlloc> *
 EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::NewAllocation(size_t bytes, ushort pdataCount, ushort xdataSize, bool canAllocInPreReservedHeapPageSegment, bool isAnyJittedCode)
-{
+{LOGMEIN("EmitBuffer.cpp] 142\n");
     FAULTINJECT_MEMORY_THROW(_u("JIT"), bytes);
 
     Assert(this->criticalSection.IsLocked());
@@ -149,9 +149,9 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::NewAllocation(size_t b
     CustomHeap::Allocation* heapAllocation = this->allocationHeap.Alloc(bytes, pdataCount, xdataSize, canAllocInPreReservedHeapPageSegment, isAnyJittedCode, &isAllJITCodeInPreReservedRegion);
 
     if (heapAllocation  == nullptr)
-    {
+    {LOGMEIN("EmitBuffer.cpp] 151\n");
         if (!JITManager::GetJITManager()->IsJITServer())
-        {
+        {LOGMEIN("EmitBuffer.cpp] 153\n");
             // This is used in interpreter scenario, thus we need to try to recover memory, if possible.
             // Can't simply throw as in JIT scenario, for which throw is what we want in order to give more mem to interpreter.
             JsUtil::ExternalApi::RecoverUnusedMemory();
@@ -160,7 +160,7 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::NewAllocation(size_t b
     }
 
     if (heapAllocation  == nullptr)
-    {
+    {LOGMEIN("EmitBuffer.cpp] 162\n");
         Js::Throw::OutOfMemory();
     }
 
@@ -191,17 +191,17 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::NewAllocation(size_t b
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 bool
 EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::FreeAllocation(void* address)
-{
+{LOGMEIN("EmitBuffer.cpp] 193\n");
     AutoRealOrFakeCriticalSection<SyncObject> autoCs(&this->criticalSection);
 
     TEmitBufferAllocation* previous = nullptr;
     TEmitBufferAllocation* allocation = allocations;
     while(allocation != nullptr)
-    {
+    {LOGMEIN("EmitBuffer.cpp] 199\n");
         if (address >= allocation->allocation->address && address < (allocation->allocation->address + allocation->bytesUsed))
-        {
+        {LOGMEIN("EmitBuffer.cpp] 201\n");
             if (previous == nullptr)
-            {
+            {LOGMEIN("EmitBuffer.cpp] 203\n");
                 this->allocations = allocation->nextAllocation;
             }
             else
@@ -210,7 +210,7 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::FreeAllocation(void* a
             }
 
             if ((scriptContext != nullptr) && allocation->recorded)
-            {
+            {LOGMEIN("EmitBuffer.cpp] 212\n");
                 this->scriptContext->GetThreadContext()->SubCodeSize(allocation->bytesCommitted);
             }
 
@@ -233,16 +233,16 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::FreeAllocation(void* a
 //----------------------------------------------------------------------------
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 bool EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::FinalizeAllocation(TEmitBufferAllocation *allocation, BYTE * dstBuffer)
-{
+{LOGMEIN("EmitBuffer.cpp] 235\n");
     Assert(this->criticalSection.IsLocked());
 
     DWORD bytes = allocation->BytesFree();
     if(bytes > 0)
-    {
+    {LOGMEIN("EmitBuffer.cpp] 240\n");
         BYTE* buffer = nullptr;
         this->GetBuffer(allocation, bytes, &buffer);
         if (!this->CommitBuffer(allocation, dstBuffer, 0, /*sourceBuffer=*/ nullptr, /*alignPad=*/ bytes))
-        {
+        {LOGMEIN("EmitBuffer.cpp] 244\n");
             return false;
         }
 
@@ -257,14 +257,14 @@ bool EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::FinalizeAllocatio
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 EmitBufferAllocation<TAlloc, TPreReservedAlloc>*
 EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::GetBuffer(TEmitBufferAllocation *allocation, __in size_t bytes, __deref_bcount(bytes) BYTE** ppBuffer)
-{
+{LOGMEIN("EmitBuffer.cpp] 259\n");
     Assert(this->criticalSection.IsLocked());
 
     Assert(allocation->BytesFree() >= bytes);
 
     // In case of ThunkEmitter the script context would be null and we don't want to track that as code size.
     if (scriptContext && !allocation->recorded)
-    {
+    {LOGMEIN("EmitBuffer.cpp] 266\n");
         this->scriptContext->GetThreadContext()->AddCodeSize(allocation->bytesCommitted);
         allocation->recorded = true;
     }
@@ -284,7 +284,7 @@ template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 EmitBufferAllocation<TAlloc, TPreReservedAlloc>*
 EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::AllocateBuffer(__in size_t bytes, __deref_bcount(bytes) BYTE** ppBuffer, ushort pdataCount /*=0*/, ushort xdataSize  /*=0*/, bool canAllocInPreReservedHeapPageSegment /*=false*/,
     bool isAnyJittedCode /* = false*/)
-{
+{LOGMEIN("EmitBuffer.cpp] 286\n");
     AutoRealOrFakeCriticalSection<SyncObject> autoCs(&this->criticalSection);
 
     Assert(ppBuffer != nullptr);
@@ -297,10 +297,10 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::AllocateBuffer(__in si
     MEMORY_BASIC_INFORMATION memBasicInfo;
     size_t resultBytes = VirtualQueryEx(this->processHandle, allocation->allocation->address, &memBasicInfo, sizeof(memBasicInfo));
     if (resultBytes == 0) 
-    {
+    {LOGMEIN("EmitBuffer.cpp] 299\n");
         MemoryOperationLastError::RecordLastError();
         if (this->processHandle != GetCurrentProcess())
-        {            
+        {LOGMEIN("EmitBuffer.cpp] 302\n");            
             return nullptr;
         }
     }
@@ -313,20 +313,20 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::AllocateBuffer(__in si
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 bool EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CheckCommitFaultInjection()
-{
+{LOGMEIN("EmitBuffer.cpp] 315\n");
     if (Js::Configuration::Global.flags.ForceOOMOnEBCommit == 0)
-    {
+    {LOGMEIN("EmitBuffer.cpp] 317\n");
         return false;
     }
 
     commitCount++;
 
     if (Js::Configuration::Global.flags.ForceOOMOnEBCommit == -1)
-    {
+    {LOGMEIN("EmitBuffer.cpp] 324\n");
         Output::Print(_u("Commit count: %d\n"), commitCount);
     }
     else if (commitCount == Js::Configuration::Global.flags.ForceOOMOnEBCommit)
-    {
+    {LOGMEIN("EmitBuffer.cpp] 328\n");
         return true;
     }
 
@@ -338,7 +338,7 @@ bool EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CheckCommitFaultI
 #if DBG
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 bool EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::IsBufferExecuteReadOnly(TEmitBufferAllocation * allocation)
-{
+{LOGMEIN("EmitBuffer.cpp] 340\n");
     AutoRealOrFakeCriticalSection<SyncObject> autoCs(&this->criticalSection);
     MEMORY_BASIC_INFORMATION memBasicInfo;
     size_t resultBytes = VirtualQuery(allocation->allocation->address, &memBasicInfo, sizeof(memBasicInfo));
@@ -348,7 +348,7 @@ bool EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::IsBufferExecuteRe
 
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 bool EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::ProtectBufferWithExecuteReadWriteForInterpreter(TEmitBufferAllocation* allocation)
-{
+{LOGMEIN("EmitBuffer.cpp] 350\n");
     Assert(this->criticalSection.IsLocked());
     Assert(allocation != nullptr);
     return (this->allocationHeap.ProtectAllocationWithExecuteReadWrite(allocation->allocation) == TRUE);
@@ -358,7 +358,7 @@ bool EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::ProtectBufferWith
 // Returns false if we OOM
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 bool EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CommitBufferForInterpreter(TEmitBufferAllocation* allocation, _In_reads_bytes_(bufferSize) BYTE* pBuffer, _In_ size_t bufferSize)
-{
+{LOGMEIN("EmitBuffer.cpp] 360\n");
     Assert(this->criticalSection.IsLocked());
 
     Assert(allocation != nullptr);
@@ -371,13 +371,13 @@ bool EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CommitBufferForIn
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
     if (CheckCommitFaultInjection())
-    {
+    {LOGMEIN("EmitBuffer.cpp] 373\n");
         return false;
     }
 #endif
 
     if (!JITManager::GetJITManager()->IsJITServer() && !this->allocationHeap.ProtectAllocationWithExecuteReadOnly(allocation->allocation))
-    {
+    {LOGMEIN("EmitBuffer.cpp] 379\n");
         return false;
     }
 
@@ -396,7 +396,7 @@ bool EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CommitBufferForIn
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 bool
 EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CommitBuffer(TEmitBufferAllocation* allocation, __out_bcount(bytes) BYTE* destBuffer, __in size_t bytes, __in_bcount(bytes) const BYTE* sourceBuffer, __in DWORD alignPad)
-{
+{LOGMEIN("EmitBuffer.cpp] 398\n");
     AutoRealOrFakeCriticalSection<SyncObject> autoCs(&this->criticalSection);
 
     Assert(destBuffer != nullptr);
@@ -411,7 +411,7 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CommitBuffer(TEmitBuff
 
     // Copy the contents and set the alignment pad
     while(bytesLeft != 0)
-    {
+    {LOGMEIN("EmitBuffer.cpp] 413\n");
         DWORD spaceInCurrentPage = AutoSystemInfo::PageSize - ((size_t)currentDestBuffer & (AutoSystemInfo::PageSize - 1));
         size_t bytesToChange = bytesLeft > spaceInCurrentPage ? spaceInCurrentPage : bytesLeft;
 
@@ -422,17 +422,17 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CommitBuffer(TEmitBuff
 
 #ifdef ENABLE_DEBUG_CONFIG_OPTIONS
         if (CheckCommitFaultInjection())
-        {
+        {LOGMEIN("EmitBuffer.cpp] 424\n");
             return false;
         }
 #endif
         if (!JITManager::GetJITManager()->IsJITServer() && !this->allocationHeap.ProtectAllocationWithExecuteReadWrite(allocation->allocation, (char*)readWriteBuffer))
-        {
+        {LOGMEIN("EmitBuffer.cpp] 429\n");
             return false;
         }
 
         if (alignPad != 0)
-        {
+        {LOGMEIN("EmitBuffer.cpp] 434\n");
             DWORD alignBytes = alignPad < spaceInCurrentPage ? alignPad : spaceInCurrentPage;
             CustomHeap::FillDebugBreak(currentDestBuffer, alignBytes);
 
@@ -449,7 +449,7 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CommitBuffer(TEmitBuff
 
         // If there are bytes still left to be copied then we should do the copy.
         if(bytesToChange > 0)
-        {
+        {LOGMEIN("EmitBuffer.cpp] 451\n");
             AssertMsg(alignPad == 0, "If we are copying right now - we should be done with setting alignment.");
 
             memcpy_s(currentDestBuffer, allocation->BytesFree(), sourceBuffer, bytesToChange);
@@ -463,7 +463,7 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CommitBuffer(TEmitBuff
         Assert(readWriteBuffer + readWriteBytes == currentDestBuffer);
 
         if (!JITManager::GetJITManager()->IsJITServer() && !this->allocationHeap.ProtectAllocationWithExecuteReadOnly(allocation->allocation, (char*)readWriteBuffer))
-        {
+        {LOGMEIN("EmitBuffer.cpp] 465\n");
             return false;
         }
     }
@@ -480,10 +480,10 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CommitBuffer(TEmitBuff
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 void
 EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CompletePreviousAllocation(TEmitBufferAllocation* allocation)
-{
+{LOGMEIN("EmitBuffer.cpp] 482\n");
     AutoRealOrFakeCriticalSection<SyncObject> autoCs(&this->criticalSection);
     if (allocation != nullptr)
-    {
+    {LOGMEIN("EmitBuffer.cpp] 485\n");
         allocation->bytesUsed = allocation->bytesCommitted;
     }
 }
@@ -492,7 +492,7 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CompletePreviousAlloca
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 void
 EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CheckBufferPermissions(TEmitBufferAllocation *allocation)
-{
+{LOGMEIN("EmitBuffer.cpp] 494\n");
     AutoRealOrFakeCriticalSection<SyncObject> autoCs(&this->criticalSection);
 
     if(allocation->bytesCommitted == 0)
@@ -504,16 +504,16 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CheckBufferPermissions
     SIZE_T size = allocation->bytesCommitted;
 
     while(1)
-    {
+    {LOGMEIN("EmitBuffer.cpp] 506\n");
         SIZE_T result = VirtualQuery(buffer, &memInfo, sizeof(memInfo));
         if(result == 0)
-        {
+        {LOGMEIN("EmitBuffer.cpp] 509\n");
             // VirtualQuery failed.  This is not an expected condition, but it would be benign for the purposes of this check.  Seems
             // to occur occasionally on process shutdown.
             break;
         }
         else if(memInfo.Protect == PAGE_EXECUTE_READWRITE)
-        {
+        {LOGMEIN("EmitBuffer.cpp] 515\n");
             Output::Print(_u("ERROR: Found PAGE_EXECUTE_READWRITE page!\n"));
 #ifdef DEBUG
             AssertMsg(FALSE, "Page was marked PAGE_EXECUTE_READWRITE");
@@ -525,7 +525,7 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CheckBufferPermissions
         // Figure out if we need to continue the query.  The returned size might be larger than the size we requested,
         // for instance if more pages were allocated directly afterward, with the same permissions.
         if(memInfo.RegionSize >= size)
-        {
+        {LOGMEIN("EmitBuffer.cpp] 527\n");
             break;
         }
 
@@ -546,9 +546,9 @@ EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::CheckBufferPermissions
 template <typename TAlloc, typename TPreReservedAlloc, class SyncObject>
 void
 EmitBufferManager<TAlloc, TPreReservedAlloc, SyncObject>::DumpAndResetStats(char16 const * filename)
-{
+{LOGMEIN("EmitBuffer.cpp] 548\n");
     if (this->totalBytesCommitted != 0)
-    {
+    {LOGMEIN("EmitBuffer.cpp] 550\n");
         size_t wasted = this->totalBytesCommitted - this->totalBytesCode - this->totalBytesAlignment;
         Output::Print(_u("Stats for %s: %s \n"), name, filename);
         Output::Print(_u("  Total code size      : %10d (%6.2f%% of committed)\n"), this->totalBytesCode,
