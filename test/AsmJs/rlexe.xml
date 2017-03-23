@@ -8,6 +8,12 @@
   </test>
   <test>
     <default>
+      <files>argTestMixed.js</files>
+      <compile-flags>-maic:0 -maxInterpretCount:0</compile-flags>
+    </default>
+  </test>
+  <test>
+    <default>
       <files>ArrayView.js</files>
       <baseline>ArrayView.baseline</baseline>
       <compile-flags>-testtrace:asmjs -simdjs</compile-flags>
