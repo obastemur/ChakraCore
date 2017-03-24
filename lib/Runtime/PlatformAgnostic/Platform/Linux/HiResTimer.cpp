@@ -12,12 +12,9 @@ namespace PlatformAgnostic
 {
 namespace DateTime
 {
-
     // This method is expected to return UTC time (See MSDN GetSystemTime)
-    double HiResTimer::GetSystemTime()
+    inline static double GetSystemTimeREAL()
     {
-// todo: remove/move this when we have BSD/UNIX folder
-// todo-osx: mach_absolute_time
 #ifndef __APPLE__
         struct timespec fast_time;
         // method below returns UTC time. So, nothing else is needed
@@ -25,10 +22,9 @@ namespace DateTime
         if (clock_gettime(CLOCK_REALTIME, &fast_time) == 0)
         {
             return (fast_time.tv_sec * DateTimeTicks_PerSecond)
-                   + (int32_t) (fast_time.tv_nsec / 1e6);
+            + (int32_t) (fast_time.tv_nsec / 1e6);
         }
 #endif
-
         // in case of clock_gettime fails we use the implementation below
         struct tm utc_tm;
         struct timeval timeval;
@@ -56,16 +52,34 @@ namespace DateTime
             if(old_sec != new_sec)
             {
                 milliseconds = 999;
-            }  
-        }                      
+            }
+        }
 
         milliseconds = (utc_tm.tm_hour * DateTimeTicks_PerHour)
                         + (utc_tm.tm_min * DateTimeTicks_PerMinute)
                         + (utc_tm.tm_sec * DateTimeTicks_PerSecond)
                         + milliseconds;
 
-        return Js::DateUtilities::TvFromDate(1900 + utc_tm.tm_year, utc_tm.tm_mon, 
+        return Js::DateUtilities::TvFromDate(1900 + utc_tm.tm_year, utc_tm.tm_mon,
                                             utc_tm.tm_mday - 1, milliseconds);
+    }
+
+    double HiResTimer::GetSystemTime()
+    {
+        static ULONGLONG prev_tick = GetTickCount64();
+        static double    prev_systime = GetSystemTimeREAL();
+
+        ULONGLONG current = GetTickCount64();
+        ULONGLONG diff = current - prev_tick;
+
+        if (diff > 2)
+        {
+            prev_systime = GetSystemTimeREAL();
+            diff = 0l;
+            prev_tick = GetTickCount64(); // reload latest
+        }
+
+        return prev_systime + (double)diff;
     }
 
     double HiResTimer::Now()
