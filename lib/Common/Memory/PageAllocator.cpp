@@ -111,21 +111,45 @@ SegmentBase<T>::Initialize(DWORD allocFlags, bool excludeGuardPages)
     }
 #endif
 
-    if (!this->GetAllocator()->RequestAlloc(totalPages * AutoSystemInfo::PageSize))
+    const size_t KB16 = addGuardPages ? 0 : 16384;
+    // Reduce the fragmentation by making sure the address_ptr % KB16 == 0
+    size_t totalRequest = (totalPages * AutoSystemInfo::PageSize) + KB16;
+
+    if (!this->GetAllocator()->RequestAlloc(totalRequest))
     {
         return false;
     }
 
-    this->address = (char *)GetAllocator()->GetVirtualAllocator()->Alloc(NULL, totalPages * AutoSystemInfo::PageSize, MEM_RESERVE | allocFlags, PAGE_READWRITE, this->IsInCustomHeapAllocator());
+    this->address = (char *)GetAllocator()->GetVirtualAllocator()->Alloc(NULL, totalRequest, MEM_RESERVE | allocFlags, PAGE_READWRITE, this->IsInCustomHeapAllocator());
 
     if (this->address == nullptr)
     {
-        this->GetAllocator()->ReportFailure(totalPages * AutoSystemInfo::PageSize);
+        this->GetAllocator()->ReportFailure(totalRequest);
         return false;
     }
 
     originalAddress = this->address;
     bool committed = (allocFlags & MEM_COMMIT) != 0;
+
+    if (KB16 != 0)
+    {
+        ULONG_PTR frontMemDifference = KB16 - (((ULONG_PTR)this->address) % KB16);
+        this->address += frontMemDifference;
+        if (committed)
+        {
+            // decommit front diff
+            GetAllocator()->GetVirtualAllocator()->Free(originalAddress, frontMemDifference, MEM_DECOMMIT);
+
+            // find the end address and decommit the rest
+            ULONG_PTR endMemDifference = KB16 - frontMemDifference;
+            char *trailingMemStart = this->address + (totalPages * AutoSystemInfo::PageSize);
+            GetAllocator()->GetVirtualAllocator()->Free(trailingMemStart, endMemDifference, MEM_DECOMMIT);
+            originalAddress = this->address;
+        }
+        // we are not going to allocate this extra KB16
+        this->GetAllocator()->ReportFree(KB16);
+    }
+
     if (addGuardPages)
     {
 #if DBG_DUMP
