@@ -204,6 +204,7 @@ protected:
 
     SecondaryAllocator* secondaryAllocator;
     char * address;
+    char * originalAddress;
     size_t segmentPageCount;
     uint trailingGuardPageCount;
     uint leadingGuardPageCount;

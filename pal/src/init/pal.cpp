@@ -101,6 +101,112 @@ static LPWSTR INIT_FindEXEPath(LPCSTR exe_name);
 extern void PROCDumpThreadList(void);
 #endif
 
+// ***** LOGGING IMPL. STARTS *****
+#include <stdarg.h>
+#define FIRST_LOG_THRESHOLD 2 * 1024 * 1024
+#define SKIP_FIRST 1 * 32 * 1024
+char LOGS[FIRST_LOG_THRESHOLD * 2];
+const size_t MAX_LOG_SIZE = FIRST_LOG_THRESHOLD * 4;
+
+long last_log = 0;
+bool skipped_enough = false;
+size_t total_bytes = 0;
+bool no_more_log = false;
+
+#define RE_FORMAT_LOGMEIN()   \
+  va_list args;               \
+  va_start(args, fmt);        \
+  size_t len_log = snprintf(log, 12048, fmt, args); \
+  va_end(args);               \
+  if (len_log == -1)          \
+      abort();                \
+  log[len_log] = 0
+
+void TRACE_IT3(const char* fmt, ...) {
+  if (no_more_log) return;
+
+  char log[12048];
+  size_t len = 0;
+
+  if (last_log == -1) {
+    RE_FORMAT_LOGMEIN();
+    fprintf(stdout, "%s", log);
+    total_bytes += strlen(log);
+    if (total_bytes > MAX_LOG_SIZE) {
+      fprintf(stdout, "NO_MORE_LOGS > 10Mb \n");
+      no_more_log = true;
+    }
+    fflush(stderr);
+    return;
+  }
+
+  if (skipped_enough)
+  {
+    RE_FORMAT_LOGMEIN();
+
+    for (; len < len_log; len++ ) {
+      LOGS[last_log + len] = log[len];
+    }
+  }
+  else
+  {
+    for (; fmt[len] != 0; len++ ) {
+      LOGS[last_log + len] = fmt[len];
+    }
+  }
+
+  if (!skipped_enough) {
+    total_bytes += len;
+    if (total_bytes > SKIP_FIRST) {
+      skipped_enough = true;
+      total_bytes = 0;
+    } else {
+      last_log = 0;
+      return;
+    }
+  }
+  last_log += len;
+  if (last_log > FIRST_LOG_THRESHOLD) {
+    LOGS[last_log] = 0;
+    fprintf(stdout, "%s", LOGS);
+    total_bytes += last_log;
+    last_log = -1;
+  }
+}
+
+static thread_local char tlogs[8192];
+static thread_local int tlog_count = 0;
+static int thread_counter = 1;
+static thread_local int thread_id = 0;
+void TRACE_IT2(const char* fmt, ...) {
+  if (no_more_log) return;
+  if (thread_id == 0) thread_id = thread_counter++;
+
+  tlogs[tlog_count++] = ((int)'0') + thread_id;
+  tlogs[tlog_count++] = ']';
+  size_t len = 0;
+  for (; fmt[len] != 0; len++ ) {
+    tlogs[tlog_count + len] = fmt[len];
+  }
+
+  tlog_count += len;
+
+  if (tlogs[tlog_count - 1] != '\n') {
+    tlogs[tlog_count++] = '\n';
+  }
+
+  if (tlog_count > 5000) {
+    char lll[8000];
+    for(int i=0;i<tlog_count;i++)lll[i] = tlogs[i];
+    lll[tlog_count] = 0;
+    tlog_count = 0;
+
+    TRACE_IT3(lll);
+  }
+}
+#undef RE_FORMAT_LOGMEIN
+// ***** LOGGING IMPL. ENDS *****
+
 /*++
 Function:
   Initialize
@@ -392,8 +498,6 @@ CLEANUP10:
 CLEANUP6:
 CLEANUP5:
     PROCCleanupInitialProcess();
-CLEANUP1d:
-    // Cleanup synchronization manager
 CLEANUP1c:
     // Cleanup object manager
 CLEANUP1b:
@@ -736,461 +840,4 @@ void PALInitUnlock(void)
         (PALIsThreadDataInitialized() ? InternalGetCurrentThread() : NULL);
 
     InternalLeaveCriticalSection(pThread, init_critsec);
-}
-
-
-/*++
-Function:
-    INIT_FormatCommandLine [Internal]
-
-Abstract:
-    This function converts an array of arguments (argv) into a Unicode
-    command-line for use by GetCommandLineW
-
-Parameters :
-    int argc : number of arguments in argv
-    char **argv : argument list in an array of NULL-terminated strings
-
-Return value :
-    pointer to Unicode command line. This is a buffer allocated with malloc;
-    caller is responsible for freeing it with free()
-
-Note : not all peculiarities of Windows command-line processing are supported;
-
--what is supported :
-    -arguments with white-space must be double quoted (we'll just double-quote
-     all arguments to simplify things)
-    -some characters must be escaped with \ : particularly, the double-quote,
-     to avoid confusion with the double-quotes at the start and end of
-     arguments, and \ itself, to avoid confusion with escape sequences.
--what is not supported:
-    -under Windows, \\ is interpreted as an escaped \ ONLY if it's followed by
-     an escaped double-quote \". \\\" is passed to argv as \", but \\a is
-     passed to argv as \\a... there may be other similar cases
-    -there may be other characters which must be escaped
---*/
-static LPWSTR INIT_FormatCommandLine (int argc, const char * const *argv)
-{
-    LPWSTR retval;
-    LPSTR command_line=NULL, command_ptr;
-    LPCSTR arg_ptr;
-    INT length, i,j;
-    BOOL bQuoted = FALSE;
-
-    /* list of characters that need no be escaped with \ when building the
-       command line. currently " and \ */
-    LPCSTR ESCAPE_CHARS="\"\\";
-
-    /* allocate temporary memory for the string. Play it safe :
-       double the length of each argument (in case they're composed
-       exclusively of escaped characters), and add 3 (for the double-quotes
-       and separating space). This is temporary anyway, we return a LPWSTR */
-    length=0;
-    for(i=0; i<argc; i++)
-    {
-        TRACE("argument %d is %s\n", i, argv[i]);
-        length+=3;
-        length+=strlen(argv[i])*2;
-    }
-    command_line = reinterpret_cast<LPSTR>(InternalMalloc(length));
-
-    if(!command_line)
-    {
-        ERROR("couldn't allocate memory for command line!\n");
-        return NULL;
-    }
-
-    command_ptr=command_line;
-    for(i=0; i<argc; i++)
-    {
-        /* double-quote at beginning of argument containing at least one space */
-        for(j = 0; (argv[i][j] != 0) && (!isspace((unsigned char) argv[i][j])); j++);
-
-        if (argv[i][j] != 0)
-        {
-            *command_ptr++='"';
-            bQuoted = TRUE;
-        }
-        /* process the argument one character at a time */
-        for(arg_ptr=argv[i]; *arg_ptr; arg_ptr++)
-        {
-            /* if character needs to be escaped, prepend a \ to it. */
-            if( strchr(ESCAPE_CHARS,*arg_ptr))
-            {
-                *command_ptr++='\\';
-            }
-
-            /* now we can copy the actual character over. */
-            *command_ptr++=*arg_ptr;
-        }
-        /* double-quote at end of argument; space to separate arguments */
-        if (bQuoted == TRUE)
-        {
-            *command_ptr++='"';
-            bQuoted = FALSE;
-        }
-        *command_ptr++=' ';
-    }
-    /* replace the last space with a NULL terminator */
-    command_ptr--;
-    *command_ptr='\0';
-
-    /* convert to Unicode */
-    i = MultiByteToWideChar(CP_ACP, 0,command_line, -1, NULL, 0);
-    if (i == 0)
-    {
-        ASSERT("MultiByteToWideChar failure\n");
-        InternalFree(command_line);
-        return NULL;
-    }
-
-    retval = reinterpret_cast<LPWSTR>(InternalMalloc((sizeof(WCHAR)*i)));
-    if(retval == NULL)
-    {
-        ERROR("can't allocate memory for Unicode command line!\n");
-        InternalFree(command_line);
-        return NULL;
-    }
-
-    if(!MultiByteToWideChar(CP_ACP, 0,command_line, i, retval, i))
-    {
-        ASSERT("MultiByteToWideChar failure\n");
-        InternalFree(retval);
-        retval = NULL;
-    }
-    else
-        TRACE("Command line is %s\n", command_line);
-
-    InternalFree(command_line);
-    return retval;
-}
-
-/*++
-Function:
-  INIT_FindEXEPath
-
-Abstract:
-    Determine the full, canonical path of the current executable by searching
-    $PATH.
-
-Parameters:
-    LPCSTR exe_name : file to search for
-
-Return:
-    pointer to buffer containing the full path. This buffer must be released
-    by the caller using free()
-
-Notes :
-    this function assumes that "exe_name" is in Unix style (no \)
-
-Notes 2:
-    This doesn't handle the case of directories with the desired name
-    (and directories are usually executable...)
---*/
-static LPWSTR INIT_FindEXEPath(LPCSTR exe_name)
-{
-#ifndef __APPLE__
-    CHAR real_path[PATH_MAX+1];
-    LPSTR env_path;
-    LPSTR path_ptr;
-    LPSTR cur_dir;
-    INT exe_name_length;
-    BOOL need_slash;
-    LPWSTR return_value;
-    INT return_size;
-    struct stat theStats;
-
-    /* if a path is specified, only search there */
-    if(strchr(exe_name, '/'))
-    {
-        if ( -1 == stat( exe_name, &theStats ) )
-        {
-            ERROR( "The file does not exist\n" );
-            return NULL;
-        }
-
-        if ( UTIL_IsExecuteBitsSet( &theStats ) )
-        {
-            if(!realpath(exe_name, real_path))
-            {
-                ERROR("realpath() failed!\n");
-                return NULL;
-            }
-
-            return_size=MultiByteToWideChar(CP_ACP,0,real_path,-1,NULL,0);
-            if ( 0 == return_size )
-            {
-                ASSERT("MultiByteToWideChar failure\n");
-                return NULL;
-            }
-
-            return_value = reinterpret_cast<LPWSTR>(InternalMalloc((return_size*sizeof(WCHAR))));
-            if ( NULL == return_value )
-            {
-                ERROR("Not enough memory to create full path\n");
-                return NULL;
-            }
-            else
-            {
-                if(!MultiByteToWideChar(CP_ACP, 0, real_path, -1,
-                                        return_value, return_size))
-                {
-                    ASSERT("MultiByteToWideChar failure\n");
-                    InternalFree(return_value);
-                    return_value = NULL;
-                }
-                else
-                {
-                    TRACE("full path to executable is %s\n", real_path);
-                }
-            }
-            return return_value;
-        }
-    }
-
-    /* no path was specified : search $PATH */
-
-    env_path=MiscGetenv("PATH");
-    if(!env_path || *env_path=='\0')
-    {
-        WARN("$PATH isn't set.\n");
-        goto last_resort;
-    }
-
-    /* get our own copy of env_path so we can modify it */
-    env_path=InternalStrdup(env_path);
-    if(!env_path)
-    {
-        ERROR("Not enough memory to copy $PATH!\n");
-        return NULL;
-    }
-
-    exe_name_length=strlen(exe_name);
-
-    cur_dir=env_path;
-
-    while(cur_dir)
-    {
-        LPSTR full_path;
-        struct stat theStats;
-
-        /* skip all leading ':' */
-        while(*cur_dir==':')
-        {
-            cur_dir++;
-        }
-        if(*cur_dir=='\0')
-        {
-            break;
-        }
-
-        /* cut string at next ':' */
-        path_ptr=strchr(cur_dir, ':');
-        if(path_ptr)
-        {
-            /* check if we need to add a '/' between the path and filename */
-            need_slash=(*(path_ptr-1))!='/';
-
-            /* NULL_terminate path element */
-            *path_ptr++='\0';
-        }
-        else
-        {
-            /* check if we need to add a '/' between the path and filename */
-            need_slash=(cur_dir[strlen(cur_dir)-1])!='/';
-        }
-
-        TRACE("looking for %s in %s\n", exe_name, cur_dir);
-
-        /* build tentative full file name */
-        int iLength = (strlen(cur_dir)+exe_name_length+2);
-        full_path = reinterpret_cast<LPSTR>(InternalMalloc(iLength));
-        if(!full_path)
-        {
-            ERROR("Not enough memory!\n");
-            break;
-        }
-
-        if (strcpy_s(full_path, iLength, cur_dir) != SAFECRT_SUCCESS)
-        {
-            ERROR("strcpy_s failed!\n");
-            InternalFree(full_path);
-            InternalFree(env_path);
-            return NULL;
-        }
-
-        if(need_slash)
-        {
-            if (strcat_s(full_path, iLength, "/") != SAFECRT_SUCCESS)
-            {
-                ERROR("strcat_s failed!\n");
-                InternalFree(full_path);
-                InternalFree(env_path);
-                return NULL;
-            }
-        }
-
-        if (strcat_s(full_path, iLength, exe_name) != SAFECRT_SUCCESS)
-        {
-            ERROR("strcat_s failed!\n");
-            InternalFree(full_path);
-            InternalFree(env_path);
-            return NULL;
-        }
-
-        /* see if file exists AND is executable */
-        if ( -1 != stat( full_path, &theStats ) )
-        {
-            if( UTIL_IsExecuteBitsSet( &theStats ) )
-            {
-                /* generate canonical path */
-                if(!realpath(full_path, real_path))
-                {
-                    ERROR("realpath() failed!\n");
-                    InternalFree(full_path);
-                    InternalFree(env_path);
-                    return NULL;
-                }
-                InternalFree(full_path);
-
-                return_size = MultiByteToWideChar(CP_ACP,0,real_path,-1,NULL,0);
-                if ( 0 == return_size )
-                {
-                    ASSERT("MultiByteToWideChar failure\n");
-                    InternalFree(env_path);
-                    return NULL;
-                }
-
-                return_value = reinterpret_cast<LPWSTR>(InternalMalloc((return_size*sizeof(WCHAR))));
-                if ( NULL == return_value )
-                {
-                    ERROR("Not enough memory to create full path\n");
-                    InternalFree(env_path);
-                    return NULL;
-                }
-
-                if(!MultiByteToWideChar(CP_ACP, 0, real_path, -1, return_value,
-                                    return_size))
-                {
-                    ASSERT("MultiByteToWideChar failure\n");
-                    InternalFree(return_value);
-                    return_value = NULL;
-                }
-                else
-                {
-                    TRACE("found %s in %s; real path is %s\n", exe_name,
-                          cur_dir,real_path);
-                }
-                InternalFree(env_path);
-                return return_value;
-            }
-        }
-        /* file doesn't exist : keep searching */
-        InternalFree(full_path);
-
-        /* path_ptr is NULL if there's no ':' after this directory */
-        cur_dir=path_ptr;
-    }
-    InternalFree(env_path);
-    TRACE("No %s found in $PATH (%s)\n", exe_name, MiscGetenv("PATH"));
-
-last_resort:
-    /* last resort : see if the executable is in the current directory. This is
-       possible if it comes from a exec*() call. */
-    if(0 == stat(exe_name,&theStats))
-    {
-        if ( UTIL_IsExecuteBitsSet( &theStats ) )
-        {
-            if(!realpath(exe_name, real_path))
-            {
-                ERROR("realpath() failed!\n");
-                return NULL;
-            }
-
-            return_size = MultiByteToWideChar(CP_ACP,0,real_path,-1,NULL,0);
-            if (0 == return_size)
-            {
-                ASSERT("MultiByteToWideChar failure\n");
-                return NULL;
-            }
-
-            return_value = reinterpret_cast<LPWSTR>(InternalMalloc((return_size*sizeof(WCHAR))));
-            if (NULL == return_value)
-            {
-                ERROR("Not enough memory to create full path\n");
-                return NULL;
-            }
-            else
-            {
-                if(!MultiByteToWideChar(CP_ACP, 0, real_path, -1,
-                                        return_value, return_size))
-                {
-                    ASSERT("MultiByteToWideChar failure\n");
-                    InternalFree(return_value);
-                    return_value = NULL;
-                }
-                else
-                {
-                    TRACE("full path to executable is %s\n", real_path);
-                }
-            }
-            return return_value;
-        }
-        else
-        {
-            ERROR("found %s in current directory, but it isn't executable!\n",
-                  exe_name);
-        }
-    }
-    else
-    {
-        TRACE("last resort failed : executable %s is not in the current "
-              "directory\n",exe_name);
-    }
-    ERROR("executable %s not found anywhere!\n", exe_name);
-    return NULL;
-#else // !__APPLE__
-    // On the Mac we can just directly ask the OS for the executable path.
-
-    CHAR exec_path[PATH_MAX+1];
-    LPWSTR return_value;
-    INT return_size;
-
-    uint32_t bufsize = sizeof(exec_path);
-    if (_NSGetExecutablePath(exec_path, &bufsize))
-    {
-        ASSERT("_NSGetExecutablePath failure\n");
-        return NULL;
-    }
-
-    return_size = MultiByteToWideChar(CP_ACP,0,exec_path,-1,NULL,0);
-    if (0 == return_size)
-    {
-        ASSERT("MultiByteToWideChar failure\n");
-        return NULL;
-    }
-
-    return_value = reinterpret_cast<LPWSTR>(InternalMalloc((return_size*sizeof(WCHAR))));
-    if (NULL == return_value)
-    {
-        ERROR("Not enough memory to create full path\n");
-        return NULL;
-    }
-    else
-    {
-        if(!MultiByteToWideChar(CP_ACP, 0, exec_path, -1,
-                                return_value, return_size))
-        {
-            ASSERT("MultiByteToWideChar failure\n");
-            InternalFree(return_value);
-            return_value = NULL;
-        }
-        else
-        {
-            TRACE("full path to executable is %s\n", exec_path);
-        }
-    }
-
-    return return_value;
-#endif // !__APPLE__
 }

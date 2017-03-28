@@ -47,6 +47,10 @@ Abstract:
 #include <ctype.h>
 #endif
 
+#define TRACE_IT
+
+void TRACE_IT2(const char* fmt, ...);
+
 #if defined(__APPLE__)
 #ifndef __IOS__
 #include "TargetConditionals.h"

@@ -229,6 +229,7 @@ CPalThread* AllocTHREAD()
 {
     CPalThread* pThread = NULL;
 
+    // xplat-todo: We do not need this here. simplify pal_thread.
     /* Get the lock */
     SPINLOCKAcquire(&free_threads_spinlock, 0);
 

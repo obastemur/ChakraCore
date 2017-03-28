@@ -32,6 +32,7 @@ template<typename T>
 SegmentBase<T>::SegmentBase(PageAllocatorBase<T> * allocator, size_t pageCount, bool enableWriteBarrier) :
     SegmentBaseCommon(allocator),
     address(nullptr),
+    originalAddress(nullptr),
     trailingGuardPageCount(0),
     leadingGuardPageCount(0),
     secondaryAllocPageCount(allocator->secondaryAllocPageCount),
@@ -59,8 +60,14 @@ SegmentBase<T>::~SegmentBase()
 
     if (this->address)
     {
-        char* originalAddress = this->address - (leadingGuardPageCount * AutoSystemInfo::PageSize);
-        GetAllocator()->GetVirtualAllocator()->Free(originalAddress, GetPageCount() * AutoSystemInfo::PageSize, MEM_RELEASE);
+        Assert(this->originalAddress != nullptr);
+        size_t totalRequest = GetPageCount() * AutoSystemInfo::PageSize;
+        if (this->leadingGuardPageCount == 0)
+        {
+            totalRequest += 16 * 1024;
+        }
+
+        GetAllocator()->GetVirtualAllocator()->Free(originalAddress, totalRequest, MEM_RELEASE);
         GetAllocator()->ReportFree(this->segmentPageCount * AutoSystemInfo::PageSize); //Note: We reported the guard pages free when we decommitted them during segment initialization
 #if defined(_M_X64_OR_ARM64) && defined(RECYCLER_WRITE_BARRIER_BYTE)
 #if ENABLE_DEBUG_CONFIG_OPTIONS
@@ -79,7 +86,6 @@ bool
 SegmentBase<T>::Initialize(DWORD allocFlags, bool excludeGuardPages)
 {
     Assert(this->address == nullptr);
-    char* originalAddress = nullptr;
     bool addGuardPages = false;
     if (!excludeGuardPages)
     {
@@ -107,24 +113,38 @@ SegmentBase<T>::Initialize(DWORD allocFlags, bool excludeGuardPages)
     if (Js::FaultInjection::Global.ShouldInjectFault(Js::FaultInjection::Global.NoThrow))
     {
         this->address = nullptr;
+        this->originalAddress = nullptr;
         return false;
     }
 #endif
 
-    if (!this->GetAllocator()->RequestAlloc(totalPages * AutoSystemInfo::PageSize))
+    Assert(minGuardPages >= 1); // Make sure addGuardPages == true means leadingGuardPageCount > 0
+    Assert(addGuardPages ? this->leadingGuardPageCount > 0 : true);
+
+    const size_t KB16 = this->leadingGuardPageCount != 0 ? 0 : 16384;
+    // Reduce the fragmentation by making sure the address_ptr % KB16 == 0
+    size_t totalRequest = (totalPages * AutoSystemInfo::PageSize) + KB16;
+
+    if (!this->GetAllocator()->RequestAlloc(totalRequest))
     {
         return false;
     }
 
-    this->address = (char *)GetAllocator()->GetVirtualAllocator()->Alloc(NULL, totalPages * AutoSystemInfo::PageSize, MEM_RESERVE | allocFlags, PAGE_READWRITE, this->IsInCustomHeapAllocator());
+    this->address = (char *)GetAllocator()->GetVirtualAllocator()->Alloc(NULL, totalRequest, MEM_RESERVE | allocFlags, PAGE_READWRITE, this->IsInCustomHeapAllocator());
 
     if (this->address == nullptr)
     {
-        this->GetAllocator()->ReportFailure(totalPages * AutoSystemInfo::PageSize);
+        this->GetAllocator()->ReportFailure(totalRequest);
         return false;
     }
 
-    originalAddress = this->address;
+    this->originalAddress = this->address;
+
+    if (KB16)
+    {
+        this->address += KB16 - (((ULONG_PTR)this->address) % KB16);
+    }
+
     bool committed = (allocFlags & MEM_COMMIT) != 0;
     if (addGuardPages)
     {
@@ -146,9 +166,10 @@ SegmentBase<T>::Initialize(DWORD allocFlags, bool excludeGuardPages)
 
     if (!GetAllocator()->CreateSecondaryAllocator(this, committed, &this->secondaryAllocator))
     {
-        GetAllocator()->GetVirtualAllocator()->Free(originalAddress, GetPageCount() * AutoSystemInfo::PageSize, MEM_RELEASE);
-        this->GetAllocator()->ReportFailure(GetPageCount() * AutoSystemInfo::PageSize);
+        GetAllocator()->GetVirtualAllocator()->Free(this->originalAddress, totalRequest, MEM_RELEASE);
+        this->GetAllocator()->ReportFailure(totalRequest);
         this->address = nullptr;
+        this->originalAddress = nullptr;
         return false;
     }
 
@@ -173,9 +194,10 @@ SegmentBase<T>::Initialize(DWORD allocFlags, bool excludeGuardPages)
 
     if (!registerBarrierResult)
     {
-        GetAllocator()->GetVirtualAllocator()->Free(originalAddress, GetPageCount() * AutoSystemInfo::PageSize, MEM_RELEASE);
-        this->GetAllocator()->ReportFailure(GetPageCount() * AutoSystemInfo::PageSize);
+        GetAllocator()->GetVirtualAllocator()->Free(this->originalAddress, totalRequest, MEM_RELEASE);
+        this->GetAllocator()->ReportFailure(totalRequest);
         this->address = nullptr;
+        this->originalAddress = nullptr;
         return false;
     }
 #endif
