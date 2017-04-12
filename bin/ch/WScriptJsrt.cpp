@@ -100,7 +100,8 @@ bool WScriptJsrt::CreateArgumentsObject(JsValueRef *argsObject)
     return true;
 }
 
-JsValueRef __stdcall WScriptJsrt::EchoCallback(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
+JsValueRef __stdcall WScriptJsrt::EchoCallback(JsValueRef callee, bool isConstructCall,
+    JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
 {
     for (unsigned int i = 1; i < argumentCount; i++)
     {
@@ -672,7 +673,8 @@ Error:
     return JS_INVALID_REFERENCE;
 }
 
-JsValueRef WScriptJsrt::DumpFunctionPositionCallback(JsValueRef callee, bool isConstructCall, JsValueRef * arguments, unsigned short argumentCount, void * callbackState)
+JsValueRef WScriptJsrt::DumpFunctionPositionCallback(JsValueRef callee, bool isConstructCall,
+    JsValueRef * arguments, unsigned short argumentCount, void * callbackState)
 {
     JsValueRef functionPosition = JS_INVALID_REFERENCE;
 
@@ -737,6 +739,89 @@ bool WScriptJsrt::InstallObjectsOnObject(JsValueRef object, const char* name,
     return true;
 }
 
+JsValueRef FlipCustomBit(JsValueRef callee, bool isConstructCall,
+    JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
+{
+    LPCWSTR errorMessage = _u("Wrong arguments. FlipCustomBit(object, flagIndex, \
+        unset) -> (JsObject, 0-31, true/false).");
+
+    JsValueRef obj, bitIndexRef;
+    int bitIndex = 0;
+    bool unset;
+
+    if (argumentCount < 4) goto Error;
+
+    obj = arguments[1];
+    bitIndexRef = arguments[2];
+
+    IfJsrtError(ChakraRTInterface::JsNumberToInt(bitIndexRef, &bitIndex));
+
+    if (bitIndex < 0 || bitIndex >= 32) goto Error;
+
+    IfJsrtError(ChakraRTInterface::JsBooleanToBool(arguments[3], &unset));
+    IfJsrtError(ChakraRTInterface::JsSetCustomObjectFlag(obj, (uint)bitIndex, unset));
+
+    return JS_INVALID_REFERENCE;
+Error:
+    JsValueRef errorObject;
+    JsValueRef errorMessageString;
+
+    ERROR_MESSAGE_TO_STRING(errorCode, errorMessage, errorMessageString);
+
+    if (errorCode != JsNoError)
+    {
+        errorCode = ChakraRTInterface::JsCreateError(errorMessageString, &errorObject);
+
+        if (errorCode != JsNoError)
+        {
+            ChakraRTInterface::JsSetException(errorObject);
+        }
+    }
+
+    return JS_INVALID_REFERENCE;
+}
+
+JsValueRef CheckCustomBit(JsValueRef callee, bool isConstructCall,
+    JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
+{
+    LPCWSTR errorMessage = _u("Wrong arguments. CheckCustomBit(object, flagIndex) \
+        -> boolean -> (JsObject, 0-31).");
+
+    JsValueRef obj, retVal = nullptr, bitIndexRef;
+    int bitIndex = 0;
+    bool isSet;
+
+    if (argumentCount < 3) goto Error;
+
+    obj = arguments[1];
+    bitIndexRef = arguments[2];
+    IfJsrtError(ChakraRTInterface::JsNumberToInt(bitIndexRef, &bitIndex));
+
+    if (bitIndex < 0 || bitIndex >= 32) goto Error;
+
+    IfJsrtError(ChakraRTInterface::JsCheckCustomObjectFlagIsSet(obj, (uint)bitIndex, &isSet));
+    IfJsrtError(ChakraRTInterface::JsBoolToBoolean(isSet, &retVal));
+
+    return retVal;
+Error:
+    JsValueRef errorObject;
+    JsValueRef errorMessageString;
+
+    ERROR_MESSAGE_TO_STRING(errorCode, errorMessage, errorMessageString);
+
+    if (errorCode != JsNoError)
+    {
+        errorCode = ChakraRTInterface::JsCreateError(errorMessageString, &errorObject);
+
+        if (errorCode != JsNoError)
+        {
+            ChakraRTInterface::JsSetException(errorObject);
+        }
+    }
+
+    return JS_INVALID_REFERENCE;
+}
+
 bool WScriptJsrt::Initialize()
 {
     HRESULT hr = S_OK;
@@ -764,6 +849,9 @@ bool WScriptJsrt::Initialize()
     IfFalseGo(WScriptJsrt::InstallObjectsOnObject(wscript, "LoadBinaryFile", LoadBinaryFileCallback));
     IfFalseGo(WScriptJsrt::InstallObjectsOnObject(wscript, "LoadTextFile", LoadTextFileCallback));
     IfFalseGo(WScriptJsrt::InstallObjectsOnObject(wscript, "Flag", FlagCallback));
+
+    IfFalseGo(WScriptJsrt::InstallObjectsOnObject(wscript, "FlipCustomBit",  FlipCustomBit));
+    IfFalseGo(WScriptJsrt::InstallObjectsOnObject(wscript, "CheckCustomBit", CheckCustomBit));
 
     // ToDo Remove
     IfFalseGo(WScriptJsrt::InstallObjectsOnObject(wscript, "Edit", EmptyCallback));

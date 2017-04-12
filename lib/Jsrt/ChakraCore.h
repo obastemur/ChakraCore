@@ -512,5 +512,44 @@ JsCreatePromise(
     _Out_ JsValueRef *promise,
     _Out_ JsValueRef *resolveFunction,
     _Out_ JsValueRef *rejectFunction);
+
+
+/// <summary>
+///     Sets a custom flag bit on a JavaScript Object to provide a fast lookup.
+/// </summary>
+/// <remarks>
+///     Requires an active script context.
+///     Object doesn't carry the custom flags onto new instances.
+///     When wrapped by another object, wrapped object doesn't carry the custom flags to wrapper.
+/// </remarks>
+/// <param name="value">Object to flip the flag bit.</param>
+/// <param name="flagIndex">Flag index to flip (from 0 to 31).</param>
+/// <param name="unset">unset(true) or set(false) flag.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+CHAKRA_API
+    JsSetCustomObjectFlag(
+        _In_ JsValueRef   value,
+        _In_ unsigned int flagIndex,
+        _In_ bool         unset);
+
+/// <summary>
+///     Check if custom flag bit on a JavaScript object was set
+/// </summary>
+/// <remarks>
+///     Requires an active script context.
+/// </remarks>
+/// <param name="value">Object to check the flag bit.</param>
+/// <param name="flagIndex">Flag index to check (from 0 to 31).</param>
+/// <param name="isSet">If `flagIndex` was set, isSet value will be true, otherwise false</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+CHAKRA_API
+    JsCheckCustomObjectFlagIsSet(
+        _In_  JsValueRef   value,
+        _In_  unsigned int flagIndex,
+        _Out_ bool         *isSet);
 #endif // CHAKRACOREBUILD_
 #endif // _CHAKRACORE_H_

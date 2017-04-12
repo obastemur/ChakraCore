@@ -21,6 +21,9 @@ namespace Js
         prototype(prototype),
         propertyCache(nullptr),
         flags(TypeFlagMask_None)
+#ifndef NTBUILD
+        ,customExternalFlags(0)
+#endif
     {
 #ifdef PROFILE_TYPES
         if (typeId < sizeof(scriptContext->typeCount)/sizeof(int))
@@ -43,6 +46,9 @@ namespace Js
         entryPoint(type->entryPoint),
         flags(type->flags),
         propertyCache(nullptr)
+#ifndef NTBUILD
+        ,customExternalFlags(type->customExternalFlags)
+#endif
     {
 #ifdef PROFILE_TYPES
         if (typeId < sizeof(javascriptLibrary->GetScriptContext()->typeCount)/sizeof(int))
@@ -67,6 +73,33 @@ namespace Js
             SetIsFalsy(true);
         }
     }
+
+#ifndef NTBUILD
+    bool Type::UpdateCustomExternalFlag (uint flagIndex, bool unset)
+    {
+        if (flagIndex >= sizeof(uint32_t) * 8) return false;
+        uint32_t flagValue = 1 << flagIndex;
+
+        if (unset)
+        {
+            customExternalFlags &= ~flagValue;
+        }
+        else
+        {
+            customExternalFlags |= flagValue;
+        }
+
+        return true;
+    }
+
+    bool Type::IsCustomExternalFlagSet (uint flagIndex)
+    {
+        if (flagIndex >= sizeof(uint32_t) * 8) return false;
+        uint32_t flagValue = 1 << flagIndex;
+
+        return (customExternalFlags & flagValue) != 0;
+    }
+#endif
 
     ScriptContext *
     Type::GetScriptContext() const

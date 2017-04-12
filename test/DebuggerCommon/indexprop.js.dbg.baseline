@@ -2,6 +2,7 @@
   {
     "this": {},
     "locals": {
+      "i": "number 109",
       "arguments": {
         "#__proto__": {
           "constructor": "function <large string>",
@@ -134,8 +135,7 @@
           "Symbol.toStringTag": "string Set",
           "[108]": "string 108"
         }
-      },
-      "i": "number 109"
+      }
     },
     "globals": {
       "WScript": {
@@ -154,6 +154,8 @@
         "LoadBinaryFile": "function LoadBinaryFile",
         "LoadTextFile": "function LoadTextFile",
         "Flag": "function Flag",
+        "FlipCustomBit": "function FlipCustomBit",
+        "CheckCustomBit": "function CheckCustomBit",
         "Edit": "function Edit",
         "Platform": "Object {...}",
         "Arguments": "Array []"

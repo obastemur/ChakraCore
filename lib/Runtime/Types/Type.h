@@ -101,5 +101,13 @@ namespace Js
 #if ENABLE_TTD
         void ExtractSnapType(TTD::NSSnapType::SnapType* sType, TTD::NSSnapType::SnapHandler* optHandler, TTD::SlabAllocator& alloc) const;
 #endif
+
+#ifndef NTBUILD
+    private:
+        Field(uint32_t) customExternalFlags;
+    public:
+        bool UpdateCustomExternalFlag (uint flagIndex, bool unset);
+        bool IsCustomExternalFlagSet  (uint flagIndex);
+#endif
     };
 };

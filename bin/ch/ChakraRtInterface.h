@@ -8,7 +8,7 @@ struct JsAPIHooks
 {
     typedef JsErrorCode (WINAPI *JsrtCreateRuntimePtr)(JsRuntimeAttributes attributes, JsThreadServiceCallback threadService, JsRuntimeHandle *runtime);
     typedef JsErrorCode (WINAPI *JsrtCreateContextPtr)(JsRuntimeHandle runtime, JsContextRef *newContext);
-    typedef JsErrorCode(WINAPI *JsrtSetObjectBeforeCollectCallbackPtr)(JsRef ref, void* callbackState, JsObjectBeforeCollectCallback objectBeforeCollectCallback);
+    typedef JsErrorCode (WINAPI *JsrtSetObjectBeforeCollectCallbackPtr)(JsRef ref, void* callbackState, JsObjectBeforeCollectCallback objectBeforeCollectCallback);
     typedef JsErrorCode (WINAPI *JsrtSetRuntimeMemoryLimitPtr)(JsRuntimeHandle runtime, size_t memoryLimit);
     typedef JsErrorCode (WINAPI *JsrtSetCurrentContextPtr)(JsContextRef context);
     typedef JsErrorCode (WINAPI *JsrtGetCurrentContextPtr)(JsContextRef* context);
@@ -24,6 +24,7 @@ struct JsAPIHooks
     typedef JsErrorCode (WINAPI *JsrtConvertValueToNumberPtr)(JsValueRef value, JsValueRef *numberValue);
     typedef JsErrorCode (WINAPI *JsrtConvertValueToBooleanPtr)(JsValueRef value, JsValueRef *booleanValue);
     typedef JsErrorCode (WINAPI *JsrtBooleanToBoolPtr)(JsValueRef value, bool *boolValue);
+    typedef JsErrorCode (WINAPI *JsrtBoolToBooleanPtr)(bool boolValue, JsValueRef* value);
     typedef JsErrorCode (WINAPI *JsrtGetPropertyPtr)(JsValueRef object, JsPropertyIdRef property, JsValueRef* value);
     typedef JsErrorCode (WINAPI *JsrtHasPropertyPtr)(JsValueRef object, JsPropertyIdRef property, bool *hasProperty);
     typedef JsErrorCode (WINAPI *JsInitializeModuleRecordPtr)(JsModuleRecord referencingModule, JsValueRef normalizedSpecifier, JsModuleRecord* moduleRecord);
@@ -78,6 +79,9 @@ struct JsAPIHooks
     typedef JsErrorCode(WINAPI *JsrtCreateExternalArrayBuffer)(void *data, unsigned int byteLength, JsFinalizeCallback finalizeCallback, void *callbackState, JsValueRef *result);
     typedef JsErrorCode(WINAPI *JsrtCreatePropertyId)(const char *name, size_t length, JsPropertyIdRef *propertyId);
 
+    typedef JsErrorCode(WINAPI *JsrtSetCustomObjectFlag)(JsValueRef value, uint flagIndex, bool unset);
+    typedef JsErrorCode(WINAPI *JsrtCheckCustomObjectFlagIsSet)(JsValueRef value, uint flagIndex, bool *isSet);
+
     typedef JsErrorCode(WINAPI *JsrtTTDCreateRecordRuntimePtr)(JsRuntimeAttributes attributes, size_t snapInterval, size_t snapHistoryLength, TTDOpenResourceStreamCallback openResourceStream, JsTTDWriteBytesToStreamCallback writeBytesToStream, JsTTDFlushAndCloseStreamCallback flushAndCloseStream, JsThreadServiceCallback threadService, JsRuntimeHandle *runtime);
     typedef JsErrorCode(WINAPI *JsrtTTDCreateReplayRuntimePtr)(JsRuntimeAttributes attributes, const char* infoUri, size_t infoUriCount, bool enableDebugging, TTDOpenResourceStreamCallback openResourceStream, JsTTDReadBytesFromStreamCallback readBytesFromStream, JsTTDFlushAndCloseStreamCallback flushAndCloseStream, JsThreadServiceCallback threadService, JsRuntimeHandle *runtime);
     typedef JsErrorCode(WINAPI *JsrtTTDCreateContextPtr)(JsRuntimeHandle runtime, bool useRuntimeTTDMode, JsContextRef *newContext);
@@ -113,6 +117,7 @@ struct JsAPIHooks
     JsrtConvertValueToNumberPtr pfJsrtConvertValueToNumber;
     JsrtConvertValueToBooleanPtr pfJsrtConvertValueToBoolean;
     JsrtBooleanToBoolPtr pfJsrtBooleanToBool;
+    JsrtBoolToBooleanPtr pfJsrtBoolToBoolean;
     JsrtGetPropertyPtr pfJsrtGetProperty;
     JsrtHasPropertyPtr pfJsrtHasProperty;
     JsParseModuleSourcePtr pfJsrtParseModuleSource;
@@ -165,6 +170,9 @@ struct JsAPIHooks
     JsrtCopyString pfJsrtCopyString;
     JsrtCreatePropertyId pfJsrtCreatePropertyId;
     JsrtCreateExternalArrayBuffer pfJsrtCreateExternalArrayBuffer;
+
+    JsrtSetCustomObjectFlag pfJsrtSetCustomObjectFlag;
+    JsrtCheckCustomObjectFlagIsSet pfJsrtCheckCustomObjectFlagIsSet;
 
     JsrtTTDCreateRecordRuntimePtr pfJsrtTTDCreateRecordRuntime;
     JsrtTTDCreateReplayRuntimePtr pfJsrtTTDCreateReplayRuntime;
@@ -296,6 +304,7 @@ public:
     static JsErrorCode WINAPI JsConvertValueToNumber(JsValueRef value, JsValueRef *numberValue) { return HOOK_JS_API(ConvertValueToNumber(value, numberValue)); }
     static JsErrorCode WINAPI JsConvertValueToBoolean(JsValueRef value, JsValueRef *booleanValue) { return HOOK_JS_API(ConvertValueToBoolean(value, booleanValue)); }
     static JsErrorCode WINAPI JsBooleanToBool(JsValueRef value, bool* boolValue) { return HOOK_JS_API(BooleanToBool(value, boolValue)); }
+    static JsErrorCode WINAPI JsBoolToBoolean(bool boolValue, JsValueRef* value) { return HOOK_JS_API(BoolToBoolean(boolValue, value)); }
     static JsErrorCode WINAPI JsGetProperty(JsValueRef object, JsPropertyIdRef property, JsValueRef* value) { return HOOK_JS_API(GetProperty(object, property, value)); }
     static JsErrorCode WINAPI JsHasProperty(JsValueRef object, JsPropertyIdRef property, bool *hasProperty) { return HOOK_JS_API(HasProperty(object, property, hasProperty)); }
     static JsErrorCode WINAPI JsCallFunction(JsValueRef function, JsValueRef* arguments, unsigned short argumentCount, JsValueRef *result) { return HOOK_JS_API(CallFunction(function, arguments, argumentCount, result)); }
@@ -367,6 +376,9 @@ public:
     static JsErrorCode WINAPI JsCreateString(const char *content, size_t length, JsValueRef *value) { return HOOK_JS_API(CreateString(content, length, value)); }
     static JsErrorCode WINAPI JsCreatePropertyId(const char *name, size_t length, JsPropertyIdRef *propertyId) { return HOOK_JS_API(CreatePropertyId(name, length, propertyId)); }
     static JsErrorCode WINAPI JsCreateExternalArrayBuffer(void *data, unsigned int byteLength, JsFinalizeCallback finalizeCallback, void *callbackState, JsValueRef *result)  { return HOOK_JS_API(CreateExternalArrayBuffer(data, byteLength, finalizeCallback, callbackState, result)); }
+
+    static JsErrorCode WINAPI JsSetCustomObjectFlag(JsValueRef value, uint flagIndex, bool unset) { return HOOK_JS_API(SetCustomObjectFlag(value, flagIndex, unset)); }
+    static JsErrorCode WINAPI JsCheckCustomObjectFlagIsSet(JsValueRef value, uint flagIndex, bool* isSet) { return HOOK_JS_API(CheckCustomObjectFlagIsSet(value, flagIndex, isSet)); }
 };
 
 class AutoRestoreContext

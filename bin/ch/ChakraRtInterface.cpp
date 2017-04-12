@@ -92,6 +92,7 @@ bool ChakraRTInterface::LoadChakraDll(ArgInfo* argInfo, HINSTANCE *outLibrary)
     m_jsApiHooks.pfJsrtConvertValueToNumber = (JsAPIHooks::JsrtConvertValueToNumberPtr)GetChakraCoreSymbol(library, "JsConvertValueToNumber");
     m_jsApiHooks.pfJsrtConvertValueToBoolean = (JsAPIHooks::JsrtConvertValueToBooleanPtr)GetChakraCoreSymbol(library, "JsConvertValueToBoolean");
     m_jsApiHooks.pfJsrtBooleanToBool = (JsAPIHooks::JsrtBooleanToBoolPtr)GetChakraCoreSymbol(library, "JsBooleanToBool");
+    m_jsApiHooks.pfJsrtBoolToBoolean = (JsAPIHooks::JsrtBoolToBooleanPtr)GetChakraCoreSymbol(library, "JsBoolToBoolean");
     m_jsApiHooks.pfJsrtGetProperty = (JsAPIHooks::JsrtGetPropertyPtr)GetChakraCoreSymbol(library, "JsGetProperty");
     m_jsApiHooks.pfJsrtHasProperty = (JsAPIHooks::JsrtHasPropertyPtr)GetChakraCoreSymbol(library, "JsHasProperty");
     m_jsApiHooks.pfJsrtCallFunction = (JsAPIHooks::JsrtCallFunctionPtr)GetChakraCoreSymbol(library, "JsCallFunction");
@@ -143,6 +144,9 @@ bool ChakraRTInterface::LoadChakraDll(ArgInfo* argInfo, HINSTANCE *outLibrary)
     m_jsApiHooks.pfJsrtCopyString = (JsAPIHooks::JsrtCopyString)GetChakraCoreSymbol(library, "JsCopyString");
     m_jsApiHooks.pfJsrtCreatePropertyId = (JsAPIHooks::JsrtCreatePropertyId)GetChakraCoreSymbol(library, "JsCreatePropertyId");
     m_jsApiHooks.pfJsrtCreateExternalArrayBuffer = (JsAPIHooks::JsrtCreateExternalArrayBuffer)GetChakraCoreSymbol(library, "JsCreateExternalArrayBuffer");
+
+    m_jsApiHooks.pfJsrtSetCustomObjectFlag = (JsAPIHooks::JsrtSetCustomObjectFlag)GetChakraCoreSymbol(library, "JsSetCustomObjectFlag");
+    m_jsApiHooks.pfJsrtCheckCustomObjectFlagIsSet = (JsAPIHooks::JsrtCheckCustomObjectFlagIsSet)GetChakraCoreSymbol(library, "JsCheckCustomObjectFlagIsSet");
 
     m_jsApiHooks.pfJsrtTTDCreateRecordRuntime = (JsAPIHooks::JsrtTTDCreateRecordRuntimePtr)GetChakraCoreSymbol(library, "JsTTDCreateRecordRuntime");
     m_jsApiHooks.pfJsrtTTDCreateReplayRuntime = (JsAPIHooks::JsrtTTDCreateReplayRuntimePtr)GetChakraCoreSymbol(library, "JsTTDCreateReplayRuntime");

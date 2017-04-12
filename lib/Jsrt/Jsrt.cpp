@@ -762,7 +762,7 @@ CHAKRA_API JsSetCurrentContext(_In_ JsContextRef newContext)
             }
             else
             {
-                if(oldScriptContext->IsTTDRecordModeEnabled()) 
+                if(oldScriptContext->IsTTDRecordModeEnabled())
                 {
                     //already know newScriptContext != oldScriptContext so don't check again
                     if(oldScriptContext->ShouldPerformRecordAction())
@@ -3872,7 +3872,7 @@ JsErrorCode TTDHandleBreakpointInfoAndInflate(TTD::EventLog* elog, int64_t snapT
                 Js::ScriptContext* bpContext = threadContext->TTDContext->LookupContextForScriptId(ctxIdList[i]);
 
                 //
-                //TODO: When we travel back some script may not be loaded (so no place to put BP). We need to update this 
+                //TODO: When we travel back some script may not be loaded (so no place to put BP). We need to update this
                 //      to do a more extensive maintaining of the preserved breakpoints and put them back as we add new script -- instead of just here.
                 //      However, for now just print a warn if the BP cannot be resolved.
                 //
@@ -4559,5 +4559,48 @@ CHAKRA_API JsCreatePromise(_Out_ JsValueRef *promise, _Out_ JsValueRef *resolve,
 
         return JsNoError;
     });
+}
+
+CHAKRA_API JsSetCustomObjectFlag(
+    _In_ JsValueRef   value,
+    _In_ unsigned int flagIndex,
+    _In_ bool         unset)
+{
+    PARAM_NOT_NULL(value);
+    VALIDATE_JSREF(value);
+
+    if (!Js::RecyclableObject::Is(value))
+    {
+        return JsErrorInvalidArgument;
+    }
+
+    Js::Type *type = Js::RecyclableObject::FromVar(value)->GetType();
+
+    if (!type->UpdateCustomExternalFlag(flagIndex, unset))
+    {
+        return JsErrorInvalidArgument;
+    }
+
+    return JsNoError;
+}
+
+CHAKRA_API JsCheckCustomObjectFlagIsSet(
+    _In_  JsValueRef   value,
+    _In_  unsigned int flagIndex,
+    _Out_ bool         *isSet)
+{
+    PARAM_NOT_NULL(value);
+    VALIDATE_JSREF(value);
+
+    if (!Js::RecyclableObject::Is(value))
+    {
+        return JsErrorInvalidArgument;
+    }
+
+    Js::Type *type = Js::RecyclableObject::FromVar(value)->GetType();
+
+    *isSet = type->IsCustomExternalFlagSet(flagIndex);
+
+    return JsNoError;
 }
 #endif // CHAKRACOREBUILD_

@@ -116,4 +116,6 @@
     JsCreatePropertyId
     JsCopyPropertyId
     JsCreatePromise
+    JsSetCustomObjectFlag
+    JsCheckCustomObjectFlagIsSet
 #endif

@@ -166,6 +166,8 @@
         "LoadBinaryFile": "function LoadBinaryFile",
         "LoadTextFile": "function LoadTextFile",
         "Flag": "function Flag",
+        "FlipCustomBit": "function FlipCustomBit",
+        "CheckCustomBit": "function CheckCustomBit",
         "Edit": "function Edit",
         "Platform": "Object {...}",
         "Arguments": "Array []"
@@ -398,6 +400,8 @@
         "LoadBinaryFile": "function LoadBinaryFile",
         "LoadTextFile": "function LoadTextFile",
         "Flag": "function Flag",
+        "FlipCustomBit": "function FlipCustomBit",
+        "CheckCustomBit": "function CheckCustomBit",
         "Edit": "function Edit",
         "Platform": "Object {...}",
         "Arguments": "Array []"
@@ -630,6 +634,8 @@
         "LoadBinaryFile": "function LoadBinaryFile",
         "LoadTextFile": "function LoadTextFile",
         "Flag": "function Flag",
+        "FlipCustomBit": "function FlipCustomBit",
+        "CheckCustomBit": "function CheckCustomBit",
         "Edit": "function Edit",
         "Platform": "Object {...}",
         "Arguments": "Array []"
@@ -862,6 +868,8 @@
         "LoadBinaryFile": "function LoadBinaryFile",
         "LoadTextFile": "function LoadTextFile",
         "Flag": "function Flag",
+        "FlipCustomBit": "function FlipCustomBit",
+        "CheckCustomBit": "function CheckCustomBit",
         "Edit": "function Edit",
         "Platform": "Object {...}",
         "Arguments": "Array []"
@@ -1094,6 +1102,8 @@
         "LoadBinaryFile": "function LoadBinaryFile",
         "LoadTextFile": "function LoadTextFile",
         "Flag": "function Flag",
+        "FlipCustomBit": "function FlipCustomBit",
+        "CheckCustomBit": "function CheckCustomBit",
         "Edit": "function Edit",
         "Platform": "Object {...}",
         "Arguments": "Array []"
