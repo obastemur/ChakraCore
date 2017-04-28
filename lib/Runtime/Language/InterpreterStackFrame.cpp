@@ -3385,9 +3385,9 @@ namespace Js
         } autoRestore(this);
 #endif
 
-        if ((m_flags & Js::InterpreterStackFrameFlags_FromBailOut) && !(m_flags & InterpreterStackFrameFlags_ProcessingBailOutFromEHCode))
+        if (this->ehBailoutData)
         {
-            if (this->ehBailoutData)
+            if ((m_flags & Js::InterpreterStackFrameFlags_FromBailOut) && !(m_flags & InterpreterStackFrameFlags_ProcessingBailOutFromEHCode))
             {
                 m_flags |= Js::InterpreterStackFrameFlags_ProcessingBailOutFromEHCode;
                 EHBailoutData * topLevelEHBailoutData = this->ehBailoutData;
@@ -3401,6 +3401,7 @@ namespace Js
                 this->ehBailoutData = nullptr;
             }
         }
+
 #ifdef ASMJS_PLAT
         if( GetFunctionBody()->GetIsAsmjsMode() )
         {
