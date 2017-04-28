@@ -1540,11 +1540,11 @@ namespace Js
         {
 #if DBG
             Js::JavascriptStackWalker walker(intArray->GetScriptContext());
-            Js::JavascriptFunction* caller = NULL;
+            Js::JavascriptFunction* caller = nullptr;
             bool foundScriptCaller = false;
             while(walker.GetCaller(&caller))
             {
-                if(caller != NULL && Js::ScriptFunction::Is(caller))
+                if(caller != nullptr && Js::ScriptFunction::Test(caller))
                 {
                     foundScriptCaller = true;
                     break;
@@ -1972,11 +1972,11 @@ namespace Js
         {
 #if DBG
             Js::JavascriptStackWalker walker(intArray->GetScriptContext());
-            Js::JavascriptFunction* caller = NULL;
+            Js::JavascriptFunction* caller = nullptr;
             bool foundScriptCaller = false;
             while(walker.GetCaller(&caller))
             {
-                if(caller != NULL && Js::ScriptFunction::Is(caller))
+                if(caller != nullptr && Js::ScriptFunction::Test(caller))
                 {
                     foundScriptCaller = true;
                     break;
@@ -2169,11 +2169,11 @@ namespace Js
         {
 #if DBG
             Js::JavascriptStackWalker walker(fArray->GetScriptContext());
-            Js::JavascriptFunction* caller = NULL;
+            Js::JavascriptFunction* caller = nullptr;
             bool foundScriptCaller = false;
             while(walker.GetCaller(&caller))
             {
-                if(caller != NULL && Js::ScriptFunction::Is(caller))
+                if(caller != nullptr && Js::ScriptFunction::Test(caller))
                 {
                     foundScriptCaller = true;
                     break;
@@ -2837,7 +2837,7 @@ namespace Js
     {
 #if ENABLE_COPYONACCESS_ARRAY
         JavascriptLibrary::CheckAndConvertCopyOnAccessNativeIntArray<Var>(this);
-#endif 
+#endif
         int32 value = 0;
         return this->DirectGetItemAt(index, &value) ? WritableData : None;
     }
@@ -3753,7 +3753,7 @@ namespace Js
         uint64 fromIndex64 = 0;
 
         // The evaluation of method arguments may change the type of the array. Hence, we do that prior to the actual helper method calls.
-        // The if clause of the conditional statement below applies to an JavascriptArray or TypedArray instances. The rest of the conditional 
+        // The if clause of the conditional statement below applies to an JavascriptArray or TypedArray instances. The rest of the conditional
         // clauses apply to an ES5Array or other valid Javascript objects.
         if ((pArr || TypedArrayBase::Is(obj)) && (length.IsSmallIndex() || length.IsUint32Max()))
         {
