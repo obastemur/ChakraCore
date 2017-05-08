@@ -147,7 +147,7 @@ void TRACE_IT(long ID) {
 
   if (start_tick == 0) start_tick = rdtsc();
 
-  CALL_LOG[LOG_COUNT++] = ID;
+//  CALL_LOG[LOG_COUNT++] = ID;
   IDS_COUNT[ID]++;
   if (LAST_ID != -1) {
     IDS[LAST_ID] += rdtsc() - start_tick;

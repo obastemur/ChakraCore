@@ -346,10 +346,11 @@ public:
 
 // Implementation
 private:
-    void AssertRange(BVIndex i) const { Assert(i < bitCount); }
 
-    const BVUnit * BitsFromIndex(BVIndex i) const {TRACE_IT(21397); AssertRange(i); return &this->data[BVUnit::Position(i)]; }
-    BVUnit * BitsFromIndex(BVIndex i) {TRACE_IT(21398); AssertRange(i); return &this->data[BVUnit::Position(i)]; }
+    inline void AssertRange(BVIndex i) const { Assert(i < bitCount); }
+
+    const BVUnit * BitsFromIndex(BVIndex i) const { AssertRange(i); return &this->data[BVUnit::Position(i)]; }
+    BVUnit * BitsFromIndex(BVIndex i) { AssertRange(i); return &this->data[BVUnit::Position(i)]; }
 
     const BVUnit * BeginUnit() const {TRACE_IT(21399); return &this->data[0]; }
     BVUnit * BeginUnit() {TRACE_IT(21400); return &this->data[0]; }
@@ -407,7 +408,7 @@ public:
     }
 
     void Clear(BVIndex i)
-    {TRACE_IT(21410);
+    {
         AssertRange(i);
         this->BitsFromIndex(i)->Clear(BVUnit::Offset(i));
     }
