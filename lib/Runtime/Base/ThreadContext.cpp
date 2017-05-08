@@ -1623,10 +1623,17 @@ _NOINLINE //Win8 947081: might use wrong _AddressOfReturnAddress() if this and c
 bool
 ThreadContext::IsStackAvailable(size_t size)
 {
+    bool stackAvailable = true;
+    FAULTINJECT_STACK_PROBE
+
+    if (size == 0 && stackAvailable)
+    {
+        return true;
+    }
+
     TRACE_IT(37115);
     size_t sp = (size_t)_AddressOfReturnAddress();
     size_t stackLimit = this->GetStackLimitForCurrentThread();
-    bool stackAvailable = (sp > size && (sp - size) > stackLimit);
 
     // Verify that JIT'd frames didn't mess up the ABI stack alignment
     Assert(((uintptr_t)sp & (AutoSystemInfo::StackAlign - 1)) == (sizeof(void*) & (AutoSystemInfo::StackAlign - 1)));
@@ -1635,10 +1642,12 @@ ThreadContext::IsStackAvailable(size_t size)
     this->GetStackProber()->AdjustKnownStackLimit(sp, size);
 #endif
 
-    FAULTINJECT_STACK_PROBE
     if (stackAvailable)
     {TRACE_IT(37116);
-        return true;
+        if (sp > size && (sp - size) > stackLimit)
+        {
+            return true;
+        }
     }
 
     if (sp <= stackLimit)
