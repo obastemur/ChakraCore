@@ -43,7 +43,7 @@ namespace Js
 
     public:
         static DWORD GetJavascriptLibraryOffset() {TRACE_IT(67694); return offsetof(Type, javascriptLibrary); }
-        inline TypeId GetTypeId() const {TRACE_IT(67695); return typeId; }
+        inline TypeId GetTypeId() const { return typeId; }
         void SetTypeId(TypeId typeId) {TRACE_IT(67696); this->typeId = typeId; }
         RecyclableObject* GetPrototype() const { return prototype; }
         JavascriptMethod GetEntryPoint() const { return entryPoint; }

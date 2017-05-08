@@ -35,27 +35,27 @@ namespace Js
 
 #if INT32VAR
     inline bool TaggedInt::Is(Var aValue)
-    {TRACE_IT(52961);
+    {
         bool result = (((uintptr_t) aValue) >> VarTag_Shift) == AtomTag;
         if(result)
-        {TRACE_IT(52962);
+        {
             Assert((uintptr_t)aValue >> 32 == (AtomTag << 16));
         }
         return result;
     }
 
     inline bool TaggedInt::Is(intptr_t aValue)
-    {TRACE_IT(52963);
+    {
         bool result = (aValue >> VarTag_Shift) == AtomTag;
         if (result)
-        {TRACE_IT(52964);
+        {
             Assert((aValue >> 32) == (AtomTag << 16));
         }
         return result;
     }
 
     inline bool TaggedInt::IsPair(Var aLeft, Var aRight)
-    {TRACE_IT(52965);
+    {
         uint32 tags = (uint32)((uint64)aLeft >> 32 | (uint64)aRight >> 48);
         bool result = (tags == AtomTag_Pair);
         AssertMsg(result == (TaggedInt::Is(aLeft) && TaggedInt::Is(aRight)), "TaggedInt::IsPair() logic is incorrect");

@@ -98,7 +98,7 @@ ValueType::ValueType() : bits(Uninitialized.bits)
 }
 
 ValueType::ValueType(const Bits bits) : bits(bits)
-{TRACE_IT(52986);
+{
 }
 
 ValueType ValueType::Verify(const Bits bits)
@@ -1509,12 +1509,12 @@ ValueType ValueType::FromArray(
 }
 
 bool ValueType::operator ==(const ValueType other) const
-{TRACE_IT(53155);
+{
     return bits == other.bits;
 }
 
 bool ValueType::operator !=(const ValueType other) const
-{TRACE_IT(53156);
+{
     return !(*this == other);
 }
 
