@@ -1623,7 +1623,6 @@ _NOINLINE //Win8 947081: might use wrong _AddressOfReturnAddress() if this and c
 bool
 ThreadContext::IsStackAvailable(size_t size)
 {
-    //if (size == 0) return;
     TRACE_IT(37115);
     size_t sp = (size_t)_AddressOfReturnAddress();
     size_t stackLimit = this->GetStackLimitForCurrentThread();
